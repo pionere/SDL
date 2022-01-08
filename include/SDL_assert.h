@@ -30,6 +30,9 @@
 extern "C" {
 #endif
 
+#if SDL_ASSERT_DISABLED
+#define SDL_ASSERT_LEVEL 0
+#endif
 #ifndef SDL_ASSERT_LEVEL
 #ifdef SDL_DEFAULT_ASSERT_LEVEL
 #define SDL_ASSERT_LEVEL SDL_DEFAULT_ASSERT_LEVEL
@@ -184,10 +187,6 @@ extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
 #else
 #   error Unknown assertion level.
 #endif
-
-/* this assertion is never disabled at any level. */
-#define SDL_assert_always(condition) SDL_enabled_assert(condition)
-
 
 /**
  * A callback that fires when an SDL assertion fails.

@@ -491,7 +491,7 @@ file(GLOB SOURCE_FILES
 if(SDL_ASSERTIONS STREQUAL "auto")
   # Do nada - use optimization settings to determine the assertion level
 elseif(SDL_ASSERTIONS STREQUAL "disabled")
-  set(SDL_DEFAULT_ASSERT_LEVEL 0)
+  set(SDL_ASSERT_DISABLED 1)
 elseif(SDL_ASSERTIONS STREQUAL "release")
   set(SDL_DEFAULT_ASSERT_LEVEL 1)
 elseif(SDL_ASSERTIONS STREQUAL "enabled")

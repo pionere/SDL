@@ -244,6 +244,7 @@
 #undef HAVE_SENSORSAPI_H
 
 /* SDL internal assertion support */
+#undef SDL_ASSERT_DISABLED
 #undef SDL_DEFAULT_ASSERT_LEVEL
 
 /* Allow disabling of core subsystems */
