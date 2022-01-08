@@ -224,6 +224,10 @@ if(USE_GCC OR USE_CLANG)
 endif()
 
 # Default option knobs
+set(OPT_DEF_DYNAPI ON)
+if(IOS OR EMSCRIPTEN OR WINDOWS_STORE OR RISCOS OR PSP OR VITA OR clang_analyzer OR native_client)
+  set(OPT_DEF_DYNAPI OFF)
+endif()
 if(APPLE OR ARCH_64 OR MSVC_CLANG)
   if(NOT "${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm")
     set(OPT_DEF_SSEMATH ON)
@@ -372,6 +376,7 @@ endforeach()
 
 option_string(SDL_ASSERTIONS "Enable internal sanity checks (auto/disabled/release/enabled/paranoid)" "auto")
 #set_option(SDL_DEPENDENCY_TRACKING "Use gcc -MMD -MT dependency tracking" ON)
+set_option(SDL_DYNAPI              "Use dynamic API" ${OPT_DEF_DYNAPI})
 set_option(SDL_LIBC                "Use the system C library" ${OPT_DEF_LIBC})
 set_option(SDL_GCC_ATOMICS         "Use gcc builtin atomics" ${OPT_DEF_GCC_ATOMICS})
 set_option(SDL_ASSEMBLY            "Enable assembly routines" ${OPT_DEF_ASM})
@@ -990,13 +995,16 @@ endif()
 
 if(UNIX OR APPLE)
   # Relevant for Unix/Darwin only
-  set(DYNAPI_NEEDS_DLOPEN 1)
   CheckDLOPEN()
   if(SDL_LOADSO AND HAVE_DLOPEN)
     set(SDL_LOADSO_DLOPEN 1)
     file(GLOB DLOPEN_SOURCES ${SDL2_SOURCE_DIR}/src/loadso/dlopen/*.c)
     set(SOURCE_FILES ${SOURCE_FILES} ${DLOPEN_SOURCES})
     set(HAVE_SDL_LOADSO TRUE)
+  endif()
+  if(NOT HAVE_DLOPEN)
+    # we need dlopen(), but don't have it....
+    set(SDL_DYNAPI OFF)
   endif()
 endif()
 
@@ -2439,6 +2447,12 @@ endif()
 if(SDL_VULKAN)
   set(SDL_VIDEO_VULKAN 1)
   set(HAVE_VULKAN TRUE)
+endif()
+
+if(SDL_DYNAPI)
+  #set(SDL_DYNAMIC_API 1)
+  target_compile_definitions(sdl-build-options INTERFACE DYNAPI_BUILD)
+  set(HAVE_DYNAPI TRUE)
 endif()
 
 # Dummies

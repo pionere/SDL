@@ -5325,7 +5325,7 @@ static struct
     SDL_free_func free_func;
     SDL_atomic_t num_allocations;
 } s_mem = {
-    real_malloc, real_calloc, real_realloc, real_free, { 0 }
+    (SDL_malloc_func)real_malloc, (SDL_calloc_func)real_calloc, (SDL_realloc_func)real_realloc, (SDL_free_func)real_free, { 0 }
 };
 
 void SDL_GetMemoryFunctions(SDL_malloc_func *malloc_func,

@@ -462,9 +462,6 @@
 #undef SDL_ARM_SIMD_BLITTERS
 #undef SDL_ARM_NEON_BLITTERS
 
-/* Whether SDL_DYNAMIC_API needs dlopen() */
-#undef DYNAPI_NEEDS_DLOPEN
-
 /* Enable ime support */
 #undef SDL_USE_IME
 
