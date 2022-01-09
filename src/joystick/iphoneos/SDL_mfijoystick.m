@@ -20,6 +20,8 @@
 */
 #include "../../SDL_internal.h"
 
+#ifdef SDL_JOYSTICK_IOS
+
 /* This is the iOS implementation of the SDL joystick API */
 #include "SDL_events.h"
 #include "SDL_joystick.h"
@@ -1777,5 +1779,7 @@ SDL_JoystickDriver SDL_IOS_JoystickDriver =
     IOS_JoystickQuit,
     IOS_JoystickGetGamepadMapping
 };
+
+#endif /* SDL_JOYSTICK_IOS */
 
 /* vi: set ts=4 sw=4 expandtab: */
