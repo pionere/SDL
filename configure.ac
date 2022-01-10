@@ -542,6 +542,14 @@ if test x$enable_misc != xyes; then
 else
     SUMMARY_modules="${SUMMARY_modules} misc"
 fi
+AC_ARG_ENABLE(locale,
+[AS_HELP_STRING([--enable-locale], [Enable the locale subsystem [default=yes]])],
+              , enable_locale=yes)
+if test x$enable_locale != xyes; then
+    AC_DEFINE(SDL_LOCALE_DISABLED, 1, [ ])
+else
+    SUMMARY_modules="${SUMMARY_modules} locale"
+fi
 AC_ARG_ENABLE(loadso,
 [AS_HELP_STRING([--enable-loadso], [Enable the shared object loading subsystem [default=yes]])],
               , enable_loadso=yes)
@@ -3731,10 +3739,11 @@ case "$host" in
             SOURCES="$SOURCES $srcdir/src/misc/unix/*.c"
             have_misc=yes
         fi
-
-        SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
-        have_locale=yes
-
+        # Set up files for the locale library
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
           case $ARCH in
@@ -3918,9 +3927,10 @@ case "$host" in
             have_misc=yes
         fi
         # Use the Windows locale APIs.
-        SOURCES="$SOURCES $srcdir/src/locale/windows/*.c"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/windows/*.c"
+            have_locale=yes
+        fi
         # Set up files for the video library
         if test x$enable_video = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_WINDOWS, 1, [ ])
@@ -4111,9 +4121,10 @@ case "$host" in
             have_misc=yes
         fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/haiku/*.cc"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/haiku/*.cc"
+            have_locale=yes
+        fi
         # The Haiku platform requires special setup.
         SOURCES="$srcdir/src/main/haiku/*.cc $SOURCES"
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lroot -lbe -lmedia -lgame -ldevice -ltextencoding"
@@ -4139,9 +4150,10 @@ case "$host" in
             have_misc=yes
         fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_COREAUDIO, 1, [ ])
@@ -4253,9 +4265,10 @@ case "$host" in
             have_misc=yes
         fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
-        have_locale=yes
-
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/macosx/*.m"
+            have_locale=yes
+        fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
             AC_DEFINE(SDL_AUDIO_DRIVER_COREAUDIO, 1, [ ])
@@ -4390,8 +4403,10 @@ case "$host" in
             have_timers=yes
         fi
         # Set up files for the locale library
-        SOURCES="$SOURCES $srcdir/src/locale/emscripten/*.c"
-        have_locale=yes
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/emscripten/*.c"
+            have_locale=yes
+        fi
         ;;
     *-*-riscos*)
         ARCH=riscos
@@ -4457,8 +4472,10 @@ case "$host" in
             SOURCES="$SOURCES $srcdir/src/core/os2/geniconv/*.c"
         fi
         # Use the Unix locale APIs.
-        SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
-        have_locale=yes
+        if test x$enable_locale = xyes; then
+            SOURCES="$SOURCES $srcdir/src/locale/unix/*.c"
+            have_locale=yes
+        fi
         # Set up files for the video library
         if test x$enable_video = xyes; then
             AC_DEFINE(SDL_VIDEO_DRIVER_OS2, 1, [ ])
@@ -4535,9 +4552,15 @@ AC_SUBST([INSTALL_SDL2_CONFIG], [$enable_sdl2_config])
 # Verify that we have all the platform specific files we need
 
 if test x$have_misc != xyes; then
+    if test x$enable_misc = xyes; then
+        AC_DEFINE(SDL_MISC_DUMMY, 1, [ ])
+    fi
     SOURCES="$SOURCES $srcdir/src/misc/dummy/*.c"
 fi
 if test x$have_locale != xyes; then
+    if test x$enable_locale = xyes; then
+        AC_DEFINE(SDL_LOCALE_DUMMY, 1, [ ])
+    fi
     SOURCES="$SOURCES $srcdir/src/locale/dummy/*.c"
 fi
 if test x$have_joystick != xyes; then
@@ -4572,7 +4595,7 @@ if test x$have_timers != xyes; then
 fi
 if test x$have_filesystem != xyes; then
     if test x$enable_filesystem = xyes; then
-        AC_DEFINE(SDL_FILESYSTEM_DISABLED, 1, [ ])
+        AC_DEFINE(SDL_FILESYSTEM_DUMMY, 1, [ ])
     fi
     SOURCES="$SOURCES $srcdir/src/filesystem/dummy/*.c"
 fi
