@@ -999,9 +999,13 @@ if(UNIX OR APPLE)
     set(SOURCE_FILES ${SOURCE_FILES} ${DLOPEN_SOURCES})
     set(HAVE_SDL_LOADSO TRUE)
   endif()
-  if(NOT HAVE_DLOPEN)
-    # we need dlopen(), but don't have it....
-    set(SDL_DYNAPI OFF)
+  # dynapi on unix/apple requires dlopen()
+  if(SDL_DYNAPI AND HAVE_DLOPEN)
+    set(HAVE_DYNAPI TRUE)
+  endif()
+else()
+  if(SDL_DYNAPI)
+    set(HAVE_DYNAPI TRUE)
   endif()
 endif()
 
@@ -2463,10 +2467,9 @@ if(SDL_VULKAN)
   set(HAVE_VULKAN TRUE)
 endif()
 
-if(SDL_DYNAPI)
+if(HAVE_DYNAPI)
   #set(SDL_DYNAMIC_API 1)
   target_compile_definitions(sdl-build-options INTERFACE DYNAPI_BUILD)
-  set(HAVE_DYNAPI TRUE)
 endif()
 
 # Dummies
