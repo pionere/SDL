@@ -422,6 +422,15 @@ SOURCES="$SOURCES $srcdir/src/locale/*.c"
 
 dnl Enable/disable various subsystems of the SDL library
 
+AC_ARG_ENABLE(dynapi,
+[AS_HELP_STRING([--enable-dynapi], [Use dynamic API [default=yes]])],
+              , enable_dynapi=yes)
+if test x$enable_dynapi = xyes; then
+  case "$host" in
+        *-*-emscripten*|*-ios-*|*-*-riscos*|*-nacl|*-pnacl)
+                enable_dynapi=no;;
+  esac
+fi
 AC_ARG_ENABLE(atomic,
 [AS_HELP_STRING([--enable-atomic], [Enable the atomic operations subsystem [default=yes]])],
               , enable_atomic=yes)
@@ -3317,8 +3326,6 @@ dnl Check for the dlfcn.h interface for dynamically loading objects
 dnl NOTE: CheckDLOPEN is called only for relevant platforms
 CheckDLOPEN()
 {
-    AC_DEFINE(DYNAPI_NEEDS_DLOPEN, 1, [ ])
-
     AC_CHECK_HEADER(dlfcn.h,have_dlfcn_h=yes,have_dlfcn_h=no)
 
     have_dlopen=no
@@ -3334,6 +3341,9 @@ CheckDLOPEN()
           SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
           have_loadso=yes
        fi
+    fi
+    if test x$enable_dynapi = xyes -a x$have_dlopen = xyes; then
+       have_dynapi=yes
     fi
 }
 
@@ -3924,6 +3934,9 @@ case "$host" in
         CheckVulkan
         CheckDIRECTX
         CheckHIDAPI
+        if test x$enable_dynapi = xyes; then
+            have_dynapi=yes
+        fi
 
         # Set up the core platform files
         SOURCES="$SOURCES $srcdir/src/core/windows/*.c"
@@ -4555,6 +4568,12 @@ else
     AC_MSG_RESULT(no)
 fi
 AC_SUBST([INSTALL_SDL2_CONFIG], [$enable_sdl2_config])
+
+# Enable dynapi
+
+if test x$have_dynapi = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DDYNAPI_BUILD"
+fi
 
 # Verify that we have all the platform specific files we need
 

@@ -808,6 +808,7 @@ enable_assertions
 enable_dependency_tracking
 enable_libc
 enable_gcc_atomics
+enable_dynapi
 enable_atomic
 enable_audio
 enable_video
@@ -1586,6 +1587,7 @@ Optional Features:
                           Use gcc -MMD -MT dependency tracking [default=yes]
   --enable-libc           Use the system C library [default=yes]
   --enable-gcc-atomics    Use gcc builtin atomics [default=yes]
+  --enable-dynapi         Use dynamic API [default=yes]
   --enable-atomic         Enable the atomic operations subsystem [default=yes]
   --enable-audio          Enable the audio subsystem [default=yes]
   --enable-video          Enable the video subsystem [default=yes]
@@ -17957,6 +17959,17 @@ SOURCES="$SOURCES $srcdir/src/video/yuv2rgb/*.c"
 SOURCES="$SOURCES $srcdir/src/locale/*.c"
 
 
+# Check whether --enable-dynapi was given.
+if test "${enable_dynapi+set}" = set; then :
+  enableval=$enable_dynapi;
+else
+  case "$host" in
+        *-*-emscripten*|*-ios-*|*-*-riscos*|*-nacl|*-pnacl)
+                enable_dynapi=no;;
+        *)
+                enable_dynapi=yes;;
+  esac
+fi
 # Check whether --enable-atomic was given.
 if test "${enable_atomic+set}" = set; then :
   enableval=$enable_atomic;
@@ -24962,9 +24975,6 @@ fi
 CheckDLOPEN()
 {
 
-$as_echo "#define DYNAPI_NEEDS_DLOPEN 1" >>confdefs.h
-
-
     ac_fn_c_check_header_mongrel "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default"
 if test "x$ac_cv_header_dlfcn_h" = xyes; then :
   have_dlfcn_h=yes
@@ -25072,6 +25082,9 @@ $as_echo "#define SDL_LOADSO_DLOPEN 1" >>confdefs.h
           SOURCES="$SOURCES $srcdir/src/loadso/dlopen/*.c"
           have_loadso=yes
        fi
+    fi
+    if test x$enable_dynapi = xyes -a x$have_dlopen = xyes; then
+          have_dynapi=yes
     fi
 }
 
@@ -26076,6 +26089,10 @@ $as_echo "#define SDL_TIMER_UNIX 1" >>confdefs.h
         CheckDIRECTX
         CheckHIDAPI
 
+        # Enable dynapi
+        if test x$enable_dynapi = xyes; then
+            have_dynapi=yes
+        fi
         # Set up the core platform files
         SOURCES="$SOURCES $srcdir/src/core/windows/*.c"
         # Set up files for the misc library
@@ -26883,6 +26900,11 @@ $as_echo "no" >&6; }
 fi
 INSTALL_SDL2_CONFIG=$enable_sdl2_config
 
+# Enable dynapi
+
+if test x$have_dynapi = xyes; then
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -DDYNAPI_BUILD"
+fi
 
 # Verify that we have all the platform specific files we need
 
