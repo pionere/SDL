@@ -25,6 +25,9 @@
 #include "SDL_thread.h"
 #include "SDL_systhread_c.h"
 
+#if SDL_THREADS_DISABLED
+#error You should not be here.
+#endif
 
 struct SDL_mutex
 {
@@ -72,9 +75,6 @@ SDL_DestroyMutex(SDL_mutex * mutex)
 int
 SDL_LockMutex(SDL_mutex * mutex)
 {
-#if SDL_THREADS_DISABLED
-    return 0;
-#else
     SDL_threadID this_thread;
 
     if (mutex == NULL) {
@@ -95,16 +95,12 @@ SDL_LockMutex(SDL_mutex * mutex)
     }
 
     return 0;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 /* try Lock the mutex */
 int
 SDL_TryLockMutex(SDL_mutex * mutex)
 {
-#if SDL_THREADS_DISABLED
-    return 0;
-#else
     int retval = 0;
     SDL_threadID this_thread;
 
@@ -128,16 +124,12 @@ SDL_TryLockMutex(SDL_mutex * mutex)
     }
 
     return retval;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 /* Unlock the mutex */
 int
 SDL_mutexV(SDL_mutex * mutex)
 {
-#if SDL_THREADS_DISABLED
-    return 0;
-#else
     if (mutex == NULL) {
         return SDL_SetError("Passed a NULL mutex");
     }
@@ -159,7 +151,6 @@ SDL_mutexV(SDL_mutex * mutex)
         SDL_SemPost(mutex->sem);
     }
     return 0;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

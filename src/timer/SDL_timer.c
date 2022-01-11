@@ -28,7 +28,7 @@
 
 /* #define DEBUG_TIMERS */
 
-#if !defined(__EMSCRIPTEN__) || !SDL_THREADS_DISABLED
+#if !defined(__EMSCRIPTEN__) || !(SDL_THREADS_DISABLED || SDL_THREAD_DUMMY)
 
 typedef struct _SDL_Timer
 {

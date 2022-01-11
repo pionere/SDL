@@ -2595,8 +2595,8 @@ endif()
 
 # We always need to have threads and timers around
 if(NOT HAVE_SDL_THREADS)
-  set(SDL_THREADS_DISABLED 1)
-  file(GLOB THREADS_SOURCES ${SDL2_SOURCE_DIR}/src/thread/generic/*.c)
+  set(SDL_THREAD_DUMMY 1)
+  file(GLOB THREADS_SOURCES ${SDL2_SOURCE_DIR}/src/thread/dummy/*.c)
   set(SOURCE_FILES ${SOURCE_FILES} ${THREADS_SOURCES})
 endif()
 if(NOT HAVE_SDL_TIMERS)

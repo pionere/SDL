@@ -4590,9 +4590,9 @@ if test x$have_sensor != xyes; then
 fi
 if test x$have_threads != xyes; then
     if test x$enable_threads = xyes; then
-        AC_DEFINE(SDL_THREADS_DISABLED, 1, [ ])
+        AC_DEFINE(SDL_THREAD_DUMMY, 1, [ ])
     fi
-    SOURCES="$SOURCES $srcdir/src/thread/generic/*.c"
+    SOURCES="$SOURCES $srcdir/src/thread/dummy/*.c"
 fi
 if test x$have_timers != xyes; then
     if test x$enable_timers = xyes; then

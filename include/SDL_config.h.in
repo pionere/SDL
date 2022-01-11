@@ -349,6 +349,7 @@
 #undef SDL_LOADSO_OS2
 
 /* Enable various threading systems */
+#undef SDL_THREAD_DUMMY
 #undef SDL_THREAD_GENERIC_COND_SUFFIX
 #undef SDL_THREAD_PTHREAD
 #undef SDL_THREAD_PTHREAD_RECURSIVE_MUTEX

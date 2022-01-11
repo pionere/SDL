@@ -55,7 +55,7 @@ write_pipe(int fd, const void* buffer, size_t total_length, size_t *pos)
     sigemptyset(&sig_set);
     sigaddset(&sig_set, SIGPIPE);  
 
-#if SDL_THREADS_DISABLED
+#if SDL_THREADS_DISABLED || SDL_THREAD_DUMMY
     sigprocmask(SIG_BLOCK, &sig_set, &old_sig_set);
 #else
     pthread_sigmask(SIG_BLOCK, &sig_set, &old_sig_set);
@@ -77,7 +77,7 @@ write_pipe(int fd, const void* buffer, size_t total_length, size_t *pos)
 
     sigtimedwait(&sig_set, 0, &zerotime);
 
-#if SDL_THREADS_DISABLED
+#if SDL_THREADS_DISABLED || SDL_THREAD_DUMMY
     sigprocmask(SIG_SETMASK, &old_sig_set, NULL);
 #else
     pthread_sigmask(SIG_SETMASK, &old_sig_set, NULL);

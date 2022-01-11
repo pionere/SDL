@@ -26,7 +26,7 @@
 #include "SDL_stdinc.h"
 #include "SDL_thread.h"
 
-#if !SDL_THREADS_DISABLED
+#if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <pthread.h>
@@ -198,13 +198,13 @@ rtkit_setpriority_realtime(pid_t thread, int rt_priority)
 #define rtkit_max_realtime_priority 99
 
 #endif /* dbus */
-#endif /* threads */
+#endif /* !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY */
 
 /* this is a public symbol, so it has to exist even if threads are disabled. */
 int
 SDL_LinuxSetThreadPriority(Sint64 threadID, int priority)
 {
-#if SDL_THREADS_DISABLED
+#if SDL_THREADS_DISABLED || SDL_THREAD_DUMMY
     return SDL_Unsupported();
 #else
     if (setpriority(PRIO_PROCESS, (id_t)threadID, priority) == 0) {
@@ -230,14 +230,14 @@ SDL_LinuxSetThreadPriority(Sint64 threadID, int priority)
 #endif
 
     return SDL_SetError("setpriority() failed");
-#endif
+#endif /* SDL_THREADS_DISABLED || SDL_THREAD_DUMMY */
 }
 
 /* this is a public symbol, so it has to exist even if threads are disabled. */
 int
 SDL_LinuxSetThreadPriorityAndPolicy(Sint64 threadID, int sdlPriority, int schedPolicy)
 {
-#if SDL_THREADS_DISABLED
+#if SDL_THREADS_DISABLED || SDL_THREAD_DUMMY
     return SDL_Unsupported();
 #else
     int osPriority;
@@ -293,7 +293,7 @@ SDL_LinuxSetThreadPriorityAndPolicy(Sint64 threadID, int sdlPriority, int schedP
 #endif
 
     return SDL_SetError("setpriority() failed");
-#endif
+#endif /* SDL_THREADS_DISABLED || SDL_THREAD_DUMMY */
 }
 
 #endif  /* __LINUX__ */
