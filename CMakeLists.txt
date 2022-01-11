@@ -2465,6 +2465,77 @@ elseif(PSP)
       pspvram
       GL
     )
+
+elseif(OS2)
+  list(APPEND EXTRA_CFLAGS "-DOS2EMX_PLAIN_CHAR")
+  list(APPEND EXTRA_CFLAGS "-DBUILD_SDL")
+
+  file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/os2/*.c)
+  set(SOURCE_FILES ${SOURCE_FILES} ${CORE_SOURCES})
+  if(NOT (HAVE_ICONV AND HAVE_ICONV_H))
+    file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/os2/geniconv/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${CORE_SOURCES})
+  endif()
+
+  if(SDL_THREADS)
+    set(SDL_THREAD_OS2 1)
+    file(GLOB OS2_THREAD_SOURCES ${SDL2_SOURCE_DIR}/src/thread/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_THREAD_SOURCES})
+    set(HAVE_SDL_THREADS TRUE)
+  endif()
+
+  if(SDL_TIMERS)
+    set(SDL_TIMER_UNIX 1)
+    file(GLOB OS2_TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_TIMER_SOURCES})
+    set(HAVE_SDL_TIMERS TRUE)
+  endif()
+
+  if(SDL_LOADSO)
+    set(SDL_LOADSO_OS2 1)
+    file(GLOB OS2_LOADSO_SOURCES ${SDL2_SOURCE_DIR}/src/loadso/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_LOADSO_SOURCES})
+    set(HAVE_SDL_LOADSO TRUE)
+  endif()
+
+  if(SDL_FILESYSTEM)
+    set(SDL_FILESYSTEM_OS2 1)
+    file(GLOB FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${FILESYSTEM_SOURCES})
+    set(HAVE_SDL_FILESYSTEM TRUE)
+  endif()
+
+  if(SDL_LOCALE)
+    file(GLOB LOCALE_SOURCES ${SDL2_SOURCE_DIR}/src/locale/unix/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${LOCALE_SOURCES})
+    set(HAVE_SDL_LOCALE TRUE)
+  endif()
+
+  if(SDL_VIDEO)
+    set(SDL_VIDEO_DRIVER_OS2 1)
+    file(GLOB OS2_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_VIDEO_SOURCES})
+    set(HAVE_SDL_VIDEO TRUE)
+  endif()
+
+  if(SDL_AUDIO)
+    set(SDL_AUDIO_DRIVER_OS2 1)
+    file(GLOB OS2_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_AUDIO_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+    list(APPEND EXTRA_LIBS mmpm2)
+  endif()
+
+  if(SDL_JOYSTICK)
+    set(SDL_JOYSTICK_OS2 1)
+    file(GLOB OS2_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/os2/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${OS2_JOYSTICK_SOURCES})
+    set(HAVE_SDL_JOYSTICK TRUE)
+  endif()
+
+  if(SDL_HIDAPI)
+    CheckHIDAPI()
+  endif()
 endif()
 
 if(HAVE_VULKAN AND NOT SDL_LOADSO)
@@ -2789,7 +2860,6 @@ if(NOT WINDOWS_STORE)
   add_library(SDL2::SDL2main ALIAS SDL2main)
   target_include_directories(SDL2main BEFORE PRIVATE "${SDL2_BINARY_DIR}/include")
   target_include_directories(SDL2main PUBLIC "$<BUILD_INTERFACE:${SDL2_SOURCE_DIR}/include>" $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>)
-  set(_INSTALL_LIBS "SDL2main")
   if (NOT ANDROID)
     set_target_properties(SDL2main PROPERTIES DEBUG_POSTFIX "${SDL_CMAKE_DEBUG_POSTFIX}")
   endif()
@@ -2835,7 +2905,6 @@ if(SDL_SHARED)
     endif()
     set_target_properties(SDL2 PROPERTIES STATIC_LIBRARY_FLAGS "/NODEFAULTLIB")
   endif()
-  set(_INSTALL_LIBS "SDL2" ${_INSTALL_LIBS})
   target_link_libraries(SDL2 PRIVATE ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   target_include_directories(SDL2 BEFORE PRIVATE "${SDL2_BINARY_DIR}/include")
   target_include_directories(SDL2 PUBLIC "$<BUILD_INTERFACE:${SDL2_SOURCE_DIR}/include>;$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>;$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/SDL2>")
@@ -2867,7 +2936,6 @@ if(SDL_STATIC)
   endif()
   # TODO: Win32 platforms keep the same suffix .lib for import and static
   # libraries - do we need to consider this?
-  set(_INSTALL_LIBS "SDL2-static" ${_INSTALL_LIBS})
   target_link_libraries(SDL2-static PRIVATE ${EXTRA_LIBS} ${EXTRA_LDFLAGS})
   target_include_directories(SDL2-static BEFORE PRIVATE "${SDL2_BINARY_DIR}/include")
   target_include_directories(SDL2-static PUBLIC "$<BUILD_INTERFACE:${SDL2_SOURCE_DIR}/include>" $<INSTALL_INTERFACE:include> $<INSTALL_INTERFACE:include/SDL2>)
@@ -2889,10 +2957,26 @@ if(SDL_TEST)
 endif()
 
 ##### Installation targets #####
-install(TARGETS ${_INSTALL_LIBS} EXPORT SDL2Targets
-  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+if(SDL_SHARED)
+  install(TARGETS SDL2 EXPORT SDL2Targets
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+endif()
+
+if(NOT WINDOWS_STORE)
+  install(TARGETS SDL2main EXPORT SDL2mainTargets
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+endif()
+
+if(SDL_STATIC)
+  install(TARGETS SDL2-static EXPORT SDL2staticTargets
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+endif()
 
 ##### Export files #####
 if (WINDOWS AND NOT MINGW)
@@ -2907,11 +2991,30 @@ write_basic_package_version_file("${CMAKE_BINARY_DIR}/SDL2ConfigVersion.cmake"
   COMPATIBILITY AnyNewerVersion
 )
 
-install(EXPORT SDL2Targets
-  FILE SDL2Targets.cmake
-  NAMESPACE SDL2::
-  DESTINATION ${PKG_PREFIX}
-)
+if(SDL_SHARED)
+  install(EXPORT SDL2Targets
+    FILE SDL2Targets.cmake
+    NAMESPACE SDL2::
+    DESTINATION ${PKG_PREFIX}
+  )
+endif()
+
+if(NOT WINDOWS_STORE)
+  install(EXPORT SDL2mainTargets
+    FILE SDL2mainTargets.cmake
+    NAMESPACE SDL2::
+    DESTINATION ${PKG_PREFIX}
+  )
+endif()
+
+if(SDL_STATIC)
+  install(EXPORT SDL2staticTargets
+    FILE SDL2staticTargets.cmake
+    NAMESPACE SDL2::
+    DESTINATION ${PKG_PREFIX}
+  )
+endif()
+
 install(
   FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/SDL2Config.cmake
@@ -2940,7 +3043,7 @@ if(NOT (WINDOWS OR CYGWIN) OR MINGW)
   if(SDL_SHARED)
     set(SOEXT ${CMAKE_SHARED_LIBRARY_SUFFIX}) # ".so", ".dylib", etc.
     get_target_property(SONAME SDL2 OUTPUT_NAME)
-    if(NOT ANDROID AND NOT MINGW)
+    if(NOT ANDROID AND NOT MINGW AND NOT OS2)
         install(CODE "
           execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
             \"lib${SONAME}${SOPOSTFIX}${SOEXT}\" \"libSDL2${SOPOSTFIX}${SOEXT}\"
