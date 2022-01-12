@@ -202,7 +202,7 @@ case "$enable_assertions" in
     auto) # Use optimization settings to determine assertion level
         ;;
     disabled)
-        AC_DEFINE(SDL_DEFAULT_ASSERT_LEVEL, 0, [ ])
+        AC_DEFINE(SDL_ASSERT_DISABLED, 1, [ ])
         ;;
     release)
         AC_DEFINE(SDL_DEFAULT_ASSERT_LEVEL, 1, [ ])
