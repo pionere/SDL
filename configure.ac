@@ -422,15 +422,17 @@ SOURCES="$SOURCES $srcdir/src/locale/*.c"
 
 dnl Enable/disable various subsystems of the SDL library
 
+case "$host" in
+    *-*-emscripten*|*-ios-*|*-*-riscos*|*-nacl|*-pnacl)
+        default_dynapi=no
+        ;;
+    *)
+        default_dynapi=yes
+        ;;
+esac
 AC_ARG_ENABLE(dynapi,
 [AS_HELP_STRING([--enable-dynapi], [Use dynamic API [default=yes]])],
-              , enable_dynapi=yes)
-if test x$enable_dynapi = xyes; then
-  case "$host" in
-        *-*-emscripten*|*-ios-*|*-*-riscos*|*-nacl|*-pnacl)
-                enable_dynapi=no;;
-  esac
-fi
+              , enable_dynapi=$default_dynapi)
 AC_ARG_ENABLE(atomic,
 [AS_HELP_STRING([--enable-atomic], [Enable the atomic operations subsystem [default=yes]])],
               , enable_atomic=yes)
