@@ -27153,6 +27153,11 @@ fi
 if test x$enable_static = xyes; then
     SUMMARY="${SUMMARY}Building Static Libraries\n"
 fi
+if test x$have_dynapi = xyes; then
+    SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
+else
+    SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
 SUMMARY="${SUMMARY}Enabled modules :${SUMMARY_modules}\n"
 SUMMARY="${SUMMARY}Assembly Math   :${SUMMARY_math}\n"
 SUMMARY="${SUMMARY}Audio drivers   :${SUMMARY_audio}\n"
