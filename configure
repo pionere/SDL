@@ -17986,8 +17986,6 @@ if test x$enable_atomic != xyes; then
 
 $as_echo "#define SDL_ATOMIC_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} atomic"
 fi
 # Check whether --enable-audio was given.
 if test "${enable_audio+set}" = set; then :
@@ -18000,8 +17998,6 @@ if test x$enable_audio != xyes; then
 
 $as_echo "#define SDL_AUDIO_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} audio"
 fi
 # Check whether --enable-video was given.
 if test "${enable_video+set}" = set; then :
@@ -18014,8 +18010,6 @@ if test x$enable_video != xyes; then
 
 $as_echo "#define SDL_VIDEO_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} video"
 fi
 # Check whether --enable-render was given.
 if test "${enable_render+set}" = set; then :
@@ -18028,8 +18022,6 @@ if test x$enable_render != xyes; then
 
 $as_echo "#define SDL_RENDER_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} render"
 fi
 # Check whether --enable-events was given.
 if test "${enable_events+set}" = set; then :
@@ -18042,8 +18034,6 @@ if test x$enable_events != xyes; then
 
 $as_echo "#define SDL_EVENTS_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} events"
 fi
 # Check whether --enable-joystick was given.
 if test "${enable_joystick+set}" = set; then :
@@ -18056,8 +18046,6 @@ if test x$enable_joystick != xyes; then
 
 $as_echo "#define SDL_JOYSTICK_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} joystick"
 fi
 # Check whether --enable-haptic was given.
 if test "${enable_haptic+set}" = set; then :
@@ -18070,8 +18058,6 @@ if test x$enable_haptic != xyes; then
 
 $as_echo "#define SDL_HAPTIC_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} haptic"
 fi
 # Check whether --enable-hidapi was given.
 if test "${enable_hidapi+set}" = set; then :
@@ -18084,8 +18070,6 @@ if test x$enable_hidapi != xyes; then
 
 $as_echo "#define SDL_HIDAPI_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} hidapi"
 fi
 # Check whether --enable-sensor was given.
 if test "${enable_sensor+set}" = set; then :
@@ -18098,8 +18082,6 @@ if test x$enable_sensor != xyes; then
 
 $as_echo "#define SDL_SENSOR_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} sensor"
 fi
 # Check whether --enable-power was given.
 if test "${enable_power+set}" = set; then :
@@ -18112,8 +18094,6 @@ if test x$enable_power != xyes; then
 
 $as_echo "#define SDL_POWER_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} power"
 fi
 # Check whether --enable-filesystem was given.
 if test "${enable_filesystem+set}" = set; then :
@@ -18126,8 +18106,6 @@ if test x$enable_filesystem != xyes; then
 
 $as_echo "#define SDL_FILESYSTEM_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} filesystem"
 fi
 # Check whether --enable-misc was given.
 if test "${enable_misc+set}" = set; then :
@@ -18140,8 +18118,6 @@ if test x$enable_misc != xyes; then
 
 $as_echo "#define SDL_MISC_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} misc"
 fi
 # Check whether --enable-locale was given.
 if test "${enable_locale+set}" = set; then :
@@ -18154,8 +18130,6 @@ if test x$enable_locale != xyes; then
 
 $as_echo "#define SDL_LOCALE_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} locale"
 fi
 # Check whether --enable-threads was given.
 if test "${enable_threads+set}" = set; then :
@@ -18168,8 +18142,6 @@ if test x$enable_threads != xyes; then
 
 $as_echo "#define SDL_THREADS_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} threads"
 fi
 # Check whether --enable-timers was given.
 if test "${enable_timers+set}" = set; then :
@@ -18182,8 +18154,6 @@ if test x$enable_timers != xyes; then
 
 $as_echo "#define SDL_TIMERS_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} timers"
 fi
 # Check whether --enable-file was given.
 if test "${enable_file+set}" = set; then :
@@ -18196,8 +18166,6 @@ if test x$enable_file != xyes; then
 
 $as_echo "#define SDL_FILE_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} file"
 fi
 # Check whether --enable-loadso was given.
 if test "${enable_loadso+set}" = set; then :
@@ -18210,8 +18178,6 @@ if test x$enable_loadso != xyes; then
 
 $as_echo "#define SDL_LOADSO_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} loadso"
 fi
 # Check whether --enable-cpuinfo was given.
 if test "${enable_cpuinfo+set}" = set; then :
@@ -18224,8 +18190,6 @@ if test x$enable_cpuinfo != xyes; then
 
 $as_echo "#define SDL_CPUINFO_DISABLED 1" >>confdefs.h
 
-else
-    SUMMARY_modules="${SUMMARY_modules} cpuinfo"
 fi
 # Check whether --enable-assembly was given.
 if test "${enable_assembly+set}" = set; then :
@@ -18235,8 +18199,7 @@ else
 fi
 
 if test x$enable_assembly = xyes; then
-    SUMMARY_modules="${SUMMARY_modules} assembly"
-
+    have_assembly=yes
 
 $as_echo "#define SDL_ASSEMBLY_ROUTINES 1" >>confdefs.h
 
@@ -27151,26 +27114,40 @@ ac_config_files="$ac_config_files Makefile:Makefile.in:Makefile.rules sdl2-confi
 ac_config_commands="$ac_config_commands sdl2_config"
 
 
-SUMMARY="SDL2 Configure Summary:\n"
-if test x$enable_shared = xyes; then
-    SUMMARY="${SUMMARY}Building Shared Libraries\n"
-fi
-if test x$enable_static = xyes; then
-    SUMMARY="${SUMMARY}Building Static Libraries\n"
-fi
-if test x$have_dynapi = xyes; then
-    SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
-else
-    SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
-fi
-SUMMARY="${SUMMARY}Enabled modules :${SUMMARY_modules}\n"
-SUMMARY="${SUMMARY}Assembly Math   :${SUMMARY_math}\n"
+SUMMARY="SDL2 was configured with the following options:\n"
+SUMMARY="${SUMMARY}Subsystems:\n"
+for MODULE in atomic audio video render events joystick haptic hidapi power threads timers file loadso cpuinfo filesystem sensor misc locale; do
+    ENABLE_MODULE="enable_"$MODULE
+    LENGTH_MODULE=${#MODULE}
+    LABEL_MODULE="${MODULE^}"
+    SUFFIX_MODULE="            "
+    SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
+    LABEL_MODULE="   ${LABEL_MODULE}${SUFFIX_MODULE}"
+    if test "x${!ENABLE_MODULE}" = xyes; then
+        SUMMARY="${SUMMARY}${LABEL_MODULE}: YES\n"
+    else
+        SUMMARY="${SUMMARY}${LABEL_MODULE}: NO\n"
+    fi
+done
 SUMMARY="${SUMMARY}Audio drivers   :${SUMMARY_audio}\n"
 SUMMARY="${SUMMARY}Video drivers   :${SUMMARY_video}\n"
 if test x$have_x = xyes; then
     SUMMARY="${SUMMARY}X11 libraries   :${SUMMARY_video_x11}\n"
 fi
 SUMMARY="${SUMMARY}Input drivers   :${SUMMARY_input}\n"
+SUMMARY="${SUMMARY}Options:\n"
+if test x$have_dynapi = xyes; then
+    SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
+else
+    SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
+if test x$have_assembly = xyes; then
+    SUMMARY="${SUMMARY}Enable assembly routines : YES\n"
+else
+    SUMMARY="${SUMMARY}Enable assembly routines : NO\n"
+fi
+SUMMARY="${SUMMARY}Assembly Math            :${SUMMARY_math}\n"
 if test x$have_joystick_virtual = xyes; then
     SUMMARY="${SUMMARY}Enable virtual joystick APIs : YES\n"
 else
@@ -27205,6 +27182,17 @@ if test x$have_fcitx = xyes; then
     SUMMARY="${SUMMARY}Using fcitx         : YES\n"
 else
     SUMMARY="${SUMMARY}Using fcitx         : NO\n"
+fi
+
+if test x$enable_shared = xyes; then
+    SUMMARY="${SUMMARY}Building Shared Libraries: YES\n"
+else
+    SUMMARY="${SUMMARY}Building Shared Libraries: NO\n"
+fi
+if test x$enable_static = xyes; then
+    SUMMARY="${SUMMARY}Building Static Libraries: YES\n"
+else
+    SUMMARY="${SUMMARY}Building Static Libraries: NO\n"
 fi
 
 if test x$WARN_ABOUT_ARM_SIMD_ASM_MIT = xyes; then

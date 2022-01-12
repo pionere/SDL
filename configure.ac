@@ -446,150 +446,114 @@ AC_ARG_ENABLE(atomic,
               , enable_atomic=$default_atomic)
 if test x$enable_atomic != xyes; then
     AC_DEFINE(SDL_ATOMIC_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} atomic"
 fi
 AC_ARG_ENABLE(audio,
 [AS_HELP_STRING([--enable-audio], [Enable the audio subsystem [default=yes]])],
               , enable_audio=yes)
 if test x$enable_audio != xyes; then
     AC_DEFINE(SDL_AUDIO_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} audio"
 fi
 AC_ARG_ENABLE(video,
 [AS_HELP_STRING([--enable-video], [Enable the video subsystem [default=yes]])],
               , enable_video=yes)
 if test x$enable_video != xyes; then
     AC_DEFINE(SDL_VIDEO_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} video"
 fi
 AC_ARG_ENABLE(render,
 [AS_HELP_STRING([--enable-render], [Enable the render subsystem [default=yes]])],
               , enable_render=yes)
 if test x$enable_render != xyes; then
     AC_DEFINE(SDL_RENDER_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} render"
 fi
 AC_ARG_ENABLE(events,
 [AS_HELP_STRING([--enable-events], [Enable the events subsystem [default=yes]])],
               , enable_events=yes)
 if test x$enable_events != xyes; then
     AC_DEFINE(SDL_EVENTS_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} events"
 fi
 AC_ARG_ENABLE(joystick,
 [AS_HELP_STRING([--enable-joystick], [Enable the joystick subsystem [default=yes]])],
               , enable_joystick=yes)
 if test x$enable_joystick != xyes; then
     AC_DEFINE(SDL_JOYSTICK_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} joystick"
 fi
 AC_ARG_ENABLE(haptic,
 [AS_HELP_STRING([--enable-haptic], [Enable the haptic (force feedback) subsystem [default=yes]])],
               , enable_haptic=yes)
 if test x$enable_haptic != xyes; then
     AC_DEFINE(SDL_HAPTIC_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} haptic"
 fi
 AC_ARG_ENABLE(hidapi,
 [AS_HELP_STRING([--enable-hidapi], [Enable the HIDAPI subsystem [default=yes]])],
               , enable_hidapi=yes)
 if test x$enable_hidapi != xyes; then
     AC_DEFINE(SDL_HIDAPI_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} hidapi"
 fi
 AC_ARG_ENABLE(sensor,
 [AS_HELP_STRING([--enable-sensor], [Enable the sensor subsystem [default=yes]])],
               , enable_sensor=yes)
 if test x$enable_sensor != xyes; then
     AC_DEFINE(SDL_SENSOR_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} sensor"
 fi
 AC_ARG_ENABLE(power,
 [AS_HELP_STRING([--enable-power], [Enable the power subsystem [default=yes]])],
               , enable_power=yes)
 if test x$enable_power != xyes; then
     AC_DEFINE(SDL_POWER_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} power"
 fi
 AC_ARG_ENABLE(filesystem,
 [AS_HELP_STRING([--enable-filesystem], [Enable the filesystem subsystem [default=yes]])],
               , enable_filesystem=yes)
 if test x$enable_filesystem != xyes; then
     AC_DEFINE(SDL_FILESYSTEM_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} filesystem"
 fi
 AC_ARG_ENABLE(threads,
 [AS_HELP_STRING([--enable-threads], [Enable the threading subsystem [default=yes]])],
               , enable_threads=yes)
 if test x$enable_threads != xyes; then
     AC_DEFINE(SDL_THREADS_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} threads"
 fi
 AC_ARG_ENABLE(timers,
 [AS_HELP_STRING([--enable-timers], [Enable the timer subsystem [default=yes]])],
               , enable_timers=yes)
 if test x$enable_timers != xyes; then
     AC_DEFINE(SDL_TIMERS_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} timers"
 fi
 AC_ARG_ENABLE(file,
 [AS_HELP_STRING([--enable-file], [Enable the file subsystem [default=yes]])],
               , enable_file=yes)
 if test x$enable_file != xyes; then
     AC_DEFINE(SDL_FILE_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} file"
 fi
 AC_ARG_ENABLE(misc,
 [AS_HELP_STRING([--enable-misc], [Enable the misc subsystem [default=yes]])],
               , enable_misc=yes)
 if test x$enable_misc != xyes; then
     AC_DEFINE(SDL_MISC_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} misc"
 fi
 AC_ARG_ENABLE(locale,
 [AS_HELP_STRING([--enable-locale], [Enable the locale subsystem [default=yes]])],
               , enable_locale=yes)
 if test x$enable_locale != xyes; then
     AC_DEFINE(SDL_LOCALE_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} locale"
 fi
 AC_ARG_ENABLE(loadso,
 [AS_HELP_STRING([--enable-loadso], [Enable the shared object loading subsystem [default=yes]])],
               , enable_loadso=yes)
 if test x$enable_loadso != xyes; then
     AC_DEFINE(SDL_LOADSO_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} loadso"
 fi
 AC_ARG_ENABLE(cpuinfo,
 [AS_HELP_STRING([--enable-cpuinfo], [Enable the cpuinfo subsystem [default=yes]])],
               , enable_cpuinfo=yes)
 if test x$enable_cpuinfo != xyes; then
     AC_DEFINE(SDL_CPUINFO_DISABLED, 1, [ ])
-else
-    SUMMARY_modules="${SUMMARY_modules} cpuinfo"
 fi
 AC_ARG_ENABLE(assembly,
 [AS_HELP_STRING([--enable-assembly], [Enable assembly routines [default=yes]])],
               , enable_assembly=yes)
 if test x$enable_assembly = xyes; then
-    SUMMARY_modules="${SUMMARY_modules} assembly"
+    have_assembly=yes
 
     AC_DEFINE(SDL_ASSEMBLY_ROUTINES, 1, [ ])
 
@@ -4792,26 +4756,40 @@ AC_CONFIG_FILES([
 ])
 AC_CONFIG_COMMANDS([sdl2_config],[chmod a+x sdl2-config])
 
-SUMMARY="SDL2 Configure Summary:\n"
-if test x$enable_shared = xyes; then
-    SUMMARY="${SUMMARY}Building Shared Libraries\n"
-fi
-if test x$enable_static = xyes; then
-    SUMMARY="${SUMMARY}Building Static Libraries\n"
-fi
-if test x$have_dynapi = xyes; then
-    SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
-else
-    SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
-fi
-SUMMARY="${SUMMARY}Enabled modules :${SUMMARY_modules}\n"
-SUMMARY="${SUMMARY}Assembly Math   :${SUMMARY_math}\n" 
+SUMMARY="SDL2 was configured with the following options:\n"
+SUMMARY="${SUMMARY}Subsystems:\n"
+for MODULE in atomic audio video render events joystick haptic hidapi power threads timers file loadso cpuinfo filesystem sensor misc locale; do
+    ENABLE_MODULE="enable_"$MODULE
+    LENGTH_MODULE=${#MODULE}
+    LABEL_MODULE="${MODULE^}"
+    SUFFIX_MODULE="            "
+    SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
+    LABEL_MODULE="   ${LABEL_MODULE}${SUFFIX_MODULE}"
+    if test "x${!ENABLE_MODULE}" = xyes; then
+        SUMMARY="${SUMMARY}${LABEL_MODULE}: YES\n"
+    else
+        SUMMARY="${SUMMARY}${LABEL_MODULE}: NO\n"
+    fi
+done
 SUMMARY="${SUMMARY}Audio drivers   :${SUMMARY_audio}\n"
 SUMMARY="${SUMMARY}Video drivers   :${SUMMARY_video}\n"
 if test x$have_x = xyes; then
     SUMMARY="${SUMMARY}X11 libraries   :${SUMMARY_video_x11}\n"
 fi
 SUMMARY="${SUMMARY}Input drivers   :${SUMMARY_input}\n"
+SUMMARY="${SUMMARY}Options:\n"
+if test x$have_dynapi = xyes; then
+    SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
+else
+    SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
+if test x$have_assembly = xyes; then
+    SUMMARY="${SUMMARY}Enable assembly routines : YES\n"
+else
+    SUMMARY="${SUMMARY}Enable assembly routines : NO\n"
+fi
+SUMMARY="${SUMMARY}Assembly Math            :${SUMMARY_math}\n" 
 if test x$have_joystick_virtual = xyes; then
     SUMMARY="${SUMMARY}Enable virtual joystick APIs : YES\n"
 else
@@ -4846,6 +4824,17 @@ if test x$have_fcitx = xyes; then
     SUMMARY="${SUMMARY}Using fcitx         : YES\n"
 else
     SUMMARY="${SUMMARY}Using fcitx         : NO\n"
+fi
+
+if test x$enable_shared = xyes; then
+    SUMMARY="${SUMMARY}Building Shared Libraries: YES\n"
+else
+    SUMMARY="${SUMMARY}Building Shared Libraries: NO\n"
+fi
+if test x$enable_static = xyes; then
+    SUMMARY="${SUMMARY}Building Static Libraries: YES\n"
+else
+    SUMMARY="${SUMMARY}Building Static Libraries: NO\n"
 fi
 
 if test x$WARN_ABOUT_ARM_SIMD_ASM_MIT = xyes; then
