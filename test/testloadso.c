@@ -52,7 +52,9 @@ main(int argc, char *argv[])
         libname = argv[1];
         symname = argv[2];
     }
-
+#if SDL_LOADSO_DISABLED
+    SDL_Log("Skipping loadso test because the subsystem is disabled.\n");
+#else
     lib = SDL_LoadObject(libname);
     if (lib == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadObject('%s') failed: %s\n",
@@ -77,6 +79,7 @@ main(int argc, char *argv[])
         }
         SDL_UnloadObject(lib);
     }
+#endif /* SDL_LOADSO_DISABLED */
     SDL_Quit();
     return retval;
 }

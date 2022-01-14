@@ -456,7 +456,7 @@ set(SDL_SHARED ${SDL_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared versi
 set(SDL_STATIC ${SDL_STATIC_ENABLED_BY_DEFAULT} CACHE BOOL "Build a static version of the library")
 
 dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" OFF "SDL_STATIC" OFF)
-set_option(SDL_TEST            "Build the test directory" OFF)
+set_option(SDL_TEST            "Build the test directory" ON)
 
 if(VITA)
     set_option(VIDEO_VITA_PIB  "Build with PSVita piglet gles2 support" OFF)
@@ -503,6 +503,10 @@ else()
   message_error("unknown assertion level")
 endif()
 set(HAVE_ASSERTIONS ${SDL_ASSERTIONS})
+
+if(SDL_TEST)
+  set(HAVE_TEST TRUE)
+endif()
 
 if(NOT SDL_BACKGROUNDING_SIGNAL STREQUAL "OFF")
   target_compile_definitions(sdl-build-options INTERFACE "-DSDL_BACKGROUNDING_SIGNAL=${SDL_BACKGROUNDING_SIGNAL}")
@@ -2958,10 +2962,10 @@ endif()
 ##### Tests #####
 
 if(SDL_TEST)
-  include_directories(BEFORE "${SDL2_BINARY_DIR}/include")
-  include_directories(AFTER "${SDL2_SOURCE_DIR}/include")
   file(GLOB TEST_SOURCES ${SDL2_SOURCE_DIR}/src/test/*.c)
   add_library(SDL2_test STATIC ${TEST_SOURCES})
+  target_include_directories(SDL2_test BEFORE PRIVATE "${SDL2_BINARY_DIR}/include")
+  target_link_libraries(SDL2_test PRIVATE $<BUILD_INTERFACE:sdl-build-options>)
   add_subdirectory(test)
 endif()
 

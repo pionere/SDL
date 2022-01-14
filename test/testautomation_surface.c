@@ -178,6 +178,8 @@ void _testBlitBlendMode(int mode)
                 bmode = SDL_BLENDMODE_ADD;
             } else if (nmode==3) {
                 bmode = SDL_BLENDMODE_MOD;
+            } else {
+                SDLTest_AssertCheck(ASSERT_FAIL, "Impossible nmode value %i", nmode);
             }
             ret = SDL_SetSurfaceBlendMode( face, bmode );
             if (ret != 0) checkFailCount4++;

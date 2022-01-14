@@ -218,6 +218,12 @@ case "$enable_assertions" in
         ;;
 esac
 
+dnl See whether we want to build the test directory
+AC_ARG_ENABLE(test,
+[AS_HELP_STRING([--enable-test],
+               [Build the test directory [default=yes]])],
+              , enable_test=yes)
+
 dnl See whether we can use gcc style dependency tracking
 AC_ARG_ENABLE(dependency-tracking,
 [AS_HELP_STRING([--enable-dependency-tracking],
@@ -4680,12 +4686,14 @@ SDLMAIN_DEPENDS=`echo "$SDLMAIN_DEPENDS" | sed "s,\\([[^ ]]*\\)/\\([[^ ]]*\\)\\.
 \\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
 
+if test x$enable_test = xyes; then
 SDLTEST_OBJECTS=`echo $SDLTEST_SOURCES`
 SDLTEST_DEPENDS=`echo $SDLTEST_SOURCES`
 SDLTEST_OBJECTS=`echo "$SDLTEST_OBJECTS" | sed 's,[[^ ]]*/\([[^ ]]*\)\.c,$(objects)/\1.lo,g'`
 SDLTEST_DEPENDS=`echo "$SDLTEST_DEPENDS" | sed "s,\\([[^ ]]*\\)/\\([[^ ]]*\\)\\.c,\\\\
 \\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
+fi
 
 # Set runtime shared library paths as needed
 

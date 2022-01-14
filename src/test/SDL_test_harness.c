@@ -349,7 +349,11 @@ static void SDLTest_LogTestSuiteSummary(SDLTest_TestSuiteReference *testSuites)
 /* Gets a timer value in seconds */
 static float GetClock()
 {
+#ifdef __VITA__
+    float currentClock = sceKernelGetProcessTimeWide() / (float)1000;
+#else
     float currentClock = clock() / (float) CLOCKS_PER_SEC;
+#endif
     return currentClock;
 }
 

@@ -17,7 +17,7 @@
   Absolutely basic tests just to see if we get the expected value
   after calling each function.
 */
-
+#if !SDL_ATOMIC_DISABLED
 static
 const char *
 tf(SDL_bool _tf)
@@ -698,6 +698,7 @@ static void RunFIFOTest(SDL_bool lock_free)
     }
     SDL_Log("Readers read %d total events\n", grand_total);
 }
+#endif /* !SDL_ATOMIC_DISABLED */
 
 /* End FIFO test */
 /**************************************************************************/
@@ -707,7 +708,9 @@ main(int argc, char *argv[])
 {
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
-
+#if SDL_ATOMIC_DISABLED
+    SDL_Log("Skipping atomic test because the subsystem is disabled.\n");
+#else
     RunBasicTest();
     RunEpicTest();
 /* This test is really slow, so don't run it by default */
@@ -715,6 +718,7 @@ main(int argc, char *argv[])
     RunFIFOTest(SDL_FALSE);
 #endif
     RunFIFOTest(SDL_TRUE);
+#endif /* SDL_ATOMIC_DISABLED */
     return 0;
 }
 

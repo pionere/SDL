@@ -70,7 +70,11 @@ void SDLTest_RandomInitTime(SDLTest_RandomContext * rndContext)
 
   srand((unsigned int)time(NULL));
   a=rand();
+#ifdef __VITA__
+  srand((unsigned int)sceKernelGetProcessTimeWide());
+#else
   srand((unsigned int)clock());
+#endif
   b=rand();
   SDLTest_RandomInit(rndContext, a, b);
 }

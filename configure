@@ -805,6 +805,7 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_assertions
+enable_test
 enable_dependency_tracking
 enable_libc
 enable_gcc_atomics
@@ -1583,6 +1584,7 @@ Optional Features:
   --enable-assertions     Enable internal sanity checks
                           (auto/disabled/release/enabled/paranoid)
                           [default=auto]
+  --enable-test           Build the test directory [default=yes]
   --enable-dependency-tracking
                           Use gcc -MMD -MT dependency tracking [default=yes]
   --enable-libc           Use the system C library [default=yes]
@@ -16963,6 +16965,12 @@ $as_echo "#define SDL_DEFAULT_ASSERT_LEVEL 3" >>confdefs.h
         ;;
 esac
 
+# Check whether --enable-test was given.
+if test "${enable_test+set}" = set; then :
+  enableval=$enable_test;
+else
+  enable_test=yes
+fi
 # Check whether --enable-dependency-tracking was given.
 if test "${enable_dependency_tracking+set}" = set; then :
   enableval=$enable_dependency_tracking;
@@ -27027,12 +27035,14 @@ SDLMAIN_DEPENDS=`echo "$SDLMAIN_DEPENDS" | sed "s,\\([^ ]*\\)/\\([^ ]*\\)\\.c,\\
 \\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
 
+if test x$enable_test = xyes; then
 SDLTEST_OBJECTS=`echo $SDLTEST_SOURCES`
 SDLTEST_DEPENDS=`echo $SDLTEST_SOURCES`
 SDLTEST_OBJECTS=`echo "$SDLTEST_OBJECTS" | sed 's,[^ ]*/\([^ ]*\)\.c,$(objects)/\1.lo,g'`
 SDLTEST_DEPENDS=`echo "$SDLTEST_DEPENDS" | sed "s,\\([^ ]*\\)/\\([^ ]*\\)\\.c,\\\\
 \\$(objects)/\\2.lo: \\1/\\2.c \\$(objects)/.created\\\\
 	\\$(RUN_CMD_CC)\\$(LIBTOOL) --tag=CC --mode=compile \\$(CC) \\$(CFLAGS) \\$(EXTRA_CFLAGS) $DEPENDENCY_TRACKING_OPTIONS -c \\$< -o \\$@,g"`
+fi
 
 # Set runtime shared library paths as needed
 

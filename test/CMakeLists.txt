@@ -46,6 +46,18 @@ if (OPENGL_FOUND)
 add_definitions(-DHAVE_OPENGL)
 endif()
 
+# Enable/disable various subsystems of the SDL library
+foreach(_SUB ${SDL_SUBSYSTEMS})
+  string(TOUPPER ${_SUB} _OPT)
+  if(NOT SDL_${_OPT})
+    add_definitions(-DSDL_${_OPT}_DISABLED)
+  endif()
+endforeach()
+
+if(EMSCRIPTEN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ERROR_ON_UNDEFINED_SYMBOLS=0")  
+endif()
+
 add_executable(checkkeys checkkeys.c)
 add_executable(checkkeysthreads checkkeysthreads.c)
 add_executable(loopwave loopwave.c)
@@ -134,55 +146,33 @@ endif()
 
 file(GLOB RESOURCE_FILES *.bmp *.wav *.hex moose.dat utf8.txt)
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-if(PSP)
-    set(NEEDS_RESOURCES
-        testscale
-        testrendercopyex
-        controllermap
-        testyuv
-        testgamecontroller
-        testshape
-        testshader
-        testspriteminimal
-        testautomation
-        testrendertarget
-        testsprite2
-        loopwave
-        loopwavequeue
-        testresample
-        testaudiohotplug
-        testmultiaudio
-        testiconv
-        testoverlay2
-        teststreaming
-        testviewport
+set(NEEDS_RESOURCES
+    testscale
+    testrendercopyex
+    controllermap
+    testyuv
+    testgamecontroller
+    testshape
+    testshader
+    testspriteminimal
+    testautomation
+    testrendertarget
+    testsprite2
+    loopwave
+    loopwavequeue
+    testresample
+    testaudiohotplug
+    testmultiaudio
+    testiconv
+    testoverlay2
+    teststreaming
+    testviewport
     )
-else()
-    set(NEEDS_RESOURCES
-        testscale
-        testrendercopyex
-        controllermap
-        testyuv
-        testgamecontroller
-        testshape
-        testshader
-        testspriteminimal
-        testautomation
-        testcustomcursor
-        testrendertarget
-        testsprite2
-        loopwave
-        loopwavequeue
-        testresample
-        testaudiohotplug
-        testmultiaudio
-        testime
-        testnative
-        testiconv
-        testoverlay2
-        teststreaming
-        testviewport
-    )
+if(NOT PSP)
+  set(NEEDS_RESOURCES ${NEEDS_RESOURCES} testcustomcursor)
+endif()
+if(APPLE OR WINDOWS OR UNIX)
+  set(NEEDS_RESOURCES ${NEEDS_RESOURCES} testnative)
 endif()
 
 if(PSP)
