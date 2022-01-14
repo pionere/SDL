@@ -158,6 +158,9 @@ static int SaveTemplate(SDL_DollarTemplate *templ, SDL_RWops *dst)
 
 int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
 {
+#if SDL_FILE_DISABLED
+    return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+#else
     int i,j,rtrn = 0;
     for (i = 0; i < SDL_numGestureTouches; i++) {
         SDL_GestureTouch* touch = &SDL_gestureTouch[i];
@@ -166,10 +169,14 @@ int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
         }
     }
     return rtrn;
+#endif /* SDL_FILE_DISABLED */
 }
 
 int SDL_SaveDollarTemplate(SDL_GestureID gestureId, SDL_RWops *dst)
 {
+#if SDL_FILE_DISABLED
+    return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+#else
     int i,j;
     for (i = 0; i < SDL_numGestureTouches; i++) {
         SDL_GestureTouch* touch = &SDL_gestureTouch[i];
@@ -180,6 +187,7 @@ int SDL_SaveDollarTemplate(SDL_GestureID gestureId, SDL_RWops *dst)
         }
     }
     return SDL_SetError("Unknown gestureId");
+#endif /* SDL_FILE_DISABLED */
 }
 
 /* path is an already sampled set of points
@@ -228,6 +236,9 @@ static int SDL_AddDollarGesture(SDL_GestureTouch* inTouch, SDL_FloatPoint* path)
 
 int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
 {
+#if SDL_FILE_DISABLED
+    return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+#else
     int i,loaded = 0;
     SDL_GestureTouch *touch = NULL;
     if (src == NULL) return 0;
@@ -278,6 +289,7 @@ int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
     }
 
     return loaded;
+#endif /* SDL_FILE_DISABLED */
 }
 
 
