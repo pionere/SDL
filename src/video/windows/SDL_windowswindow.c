@@ -728,6 +728,10 @@ WIN_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
 void*
 WIN_GetWindowICCProfile(_THIS, SDL_Window * window, size_t * size)
 {
+#if SDL_FILE_DISABLED
+    SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+    return NULL;
+#else
     SDL_VideoDisplay* display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData* data = (SDL_DisplayData*)display->driverdata;
     HDC hdc;
@@ -749,6 +753,7 @@ WIN_GetWindowICCProfile(_THIS, SDL_Window * window, size_t * size)
     }
 
     return iccProfileData;
+#endif /* SDL_FILE_DISABLED */
 }
 
 int
