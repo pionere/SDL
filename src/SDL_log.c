@@ -92,7 +92,7 @@ static int SDL_android_priority[SDL_NUM_LOG_PRIORITIES] = {
 };
 #endif /* __ANDROID__ */
 
-
+#if !SDL_LOGGING_DISABLED
 void
 SDL_LogSetAllPriority(SDL_LogPriority priority)
 {
@@ -455,5 +455,102 @@ SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
     SDL_log_function = callback;
     SDL_log_userdata = userdata;
 }
+#else /* !SDL_LOGGING_DISABLED */
+/* TODO: move to a separate folder (with dummy, etc...)? */
+void
+SDL_LogSetAllPriority(SDL_LogPriority priority)
+{
+}
+
+void
+SDL_LogSetPriority(int category, SDL_LogPriority priority)
+{
+}
+
+SDL_LogPriority
+SDL_LogGetPriority(int category)
+{
+    return 0;
+}
+
+void
+SDL_LogResetPriorities(void)
+{
+}
+
+void
+SDL_Log(SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(1)
+{
+}
+
+void
+SDL_LogVerbose(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogDebug(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogInfo(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogWarn(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogError(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogCritical(int category, SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(2)
+{
+}
+
+void
+SDL_LogMessage(int category,
+                                            SDL_LogPriority priority,
+                                            SDL_PRINTF_FORMAT_STRING const char *fmt, ...) SDL_PRINTF_VARARG_FUNC(3)
+{
+}
+
+void
+SDL_LogMessageV(int category,
+                                             SDL_LogPriority priority,
+                                             const char *fmt, va_list ap)
+{
+}
+
+static void SDLCALL
+SDL_LogOutput(void *userdata, int category, SDL_LogPriority priority,
+              const char *message)
+{
+}
+
+void
+SDL_LogGetOutputFunction(SDL_LogOutputFunction *callback, void **userdata)
+{
+    if (callback) {
+        *callback = SDL_log_function;
+    }
+    if (userdata) {
+        *userdata = SDL_log_userdata;
+    }
+}
+
+void
+SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
+{
+    SDL_log_function = callback;
+    SDL_log_userdata = userdata;
+}
+
+#endif /* !SDL_LOGGING_DISABLED */
 
 /* vi: set ts=4 sw=4 expandtab: */

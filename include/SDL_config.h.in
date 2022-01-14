@@ -247,6 +247,9 @@
 #undef SDL_ASSERT_DISABLED
 #undef SDL_DEFAULT_ASSERT_LEVEL
 
+/* SDL logging support */
+#undef SDL_LOGGING_DISABLED
+
 /* Allow disabling of core subsystems */
 #undef SDL_ATOMIC_DISABLED
 #undef SDL_AUDIO_DISABLED

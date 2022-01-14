@@ -1584,6 +1584,7 @@ Optional Features:
   --enable-assertions     Enable internal sanity checks
                           (auto/disabled/release/enabled/paranoid)
                           [default=auto]
+  --enable-logging        Enable logging [default=yes]
   --enable-test           Build the test directory [default=yes]
   --enable-dependency-tracking
                           Use gcc -MMD -MT dependency tracking [default=yes]
@@ -16970,6 +16971,18 @@ if test "${enable_test+set}" = set; then :
   enableval=$enable_test;
 else
   enable_test=yes
+fi
+# Check whether --enable-logging was given.
+if test "${enable_logging+set}" = set; then :
+  enableval=$enable_logging;
+else
+  enable_logging=yes
+fi
+
+if test x$enable_logging != xyes; then
+
+$as_echo "#define SDL_LOGGING_DISABLED 1" >>confdefs.h
+
 fi
 # Check whether --enable-dependency-tracking was given.
 if test "${enable_dependency_tracking+set}" = set; then :

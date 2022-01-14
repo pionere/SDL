@@ -261,6 +261,9 @@
 #cmakedefine SDL_ASSERT_DISABLED @SDL_ASSERT_DISABLED@
 #cmakedefine SDL_DEFAULT_ASSERT_LEVEL @SDL_DEFAULT_ASSERT_LEVEL@
 
+/* SDL logging support */
+#cmakedefine SDL_LOGGING_DISABLED @SDL_LOGGING_DISABLED@
+
 /* Allow disabling of core subsystems */
 #cmakedefine SDL_ATOMIC_DISABLED @SDL_ATOMIC_DISABLED@
 #cmakedefine SDL_AUDIO_DISABLED @SDL_AUDIO_DISABLED@

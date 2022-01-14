@@ -224,6 +224,15 @@ AC_ARG_ENABLE(test,
                [Build the test directory [default=yes]])],
               , enable_test=yes)
 
+dnl See whether we want logging
+AC_ARG_ENABLE(logging,
+[AS_HELP_STRING([--enable-logging],
+               [Enable logging [default=yes]])],
+              , enable_logging=yes)
+if test x$enable_logging != xyes; then
+    AC_DEFINE(SDL_LOGGING_DISABLED, 1, [ ])
+fi
+
 dnl See whether we can use gcc style dependency tracking
 AC_ARG_ENABLE(dependency-tracking,
 [AS_HELP_STRING([--enable-dependency-tracking],
