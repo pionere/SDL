@@ -1730,7 +1730,7 @@ Optional Features:
                           number to use for magic foregrounding signal or 'no'
                           [default=no]
   --enable-joystick-virtual
-                          enable virtual joystick APIs [default=yes]
+                          enable virtual joystick APIs [default=no]
   --enable-render-d3d     enable the Direct3D render driver [default=yes]
   --enable-sdl2-config    Install sdl2-config [default=yes]
 
@@ -25747,7 +25747,7 @@ CheckVirtualJoystick()
 if test "${enable_joystick_virtual+set}" = set; then :
   enableval=$enable_joystick_virtual;
 else
-  enable_joystick_virtual=yes
+  enable_joystick_virtual=no
 fi
 
     if test x$enable_joystick = xyes -a x$enable_joystick_virtual = xyes; then
@@ -25756,6 +25756,7 @@ $as_echo "#define SDL_JOYSTICK_VIRTUAL 1" >>confdefs.h
 
         SOURCES="$SOURCES $srcdir/src/joystick/virtual/*.c"
         have_joystick_virtual=yes
+        have_joystick=yes
     fi
 }
 

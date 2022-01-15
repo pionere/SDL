@@ -449,7 +449,7 @@ set_option(SDL_OFFSCREEN           "Use offscreen video driver" OFF)
 option_string(SDL_BACKGROUNDING_SIGNAL "number to use for magic backgrounding signal or 'OFF'" OFF)
 option_string(SDL_FOREGROUNDING_SIGNAL "number to use for magic foregrounding signal or 'OFF'" OFF)
 set_option(SDL_HIDAPI_JOYSTICK     "Use HIDAPI for low level joystick drivers" ON)
-set_option(SDL_VIRTUAL_JOYSTICK    "Enable the virtual-joystick driver" ON)
+set_option(SDL_VIRTUAL_JOYSTICK    "Enable the virtual-joystick driver" OFF)
 set_option(SDL_ASAN                "Use AddressSanitizer to detect memory errors" OFF)
 
 set(SDL_SHARED ${SDL_SHARED_ENABLED_BY_DEFAULT} CACHE BOOL "Build a shared version of the library")
@@ -1022,6 +1022,16 @@ if(SDL_VIDEO)
     set(HAVE_SDL_VIDEO TRUE)
   endif()
 endif()
+# - CheckVirtualJoystick
+if(SDL_JOYSTICK)
+  if(SDL_VIRTUAL_JOYSTICK)
+    set(SDL_JOYSTICK_VIRTUAL 1)
+    file(GLOB JOYSTICK_VIRTUAL_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/virtual/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_VIRTUAL_SOURCES})
+    set(HAVE_VIRTUAL_JOYSTICK TRUE)
+    set(HAVE_SDL_JOYSTICK TRUE)
+  endif()
+endif()
 
 if(UNIX OR APPLE)
   # Relevant for Unix/Darwin only
@@ -1044,15 +1054,6 @@ endif()
 
 if(UNIX OR APPLE OR HAIKU OR RISCOS)
   CheckO_CLOEXEC()
-endif()
-
-if(SDL_JOYSTICK)
-  if(SDL_VIRTUAL_JOYSTICK)
-    set(HAVE_VIRTUAL_JOYSTICK TRUE)
-    set(SDL_JOYSTICK_VIRTUAL 1)
-    file(GLOB JOYSTICK_VIRTUAL_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/virtual/*.c)
-    set(SOURCE_FILES ${SOURCE_FILES} ${JOYSTICK_VIRTUAL_SOURCES})
-  endif()
 endif()
 
 # Platform-specific options and settings
