@@ -646,6 +646,9 @@ extern DECLSPEC int SDLCALL SDL_GetWindowDisplayMode(SDL_Window * window,
  *
  * Data returned should be freed with SDL_free.
  *
+ * Note: This function fails (returns NULL) on windows, if
+ *  the FILE subsystem is not available.
+ *
  * \param window the window to query
  * \param size the size of the ICC profile
  * \returns the raw ICC profile data on success or NULL on failure; call

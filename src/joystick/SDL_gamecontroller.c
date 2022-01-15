@@ -144,7 +144,12 @@ SDL_LoadVIDPIDListFromHint(const char *hint, SDL_vidpid_list *list)
     list->num_entries = 0;
 
     if (hint && *hint == '@') {
+#if SDL_FILE_DISABLED
+        SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", hint);
+        spot = NULL;
+#else
         spot = file = (char *)SDL_LoadFile(hint+1, NULL);
+#endif
     } else {
         spot = (char *)hint;
     }
@@ -1315,6 +1320,9 @@ static ControllerMapping_t *SDL_PrivateGetControllerMapping(int device_index)
 int
 SDL_GameControllerAddMappingsFromRW(SDL_RWops * rw, int freerw)
 {
+#if SDL_FILE_DISABLED
+    return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+#else
     const char *platform = SDL_GetPlatform();
     int controllers = 0;
     char *buf, *line, *line_end, *tmp, *comma, line_platform[64];
@@ -1378,6 +1386,7 @@ SDL_GameControllerAddMappingsFromRW(SDL_RWops * rw, int freerw)
 
     SDL_free(buf);
     return controllers;
+#endif /* SDL_FILE_DISABLED */
 }
 
 /*
@@ -1678,7 +1687,11 @@ SDL_GameControllerInitMappings(void)
     }
 
     if (SDL_GetControllerMappingFilePath(szControllerMapPath, sizeof(szControllerMapPath))) {
+#if SDL_FILE_DISABLED
+        SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", szControllerMapPath);
+#else
         SDL_GameControllerAddMappingsFromFile(szControllerMapPath);        
+#endif
     }
 
     /* load in any user supplied config */

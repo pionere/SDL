@@ -171,6 +171,10 @@ static void CorrectAlphaChannel(SDL_Surface *surface)
 SDL_Surface *
 SDL_LoadBMP_RW(SDL_RWops * src, int freesrc)
 {
+#if SDL_FILE_DISABLED
+    SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+    return (SDL_Surface *) 0;
+#else
     SDL_bool was_error;
     Sint64 fp_offset = 0;
     int bmpPitch;
@@ -567,11 +571,15 @@ SDL_LoadBMP_RW(SDL_RWops * src, int freesrc)
         SDL_RWclose(src);
     }
     return (surface);
+#endif /* SDL_FILE_DISABLED */
 }
 
 int
 SDL_SaveBMP_RW(SDL_Surface * saveme, SDL_RWops * dst, int freedst)
 {
+#if SDL_FILE_DISABLED
+    return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+#else
     Sint64 fp_offset;
     int i, pad;
     SDL_Surface *surface;
@@ -807,6 +815,7 @@ SDL_SaveBMP_RW(SDL_Surface * saveme, SDL_RWops * dst, int freedst)
         SDL_RWclose(dst);
     }
     return ((SDL_strcmp(SDL_GetError(), "") == 0) ? 0 : -1);
+#endif /* SDL_FILE_DISABLED */
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
