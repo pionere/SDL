@@ -1288,8 +1288,8 @@ dnl rcg07142001 See if the user wants the disk writer audio driver...
 CheckDiskAudio()
 {
     AC_ARG_ENABLE(diskaudio,
-[AS_HELP_STRING([--enable-diskaudio], [support the disk writer audio driver [default=yes]])],
-                  , enable_diskaudio=yes)
+[AS_HELP_STRING([--enable-diskaudio], [support the disk writer audio driver [default=no]])],
+                  , enable_diskaudio=no)
     if test x$enable_audio = xyes -a x$enable_diskaudio = xyes; then
         AC_DEFINE(SDL_AUDIO_DRIVER_DISK, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/audio/disk/*.c"
@@ -1302,8 +1302,8 @@ dnl rcg03142006 See if the user wants the dummy audio driver...
 CheckDummyAudio()
 {
     AC_ARG_ENABLE(dummyaudio,
-[AS_HELP_STRING([--enable-dummyaudio], [support the dummy audio driver [default=yes]])],
-                  , enable_dummyaudio=yes)
+[AS_HELP_STRING([--enable-dummyaudio], [support the dummy audio driver [default=no]])],
+                  , enable_dummyaudio=no)
     if test x$enable_audio = xyes -a x$enable_dummyaudio = xyes; then
         AC_DEFINE(SDL_AUDIO_DRIVER_DUMMY, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/audio/dummy/*.c"
@@ -2355,8 +2355,8 @@ dnl rcg04172001 Set up the Null video driver.
 CheckDummyVideo()
 {
     AC_ARG_ENABLE(video-dummy,
-[AS_HELP_STRING([--enable-video-dummy], [use dummy video driver [default=yes]])],
-                  , enable_video_dummy=yes)
+[AS_HELP_STRING([--enable-video-dummy], [use dummy video driver [default=no]])],
+                  , enable_video_dummy=no)
     if test x$enable_video_dummy = xyes; then
         AC_DEFINE(SDL_VIDEO_DRIVER_DUMMY, 1, [ ])
         SOURCES="$SOURCES $srcdir/src/video/dummy/*.c"
