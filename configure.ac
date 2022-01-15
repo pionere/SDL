@@ -3527,6 +3527,7 @@ CheckHIDAPI()
         fi
 
         if test x$hidapi_support = xyes; then
+            have_hidapi=yes
             if test x$have_libusb_h = xyes; then
                 EXTRA_CFLAGS="$EXTRA_CFLAGS $LIBUSB_CFLAGS"
                 if test x$require_hidapi_libusb = xyes; then
@@ -4795,8 +4796,8 @@ AC_CONFIG_COMMANDS([sdl2_config],[chmod a+x sdl2-config])
 
 SUMMARY="SDL2 was configured with the following options:\n"
 SUMMARY="${SUMMARY}Subsystems:\n"
-# Enabled subsystems without dummies are ON
-for MODULE in atomic render events hidapi power file cpuinfo; do
+# Enabled subsystems without dummies are ON (except for hidapi which itself is a dummy if not available)
+for MODULE in atomic render events power file cpuinfo; do
     ENABLE_MODULE="enable_"$MODULE
     if test "x${!ENABLE_MODULE}" = xyes; then
         declare have_${MODULE}=yes
