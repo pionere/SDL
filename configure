@@ -27163,15 +27163,25 @@ ac_config_commands="$ac_config_commands sdl2_config"
 
 SUMMARY="SDL2 was configured with the following options:\n"
 SUMMARY="${SUMMARY}Subsystems:\n"
+# Enabled subsystems without dummies are ON
+for MODULE in atomic render events hidapi power file cpuinfo; do
+    ENABLE_MODULE="enable_"$MODULE
+    if test "x${!ENABLE_MODULE}" = xyes; then
+        declare have_${MODULE}=yes
+    fi
+done
 for MODULE in atomic audio video render events joystick haptic hidapi power threads timers file loadso cpuinfo filesystem sensor misc locale; do
+    HAVE_MODULE="have_"$MODULE
     ENABLE_MODULE="enable_"$MODULE
     LENGTH_MODULE=${#MODULE}
     LABEL_MODULE="${MODULE^}"
     SUFFIX_MODULE="            "
     SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
     LABEL_MODULE="   ${LABEL_MODULE}${SUFFIX_MODULE}"
-    if test "x${!ENABLE_MODULE}" = xyes; then
+    if test "x${!HAVE_MODULE}" = xyes; then
         SUMMARY="${SUMMARY}${LABEL_MODULE}: YES\n"
+    elif test "x${!ENABLE_MODULE}" = xyes; then
+        SUMMARY="${SUMMARY}${LABEL_MODULE}: DUMMY\n"
     else
         SUMMARY="${SUMMARY}${LABEL_MODULE}: NO\n"
     fi
