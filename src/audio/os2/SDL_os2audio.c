@@ -441,9 +441,9 @@ static SDL_bool OS2_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 
-
+/* "OS/2 DART" */
 AudioBootStrap OS2AUDIO_bootstrap = {
-    "DART", "OS/2 DART", OS2_Init, SDL_FALSE
+    "DART", OS2_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_OS2 */

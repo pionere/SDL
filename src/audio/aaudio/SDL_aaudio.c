@@ -333,9 +333,9 @@ failure:
     ctx.builder = NULL;
     return SDL_FALSE;
 }
-
+/* "AAudio audio driver" */
 AudioBootStrap aaudio_bootstrap = {
-    "AAudio", "AAudio audio driver", aaudio_Init, SDL_FALSE
+    "AAudio", aaudio_Init, SDL_FALSE
 };
 
 /* Pause (block) all non already paused audio devices by taking their mixer lock */

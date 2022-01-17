@@ -598,9 +598,9 @@ DSOUND_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "DirectSound" */
 AudioBootStrap DSOUND_bootstrap = {
-    "directsound", "DirectSound", DSOUND_Init, SDL_FALSE
+    "directsound", DSOUND_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_DSOUND */

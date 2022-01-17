@@ -506,9 +506,9 @@ PAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "AIX Paudio" */
 AudioBootStrap PAUDIO_bootstrap = {
-    "paud", "AIX Paudio", PAUDIO_Init, SDL_FALSE
+    "paud", PAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_PAUDIO */

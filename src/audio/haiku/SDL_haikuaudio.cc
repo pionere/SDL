@@ -238,8 +238,9 @@ extern "C"
 {
     extern AudioBootStrap HAIKUAUDIO_bootstrap;
 }
+/* "Haiku BSoundPlayer" */
 AudioBootStrap HAIKUAUDIO_bootstrap = {
-    "haiku", "Haiku BSoundPlayer", HAIKUAUDIO_Init, SDL_FALSE
+    "haiku", HAIKUAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_HAIKU */

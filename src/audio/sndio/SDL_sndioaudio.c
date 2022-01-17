@@ -380,9 +380,9 @@ SNDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "OpenBSD sndio"*/
 AudioBootStrap SNDIO_bootstrap = {
-    "sndio", "OpenBSD sndio", SNDIO_Init, SDL_FALSE
+    "sndio", SNDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_SNDIO */

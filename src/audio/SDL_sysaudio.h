@@ -107,10 +107,6 @@ typedef struct SDL_AudioDriver
     /* The name of this audio driver */
     const char *name;
 
-    /* * * */
-    /* The description of this audio driver */
-    const char *desc;
-
     SDL_AudioDriverImpl impl;
 
     /* A mutex for device detection */
@@ -173,7 +169,6 @@ struct SDL_AudioDevice
 typedef struct AudioBootStrap
 {
     const char *name;
-    const char *desc;
     SDL_bool (*init) (SDL_AudioDriverImpl * impl);
     SDL_bool demand_only;  /* 1==request explicitly, or it won't be available. */
 } AudioBootStrap;

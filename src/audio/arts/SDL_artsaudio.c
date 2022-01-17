@@ -355,9 +355,9 @@ ARTS_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 
-
+/* "Analog RealTime Synthesizer" */
 AudioBootStrap ARTS_bootstrap = {
-    "arts", "Analog RealTime Synthesizer", ARTS_Init, SDL_FALSE
+    "arts", ARTS_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_ARTS */

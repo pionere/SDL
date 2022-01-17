@@ -962,7 +962,6 @@ SDL_AudioInit(const char *driver_name)
                     tried_to_init = SDL_TRUE;
                     SDL_zero(current_audio);
                     current_audio.name = bootstrap[i]->name;
-                    current_audio.desc = bootstrap[i]->desc;
                     initialized = bootstrap[i]->init(&current_audio.impl);
                     break;
                 }
@@ -979,7 +978,6 @@ SDL_AudioInit(const char *driver_name)
             tried_to_init = SDL_TRUE;
             SDL_zero(current_audio);
             current_audio.name = bootstrap[i]->name;
-            current_audio.desc = bootstrap[i]->desc;
             initialized = bootstrap[i]->init(&current_audio.impl);
         }
     }

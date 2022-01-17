@@ -325,9 +325,9 @@ DSP_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 
-
+/* "OSS /dev/dsp standard audio" */
 AudioBootStrap DSP_bootstrap = {
-    "dsp", "OSS /dev/dsp standard audio", DSP_Init, SDL_FALSE
+    "dsp", DSP_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_OSS */

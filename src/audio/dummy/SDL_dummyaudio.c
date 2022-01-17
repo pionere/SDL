@@ -58,9 +58,9 @@ DUMMYAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "SDL dummy audio driver" */
 AudioBootStrap DUMMYAUDIO_bootstrap = {
-    "dummy", "SDL dummy audio driver", DUMMYAUDIO_Init, SDL_TRUE
+    "dummy", DUMMYAUDIO_Init, SDL_TRUE
 };
 
 /* vi: set ts=4 sw=4 expandtab: */

@@ -453,9 +453,9 @@ NAS_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "Network Audio System" */
 AudioBootStrap NAS_bootstrap = {
-    "nas", "Network Audio System", NAS_Init, SDL_FALSE
+    "nas", NAS_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_NAS */

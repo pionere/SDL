@@ -154,10 +154,9 @@ NACLAUDIO_Init(SDL_AudioDriverImpl * impl)
     
     return SDL_TRUE;
 }
-
+/* "SDL NaCl Audio Driver" */
 AudioBootStrap NACLAUDIO_bootstrap = {
-    NACLAUDIO_DRIVER_NAME, "SDL NaCl Audio Driver",
-    NACLAUDIO_Init, SDL_FALSE
+    NACLAUDIO_DRIVER_NAME, NACLAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_NACL */

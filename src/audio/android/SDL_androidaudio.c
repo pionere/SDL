@@ -138,9 +138,9 @@ ANDROIDAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "SDL Android audio driver" */
 AudioBootStrap ANDROIDAUDIO_bootstrap = {
-    "android", "SDL Android audio driver", ANDROIDAUDIO_Init, SDL_FALSE
+    "android", ANDROIDAUDIO_Init, SDL_FALSE
 };
 
 /* Pause (block) all non already paused audio devices by taking their mixer lock */

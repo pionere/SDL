@@ -177,9 +177,9 @@ PSPAUDIO_Init(SDL_AudioDriverImpl * impl)
     */
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "PSP audio driver" */
 AudioBootStrap PSPAUDIO_bootstrap = {
-    "psp", "PSP audio driver", PSPAUDIO_Init, SDL_FALSE
+    "psp", PSPAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_PSP */

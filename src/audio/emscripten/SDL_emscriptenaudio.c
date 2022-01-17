@@ -387,9 +387,9 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return available;
 }
-
+/* "SDL emscripten audio driver" */
 AudioBootStrap EMSCRIPTENAUDIO_bootstrap = {
-    "emscripten", "SDL emscripten audio driver", EMSCRIPTENAUDIO_Init, SDL_FALSE
+    "emscripten", EMSCRIPTENAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_EMSCRIPTEN */

@@ -173,9 +173,9 @@ VITAAUD_Init(SDL_AudioDriverImpl * impl)
     */
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "VITA audio driver"*/
 AudioBootStrap VITAAUD_bootstrap = {
-    "vita", "VITA audio driver", VITAAUD_Init, SDL_FALSE
+    "vita", VITAAUD_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_VITA */

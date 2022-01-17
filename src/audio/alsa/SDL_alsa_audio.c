@@ -1020,9 +1020,9 @@ ALSA_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 
-
+/* "ALSA PCM audio" */
 AudioBootStrap ALSA_bootstrap = {
-    "alsa", "ALSA PCM audio", ALSA_Init, SDL_FALSE
+    "alsa", ALSA_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_ALSA */

@@ -409,9 +409,9 @@ SUNAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE; /* this audio target is available. */
 }
-
+/* "UNIX /dev/audio interface"*/
 AudioBootStrap SUNAUDIO_bootstrap = {
-    "audio", "UNIX /dev/audio interface", SUNAUDIO_Init, SDL_FALSE
+    "audio", SUNAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_SUNAUDIO */

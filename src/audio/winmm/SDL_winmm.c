@@ -451,9 +451,9 @@ WINMM_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "Windows Waveform Audio" */
 AudioBootStrap WINMM_bootstrap = {
-    "winmm", "Windows Waveform Audio", WINMM_Init, SDL_FALSE
+    "winmm", WINMM_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_WINMM */

@@ -733,9 +733,9 @@ WASAPI_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "WASAPI" */
 AudioBootStrap WASAPI_bootstrap = {
-    "wasapi", "WASAPI", WASAPI_Init, SDL_FALSE
+    "wasapi", WASAPI_Init, SDL_FALSE
 };
 
 #endif  /* SDL_AUDIO_DRIVER_WASAPI */

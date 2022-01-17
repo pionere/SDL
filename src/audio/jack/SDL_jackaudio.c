@@ -435,9 +435,9 @@ JACK_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "JACK Audio Connection Kit" */
 AudioBootStrap JACK_bootstrap = {
-    "jack", "JACK Audio Connection Kit", JACK_Init, SDL_FALSE
+    "jack", JACK_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_JACK */

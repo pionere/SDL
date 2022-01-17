@@ -660,9 +660,9 @@ QSA_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "QNX QSA Audio" */
 AudioBootStrap QSAAUDIO_bootstrap = {
-    "qsa", "QNX QSA Audio", QSA_Init, SDL_FALSE
+    "qsa", QSA_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_QSA */

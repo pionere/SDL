@@ -745,9 +745,9 @@ openslES_Init(SDL_AudioDriverImpl * impl)
     /* this audio target is available. */
     return SDL_TRUE;
 }
-
+/* "opensl ES audio driver" */
 AudioBootStrap openslES_bootstrap = {
-    "openslES", "opensl ES audio driver", openslES_Init, SDL_FALSE
+    "openslES", openslES_Init, SDL_FALSE
 };
 
 void openslES_ResumeDevices(void)

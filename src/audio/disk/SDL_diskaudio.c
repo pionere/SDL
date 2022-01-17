@@ -196,9 +196,9 @@ DISKAUDIO_Init(SDL_AudioDriverImpl * impl)
 
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+/* "direct-to-disk audio" */
 AudioBootStrap DISKAUDIO_bootstrap = {
-    "disk", "direct-to-disk audio", DISKAUDIO_Init, SDL_TRUE
+    "disk", DISKAUDIO_Init, SDL_TRUE
 };
 
 #endif /* SDL_AUDIO_DRIVER_DISK */

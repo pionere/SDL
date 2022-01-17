@@ -344,9 +344,9 @@ NETBSDAUDIO_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 
-
+/* "NetBSD audio" */
 AudioBootStrap NETBSDAUDIO_bootstrap = {
-    "netbsd", "NetBSD audio", NETBSDAUDIO_Init, SDL_FALSE
+    "netbsd", NETBSDAUDIO_Init, SDL_FALSE
 };
 
 #endif /* SDL_AUDIO_DRIVER_NETBSD */
