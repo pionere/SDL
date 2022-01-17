@@ -115,11 +115,9 @@ VIVANTE_Create()
 
     return device;
 }
-
+/* "Vivante EGL Video Driver" */
 VideoBootStrap VIVANTE_bootstrap = {
-    "vivante",
-    "Vivante EGL Video Driver",
-    VIVANTE_Create
+    "vivante", VIVANTE_Create
 };
 
 /*****************************************************************************/

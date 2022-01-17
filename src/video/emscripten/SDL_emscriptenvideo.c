@@ -123,10 +123,9 @@ Emscripten_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL emscripten video driver" */
 VideoBootStrap Emscripten_bootstrap = {
-    EMSCRIPTENVID_DRIVER_NAME, "SDL emscripten video driver",
-    Emscripten_CreateDevice
+    EMSCRIPTENVID_DRIVER_NAME, Emscripten_CreateDevice
 };
 
 

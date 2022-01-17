@@ -166,10 +166,9 @@ Cocoa_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL Cocoa video driver" */
 VideoBootStrap COCOA_bootstrap = {
-    "cocoa", "SDL Cocoa video driver",
-    Cocoa_CreateDevice
+    "cocoa", Cocoa_CreateDevice
 };
 
 

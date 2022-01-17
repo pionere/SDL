@@ -283,10 +283,9 @@ Wayland_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL Wayland video driver" */
 VideoBootStrap Wayland_bootstrap = {
-    WAYLANDVID_DRIVER_NAME, "SDL Wayland video driver",
-    Wayland_CreateDevice
+    WAYLANDVID_DRIVER_NAME, Wayland_CreateDevice
 };
 
 static void

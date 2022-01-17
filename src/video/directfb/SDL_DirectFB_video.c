@@ -62,10 +62,9 @@ static int DirectFB_VideoInit(_THIS);
 static void DirectFB_VideoQuit(_THIS);
 
 static SDL_VideoDevice *DirectFB_CreateDevice(int devindex);
-
+/* "DirectFB" */
 VideoBootStrap DirectFB_bootstrap = {
-    "directfb", "DirectFB",
-    DirectFB_CreateDevice
+    "directfb", DirectFB_CreateDevice
 };
 
 static const DirectFBSurfaceDrawingFlagsNames(drawing_flags);

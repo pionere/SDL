@@ -133,16 +133,13 @@ PND_create()
 
     return device;
 }
-
+/* "SDL Wiz Video Driver" / "SDL Pandora Video Driver" */
 VideoBootStrap PND_bootstrap = {
 #ifdef WIZ_GLES_LITE
     "wiz",
-    "SDL Wiz Video Driver",
 #else
     "pandora",
-    "SDL Pandora Video Driver",
 #endif
-    PND_available,
     PND_create
 };
 

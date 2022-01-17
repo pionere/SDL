@@ -164,10 +164,9 @@ Android_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL Android video driver" */
 VideoBootStrap Android_bootstrap = {
-    ANDROID_VID_DRIVER_NAME, "SDL Android video driver",
-    Android_CreateDevice
+    ANDROID_VID_DRIVER_NAME, Android_CreateDevice
 };
 
 

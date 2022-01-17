@@ -103,10 +103,9 @@ DUMMY_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL dummy video driver" */
 VideoBootStrap DUMMY_bootstrap = {
-    DUMMYVID_DRIVER_NAME, "SDL dummy video driver",
-    DUMMY_CreateDevice
+    DUMMYVID_DRIVER_NAME, DUMMY_CreateDevice
 };
 
 

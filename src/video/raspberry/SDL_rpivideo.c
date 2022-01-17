@@ -139,11 +139,9 @@ RPI_Create()
 
     return device;
 }
-
+/* "RPI Video Driver"*/
 VideoBootStrap RPI_bootstrap = {
-    "RPI",
-    "RPI Video Driver",
-    RPI_Create
+    "RPI", RPI_Create
 };
 
 

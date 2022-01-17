@@ -134,11 +134,9 @@ PSP_Create()
 
     return device;
 }
-
+/* "PSP Video Driver" */
 VideoBootStrap PSP_bootstrap = {
-    "PSP",
-    "PSP Video Driver",
-    PSP_Create
+    "PSP", PSP_Create
 };
 
 /*****************************************************************************/

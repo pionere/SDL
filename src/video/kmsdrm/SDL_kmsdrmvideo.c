@@ -310,11 +310,9 @@ cleanup:
         SDL_free(viddata);
     return NULL;
 }
-
+/* "KMS/DRM Video Driver" */
 VideoBootStrap KMSDRM_bootstrap = {
-    "KMSDRM",
-    "KMS/DRM Video Driver",
-    KMSDRM_CreateDevice
+    "KMSDRM", KMSDRM_CreateDevice
 };
 
 static void

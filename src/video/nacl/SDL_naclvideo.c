@@ -133,10 +133,9 @@ static SDL_VideoDevice *NACL_CreateDevice(int devindex) {
     
     return device;
 }
-
+/* "SDL Native Client Video Driver" */
 VideoBootStrap NACL_bootstrap = {
-    NACLVID_DRIVER_NAME, "SDL Native Client Video Driver",
-    NACL_CreateDevice
+    NACLVID_DRIVER_NAME, NACL_CreateDevice
 };
 
 int NACL_VideoInit(_THIS) {

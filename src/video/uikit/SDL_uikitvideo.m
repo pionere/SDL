@@ -144,10 +144,9 @@ UIKit_CreateDevice(int devindex)
         return device;
     }
 }
-
+/* "SDL UIKit video driver" */
 VideoBootStrap UIKIT_bootstrap = {
-    UIKITVID_DRIVER_NAME, "SDL UIKit video driver",
-    UIKit_CreateDevice
+    UIKITVID_DRIVER_NAME, UIKit_CreateDevice
 };
 
 

@@ -92,10 +92,9 @@ RISCOS_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL RISC OS video driver" */
 VideoBootStrap RISCOS_bootstrap = {
-    RISCOSVID_DRIVER_NAME, "SDL RISC OS video driver",
-    RISCOS_CreateDevice
+    RISCOSVID_DRIVER_NAME, RISCOS_CreateDevice
 };
 
 static int

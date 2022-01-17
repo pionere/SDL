@@ -128,10 +128,9 @@ HAIKU_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "Haiku graphics" */
 VideoBootStrap HAIKU_bootstrap = {
-    "haiku", "Haiku graphics",
-    HAIKU_CreateDevice
+    "haiku", HAIKU_CreateDevice
 };
 
 void HAIKU_DeleteDevice(SDL_VideoDevice * device)

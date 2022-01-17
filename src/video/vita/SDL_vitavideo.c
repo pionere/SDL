@@ -160,11 +160,9 @@ VITA_Create()
 
     return device;
 }
-
+/* "VITA Video Driver" */
 VideoBootStrap VITA_bootstrap = {
-    "VITA",
-    "VITA Video Driver",
-    VITA_Create
+    "VITA", VITA_Create
 };
 
 /*****************************************************************************/

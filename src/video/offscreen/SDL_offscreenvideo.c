@@ -96,10 +96,9 @@ OFFSCREEN_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL offscreen video driver" */
 VideoBootStrap OFFSCREEN_bootstrap = {
-    OFFSCREENVID_DRIVER_NAME, "SDL offscreen video driver",
-    OFFSCREEN_CreateDevice
+    OFFSCREENVID_DRIVER_NAME, OFFSCREEN_CreateDevice
 };
 
 int

@@ -316,10 +316,9 @@ X11_CreateDevice(int devindex)
 
     return device;
 }
-
+/* "SDL X11 video driver" */
 VideoBootStrap X11_bootstrap = {
-    "x11", "SDL X11 video driver",
-    X11_CreateDevice
+    "x11", X11_CreateDevice
 };
 
 static int (*handler) (Display *, XErrorEvent *) = NULL;

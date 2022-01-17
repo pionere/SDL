@@ -351,8 +351,7 @@ createDevice(int devindex)
     device->free = deleteDevice;
     return device;
 }
-
+/* "QNX Screen" */
 VideoBootStrap QNX_bootstrap = {
-    "qnx", "QNX Screen",
-    createDevice
+    "qnx", createDevice
 };
