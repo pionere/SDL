@@ -29,9 +29,18 @@ Minor changes:
 - report if subsystem is live or just a dummy (b0e6a3e5d8f0cd734952364e197dd3a739314cb3 + 3418aab14301cfa3c85163b529ed8e3aa433fe4d)
 - build with Release config on push and pull_request (ed0d774de463c6cddb3e9800b762029b4dfd6300)
 - upload created artifacts on push and pull_request (bf08b8f89ea2e37dee0d7e63386116e763f5eff6)
+- get rid of SkipMixerLock (414eb03fa9ab042f19c616b7aa2a42111fb8935e)
+- cleanup init functions of audio (375a18643de2b6882976890a35bef07c7bde1736)
+- get rid of PrepareToClose (42dc64560a5e804c76b0e9a0ee92a6e27d0a55a0)
+- get rid of BeginLoopIteration (5718be3ca3c8c20f74c7ff4fbe853dc8b67cb2ac) 
+- get rid of SDL_AudioDriver.desc (2b9a7d7601f756c3fa4621704ad7388f0ccc2417)
+- get rid of SDL_VideoDriver.desc (990453165480988f66ae47b13dad2835480d7dee)
+- use SDL_InvalidParamError or SDL_assert instead of custom SDL_SetError (028b14b751f68a218f7aca4b95d176c92b5c2593)
+- re-use return value of SDL_SetError/WIN_SetErrorFromHRESULT/SDL_OutOfMemory (4b5e78e8d3dfb98f9e9529a3aa0b5815a0e0828b)
 
 Bugfixes:
 - fix mixing of U16 audio (8f638ebaabfd4e2bbf6dac6cb074e782d8164333)
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
 - fix MacOS build with disabled SDL_SENSOR (0d2d1c47ef41b4c679d079dae7ff1d41de26189d)
 - do not load/unload opengl library when SDL_WINDOW_METAL flag is changed (6b306cfdbc1045a0971732c308b2289b92080358)
+- cleanup SDL_RegisterApp (1974ac4a47c7756174edfb95efd9f5911588f9b9)
