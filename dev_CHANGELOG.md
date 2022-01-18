@@ -37,6 +37,10 @@ Minor changes:
 - get rid of SDL_VideoDriver.desc (990453165480988f66ae47b13dad2835480d7dee)
 - use SDL_InvalidParamError or SDL_assert instead of custom SDL_SetError (028b14b751f68a218f7aca4b95d176c92b5c2593)
 - re-use return value of SDL_SetError/WIN_SetErrorFromHRESULT/SDL_OutOfMemory (4b5e78e8d3dfb98f9e9529a3aa0b5815a0e0828b)
+- cleanup IME_GetId (9b16a402ffcab6a2c2e6a44fb5ca67869824135d)
+- cleanup IME_UpdateInputLocale (b193765866d4554cc6e71d4fe911b414663e7b4a)
+- cleanup IME_GetCandidateList / UILess_GetCandidateList (31b4db8b5a1712d4b6b4986dc78ea16eca5964f8)
+- adjustments to ime_candidates (2cbbe764846df85fc0646827302370999c3200ac)
 
 Bugfixes:
 - fix mixing of U16 audio (8f638ebaabfd4e2bbf6dac6cb074e782d8164333)
