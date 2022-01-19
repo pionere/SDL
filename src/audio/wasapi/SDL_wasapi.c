@@ -66,7 +66,7 @@ static const GUID SDL_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = { 0x00000003, 0x0000, 0x
 
 
 void
-WASAPI_RemoveDevice(const SDL_bool iscapture, LPCWSTR devid)
+WASAPI_RemoveDevice(LPCWSTR devid)
 {
     DevIdList *i;
     DevIdList *next;
@@ -79,7 +79,7 @@ WASAPI_RemoveDevice(const SDL_bool iscapture, LPCWSTR devid)
             } else {
                 deviceid_list = next;
             }
-            SDL_RemoveAudioDevice(iscapture, i->str);
+            SDL_RemoveAudioDevice(i->str);
             SDL_free(i->str);
             SDL_free(i);
         }

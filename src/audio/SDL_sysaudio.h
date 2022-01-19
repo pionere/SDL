@@ -43,7 +43,7 @@ extern void SDL_AddAudioDevice(const SDL_bool iscapture, const char *name, SDL_A
 
 /* Audio targets should call this as devices are removed, so SDL can update
    its list of available devices. */
-extern void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle);
+extern void SDL_RemoveAudioDevice(void *handle);
 
 /* Audio targets should call this if an opened audio device is lost while
    being used. This can happen due to i/o errors, or a device being unplugged,

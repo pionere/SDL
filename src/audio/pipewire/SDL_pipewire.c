@@ -297,7 +297,7 @@ io_list_remove(Uint32 id)
             spa_list_remove(&n->link);
 
             if (SDL_AtomicGet(&hotplug_events_enabled)) {
-                SDL_RemoveAudioDevice(n->is_capture, PW_ID_TO_HANDLE(id));
+                SDL_RemoveAudioDevice(PW_ID_TO_HANDLE(id));
             }
 
             SDL_free(n);

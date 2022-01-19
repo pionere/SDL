@@ -154,7 +154,7 @@ void
 SDL_WasapiDeviceEventHandler::OnDeviceRemoved(DeviceWatcher^ sender, DeviceInformationUpdate^ info)
 {
     SDL_assert(sender == this->watcher);
-    WASAPI_RemoveDevice(this->iscapture, info->Id->Data());
+    WASAPI_RemoveDevice(info->Id->Data());
 }
 
 void

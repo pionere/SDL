@@ -72,7 +72,6 @@ typedef struct tagWAVEOUTCAPS2W
 
 #define DETECT_DEV_IMPL(iscap, typ, capstyp) \
 static void DetectWave##typ##Devs(void) { \
-    const UINT iscapture = iscap ? 1 : 0; \
     const UINT devcount = wave##typ##GetNumDevs(); \
     capstyp##2W caps; \
     SDL_AudioSpec spec; \
@@ -87,7 +86,7 @@ static void DetectWave##typ##Devs(void) { \
                  * sample formats, but not an _active_ format. \
                  */ \
                 spec.channels = (Uint8)caps.wChannels; \
-                SDL_AddAudioDevice((int) iscapture, name, &spec, (void *) ((size_t) i+1)); \
+                SDL_AddAudioDevice(iscap, name, &spec, (void *) ((size_t) i+1)); \
                 SDL_free(name); \
             } \
         } \

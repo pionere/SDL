@@ -207,7 +207,7 @@ SDLMMNotificationClient_OnDeviceStateChanged(IMMNotificationClient *ithis, LPCWS
                         SDL_free(utf8dev);
                     }
                 } else {
-                    WASAPI_RemoveDevice(iscapture, pwstrDeviceId);
+                    WASAPI_RemoveDevice(pwstrDeviceId);
                 }
             }
             IMMEndpoint_Release(endpoint);
