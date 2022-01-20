@@ -46,6 +46,9 @@ Minor changes:
 - cleanup WASAPI_PrepDevice (e00d10946bc839dab5d2455091da8bc7a66ca26b)
 - cleanup SDL_GetAudioDeviceName (5528c9415dc3d0c3578f91be3e38552e1fe3db4e)
 - cleanup SDL_GetAudioDeviceSpec (c4be7cb6eeeb083b70bbcb2145b0bf8f1cbc80d7)
+- cleanup/sync the main loop of *_OpenDevice functions to pick audio format (706fc7daba0d3a0b02b36a90e9babc940f98a34f + 6d80bf5b27097ce43872e01d0bb4e96793d1fbf9)
+- drop handle parameter of OpenDevice (8c18e2f7094cd2201d8a68e403fbb239e7663f96)
+- replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba)
 
 Bugfixes:
 - fix mixing of U16 audio (8f638ebaabfd4e2bbf6dac6cb074e782d8164333)
