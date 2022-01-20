@@ -930,7 +930,7 @@ ALSA_HotplugIteration(void)
         for (dev = unseen; dev; dev = next) {
             /*printf("ALSA: removing usb %s device '%s'\n", dev->iscapture ? "capture" : "output", dev->name);*/
             next = dev->next;
-            SDL_RemoveAudioDevice(dev->name);
+            SDL_RemoveAudioDevice(dev->iscapture, dev->name);
             SDL_free(dev->name);
             SDL_free(dev);
         }

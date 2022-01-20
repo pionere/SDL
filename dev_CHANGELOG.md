@@ -42,7 +42,7 @@ Minor changes:
 - cleanup IME_GetCandidateList / UILess_GetCandidateList (31b4db8b5a1712d4b6b4986dc78ea16eca5964f8)
 - adjustments to ime_candidates (2cbbe764846df85fc0646827302370999c3200ac)
 - cleanup SDL_EventState (0eac05aa83dbf125c40022854c034b38c23c8bf0)
-- adjust handling of iscapture (dfc186bb69a85d5a1bb6e6e941c3fbf02e74e641 + 9fe21b0f8d0433c03d92db4c2da040a97e60acd6)
+- adjust handling of iscapture (dfc186bb69a85d5a1bb6e6e941c3fbf02e74e641)
 - cleanup WASAPI_PrepDevice (e00d10946bc839dab5d2455091da8bc7a66ca26b)
 - cleanup SDL_GetAudioDeviceName (5528c9415dc3d0c3578f91be3e38552e1fe3db4e)
 - cleanup SDL_GetAudioDeviceSpec (c4be7cb6eeeb083b70bbcb2145b0bf8f1cbc80d7)

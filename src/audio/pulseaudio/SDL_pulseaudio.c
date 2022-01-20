@@ -789,7 +789,7 @@ HotplugCallback(pa_context *c, pa_subscription_event_type_t t, uint32_t idx, voi
             PULSEAUDIO_pa_context_get_source_info_by_index(hotplug_context, idx, SourceInfoCallback, NULL);
         } else if (removed && (sink || source)) {
             /* removes we can handle just with the device index. */
-            SDL_RemoveAudioDevice((void *) ((size_t) idx+1));
+            SDL_RemoveAudioDevice(source != 0, (void *) ((size_t) idx+1));
         }
     }
 }
