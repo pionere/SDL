@@ -445,8 +445,7 @@ NAS_Init(SDL_AudioDriverImpl * impl)
     impl->CloseDevice = NAS_CloseDevice;
     impl->Deinitialize = NAS_Deinitialize;
 
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
-    impl->OnlyHasDefaultCaptureDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
     impl->HasCaptureSupport = SDL_TRUE;
 
     return SDL_TRUE;   /* this audio target is available. */

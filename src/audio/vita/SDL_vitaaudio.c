@@ -166,10 +166,9 @@ VITAAUD_Init(SDL_AudioDriverImpl * impl)
     impl->ThreadInit = VITAAUD_ThreadInit;
 
     /* VITA audio device */
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
     /*
     impl->HasCaptureSupport = SDL_TRUE;
-    impl->OnlyHasDefaultInputDevice = SDL_TRUE;
     */
     return SDL_TRUE;   /* this audio target is available. */
 }

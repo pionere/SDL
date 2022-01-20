@@ -352,7 +352,7 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
     impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
 
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     /* no threads here */
     impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
@@ -381,8 +381,7 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
         return SDL_FALSE;
     });
 
-    impl->HasCaptureSupport = capture_available ? SDL_TRUE : SDL_FALSE;
-    impl->OnlyHasDefaultCaptureDevice = capture_available ? SDL_TRUE : SDL_FALSE;
+    impl->HasCaptureSupport = capture_available;
 
     return available;
 }

@@ -316,8 +316,7 @@ aaudio_Init(SDL_AudioDriverImpl *impl)
 
     /* and the capabilities */
     impl->HasCaptureSupport = SDL_TRUE;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
-    impl->OnlyHasDefaultCaptureDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     /* this audio target is available. */
     LOGI("SDL aaudio_Init OK");

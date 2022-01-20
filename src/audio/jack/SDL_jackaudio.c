@@ -430,8 +430,7 @@ JACK_Init(SDL_AudioDriverImpl * impl)
     impl->Deinitialize = JACK_Deinitialize;
     impl->CaptureFromDevice = JACK_CaptureFromDevice;
     impl->FlushCapture = JACK_FlushCapture;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
-    impl->OnlyHasDefaultCaptureDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
     impl->HasCaptureSupport = SDL_TRUE;
 
     return SDL_TRUE;   /* this audio target is available. */

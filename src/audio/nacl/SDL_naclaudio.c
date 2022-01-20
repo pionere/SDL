@@ -143,7 +143,7 @@ NACLAUDIO_Init(SDL_AudioDriverImpl * impl)
     /* Set the function pointers */
     impl->OpenDevice = NACLAUDIO_OpenDevice;
     impl->CloseDevice = NACLAUDIO_CloseDevice;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
     impl->ProvidesOwnCallbackThread = SDL_TRUE;
     /*
      *    impl->WaitDevice = NACLAUDIO_WaitDevice;

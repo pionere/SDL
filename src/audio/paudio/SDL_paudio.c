@@ -480,7 +480,7 @@ PAUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->PlayDevice = PAUDIO_WaitDevice;
     impl->GetDeviceBuf = PAUDIO_GetDeviceBuf;
     impl->CloseDevice = PAUDIO_CloseDevice;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;       /* !!! FIXME: add device enum! */
+    impl->PreventSimultaneousOpens = SDL_TRUE;       /* !!! FIXME: add device enum! */
 
     return SDL_TRUE;   /* this audio target is available. */
 }

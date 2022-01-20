@@ -342,7 +342,7 @@ ARTS_Init(SDL_AudioDriverImpl * impl)
     impl->GetDeviceBuf = ARTS_GetDeviceBuf;
     impl->CloseDevice = ARTS_CloseDevice;
     impl->Deinitialize = ARTS_Deinitialize;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

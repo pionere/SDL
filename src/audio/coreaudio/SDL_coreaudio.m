@@ -1164,8 +1164,7 @@ COREAUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->DetectDevices = COREAUDIO_DetectDevices;
     AudioObjectAddPropertyListener(kAudioObjectSystemObject, &devlist_address, device_list_changed, NULL);
 #else
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
-    impl->OnlyHasDefaultCaptureDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 #endif
 
     impl->ProvidesOwnCallbackThread = SDL_TRUE;

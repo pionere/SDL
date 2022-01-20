@@ -84,8 +84,7 @@ typedef struct SDL_AudioDriverImpl
     /* Some flags to push duplicate code into the core and reduce #ifdefs. */
     SDL_bool ProvidesOwnCallbackThread;
     SDL_bool HasCaptureSupport;
-    SDL_bool OnlyHasDefaultOutputDevice;
-    SDL_bool OnlyHasDefaultCaptureDevice;
+    SDL_bool PreventSimultaneousOpens;
     SDL_bool AllowsArbitraryDeviceNames;
 } SDL_AudioDriverImpl;
 

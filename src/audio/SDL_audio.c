@@ -225,10 +225,6 @@ get_audio_device(SDL_AudioDeviceID id)
 static void
 SDL_AudioDetectDevices_Default(void)
 {
-    /* you have to write your own implementation if these assertions fail. */
-    SDL_assert(current_audio.impl.OnlyHasDefaultOutputDevice);
-    SDL_assert(current_audio.impl.OnlyHasDefaultCaptureDevice || !current_audio.impl.HasCaptureSupport);
-
     SDL_AddAudioDevice(SDL_FALSE, DEFAULT_OUTPUT_DEVNAME, NULL, (void *) ((size_t) 0x1));
     if (current_audio.impl.HasCaptureSupport) {
         SDL_AddAudioDevice(SDL_TRUE, DEFAULT_INPUT_DEVNAME, NULL, (void *) ((size_t) 0x2));
@@ -1296,43 +1292,7 @@ open_audio_device(const char *devname, int iscapture,
         devname = SDL_getenv("SDL_AUDIO_DEVICE_NAME");
     }
 
-    /*
-     * Catch device names at the high level for the simple case...
-     * This lets us have a basic "device enumeration" for systems that
-     *  don't have multiple devices, but makes sure the device name is
-     *  always NULL when it hits the low level.
-     *
-     * Also make sure that the simple case prevents multiple simultaneous
-     *  opens of the default system device.
-     */
-
-    if ((iscapture) && (current_audio.impl.OnlyHasDefaultCaptureDevice)) {
-        if ((devname) && (SDL_strcmp(devname, DEFAULT_INPUT_DEVNAME) != 0)) {
-            SDL_SetError("No such device");
-            return 0;
-        }
-        devname = NULL;
-
-        for (i = 0; i < SDL_arraysize(open_devices); i++) {
-            if ((open_devices[i]) && (open_devices[i]->iscapture)) {
-                SDL_SetError("Audio device already open");
-                return 0;
-            }
-        }
-    } else if ((!iscapture) && (current_audio.impl.OnlyHasDefaultOutputDevice)) {
-        if ((devname) && (SDL_strcmp(devname, DEFAULT_OUTPUT_DEVNAME) != 0)) {
-            SDL_SetError("No such device");
-            return 0;
-        }
-        devname = NULL;
-
-        for (i = 0; i < SDL_arraysize(open_devices); i++) {
-            if ((open_devices[i]) && (!open_devices[i]->iscapture)) {
-                SDL_SetError("Audio device already open");
-                return 0;
-            }
-        }
-    } else if (devname != NULL) {
+    if (devname != NULL) {
         /* if the app specifies an exact string, we can pass the backend
            an actual device handle thingey, which saves them the effort of
            figuring out what device this was (such as, reenumerating
@@ -1348,13 +1308,22 @@ open_audio_device(const char *devname, int iscapture,
             }
         }
         SDL_UnlockMutex(current_audio.detectionLock);
-    }
 
-    if (!current_audio.impl.AllowsArbitraryDeviceNames) {
-        /* has to be in our device list, or the default device. */
-        if ((handle == NULL) && (devname != NULL)) {
-            SDL_SetError("No such device.");
-            return 0;
+        /* has to be in our device list. */
+        if (!current_audio.impl.AllowsArbitraryDeviceNames && handle == NULL) {
+           SDL_SetError("No such device.");
+           return 0;
+        }
+    }
+    /*
+     * Prevent multiple simultaneous opens (per capture mode) if configured.
+     */
+    if (current_audio.impl.PreventSimultaneousOpens) {
+        for (i = 0; i < SDL_arraysize(open_devices); i++) {
+            if ((open_devices[i]) && (open_devices[i]->iscapture == iscapture)) {
+                SDL_SetError("Audio device already open");
+                return 0;
+            }
         }
     }
 
@@ -1507,7 +1476,7 @@ SDL_OpenAudio(SDL_AudioSpec * desired, SDL_AudioSpec * obtained)
 
     /* SDL_OpenAudio() is legacy and can only act on Device ID #1. */
     if (open_devices[0] != NULL) {
-        return SDL_SetError("Audio device is already opened");
+        return SDL_SetError("Audio device already open");
     }
 
     if (obtained) {

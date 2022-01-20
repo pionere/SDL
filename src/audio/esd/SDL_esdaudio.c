@@ -320,7 +320,7 @@ ESD_Init(SDL_AudioDriverImpl * impl)
     impl->GetDeviceBuf = ESD_GetDeviceBuf;
     impl->CloseDevice = ESD_CloseDevice;
     impl->Deinitialize = ESD_Deinitialize;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

@@ -172,13 +172,6 @@ DISKAUDIO_OpenDevice(_THIS, const char *devname)
     return 0;
 }
 
-static void
-DISKAUDIO_DetectDevices(void)
-{
-    SDL_AddAudioDevice(SDL_FALSE, DEFAULT_OUTPUT_DEVNAME, NULL, (void *) 0x1);
-    SDL_AddAudioDevice(SDL_TRUE, DEFAULT_INPUT_DEVNAME, NULL, (void *) 0x2);
-}
-
 static SDL_bool
 DISKAUDIO_Init(SDL_AudioDriverImpl * impl)
 {
@@ -191,7 +184,6 @@ DISKAUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->FlushCapture = DISKAUDIO_FlushCapture;
 
     impl->CloseDevice = DISKAUDIO_CloseDevice;
-    impl->DetectDevices = DISKAUDIO_DetectDevices;
 
     impl->AllowsArbitraryDeviceNames = SDL_TRUE;
     impl->HasCaptureSupport = SDL_TRUE;

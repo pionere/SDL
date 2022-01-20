@@ -170,10 +170,9 @@ PSPAUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->ThreadInit = PSPAUDIO_ThreadInit;
 
     /* PSP audio device */
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
     /*
     impl->HasCaptureSupport = SDL_TRUE;
-    impl->OnlyHasDefaultCaptureDevice = SDL_TRUE;
     */
     return SDL_TRUE;   /* this audio target is available. */
 }

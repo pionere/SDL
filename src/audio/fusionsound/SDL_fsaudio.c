@@ -302,7 +302,7 @@ SDL_FS_Init(SDL_AudioDriverImpl * impl)
     impl->GetDeviceBuf = SDL_FS_GetDeviceBuf;
     impl->CloseDevice = SDL_FS_CloseDevice;
     impl->Deinitialize = SDL_FS_Deinitialize;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }
