@@ -138,7 +138,7 @@ typedef enum
  * You can change this by calling SDL_SetSurfaceBlendMode() and selecting a
  * different `blendMode`.
  *
- * \param flags the flags are unused and should be set to 0
+ * \param flags the flags are unused
  * \param width the width of the surface
  * \param height the height of the surface
  * \param depth the depth of the surface in bits
@@ -169,10 +169,10 @@ extern DECLSPEC SDL_Surface *SDLCALL SDL_CreateRGBSurface
  * of providing pixel color masks, you provide it with a predefined format
  * from SDL_PixelFormatEnum.
  *
- * \param flags the flags are unused and should be set to 0
+ * \param flags the flags are unused
  * \param width the width of the surface
  * \param height the height of the surface
- * \param depth the depth of the surface in bits
+ * \param depth the depth is unused
  * \param format the SDL_PixelFormatEnum for the new surface's pixel format.
  * \returns the new SDL_Surface structure that is created or NULL if it fails;
  *          call SDL_GetError() for more information.
@@ -240,7 +240,7 @@ extern DECLSPEC SDL_Surface *SDLCALL SDL_CreateRGBSurfaceFrom(void *pixels,
  * \param pixels a pointer to existing pixel data
  * \param width the width of the surface
  * \param height the height of the surface
- * \param depth the depth of the surface in bits
+ * \param depth the depth is unused
  * \param pitch the pitch of the surface in bytes
  * \param format the SDL_PixelFormatEnum for the new surface's pixel format.
  * \returns the new SDL_Surface structure that is created or NULL if it fails;

@@ -65,6 +65,8 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 
     /* The flags are no longer used, make the compiler happy */
     (void)flags;
+    /* The depth is no longer used, make the compiler happy */
+    (void)depth;
 
     pitch = SDL_CalculatePitch(format, width);
     if (pitch < 0 || pitch > SDL_MAX_SINT32) {
@@ -203,7 +205,7 @@ SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
 {
     SDL_Surface *surface;
 
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, depth, format);
+    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, 0, format);
     if (surface != NULL) {
         surface->flags |= SDL_PREALLOC;
         surface->pixels = pixels;
