@@ -470,7 +470,7 @@ SDL_LogSetPriority(int category, SDL_LogPriority priority)
 SDL_LogPriority
 SDL_LogGetPriority(int category)
 {
-    return 0;
+    return SDL_LOG_PRIORITY_CRITICAL;
 }
 
 void
