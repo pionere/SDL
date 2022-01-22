@@ -20,7 +20,7 @@ Minor changes:
 - fix have_audio/video flags, add uikit to SUMMARY_video in configure (5f393ed696ea11c3df3ca8d03e8602bc9936ca40)
 - add audio/video dummies if nothing else available (7d84f6861685ba46b47c7327a5b7239d0af26cc7 + 7f6084283f0e1378fa6412770272476035e5e89d)
 - cleanup test configuration (f8a63d295d1ed6c36d5a4180542dc4730ad3fd12 + 654eef8f7ba794360a9543ef6a3cc5d064d8522f)
-- add option to enable/disable logging (66fcc1a70cf7af2dc6554071e8993e168dd48d81 + 7213a1683838d8db100bddfd5fc5b1c30b9f3df9)
+- add option to enable/disable logging (66fcc1a70cf7af2dc6554071e8993e168dd48d81 + 7213a1683838d8db100bddfd5fc5b1c30b9f3df9 + a451eb2827020ec2a6d95a87f7c722c3341fdb0c)
 - allow building without 'file' subsystem (976215319d8ed419f473475ba1525f062753eb72 + 6c3e1e8106bb048bfcc5e5d8d93d5bdb53e5e1a4 + 20259e4c9d1c21d7f3765c0e4f48e395d2c13092)
 - do not report dummy haptic subsystem as ON (dec3267bb8f863edc39b49499be38f8cdb672f9b)
 - dlopen is not a subsystem (9f2e352e9eb4cbe438f2a03e7033ccdca28c91c8)
@@ -49,6 +49,13 @@ Minor changes:
 - cleanup/sync the main loop of *_OpenDevice functions to pick audio format (706fc7daba0d3a0b02b36a90e9babc940f98a34f + 6d80bf5b27097ce43872e01d0bb4e96793d1fbf9)
 - drop handle parameter of OpenDevice (8c18e2f7094cd2201d8a68e403fbb239e7663f96)
 - replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba)
+- simplify SDL_DUMMY/OFFSCREEN_CreateWindowFramebuffer (0f84fa0b4391ee174cba02d3f8b496fdec86600a)
+- update SDL_CreateRGBSurface* interface (2b389c5133a0151a73ca6a4af6f4e26722a2abe6)
+- cleanup error-handling in SDL_bmp.c (f87cf70137d6c457bdf750a42eebd95dfdd12214)
+- cleanup error-handling in SDL_egl.c (6b849add37cffa2ff8f135cbbb8be65ad7d77518)
+- sync D3D_RenderReadPixels with D3D11_RenderReadPixels (5516e9c45441eed189d5b5b1a59e2171a3f98120)
+- do not use SDL_GetError internally (4da1368a2bbd99e92e61455c037bed17952fea63)
+  depends on 'sync D3D_RenderReadPixels with D3D11_RenderReadPixels' (5516e9c45441eed189d5b5b1a59e2171a3f98120)
 
 Bugfixes:
 - fix mixing of U16 audio (8f638ebaabfd4e2bbf6dac6cb074e782d8164333)
