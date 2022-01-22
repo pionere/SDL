@@ -240,12 +240,13 @@ static int GLES2_LoadFunctions(GLES2_RenderData * data)
 #if defined __SDL_NOGETPROCADDR__
 #define SDL_PROC(ret,func,params) data->func=func;
 #else
-#define SDL_PROC(ret,func,params) \
-    do { \
-        data->func = SDL_GL_GetProcAddress(#func); \
-        if ( ! data->func ) { \
-            return SDL_SetError("Couldn't load GLES2 function %s: %s", #func, SDL_GetError()); \
-        } \
+#define SDL_PROC(ret,func,params)                                               \
+    do {                                                                        \
+        data->func = SDL_GL_GetProcAddress(#func);                              \
+        if ( ! data->func ) {                                                   \
+            /* Don't call SDL_SetError(): SDL_GL_GetProcAddress already did. */ \
+            return -1;                                                          \
+        }                                                                       \
     } while ( 0 );
 #endif /* __SDL_NOGETPROCADDR__ */
 

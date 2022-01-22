@@ -110,13 +110,7 @@ LoadNASLibrary(void)
     if (nas_handle == NULL) {
         nas_handle = SDL_LoadObject(nas_library);
         if (nas_handle == NULL) {
-            /* Copy error string so we can use it in a new SDL_SetError(). */
-            const char *origerr = SDL_GetError();
-            const size_t len = SDL_strlen(origerr) + 1;
-            char *err = SDL_stack_alloc(char, len);
-            SDL_strlcpy(err, origerr, len);
-            SDL_SetError("NAS: SDL_LoadObject('%s') failed: %s", nas_library, err);
-            SDL_stack_free(err);
+            /* Don't call SDL_SetError(): SDL_LoadObject already did. */
             retval = -1;
         } else {
             retval = load_nas_syms();

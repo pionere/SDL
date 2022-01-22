@@ -160,12 +160,13 @@ static int GLES_LoadFunctions(GLES_RenderData * data)
 #define SDL_PROC(ret,func,params) data->func=func;
 #define SDL_PROC_OES(ret,func,params) data->func=func;
 #else
-#define SDL_PROC(ret,func,params) \
-    do { \
-        data->func = SDL_GL_GetProcAddress(#func); \
-        if ( ! data->func ) { \
-            return SDL_SetError("Couldn't load GLES function %s: %s", #func, SDL_GetError()); \
-        } \
+#define SDL_PROC(ret,func,params)                                               \
+    do {                                                                        \
+        data->func = SDL_GL_GetProcAddress(#func);                              \
+        if ( ! data->func ) {                                                   \
+            /* Don't call SDL_SetError(): SDL_GL_GetProcAddress already did. */ \
+            return -1;                                                          \
+        }                                                                       \
     } while ( 0 );
 #define SDL_PROC_OES(ret,func,params) \
     do { \

@@ -1204,13 +1204,6 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(
     }
 
     Internal_Android_Destroy_AssetManager();
-
-    str = SDL_GetError();
-    if (str && str[0]) {
-        __android_log_print(ANDROID_LOG_ERROR, "SDL", "SDLActivity thread ends (error=%s)", str);
-    } else {
-        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "SDLActivity thread ends");
-    }
 }
 
 /* Pause */

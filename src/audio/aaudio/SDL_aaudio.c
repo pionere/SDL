@@ -50,12 +50,13 @@ static SDL_AudioDevice *captureDevice = NULL;
 
 static int aaudio_LoadFunctions(AAUDIO_Data *data)
 {
-#define SDL_PROC(ret,func,params)                                                                   \
-    do {                                                                                            \
-        data->func = SDL_LoadFunction(data->handle, #func);                                         \
-        if (! data->func) {                                                                         \
-            return SDL_SetError("Couldn't load AAUDIO function %s: %s", #func, SDL_GetError());     \
-        }                                                                                           \
+#define SDL_PROC(ret,func,params)                                          \
+    do {                                                                   \
+        data->func = SDL_LoadFunction(data->handle, #func);                \
+        if (! data->func) {                                                \
+            /* Don't call SDL_SetError(): SDL_LoadFunction already did. */ \
+            return -1;                                                     \
+        }                                                                  \
     } while (0);
 #include "SDL_aaudiofuncs.h"
 #undef SDL_PROC

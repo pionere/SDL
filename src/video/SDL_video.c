@@ -4278,7 +4278,7 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     int retval = -1;
     SDL_bool relative_mode;
     int show_cursor_prev;
-    SDL_bool mouse_captured;
+    SDL_bool mouse_captured, has_driver = SDL_FALSE;
     SDL_Window *current_window;
     SDL_MessageBoxData mbdata;
 
@@ -4305,94 +4305,89 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     if (!mbdata.message) mbdata.message = "";
     messageboxdata = &mbdata;
 
-    SDL_ClearError();
-
     if (_this && _this->ShowMessageBox) {
+        has_driver = SDL_TRUE;
         retval = _this->ShowMessageBox(_this, messageboxdata, buttonid);
     }
 
     /* It's completely fine to call this function before video is initialized */
 #if SDL_VIDEO_DRIVER_ANDROID
-    if (retval == -1 &&
-        Android_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+    if (retval == -1) {
+        has_driver = SDL_TRUE;
+        retval = Android_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_WINDOWS
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WINDOWS) &&
-        WIN_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WINDOWS)) {
+        has_driver = SDL_TRUE;
+        retval = WIN_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_WINRT
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WINRT) &&
-        WINRT_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WINRT)) {
+        has_driver = SDL_TRUE;
+        retval = WINRT_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_COCOA
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_COCOA) &&
-        Cocoa_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_COCOA)) {
+        has_driver = SDL_TRUE;
+        retval = Cocoa_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_UIKIT
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_UIKIT) &&
-        UIKit_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_UIKIT)) {
+        has_driver = SDL_TRUE;
+        retval = UIKit_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_X11
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11) &&
-        X11_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11)) {
+        has_driver = SDL_TRUE;
+        retval = X11_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_WAYLAND
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND) &&
-        Wayland_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND)) {
+        has_driver = SDL_TRUE;
+        retval = Wayland_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_HAIKU
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_HAIKU) &&
-        HAIKU_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_HAIKU)) {
+        has_driver = SDL_TRUE;
+        retval = HAIKU_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_OS2
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_OS2) &&
-        OS2_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_OS2)) {
+        has_driver = SDL_TRUE;
+        retval = OS2_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_RISCOS
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_RISCOS) &&
-        RISCOS_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_RISCOS)) {
+        has_driver = SDL_TRUE;
+        retval = RISCOS_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_VITA
-    if (retval == -1 &&
-        VITA_ShowMessageBox(messageboxdata, buttonid) == 0) {
-        retval = 0;
+    if (retval == -1) {
+        has_driver = SDL_TRUE;
+        retval = VITA_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
-    if (retval == -1) {
-        const char *error = SDL_GetError();
-
-        if (!*error) {
-            SDL_SetError("No message system available");
-        }
+    if (retval == -1 && !has_driver) {
+        SDL_SetError("No message system available");
     }
 
     if (current_window) {

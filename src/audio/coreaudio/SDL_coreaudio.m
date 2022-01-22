@@ -33,17 +33,37 @@
 
 #define DEBUG_COREAUDIO 0
 
+typedef enum SDL_CoreAudioErrorNum
+{
+    SDL_COREAUDIO_ERROR_NO = 0,
+    SDL_COREAUDIO_ERROR_DEFAULT_DEVICE,
+    SDL_COREAUDIO_ERROR_DEVICE_NOT_EXISTS,
+    SDL_COREAUDIO_ERROR_NOT_ALIVE,
+    SDL_COREAUDIO_ERROR_HOGGED,
+    SDL_COREAUDIO_ERROR_GET_UID,
+    SDL_COREAUDIO_ERROR_SET_CURRENT,
+    SDL_COREAUDIO_ERROR_INPUT,
+    SDL_COREAUDIO_ERROR_OUTPUT,
+    SDL_COREAUDIO_ERROR_SET_LAYOUT,
+    SDL_COREAUDIO_ERROR_BUFFER_ALLOCATE,
+    SDL_COREAUDIO_ERROR_BUFFER_ENQUEUE,
+    SDL_COREAUDIO_ERROR_QUEUE_START,
+    SDL_COREAUDIO_ERROR_OUT_OF_MEMORY,
+} SDL_CoreAudioErrorNum;
+
 #if DEBUG_COREAUDIO
-    #define CHECK_RESULT(msg) \
+    #define CHECK_RESULT(errId) \
         if (result != noErr) { \
-            printf("COREAUDIO: Got error %d from '%s'!\n", (int) result, msg); \
-            SDL_SetError("CoreAudio error (%s): %d", msg, (int) result); \
+            printf("COREAUDIO: Got error %d from %d!\n", (int) result, errId); \
+            this->hidden->error_id = errId; \
+            this->hidden->error_param = result; \
             return 0; \
         }
 #else
-    #define CHECK_RESULT(msg) \
+    #define CHECK_RESULT(errId) \
         if (result != noErr) { \
-            SDL_SetError("CoreAudio error (%s): %d", msg, (int) result); \
+            this->hidden->error_id = errId; \
+            this->hidden->error_param = result; \
             return 0; \
         }
 #endif
@@ -516,6 +536,58 @@ static BOOL update_audio_session(_THIS, SDL_bool open, SDL_bool allow_playandrec
 }
 #endif
 
+static int prepare_error_message(_THIS)
+{
+    const char* msg;
+
+    switch (this->hidden->error_id) {
+    case SDL_COREAUDIO_ERROR_DEFAULT_DEVICE:
+        msg = "CoreAudio error (AudioHardwareGetProperty (default device)): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_DEVICE_NOT_EXISTS:
+        msg = "CoreAudio error (AudioDeviceGetProperty (kAudioDevicePropertyDeviceIsAlive)): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_NOT_ALIVE:
+        msg = "CoreAudio: requested device exists, but isn't alive.";
+        break;
+    case SDL_COREAUDIO_ERROR_HOGGED:
+        msg = "CoreAudio: requested device is being hogged.";
+        break;
+    case SDL_COREAUDIO_ERROR_GET_UID:
+        msg = "CoreAudio error (AudioObjectGetPropertyData (kAudioDevicePropertyDeviceUID)): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_SET_CURRENT:
+        msg = "CoreAudio error (AudioQueueSetProperty (kAudioQueueProperty_CurrentDevice)): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_INPUT:
+        msg = "CoreAudio error (AudioQueueNewInput): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_OUTPUT:
+        msg = "CoreAudio error (AudioQueueNewOutput): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_SET_LAYOUT:
+        msg = "CoreAudio error (AudioQueueSetProperty(kAudioQueueProperty_ChannelLayout)): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_BUFFER_ALLOCATE:
+        msg = "CoreAudio error (AudioQueueAllocateBuffer): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_BUFFER_ENQUEUE:
+        msg = "CoreAudio error (AudioQueueEnqueueBuffer): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_QUEUE_START:
+        msg = "CoreAudio error (AudioQueueStart): %d";
+        break;
+    case SDL_COREAUDIO_ERROR_OUT_OF_MEMORY:
+        msg = "Out of memory";
+        break;
+    default:
+        msg = ""; /* shouldn't happen, but just in case... */
+        break;
+    }
+    this->hidden->error_id = SDL_COREAUDIO_ERROR_NO;
+    SDL_SetError(msg, this->hidden->error_param);
+    return -1;
+}
 
 /* The AudioQueue callback */
 static void
@@ -734,7 +806,6 @@ COREAUDIO_CloseDevice(_THIS)
 
     /* AudioQueueDispose() frees the actual buffer objects. */
     SDL_free(this->hidden->audioBuffer);
-    SDL_free(this->hidden->thread_error);
     SDL_free(this->hidden->buffer);
     SDL_free(this->hidden);
 }
@@ -764,7 +835,7 @@ prepare_device(_THIS)
             kAudioHardwarePropertyDefaultOutputDevice);
         result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr,
                                             0, NULL, &size, &devid);
-        CHECK_RESULT("AudioHardwareGetProperty (default device)");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_DEFAULT_DEVICE);
     }
 
     addr.mSelector = kAudioDevicePropertyDeviceIsAlive;
@@ -774,10 +845,10 @@ prepare_device(_THIS)
     size = sizeof (alive);
     result = AudioObjectGetPropertyData(devid, &addr, 0, NULL, &size, &alive);
     CHECK_RESULT
-        ("AudioDeviceGetProperty (kAudioDevicePropertyDeviceIsAlive)");
+        (SDL_COREAUDIO_ERROR_DEVICE_NOT_EXISTS);
 
     if (!alive) {
-        SDL_SetError("CoreAudio: requested device exists, but isn't alive.");
+        this->hidden->error_id = SDL_COREAUDIO_ERROR_NOT_ALIVE;
         return 0;
     }
 
@@ -787,7 +858,7 @@ prepare_device(_THIS)
 
     /* some devices don't support this property, so errors are fine here. */
     if ((result == noErr) && (pid != -1)) {
-        SDL_SetError("CoreAudio: requested device is being hogged.");
+        this->hidden->error_id = SDL_COREAUDIO_ERROR_HOGGED;
         return 0;
     }
 
@@ -808,9 +879,9 @@ assign_device_to_audioqueue(_THIS)
     CFStringRef devuid;
     UInt32 devuidsize = sizeof (devuid);
     result = AudioObjectGetPropertyData(this->hidden->deviceID, &prop, 0, NULL, &devuidsize, &devuid);
-    CHECK_RESULT("AudioObjectGetPropertyData (kAudioDevicePropertyDeviceUID)");
+    CHECK_RESULT(SDL_COREAUDIO_ERROR_GET_UID);
     result = AudioQueueSetProperty(this->hidden->audioQueue, kAudioQueueProperty_CurrentDevice, &devuid, devuidsize);
-    CHECK_RESULT("AudioQueueSetProperty (kAudioQueueProperty_CurrentDevice)");
+    CHECK_RESULT(SDL_COREAUDIO_ERROR_SET_CURRENT);
 
     return 1;
 }
@@ -828,10 +899,10 @@ prepare_audioqueue(_THIS)
 
     if (iscapture) {
         result = AudioQueueNewInput(strdesc, inputCallback, this, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, 0, &this->hidden->audioQueue);
-        CHECK_RESULT("AudioQueueNewInput");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_INPUT);
     } else {
         result = AudioQueueNewOutput(strdesc, outputCallback, this, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, 0, &this->hidden->audioQueue);
-        CHECK_RESULT("AudioQueueNewOutput");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_OUTPUT);
     }
 
     #if MACOSX_COREAUDIO
@@ -885,7 +956,7 @@ prepare_audioqueue(_THIS)
     }
     if (layout.mChannelLayoutTag != 0) {
         result = AudioQueueSetProperty(this->hidden->audioQueue, kAudioQueueProperty_ChannelLayout, &layout, sizeof(layout));
-        CHECK_RESULT("AudioQueueSetProperty(kAudioQueueProperty_ChannelLayout)");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_SET_LAYOUT);
     }
 
     /* Allocate a sample buffer */
@@ -894,7 +965,7 @@ prepare_audioqueue(_THIS)
 
     this->hidden->buffer = SDL_malloc(this->hidden->bufferSize);
     if (this->hidden->buffer == NULL) {
-        SDL_OutOfMemory();
+        this->hidden->error_id = SDL_COREAUDIO_ERROR_OUT_OF_MEMORY;
         return 0;
     }
 
@@ -915,7 +986,7 @@ prepare_audioqueue(_THIS)
     this->hidden->numAudioBuffers = numAudioBuffers;
     this->hidden->audioBuffer = SDL_calloc(1, sizeof (AudioQueueBufferRef) * numAudioBuffers);
     if (this->hidden->audioBuffer == NULL) {
-        SDL_OutOfMemory();
+        this->hidden->error_id = SDL_COREAUDIO_ERROR_OUT_OF_MEMORY;
         return 0;
     }
 
@@ -925,16 +996,16 @@ prepare_audioqueue(_THIS)
 
     for (i = 0; i < numAudioBuffers; i++) {
         result = AudioQueueAllocateBuffer(this->hidden->audioQueue, this->spec.size, &this->hidden->audioBuffer[i]);
-        CHECK_RESULT("AudioQueueAllocateBuffer");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_BUFFER_ALLOCATE);
         SDL_memset(this->hidden->audioBuffer[i]->mAudioData, this->spec.silence, this->hidden->audioBuffer[i]->mAudioDataBytesCapacity);
         this->hidden->audioBuffer[i]->mAudioDataByteSize = this->hidden->audioBuffer[i]->mAudioDataBytesCapacity;
         /* !!! FIXME: should we use AudioQueueEnqueueBufferWithParameters and specify all frames be "trimmed" so these are immediately ready to refill with SDL callback data? */
         result = AudioQueueEnqueueBuffer(this->hidden->audioQueue, this->hidden->audioBuffer[i], 0, NULL);
-        CHECK_RESULT("AudioQueueEnqueueBuffer");
+        CHECK_RESULT(SDL_COREAUDIO_ERROR_BUFFER_ENQUEUE);
     }
 
     result = AudioQueueStart(this->hidden->audioQueue, NULL);
-    CHECK_RESULT("AudioQueueStart");
+    CHECK_RESULT(SDL_COREAUDIO_ERROR_QUEUE_START);
 
     /* We're running! */
     return 1;
@@ -960,7 +1031,6 @@ audioqueue_thread(void *arg)
 
     const int rc = prepare_audioqueue(this);
     if (!rc) {
-        this->hidden->thread_error = SDL_strdup(SDL_GetError());
         SDL_SemPost(this->hidden->ready_semaphore);
         return 0;
     }
@@ -995,6 +1065,8 @@ audioqueue_thread(void *arg)
                         AudioQueueEnqueueBuffer(this->hidden->audioQueue, this->hidden->audioBuffer[i], 0, NULL);
                     }
                     AudioQueueStart(this->hidden->audioQueue, NULL);
+                } else {
+                    ; // prepare_error_message(this); TODO: enable if it matters...
                 }
             }
         }
@@ -1135,8 +1207,8 @@ COREAUDIO_OpenDevice(_THIS, const char *devname)
     SDL_DestroySemaphore(this->hidden->ready_semaphore);
     this->hidden->ready_semaphore = NULL;
 
-    if ((this->hidden->thread != NULL) && (this->hidden->thread_error != NULL)) {
-        return SDL_SetError("%s", this->hidden->thread_error);
+    if ((this->hidden->thread != NULL) && (this->hidden->error_id != SDL_COREAUDIO_ERROR_NO)) {
+        return prepare_error_message(this);
     }
 
     return (this->hidden->thread != NULL) ? 0 : -1;

@@ -95,7 +95,7 @@ SDL_WinRTGetFSPathUNICODE(SDL_WinRT_Path pathType)
             break;
     }
 
-    SDL_Unsupported();
+    SDL_SetError("Unsupported path type: %d", pathType);
     return NULL;
 }
 
@@ -129,7 +129,7 @@ SDL_GetBasePath(void)
     char * destPath = NULL;
 
     if (!srcPath) {
-        SDL_SetError("Couldn't locate our basepath: %s", SDL_GetError());
+        /* Don't call SDL_SetError(): SDL_WinRTGetFSPathUTF8 already did. */
         return NULL;
     }
 

@@ -237,19 +237,19 @@ GL_LoadFunctions(GL_RenderData * data)
 #ifdef __SDL_NOGETPROCADDR__
 #define SDL_PROC(ret,func,params) data->func=func;
 #else
-    int retval = 0;
-#define SDL_PROC(ret,func,params) \
-    do { \
-        data->func = SDL_GL_GetProcAddress(#func); \
-        if ( ! data->func ) { \
-            retval = SDL_SetError("Couldn't load GL function %s: %s", #func, SDL_GetError()); \
-        } \
+#define SDL_PROC(ret,func,params)                                               \
+    do {                                                                        \
+        data->func = SDL_GL_GetProcAddress(#func);                              \
+        if ( ! data->func ) {                                                   \
+            /* Don't call SDL_SetError(): SDL_GL_GetProcAddress already did. */ \
+            return -1;                                                          \
+        }                                                                       \
     } while ( 0 );
 #endif /* __SDL_NOGETPROCADDR__ */
 
 #include "SDL_glfuncs.h"
 #undef SDL_PROC
-    return retval;
+    return 0;
 }
 
 static int
