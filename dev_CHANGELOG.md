@@ -2,7 +2,6 @@ Major changes:
 - expose SDL_DYNAMIC_API (SDL_DYNAPI) (ae1585de941eb1a50ffc0402b65f9e43ae07302a + 51c55497fe80c1a797e86334c56fdf378e6f8e02 + a541b7bb0141a8aa332b2174dd7d65bbda23a3b9 + ff4c8b98ce5ed65aa9ed6145a1fb826bde5bdb4a + 67e3582f3d7b4e85019278fa6abb4b509dce528b)
 
 Minor changes:
-- fix compiler warnings in SDL_windows_gaming_input.c (d1db6e8e78d1c64ad0f11a92d561cc9fcaf8dde8)
 - fix compiler warnings in video/uikit (867e589a2a565840a51b0b56e4c11eaf11c2d832)
 - cleanup of SDL_MixAudioFormat (018a137129639ee475cda43b2d1416ae7948e79e)
 - revert 'Changed to use 0xFE instead of 0xFF for better sound quality.' (1882e6e93fbb6995262f85953c54349a0edc2c88)
