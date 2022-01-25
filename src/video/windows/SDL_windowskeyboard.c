@@ -877,8 +877,13 @@ IME_GetCandidateList(HWND hwnd, SDL_VideoData *videodata)
 static int
 IME_ShowCandidateList(SDL_VideoData *videodata)
 {
+    void *candidates;
+
     videodata->ime_candcount = 0;
-    videodata->ime_candidates = SDL_realloc(videodata->ime_candidates, MAX_CANDSIZE);
+    candidates = SDL_realloc(videodata->ime_candidates, MAX_CANDSIZE);
+    if (candidates != NULL)
+        videodata->ime_candidates == (WCHAR *)candidates;
+
     if (videodata->ime_candidates == NULL)
         return -1;
 
