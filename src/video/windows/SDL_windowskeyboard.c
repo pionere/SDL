@@ -882,7 +882,7 @@ IME_ShowCandidateList(SDL_VideoData *videodata)
     videodata->ime_candcount = 0;
     candidates = SDL_realloc(videodata->ime_candidates, MAX_CANDSIZE);
     if (candidates != NULL)
-        videodata->ime_candidates == (WCHAR *)candidates;
+        videodata->ime_candidates = (WCHAR *)candidates;
 
     if (videodata->ime_candidates == NULL)
         return -1;
