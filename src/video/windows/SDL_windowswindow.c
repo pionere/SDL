@@ -51,16 +51,17 @@ static const TCHAR *SDL_HelperWindowClassName = TEXT("SDLHelperWindowInputCatche
 static const TCHAR *SDL_HelperWindowName = TEXT("SDLHelperWindowInputMsgWindow");
 static ATOM SDL_HelperWindowClass = 0;
 
-/* For borderless Windows, still want the following flags:
+/* For borderless Windows, still want the following flag:
+   - WS_MINIMIZEBOX: window will respond to Windows minimize commands sent to all windows, such as windows key + m, shaking title bar, etc.
+   Additionally, non-fullscreen windows can add:
    - WS_CAPTION: this seems to enable the Windows minimize animation
    - WS_SYSMENU: enables system context menu on task bar
-   - WS_MINIMIZEBOX: window will respond to Windows minimize commands sent to all windows, such as windows key + m, shaking title bar, etc.
    This will also cause the task bar to overlap the window and other windowed behaviors, so only use this for windows that shouldn't appear to be fullscreen
  */
 
 #define STYLE_BASIC         (WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
-#define STYLE_FULLSCREEN    (WS_POPUP)
-#define STYLE_BORDERLESS    (WS_POPUP)
+#define STYLE_FULLSCREEN    (WS_POPUP | WS_MINIMIZEBOX)
+#define STYLE_BORDERLESS    (WS_POPUP | WS_MINIMIZEBOX)
 #define STYLE_BORDERLESS_WINDOWED (WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
 #define STYLE_NORMAL        (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
 #define STYLE_RESIZABLE     (WS_THICKFRAME | WS_MAXIMIZEBOX)
@@ -187,7 +188,7 @@ SetupWindowData(_THIS, SDL_Window * window, HWND hwnd, HWND parent, SDL_bool cre
     data->hinstance = (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
     data->created = created;
     data->high_surrogate = 0;
-    data->mouse_button_flags = 0;
+    data->mouse_button_flags = (WPARAM)-1;
     data->last_pointer_update = (LPARAM)-1;
     data->videodata = videodata;
     data->initializing = SDL_TRUE;
@@ -573,8 +574,38 @@ WIN_HideWindow(_THIS, SDL_Window * window)
 void
 WIN_RaiseWindow(_THIS, SDL_Window * window)
 {
+    /* If desired, raise the window more forcefully.
+     * Technique taken from http://stackoverflow.com/questions/916259/ .
+     * Specifically, http://stackoverflow.com/a/34414846 .
+     *
+     * The issue is that Microsoft has gone through a lot of trouble to make it
+     * nearly impossible to programmatically move a window to the foreground,
+     * for "security" reasons. Apparently, the following song-and-dance gets
+     * around their objections. */
+    SDL_bool bForce = SDL_GetHintBoolean(SDL_HINT_FORCE_RAISEWINDOW, SDL_FALSE);
+
+    HWND hCurWnd = NULL;
+    DWORD dwMyID = 0u;
+    DWORD dwCurID = 0u;
+
     HWND hwnd = ((SDL_WindowData *) window->driverdata)->hwnd;
+    if(bForce)
+    {
+        hCurWnd = GetForegroundWindow();
+        dwMyID = GetCurrentThreadId();
+        dwCurID = GetWindowThreadProcessId(hCurWnd, NULL);
+        ShowWindow(hwnd, SW_RESTORE);
+        AttachThreadInput(dwCurID, dwMyID, TRUE);
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+        SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    }
     SetForegroundWindow(hwnd);
+    if (bForce)
+    {
+        AttachThreadInput(dwCurID, dwMyID, FALSE);
+        SetFocus(hwnd);
+        SetActiveWindow(hwnd);
+    }
 }
 
 void

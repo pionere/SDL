@@ -15,11 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows (x64),          os: windows-latest, shell: pwsh, flags: -A x64, artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x64.dll }
-        - { name: Windows (x86),          os: windows-latest, shell: pwsh, flags: -A Win32, artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x86.dll }
-        - { name: Windows (clang-cl x64), os: windows-latest, shell: pwsh, flags: -T ClangCL -A x64, artifact: Release/SDL2.dll, artifact-name: SDL2_clang_x64.dll }
-        - { name: Windows (clang-cl x86), os: windows-latest, shell: pwsh, flags: -T ClangCL -A Win32, artifact: Release/SDL2.dll, artifact-name: SDL2_clang_x86.dll }
-        - { name: Windows (ARM64),        os: windows-latest, shell: pwsh, flags: -A ARM64, artifact: Release/SDL2.dll, artifact-name: SDL2_arm_x64.dll }
         - { name: Windows (mingw32),      os: windows-latest, shell: 'msys2 {0}', msystem: mingw32, msys-env: mingw-w64-i686, artifact: SDL2.dll, artifact-name: SDL2_mingw_x86.dll }
         - { name: Windows (mingw64),      os: windows-latest, shell: 'msys2 {0}', msystem: mingw64, msys-env: mingw-w64-x86_64, artifact: SDL2.dll, artifact-name: SDL2_mingw_x64.dll }
         - { name: Linux,                  os: ubuntu-20.04,   shell: sh,   flags: -GNinja, artifact: libSDL2-2.0.so, artifact-name: libSDL2-2.0.so }

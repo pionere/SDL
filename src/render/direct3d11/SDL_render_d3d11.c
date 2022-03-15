@@ -91,7 +91,7 @@ typedef struct
     int lockedTexturePositionX;
     int lockedTexturePositionY;
     D3D11_FILTER scaleMode;
-
+#if SDL_HAVE_YUV
     /* YV12 texture support */
     SDL_bool yuv;
     ID3D11Texture2D *mainTextureU;
@@ -107,6 +107,7 @@ typedef struct
     Uint8 *pixels;
     int pitch;
     SDL_Rect locked_rect;
+#endif
 } D3D11_TextureData;
 
 /* Blend mode data */
@@ -485,6 +486,11 @@ D3D11_CreateDeviceResources(SDL_Renderer * renderer)
     /* Make sure Direct3D's debugging feature gets used, if the app requests it. */
     if (SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D11_DEBUG, SDL_FALSE)) {
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    /* Create a single-threaded device unless the app requests otherwise. */
+    if (!SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, SDL_FALSE)) {
+        creationFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;
     }
 
     /* Create the Direct3D 11 API device object and a corresponding context. */
@@ -1111,7 +1117,7 @@ D3D11_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
         D3D11_DestroyTexture(renderer, texture);
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateTexture2D"), result);
     }
-
+#if SDL_HAVE_YUV
     if (texture->format == SDL_PIXELFORMAT_YV12 ||
         texture->format == SDL_PIXELFORMAT_IYUV) {
         textureData->yuv = SDL_TRUE;
@@ -1160,7 +1166,7 @@ D3D11_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateTexture2D"), result);
         }
     }
-
+#endif /* SDL_HAVE_YUV */
     resourceViewDesc.Format = textureDesc.Format;
     resourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     resourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -1174,7 +1180,7 @@ D3D11_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
         D3D11_DestroyTexture(renderer, texture);
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateShaderResourceView"), result);
     }
-
+#if SDL_HAVE_YUV
     if (textureData->yuv) {
         result = ID3D11Device_CreateShaderResourceView(rendererData->d3dDevice,
             (ID3D11Resource *)textureData->mainTextureU,
@@ -1227,7 +1233,7 @@ D3D11_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateRenderTargetView"), result);
         }
     }
-
+#endif /* SDL_HAVE_YUV */
     return 0;
 }
 
@@ -1245,6 +1251,7 @@ D3D11_DestroyTexture(SDL_Renderer * renderer,
     SAFE_RELEASE(data->mainTextureResourceView);
     SAFE_RELEASE(data->mainTextureRenderTargetView);
     SAFE_RELEASE(data->stagingTexture);
+#if SDL_HAVE_YUV
     SAFE_RELEASE(data->mainTextureU);
     SAFE_RELEASE(data->mainTextureResourceViewU);
     SAFE_RELEASE(data->mainTextureV);
@@ -1252,6 +1259,7 @@ D3D11_DestroyTexture(SDL_Renderer * renderer,
     SAFE_RELEASE(data->mainTextureNV);
     SAFE_RELEASE(data->mainTextureResourceViewNV);
     SDL_free(data->pixels);
+#endif
     SDL_free(data);
     texture->driverdata = NULL;
 }
@@ -1352,7 +1360,7 @@ D3D11_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     if (D3D11_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_BYTESPERPIXEL(texture->format), rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch) < 0) {
         return -1;
     }
-
+#if SDL_HAVE_YUV
     if (textureData->yuv) {
         /* Skip to the correct offset into the next texture */
         srcPixels = (const void*)((const Uint8*)srcPixels + rect->h * srcPitch);
@@ -1376,6 +1384,7 @@ D3D11_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
             return -1;
         }
     }
+#endif /* SDL_HAVE_YUV */
     return 0;
 }
 
@@ -1443,7 +1452,7 @@ D3D11_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
     }
-
+#if SDL_HAVE_YUV
     if (textureData->yuv || textureData->nv12) {
         /* It's more efficient to upload directly... */
         if (!textureData->pixels) {
@@ -1460,7 +1469,7 @@ D3D11_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
         *pitch = textureData->pitch;
         return 0;
     }
-
+#endif
     if (textureData->stagingTexture) {
         return SDL_SetError("texture is already locked");
     }
@@ -1524,7 +1533,7 @@ D3D11_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     if (!textureData) {
         return;
     }
-
+#if SDL_HAVE_YUV
     if (textureData->yuv || textureData->nv12) {
         const SDL_Rect *rect = &textureData->locked_rect;
         void *pixels =
@@ -1533,7 +1542,7 @@ D3D11_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
         D3D11_UpdateTexture(renderer, texture, rect, pixels, textureData->pitch);
         return;
     }
-
+#endif
     /* Commit the pixel buffer's changes back to the staging texture: */
     ID3D11DeviceContext_Unmap(rendererData->d3dContext,
         (ID3D11Resource *)textureData->stagingTexture,
@@ -1976,7 +1985,7 @@ D3D11_SetCopyState(SDL_Renderer * renderer, const SDL_RenderCommand *cmd, const 
     default:
         return SDL_SetError("Unknown scale mode: %d\n", textureData->scaleMode);
     }
-
+#if SDL_HAVE_YUV
     if (textureData->yuv) {
         ID3D11ShaderResourceView *shaderResources[] = {
             textureData->mainTextureResourceView,
@@ -2027,7 +2036,7 @@ D3D11_SetCopyState(SDL_Renderer * renderer, const SDL_RenderCommand *cmd, const 
                                   SDL_arraysize(shaderResources), shaderResources, textureSampler, matrix);
 
     }
-
+#endif /* SDL_HAVE_YUV */
     return D3D11_SetDrawState(renderer, cmd, rendererData->pixelShaders[SHADER_RGB],
                               1, &textureData->mainTextureResourceView, textureSampler, matrix);
 }
@@ -2336,6 +2345,7 @@ D3D11_CreateRenderer(SDL_Window * window, Uint32 flags)
 
     data = (D3D11_RenderData *) SDL_calloc(1, sizeof(*data));
     if (!data) {
+        SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
     }

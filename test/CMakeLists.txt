@@ -203,7 +203,6 @@ if(PSP)
         testfilesystem
         testplatform
         testthread
-        testloadso
         testqsort
         testaudioinfo
         testlock
