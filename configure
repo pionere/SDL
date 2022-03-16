@@ -806,6 +806,7 @@ with_sysroot
 enable_libtool_lock
 enable_assertions
 enable_test
+enable_logging
 enable_dependency_tracking
 enable_libc
 enable_gcc_atomics
