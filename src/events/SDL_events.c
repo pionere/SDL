@@ -589,11 +589,11 @@ SDL_AddEvent(SDL_Event * event)
         entry = SDL_EventQ.free;
         SDL_EventQ.free = entry->next;
     }
-
+#if !SDL_LOGGING_DISABLED
     if (SDL_DoEventLogging) {
         SDL_LogEvent(event);
     }
-
+#endif
     entry->event = *event;
     if (event->type == SDL_POLLSENTINEL) {
         SDL_AtomicAdd(&SDL_sentinel_pending, 1);
