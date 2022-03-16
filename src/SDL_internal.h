@@ -56,11 +56,34 @@
 #define O_CLOEXEC                       0
 #endif
 
-/* A few #defines to reduce SDL2 footprint.
-   Only effective when library is statically linked.
-   You have to manually edit this file. */
+/* A few #defines to reduce SDL2 footprint. */
 #ifndef SDL_LEAN_AND_MEAN
 #define SDL_LEAN_AND_MEAN               0
+#endif
+/* Check config. */
+#ifdef SDL_BLIT_0_DISABLED
+#define SDL_HAVE_BLIT_0                 0
+#endif
+#ifdef SDL_BLIT_1_DISABLED
+#define SDL_HAVE_BLIT_1                 0
+#endif
+#ifdef SDL_BLIT_A_DISABLED
+#define SDL_HAVE_BLIT_A                 0
+#endif
+#ifdef SDL_BLIT_N_DISABLED
+#define SDL_HAVE_BLIT_N                 0
+#endif
+#ifdef SDL_BLIT_N_RGB565_DISABLED
+#define SDL_HAVE_BLIT_N_RGB565          0
+#endif
+#ifdef SDL_BLIT_AUTO_DISABLED
+#define SDL_HAVE_BLIT_AUTO              0
+#endif
+#ifdef SDL_RLE_ACCEL_DISABLED
+#define SDL_HAVE_RLE                    0
+#endif
+#ifdef SDL_YUV_FORMAT_DISABLED
+#define SDL_HAVE_YUV                    0
 #endif
 
 /* Optimized functions from 'SDL_blit_0.c'

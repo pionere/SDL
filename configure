@@ -805,6 +805,15 @@ with_gnu_ld
 with_sysroot
 enable_libtool_lock
 enable_assertions
+enable_lean_and_mean
+enable_blit0
+enable-blit1
+enable_blitA
+enable_blitN
+enable_blitN_RGB565
+enable_blitAUTO
+enable_rle_accel
+enable_yuv_format
 enable_test
 enable_logging
 enable_dependency_tracking
@@ -920,6 +929,7 @@ enable_backgrounding_signal
 enable_foregrounding_signal
 enable_joystick_virtual
 enable_render_d3d
+enable_render_sw
 enable_sdl2_config
 '
       ac_precious_vars='build_alias
@@ -1585,6 +1595,15 @@ Optional Features:
   --enable-assertions     Enable internal sanity checks
                           (auto/disabled/release/enabled/paranoid)
                           [default=auto]
+  --enable-lean-and-mean  Turn off optional blit/rle/yuv features [default=no]
+  --enable-blit0          Use optimized functions from 'SDL_blit_0.c' to blit with source BitsPerPixel < 8 [default=yes]
+  --enable-blit1          Use optimized functions from 'SDL_blit_1.c' to blit with source BitsPerPixel == 1 [default=yes]
+  --enable-blitA          Use optimized functions from 'SDL_blit_A.c' to blit with 'SDL_BLENDMODE_BLEND' [default=yes]
+  --enable-blitN          Use optimized functions from 'SDL_blit_N.c' to blit with COLORKEY mode, or nothing [default=yes]
+  --enable-blitN_RGB565   Use optimized functions from 'SDL_blit_N.c' to do RGB565 conversion with Lookup tables [default=yes]
+  --enable-blitAUTO       Use optimized functions from 'SDL_blit_AUTO.c' to blit with modulate color, modulate alpha [default=yes]
+  --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]
+  --enable-yuv-format     Support YUV formats [default=yes]
   --enable-logging        Enable logging [default=yes]
   --enable-test           Build the test directory [default=yes]
   --enable-dependency-tracking
@@ -1733,6 +1752,7 @@ Optional Features:
   --enable-joystick-virtual
                           enable virtual joystick APIs [default=no]
   --enable-render-d3d     enable the Direct3D render driver [default=yes]
+  --enable-render-sw      enable the software render driver [default=yes]
   --enable-sdl2-config    Install sdl2-config [default=yes]
 
 Optional Packages:
@@ -16967,6 +16987,101 @@ $as_echo "#define SDL_DEFAULT_ASSERT_LEVEL 3" >>confdefs.h
         ;;
 esac
 
+# Check whether --enable-lean-and-mean was given.
+if test "${enable_lean_and_mean+set}" = set; then :
+  enableval=$enable_lean_and_mean;
+else
+  enable_lean_and_mean=no
+fi
+# Check whether --enable-blit0 was given.
+if test "${enable_blit0+set}" = set; then :
+  enableval=$enable_blit0;
+else
+  enable_blit0=${!enable_lean_and_mean}
+fi
+if test x$enable_blit0 != xyes; then
+
+$as_echo "#define SDL_BLIT_0_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blit1 was given.
+if test "${enable_blit1+set}" = set; then :
+  enableval=$enable_blit1;
+else
+  enable_blit1=${!enable_lean_and_mean}
+fi
+if test x$enable_blit1 != xyes; then
+
+$as_echo "#define SDL_BLIT_1_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blitA was given.
+if test "${enable_blitA+set}" = set; then :
+  enableval=$enable_blitA;
+else
+  enable_blitA=${!enable_lean_and_mean}
+fi
+if test x$enable_blitA != xyes; then
+
+$as_echo "#define SDL_BLIT_A_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blitN was given.
+if test "${enable_blitN+set}" = set; then :
+  enableval=$enable_blitN;
+else
+  enable_blitN=${!enable_lean_and_mean}
+fi
+if test x$enable_blitN != xyes; then
+
+$as_echo "#define SDL_BLIT_N_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blitN_RGB565 was given.
+if test "${enable_blitN_RGB565+set}" = set; then :
+  enableval=$enable_blitN_RGB565;
+else
+  enable_blitN_RGB565=${!enable_lean_and_mean}
+fi
+if test x$enable_blitN_RGB565 != xyes; then
+
+$as_echo "#define SDL_BLIT_N_RGB565_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blitAUTO was given.
+if test "${enable_blitAUTO+set}" = set; then :
+  enableval=$enable_blitAUTO;
+else
+  enable_blitAUTO=${!enable_lean_and_mean}
+fi
+if test x$enable_blitAUTO != xyes; then
+
+$as_echo "#define SDL_BLIT_AUTO_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-rle-accel was given.
+if test "${enable_rle_accel+set}" = set; then :
+  enableval=$enable_rle_accel;
+else
+  enable_rle_accel=${!enable_lean_and_mean}
+fi
+if test x$enable_rle_accel != xyes; then
+
+$as_echo "#define SDL_RLE_ACCEL_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-yuv-format was given.
+if test "${enable_yuv_format+set}" = set; then :
+  enableval=$enable_yuv_format;
+else
+  enable_yuv_format=${!enable_lean_and_mean}
+fi
+if test x$enable_yuv_format != xyes; then
+
+$as_echo "#define SDL_YUV_FORMAT_DISABLED 1" >>confdefs.h
+
+fi
+
 # Check whether --enable-test was given.
 if test "${enable_test+set}" = set; then :
   enableval=$enable_test;
@@ -18037,6 +18152,19 @@ if test x$enable_render != xyes; then
 
 $as_echo "#define SDL_RENDER_DISABLED 1" >>confdefs.h
 
+else
+  # Check whether --enable-render_sw was given.
+  if test "${enable_render_sw+set}" = set; then :
+    enableval=$enable_render_sw;
+  else
+    enable_render_sw=yes
+  fi
+
+  if test x$enable_render = xyes; then
+
+    $as_echo "#define SDL_VIDEO_RENDER_SW 1" >>confdefs.h
+
+  fi
 fi
 # Check whether --enable-events was given.
 if test "${enable_events+set}" = set; then :

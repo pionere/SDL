@@ -218,6 +218,70 @@ case "$enable_assertions" in
         ;;
 esac
 
+dnl See whether we want the optional blit/rle/yuv features
+AC_ARG_ENABLE(lean-and-mean,
+[AS_HELP_STRING([--enable-lean-and-mean],
+               [Turn off optional blit/rle/yuv features [default=false]])],
+              , enable_lean_and_mean=false)
+
+AC_ARG_ENABLE(blit0,
+[AS_HELP_STRING([--enable-blit0],
+               [Use optimized functions from 'SDL_blit_0.c' to blit with source BitsPerPixel < 8 [default=yes]])],
+              , enable_blit0=${!enable_lean_and_mean})
+if test x$enable_blit0 != xyes; then
+    AC_DEFINE(SDL_BLIT_0_DISABLED, 1, [ ])
+fi
+
+AC_ARG_ENABLE(blit1,
+[AS_HELP_STRING([--enable-blit1],
+               [Use optimized functions from 'SDL_blit_1.c' to blit with source BitsPerPixel == 1 [default=yes]])],
+              , enable_blit1=${!enable_lean_and_mean})
+if test x$enable_blit1 != xyes; then
+    AC_DEFINE(SDL_BLIT_1_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(blitA,
+[AS_HELP_STRING([--enable-blitA],
+               [Use optimized functions from 'SDL_blit_A.c' to blit with 'SDL_BLENDMODE_BLEND' [default=yes]])],
+              , enable_blitA=${!enable_lean_and_mean})
+if test x$enable_blitA != xyes; then
+    AC_DEFINE(SDL_BLIT_A_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(blitN,
+[AS_HELP_STRING([--enable-blitN],
+               [Use optimized functions from 'SDL_blit_N.c' to blit with COLORKEY mode, or nothing [default=yes]])],
+              , enable_blitN=${!enable_lean_and_mean})
+if test x$enable_blitN != xyes; then
+    AC_DEFINE(SDL_BLIT_N_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(blitN_RGB565,
+[AS_HELP_STRING([--enable-blitN_RGB565],
+               [Use optimized functions from 'SDL_blit_N.c' to do RGB565 conversion with Lookup tables [default=yes]])],
+              , enable_blitN_RGB565=${!enable_lean_and_mean})
+if test x$enable_blitN_RGB565 != xyes; then
+    AC_DEFINE(SDL_BLIT_N_RGB565_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(blitAUTO,
+[AS_HELP_STRING([--enable-blitAUTO],
+               [Use optimized functions from 'SDL_blit_AUTO.c' to blit with modulate color, modulate alpha [default=yes]])],
+              , enable_blitAUTO=${!enable_lean_and_mean})
+if test x$enable_blitAUTO != xyes; then
+    AC_DEFINE(SDL_BLIT_AUTO_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(rle-accel,
+[AS_HELP_STRING([--enable-rle-accel],
+               [Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]])],
+              , enable_rle_accel=${!enable_lean_and_mean})
+if test x$enable_rle_accel != xyes; then
+    AC_DEFINE(SDL_RLE_ACCEL_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(yuv_format,
+[AS_HELP_STRING([--enable-yuv-format],
+               [Support YUV formats [default=yes]])],
+              , enable_yuv_format=${!enable_lean_and_mean})
+if test x$enable_yuv_format != xyes; then
+    AC_DEFINE(SDL_YUV_FORMAT_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want to build the test directory
 AC_ARG_ENABLE(test,
 [AS_HELP_STRING([--enable-test],
@@ -472,6 +536,12 @@ AC_ARG_ENABLE(render,
               , enable_render=yes)
 if test x$enable_render != xyes; then
     AC_DEFINE(SDL_RENDER_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(render-sw,
+[AS_HELP_STRING([--enable-render-sw], [Enable software renderer [default=yes]])],
+              , enable_render_sw=$enable_render)
+if test x$enable_render_sw = xyes; then
+    AC_DEFINE(SDL_VIDEO_RENDER_SW, 1, [ ])
 fi
 AC_ARG_ENABLE(events,
 [AS_HELP_STRING([--enable-events], [Enable the events subsystem [default=yes]])],

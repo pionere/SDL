@@ -37,6 +37,7 @@
 #define SDL_SENSOR_DUMMY 1
 #define SDL_VIDEO_DRIVER_DUMMY 1
 #define SDL_VIDEO_DRIVER_OS2 1
+#define SDL_VIDEO_RENDER_SW 1
 #define SDL_JOYSTICK_OS2 1
 #ifndef HAVE_LIBUSB_H  /* see Makefile */
 #define SDL_HIDAPI_DISABLED 1
