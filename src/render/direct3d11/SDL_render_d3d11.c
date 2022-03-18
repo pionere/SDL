@@ -482,12 +482,12 @@ D3D11_CreateDeviceResources(SDL_Renderer * renderer)
      * than the API default. It is required for compatibility with Direct2D.
      */
     creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-
+#if DEBUG_RENDER
     /* Make sure Direct3D's debugging feature gets used, if the app requests it. */
     if (SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D11_DEBUG, SDL_FALSE)) {
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
     }
-
+#endif
     /* Create a single-threaded device unless the app requests otherwise. */
     if (!SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, SDL_FALSE)) {
         creationFlags |= D3D11_CREATE_DEVICE_SINGLETHREADED;

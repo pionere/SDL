@@ -529,7 +529,7 @@ ALSA_set_buffer_size(_THIS, snd_pcm_hw_params_t *params)
     this->spec.samples = persize;
 
     /* This is useful for debugging */
-    if ( SDL_getenv("SDL_AUDIO_ALSA_DEBUG") ) {
+#ifdef DEBUG_AUDIO
         snd_pcm_uframes_t bufsize;
 
         ALSA_snd_pcm_hw_params_get_buffer_size(hwparams, &bufsize);
@@ -537,7 +537,7 @@ ALSA_set_buffer_size(_THIS, snd_pcm_hw_params_t *params)
         fprintf(stderr,
             "ALSA: period size = %ld, periods = %u, buffer size = %lu\n",
             persize, periods, bufsize);
-    }
+#endif
 
     return(0);
 }

@@ -196,13 +196,14 @@ SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
     GLES2_RenderData *data = (GLES2_RenderData *) renderer->driverdata;
-
+#if DEBUG_RENDER
     if (!data->debug_enabled) {
         return;
     }
     while (data->glGetError() != GL_NO_ERROR) {
         /* continue; */
     }
+#endif
 }
 
 SDL_FORCE_INLINE int
@@ -210,7 +211,7 @@ GL_CheckAllErrors (const char *prefix, SDL_Renderer *renderer, const char *file,
 {
     GLES2_RenderData *data = (GLES2_RenderData *) renderer->driverdata;
     int ret = 0;
-
+#if DEBUG_RENDER
     if (!data->debug_enabled) {
         return 0;
     }
@@ -227,6 +228,7 @@ GL_CheckAllErrors (const char *prefix, SDL_Renderer *renderer, const char *file,
             break;
         }
     }
+#endif
     return ret;
 }
 
@@ -2088,13 +2090,13 @@ GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     if (SDL_GL_GetSwapInterval() > 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
-
+#if DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&
         (value & SDL_GL_CONTEXT_DEBUG_FLAG)) {
         data->debug_enabled = SDL_TRUE;
     }
-
+#endif
     value = 0;
     data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
     renderer->info.max_texture_width = value;

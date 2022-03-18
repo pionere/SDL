@@ -7605,7 +7605,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdResolveImage2KHR(
 #endif
 
 
-#define VK_EXT_debug_report 1
+// #define VK_EXT_debug_report 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugReportCallbackEXT)
 #define VK_EXT_DEBUG_REPORT_SPEC_VERSION  9
 #define VK_EXT_DEBUG_REPORT_EXTENSION_NAME "VK_EXT_debug_report"
@@ -7751,7 +7751,7 @@ typedef struct VkPipelineRasterizationStateRasterizationOrderAMD {
 #define VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME "VK_AMD_shader_explicit_vertex_parameter"
 
 
-#define VK_EXT_debug_marker 1
+// #define VK_EXT_debug_marker 1
 #define VK_EXT_DEBUG_MARKER_SPEC_VERSION  4
 #define VK_EXT_DEBUG_MARKER_EXTENSION_NAME "VK_EXT_debug_marker"
 typedef struct VkDebugMarkerObjectNameInfoEXT {
@@ -8620,7 +8620,7 @@ VKAPI_ATTR void VKAPI_CALL vkSetHdrMetadataEXT(
 #define VK_QUEUE_FAMILY_FOREIGN_EXT       (~0U-2)
 
 
-#define VK_EXT_debug_utils 1
+// #define VK_EXT_debug_utils 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugUtilsMessengerEXT)
 #define VK_EXT_DEBUG_UTILS_SPEC_VERSION   2
 #define VK_EXT_DEBUG_UTILS_EXTENSION_NAME "VK_EXT_debug_utils"

@@ -954,7 +954,7 @@ SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
         share_context = (EGLContext)SDL_GL_GetCurrentContext();
     }
 
-#if SDL_VIDEO_DRIVER_ANDROID
+#if DEBUG_RENDER && SDL_VIDEO_DRIVER_ANDROID
     if ((_this->gl_config.flags & SDL_GL_CONTEXT_DEBUG_FLAG) != 0) {
         /* If SDL_GL_CONTEXT_DEBUG_FLAG is set but EGL_KHR_debug unsupported, unset.
          * This is required because some Android devices like to complain about it

@@ -66,7 +66,7 @@
 #define ENABLE_LUT8     (1)
 #endif
 
-#define DIRECTFB_DEBUG 1
+// #define DIRECTFB_DEBUG 1
 
 #define DFBENV_USE_YUV_UNDERLAY     "SDL_DIRECTFB_YUV_UNDERLAY"     /* Default: off */
 #define DFBENV_USE_YUV_DIRECT       "SDL_DIRECTFB_YUV_DIRECT"       /* Default: off */

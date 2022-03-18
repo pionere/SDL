@@ -82,14 +82,14 @@ typedef struct
 typedef struct
 {
     SDL_GLContext context;
-
+#if DEBUG_RENDER
     SDL_bool debug_enabled;
     SDL_bool GL_ARB_debug_output_supported;
     int errors;
     char **error_messages;
     GLDEBUGPROCARB next_error_callback;
     GLvoid *next_error_userparam;
-
+#endif
     GLenum textype;
 
     SDL_bool GL_ARB_texture_non_power_of_two_supported;
@@ -165,7 +165,7 @@ SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
     GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
-
+#if DEBUG_RENDER
     if (!data->debug_enabled)
     {
         return;
@@ -186,6 +186,7 @@ GL_ClearErrors(SDL_Renderer *renderer)
             /* continue; */
         }
     }
+#endif
 }
 
 SDL_FORCE_INLINE int
@@ -193,7 +194,7 @@ GL_CheckAllErrors (const char *prefix, SDL_Renderer *renderer, const char *file,
 {
     GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
     int ret = 0;
-
+#if DEBUG_RENDER
     if (!data->debug_enabled)
     {
         return 0;
@@ -222,6 +223,7 @@ GL_CheckAllErrors (const char *prefix, SDL_Renderer *renderer, const char *file,
             }
         }
     }
+#endif
     return ret;
 }
 
@@ -267,7 +269,7 @@ GL_ActivateRenderer(SDL_Renderer * renderer)
 
     return 0;
 }
-
+#if DEBUG_RENDER
 static void APIENTRY
 GL_HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message, const void *userParam)
 {
@@ -296,7 +298,7 @@ GL_HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GL
         }
     }
 }
-
+#endif
 static GL_FBOList *
 GL_GetFBO(GL_RenderData *data, Uint32 w, Uint32 h)
 {
@@ -1543,7 +1545,7 @@ GL_DestroyRenderer(SDL_Renderer * renderer)
             /* make sure we delete the right resources! */
             GL_ActivateRenderer(renderer);
         }
-
+#if DEBUG_RENDER
         GL_ClearErrors(renderer);
         if (data->GL_ARB_debug_output_supported) {
             PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARBFunc = (PFNGLDEBUGMESSAGECALLBACKARBPROC) SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
@@ -1552,6 +1554,7 @@ GL_DestroyRenderer(SDL_Renderer * renderer)
             /* For now, just always replace the callback with the original one */
             glDebugMessageCallbackARBFunc(data->next_error_callback, data->next_error_userparam);
         }
+#endif
         if (data->shaders) {
             GL_DestroyShaderContext(data->shaders);
         }
@@ -1829,7 +1832,7 @@ GL_CreateRenderer(SDL_Window * window, Uint32 flags)
     if (SDL_GL_GetSwapInterval() > 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
-
+#if DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&
         (value & SDL_GL_CONTEXT_DEBUG_FLAG)) {
@@ -1846,7 +1849,7 @@ GL_CreateRenderer(SDL_Window * window, Uint32 flags)
         /* Make sure our callback is called when errors actually happen */
         data->glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
     }
-
+#endif
     hint = SDL_getenv("GL_ARB_texture_non_power_of_two");
     if (!hint || *hint != '0') {
         SDL_bool isGL2 = SDL_FALSE;

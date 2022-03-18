@@ -3544,7 +3544,10 @@ SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         };
         break;
     case SDL_GL_CONTEXT_FLAGS:
-        if (value & ~(SDL_GL_CONTEXT_DEBUG_FLAG |
+        if (value & ~(
+#if DEBUG_RENDER
+                      SDL_GL_CONTEXT_DEBUG_FLAG |
+#endif
                       SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG |
                       SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG |
                       SDL_GL_CONTEXT_RESET_ISOLATION_FLAG)) {
