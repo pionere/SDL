@@ -147,6 +147,15 @@
 #include "SDL_assert.h"
 #include "SDL_log.h"
 
+/* Override SDL_*Error functions.
+  Necessary to eliminate the calls and the strings as well. */
+#if SDL_VERBOSE_ERROR_DISABLED && !SDL_DYNAMIC_API
+#define SDL_SetError(fmt, ...) -1
+#define SDL_GetError() ""
+#define SDL_ClearError()
+#define SDL_GetErrorMsg(errstr, maxlen) errstr
+#endif
+
 #endif /* SDL_internal_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

@@ -993,6 +993,7 @@ static int SDL_hidapi_refcount = 0;
 
 static void SDL_SetHIDAPIError( const wchar_t *error )
 {
+#if !SDL_VERBOSE_ERROR_DISABLED
     if (error) {
         char *error_utf8 = SDL_iconv_wchar_utf8(error);
         if (error_utf8) {
@@ -1000,6 +1001,7 @@ static void SDL_SetHIDAPIError( const wchar_t *error )
             SDL_free(error_utf8);
         }
     }
+#endif
 }
 
 int SDL_hid_init(void)

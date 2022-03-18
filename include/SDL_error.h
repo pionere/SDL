@@ -38,7 +38,7 @@ extern "C" {
 
 /* Public functions */
 
-
+#if !SDL_VERBOSE_ERROR_DISABLED || SDL_DYNAMIC_API
 /**
  * Set the SDL error message for the current thread.
  *
@@ -128,7 +128,7 @@ extern DECLSPEC char * SDLCALL SDL_GetErrorMsg(char *errstr, int maxlen);
  * \sa SDL_SetError
  */
 extern DECLSPEC void SDLCALL SDL_ClearError(void);
-
+#endif /* !SDL_VERBOSE_ERROR_DISABLED || SDL_DYNAMIC_API */
 /**
  *  \name Internal error functions
  *

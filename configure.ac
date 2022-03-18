@@ -297,6 +297,15 @@ if test x$enable_logging != xyes; then
     AC_DEFINE(SDL_LOGGING_DISABLED, 1, [ ])
 fi
 
+dnl See whether we want verbose errors
+AC_ARG_ENABLE(verbose-error,
+[AS_HELP_STRING([--enable-verbose-error],
+               [Enable verbose errors [default=yes]])],
+              , enable_verbose_error=yes)
+if test x$enable_verbose_error != xyes -a test x$enable_logging != xyes; then
+    AC_DEFINE(SDL_VERBOSE_ERROR_DISABLED, 1, [ ])
+fi
+
 dnl See whether we can use gcc style dependency tracking
 AC_ARG_ENABLE(dependency-tracking,
 [AS_HELP_STRING([--enable-dependency-tracking],
@@ -4897,6 +4906,11 @@ else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
+if test x$enable_verbose_error = xyes; then
+    SUMMARY="${SUMMARY}Verbose errors      : YES\n"
+else
+    SUMMARY="${SUMMARY}Verbose errors      : NO\n"
+fi
 if test x$have_assembly = xyes; then
     SUMMARY="${SUMMARY}Enable assembly routines : YES\n"
 else

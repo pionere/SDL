@@ -263,6 +263,7 @@
 
 /* SDL logging support */
 #cmakedefine SDL_LOGGING_DISABLED @SDL_LOGGING_DISABLED@
+#cmakedefine SDL_VERBOSE_ERROR_DISABLED @SDL_VERBOSE_ERROR_DISABLED@
 
 /* SDL optional features */
 #cmakedefine SDL_BLIT_0_DISABLED @SDL_BLIT_0_DISABLED@

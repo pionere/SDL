@@ -136,6 +136,7 @@ FillSound(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
 static int
 SetMMerror(const char *function, MMRESULT code)
 {
+#if !SDL_VERBOSE_ERROR_DISABLED
     int len;
     char errbuf[MAXERRORLENGTH];
     wchar_t werrbuf[MAXERRORLENGTH];
@@ -148,6 +149,9 @@ SetMMerror(const char *function, MMRESULT code)
                         MAXERRORLENGTH - len, NULL, NULL);
 
     return SDL_SetError("%s", errbuf);
+#else
+    return -1;
+#endif
 }
 
 static void

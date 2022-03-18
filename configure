@@ -815,6 +815,7 @@ enable_blitAUTO
 enable_rle_accel
 enable_yuv_format
 enable_test
+enable_verbose_error
 enable_logging
 enable_dependency_tracking
 enable_libc
@@ -1604,6 +1605,7 @@ Optional Features:
   --enable-blitAUTO       Use optimized functions from 'SDL_blit_AUTO.c' to blit with modulate color, modulate alpha [default=yes]
   --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]
   --enable-yuv-format     Support YUV formats [default=yes]
+  --enable-verbose-error  Enable verbose errors [default=yes]
   --enable-logging        Enable logging [default=yes]
   --enable-test           Build the test directory [default=yes]
   --enable-dependency-tracking
@@ -17100,6 +17102,18 @@ if test x$enable_logging != xyes; then
 $as_echo "#define SDL_LOGGING_DISABLED 1" >>confdefs.h
 
 fi
+# Check whether --enable-verbose-error was given.
+if test "${enable_verbose_error+set}" = set -a test x$enable_logging != xyes; then :
+  enableval=$enable_verbose_error;
+else
+  enable_verbose_error=yes
+fi
+
+if test x$enable_verbose_error != xyes; then
+
+$as_echo "#define SDL_VERBOSE_ERROR_DISABLED 1" >>confdefs.h
+
+fi
 # Check whether --enable-dependency-tracking was given.
 if test "${enable_dependency_tracking+set}" = set; then :
   enableval=$enable_dependency_tracking;
@@ -27326,6 +27340,11 @@ else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
+if test x$enable_verbose_error = xyes; then
+    SUMMARY="${SUMMARY}Verbose errors      : YES\n"
+else
+    SUMMARY="${SUMMARY}Verbose errors      : NO\n"
+fi
 if test x$have_assembly = xyes; then
     SUMMARY="${SUMMARY}Enable assembly routines : YES\n"
 else

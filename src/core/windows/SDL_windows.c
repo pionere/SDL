@@ -42,6 +42,7 @@
 int
 WIN_SetErrorFromHRESULT(const char *prefix, HRESULT hr)
 {
+#if !SDL_VERBOSE_ERROR_DISABLED
     TCHAR buffer[1024];
     char *message;
     TCHAR *p = buffer;
@@ -59,6 +60,7 @@ WIN_SetErrorFromHRESULT(const char *prefix, HRESULT hr)
     message = WIN_StringToUTF8(buffer);
     SDL_SetError("%s%s%s", prefix ? prefix : "", prefix ? ": " : "", message);
     SDL_free(message);
+#endif
     return -1;
 }
 

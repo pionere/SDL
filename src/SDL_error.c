@@ -27,6 +27,7 @@
 
 #define SDL_ERRBUFIZE   1024
 
+#if !SDL_VERBOSE_ERROR_DISABLED
 int
 SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 {
@@ -63,6 +64,22 @@ SDL_ClearError(void)
 {
     SDL_GetErrBuf()->error = 0;
 }
+#elif SDL_DYNAMIC_API
+int
+SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
+{
+    return -1;
+}
+const char *
+SDL_GetError(void)
+{
+    return "";
+}
+void
+SDL_ClearError(void)
+{
+}
+#endif /* !SDL_VERBOSE_ERROR_DISABLED */
 
 /* Very common errors go here */
 int
@@ -101,7 +118,7 @@ main(int argc, char *argv[])
 }
 #endif
 
-
+#if !SDL_VERBOSE_ERROR_DISABLED
 char *
 SDL_GetErrorMsg(char *errstr, int maxlen)
 {
@@ -115,5 +132,12 @@ SDL_GetErrorMsg(char *errstr, int maxlen)
 
     return errstr;
 }
-
+#elif SDL_DYNAMIC_API
+char *
+SDL_GetErrorMsg(char *errstr, int maxlen)
+{
+    *errstr = '\0';
+    return errstr;
+}
+#endif
 /* vi: set ts=4 sw=4 expandtab: */

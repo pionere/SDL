@@ -151,6 +151,7 @@ static const char * SDL_EGL_GetErrorName(EGLint eglErrorCode)
 
 int SDL_EGL_SetErrorEx(const char * message, const char * eglFunctionName, EGLint eglErrorCode)
 {
+#if !SDL_VERBOSE_ERROR_DISABLED
     const char * errorText = SDL_EGL_GetErrorName(eglErrorCode);
     char altErrorText[32];
     if (errorText[0] == '\0') {
@@ -159,6 +160,9 @@ int SDL_EGL_SetErrorEx(const char * message, const char * eglFunctionName, EGLin
         errorText = altErrorText;
     }
     return SDL_SetError("%s (call to %s failed, reporting an error of %s)", message, eglFunctionName, errorText);
+#else
+    return -1;
+#endif
 }
 
 /* EGL implementation of SDL OpenGL ES support */
