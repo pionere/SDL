@@ -454,7 +454,9 @@ SDL_LogEvent(const SDL_Event *event)
 void
 SDL_StopEventLoop(void)
 {
+#if !SDL_LOGGING_DISABLED
     const char *report = SDL_GetHint("SDL_EVENT_QUEUE_STATISTICS");
+#endif
     int i;
     SDL_EventEntry *entry;
     SDL_SysWMEntry *wmmsg;
@@ -464,12 +466,12 @@ SDL_StopEventLoop(void)
     }
 
     SDL_AtomicSet(&SDL_EventQ.active, 0);
-
+#if !SDL_LOGGING_DISABLED
     if (report && SDL_atoi(report)) {
         SDL_Log("SDL EVENT QUEUE: Maximum events in-flight: %d\n",
                 SDL_EventQ.max_events_seen);
     }
-
+#endif
     /* Clean out EventQ */
     for (entry = SDL_EventQ.head; entry; ) {
         SDL_EventEntry *next = entry->next;
