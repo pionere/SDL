@@ -27341,6 +27341,11 @@ else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
+if test x$enable_logging = xyes; then
+    SUMMARY="${SUMMARY}Logging             : YES\n"
+else
+    SUMMARY="${SUMMARY}Logging             : NO\n"
+fi
 if test x$enable_verbose_error = xyes; then
     SUMMARY="${SUMMARY}Verbose errors      : YES\n"
 else
