@@ -4462,6 +4462,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         CheckClockGettime
         CheckEmscriptenGLES
 
+        # Set up files for the misc library
         if test x$enable_misc = xyes; then
             SOURCES="$SOURCES $srcdir/src/misc/emscripten/*.c"
             have_misc=yes
@@ -4474,7 +4475,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             have_power=yes
         fi
 
-        # Set up files for the power library
+        # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_EMSCRIPTEN, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/joystick/emscripten/*.c"

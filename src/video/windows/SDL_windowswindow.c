@@ -422,6 +422,9 @@ WIN_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
                     }
                 }
             }
+        } else if (window->flags & SDL_WINDOW_OPENGL) {
+            /* Try to set up the pixel format, if it hasn't been set by the application */
+            WIN_GL_SetupWindow(_this, window);
         }
     }
 #endif
@@ -860,15 +863,6 @@ void
 WIN_SetWindowMouseGrab(_THIS, SDL_Window * window, SDL_bool grabbed)
 {
     WIN_UpdateClipCursor(window);
-
-    if (window->flags & SDL_WINDOW_FULLSCREEN) {
-        UINT flags = SWP_NOCOPYBITS | SWP_NOMOVE | SWP_NOSIZE;
-
-        if (!(window->flags & SDL_WINDOW_SHOWN)) {
-            flags |= SWP_NOACTIVATE;
-        }
-        WIN_SetWindowPositionInternal(_this, window, flags);
-    }
 }
 
 void
