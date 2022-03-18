@@ -52,12 +52,14 @@ SDL_LoadObject(const char *sofile)
     SDL_free(tstr);
 
     /* Generate an error message if all loads failed */
+#if !SDL_VERBOSE_ERROR_DISABLED
     if (handle == NULL) {
         char errbuf[512];
         SDL_strlcpy(errbuf, "Failed loading ", SDL_arraysize(errbuf));
         SDL_strlcat(errbuf, sofile, SDL_arraysize(errbuf));
         WIN_SetError(errbuf);
     }
+#endif
     return handle;
 }
 
@@ -65,12 +67,14 @@ void *
 SDL_LoadFunction(void *handle, const char *name)
 {
     void *symbol = (void *) GetProcAddress((HMODULE) handle, name);
+#if !SDL_VERBOSE_ERROR_DISABLED
     if (symbol == NULL) {
         char errbuf[512];
         SDL_strlcpy(errbuf, "Failed loading ", SDL_arraysize(errbuf));
         SDL_strlcat(errbuf, name, SDL_arraysize(errbuf));
         WIN_SetError(errbuf);
     }
+#endif
     return symbol;
 }
 
