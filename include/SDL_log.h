@@ -110,7 +110,7 @@ typedef enum
     SDL_NUM_LOG_PRIORITIES
 } SDL_LogPriority;
 
-
+#if !SDL_LOGGING_DISABLED
 /**
  * Set the priority of all log categories.
  *
@@ -391,7 +391,7 @@ extern DECLSPEC void SDLCALL SDL_LogGetOutputFunction(SDL_LogOutputFunction *cal
  * \sa SDL_LogGetOutputFunction
  */
 extern DECLSPEC void SDLCALL SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata);
-
+#endif /* !SDL_LOGGING_DISABLED */
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

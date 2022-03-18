@@ -147,6 +147,22 @@
 #include "SDL_assert.h"
 #include "SDL_log.h"
 
+/* Override SDL_*Log functions.
+  Necessary to eliminate the calls and the strings as well. */
+#if SDL_LOGGING_DISABLED && !SDL_DYNAMIC_API
+#define SDL_LogGetPriority(category) SDL_LOG_PRIORITY_CRITICAL
+#define SDL_LogResetPriorities()
+#define SDL_Log(fmt, ...)
+#define SDL_LogVerbose(category, fmt, ...)
+#define SDL_LogDebug(category, fmt, ...)
+#define SDL_LogInfo(category, fmt, ...)
+#define SDL_LogWarn(category, fmt, ...)
+#define SDL_LogError(category, fmt, ...)
+#define SDL_LogCritical(category, fmt, ...)
+#define SDL_LogMessage(category, priority, fmt, ...)
+#define SDL_LogMessageV(category, priority, fmt, ap)
+#endif
+
 /* Override SDL_*Error functions.
   Necessary to eliminate the calls and the strings as well. */
 #if SDL_VERBOSE_ERROR_DISABLED && !SDL_DYNAMIC_API

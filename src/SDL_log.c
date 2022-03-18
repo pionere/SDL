@@ -20,6 +20,8 @@
 */
 #include "./SDL_internal.h"
 
+#if !SDL_LOGGING_DISABLED || SDL_DYNAMIC_API
+
 #if defined(__WIN32__) || defined(__WINRT__)
 #include "core/windows/SDL_windows.h"
 #endif
@@ -455,7 +457,7 @@ SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
     SDL_log_function = callback;
     SDL_log_userdata = userdata;
 }
-#else /* !SDL_LOGGING_DISABLED */
+#elif SDL_DYNAMIC_API /* !SDL_LOGGING_DISABLED */
 /* TODO: move to a separate folder (with dummy, etc...)? */
 void
 SDL_LogSetAllPriority(SDL_LogPriority priority)
@@ -553,4 +555,5 @@ SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
 
 #endif /* !SDL_LOGGING_DISABLED */
 
+#endif /* !SDL_LOGGING_DISABLED || SDL_DYNAMIC_API */
 /* vi: set ts=4 sw=4 expandtab: */
