@@ -231,7 +231,13 @@ SDL_CalculateBlit(SDL_Surface * surface)
     if (map->identity && !(map->info.flags & ~SDL_COPY_RLE_DESIRED)) {
         blit = SDL_BlitCopy;
     } else if (surface->format->Rloss > 8 || dst->format->Rloss > 8) {
+#if SDL_HAVE_BLIT_SLOW
         blit = SDL_Blit_Slow;
+#else
+        /* Greater than 8 bits per channel not supported yet */
+        SDL_InvalidateMap(map);
+        return SDL_SetError("Blit combination not supported");
+#endif
     }
 #if SDL_HAVE_BLIT_0
     else if (surface->format->BitsPerPixel < 8 &&
@@ -265,7 +271,7 @@ SDL_CalculateBlit(SDL_Surface * surface)
                                SDL_GeneratedBlitFuncTable);
     }
 #endif
-
+#if SDL_HAVE_BLIT_SLOW
 #ifndef TEST_SLOW_BLIT
     if (blit == NULL)
 #endif
@@ -280,6 +286,7 @@ SDL_CalculateBlit(SDL_Surface * surface)
             blit = SDL_Blit_Slow;
         }
     }
+#endif /* SDL_HAVE_BLIT_SLOW */
     map->data = blit;
 
     /* Make sure we have a blit function */

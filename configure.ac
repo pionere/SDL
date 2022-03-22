@@ -267,6 +267,13 @@ AC_ARG_ENABLE(blitAUTO,
 if test x$enable_blitAUTO != xyes; then
     AC_DEFINE(SDL_BLIT_AUTO_DISABLED, 1, [ ])
 fi
+AC_ARG_ENABLE(blitSLOW,
+[AS_HELP_STRING([--enable-blitSLOW],
+               [Use unoptimized functions from 'SDL_blit_slow.c' to blit [default=yes]])],
+              , enable_blitSLOW=${!enable_lean_and_mean})
+if test x$enable_blitSLOW != xyes; then
+    AC_DEFINE(SDL_BLIT_SLOW_DISABLED, 1, [ ])
+fi
 AC_ARG_ENABLE(rle-accel,
 [AS_HELP_STRING([--enable-rle-accel],
                [Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]])],

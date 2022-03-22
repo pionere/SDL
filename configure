@@ -812,6 +812,7 @@ enable_blitA
 enable_blitN
 enable_blitN_RGB565
 enable_blitAUTO
+enable_blitSLOW
 enable_rle_accel
 enable_yuv_format
 enable_test
@@ -1603,6 +1604,7 @@ Optional Features:
   --enable-blitN          Use optimized functions from 'SDL_blit_N.c' to blit with COLORKEY mode, or nothing [default=yes]
   --enable-blitN_RGB565   Use optimized functions from 'SDL_blit_N.c' to do RGB565 conversion with Lookup tables [default=yes]
   --enable-blitAUTO       Use optimized functions from 'SDL_blit_AUTO.c' to blit with modulate color, modulate alpha [default=yes]
+  --enable-blitSLOW       Use un-optimized functions from 'SDL_blit_slow.c' to blit [default=yes]
   --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]
   --enable-yuv-format     Support YUV formats [default=yes]
   --enable-verbose-error  Enable verbose errors [default=yes]
@@ -17059,6 +17061,17 @@ fi
 if test x$enable_blitAUTO != xyes; then
 
 $as_echo "#define SDL_BLIT_AUTO_DISABLED 1" >>confdefs.h
+
+fi
+# Check whether --enable-blitSLOW was given.
+if test "${enable_blitSLOW+set}" = set; then :
+  enableval=$enable_blitSLOW;
+else
+  enable_blitSLOW=${!enable_lean_and_mean}
+fi
+if test x$enable_blitSLOW != xyes; then
+
+$as_echo "#define SDL_BLIT_SLOW_DISABLED 1" >>confdefs.h
 
 fi
 # Check whether --enable-rle-accel was given.

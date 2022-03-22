@@ -79,6 +79,9 @@
 #ifdef SDL_BLIT_AUTO_DISABLED
 #define SDL_HAVE_BLIT_AUTO              0
 #endif
+#ifdef SDL_BLIT_SLOW_DISABLED
+#define SDL_HAVE_BLIT_SLOW              0
+#endif
 #ifdef SDL_RLE_ACCEL_DISABLED
 #define SDL_HAVE_RLE                    0
 #endif
@@ -121,6 +124,11 @@
    - scaling or not */
 #ifndef SDL_HAVE_BLIT_AUTO
 #define SDL_HAVE_BLIT_AUTO              !SDL_LEAN_AND_MEAN
+#endif
+
+/* Unoptimized functions from 'SDL_blit_slow.c' */
+#ifndef SDL_HAVE_BLIT_SLOW
+#define SDL_HAVE_BLIT_SLOW              !SDL_LEAN_AND_MEAN
 #endif
 
 /* Run-Length-Encoding
