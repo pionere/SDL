@@ -568,6 +568,15 @@ __EOF__
                             }
                             print FILE "($flags), SDL_CPU_ANY,";
                             output_copyfuncname("", $src_formats[$i], $dst_formats[$j], $modulate, $blend, $scale, 0, " },\n");
+                            if ( !$modulate && !$blend) {
+                                print FILE <<__EOF__;
+#if SDL_HAVE_BLIT_TRANSFORM
+__EOF__
+                            } else if ( $modulate && $blend && $scale ) {
+                                print FILE <<__EOF__;
+#endif /* SDL_HAVE_BLIT_TRANSFORM */
+__EOF__
+                            }
                         }
                     }
                 }

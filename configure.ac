@@ -262,7 +262,7 @@ if test x$enable_blitN_RGB565 != xyes; then
 fi
 AC_ARG_ENABLE(blitAUTO,
 [AS_HELP_STRING([--enable-blitAUTO],
-               [Use optimized functions from 'SDL_blit_AUTO.c' to blit with modulate color, modulate alpha [default=yes]])],
+               [Use optimized functions from 'SDL_blit_AUTO.c' to blit with scale [default=yes]])],
               , enable_blitAUTO=${!enable_lean_and_mean})
 if test x$enable_blitAUTO != xyes; then
     AC_DEFINE(SDL_BLIT_AUTO_DISABLED, 1, [ ])
@@ -280,6 +280,13 @@ AC_ARG_ENABLE(rle-accel,
               , enable_rle_accel=${!enable_lean_and_mean})
 if test x$enable_rle_accel != xyes; then
     AC_DEFINE(SDL_RLE_ACCEL_DISABLED, 1, [ ])
+fi
+AC_ARG_ENABLE(blitTRANSFORM,
+[AS_HELP_STRING([--enable-blitTRANSFORM],
+               [Use optimized functions from 'SDL_blit_AUTO.c' and 'SDL_blit_1.c' to blit with modulate color, modulate alpha [default=yes]])],
+              , enable_blitTRANSFORM=${!enable_lean_and_mean})
+if test x$enable_blitTRANSFORM != xyes; then
+    AC_DEFINE(SDL_BLIT_TRANSFORM_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(yuv_format,
 [AS_HELP_STRING([--enable-yuv-format],

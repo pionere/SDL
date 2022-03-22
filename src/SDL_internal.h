@@ -85,6 +85,9 @@
 #ifdef SDL_RLE_ACCEL_DISABLED
 #define SDL_HAVE_RLE                    0
 #endif
+#ifdef SDL_BLIT_TRANSFORM_DISABLED
+#define SDL_HAVE_BLIT_TRANSFORM         0
+#endif
 #ifdef SDL_YUV_FORMAT_DISABLED
 #define SDL_HAVE_YUV                    0
 #endif
@@ -135,6 +138,12 @@
    - SDL_SetColorKey() called with SDL_RLEACCEL flag */
 #ifndef SDL_HAVE_RLE
 #define SDL_HAVE_RLE                    !SDL_LEAN_AND_MEAN
+#endif
+
+/* Support for blit transformations (modulo/alpha)
+   - used in 'SDL_blit_AUTO.c' and in 'SDL_blit_1.c' */
+#ifndef SDL_HAVE_BLIT_TRANSFORM
+#define SDL_HAVE_BLIT_TRANSFORM         !SDL_LEAN_AND_MEAN
 #endif
 
 /* Software SDL_Renderer

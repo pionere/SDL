@@ -260,6 +260,7 @@
 #undef SDL_BLIT_AUTO_DISABLED
 #undef SDL_BLIT_SLOW_DISABLED
 #undef SDL_RLE_ACCEL_DISABLED
+#undef SDL_BLIT_TRANSFORM_DISABLED
 #undef SDL_YUV_FORMAT_DISABLED
 
 /* Allow disabling of core subsystems */

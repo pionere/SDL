@@ -538,7 +538,7 @@ SDL_CalculateBlit1(SDL_Surface * surface)
 
     case SDL_COPY_COLORKEY:
         return one_blitkey[which];
-
+#if SDL_HAVE_BLIT_TRANSFORM
     case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
         /* Supporting 8bpp->8bpp alpha is doable but requires lots of
            tables which consume space and takes time to precompute,
@@ -547,6 +547,7 @@ SDL_CalculateBlit1(SDL_Surface * surface)
 
     case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
         return which >= 2 ? Blit1toNAlphaKey : (SDL_BlitFunc) NULL;
+#endif
     }
     return (SDL_BlitFunc) NULL;
 }
