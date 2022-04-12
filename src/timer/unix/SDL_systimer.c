@@ -107,10 +107,11 @@ SDL_TicksQuit(void)
 Uint64
 SDL_GetTicks64(void)
 {
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     if (has_monotonic_time) {
 #if HAVE_CLOCK_GETTIME
         struct timespec now;
@@ -134,10 +135,11 @@ Uint64
 SDL_GetPerformanceCounter(void)
 {
     Uint64 ticks;
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     if (has_monotonic_time) {
 #if HAVE_CLOCK_GETTIME
         struct timespec now;
@@ -166,10 +168,11 @@ SDL_GetPerformanceCounter(void)
 Uint64
 SDL_GetPerformanceFrequency(void)
 {
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     if (has_monotonic_time) {
 #if HAVE_CLOCK_GETTIME
         return 1000000000;

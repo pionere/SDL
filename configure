@@ -818,6 +818,7 @@ enable_blitSLOW
 enable_rle_accel
 enable_blitTRANSFORM
 enable_yuv_format
+enable_sanitize_access
 enable_test
 enable_verbose_error
 enable_logging
@@ -1613,6 +1614,8 @@ Optional Features:
   --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]
   --enable-blitTRANSFORM  Use optimized functions from 'SDL_blit_AUTO.c' and 'SDL_blit_1.c' to blit with modulate color, modulate alpha [default=yes]
   --enable-yuv-format     Support YUV formats [default=yes]
+  --enable-sanitize-access
+                          Build robust library with checks against unreasonable parameters/calls. [default=yes]
   --enable-verbose-error  Enable verbose errors [default=yes]
   --enable-logging        Enable logging [default=yes]
   --enable-test           Build the test directory [default=yes]
@@ -17114,6 +17117,18 @@ fi
 if test x$enable_yuv_format != xyes; then
 
 $as_echo "#define SDL_YUV_FORMAT_DISABLED 1" >>confdefs.h
+
+fi
+
+# Check whether --enable-sanitize-access was given.
+if test "${enable_sanitize_access+set}" = set; then :
+  enableval=$enable_sanitize_access;
+else
+  enable_sanitize_access=yes
+fi
+if test x$enable_sanitize_access != xyes; then
+
+$as_echo "#define SDL_SANITIZE_ACCESS_DISABLED 1" >>confdefs.h
 
 fi
 

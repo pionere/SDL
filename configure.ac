@@ -296,6 +296,15 @@ if test x$enable_yuv_format != xyes; then
     AC_DEFINE(SDL_YUV_FORMAT_DISABLED, 1, [ ])
 fi
 
+dnl See whether we want to build robust library
+AC_ARG_ENABLE(sanitize_access,
+[AS_HELP_STRING([--enable-sanitize-access],
+               [Build robust library with checks against unreasonable parameters/calls [default=yes]])],
+              , enable_sanitize_access=yes)
+if test x$enable_sanitize_access != xyes; then
+    AC_DEFINE(SDL_SANITIZE_ACCESS_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want to build the test directory
 AC_ARG_ENABLE(test,
 [AS_HELP_STRING([--enable-test],

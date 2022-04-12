@@ -50,10 +50,11 @@ SDL_TicksQuit(void)
 Uint64
 SDL_GetTicks64(void)
 {
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     return (Uint64) ((system_time() - start) / 1000);
 }
 

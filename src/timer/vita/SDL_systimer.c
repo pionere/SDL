@@ -55,11 +55,11 @@ Uint64
 SDL_GetTicks64(void)
 {
     uint64_t now;
-
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     now = sceKernelGetProcessTimeWide();
     return (Uint64) ((now - start) / 1000);
 }

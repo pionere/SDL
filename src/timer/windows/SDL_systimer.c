@@ -115,11 +115,11 @@ SDL_GetTicks64(void)
 {
     LARGE_INTEGER now;
     BOOL rc;
-
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     rc = QueryPerformanceCounter(&now);
     SDL_assert(rc != 0);  /* this should _never_ fail if you're on XP or later. */
     return (Uint64) (((now.QuadPart - start_ticks.QuadPart) * 1000) / ticks_per_second.QuadPart);
@@ -165,10 +165,11 @@ SDL_Delay(Uint32 ms)
     }
     WaitForSingleObjectEx(mutex, ms, FALSE);
 #else
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif /* !SDL_SANITIZE_ACCESS_DISABLED */
     Sleep(ms);
 #endif
 }

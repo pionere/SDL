@@ -44,10 +44,11 @@ SDL_TicksQuit(void)
 Uint64
 SDL_GetTicks64(void)
 {
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     SDL_Unsupported();
     return 0;
 }
