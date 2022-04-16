@@ -3927,6 +3927,10 @@ SDL_GL_MakeCurrent(SDL_Window * window, SDL_GLContext ctx)
 {
     int retval;
 
+    if (!_this) {
+        return SDL_UninitializedVideo();
+    }
+
     if (window == SDL_GL_GetCurrentWindow() &&
         ctx == SDL_GL_GetCurrentContext()) {
         /* We're already current. */
