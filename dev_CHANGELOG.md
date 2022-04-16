@@ -4,6 +4,8 @@ Major changes:
 - add option to enable/disable SDL_BLIT_SLOW (61855fc35c11ed8575ffffbb648f95477d997bee)
 - add option to enable/disable blit with modulo/alpha (SDL_BLIT_TRANSFORM) (e00e9a4f682bad39cce7c03d7f8786113257393b)
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
+- add option SDL_SANITIZE_ACCESS (3002789c7d9137f288be193cd003b76c76b98c01 + 90f2c195e6fe0206499dddaa463b87cd03a6c185)
+  1. assume SDL_GetTicks64/SDL_GetPerformanceCounter/SDL_GetPerformanceFrequency and SDL_Delay are not called before SDL_TicksInit
 
 Minor changes:
 - handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031)
