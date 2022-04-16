@@ -81,11 +81,11 @@ SDL_GetTicks64(void)
 {
     Uint64 ui64Result;
     ULLONG ullTmrNow;
-
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
-
+#endif
     if (ulTmrFreq != 0) {
         DosTmrQueryTime((PQWORD)&ullTmrNow);
         ui64Result = (ullTmrNow - ullTmrStart) * 1000 / ulTmrFreq;
