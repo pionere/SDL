@@ -384,6 +384,7 @@ SDL_ReportAssertion(SDL_assert_data *data, const char *func, const char *file,
 
 void SDL_AssertionsQuit(void)
 {
+#if SDL_ASSERT_LEVEL > 0
     SDL_GenerateAssertionReport();
 #if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
     if (assertion_mutex != NULL) {
@@ -391,6 +392,7 @@ void SDL_AssertionsQuit(void)
         assertion_mutex = NULL;
     }
 #endif
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 void SDL_SetAssertionHandler(SDL_AssertionHandler handler, void *userdata)
