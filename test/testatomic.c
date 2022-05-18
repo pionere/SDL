@@ -712,6 +712,12 @@ main(int argc, char *argv[])
     SDL_Log("Skipping atomic test because the subsystem is disabled.\n");
 #else
     RunBasicTest();
+
+    if (SDL_getenv("SDL_TESTS_QUICK") != NULL) {
+        SDL_Log("Not running slower tests");
+        return 0;
+    }
+
     RunEpicTest();
 /* This test is really slow, so don't run it by default */
 #if 0

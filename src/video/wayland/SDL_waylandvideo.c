@@ -818,7 +818,7 @@ display_handle_global(void *data, struct wl_registry *registry, uint32_t id,
     } else if (SDL_strcmp(interface, "wl_seat") == 0) {
         Wayland_display_add_input(d, id, version);
     } else if (SDL_strcmp(interface, "xdg_wm_base") == 0) {
-        d->shell.xdg = wl_registry_bind(d->registry, id, &xdg_wm_base_interface, 1);
+        d->shell.xdg = wl_registry_bind(d->registry, id, &xdg_wm_base_interface, SDL_min(version, 3));
         xdg_wm_base_add_listener(d->shell.xdg, &shell_listener_xdg, NULL);
     } else if (SDL_strcmp(interface, "wl_shm") == 0) {
         d->shm = wl_registry_bind(registry, id, &wl_shm_interface, 1);
@@ -877,7 +877,7 @@ static const struct wl_registry_listener registry_listener = {
 };
  
 #ifdef HAVE_LIBDECOR_H
-static SDL_bool should_use_libdecor(SDL_VideoData *data)
+static SDL_bool should_use_libdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
 {
     if (!SDL_WAYLAND_HAVE_WAYLAND_LIBDECOR) {
         return SDL_FALSE;
@@ -891,6 +891,10 @@ static SDL_bool should_use_libdecor(SDL_VideoData *data)
         return SDL_TRUE;
     }
 
+    if (ignore_xdg) {
+        return SDL_TRUE;
+    }
+
     if (data->decoration_manager) {
         return SDL_FALSE;
     }
@@ -898,6 +902,21 @@ static SDL_bool should_use_libdecor(SDL_VideoData *data)
     return SDL_TRUE;
 }
 #endif
+
+SDL_bool
+Wayland_LoadLibdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
+{
+#ifdef HAVE_LIBDECOR_H
+    if (data->shell.libdecor != NULL) {
+        return SDL_TRUE; /* Already loaded! */
+    }
+    if (should_use_libdecor(data, ignore_xdg)) {
+        data->shell.libdecor = libdecor_new(data->display, &libdecor_interface);
+        return data->shell.libdecor != NULL;
+    }
+#endif
+    return SDL_FALSE;
+}
 
 int
 Wayland_VideoInit(_THIS)
@@ -919,18 +938,8 @@ Wayland_VideoInit(_THIS)
     // First roundtrip to receive all registry objects.
     WAYLAND_wl_display_roundtrip(data->display);
 
-#ifdef HAVE_LIBDECOR_H
-    /* Don't have server-side decorations? Try client-side instead. */
-    if (should_use_libdecor(data)) {
-        data->shell.libdecor = libdecor_new(data->display, &libdecor_interface);
-
-        /* If libdecor works, we don't need xdg-shell anymore. */
-        if (data->shell.libdecor && data->shell.xdg) {
-            xdg_wm_base_destroy(data->shell.xdg);
-            data->shell.xdg = NULL;
-        }
-    }
-#endif
+    /* Now that we have all the protocols, load libdecor if applicable */
+    Wayland_LoadLibdecor(data, SDL_FALSE);
 
     // Second roundtrip to receive all output events.
     WAYLAND_wl_display_roundtrip(data->display);
