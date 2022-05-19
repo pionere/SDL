@@ -1,6 +1,6 @@
 Major changes:
 - expose SDL_DYNAMIC_API (SDL_DYNAPI) (ae1585de941eb1a50ffc0402b65f9e43ae07302a + 51c55497fe80c1a797e86334c56fdf378e6f8e02 + a541b7bb0141a8aa332b2174dd7d65bbda23a3b9 + ff4c8b98ce5ed65aa9ed6145a1fb826bde5bdb4a + 67e3582f3d7b4e85019278fa6abb4b509dce528b)
-- expose the options of SDL_interal.h (f3f67e9e612a0a21c3e401f9fe9ab5bf22bd3b4b)
+- expose the options of SDL_interal.h (f3f67e9e612a0a21c3e401f9fe9ab5bf22bd3b4b + 798bde6358eb59586a4e0fb4c500f4d1c737849e)
 - add option to enable/disable SDL_BLIT_SLOW (61855fc35c11ed8575ffffbb648f95477d997bee)
 - add option to enable/disable blit with modulo/alpha (SDL_BLIT_TRANSFORM) (e00e9a4f682bad39cce7c03d7f8786113257393b)
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
