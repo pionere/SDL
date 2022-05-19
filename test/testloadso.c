@@ -25,6 +25,9 @@ int
 main(int argc, char *argv[])
 {
     int retval = 0;
+#if SDL_LOADSO_DISABLED
+    SDL_Log("Skipping loadso test because the subsystem is disabled.\n");
+#else
     int hello = 0;
     const char *libname = NULL;
     const char *symname = NULL;
@@ -52,9 +55,6 @@ main(int argc, char *argv[])
         libname = argv[1];
         symname = argv[2];
     }
-#if SDL_LOADSO_DISABLED
-    SDL_Log("Skipping loadso test because the subsystem is disabled.\n");
-#else
     lib = SDL_LoadObject(libname);
     if (lib == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_LoadObject('%s') failed: %s\n",
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
         }
         SDL_UnloadObject(lib);
     }
-#endif /* SDL_LOADSO_DISABLED */
     SDL_Quit();
+#endif /* SDL_LOADSO_DISABLED */
     return retval;
 }
