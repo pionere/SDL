@@ -17030,8 +17030,10 @@ fi
 # Check whether --enable-blit0 was given.
 if test "${enable_blit0+set}" = set; then :
   enableval=$enable_blit0;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blit0=yes
 else
-  enable_blit0=${!enable_lean_and_mean}
+  enable_blit0=no
 fi
 if test x$enable_blit0 != xyes; then
 
@@ -17041,8 +17043,10 @@ fi
 # Check whether --enable-blit1 was given.
 if test "${enable_blit1+set}" = set; then :
   enableval=$enable_blit1;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blit1=yes
 else
-  enable_blit1=${!enable_lean_and_mean}
+  enable_blit1=no
 fi
 if test x$enable_blit1 != xyes; then
 
@@ -17052,8 +17056,10 @@ fi
 # Check whether --enable-blitA was given.
 if test "${enable_blitA+set}" = set; then :
   enableval=$enable_blitA;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitA=yes
 else
-  enable_blitA=${!enable_lean_and_mean}
+  enable_blitA=no
 fi
 if test x$enable_blitA != xyes; then
 
@@ -17063,8 +17069,10 @@ fi
 # Check whether --enable-blitN was given.
 if test "${enable_blitN+set}" = set; then :
   enableval=$enable_blitN;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitN=yes
 else
-  enable_blitN=${!enable_lean_and_mean}
+  enable_blitN=no
 fi
 if test x$enable_blitN != xyes; then
 
@@ -17074,8 +17082,10 @@ fi
 # Check whether --enable-blitN_RGB565 was given.
 if test "${enable_blitN_RGB565+set}" = set; then :
   enableval=$enable_blitN_RGB565;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitN_RGB565=yes
 else
-  enable_blitN_RGB565=${!enable_lean_and_mean}
+  enable_blitN_RGB565=no
 fi
 if test x$enable_blitN_RGB565 != xyes; then
 
@@ -17085,8 +17095,10 @@ fi
 # Check whether --enable-blitAUTO was given.
 if test "${enable_blitAUTO+set}" = set; then :
   enableval=$enable_blitAUTO;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitAUTO=yes
 else
-  enable_blitAUTO=${!enable_lean_and_mean}
+  enable_blitAUTO=no
 fi
 if test x$enable_blitAUTO != xyes; then
 
@@ -17096,8 +17108,10 @@ fi
 # Check whether --enable-blitSLOW was given.
 if test "${enable_blitSLOW+set}" = set; then :
   enableval=$enable_blitSLOW;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitSLOW=yes
 else
-  enable_blitSLOW=${!enable_lean_and_mean}
+  enable_blitSLOW=no
 fi
 if test x$enable_blitSLOW != xyes; then
 
@@ -17107,8 +17121,10 @@ fi
 # Check whether --enable-rle-accel was given.
 if test "${enable_rle_accel+set}" = set; then :
   enableval=$enable_rle_accel;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_rle_accel=yes
 else
-  enable_rle_accel=${!enable_lean_and_mean}
+  enable_rle_accel=no
 fi
 if test x$enable_rle_accel != xyes; then
 
@@ -17118,8 +17134,10 @@ fi
 # Check whether --enable-blitTRANSFORM was given.
 if test "${enable_blitTRANSFORM+set}" = set; then :
   enableval=$enable_blitTRANSFORM;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_blitTRANSFORM=yes
 else
-  enable_blitTRANSFORM=${!enable_lean_and_mean}
+  enable_blitTRANSFORM=no
 fi
 if test x$enable_blitTRANSFORM != xyes; then
 
@@ -17129,8 +17147,10 @@ fi
 # Check whether --enable-yuv-format was given.
 if test "${enable_yuv_format+set}" = set; then :
   enableval=$enable_yuv_format;
+elif test x$enable_lean_and_mean != xyes; then
+  enable_yuv_format=yes
 else
-  enable_yuv_format=${!enable_lean_and_mean}
+  enable_yuv_format=no
 fi
 if test x$enable_yuv_format != xyes; then
 
@@ -27350,6 +27370,26 @@ if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
 else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+SUMMARY="${SUMMARY}Blitters"
+HAVE_BLITTER=no
+for BLITTER in blit0 blit1 blitA blitN_RGB565 blitAUTO blitSLOW rle_accel blitTRANSFORM yuv_format; do
+    ENABLE_BLITTER="enable_"$BLITTER
+    LABEL_BLITTER="${BLITTER^^}"
+    if test "x${!ENABLE_BLITTER}" = xyes; then
+        if test x$HAVE_BLITTER = xyes; then
+            SUMMARY="${SUMMARY},"
+        else
+            SUMMARY="${SUMMARY}:"
+        fi
+        SUMMARY="${SUMMARY} ${LABEL_BLITTER}"
+        HAVE_BLITTER=yes
+    fi
+done
+if test x$HAVE_BLITTER = xyes; then
+    SUMMARY="${SUMMARY}\n"
+else
+    SUMMARY="${SUMMARY}            : NO\n"
 fi
 if test x$enable_resampler = xyes; then
     SUMMARY="${SUMMARY}Resampler           : YES\n"

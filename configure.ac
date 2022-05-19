@@ -233,10 +233,15 @@ AC_ARG_ENABLE(lean-and-mean,
                [Turn off optional blit/rle/yuv features [default=false]])],
               , enable_lean_and_mean=false)
 
+if test x$enable_lean_and_mean != xyes; then
+    default_blit=yes
+else
+    default_blit=no
+fi
 AC_ARG_ENABLE(blit0,
 [AS_HELP_STRING([--enable-blit0],
                [Use optimized functions from 'SDL_blit_0.c' to blit with source BitsPerPixel < 8 [default=yes]])],
-              , enable_blit0=${!enable_lean_and_mean})
+              , enable_blit0=$default_blit)
 if test x$enable_blit0 != xyes; then
     AC_DEFINE(SDL_BLIT_0_DISABLED, 1, [ ])
 fi
@@ -244,63 +249,63 @@ fi
 AC_ARG_ENABLE(blit1,
 [AS_HELP_STRING([--enable-blit1],
                [Use optimized functions from 'SDL_blit_1.c' to blit with source BitsPerPixel == 1 [default=yes]])],
-              , enable_blit1=${!enable_lean_and_mean})
+              , enable_blit1=$default_blit)
 if test x$enable_blit1 != xyes; then
     AC_DEFINE(SDL_BLIT_1_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitA,
 [AS_HELP_STRING([--enable-blitA],
                [Use optimized functions from 'SDL_blit_A.c' to blit with 'SDL_BLENDMODE_BLEND' [default=yes]])],
-              , enable_blitA=${!enable_lean_and_mean})
+              , enable_blitA=$default_blit)
 if test x$enable_blitA != xyes; then
     AC_DEFINE(SDL_BLIT_A_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitN,
 [AS_HELP_STRING([--enable-blitN],
                [Use optimized functions from 'SDL_blit_N.c' to blit with COLORKEY mode, or nothing [default=yes]])],
-              , enable_blitN=${!enable_lean_and_mean})
+              , enable_blitN=$default_blit)
 if test x$enable_blitN != xyes; then
     AC_DEFINE(SDL_BLIT_N_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitN_RGB565,
 [AS_HELP_STRING([--enable-blitN_RGB565],
                [Use optimized functions from 'SDL_blit_N.c' to do RGB565 conversion with Lookup tables [default=yes]])],
-              , enable_blitN_RGB565=${!enable_lean_and_mean})
+              , enable_blitN_RGB565=$default_blit)
 if test x$enable_blitN_RGB565 != xyes; then
     AC_DEFINE(SDL_BLIT_N_RGB565_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitAUTO,
 [AS_HELP_STRING([--enable-blitAUTO],
                [Use optimized functions from 'SDL_blit_AUTO.c' to blit with scale [default=yes]])],
-              , enable_blitAUTO=${!enable_lean_and_mean})
+              , enable_blitAUTO=$default_blit)
 if test x$enable_blitAUTO != xyes; then
     AC_DEFINE(SDL_BLIT_AUTO_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitSLOW,
 [AS_HELP_STRING([--enable-blitSLOW],
                [Use unoptimized functions from 'SDL_blit_slow.c' to blit [default=yes]])],
-              , enable_blitSLOW=${!enable_lean_and_mean})
+              , enable_blitSLOW=$default_blit)
 if test x$enable_blitSLOW != xyes; then
     AC_DEFINE(SDL_BLIT_SLOW_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(rle-accel,
 [AS_HELP_STRING([--enable-rle-accel],
                [Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]])],
-              , enable_rle_accel=${!enable_lean_and_mean})
+              , enable_rle_accel=$default_blit)
 if test x$enable_rle_accel != xyes; then
     AC_DEFINE(SDL_RLE_ACCEL_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(blitTRANSFORM,
 [AS_HELP_STRING([--enable-blitTRANSFORM],
                [Use optimized functions from 'SDL_blit_AUTO.c' and 'SDL_blit_1.c' to blit with modulate color, modulate alpha [default=yes]])],
-              , enable_blitTRANSFORM=${!enable_lean_and_mean})
+              , enable_blitTRANSFORM=$default_blit)
 if test x$enable_blitTRANSFORM != xyes; then
     AC_DEFINE(SDL_BLIT_TRANSFORM_DISABLED, 1, [ ])
 fi
 AC_ARG_ENABLE(yuv_format,
 [AS_HELP_STRING([--enable-yuv-format],
                [Support YUV formats [default=yes]])],
-              , enable_yuv_format=${!enable_lean_and_mean})
+              , enable_yuv_format=$default_blit)
 if test x$enable_yuv_format != xyes; then
     AC_DEFINE(SDL_YUV_FORMAT_DISABLED, 1, [ ])
 fi
@@ -4901,6 +4906,26 @@ if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
 else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+SUMMARY="${SUMMARY}Blitters"
+HAVE_BLITTER=no
+for BLITTER in blit0 blit1 blitA blitN_RGB565 blitAUTO blitSLOW rle_accel blitTRANSFORM yuv_format; do
+    ENABLE_BLITTER="enable_"$BLITTER
+    LABEL_BLITTER="${BLITTER^^}"
+    if test "x${!ENABLE_BLITTER}" = xyes; then
+        if test x$HAVE_BLITTER = xyes; then
+            SUMMARY="${SUMMARY},"
+        else
+            SUMMARY="${SUMMARY}:"
+        fi
+        SUMMARY="${SUMMARY} ${LABEL_BLITTER}"
+        HAVE_BLITTER=yes
+    fi
+done
+if test x$HAVE_BLITTER = xyes; then
+    SUMMARY="${SUMMARY}\n"
+else
+    SUMMARY="${SUMMARY}            : NO\n"
 fi
 if test x$enable_resampler = xyes; then
     SUMMARY="${SUMMARY}Resampler           : YES\n"
