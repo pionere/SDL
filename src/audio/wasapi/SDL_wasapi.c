@@ -558,7 +558,7 @@ WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
         return WIN_SetErrorFromHRESULT("WASAPI can't determine minimum device period", ret);
     }
 
-#if 1  /* we're getting reports that WASAPI's resampler introduces distortions, so it's disabled for now. --ryan. */
+#if !SDL_RESAMPLER_DISABLED  /* we're getting reports that WASAPI's resampler introduces distortions, so it's disabled for now. --ryan. */
     this->spec.freq = waveformat->nSamplesPerSec;  /* force sampling rate so our resampler kicks in, if necessary. */
 #else
     /* favor WASAPI's resampler over our own */
