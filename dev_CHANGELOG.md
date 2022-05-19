@@ -6,7 +6,7 @@ Major changes:
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
 - add option SDL_SANITIZE_ACCESS (3002789c7d9137f288be193cd003b76c76b98c01 + 90f2c195e6fe0206499dddaa463b87cd03a6c185)
   1. assume SDL_GetTicks64/SDL_GetPerformanceCounter/SDL_GetPerformanceFrequency and SDL_Delay are not called before SDL_TicksInit
-- add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f)
+- add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1)
 
 Minor changes:
 - handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031)
@@ -25,6 +25,7 @@ Minor changes:
 - update SDL_CreateRGBSurface* interface (2b389c5133a0151a73ca6a4af6f4e26722a2abe6)
 - do not use SDL_GetError internally (4da1368a2bbd99e92e61455c037bed17952fea63)
 - Turn off debug code in normal release (9f81725966733df9bee2cc12ad6d2ac9862d04ce)
+- hide SDL_GenerateAssertionReport in case SDL_ASSERT_LEVEL is 0 (9d4f4056fa836e0f5cd264da27f53c2dc8deedd8)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
