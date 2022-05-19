@@ -305,6 +305,15 @@ if test x$enable_yuv_format != xyes; then
     AC_DEFINE(SDL_YUV_FORMAT_DISABLED, 1, [ ])
 fi
 
+dnl See whether we want audio resampler
+AC_ARG_ENABLE(resampler,
+[AS_HELP_STRING([--enable-resampler],
+               [Support resampling of audio [default=yes]])],
+              , enable_resampler=yes)
+if test x$enable_resampler != xyes; then
+    AC_DEFINE(SDL_RESAMPLER_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want to build robust library
 AC_ARG_ENABLE(sanitize_access,
 [AS_HELP_STRING([--enable-sanitize-access],
@@ -4892,6 +4901,11 @@ if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
 else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+if test x$enable_resampler = xyes; then
+    SUMMARY="${SUMMARY}Resampler           : YES\n"
+else
+    SUMMARY="${SUMMARY}Resampler           : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
 if test x$enable_logging = xyes; then

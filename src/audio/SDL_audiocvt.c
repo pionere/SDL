@@ -700,7 +700,7 @@ SDL_Convert51To71(SDL_AudioCVT * cvt, SDL_AudioFormat format)
         cvt->filters[cvt->filter_index] (cvt, format);
     }
 }
-
+#if !SDL_RESAMPLER_DISABLED
 /* SDL's resampler uses a "bandlimited interpolation" algorithm:
      https://ccrma.stanford.edu/~jos/resample/ */
 
@@ -781,7 +781,13 @@ SDL_ResampleAudio(const int chans, const int inrate, const int outrate,
 
     return outframes * chans * sizeof (float);
 }
-
+#else
+static int
+ResamplerPadding(const int inrate, const int outrate)
+{
+    return 0;
+}
+#endif /* !SDL_RESAMPLER_DISABLED */
 int
 SDL_ConvertAudio(SDL_AudioCVT * cvt)
 {
@@ -946,7 +952,7 @@ SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat dst_fmt)
 
     return retval;
 }
-
+#if !SDL_RESAMPLER_DISABLED
 static void
 SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans, const SDL_AudioFormat format)
 {
@@ -1006,10 +1012,11 @@ RESAMPLER_FUNCS(4)
 RESAMPLER_FUNCS(6)
 RESAMPLER_FUNCS(8)
 #undef RESAMPLER_FUNCS
-
+#endif /* !SDL_RESAMPLER_DISABLED */
 static SDL_AudioFilter
 ChooseCVTResampler(const int dst_channels)
 {
+#if !SDL_RESAMPLER_DISABLED
     switch (dst_channels) {
         case 1: return SDL_ResampleCVT_c1;
         case 2: return SDL_ResampleCVT_c2;
@@ -1018,7 +1025,7 @@ ChooseCVTResampler(const int dst_channels)
         case 8: return SDL_ResampleCVT_c8;
         default: break;
     }
-
+#endif /* !SDL_RESAMPLER_DISABLED */
     return NULL;
 }
 
@@ -1146,13 +1153,14 @@ SDL_BuildAudioCVT(SDL_AudioCVT * cvt,
     if (dst_rate <= 0) {
         return SDL_SetError("Destination rate is equal to or less than zero");
     }
+#if !SDL_RESAMPLER_DISABLED
     if (src_rate >= SDL_MAX_SINT32 / RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
         return SDL_SetError("Source rate is too high");
     }
     if (dst_rate >= SDL_MAX_SINT32 / RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
         return SDL_SetError("Destination rate is too high");
     }
-
+#endif
 #if DEBUG_CONVERT
     printf("Build format %04x->%04x, channels %u->%u, rate %d->%d\n",
            src_fmt, dst_fmt, src_channels, dst_channels, src_rate, dst_rate);
@@ -1638,6 +1646,7 @@ SDL_NewAudioStream(const SDL_AudioFormat src_format,
             return NULL;  /* SDL_BuildAudioCVT should have called SDL_SetError. */
         }
     } else {
+#if !SDL_RESAMPLER_DISABLED
         /* Don't resample at first. Just get us to Float32 format. */
         /* !!! FIXME: convert to int32 on devices without hardware float. */
         if (SDL_BuildAudioCVT(&retval->cvt_before_resampling, src_format, src_channels, src_rate, AUDIO_F32SYS, pre_resample_channels, src_rate) < 0) {
@@ -1667,6 +1676,10 @@ SDL_NewAudioStream(const SDL_AudioFormat src_format,
             SDL_FreeAudioStream(retval);
             return NULL;  /* SDL_BuildAudioCVT should have called SDL_SetError. */
         }
+#else
+        SDL_Error(SDL_UNSUPPORTED);
+        return NULL;
+#endif /* !SDL_RESAMPLER_DISABLED */
     }
 
     retval->queue = SDL_NewDataQueue(packetlen, packetlen * 2);
