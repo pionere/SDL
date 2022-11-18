@@ -295,10 +295,9 @@ N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
 
     return SDL_TRUE; /* this audio target is available. */
 }
-
+// "SDL N3DS audio driver"
 AudioBootStrap N3DSAUDIO_bootstrap = {
     N3DSAUDIO_DRIVER_NAME,
-    "SDL N3DS audio driver",
     N3DSAUDIO_Init,
     0
 };

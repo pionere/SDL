@@ -170,9 +170,9 @@ static SDL_bool PS2AUDIO_Init(SDL_AudioDriverImpl * impl)
     impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
     return SDL_TRUE;   /* this audio target is available. */
 }
-
+// "PS2 audio driver"
 AudioBootStrap PS2AUDIO_bootstrap = {
-    "ps2", "PS2 audio driver", PS2AUDIO_Init, SDL_FALSE
+    "ps2", PS2AUDIO_Init, SDL_FALSE
 };
 
 /* vi: set ts=4 sw=4 expandtab: */
