@@ -87,8 +87,8 @@ N3DS_CreateDevice(void)
 
     return device;
 }
-
-VideoBootStrap N3DS_bootstrap = { N3DSVID_DRIVER_NAME, "N3DS Video Driver", N3DS_CreateDevice };
+// "N3DS Video Driver"
+VideoBootStrap N3DS_bootstrap = { N3DSVID_DRIVER_NAME, N3DS_CreateDevice };
 
 static int
 N3DS_VideoInit(_THIS)
