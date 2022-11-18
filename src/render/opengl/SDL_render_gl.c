@@ -148,7 +148,7 @@ typedef struct
 
     GL_FBOList *fbo;
 } GL_TextureData;
-
+#if DEBUG_RENDER
 SDL_FORCE_INLINE const char*
 GL_TranslateError (GLenum error)
 {
@@ -167,7 +167,7 @@ GL_TranslateError (GLenum error)
 }
 #undef GL_ERROR_TRANSLATE
 }
-
+#endif // DEBUG_RENDER
 SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
