@@ -102,10 +102,6 @@ foreach(_SUB ${SDL_SUBSYSTEMS})
   endif()
 endforeach()
 
-if(EMSCRIPTEN)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s ERROR_ON_UNDEFINED_SYMBOLS=0")  
-endif()
-
 add_sdl_test_executable(checkkeys checkkeys.c)
 add_sdl_test_executable(checkkeysthreads checkkeysthreads.c)
 add_sdl_test_executable(loopwave loopwave.c testutils.c)
