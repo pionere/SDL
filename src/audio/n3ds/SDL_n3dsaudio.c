@@ -287,7 +287,7 @@ N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
     impl->ThreadInit = N3DSAUDIO_ThreadInit;
     impl->LockDevice = N3DSAUD_LockAudio;
     impl->UnlockDevice = N3DSAUD_UnlockAudio;
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     /* Should be possible, but micInit would fail */
     impl->HasCaptureSupport = SDL_FALSE;
