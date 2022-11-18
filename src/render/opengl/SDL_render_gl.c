@@ -171,8 +171,9 @@ GL_TranslateError (GLenum error)
 SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
-    GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
 #if DEBUG_RENDER
+    GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
+
     if (!data->debug_enabled)
     {
         return;
@@ -199,9 +200,9 @@ GL_ClearErrors(SDL_Renderer *renderer)
 SDL_FORCE_INLINE int
 GL_CheckAllErrors (const char *prefix, SDL_Renderer *renderer, const char *file, int line, const char *function)
 {
-    GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
     int ret = 0;
 #if DEBUG_RENDER
+    GL_RenderData *data = (GL_RenderData *) renderer->driverdata;
     if (!data->debug_enabled)
     {
         return 0;
