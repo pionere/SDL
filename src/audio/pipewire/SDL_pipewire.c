@@ -1182,7 +1182,6 @@ PIPEWIRE_OpenDevice(_THIS, const char *devname)
     const char                  *app_name, *stream_name, *stream_role, *error;
     Uint32                       node_id   = this->handle == NULL ? PW_ID_ANY : PW_HANDLE_TO_ID(this->handle);
     SDL_bool                     iscapture = this->iscapture;
-    SDL_bool                     iscapture = this->iscapture;
     int                          res;
 
     /* Clamp the period size to sane values */
