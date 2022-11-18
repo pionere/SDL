@@ -350,7 +350,7 @@ static void SDLTest_LogTestSuiteSummary(SDLTest_TestSuiteReference *testSuites)
 static float GetClock()
 {
     float currentClock = SDL_GetPerformanceCounter() / (float) SDL_GetPerformanceFrequency();
-#endif
+
     return currentClock;
 }
 
