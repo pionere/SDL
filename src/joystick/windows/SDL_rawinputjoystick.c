@@ -36,11 +36,9 @@
 #include "SDL_endian.h"
 #include "SDL_events.h"
 #include "SDL_hints.h"
-#include "SDL_mutex.h"
 #include "SDL_timer.h"
 #include "../usb_ids.h"
 #include "../SDL_sysjoystick.h"
-#include "../controller_type.h"
 #include "../../core/windows/SDL_windows.h"
 #include "../../core/windows/SDL_hid.h"
 #include "../hidapi/SDL_hidapijoystick_c.h"
@@ -97,7 +95,6 @@ typedef struct WindowsGamingInputGamepadState WindowsGamingInputGamepadState;
 
 static SDL_bool SDL_RAWINPUT_inited = SDL_FALSE;
 static int SDL_RAWINPUT_numjoysticks = 0;
-static SDL_mutex *SDL_RAWINPUT_mutex = NULL;
 
 static void RAWINPUT_JoystickClose(SDL_Joystick *joystick);
 
@@ -339,7 +336,9 @@ RAWINPUT_UpdateXInput()
                     xinput_state[user_index].connected = SDL_FALSE;
                 }
                 xinput_state[user_index].battery.BatteryType = BATTERY_TYPE_UNKNOWN;
-                XINPUTGETBATTERYINFORMATION(user_index, BATTERY_DEVTYPE_GAMEPAD, &xinput_state[user_index].battery);
+                if (XINPUTGETBATTERYINFORMATION) {
+                    XINPUTGETBATTERYINFORMATION(user_index, BATTERY_DEVTYPE_GAMEPAD, &xinput_state[user_index].battery);
+                }
             }
         }
     }
@@ -746,33 +745,13 @@ RAWINPUT_AddDevice(HANDLE hDevice)
     device->product_id = (Uint16)rdi.hid.dwProductId;
     device->version = (Uint16)rdi.hid.dwVersionNumber;
     device->is_xinput = SDL_TRUE;
-    device->is_xboxone = GuessControllerType(device->vendor_id, device->product_id) == k_eControllerType_XBoxOneController;
+    device->is_xboxone = SDL_IsJoystickXboxOne(device->vendor_id, device->product_id);
 
     /* Get HID Top-Level Collection Preparsed Data */
     size = 0;
     CHECK(GetRawInputDeviceInfoA(hDevice, RIDI_PREPARSEDDATA, NULL, &size) != (UINT)-1);
     CHECK(device->preparsed_data = (PHIDP_PREPARSED_DATA)SDL_calloc(size, sizeof(BYTE)));
     CHECK(GetRawInputDeviceInfoA(hDevice, RIDI_PREPARSEDDATA, device->preparsed_data, &size) != (UINT)-1);
-
-    {
-        const Uint16 vendor = device->vendor_id;
-        const Uint16 product = device->product_id;
-        const Uint16 version = device->version;
-        Uint16 *guid16 = (Uint16 *)device->guid.data;
-
-        *guid16++ = SDL_SwapLE16(SDL_HARDWARE_BUS_USB);
-        *guid16++ = 0;
-        *guid16++ = SDL_SwapLE16(vendor);
-        *guid16++ = 0;
-        *guid16++ = SDL_SwapLE16(product);
-        *guid16++ = 0;
-        *guid16++ = SDL_SwapLE16(version);
-        *guid16++ = 0;
-
-        /* Note that this is a RAWINPUT device for special handling elsewhere */
-        device->guid.data[14] = 'r';
-        device->guid.data[15] = 0;
-    }
 
     hFile = CreateFileA(dev_name, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     CHECK(hFile != INVALID_HANDLE_VALUE);
@@ -798,6 +777,9 @@ RAWINPUT_AddDevice(HANDLE hDevice)
             SDL_free(product_string);
         }
     }
+
+    device->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, device->vendor_id, device->product_id, device->version, device->name, 'r', 0);
+
     device->path = SDL_strdup(dev_name);
 
     CloseHandle(hFile);
@@ -873,6 +855,11 @@ RAWINPUT_JoystickInit(void)
 
     SDL_assert(!SDL_RAWINPUT_inited);
 
+    if (!WIN_IsWindowsVistaOrGreater()) {
+        /* According to bug 6400, this doesn't work on Windows XP */
+        return -1;
+    }
+
     if (!SDL_GetHintBoolean(SDL_HINT_JOYSTICK_RAWINPUT, SDL_TRUE)) {
         return -1;
     }
@@ -881,7 +868,6 @@ RAWINPUT_JoystickInit(void)
         return -1;
     }
 
-    SDL_RAWINPUT_mutex = SDL_CreateMutex();
     SDL_RAWINPUT_inited = SDL_TRUE;
 
     if ((GetRawInputDeviceList(NULL, &device_count, sizeof(RAWINPUTDEVICELIST)) != -1) && device_count > 0) {
@@ -1069,7 +1055,7 @@ RAWINPUT_JoystickGetDeviceInstanceID(int device_index)
     return RAWINPUT_GetDeviceByIndex(device_index)->joystick_id;
 }
 
-static int
+static int SDLCALL
 RAWINPUT_SortValueCaps(const void *A, const void *B)
 {
     HIDP_VALUE_CAPS *capsA = (HIDP_VALUE_CAPS *)A;
@@ -1350,15 +1336,15 @@ RAWINPUT_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint
 static Uint32
 RAWINPUT_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
-    RAWINPUT_DeviceContext *ctx = joystick->hwdata;
     Uint32 result = 0;
+#if defined(SDL_JOYSTICK_RAWINPUT_XINPUT) || defined(SDL_JOYSTICK_RAWINPUT_WGI)
+    RAWINPUT_DeviceContext *ctx = joystick->hwdata;
 
 #ifdef SDL_JOYSTICK_RAWINPUT_XINPUT
     if (ctx->is_xinput) {
         result |= SDL_JOYCAP_RUMBLE;
     }
 #endif
-
 #ifdef SDL_JOYSTICK_RAWINPUT_WGI
     if (ctx->is_xinput) {
         result |= SDL_JOYCAP_RUMBLE;
@@ -1368,6 +1354,7 @@ RAWINPUT_JoystickGetCapabilities(SDL_Joystick *joystick)
         }
     }
 #endif
+#endif /**/
 
     return result;
 }
@@ -1942,7 +1929,7 @@ RAWINPUT_WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     LRESULT result = -1;
 
     if (SDL_RAWINPUT_inited) {
-        SDL_LockMutex(SDL_RAWINPUT_mutex);
+        SDL_LockJoysticks();
 
         switch (msg) {
             case WM_INPUT_DEVICE_CHANGE:
@@ -1988,7 +1975,7 @@ RAWINPUT_WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
-        SDL_UnlockMutex(SDL_RAWINPUT_mutex);
+        SDL_UnlockJoysticks();
     }
 
     if (result >= 0) {
@@ -2013,9 +2000,6 @@ RAWINPUT_JoystickQuit(void)
     SDL_RAWINPUT_numjoysticks = 0;
 
     SDL_RAWINPUT_inited = SDL_FALSE;
-
-    SDL_DestroyMutex(SDL_RAWINPUT_mutex);
-    SDL_RAWINPUT_mutex = NULL;
 }
 
 static SDL_bool

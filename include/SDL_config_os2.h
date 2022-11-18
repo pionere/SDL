@@ -44,6 +44,7 @@
 /*#undef SDL_JOYSTICK_HIDAPI */
 #else
 #define SDL_JOYSTICK_HIDAPI 1
+#define HAVE_LIBUSB 1
 /* dynamically loaded libusb-1.0 dll: */
 #define SDL_LIBUSB_DYNAMIC "usb100.dll"
 #endif
@@ -103,8 +104,11 @@
 #define HAVE_GETENV 1
 #define HAVE_SETENV 1
 #define HAVE_PUTENV 1
+/* OpenWatcom requires specific calling conventions for qsort and bsearch */
+#ifndef __WATCOMC__
 #define HAVE_QSORT 1
 #define HAVE_BSEARCH 1
+#endif
 #define HAVE_ABS 1
 #define HAVE_BCOPY 1
 #define HAVE_MEMSET 1

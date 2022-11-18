@@ -39,6 +39,14 @@
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioUnit/AudioUnit.h>
 
+/* Things named "Master" were renamed to "Main" in macOS 12.0's SDK. */
+#if MACOSX_COREAUDIO
+#include <AvailabilityMacros.h>
+#ifndef MAC_OS_VERSION_12_0
+#define kAudioObjectPropertyElementMain kAudioObjectPropertyElementMaster
+#endif
+#endif
+
 /* Hidden "this" pointer for the audio functions */
 #define _THIS   SDL_AudioDevice *this
 
@@ -55,7 +63,6 @@ struct SDL_PrivateAudioData
     SDL_sem *ready_semaphore;
     int error_id;
     int error_param;
-    SDL_atomic_t shutdown;
 #if MACOSX_COREAUDIO
     AudioDeviceID deviceID;
     SDL_atomic_t device_change_flag;

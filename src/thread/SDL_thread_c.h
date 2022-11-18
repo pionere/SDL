@@ -32,10 +32,14 @@
 #include "pthread/SDL_systhread_c.h"
 #elif SDL_THREAD_WINDOWS
 #include "windows/SDL_systhread_c.h"
+#elif SDL_THREAD_PS2
+#include "ps2/SDL_systhread_c.h"
 #elif SDL_THREAD_PSP
 #include "psp/SDL_systhread_c.h"
 #elif SDL_THREAD_VITA
 #include "vita/SDL_systhread_c.h"
+#elif SDL_THREAD_N3DS
+#include "n3ds/SDL_systhread_c.h"
 #elif SDL_THREAD_STDCPP
 #include "stdcpp/SDL_systhread_c.h"
 #elif SDL_THREAD_OS2

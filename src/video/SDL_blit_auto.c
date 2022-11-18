@@ -23,7 +23,7 @@
 
 #if SDL_HAVE_BLIT_AUTO
 
-/* *INDENT-OFF* */
+/* *INDENT-OFF* */ /* clang-format off */
 
 #include "SDL_video.h"
 #include "SDL_blit.h"
@@ -7050,7 +7050,7 @@ SDL_BlitFuncEntry SDL_GeneratedBlitFuncTable[] = {
     { 0, 0, 0, 0, NULL }
 };
 
-/* *INDENT-ON* */
+/* *INDENT-ON* */ /* clang-format on */
 
 #endif /* SDL_HAVE_BLIT_AUTO */
 

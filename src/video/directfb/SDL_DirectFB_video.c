@@ -61,7 +61,7 @@
 static int DirectFB_VideoInit(_THIS);
 static void DirectFB_VideoQuit(_THIS);
 
-static SDL_VideoDevice *DirectFB_CreateDevice(int devindex);
+static SDL_VideoDevice *DirectFB_CreateDevice(void);
 /* "DirectFB" */
 VideoBootStrap DirectFB_bootstrap = {
     "directfb", DirectFB_CreateDevice
@@ -82,7 +82,7 @@ DirectFB_DeleteDevice(SDL_VideoDevice * device)
 }
 
 static SDL_VideoDevice *
-DirectFB_CreateDevice(int devindex)
+DirectFB_CreateDevice(void)
 {
     SDL_VideoDevice *device;
 
