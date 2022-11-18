@@ -1199,8 +1199,6 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(
                                     JNIEnv *env, jclass cls)
 {
-    const char *str;
-
     if (Android_ActivityMutex) {
         SDL_DestroyMutex(Android_ActivityMutex);
         Android_ActivityMutex = NULL;
