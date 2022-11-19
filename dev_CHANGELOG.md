@@ -19,13 +19,14 @@ Minor changes:
 - make virtual joystick OFF by default (2821272508d9fdf65db274ec314bf4323e03ed4f)
 - report if subsystem is live or just a dummy (b0e6a3e5d8f0cd734952364e197dd3a739314cb3 + 3418aab14301cfa3c85163b529ed8e3aa433fe4d)
 - upload created artifacts on push and pull_request (bf08b8f89ea2e37dee0d7e63386116e763f5eff6)
-- get rid of SDL_AudioDriver.desc (2b9a7d7601f756c3fa4621704ad7388f0ccc2417)
-- get rid of SDL_VideoDriver.desc (990453165480988f66ae47b13dad2835480d7dee)
-- replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba)
+- get rid of SDL_AudioDriver.desc (2b9a7d7601f756c3fa4621704ad7388f0ccc2417 + b4e62c06a29ec4ee9b0522e545c7f5fd5e871bd3 + 4dd9c3a4bebd96f411b71ca518138a3ac7d137e0)
+- get rid of SDL_VideoDriver.desc (990453165480988f66ae47b13dad2835480d7dee + 57e79ab7c20977b386d6bf5e56dd2f792f2d579d + )
+- replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba + 56e6db8d93fe1b63a72906ecb72c987727d33936 + a922acdd7cead695061786db984a33f2e76c3ccd)
 - update SDL_CreateRGBSurface* interface (2b389c5133a0151a73ca6a4af6f4e26722a2abe6)
-- do not use SDL_GetError internally (4da1368a2bbd99e92e61455c037bed17952fea63)
+- do not use SDL_GetError internally (4da1368a2bbd99e92e61455c037bed17952fea63 + bbeeb2dc3197548007be136726eff61b36ca1adc)
 - Turn off debug code in normal release (9f81725966733df9bee2cc12ad6d2ac9862d04ce)
 - hide SDL_GenerateAssertionReport in case SDL_ASSERT_LEVEL is 0 (9d4f4056fa836e0f5cd264da27f53c2dc8deedd8)
+- sync handling of subsystems III. (threads) (4bf613e96b15d3087b43f10997b78d0932331e39 + ff609444f1c6d91186999d7459b42d1fe1aafdf3 + eb539788a342ba14b07c65568211bf5f3e75ad40)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
