@@ -403,9 +403,6 @@ HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *removed)
             }
 
             if (!dev) {
-                SDL_LogDebug(SDL_LOG_CATEGORY_INPUT,
-                             "HIDAPI_SetupDeviceDriver() couldn't open %s: %s\n",
-                             device->path, SDL_GetError());
                 return;
             }
             SDL_hid_set_nonblocking(dev, 1);
