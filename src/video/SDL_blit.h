@@ -520,22 +520,18 @@ do {                                                                    \
 #define DUFFS_LOOP_124(pixel_copy_increment1,                           \
                        pixel_copy_increment2,                           \
                        pixel_copy_increment4, width)                    \
-{ int n = width;                                                        \
+{ unsigned n = width;                                                   \
     if (n & 1) {                                                        \
-        pixel_copy_increment1; n -= 1;                                  \
+        pixel_copy_increment1;                                          \
     }                                                                   \
-    if (n & 2) {                                                        \
-        pixel_copy_increment2; n -= 2;                                  \
+    n >>= 1;                                                            \
+    if (n & 1) {                                                        \
+        pixel_copy_increment2;                                          \
     }                                                                   \
-    if (n & 4) {                                                        \
-        pixel_copy_increment4; n -= 4;                                  \
-    }                                                                   \
-    if (n) {                                                            \
-        n /= 8;                                                         \
-        do {                                                            \
-            pixel_copy_increment4;                                      \
-            pixel_copy_increment4;                                      \
-        } while (--n > 0);                                              \
+    n >>= 1;                                                            \
+    while (n > 0) {                                                     \
+        pixel_copy_increment4;                                          \
+        n--;                                                            \
     }                                                                   \
 }
 
