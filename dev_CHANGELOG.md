@@ -29,6 +29,8 @@ Minor changes:
 - hide SDL_GenerateAssertionReport in case SDL_ASSERT_LEVEL is 0 (9d4f4056fa836e0f5cd264da27f53c2dc8deedd8)
 - sync handling of subsystems III. (threads) (4bf613e96b15d3087b43f10997b78d0932331e39 + ff609444f1c6d91186999d7459b42d1fe1aafdf3 + eb539788a342ba14b07c65568211bf5f3e75ad40)
 - simplify simulated vsync (d744aaf) (8c670433a51c111aa4c75d74e135f567c51a1267)
+- improve DUFFS_LOOP_124 (fddbd55c3d992ac361362e6ecbf3a7ffb4e07659)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
+- fix DUFFS_LOOP4/8 to handle width of zero (or less) (8d18c5e59856bd5e46b93d9de4550d1d0b89dc26)
