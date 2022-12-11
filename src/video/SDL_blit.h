@@ -478,29 +478,37 @@ do {                                                                    \
 
 /* 8-times unrolled loop */
 #define DUFFS_LOOP8(pixel_copy_increment, width)                        \
-{ int n = (width+7)/8;                                                  \
-    switch (width & 7) {                                                \
-    case 0: do {    pixel_copy_increment; SDL_FALLTHROUGH;              \
-    case 7:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 6:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 5:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 4:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 3:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 2:     pixel_copy_increment;     SDL_FALLTHROUGH;              \
-    case 1:     pixel_copy_increment;                                   \
-        } while ( --n > 0 );                                            \
+{                                                                       \
+    int w = width;                                                      \
+    if (w > 0) {                                                        \
+        int n = (w + 7) / 8;                                            \
+        switch (w & 7) {                                                \
+        case 0: do {    pixel_copy_increment; SDL_FALLTHROUGH;          \
+        case 7:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 6:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 5:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 4:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 3:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 2:     pixel_copy_increment;     SDL_FALLTHROUGH;          \
+        case 1:     pixel_copy_increment;                               \
+            } while (--n > 0);                                          \
+        }                                                               \
     }                                                                   \
 }
 
 /* 4-times unrolled loop */
 #define DUFFS_LOOP4(pixel_copy_increment, width)                        \
-{ int n = (width+3)/4;                                                  \
-    switch (width & 3) {                                                \
-    case 0: do {    pixel_copy_increment;   SDL_FALLTHROUGH;            \
-    case 3:     pixel_copy_increment;       SDL_FALLTHROUGH;            \
-    case 2:     pixel_copy_increment;       SDL_FALLTHROUGH;            \
-    case 1:     pixel_copy_increment;                                   \
-        } while (--n > 0);                                              \
+{                                                                       \
+    int w = width;                                                      \
+    if (w > 0) {                                                        \
+        int n = (w + 3) / 4;                                            \
+        switch (w & 3) {                                                \
+        case 0: do {    pixel_copy_increment;   SDL_FALLTHROUGH;        \
+        case 3:     pixel_copy_increment;       SDL_FALLTHROUGH;        \
+        case 2:     pixel_copy_increment;       SDL_FALLTHROUGH;        \
+        case 1:     pixel_copy_increment;                               \
+            } while (--n > 0);                                          \
+        }                                                               \
     }                                                                   \
 }
 
