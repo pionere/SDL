@@ -43,8 +43,8 @@ SDL_CreateSemaphore(Uint32 initial_value)
 {
     SDL_sem *sem;
 
-    sem = (SDL_sem *) SDL_malloc(sizeof(*sem));
-    if (!sem) {
+    sem = (SDL_sem *)SDL_malloc(sizeof(*sem));
+    if (sem == NULL) {
         SDL_OutOfMemory();
         return NULL;
     }
@@ -64,8 +64,7 @@ SDL_CreateSemaphore(Uint32 initial_value)
 /* WARNING:
    You cannot call this function when another thread is using the semaphore.
 */
-void
-SDL_DestroySemaphore(SDL_sem * sem)
+void SDL_DestroySemaphore(SDL_sem *sem)
 {
     if (sem) {
         sem->count = 0xFFFFFFFF;
@@ -83,12 +82,11 @@ SDL_DestroySemaphore(SDL_sem * sem)
     }
 }
 
-int
-SDL_SemTryWait(SDL_sem * sem)
+int SDL_SemTryWait(SDL_sem *sem)
 {
     int retval;
 
-    if (!sem) {
+    if (sem == NULL) {
         return SDL_InvalidParamError("sem");
     }
 
@@ -103,12 +101,11 @@ SDL_SemTryWait(SDL_sem * sem)
     return retval;
 }
 
-int
-SDL_SemWaitTimeout(SDL_sem * sem, Uint32 timeout)
+int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
 {
     int retval;
 
-    if (!sem) {
+    if (sem == NULL) {
         return SDL_InvalidParamError("sem");
     }
 
@@ -133,14 +130,13 @@ SDL_SemWaitTimeout(SDL_sem * sem, Uint32 timeout)
     return retval;
 }
 
-int
-SDL_SemWait(SDL_sem * sem)
+int SDL_SemWait(SDL_sem *sem)
 {
     return SDL_SemWaitTimeout(sem, SDL_MUTEX_MAXWAIT);
 }
 
 Uint32
-SDL_SemValue(SDL_sem * sem)
+SDL_SemValue(SDL_sem *sem)
 {
     Uint32 value;
 
@@ -153,10 +149,9 @@ SDL_SemValue(SDL_sem * sem)
     return value;
 }
 
-int
-SDL_SemPost(SDL_sem * sem)
+int SDL_SemPost(SDL_sem *sem)
 {
-    if (!sem) {
+    if (sem == NULL) {
         return SDL_InvalidParamError("sem");
     }
 

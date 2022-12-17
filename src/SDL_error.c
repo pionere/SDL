@@ -26,8 +26,7 @@
 #include "SDL_error_c.h"
 
 #if !SDL_VERBOSE_ERROR_DISABLED
-int
-SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
+int SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 {
     /* Ignore call if invalid format pointer was passed */
     if (fmt != NULL) {
@@ -35,7 +34,7 @@ SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
         int result;
         SDL_error *error = SDL_GetErrBuf();
 
-        error->error = 1;  /* mark error as valid */
+        error->error = 1; /* mark error as valid */
 
         va_start(ap, fmt);
         result = SDL_vsnprintf(error->str, error->len, fmt, ap);
@@ -48,11 +47,10 @@ SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
                 error->str = str;
                 error->len = len;
                 va_start(ap, fmt);
-                SDL_vsnprintf(error->str, error->len, fmt, ap);
+                (void)SDL_vsnprintf(error->str, error->len, fmt, ap);
                 va_end(ap);
             }
         }
-
 
         if (SDL_LogGetPriority(SDL_LOG_CATEGORY_ERROR) <= SDL_LOG_PRIORITY_DEBUG) {
             /* If we are in debug mode, print out the error message */
@@ -71,8 +69,7 @@ SDL_GetError(void)
     return error->error ? error->str : "";
 }
 
-void
-SDL_ClearError(void)
+void SDL_ClearError(void)
 {
     SDL_GetErrBuf()->error = 0;
 }
@@ -94,8 +91,7 @@ SDL_ClearError(void)
 #endif /* !SDL_VERBOSE_ERROR_DISABLED */
 
 /* Very common errors go here */
-int
-SDL_Error(SDL_errorcode code)
+int SDL_Error(SDL_errorcode code)
 {
     switch (code) {
     case SDL_ENOMEM:
@@ -114,8 +110,7 @@ SDL_Error(SDL_errorcode code)
 }
 
 #ifdef TEST_ERROR
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     char buffer[BUFSIZ + 1];
 

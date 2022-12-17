@@ -12,7 +12,7 @@ orig_CFLAGS="$CFLAGS"
 dnl Set various version strings - taken gratefully from the GTk sources
 # See docs/release_checklist.md
 SDL_MAJOR_VERSION=2
-SDL_MINOR_VERSION=26
+SDL_MINOR_VERSION=27
 SDL_MICRO_VERSION=0
 SDL_VERSION=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION.$SDL_MICRO_VERSION
 
@@ -62,6 +62,7 @@ AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_EGREP
+AC_PROG_FGREP
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG
@@ -180,8 +181,8 @@ base_libdir=`echo \${libdir} | sed 's/.*\/\(.*\)/\1/; q'`
 dnl Function to find a library in the compiler search path
 find_lib()
 {
-    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | fgrep programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
-    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | fgrep libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_bin_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP programs: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | $FGREP libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
     env_lib_path=[`echo $LIBS $LDFLAGS $* | sed 's/-L[ ]*//g'`]
     if test "$cross_compiling" = yes; then
         host_lib_path=""
@@ -4979,6 +4980,8 @@ AC_SUBST(SDL_CFLAGS)
 AC_SUBST(SDL_LIBS)
 AC_SUBST(SDL_STATIC_LIBS)
 AC_SUBST(SDL_RLD_FLAGS)
+PKGCONFIG_DEPENDS=""
+AC_SUBST(PKGCONFIG_DEPENDS)
 if test x$enable_shared = xyes; then
     PKGCONFIG_LIBS_PRIV="
 Libs.private:"
