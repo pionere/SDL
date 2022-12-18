@@ -24,7 +24,7 @@
 
 #include <GLES/egl.h>
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 #include "../SDL_sysvideo.h"
 
 typedef struct SDL_VideoData
@@ -67,10 +67,6 @@ void PSP_MaximizeWindow(_THIS, SDL_Window *window);
 void PSP_MinimizeWindow(_THIS, SDL_Window *window);
 void PSP_RestoreWindow(_THIS, SDL_Window *window);
 void PSP_DestroyWindow(_THIS, SDL_Window *window);
-
-/* Window manager function */
-SDL_bool PSP_GetWindowWMInfo(_THIS, SDL_Window * window,
-                             struct SDL_SysWMinfo *info);
 
 /* OpenGL/OpenGL ES functions */
 int PSP_GL_LoadLibrary(_THIS, const char *path);

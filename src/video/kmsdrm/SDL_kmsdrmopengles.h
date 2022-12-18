@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_kmsdrmopengles_h_
 #define SDL_kmsdrmopengles_h_
@@ -29,9 +29,9 @@
 #include "../SDL_egl_c.h"
 
 /* OpenGLES functions */
-#define KMSDRM_GLES_GetAttribute SDL_EGL_GetAttribute
-#define KMSDRM_GLES_GetProcAddress SDL_EGL_GetProcAddress
-#define KMSDRM_GLES_DeleteContext SDL_EGL_DeleteContext
+#define KMSDRM_GLES_GetAttribute    SDL_EGL_GetAttribute
+#define KMSDRM_GLES_GetProcAddress  SDL_EGL_GetProcAddressInternal
+#define KMSDRM_GLES_DeleteContext   SDL_EGL_DeleteContext
 #define KMSDRM_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 
 extern void KMSDRM_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor);

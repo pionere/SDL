@@ -18,9 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "SDL_config.h"
-
-#include "SDL_test.h"
+#include <SDL3/SDL_test.h>
 
 /* ---- 8x8 font definition ---- */
 
@@ -3187,9 +3185,7 @@ int SDLTest_DrawCharacter(SDL_Renderer *renderer, int x, int y, Uint32 c)
         /*
          * Redraw character into surface
          */
-        character = SDL_CreateRGBSurface(SDL_SWSURFACE,
-            charWidth, charHeight, 32,
-            0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        character = SDL_CreateSurface(charWidth, charHeight, SDL_PIXELFORMAT_RGBA8888);
         if (character == NULL) {
             return -1;
         }

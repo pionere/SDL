@@ -18,23 +18,19 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WINDOWS
 
 #include "SDL_windowsvideo.h"
 #include "SDL_windowsshape.h"
-#include "SDL_system.h"
-#include "SDL_syswm.h"
-#include "SDL_timer.h"
 #include "SDL_vkeys.h"
-#include "SDL_hints.h"
-#include "SDL_main.h"
 #include "../../events/SDL_events_c.h"
 #include "../../events/SDL_touch_c.h"
 #include "../../events/scancodes_windows.h"
-#include "SDL_hints.h"
-#include "SDL_log.h"
+
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 /* Dropfile support */
 #include <shellapi.h>
@@ -99,6 +95,9 @@
 #ifndef WM_GETDPISCALEDSIZE
 #define WM_GETDPISCALEDSIZE 0x02E4
 #endif
+#ifndef TOUCHEVENTF_PEN
+#define TOUCHEVENTF_PEN 0x0040
+#endif
 
 #ifndef IS_HIGH_SURROGATE
 #define IS_HIGH_SURROGATE(x) (((x) >= 0xd800) && ((x) <= 0xdbff))
@@ -109,6 +108,48 @@
 #ifndef IS_SURROGATE_PAIR
 #define IS_SURROGATE_PAIR(h, l) (IS_HIGH_SURROGATE(h) && IS_LOW_SURROGATE(l))
 #endif
+
+/* Used to compare Windows message timestamps */
+#define SDL_TICKS_PASSED(A, B) ((Sint32)((B) - (A)) <= 0)
+
+static SDL_bool SDL_processing_messages;
+static DWORD message_tick;
+static Uint64 timestamp_offset;
+
+static void WIN_SetMessageTick(DWORD tick)
+{
+    if (message_tick) {
+        if (tick < message_tick && timestamp_offset) {
+            /* The tick counter rolled over, bump our offset */
+            timestamp_offset += SDL_MS_TO_NS(0x100000000LLU);
+        }
+    }
+    message_tick = tick;
+}
+
+static Uint64 WIN_GetEventTimestamp()
+{
+    Uint64 timestamp, now;
+
+    if (!SDL_processing_messages) {
+        /* message_tick isn't valid, just use the current time */
+        return 0;
+    }
+
+    now = SDL_GetTicksNS();
+    timestamp = SDL_MS_TO_NS(message_tick);
+
+    if (!timestamp_offset) {
+        timestamp_offset = (now - timestamp);
+    }
+    timestamp += timestamp_offset;
+
+    if (timestamp > now) {
+        timestamp_offset -= (timestamp - now);
+        timestamp = now;
+    }
+    return timestamp;
+}
 
 static SDL_Scancode VKeytoScancodeFallback(WPARAM vkey)
 {
@@ -338,9 +379,9 @@ static void WIN_CheckWParamMouseButton(SDL_bool bwParamMousePressed, Uint32 mous
     }
 
     if (bwParamMousePressed && !(mouseFlags & SDL_BUTTON(button))) {
-        SDL_SendMouseButton(data->window, mouseID, SDL_PRESSED, button);
+        SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, SDL_PRESSED, button);
     } else if (!bwParamMousePressed && (mouseFlags & SDL_BUTTON(button))) {
-        SDL_SendMouseButton(data->window, mouseID, SDL_RELEASED, button);
+        SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, SDL_RELEASED, button);
     }
 }
 
@@ -482,7 +523,7 @@ static void WIN_UpdateFocus(SDL_Window *window, SDL_bool expect_focus)
             point.x = cursorPos.x;
             point.y = cursorPos.y;
             WIN_ClientPointToSDL(data->window, &point.x, &point.y);
-            SDL_SendMouseMotion(window, 0, 0, point.x, point.y);
+            SDL_SendMouseMotion(WIN_GetEventTimestamp(), window, 0, 0, point.x, point.y);
         }
 
         WIN_CheckAsyncMouseRelease(data);
@@ -652,9 +693,9 @@ WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
     }
 
     if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-        SDL_SendKeyboardKey(SDL_PRESSED, scanCode);
+        SDL_SendKeyboardKey(0, SDL_PRESSED, scanCode);
     } else {
-        SDL_SendKeyboardKey(SDL_RELEASED, scanCode);
+        SDL_SendKeyboardKey(0, SDL_RELEASED, scanCode);
 
         /* If the key was down prior to our hook being installed, allow the
            key up message to pass normally the first time. This ensures other
@@ -682,7 +723,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
         SDL_SysWMmsg wmmsg;
 
-        SDL_VERSION(&wmmsg.version);
+        wmmsg.version = SDL_SYSWM_CURRENT_VERSION;
         wmmsg.subsystem = SDL_SYSWM_WINDOWS;
         wmmsg.msg.win.hwnd = hwnd;
         wmmsg.msg.win.msg = msg;
@@ -794,7 +835,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 WIN_ClientPointToSDL(data->window, &x, &y);
 
-                SDL_SendMouseMotion(data->window, 0, 0, x, y);
+                SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, 0, 0, x, y);
             }
         }
     } break;
@@ -856,7 +897,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             rawmouse = &inp.data.mouse;
 
             if ((rawmouse->usFlags & 0x01) == MOUSE_MOVE_RELATIVE) {
-                SDL_SendMouseMotion(data->window, mouseID, 1, (int)rawmouse->lLastX, (int)rawmouse->lLastY);
+                SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, mouseID, 1, (int)rawmouse->lLastX, (int)rawmouse->lLastY);
             } else if (rawmouse->lLastX || rawmouse->lLastY) {
                 /* This is absolute motion, either using a tablet or mouse over RDP
 
@@ -912,7 +953,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                             const int MAX_RELATIVE_MOTION = (h / 6);
                             if (SDL_abs(relX) < MAX_RELATIVE_MOTION &&
                                 SDL_abs(relY) < MAX_RELATIVE_MOTION) {
-                                SDL_SendMouseMotion(data->window, mouseID, 1, relX, relY);
+                                SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, mouseID, 1, relX, relY);
                             }
                         }
                     }
@@ -922,7 +963,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                         SDL_abs(relY) > MAXIMUM_TABLET_RELATIVE_MOTION) {
                         /* Ignore this motion, probably a pen lift and drop */
                     } else {
-                        SDL_SendMouseMotion(data->window, mouseID, 1, relX, relY);
+                        SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, mouseID, 1, relX, relY);
                     }
                 }
 
@@ -939,9 +980,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         short amount = GET_WHEEL_DELTA_WPARAM(wParam);
         float fAmount = (float)amount / WHEEL_DELTA;
         if (msg == WM_MOUSEWHEEL) {
-            SDL_SendMouseWheel(data->window, 0, 0.0f, fAmount, SDL_MOUSEWHEEL_NORMAL);
+            SDL_SendMouseWheel(WIN_GetEventTimestamp(), data->window, 0, 0.0f, fAmount, SDL_MOUSEWHEEL_NORMAL);
         } else {
-            SDL_SendMouseWheel(data->window, 0, fAmount, 0.0f, SDL_MOUSEWHEEL_NORMAL);
+            SDL_SendMouseWheel(WIN_GetEventTimestamp(), data->window, 0, fAmount, 0.0f, SDL_MOUSEWHEEL_NORMAL);
         }
     } break;
 
@@ -958,13 +999,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 WIN_ClientPointToSDL(data->window, &point.x, &point.y);
                 mouse = SDL_GetMouse();
                 if (!mouse->was_touch_mouse_events) { /* we're not a touch handler causing a mouse leave? */
-                    SDL_SendMouseMotion(data->window, 0, 0, point.x, point.y);
+                    SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, 0, 0, point.x, point.y);
                 } else {                                       /* touch handling? */
                     mouse->was_touch_mouse_events = SDL_FALSE; /* not anymore */
                     if (mouse->touch_mouse_events) {           /* convert touch to mouse events */
-                        SDL_SendMouseMotion(data->window, SDL_TOUCH_MOUSEID, 0, point.x, point.y);
+                        SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, SDL_TOUCH_MOUSEID, 0, point.x, point.y);
                     } else { /* normal handling */
-                        SDL_SendMouseMotion(data->window, 0, 0, point.x, point.y);
+                        SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, 0, 0, point.x, point.y);
                     }
                 }
             }
@@ -997,7 +1038,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         if (code != SDL_SCANCODE_UNKNOWN) {
-            SDL_SendKeyboardKey(SDL_PRESSED, code);
+            SDL_SendKeyboardKey(WIN_GetEventTimestamp(), SDL_PRESSED, code);
         }
     }
 
@@ -1013,9 +1054,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (code != SDL_SCANCODE_UNKNOWN) {
             if (code == SDL_SCANCODE_PRINTSCREEN &&
                 keyboardState[code] == SDL_RELEASED) {
-                SDL_SendKeyboardKey(SDL_PRESSED, code);
+                SDL_SendKeyboardKey(WIN_GetEventTimestamp(), SDL_PRESSED, code);
             }
-            SDL_SendKeyboardKey(SDL_RELEASED, code);
+            SDL_SendKeyboardKey(WIN_GetEventTimestamp(), SDL_RELEASED, code);
         }
     }
         returnCode = 0;
@@ -1369,7 +1410,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     /* TODO: Can we use GetRawInputDeviceInfo and HID info to
                        determine if this is a direct or indirect touch device?
                      */
-                    if (SDL_AddTouch(touchId, SDL_TOUCH_DEVICE_DIRECT, "") < 0) {
+                    if (SDL_AddTouch(touchId, SDL_TOUCH_DEVICE_DIRECT, (input->dwFlags & TOUCHEVENTF_PEN) == TOUCHEVENTF_PEN ? "pen" : "touch") < 0) {
                         continue;
                     }
 
@@ -1377,14 +1418,15 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     x = (float)(input->x - rect.left) / (rect.right - rect.left);
                     y = (float)(input->y - rect.top) / (rect.bottom - rect.top);
 
+                    /* FIXME: Should we use the input->dwTime field for the tick source of the timestamp? */
                     if (input->dwFlags & TOUCHEVENTF_DOWN) {
-                        SDL_SendTouch(touchId, input->dwID, data->window, SDL_TRUE, x, y, 1.0f);
+                        SDL_SendTouch(WIN_GetEventTimestamp(), touchId, input->dwID, data->window, SDL_TRUE, x, y, 1.0f);
                     }
                     if (input->dwFlags & TOUCHEVENTF_MOVE) {
-                        SDL_SendTouchMotion(touchId, input->dwID, data->window, x, y, 1.0f);
+                        SDL_SendTouchMotion(WIN_GetEventTimestamp(), touchId, input->dwID, data->window, x, y, 1.0f);
                     }
                     if (input->dwFlags & TOUCHEVENTF_UP) {
-                        SDL_SendTouch(touchId, input->dwID, data->window, SDL_FALSE, x, y, 1.0f);
+                        SDL_SendTouch(WIN_GetEventTimestamp(), touchId, input->dwID, data->window, SDL_FALSE, x, y, 1.0f);
                     }
                 }
             }
@@ -1708,8 +1750,8 @@ static void WIN_UpdateClipCursorForWindows()
 {
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
     SDL_Window *window;
-    Uint32 now = SDL_GetTicks();
-    const Uint32 CLIPCURSOR_UPDATE_INTERVAL_MS = 3000;
+    Uint64 now = SDL_GetTicks();
+    const int CLIPCURSOR_UPDATE_INTERVAL_MS = 3000;
 
     if (_this) {
         for (window = _this->windows; window; window = window->next) {
@@ -1718,7 +1760,7 @@ static void WIN_UpdateClipCursorForWindows()
                 if (data->skip_update_clipcursor) {
                     data->skip_update_clipcursor = SDL_FALSE;
                     WIN_UpdateClipCursor(window);
-                } else if ((now - data->last_updated_clipcursor) >= CLIPCURSOR_UPDATE_INTERVAL_MS) {
+                } else if (now >= (data->last_updated_clipcursor + CLIPCURSOR_UPDATE_INTERVAL_MS)) {
                     WIN_UpdateClipCursor(window);
                 }
             }
@@ -1744,12 +1786,12 @@ static void WIN_UpdateMouseCapture()
                 point.y = cursorPos.y;
                 WIN_ClientPointToSDL(data->window, &point.x, &point.y);
 
-                SDL_SendMouseMotion(data->window, mouseID, 0, point.x, point.y);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_LBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_RBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_MBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_MIDDLE);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_XBUTTON1) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X1);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_XBUTTON2) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X2);
+                SDL_SendMouseMotion(WIN_GetEventTimestamp(), data->window, mouseID, 0, point.x, point.y);
+                SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, GetAsyncKeyState(VK_LBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT);
+                SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, GetAsyncKeyState(VK_RBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT);
+                SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, GetAsyncKeyState(VK_MBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_MIDDLE);
+                SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, GetAsyncKeyState(VK_XBUTTON1) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X1);
+                SDL_SendMouseButton(WIN_GetEventTimestamp(), data->window, mouseID, GetAsyncKeyState(VK_XBUTTON2) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X2);
             }
         }
     }
@@ -1766,17 +1808,17 @@ void SDL_SetWindowsMessageHook(SDL_WindowsMessageHook callback, void *userdata)
     g_WindowsMessageHookData = userdata;
 }
 
-int WIN_WaitEventTimeout(_THIS, int timeout)
+int WIN_WaitEventTimeout(_THIS, Sint64 timeoutNS)
 {
     MSG msg;
     if (g_WindowsEnableMessageLoop) {
         BOOL message_result;
         UINT_PTR timer_id = 0;
-        if (timeout > 0) {
-            timer_id = SetTimer(NULL, 0, timeout, NULL);
+        if (timeoutNS > 0) {
+            timer_id = SetTimer(NULL, 0, (UINT)SDL_NS_TO_MS(timeoutNS), NULL);
             message_result = GetMessage(&msg, 0, 0, 0);
             KillTimer(NULL, timer_id);
-        } else if (timeout == 0) {
+        } else if (timeoutNS == 0) {
             message_result = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
         } else {
             message_result = GetMessage(&msg, 0, 0, 0);
@@ -1818,6 +1860,8 @@ void WIN_PumpEvents(_THIS)
 #endif
 
     if (g_WindowsEnableMessageLoop) {
+        SDL_processing_messages = SDL_TRUE;
+
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (g_WindowsMessageHook) {
                 g_WindowsMessageHook(g_WindowsMessageHookData, msg.hwnd, msg.message, msg.wParam, msg.lParam);
@@ -1834,6 +1878,8 @@ void WIN_PumpEvents(_THIS)
                 SDL_last_warp_time = 0;
             }
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
+
+            WIN_SetMessageTick(msg.time);
 
             /* Always translate the message in case it's a non-SDL window (e.g. with Qt integration) */
             TranslateMessage(&msg);
@@ -1852,6 +1898,8 @@ void WIN_PumpEvents(_THIS)
                 }
             }
         }
+
+        SDL_processing_messages = SDL_FALSE;
     }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -1861,10 +1909,10 @@ void WIN_PumpEvents(_THIS)
        and if we think a key is pressed when Windows doesn't, unstick it in SDL's state. */
     keystate = SDL_GetKeyboardState(NULL);
     if ((keystate[SDL_SCANCODE_LSHIFT] == SDL_PRESSED) && !(GetKeyState(VK_LSHIFT) & 0x8000)) {
-        SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LSHIFT);
+        SDL_SendKeyboardKey(0, SDL_RELEASED, SDL_SCANCODE_LSHIFT);
     }
     if ((keystate[SDL_SCANCODE_RSHIFT] == SDL_PRESSED) && !(GetKeyState(VK_RSHIFT) & 0x8000)) {
-        SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_RSHIFT);
+        SDL_SendKeyboardKey(0, SDL_RELEASED, SDL_SCANCODE_RSHIFT);
     }
 
     /* The Windows key state gets lost when using Windows+Space or Windows+G shortcuts and
@@ -1873,10 +1921,10 @@ void WIN_PumpEvents(_THIS)
     focusWindow = SDL_GetKeyboardFocus();
     if (focusWindow == NULL || !(focusWindow->flags & SDL_WINDOW_KEYBOARD_GRABBED)) {
         if ((keystate[SDL_SCANCODE_LGUI] == SDL_PRESSED) && !(GetKeyState(VK_LWIN) & 0x8000)) {
-            SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LGUI);
+            SDL_SendKeyboardKey(0, SDL_RELEASED, SDL_SCANCODE_LGUI);
         }
         if ((keystate[SDL_SCANCODE_RGUI] == SDL_PRESSED) && !(GetKeyState(VK_RWIN) & 0x8000)) {
-            SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_RGUI);
+            SDL_SendKeyboardKey(0, SDL_RELEASED, SDL_SCANCODE_RGUI);
         }
     }
 

@@ -18,16 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_HAPTIC_IOKIT
 
-#include "SDL_stdinc.h"
-#include "SDL_haptic.h"
 #include "../SDL_syshaptic.h"
-#include "SDL_joystick.h"
-#include "../../joystick/SDL_sysjoystick.h"     /* For the real SDL_Joystick */
-#include "../../joystick/darwin/SDL_iokitjoystick_c.h"    /* For joystick hwdata */
+#include "../../joystick/SDL_sysjoystick.h"            /* For the real SDL_Joystick */
+#include "../../joystick/darwin/SDL_iokitjoystick_c.h" /* For joystick hwdata */
 #include "SDL_syshaptic_c.h"
 
 #include <IOKit/IOKitLib.h>
@@ -344,7 +341,7 @@ static int HIDGetDeviceProduct(io_service_t dev, char *name)
         return SDL_SetError("Haptic: Unable to create CFProperties.");
     }
 
-    /* Mac OS X currently is not mirroring all USB properties to HID page so need to look at USB device page also
+    /* macOS currently is not mirroring all USB properties to HID page so need to look at USB device page also
      * get dictionary for USB properties: step up two levels and get CF dictionary for USB properties
      */
     if ((KERN_SUCCESS ==
@@ -1282,7 +1279,7 @@ int SDL_SYS_HapticSetGain(SDL_Haptic *haptic, int gain)
     HRESULT ret;
     Uint32 val;
 
-    val = gain * 100;           /* Mac OS X uses 0 to 10,000 */
+    val = gain * 100; /* macOS uses 0 to 10,000 */
     ret = FFDeviceSetForceFeedbackProperty(haptic->hwdata->device,
                                            FFPROP_FFGAIN, &val);
     if (ret != FF_OK) {
@@ -1300,7 +1297,7 @@ int SDL_SYS_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter)
     HRESULT ret;
     Uint32 val;
 
-    /* Mac OS X only has 0 (off) and 1 (on) */
+    /* macOS only has 0 (off) and 1 (on) */
     if (autocenter == 0) {
         val = 0;
     } else {

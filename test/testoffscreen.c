@@ -13,16 +13,15 @@
 /* Simple program: picks the offscreen backend and renders each frame to a bmp */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL.h"
-#include "SDL_stdinc.h"
-#include "SDL_opengl.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_opengl.h>
 
 static SDL_Renderer *renderer = NULL;
 static SDL_Window *window = NULL;
@@ -53,19 +52,17 @@ void draw()
 void save_surface_to_bmp()
 {
     SDL_Surface *surface;
-    Uint32 r_mask, g_mask, b_mask, a_mask;
     Uint32 pixel_format;
     char file[128];
-    int bbp;
 
     pixel_format = SDL_GetWindowPixelFormat(window);
-    SDL_PixelFormatEnumToMasks(pixel_format, &bbp, &r_mask, &g_mask, &b_mask, &a_mask);
 
-    surface = SDL_CreateRGBSurface(0, width, height, bbp, r_mask, g_mask, b_mask, a_mask);
-    SDL_RenderReadPixels(renderer, NULL, pixel_format, (void*)surface->pixels, surface->pitch);
+    surface = SDL_CreateSurface(width, height, pixel_format);
 
-    SDL_snprintf(file, sizeof(file), "SDL_window%" SDL_PRIs32 "-%8.8d.bmp",
-                 SDL_GetWindowID(window), ++frame_number);
+    SDL_RenderReadPixels(renderer, NULL, pixel_format, surface->pixels, surface->pitch);
+
+    (void)SDL_snprintf(file, sizeof file, "SDL_window%" SDL_PRIs32 "-%8.8d.bmp",
+                       SDL_GetWindowID(window), ++frame_number);
 
     SDL_SaveBMP(surface, file);
     SDL_FreeSurface(surface);
@@ -97,7 +94,8 @@ void loop()
 int main(int argc, char *argv[])
 {
 #ifndef __EMSCRIPTEN__
-    Uint32 then, now, frames;
+    Uint64 then, now;
+    Uint32 frames;
 #endif
 
     /* Enable standard application logging */
@@ -121,7 +119,7 @@ int main(int argc, char *argv[])
         return SDL_FALSE;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
 
     if (renderer == NULL) {
         SDL_Log("Couldn't create renderer: %s\n",

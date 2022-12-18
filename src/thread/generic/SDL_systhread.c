@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Thread management routines for SDL */
 
-#include "SDL_thread.h"
 #include "../SDL_systhread.h"
 
 #ifdef SDL_PASSED_BEGINTHREAD_ENDTHREAD

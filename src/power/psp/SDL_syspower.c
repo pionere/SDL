@@ -19,12 +19,11 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_POWER_DISABLED
 #if SDL_POWER_PSP
 
-#include "SDL_power.h"
 #include <psppower.h>
 
 SDL_bool

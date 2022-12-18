@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WAYLAND
 
@@ -28,7 +28,6 @@
 #include <limits.h>
 #include <signal.h>
 
-#include "SDL_stdinc.h"
 #include "../../core/unix/SDL_poll.h"
 
 #include "SDL_waylandvideo.h"
@@ -38,7 +37,7 @@
 /* FIXME: This is arbitrary, but we want this to be less than a frame because
  * any longer can potentially spin an infinite loop of PumpEvents (!)
  */
-#define PIPE_MS_TIMEOUT 14
+#define PIPE_TIMEOUT_NS SDL_MS_TO_NS(14)
 
 static ssize_t write_pipe(int fd, const void *buffer, size_t total_length, size_t *pos)
 {
@@ -50,7 +49,7 @@ static ssize_t write_pipe(int fd, const void *buffer, size_t total_length, size_
     sigset_t old_sig_set;
     struct timespec zerotime = { 0 };
 
-    ready = SDL_IOReady(fd, SDL_IOR_WRITE, PIPE_MS_TIMEOUT);
+    ready = SDL_IOReady(fd, SDL_IOR_WRITE, PIPE_TIMEOUT_NS);
 
     sigemptyset(&sig_set);
     sigaddset(&sig_set, SIGPIPE);
@@ -95,7 +94,7 @@ static ssize_t read_pipe(int fd, void **buffer, size_t *total_length, SDL_bool n
     ssize_t bytes_read = 0;
     size_t pos = 0;
 
-    ready = SDL_IOReady(fd, SDL_IOR_READ, PIPE_MS_TIMEOUT);
+    ready = SDL_IOReady(fd, SDL_IOR_READ, PIPE_TIMEOUT_NS);
 
     if (ready == 0) {
         bytes_read = SDL_SetError("Pipe timeout");

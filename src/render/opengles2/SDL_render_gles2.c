@@ -18,13 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED
 
-#include "SDL_hints.h"
-#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult */
-#include "SDL_opengles2.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult and SDL_RecreateWindow */
+#include <SDL3/SDL_opengles2.h>
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_blit.h"
 #include "SDL_shaders_gles2.h"
@@ -175,7 +174,7 @@ typedef struct GLES2_RenderData
 static const float inv255f = 1.0f / 255.0f;
 
 #if DEBUG_RENDER
-SDL_FORCE_INLINE const char*
+SDL_FORCE_INLINE const char *
 GL_TranslateError(GLenum error)
 {
 #define GL_ERROR_TRANSLATE(e) \
@@ -249,8 +248,6 @@ static int GLES2_LoadFunctions(GLES2_RenderData *data)
 #if SDL_VIDEO_DRIVER_UIKIT
 #define __SDL_NOGETPROCADDR__
 #elif SDL_VIDEO_DRIVER_ANDROID
-#define __SDL_NOGETPROCADDR__
-#elif SDL_VIDEO_DRIVER_PANDORA
 #define __SDL_NOGETPROCADDR__
 #endif
 

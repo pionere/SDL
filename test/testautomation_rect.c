@@ -2,11 +2,8 @@
  * Original code: automated SDL rect test written by Edgar Simo "bobbens"
  * New/updated tests: aschiffler at ferzkopp dot net
  */
-
-#include <stdio.h>
-
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* ================= Test Case Implementation ================== */
 
@@ -1855,3 +1852,5 @@ SDLTest_TestSuiteReference rectTestSuite = {
     rectTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

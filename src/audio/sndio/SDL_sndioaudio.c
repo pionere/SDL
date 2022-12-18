@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_AUDIO_DRIVER_SNDIO
 
@@ -36,12 +36,10 @@
 #include <poll.h>
 #include <unistd.h>
 
-#include "SDL_audio.h"
 #include "../SDL_audio_c.h"
 #include "SDL_sndioaudio.h"
 
 #ifdef SDL_AUDIO_DRIVER_SNDIO_DYNAMIC
-#include "SDL_loadso.h"
 #endif
 
 #ifndef INFTIM

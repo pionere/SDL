@@ -2,6 +2,10 @@ name: Build (Sony Playstation Vita)
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: sh
@@ -30,7 +34,7 @@ jobs:
       run: cmake --build build --verbose
     - name: Install CMake
       run: |
-        echo "SDL2_DIR=$(pwd)/prefix" >> $GITHUB_ENV
+        echo "SDL3_DIR=$(pwd)/prefix" >> $GITHUB_ENV
         cmake --install build/
         ( cd prefix; find ) | LC_ALL=C sort -u
     - name: Verify CMake configuration files
@@ -38,16 +42,11 @@ jobs:
         cmake -S cmake/test -B cmake_config_build -G Ninja \
           -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake \
           -DTEST_SHARED=FALSE \
-          -DCMAKE_PREFIX_PATH=${{ env.SDL2_DIR }} \
+          -DCMAKE_PREFIX_PATH=${{ env.SDL3_DIR }} \
           -DCMAKE_BUILD_TYPE=Release
         cmake --build cmake_config_build --verbose
-    - name: Verify sdl2-config
+    - name: Verify sdl3.pc
       run: |
         export CC=arm-vita-eabi-gcc
-        export PATH=${{ env.SDL2_DIR }}/bin:$PATH
-        cmake/test/test_sdlconfig.sh
-    - name: Verify sdl2.pc
-      run: |
-        export CC=arm-vita-eabi-gcc
-        export PKG_CONFIG_PATH=${{ env.SDL2_DIR }}/lib/pkgconfig
+        export PKG_CONFIG_PATH=${{ env.SDL3_DIR }}/lib/pkgconfig
         cmake/test/test_pkgconfig.sh

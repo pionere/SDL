@@ -1,5 +1,16 @@
-#include <stdio.h>
-#include "SDL.h"
+/*
+  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely.
+*/
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 /* !!! FIXME: rewrite this to be wired in to test framework. */
 
@@ -66,7 +77,7 @@ int main(int argc, char **argv)
     /* !!! FIXME: check for errors. */
     SDL_Init(SDL_INIT_VIDEO);
     window = SDL_CreateWindow("Drag the red boxes", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_BORDERLESS | SDL_WINDOW_RESIZABLE);
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
 
     if (SDL_SetWindowHitTest(window, hitTest, NULL) == -1) {
         SDL_Log("Enabling hit-testing failed!\n");
@@ -130,3 +141,5 @@ int main(int argc, char **argv)
     SDL_Quit();
     return 0;
 }
+
+/* vi: set ts=4 sw=4 expandtab: */

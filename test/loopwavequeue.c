@@ -12,14 +12,14 @@
 
 /* Program to load a wave file and loop playing it using SDL sound queueing */
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #if HAVE_SIGNAL_H
 #include <signal.h>

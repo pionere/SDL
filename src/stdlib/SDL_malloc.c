@@ -18,17 +18,9 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-
-#if defined(__clang_analyzer__) && !defined(SDL_DISABLE_ANALYZE_MACROS)
-#define SDL_DISABLE_ANALYZE_MACROS 1
-#endif
-
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* This file contains portable memory management functions for SDL */
-#include "SDL_stdinc.h"
-#include "SDL_atomic.h"
-#include "SDL_error.h"
 
 #ifndef HAVE_MALLOC
 #define LACKS_SYS_TYPES_H

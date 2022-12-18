@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "SDL_config.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_winrtapp_xaml_h_
 #define SDL_winrtapp_xaml_h_
-
-#include "SDL_stdinc.h"
 
 #ifdef __cplusplus
 extern SDL_bool WINRT_XAMLWasEnabled;

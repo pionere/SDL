@@ -4,7 +4,8 @@
  *  use however you want
  */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "common.h"
 
 #define TEST_INPUT_RECT
@@ -173,13 +174,9 @@ loadFont(void)
         SDL_SetColorKey(surface, 1, SDL_MapRGB(surface->format, 238, 0, 252));
         /* now we convert the surface to our desired pixel format */
         int format = SDL_PIXELFORMAT_ABGR8888;  /* desired texture format */
-        Uint32 Rmask, Gmask, Bmask, Amask;      /* masks for desired format */
-        int bpp;                /* bits per pixel for desired format */
-        SDL_PixelFormatEnumToMasks(format, &bpp, &Rmask, &Gmask, &Bmask,
-                                   &Amask);
-        SDL_Surface *converted =
-            SDL_CreateRGBSurface(0, surface->w, surface->h, bpp, Rmask, Gmask,
-                                 Bmask, Amask);
+
+        SDL_Surface *converted = SDL_CreateSurface(surface->w, surface->h, format);
+
         SDL_BlitSurface(surface, NULL, converted, NULL);
         /* create our texture */
         texture = SDL_CreateTextureFromSurface(renderer, converted);
@@ -227,7 +224,7 @@ main(int argc, char *argv[])
     /* create window */
     window = SDL_CreateWindow("iOS keyboard test", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     /* create renderer */
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+    renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_PRESENTVSYNC);
 
     SDL_GetWindowSize(window, &width, &height);
     SDL_RenderSetLogicalSize(renderer, width, height);

@@ -9,20 +9,14 @@
   including commercial applications, and to alter it and redistribute it
   freely.
 */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-
-#include "SDL_test_common.h"
-
-#ifdef __MACOS__
-#define HAVE_OPENGL
-#endif
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
 #ifdef HAVE_OPENGL
 
-#include "SDL_opengl.h"
+#include <stdlib.h>
+
+#include <SDL3/SDL_opengl.h>
 
 typedef struct GL_Context
 {
@@ -43,8 +37,6 @@ static int LoadContext(GL_Context *data)
 #if SDL_VIDEO_DRIVER_UIKIT
 #define __SDL_NOGETPROCADDR__
 #elif SDL_VIDEO_DRIVER_ANDROID
-#define __SDL_NOGETPROCADDR__
-#elif SDL_VIDEO_DRIVER_PANDORA
 #define __SDL_NOGETPROCADDR__
 #endif
 
@@ -212,7 +204,8 @@ int main(int argc, char *argv[])
     int i, done;
     SDL_DisplayMode mode;
     SDL_Event event;
-    Uint32 then, now, frames;
+    Uint64 then, now;
+    Uint32 frames;
     int status;
     int dw, dh;
     int swap_interval = 0;
@@ -435,3 +428,5 @@ int main(int argc, char *argv[])
 }
 
 #endif /* HAVE_OPENGL */
+
+/* vi: set ts=4 sw=4 expandtab: */

@@ -15,16 +15,15 @@
    pump the event loop and catch keystrokes.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL.h"
-#include "SDL_test_font.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_test_font.h>
 
 static SDL_Window *window;
 static SDL_Renderer *renderer;
@@ -275,7 +274,7 @@ int main(int argc, char *argv[])
         quit(2);
     }
 
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     if (renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n",
                      SDL_GetError());
@@ -284,7 +283,7 @@ int main(int argc, char *argv[])
 
     textwin = SDLTest_TextWindowCreate(0, 0, 640, 480);
 
-#if __IPHONEOS__
+#if __IOS__
     /* Creating the context creates the view, which we need to show keyboard */
     SDL_GL_CreateContext(window);
 #endif

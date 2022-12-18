@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_NGAGE
 
@@ -154,10 +154,10 @@ int HandleWsEvent(_THIS, const TWsEvent &aWsEvent)
 
     switch (aWsEvent.Type()) {
     case EEventKeyDown: /* Key events */
-        SDL_SendKeyboardKey(SDL_PRESSED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
+        SDL_SendKeyboardKey(0, SDL_PRESSED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
         break;
     case EEventKeyUp: /* Key events */
-        SDL_SendKeyboardKey(SDL_RELEASED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
+        SDL_SendKeyboardKey(0, SDL_RELEASED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
         break;
     case EEventFocusGained: /* SDL window got focus */
         phdata->NGAGE_IsWindowFocused = ETrue;

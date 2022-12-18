@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_FILESYSTEM_HAIKU
 
@@ -30,9 +30,6 @@
 #include <storage/Entry.h>
 #include <storage/Path.h>
 
-#include "SDL_error.h"
-#include "SDL_stdinc.h"
-#include "SDL_filesystem.h"
 
 char *
 SDL_GetBasePath(void)

@@ -18,15 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_sysvideo_h_
 #define SDL_sysvideo_h_
-
-#include "SDL_messagebox.h"
-#include "SDL_shape.h"
-#include "SDL_thread.h"
-#include "SDL_metal.h"
 
 #include "SDL_vulkan_internal.h"
 
@@ -91,10 +86,6 @@ struct SDL_Window
     SDL_DisplayMode fullscreen_mode;
 
     float opacity;
-
-    float brightness;
-    Uint16 *gamma;
-    Uint16 *saved_gamma;        /* (just offset into gamma) */
 
     SDL_Surface *surface;
     SDL_bool surface_valid;
@@ -234,32 +225,30 @@ struct SDL_VideoDevice
     void (*SetWindowMaximumSize)(_THIS, SDL_Window *window);
     int (*GetWindowBordersSize)(_THIS, SDL_Window *window, int *top, int *left, int *bottom, int *right);
     void (*GetWindowSizeInPixels)(_THIS, SDL_Window *window, int *w, int *h);
-    int (*SetWindowOpacity) (_THIS, SDL_Window * window, float opacity);
-    int (*SetWindowModalFor) (_THIS, SDL_Window * modal_window, SDL_Window * parent_window);
-    int (*SetWindowInputFocus) (_THIS, SDL_Window * window);
-    void (*ShowWindow) (_THIS, SDL_Window * window);
-    void (*HideWindow) (_THIS, SDL_Window * window);
-    void (*RaiseWindow) (_THIS, SDL_Window * window);
-    void (*MaximizeWindow) (_THIS, SDL_Window * window);
-    void (*MinimizeWindow) (_THIS, SDL_Window * window);
-    void (*RestoreWindow) (_THIS, SDL_Window * window);
-    void (*SetWindowBordered) (_THIS, SDL_Window * window, SDL_bool bordered);
-    void (*SetWindowResizable) (_THIS, SDL_Window * window, SDL_bool resizable);
-    void (*SetWindowAlwaysOnTop) (_THIS, SDL_Window * window, SDL_bool on_top);
-    void (*SetWindowFullscreen) (_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
-    int (*SetWindowGammaRamp) (_THIS, SDL_Window * window, const Uint16 * ramp);
-    int (*GetWindowGammaRamp) (_THIS, SDL_Window * window, Uint16 * ramp);
-    void* (*GetWindowICCProfile) (_THIS, SDL_Window * window, size_t* size);
-    int (*GetWindowDisplayIndex)(_THIS, SDL_Window * window);
-    void (*SetWindowMouseRect)(_THIS, SDL_Window * window);
-    void (*SetWindowMouseGrab) (_THIS, SDL_Window * window, SDL_bool grabbed);
-    void (*SetWindowKeyboardGrab) (_THIS, SDL_Window * window, SDL_bool grabbed);
-    void (*DestroyWindow) (_THIS, SDL_Window * window);
-    int (*CreateWindowFramebuffer) (_THIS, SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
-    int (*UpdateWindowFramebuffer) (_THIS, SDL_Window * window, const SDL_Rect * rects, int numrects);
-    void (*DestroyWindowFramebuffer) (_THIS, SDL_Window * window);
-    void (*OnWindowEnter) (_THIS, SDL_Window * window);
-    int (*FlashWindow) (_THIS, SDL_Window * window, SDL_FlashOperation operation);
+    int (*SetWindowOpacity)(_THIS, SDL_Window *window, float opacity);
+    int (*SetWindowModalFor)(_THIS, SDL_Window *modal_window, SDL_Window *parent_window);
+    int (*SetWindowInputFocus)(_THIS, SDL_Window *window);
+    void (*ShowWindow)(_THIS, SDL_Window *window);
+    void (*HideWindow)(_THIS, SDL_Window *window);
+    void (*RaiseWindow)(_THIS, SDL_Window *window);
+    void (*MaximizeWindow)(_THIS, SDL_Window *window);
+    void (*MinimizeWindow)(_THIS, SDL_Window *window);
+    void (*RestoreWindow)(_THIS, SDL_Window *window);
+    void (*SetWindowBordered)(_THIS, SDL_Window *window, SDL_bool bordered);
+    void (*SetWindowResizable)(_THIS, SDL_Window *window, SDL_bool resizable);
+    void (*SetWindowAlwaysOnTop)(_THIS, SDL_Window *window, SDL_bool on_top);
+    void (*SetWindowFullscreen)(_THIS, SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen);
+    void *(*GetWindowICCProfile)(_THIS, SDL_Window *window, size_t *size);
+    int (*GetWindowDisplayIndex)(_THIS, SDL_Window *window);
+    void (*SetWindowMouseRect)(_THIS, SDL_Window *window);
+    void (*SetWindowMouseGrab)(_THIS, SDL_Window *window, SDL_bool grabbed);
+    void (*SetWindowKeyboardGrab)(_THIS, SDL_Window *window, SDL_bool grabbed);
+    void (*DestroyWindow)(_THIS, SDL_Window *window);
+    int (*CreateWindowFramebuffer)(_THIS, SDL_Window *window, Uint32 *format, void **pixels, int *pitch);
+    int (*UpdateWindowFramebuffer)(_THIS, SDL_Window *window, const SDL_Rect *rects, int numrects);
+    void (*DestroyWindowFramebuffer)(_THIS, SDL_Window *window);
+    void (*OnWindowEnter)(_THIS, SDL_Window *window);
+    int (*FlashWindow)(_THIS, SDL_Window *window, SDL_FlashOperation operation);
 
     /* * * */
     /*
@@ -268,24 +257,24 @@ struct SDL_VideoDevice
     SDL_ShapeDriver shape_driver;
 
     /* Get some platform dependent window information */
-    SDL_bool(*GetWindowWMInfo) (_THIS, SDL_Window * window,
-                                struct SDL_SysWMinfo * info);
+    int (*GetWindowWMInfo)(_THIS, SDL_Window *window, struct SDL_SysWMinfo *info);
 
     /* * * */
     /*
      * OpenGL support
      */
-    int (*GL_LoadLibrary) (_THIS, const char *path);
-    void *(*GL_GetProcAddress) (_THIS, const char *proc);
-    void (*GL_UnloadLibrary) (_THIS);
-      SDL_GLContext(*GL_CreateContext) (_THIS, SDL_Window * window);
-    int (*GL_MakeCurrent) (_THIS, SDL_Window * window, SDL_GLContext context);
-    void (*GL_GetDrawableSize) (_THIS, SDL_Window * window, int *w, int *h);
-    int (*GL_SetSwapInterval) (_THIS, int interval);
-    int (*GL_GetSwapInterval) (_THIS);
-    int (*GL_SwapWindow) (_THIS, SDL_Window * window);
-    void (*GL_DeleteContext) (_THIS, SDL_GLContext context);
-    void (*GL_DefaultProfileConfig) (_THIS, int *mask, int *major, int *minor);
+    int (*GL_LoadLibrary)(_THIS, const char *path);
+    void *(*GL_GetProcAddress)(_THIS, const char *proc);
+    void (*GL_UnloadLibrary)(_THIS);
+    SDL_GLContext (*GL_CreateContext)(_THIS, SDL_Window *window);
+    int (*GL_MakeCurrent)(_THIS, SDL_Window *window, SDL_GLContext context);
+    void (*GL_GetDrawableSize)(_THIS, SDL_Window *window, int *w, int *h);
+    SDL_EGLSurface (*GL_GetEGLSurface)(_THIS, SDL_Window *window);
+    int (*GL_SetSwapInterval)(_THIS, int interval);
+    int (*GL_GetSwapInterval)(_THIS);
+    int (*GL_SwapWindow)(_THIS, SDL_Window *window);
+    void (*GL_DeleteContext)(_THIS, SDL_GLContext context);
+    void (*GL_DefaultProfileConfig)(_THIS, int *mask, int *major, int *minor);
 
     /* * * */
     /*
@@ -310,7 +299,7 @@ struct SDL_VideoDevice
     /*
      * Event manager functions
      */
-    int (*WaitEventTimeout)(_THIS, int timeout);
+    int (*WaitEventTimeout)(_THIS, Sint64 timeoutNS);
     void (*SendWakeupEvent)(_THIS, SDL_Window *window);
     void (*PumpEvents)(_THIS);
 
@@ -397,10 +386,15 @@ struct SDL_VideoDevice
         int framebuffer_srgb_capable;
         int no_error;
         int retained_backing;
+        int egl_platform;
         int driver_loaded;
         char driver_path[256];
         void *dll_handle;
     } gl_config;
+
+    SDL_EGLAttribArrayCallback egl_platformattrib_callback;
+    SDL_EGLIntArrayCallback egl_surfaceattrib_callback;
+    SDL_EGLIntArrayCallback egl_contextattrib_callback;
 
     /* * * */
     /* Cache current GL context; don't call the OS when it hasn't changed. */
@@ -455,7 +449,6 @@ typedef struct VideoBootStrap
 /* Not all of these are available in a given build. Use #ifdefs, etc. */
 extern VideoBootStrap COCOA_bootstrap;
 extern VideoBootStrap X11_bootstrap;
-extern VideoBootStrap DirectFB_bootstrap;
 extern VideoBootStrap WINDOWS_bootstrap;
 extern VideoBootStrap WINRT_bootstrap;
 extern VideoBootStrap HAIKU_bootstrap;
@@ -473,14 +466,10 @@ extern VideoBootStrap KMSDRM_LEGACY_bootstrap;
 extern VideoBootStrap DUMMY_bootstrap;
 extern VideoBootStrap DUMMY_evdev_bootstrap;
 extern VideoBootStrap Wayland_bootstrap;
-extern VideoBootStrap NACL_bootstrap;
 extern VideoBootStrap VIVANTE_bootstrap;
 extern VideoBootStrap Emscripten_bootstrap;
-extern VideoBootStrap QNX_bootstrap;
 extern VideoBootStrap OFFSCREEN_bootstrap;
 extern VideoBootStrap NGAGE_bootstrap;
-extern VideoBootStrap OS2DIVE_bootstrap;
-extern VideoBootStrap OS2VMAN_bootstrap;
 
 /* Use SDL_OnVideoThread() sparingly, to avoid regressions in use cases that currently happen to work */
 extern SDL_bool SDL_OnVideoThread(void);

@@ -12,12 +12,11 @@
 
 /* Simple test of the SDL threading code */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #define NUMTHREADS 10
 
@@ -110,3 +109,5 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+/* vi: set ts=4 sw=4 expandtab: */

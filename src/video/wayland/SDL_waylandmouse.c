@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WAYLAND
 
@@ -31,7 +31,6 @@
 
 #include "../SDL_sysvideo.h"
 
-#include "SDL_mouse.h"
 #include "../../events/SDL_mouse_c.h"
 #include "SDL_waylandvideo.h"
 #include "../SDL_pixels_c.h"
@@ -40,7 +39,6 @@
 #include "wayland-cursor.h"
 #include "SDL_waylandmouse.h"
 
-#include "SDL_hints.h"
 #include "../../SDL_hints_c.h"
 
 static int Wayland_SetRelativeMouseMode(SDL_bool enabled);

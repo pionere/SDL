@@ -1,11 +1,8 @@
 /**
  * Standard C library routine test suite
  */
-
-#include <stdio.h>
-
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* Test case functions */
 
@@ -598,3 +595,5 @@ SDLTest_TestSuiteReference stdlibTestSuite = {
     stdlibTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

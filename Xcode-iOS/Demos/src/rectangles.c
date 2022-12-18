@@ -4,7 +4,9 @@
  *  use however you want
 */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <stdlib.h>
 #include <time.h>
 #include "common.h"
 
@@ -61,7 +63,7 @@ main(int argc, char *argv[])
     if (window == NULL) {
         fatalError("Could not initialize Window");
     }
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     if (renderer == NULL) {
         fatalError("Could not create renderer");
     }

@@ -12,11 +12,10 @@
 
 /* Simple program to test the SDL joystick hotplugging */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #if !defined SDL_JOYSTICK_DISABLED && !defined SDL_HAPTIC_DISABLED
 
@@ -146,3 +145,4 @@ main(int argc, char *argv[])
 }
 
 #endif
+/* vi: set ts=4 sw=4 expandtab: */

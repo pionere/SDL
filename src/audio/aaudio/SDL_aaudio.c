@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_AUDIO_DRIVER_AAUDIO
 
-#include "SDL_audio.h"
-#include "SDL_loadso.h"
 #include "../SDL_audio_c.h"
 #include "../../core/android/SDL_android.h"
 #include "SDL_aaudio.h"
@@ -50,10 +48,10 @@ static SDL_AudioDevice *captureDevice = NULL;
 
 static int aaudio_LoadFunctions(AAUDIO_Data *data)
 {
-#define SDL_PROC(ret, func, params)                                          \
+#define SDL_PROC(ret, func, params)                                        \
     do {                                                                   \
         data->func = SDL_LoadFunction(data->handle, #func);                \
-        if (! data->func) {                                                \
+        if (!data->func) {                                                 \
             /* Don't call SDL_SetError(): SDL_LoadFunction already did. */ \
             return -1;                                                     \
         }                                                                  \

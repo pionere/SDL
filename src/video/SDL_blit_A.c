@@ -18,12 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_HAVE_BLIT_A
 
-#include "SDL_video.h"
 #include "SDL_blit.h"
+#include "../SDL_intrin.h"
 
 /* Functions to perform alpha blended blitting */
 

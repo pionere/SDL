@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "./SDL_internal.h"
+#include "SDL_internal.h"
 
 #if !SDL_LOGGING_DISABLED || SDL_DYNAMIC_API
 
@@ -28,9 +28,6 @@
 
 /* Simple log messages in SDL */
 
-#include "SDL_error.h"
-#include "SDL_log.h"
-#include "SDL_mutex.h"
 #include "SDL_log_c.h"
 
 #if HAVE_STDIO_H
@@ -483,10 +480,12 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
 #endif
 #if HAVE_STDIO_H && \
     !(defined(__APPLE__) && (defined(SDL_VIDEO_DRIVER_COCOA) || defined(SDL_VIDEO_DRIVER_UIKIT)))
-    fprintf(stderr, "%s: %s\n", SDL_priority_prefixes[priority], message);
-#if __NACL__
-    fflush(stderr);
-#endif
+    (void)fprintf(stderr, "%s: %s\n", SDL_priority_prefixes[priority], message);
+#else
+    /* We won't print anything, but reference the priority prefix anyway
+       to avoid a compiler warning.
+     */
+    (void)SDL_priority_prefixes[priority];
 #endif
 }
 
@@ -594,8 +593,7 @@ SDL_LogGetOutputFunction(SDL_LogOutputFunction *callback, void **userdata)
     }
 }
 
-void
-SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
+void SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
 {
     SDL_log_function = callback;
     SDL_log_userdata = userdata;

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_LOADSO_WINDOWS
 
@@ -26,8 +26,6 @@
 /* System dependent library loading routines                           */
 
 #include "../../core/windows/SDL_windows.h"
-
-#include "SDL_loadso.h"
 
 void *
 SDL_LoadObject(const char *sofile)

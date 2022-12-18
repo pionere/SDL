@@ -24,16 +24,17 @@
  * SDL_x11vulkan.c.
  */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_VULKAN && SDL_VIDEO_DRIVER_WINDOWS
 
 #include "SDL_windowsvideo.h"
 #include "SDL_windowswindow.h"
 
-#include "SDL_loadso.h"
 #include "SDL_windowsvulkan.h"
-#include "SDL_syswm.h"
+
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 int WIN_Vulkan_LoadLibrary(_THIS, const char *path)
 {

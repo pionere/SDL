@@ -24,16 +24,17 @@
  * SDL_x11vulkan.c.
  */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_VULKAN && SDL_VIDEO_DRIVER_WAYLAND
 
 #include "SDL_waylandvideo.h"
 #include "SDL_waylandwindow.h"
 
-#include "SDL_loadso.h"
 #include "SDL_waylandvulkan.h"
-#include "SDL_syswm.h"
+
+#define SDL_ENABLE_SYSWM_WAYLAND
+#include <SDL3/SDL_syswm.h>
 
 #if defined(__OpenBSD__)
 #define DEFAULT_VULKAN "libvulkan.so"

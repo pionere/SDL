@@ -19,19 +19,16 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_PSP
 
 /* SDL internals */
 #include "../SDL_sysvideo.h"
-#include "SDL_version.h"
-#include "SDL_syswm.h"
-#include "SDL_loadso.h"
-#include "SDL_events.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_keyboard_c.h"
 
+#include <SDL3/SDL_syswm.h>
 
 /* PSP declarations */
 #include "SDL_pspvideo.h"
@@ -109,9 +106,6 @@ static SDL_VideoDevice *PSP_Create()
     device->MinimizeWindow = PSP_MinimizeWindow;
     device->RestoreWindow = PSP_RestoreWindow;
     device->DestroyWindow = PSP_DestroyWindow;
-#if 0
-    device->GetWindowWMInfo = PSP_GetWindowWMInfo;
-#endif
     device->GL_LoadLibrary = PSP_GL_LoadLibrary;
     device->GL_GetProcAddress = PSP_GL_GetProcAddress;
     device->GL_UnloadLibrary = PSP_GL_UnloadLibrary;
@@ -251,27 +245,6 @@ void PSP_RestoreWindow(_THIS, SDL_Window *window)
 void PSP_DestroyWindow(_THIS, SDL_Window *window)
 {
 }
-
-/*****************************************************************************/
-/* SDL Window Manager function                                               */
-/*****************************************************************************/
-#if 0
-SDL_bool
-PSP_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
-{
-    if (info->version.major <= SDL_MAJOR_VERSION) {
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("Application not compiled with SDL %d",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
-
-    /* Failed to get window manager information */
-    return SDL_FALSE;
-}
-#endif
-
 
 /* TO Write Me */
 SDL_bool PSP_HasScreenKeyboardSupport(_THIS)

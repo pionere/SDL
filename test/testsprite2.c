@@ -12,15 +12,15 @@
 /* Simple program:  Move N sprites around on the screen as fast as possible */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL_test.h"
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test.h>
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 #include "testutils.h"
 
 #define NUM_SPRITES 100
@@ -38,8 +38,9 @@ static SDL_Rect *positions;
 static SDL_Rect *velocities;
 static int sprite_w, sprite_h;
 static SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
-static Uint32 next_fps_check, frames;
-static const Uint32 fps_check_delay = 5000;
+static Uint64 next_fps_check;
+static Uint32 frames;
+static const int fps_check_delay = 5000;
 static int use_rendergeometry = 0;
 
 /* Number of iterations to move sprites - used for visual tests. */
@@ -394,7 +395,7 @@ void MoveSprites(SDL_Renderer *renderer, SDL_Texture *sprite)
 
 void loop()
 {
-    Uint32 now;
+    Uint64 now;
     int i;
     SDL_Event event;
 
@@ -416,9 +417,9 @@ void loop()
 
     frames++;
     now = SDL_GetTicks();
-    if (SDL_TICKS_PASSED(now, next_fps_check)) {
+    if (now >= next_fps_check) {
         /* Print out some timing information */
-        const Uint32 then = next_fps_check - fps_check_delay;
+        const Uint64 then = next_fps_check - fps_check_delay;
         const double fps = ((double)frames * 1000) / (now - then);
         SDL_Log("%2.2f frames per second\n", fps);
         next_fps_check = now + fps_check_delay;

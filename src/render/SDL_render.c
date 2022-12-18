@@ -18,13 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* The SDL 2D rendering system */
 
-#include "SDL_hints.h"
-#include "SDL_render.h"
-#include "SDL_timer.h"
 #include "SDL_sysrender.h"
 #include "software/SDL_render_sw_c.h"
 #include "../video/SDL_pixels_c.h"
@@ -39,7 +36,7 @@ SDL_AddEventWatch to catch SDL_APP_WILLENTERBACKGROUND events and stopped
 drawing themselves. Other platforms still draw, as the compositor can use it,
 and more importantly: drawing to render targets isn't lost. But I still think
 this should probably be removed at some point in the future.  --ryan. */
-#if defined(__IPHONEOS__) || defined(__TVOS__) || defined(__ANDROID__)
+#if defined(__IOS__) || defined(__TVOS__) || defined(__ANDROID__)
 #define DONT_DRAW_WHILE_HIDDEN 1
 #else
 #define DONT_DRAW_WHILE_HIDDEN 0
@@ -47,27 +44,27 @@ this should probably be removed at some point in the future.  --ryan. */
 
 #define SDL_WINDOWRENDERDATA "_SDL_WindowRenderData"
 
-#define CHECK_RENDERER_MAGIC(renderer, retval)             \
-    if (!renderer || renderer->magic != &renderer_magic) { \
-        SDL_InvalidParamError("renderer");                 \
-        return retval;                                     \
+#define CHECK_RENDERER_MAGIC(renderer, retval)                  \
+    if (!(renderer) || (renderer)->magic != &renderer_magic) {  \
+        SDL_InvalidParamError("renderer");                      \
+        return retval;                                          \
     }
 
-#define CHECK_TEXTURE_MAGIC(texture, retval)            \
-    if (!texture || texture->magic != &texture_magic) { \
-        SDL_InvalidParamError("texture");               \
-        return retval;                                  \
+#define CHECK_TEXTURE_MAGIC(texture, retval)                    \
+    if (!(texture) || (texture)->magic != &texture_magic) {     \
+        SDL_InvalidParamError("texture");                       \
+        return retval;                                          \
     }
 
 /* Predefined blend modes */
 #define SDL_COMPOSE_BLENDMODE(srcColorFactor, dstColorFactor, colorOperation, \
                               srcAlphaFactor, dstAlphaFactor, alphaOperation) \
-    (SDL_BlendMode)(((Uint32)colorOperation << 0) |                           \
-                    ((Uint32)srcColorFactor << 4) |                           \
-                    ((Uint32)dstColorFactor << 8) |                           \
-                    ((Uint32)alphaOperation << 16) |                          \
-                    ((Uint32)srcAlphaFactor << 20) |                          \
-                    ((Uint32)dstAlphaFactor << 24))
+    (SDL_BlendMode)(((Uint32)(colorOperation) << 0) |                         \
+                    ((Uint32)(srcColorFactor) << 4) |                         \
+                    ((Uint32)(dstColorFactor) << 8) |                         \
+                    ((Uint32)(alphaOperation) << 16) |                        \
+                    ((Uint32)(srcAlphaFactor) << 20) |                        \
+                    ((Uint32)(dstAlphaFactor) << 24))
 
 #define SDL_BLENDMODE_NONE_FULL                                                              \
     SDL_COMPOSE_BLENDMODE(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, \
@@ -108,12 +105,6 @@ static const SDL_RenderDriver *render_drivers[] = {
 #endif
 #if SDL_VIDEO_RENDER_OGL_ES2
     &GLES2_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL_ES
-    &GLES_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_DIRECTFB
-    &DirectFB_RenderDriver,
 #endif
 #if SDL_VIDEO_RENDER_PS2 && !SDL_RENDER_DISABLED
     &PS2_RenderDriver,
@@ -651,17 +642,18 @@ int SDL_GetNumRenderDrivers(void)
 #endif
 }
 
-int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo *info)
+const char *SDL_GetRenderDriver(int index)
 {
 #if !SDL_RENDER_DISABLED
     if (index < 0 || index >= SDL_GetNumRenderDrivers()) {
-        return SDL_SetError("index must be in the range of 0 - %d",
+        SDL_SetError("index must be in the range of 0 - %d",
                             SDL_GetNumRenderDrivers() - 1);
+        return NULL;
     }
-    *info = render_drivers[index]->info;
-    return 0;
+    return render_drivers[index]->info.name;
 #else
-    return SDL_SetError("SDL not built with rendering support");
+    SDL_SetError("SDL not built with rendering support");
+    return NULL;
 #endif
 }
 
@@ -871,7 +863,7 @@ int SDL_CreateWindowAndRenderer(int width, int height, Uint32 window_flags,
         return -1;
     }
 
-    *renderer = SDL_CreateRenderer(*window, -1, 0);
+    *renderer = SDL_CreateRenderer(*window, NULL, 0);
     if (!*renderer) {
         return -1;
     }
@@ -930,18 +922,19 @@ static void SDL_CalculateSimulatedVSyncInterval(SDL_Renderer *renderer, SDL_Wind
         /* Pick a good default refresh rate */
         refresh_rate = 60;
     }
-    renderer->simulate_vsync_interval = (1000 / refresh_rate);
+    renderer->simulate_vsync_interval_ns = (SDL_NS_PER_SECOND / refresh_rate);
 }
 #endif /* !SDL_RENDER_DISABLED */
 
 SDL_Renderer *
-SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
+SDL_CreateRenderer(SDL_Window *window, const char *name, Uint32 flags)
 {
 #if !SDL_RENDER_DISABLED
     SDL_Renderer *renderer = NULL;
-    int n = SDL_GetNumRenderDrivers();
+    const int n = SDL_GetNumRenderDrivers();
     SDL_bool batching = SDL_TRUE;
     const char *hint;
+    int i;
 
 #if defined(__ANDROID__)
     Android_ActivityMutex_Lock_Running();
@@ -966,53 +959,39 @@ SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
         }
     }
 
-    if (index < 0) {
-        hint = SDL_GetHint(SDL_HINT_RENDER_DRIVER);
-        if (hint) {
-            for (index = 0; index < n; ++index) {
-                const SDL_RenderDriver *driver = render_drivers[index];
+    if (!name) {
+        name = SDL_GetHint(SDL_HINT_RENDER_DRIVER);
+    }
 
-                if (SDL_strcasecmp(hint, driver->info.name) == 0) {
-                    /* Create a new renderer instance */
-                    renderer = driver->CreateRenderer(window, flags);
-                    if (renderer) {
-                        batching = SDL_FALSE;
-                    }
+    if (name) {
+        for (i = 0; i < n; i++) {
+            const SDL_RenderDriver *driver = render_drivers[i];
+            if (SDL_strcasecmp(name, driver->info.name) == 0) {
+                /* Create a new renderer instance */
+                renderer = driver->CreateRenderer(window, flags);
+                if (renderer) {
+                    batching = SDL_FALSE;
+                }
+                break;
+            }
+        }
+    } else {
+        for (i = 0; i < n; i++) {
+            const SDL_RenderDriver *driver = render_drivers[i];
+            if ((driver->info.flags & flags) == flags) {
+                /* Create a new renderer instance */
+                renderer = driver->CreateRenderer(window, flags);
+                if (renderer) {
+                    /* Yay, we got one! */
                     break;
                 }
             }
         }
+    }
 
-        if (renderer == NULL) {
-            for (index = 0; index < n; ++index) {
-                const SDL_RenderDriver *driver = render_drivers[index];
-
-                if ((driver->info.flags & flags) == flags) {
-                    /* Create a new renderer instance */
-                    renderer = driver->CreateRenderer(window, flags);
-                    if (renderer) {
-                        /* Yay, we got one! */
-                        break;
-                    }
-                }
-            }
-        }
-        if (renderer == NULL) {
-            SDL_SetError("Couldn't find matching render driver");
-            goto error;
-        }
-    } else {
-        if (index >= n) {
-            SDL_SetError("index must be -1 or in the range of 0 - %d",
-                         n - 1);
-            goto error;
-        }
-        /* Create a new renderer instance */
-        renderer = render_drivers[index]->CreateRenderer(window, flags);
-        batching = SDL_FALSE;
-        if (renderer == NULL) {
-            goto error;
-        }
+    if (renderer == NULL) {
+        SDL_SetError("Couldn't find matching render driver");
+        goto error;
     }
 
     if ((flags & SDL_RENDERER_PRESENTVSYNC) != 0) {
@@ -1452,18 +1431,6 @@ SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *surface)
         } else {
             SDL_UpdateTexture(texture, NULL, surface->pixels, surface->pitch);
         }
-
-#if SDL_VIDEO_RENDER_DIRECTFB
-        /* DirectFB allows palette format for textures.
-         * Copy SDL_Surface palette to the texture */
-        if (SDL_ISPIXELFORMAT_INDEXED(format)) {
-            if (SDL_strcasecmp(renderer->info.name, "directfb") == 0) {
-                extern void DirectFB_SetTexturePalette(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Palette *pal);
-                DirectFB_SetTexturePalette(renderer, texture, surface->format->palette);
-            }
-        }
-#endif
-
     } else {
         SDL_PixelFormat *dst_fmt;
         SDL_Surface *temp = NULL;
@@ -1474,7 +1441,7 @@ SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *surface)
             SDL_DestroyTexture(texture);
             return NULL;
         }
-        temp = SDL_ConvertSurface(surface, dst_fmt, 0);
+        temp = SDL_ConvertSurface(surface, dst_fmt);
         SDL_FreeFormat(dst_fmt);
         if (temp) {
             SDL_UpdateTexture(texture, NULL, temp->pixels, temp->pitch);
@@ -2098,7 +2065,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
         return ret;
     }
 
-    texture->locked_surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, real_rect.w, real_rect.h, 0, pitch, texture->format);
+    texture->locked_surface = SDL_CreateSurfaceFrom(pixels, real_rect.w, real_rect.h, pitch, texture->format);
     if (texture->locked_surface == NULL) {
         SDL_UnlockTexture(texture);
         return -1;
@@ -3069,10 +3036,10 @@ int SDL_RenderDrawLinesF(SDL_Renderer *renderer,
                 *ptr_xy++ = q.x;
                 *ptr_xy++ = q.y + scale_y;
 
-#define ADD_TRIANGLE(i1, i2, i3)     \
-    *ptr_indices++ = cur_index + i1; \
-    *ptr_indices++ = cur_index + i2; \
-    *ptr_indices++ = cur_index + i3; \
+#define ADD_TRIANGLE(i1, i2, i3)        \
+    *ptr_indices++ = cur_index + (i1);  \
+    *ptr_indices++ = cur_index + (i2);  \
+    *ptr_indices++ = cur_index + (i3);  \
     num_indices += 3;
 
                 /* closed polyline, don´t draw twice the point */
@@ -3596,7 +3563,7 @@ int SDL_RenderCopyExF(SDL_Renderer *renderer, SDL_Texture *texture,
         float s_minx, s_miny, s_maxx, s_maxy;
         float c_minx, c_miny, c_maxx, c_maxy;
 
-        const float radian_angle = (float)((M_PI * angle) / 180.0);
+        const float radian_angle = (float)((SDL_PI_D * angle) / 180.0);
         const float s = SDL_sinf(radian_angle);
         const float c = SDL_cosf(radian_angle);
 
@@ -4209,22 +4176,22 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
 static void SDL_RenderSimulateVSync(SDL_Renderer *renderer)
 {
-    Uint32 now;
-    Sint32 duration;
-    const Uint32 interval = renderer->simulate_vsync_interval;
+    Uint64 now;
+    Sint64 duration;
+    const Uint64 interval = renderer->simulate_vsync_interval_ns;
 
-    now = SDL_GetTicks();
+    now = SDL_GetTicksNS();
     duration = (renderer->next_present - now);
-    if (duration > 0 && (Uint32)duration <= interval) {
-        SDL_Delay(duration);
+    if (duration > 0 && (Uint64)duration <= interval) {
+        SDL_DelayNS(duration);
 
         renderer->next_present += interval;
     } else {
         renderer->next_present = now + interval;
 
-        /*Uint32 nextPlan = renderer->next_present + interval;
-        Uint32 nextNow = now + interval;
-        if (nextNow > nextPlan + 1000) {
+        /*Uint64 nextPlan = renderer->next_present + interval;
+        Uint64 nextNow = now + interval;
+        if (nextNow > nextPlan + SDL_MS_TO_NS(1000)) {
             renderer->next_present = nextNow;
         } else {
             renderer->next_present = nextPlan;

@@ -12,10 +12,10 @@
 
 /* Simple test of the SDL MessageBox API */
 
-#include <stdio.h>
 #include <stdlib.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 /* Call this instead of exit(), so we can clean up SDL: atexit() is evil. */
 static void
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
     /* Test showing a message box from a background thread.
 
-       On Mac OS X, the video subsystem needs to be initialized for this
+       On macOS, the video subsystem needs to be initialized for this
        to work, since the message box events are dispatched by the Cocoa
        subsystem on the main thread.
      */
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         /* On wayland, no window will actually show until something has
            actually been displayed.
         */
-        SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+        SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL, 0);
         SDL_RenderPresent(renderer);
 
         success = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
@@ -210,3 +210,5 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+/* vi: set ts=4 sw=4 expandtab: */

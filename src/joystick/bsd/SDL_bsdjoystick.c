@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_JOYSTICK_USBHID
 
@@ -73,7 +73,6 @@
 #include <machine/joystick.h>
 #endif
 
-#include "SDL_joystick.h"
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 #include "../hidapi/SDL_hidapijoystick_c.h"
@@ -641,6 +640,7 @@ static void BSD_JoystickUpdate(SDL_Joystick *joy)
 #ifdef __OpenBSD__
     Sint32 dpad[4] = { 0, 0, 0, 0 };
 #endif
+    Uint64 timestamp = SDL_GetTicksNS();
 
 #ifdef SUPPORT_JOY_GAMEPORT
     struct joystick gameport;
@@ -661,7 +661,7 @@ static void BSD_JoystickUpdate(SDL_Joystick *joy)
                     xmax++;
                 }
                 v = (((SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN) * ((Sint32)x - xmin)) / (xmax - xmin)) + SDL_JOYSTICK_AXIS_MIN;
-                SDL_PrivateJoystickAxis(joy, 0, v);
+                SDL_PrivateJoystickAxis(timestamp, joy, 0, v);
             }
             if (SDL_abs(y - gameport.y) > 8) {
                 y = gameport.y;
@@ -676,10 +676,10 @@ static void BSD_JoystickUpdate(SDL_Joystick *joy)
                     ymax++;
                 }
                 v = (((SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN) * ((Sint32)y - ymin)) / (ymax - ymin)) + SDL_JOYSTICK_AXIS_MIN;
-                SDL_PrivateJoystickAxis(joy, 1, v);
+                SDL_PrivateJoystickAxis(timestamp, joy, 1, v);
             }
-            SDL_PrivateJoystickButton(joy, 0, gameport.b1);
-            SDL_PrivateJoystickButton(joy, 1, gameport.b2);
+            SDL_PrivateJoystickButton(timestamp, joy, 0, gameport.b1);
+            SDL_PrivateJoystickButton(timestamp, joy, 1, gameport.b2);
         }
         return;
     }
@@ -711,26 +711,26 @@ static void BSD_JoystickUpdate(SDL_Joystick *joy)
                         /* scaleaxe */
                         v = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
                         v = (((SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN) * (v - hitem.logical_minimum)) / (hitem.logical_maximum - hitem.logical_minimum)) + SDL_JOYSTICK_AXIS_MIN;
-                        SDL_PrivateJoystickAxis(joy, naxe, v);
+                        SDL_PrivateJoystickAxis(timestamp, joy, naxe, v);
                     } else if (usage == HUG_HAT_SWITCH) {
                         v = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
-                        SDL_PrivateJoystickHat(joy, 0,
+                        SDL_PrivateJoystickHat(timestamp, joy, 0,
                                                hatval_to_sdl(v) -
                                                    hitem.logical_minimum);
                     }
 #ifdef __OpenBSD__
                     else if (usage == HUG_DPAD_UP) {
                         dpad[0] = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
-                        SDL_PrivateJoystickHat(joy, 0, dpad_to_sdl(dpad));
+                        SDL_PrivateJoystickHat(timestamp, joy, 0, dpad_to_sdl(dpad));
                     } else if (usage == HUG_DPAD_DOWN) {
                         dpad[1] = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
-                        SDL_PrivateJoystickHat(joy, 0, dpad_to_sdl(dpad));
+                        SDL_PrivateJoystickHat(timestamp, joy, 0, dpad_to_sdl(dpad));
                     } else if (usage == HUG_DPAD_RIGHT) {
                         dpad[2] = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
-                        SDL_PrivateJoystickHat(joy, 0, dpad_to_sdl(dpad));
+                        SDL_PrivateJoystickHat(timestamp, joy, 0, dpad_to_sdl(dpad));
                     } else if (usage == HUG_DPAD_LEFT) {
                         dpad[3] = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
-                        SDL_PrivateJoystickHat(joy, 0, dpad_to_sdl(dpad));
+                        SDL_PrivateJoystickHat(timestamp, joy, 0, dpad_to_sdl(dpad));
                     }
 #endif
                     break;
@@ -738,7 +738,7 @@ static void BSD_JoystickUpdate(SDL_Joystick *joy)
                 case HUP_BUTTON:
                     v = (Sint32)hid_get_data(REP_BUF_DATA(rep), &hitem);
                     nbutton = HID_USAGE(hitem.usage) - 1; /* SDL buttons are zero-based */
-                    SDL_PrivateJoystickButton(joy, nbutton, v);
+                    SDL_PrivateJoystickButton(timestamp, joy, nbutton, v);
                     break;
                 default:
                     continue;

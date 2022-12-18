@@ -18,17 +18,14 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Functions for audio drivers to perform runtime conversion of audio format */
 
-#include "SDL.h"
-#include "SDL_audio.h"
 #include "SDL_audio_c.h"
 
-#include "SDL_loadso.h"
 #include "../SDL_dataqueue.h"
-#include "SDL_cpuinfo.h"
+#include "../SDL_intrin.h"
 
 #define DEBUG_AUDIOSTREAM 0
 
@@ -1009,12 +1006,12 @@ static void SDL_CleanupAudioStreamResampler(SDL_AudioStream *stream)
 }
 
 SDL_AudioStream *
-SDL_NewAudioStream(const SDL_AudioFormat src_format,
-                   const Uint8 src_channels,
-                   const int src_rate,
-                   const SDL_AudioFormat dst_format,
-                   const Uint8 dst_channels,
-                   const int dst_rate)
+SDL_NewAudioStream(SDL_AudioFormat src_format,
+                   Uint8 src_channels,
+                   int src_rate,
+                   SDL_AudioFormat dst_format,
+                   Uint8 dst_channels,
+                   int dst_rate)
 {
     int packetlen = 4096; /* !!! FIXME: good enough for now. */
     Uint8 pre_resample_channels;

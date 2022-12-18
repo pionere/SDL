@@ -18,15 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__)
 #include "../core/windows/SDL_windows.h"
 #endif
-
-#include "SDL_atomic.h"
-#include "SDL_mutex.h"
-#include "SDL_timer.h"
 
 #if !defined(HAVE_GCC_ATOMICS) && defined(__SOLARIS__)
 #include <atomic.h>
@@ -44,7 +40,7 @@
 #include <kernel.h>
 #endif
 
-#if !defined(HAVE_GCC_ATOMICS) && defined(__MACOSX__)
+#if !defined(HAVE_GCC_ATOMICS) && defined(__MACOS__)
 #include <libkern/OSAtomic.h>
 #endif
 
@@ -138,7 +134,7 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
         : "cc", "memory");
     return result == 0;
 
-#elif defined(__MACOSX__) || defined(__IPHONEOS__)
+#elif defined(__MACOS__) || defined(__IOS__) || defined(__TVOS__)
     /* Maybe used for PowerPC, but the Intel asm or gcc atomics are favored. */
     return OSAtomicCompareAndSwap32Barrier(0, 1, lock);
 

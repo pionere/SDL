@@ -12,15 +12,14 @@
 /* Simple program:  Check viewports */
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL_test.h"
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test.h>
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 #include "testutils.h"
 
 static SDLTest_CommonState *state;
@@ -148,7 +147,8 @@ void loop()
 int main(int argc, char *argv[])
 {
     int i;
-    Uint32 then, now, frames;
+    Uint64 then, now;
+    Uint32 frames;
 
     /* Initialize test framework */
     state = SDLTest_CommonCreateState(argv, SDL_INIT_VIDEO);

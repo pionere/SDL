@@ -18,15 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WINDOWS
 
-#include "SDL_main.h"
-#include "SDL_video.h"
-#include "SDL_hints.h"
-#include "SDL_mouse.h"
-#include "SDL_system.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 
@@ -193,9 +188,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->SetWindowAlwaysOnTop = WIN_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = WIN_SetWindowFullscreen;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    device->SetWindowGammaRamp = WIN_SetWindowGammaRamp;
     device->GetWindowICCProfile = WIN_GetWindowICCProfile;
-    device->GetWindowGammaRamp = WIN_GetWindowGammaRamp;
     device->SetWindowMouseRect = WIN_SetWindowMouseRect;
     device->SetWindowMouseGrab = WIN_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = WIN_SetWindowKeyboardGrab;
@@ -226,17 +219,26 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
     device->GL_SwapWindow = WIN_GL_SwapWindow;
     device->GL_DeleteContext = WIN_GL_DeleteContext;
-#elif SDL_VIDEO_OPENGL_EGL
-    /* Use EGL based functions */
-    device->GL_LoadLibrary = WIN_GLES_LoadLibrary;
-    device->GL_GetProcAddress = WIN_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = WIN_GLES_UnloadLibrary;
-    device->GL_CreateContext = WIN_GLES_CreateContext;
-    device->GL_MakeCurrent = WIN_GLES_MakeCurrent;
-    device->GL_SetSwapInterval = WIN_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
-    device->GL_SwapWindow = WIN_GLES_SwapWindow;
-    device->GL_DeleteContext = WIN_GLES_DeleteContext;
+    device->GL_GetEGLSurface = NULL;
+#endif
+#if SDL_VIDEO_OPENGL_EGL
+#if SDL_VIDEO_OPENGL_WGL
+    if (SDL_GetHintBoolean(SDL_HINT_VIDEO_FORCE_EGL, SDL_FALSE)) {
+#endif
+        /* Use EGL based functions */
+        device->GL_LoadLibrary = WIN_GLES_LoadLibrary;
+        device->GL_GetProcAddress = WIN_GLES_GetProcAddress;
+        device->GL_UnloadLibrary = WIN_GLES_UnloadLibrary;
+        device->GL_CreateContext = WIN_GLES_CreateContext;
+        device->GL_MakeCurrent = WIN_GLES_MakeCurrent;
+        device->GL_SetSwapInterval = WIN_GLES_SetSwapInterval;
+        device->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
+        device->GL_SwapWindow = WIN_GLES_SwapWindow;
+        device->GL_DeleteContext = WIN_GLES_DeleteContext;
+        device->GL_GetEGLSurface = WIN_GLES_GetEGLSurface;
+#if SDL_VIDEO_OPENGL_WGL
+    }
+#endif
 #endif
 #if SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = WIN_Vulkan_LoadLibrary;

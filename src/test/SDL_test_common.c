@@ -20,11 +20,7 @@
 */
 
 /* Ported from original test/common.c file. */
-
-#include "SDL_config.h"
-#include "SDL_test.h"
-
-#include <stdio.h>
+#include <SDL3/SDL_test.h>
 
 static const char *video_usage[] = {
     "[--video driver]", "[--renderer driver]", "[--gldebug]",
@@ -116,14 +112,14 @@ SDLTest_CommonCreateState(char **argv, Uint32 flags)
     return state;
 }
 
-#define SEARCHARG(dim)            \
-    while (*dim && *dim != ',') { \
-        ++dim;                    \
-    }                             \
-    if (!*dim) {                  \
-        return -1;                \
-    }                             \
-    *dim++ = '\0';
+#define SEARCHARG(dim)                  \
+    while (*(dim) && *(dim) != ',') {   \
+        ++(dim);                        \
+    }                                   \
+    if (!*(dim)) {                      \
+        return -1;                      \
+    }                                   \
+    *(dim)++ = '\0';
 
 int SDLTest_CommonArg(SDLTest_CommonState *state, int index)
 {
@@ -1202,16 +1198,13 @@ SDLTest_CommonInit(SDLTest_CommonState *state)
         }
 
         if (state->verbose & VERBOSE_RENDER) {
-            SDL_RendererInfo info;
-
             n = SDL_GetNumRenderDrivers();
             if (n == 0) {
                 SDL_Log("No built-in render drivers\n");
             } else {
                 SDL_Log("Built-in render drivers:\n");
                 for (i = 0; i < n; ++i) {
-                    SDL_GetRenderDriverInfo(i, &info);
-                    SDLTest_PrintRenderer(&info);
+                    SDL_Log("  %s\n", SDL_GetRenderDriver(i));
                 }
             }
         }
@@ -1316,25 +1309,8 @@ SDLTest_CommonInit(SDLTest_CommonState *state)
             }
 
             if (!state->skip_renderer && (state->renderdriver || !(state->window_flags & (SDL_WINDOW_OPENGL | SDL_WINDOW_VULKAN | SDL_WINDOW_METAL)))) {
-                m = -1;
-                if (state->renderdriver) {
-                    SDL_RendererInfo info;
-                    n = SDL_GetNumRenderDrivers();
-                    for (j = 0; j < n; ++j) {
-                        SDL_GetRenderDriverInfo(j, &info);
-                        if (SDL_strcasecmp(info.name, state->renderdriver) == 0) {
-                            m = j;
-                            break;
-                        }
-                    }
-                    if (m == -1) {
-                        SDL_Log("Couldn't find render driver named %s",
-                                state->renderdriver);
-                        return SDL_FALSE;
-                    }
-                }
                 state->renderers[i] = SDL_CreateRenderer(state->windows[i],
-                                                         m, state->render_flags);
+                                                         state->renderdriver, state->render_flags);
                 if (!state->renderers[i]) {
                     SDL_Log("Couldn't create renderer: %s\n",
                             SDL_GetError());
@@ -1603,11 +1579,6 @@ static void SDLTest_PrintEvent(SDL_Event *event)
         SDL_Log("SDL EVENT: Joystick %" SDL_PRIs32 " removed",
                 event->jdevice.which);
         break;
-    case SDL_JOYBALLMOTION:
-        SDL_Log("SDL EVENT: Joystick %" SDL_PRIs32 ": ball %d moved by %d,%d",
-                event->jball.which, event->jball.ball, event->jball.xrel,
-                event->jball.yrel);
-        break;
     case SDL_JOYHATMOTION:
     {
         const char *position = "UNKNOWN";
@@ -1696,15 +1667,6 @@ static void SDLTest_PrintEvent(SDL_Event *event)
                 event->tfinger.x, event->tfinger.y,
                 event->tfinger.dx, event->tfinger.dy, event->tfinger.pressure);
         break;
-    case SDL_DOLLARGESTURE:
-        SDL_Log("SDL_EVENT: Dollar gesture detect: %ld", (long)event->dgesture.gestureId);
-        break;
-    case SDL_DOLLARRECORD:
-        SDL_Log("SDL_EVENT: Dollar gesture record: %ld", (long)event->dgesture.gestureId);
-        break;
-    case SDL_MULTIGESTURE:
-        SDL_Log("SDL_EVENT: Multi gesture fingers: %d", event->mgesture.numFingers);
-        break;
 
     case SDL_RENDER_DEVICE_RESET:
         SDL_Log("SDL EVENT: render device reset");
@@ -1765,13 +1727,9 @@ static void SDLTest_ScreenShot(SDL_Renderer *renderer)
     }
 
     SDL_RenderGetViewport(renderer, &viewport);
-    surface = SDL_CreateRGBSurface(0, viewport.w, viewport.h, 24,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                   0x00FF0000, 0x0000FF00, 0x000000FF,
-#else
-                                   0x000000FF, 0x0000FF00, 0x00FF0000,
-#endif
-                                   0x00000000);
+
+    surface = SDL_CreateSurface(viewport.w, viewport.h, SDL_PIXELFORMAT_BGR24);
+
     if (surface == NULL) {
         SDL_Log("Couldn't create surface: %s\n", SDL_GetError());
         return;

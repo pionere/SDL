@@ -18,13 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #include "../../core/windows/SDL_windows.h"
 
-#include "SDL_mutex.h"
-
-typedef SDL_mutex * (*pfnSDL_CreateMutex)(void);
+typedef SDL_mutex *(*pfnSDL_CreateMutex)(void);
 typedef int (*pfnSDL_LockMutex)(SDL_mutex *);
 typedef int (*pfnSDL_TryLockMutex)(SDL_mutex *);
 typedef int (*pfnSDL_UnlockMutex)(SDL_mutex *);

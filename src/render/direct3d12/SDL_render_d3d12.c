@@ -18,10 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
-
-#include "SDL_render.h"
-#include "SDL_system.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_D3D12 && !SDL_RENDER_DISABLED
 
@@ -32,11 +29,11 @@
 
 #include "../../core/windows/SDL_windows.h"
 #include "../../video/windows/SDL_windowswindow.h"
-#include "SDL_hints.h"
-#include "SDL_loadso.h"
-#include "SDL_syswm.h"
 #include "../SDL_sysrender.h"
 #include "../SDL_d3dmath.h"
+
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
 #include "SDL_render_d3d12_xbox.h"
@@ -1142,7 +1139,7 @@ static int D3D12_GetViewportAlignedD3DRect(SDL_Renderer *renderer, const SDL_Rec
 static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
 {
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
-    IDXGISwapChain1* swapChain;
+    IDXGISwapChain1 *swapChain = NULL;
     HRESULT result = S_OK;
     SDL_SysWMinfo windowinfo;
 
@@ -1166,8 +1163,12 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | /* To support SetMaximumFrameLatency */
                           DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;                  /* To support presenting with allow tearing on */
 
-    SDL_VERSION(&windowinfo.version);
-    SDL_GetWindowWMInfo(renderer->window, &windowinfo);
+    if (SDL_GetWindowWMInfo(renderer->window, &windowinfo, SDL_SYSWM_CURRENT_VERSION) < 0 ||
+        windowinfo.subsystem != SDL_SYSWM_WINDOWS) {
+        SDL_SetError("Couldn't get window handle");
+        result = E_FAIL;
+        goto done;
+    }
 
     result = D3D_CALL(data->dxgiFactory, CreateSwapChainForHwnd,
                       (IUnknown *)data->commandQueue,
@@ -1232,6 +1233,7 @@ D3D12_HandleDeviceLost(SDL_Renderer *renderer)
     {
         SDL_Event event;
         event.type = SDL_RENDER_DEVICE_RESET;
+        event.common.timestamp = 0;
         SDL_PushEvent(&event);
     }
 
@@ -2275,20 +2277,20 @@ static int D3D12_UpdateViewport(SDL_Renderer *renderer)
      * direction of the DXGI_MODE_ROTATION enumeration.
      */
     switch (rotation) {
-        case DXGI_MODE_ROTATION_IDENTITY:
-            projection = MatrixIdentity();
-            break;
-        case DXGI_MODE_ROTATION_ROTATE270:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI * 0.5f));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE180:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE90:
-            projection = MatrixRotationZ(SDL_static_cast(float, -M_PI * 0.5f));
-            break;
-        default:
-            return SDL_SetError("An unknown DisplayOrientation is being used");
+    case DXGI_MODE_ROTATION_IDENTITY:
+        projection = MatrixIdentity();
+        break;
+    case DXGI_MODE_ROTATION_ROTATE270:
+        projection = MatrixRotationZ(SDL_PI_F * 0.5f);
+        break;
+    case DXGI_MODE_ROTATION_ROTATE180:
+        projection = MatrixRotationZ(SDL_PI_F);
+        break;
+    case DXGI_MODE_ROTATION_ROTATE90:
+        projection = MatrixRotationZ(-SDL_PI_F * 0.5f);
+        break;
+    default:
+        return SDL_SetError("An unknown DisplayOrientation is being used");
     }
 
     /* Update the view matrix */

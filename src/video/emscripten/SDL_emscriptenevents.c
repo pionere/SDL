@@ -19,8 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_EMSCRIPTEN
 
@@ -34,9 +33,7 @@
 #include "SDL_emscriptenevents.h"
 #include "SDL_emscriptenvideo.h"
 
-#include "SDL_hints.h"
-
-#define FULLSCREEN_MASK ( SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_FULLSCREEN )
+#define FULLSCREEN_MASK (SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_FULLSCREEN)
 
 /*
 .keyCode to SDL keycode
@@ -638,7 +635,7 @@ static EM_BOOL Emscripten_HandleMouseMove(int eventType, const EmscriptenMouseEv
         my = mouseEvent->targetY * yscale;
     }
 
-    SDL_SendMouseMotion(window_data->window, 0, isPointerLocked, mx, my);
+    SDL_SendMouseMotion(0, window_data->window, 0, isPointerLocked, mx, my);
     return 0;
 }
 
@@ -674,7 +671,7 @@ static EM_BOOL Emscripten_HandleMouseButton(int eventType, const EmscriptenMouse
         sdl_button_state = SDL_RELEASED;
         sdl_event_type = SDL_MOUSEBUTTONUP;
     }
-    SDL_SendMouseButton(window_data->window, 0, sdl_button_state, sdl_button);
+    SDL_SendMouseButton(0, window_data->window, 0, sdl_button_state, sdl_button);
 
     /* Do not consume the event if the mouse is outside of the canvas. */
     emscripten_get_element_css_size(window_data->canvas_id, &css_w, &css_h);
@@ -700,7 +697,7 @@ static EM_BOOL Emscripten_HandleMouseFocus(int eventType, const EmscriptenMouseE
 
         mx = mx * (window_data->window->w / client_w);
         my = my * (window_data->window->h / client_h);
-        SDL_SendMouseMotion(window_data->window, 0, isPointerLocked, mx, my);
+        SDL_SendMouseMotion(0, window_data->window, 0, isPointerLocked, mx, my);
     }
 
     SDL_SetMouseFocus(eventType == EMSCRIPTEN_EVENT_MOUSEENTER ? window_data->window : NULL);
@@ -725,7 +722,7 @@ static EM_BOOL Emscripten_HandleWheel(int eventType, const EmscriptenWheelEvent 
         break;
     }
 
-    SDL_SendMouseWheel(window_data->window, 0, (float)wheelEvent->deltaX, -deltaY, SDL_MOUSEWHEEL_NORMAL);
+    SDL_SendMouseWheel(0, window_data->window, 0, (float)wheelEvent->deltaX, -deltaY, SDL_MOUSEWHEEL_NORMAL);
     return SDL_GetEventState(SDL_MOUSEWHEEL) == SDL_ENABLE;
 }
 
@@ -769,16 +766,16 @@ static EM_BOOL Emscripten_HandleTouch(int eventType, const EmscriptenTouchEvent 
         y = touchEvent->touches[i].targetY / client_h;
 
         if (eventType == EMSCRIPTEN_EVENT_TOUCHSTART) {
-            SDL_SendTouch(deviceId, id, window_data->window, SDL_TRUE, x, y, 1.0f);
+            SDL_SendTouch(0, deviceId, id, window_data->window, SDL_TRUE, x, y, 1.0f);
 
             /* disable browser scrolling/pinch-to-zoom if app handles touch events */
             if (!preventDefault && SDL_GetEventState(SDL_FINGERDOWN) == SDL_ENABLE) {
                 preventDefault = 1;
             }
         } else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
-            SDL_SendTouchMotion(deviceId, id, window_data->window, x, y, 1.0f);
+            SDL_SendTouchMotion(0, deviceId, id, window_data->window, x, y, 1.0f);
         } else {
-            SDL_SendTouch(deviceId, id, window_data->window, SDL_FALSE, x, y, 1.0f);
+            SDL_SendTouch(0, deviceId, id, window_data->window, SDL_FALSE, x, y, 1.0f);
 
             /* block browser's simulated mousedown/mouseup on touchscreen devices */
             preventDefault = 1;
@@ -805,7 +802,7 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
     }
 
     if (scancode != SDL_SCANCODE_UNKNOWN) {
-        SDL_SendKeyboardKeyAndKeycode(eventType == EMSCRIPTEN_EVENT_KEYDOWN ? SDL_PRESSED : SDL_RELEASED, scancode, keycode);
+        SDL_SendKeyboardKeyAndKeycode(0, eventType == EMSCRIPTEN_EVENT_KEYDOWN ? SDL_PRESSED : SDL_RELEASED, scancode, keycode);
     }
 
     /* if TEXTINPUT events are enabled we can't prevent keydown or we won't get keypress

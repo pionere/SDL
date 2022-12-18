@@ -18,28 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#ifdef TEST_MAIN
-#include "SDL_config.h"
-#else
-#include "../SDL_internal.h"
-#endif
+#include "SDL_internal.h"
 
 #if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__)
 #include "../core/windows/SDL_windows.h"
 #endif
-#if defined(__OS2__)
-#undef HAVE_SYSCTLBYNAME
-#define INCL_DOS
-#include <os2.h>
-#ifndef QSV_NUMPROCESSORS
-#define QSV_NUMPROCESSORS 26
-#endif
-#endif
 
 /* CPU feature detection for SDL */
-
-#include "SDL_cpuinfo.h"
-#include "SDL_assert.h"
 
 #ifdef HAVE_SYSCONF
 #include <unistd.h>
@@ -48,8 +33,8 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
-#if defined(__MACOSX__) && (defined(__ppc__) || defined(__ppc64__))
-#include <sys/sysctl.h>         /* For AltiVec check */
+#if defined(__MACOS__) && (defined(__ppc__) || defined(__ppc64__))
+#include <sys/sysctl.h> /* For AltiVec check */
 #elif defined(__OpenBSD__) && defined(__powerpc__)
 #include <sys/types.h>
 #include <sys/sysctl.h> /* For AltiVec check */
@@ -60,10 +45,6 @@
 #elif SDL_ALTIVEC_BLITTERS && HAVE_SETJMP
 #include <signal.h>
 #include <setjmp.h>
-#endif
-
-#if defined(__QNXNTO__)
-#include <sys/syspage.h>
 #endif
 
 #if (defined(__LINUX__) || defined(__ANDROID__)) && defined(__arm__)
@@ -123,7 +104,7 @@
 #define CPU_CFG2_LSX  (1 << 6)
 #define CPU_CFG2_LASX (1 << 7)
 
-#if SDL_ALTIVEC_BLITTERS && HAVE_SETJMP && !__MACOSX__ && !__OpenBSD__ && !__FreeBSD__
+#if SDL_ALTIVEC_BLITTERS && HAVE_SETJMP && !__MACOS__ && !__OpenBSD__ && !__FreeBSD__
 /* This is the brute force way of detecting instruction sets...
    the idea is borrowed from the libmpeg2 library - thanks!
  */
@@ -334,7 +315,7 @@ static int CPU_haveAltiVec(void)
 {
     volatile int altivec = 0;
 #ifndef SDL_CPUINFO_DISABLED
-#if (defined(__MACOSX__) && (defined(__ppc__) || defined(__ppc64__))) || (defined(__OpenBSD__) && defined(__powerpc__))
+#if (defined(__MACOS__) && (defined(__ppc__) || defined(__ppc64__))) || (defined(__OpenBSD__) && defined(__powerpc__))
 #ifdef __OpenBSD__
     int selectors[2] = { CTL_MACHDEP, CPU_ALTIVEC };
 #else
@@ -485,9 +466,7 @@ static int CPU_haveNEON(void)
     if (elf_aux_info(AT_HWCAP, (void *)&hasneon, (int)sizeof(hasneon)) != 0) {
         return 0;
     }
-    return ((hasneon & HWCAP_NEON) == HWCAP_NEON);
-#elif defined(__QNXNTO__)
-    return SYSPAGE_ENTRY(cpuinfo)->flags & ARM_CPU_FLAG_NEON;
+    return (hasneon & HWCAP_NEON) == HWCAP_NEON;
 #elif (defined(__LINUX__) || defined(__ANDROID__)) && defined(HAVE_GETAUXVAL)
     return (getauxval(AT_HWCAP) & HWCAP_NEON) == HWCAP_NEON;
 #elif defined(__LINUX__)
@@ -680,12 +659,6 @@ int SDL_GetCPUCount(void)
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             SDL_CPUCount = info.dwNumberOfProcessors;
-        }
-#endif
-#ifdef __OS2__
-        if (SDL_CPUCount <= 0) {
-            DosQuerySysInfo(QSV_NUMPROCESSORS, QSV_NUMPROCESSORS,
-                            &SDL_CPUCount, sizeof(SDL_CPUCount) );
         }
 #endif
 #endif
@@ -983,7 +956,7 @@ static Uint32 SDL_GetCPUFeatures(void)
     return SDL_CPUFeatures;
 }
 
-#define CPU_FEATURE_AVAILABLE(f) ((SDL_GetCPUFeatures() & f) ? SDL_TRUE : SDL_FALSE)
+#define CPU_FEATURE_AVAILABLE(f) ((SDL_GetCPUFeatures() & (f)) ? SDL_TRUE : SDL_FALSE)
 
 SDL_bool SDL_HasRDTSC(void)
 {
@@ -1118,13 +1091,6 @@ int SDL_GetSystemRAM(void)
             if (GlobalMemoryStatusEx(&stat)) {
                 SDL_SystemRAM = (int)(stat.ullTotalPhys / (1024 * 1024));
             }
-        }
-#endif
-#ifdef __OS2__
-        if (SDL_SystemRAM <= 0) {
-            Uint32 sysram = 0;
-            DosQuerySysInfo(QSV_TOTPHYSMEM, QSV_TOTPHYSMEM, &sysram, 4);
-            SDL_SystemRAM = (int) (sysram / 0x100000U);
         }
 #endif
 #ifdef __RISCOS__

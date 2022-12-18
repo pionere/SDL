@@ -1,11 +1,8 @@
 /**
  * Timer test suite
  */
-
-#include <stdio.h>
-
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* Flag indicating if the param should be checked */
 int _paramCheck = 0;
@@ -64,11 +61,11 @@ int timer_getPerformanceFrequency(void *arg)
  */
 int timer_delayAndGetTicks(void *arg)
 {
-    const Uint32 testDelay = 100;
-    const Uint32 marginOfError = 25;
-    Uint32 result;
-    Uint32 result2;
-    Uint32 difference;
+    const int testDelay = 100;
+    const int marginOfError = 25;
+    Uint64 result;
+    Uint64 result2;
+    Sint64 difference;
 
     /* Zero delay */
     SDL_Delay(0);
@@ -84,17 +81,17 @@ int timer_delayAndGetTicks(void *arg)
     /* Get ticks count - should be non-zero by now */
     result = SDL_GetTicks();
     SDLTest_AssertPass("Call to SDL_GetTicks()");
-    SDLTest_AssertCheck(result > 0, "Check result value, expected: >0, got: %" SDL_PRIu32, result);
+    SDLTest_AssertCheck(result > 0, "Check result value, expected: >0, got: %" SDL_PRIu64, result);
 
     /* Delay a bit longer and measure ticks and verify difference */
     SDL_Delay(testDelay);
-    SDLTest_AssertPass("Call to SDL_Delay(%" SDL_PRIu32 ")", testDelay);
+    SDLTest_AssertPass("Call to SDL_Delay(%d)", testDelay);
     result2 = SDL_GetTicks();
     SDLTest_AssertPass("Call to SDL_GetTicks()");
-    SDLTest_AssertCheck(result2 > 0, "Check result value, expected: >0, got: %" SDL_PRIu32, result2);
+    SDLTest_AssertCheck(result2 > 0, "Check result value, expected: >0, got: %" SDL_PRIu64, result2);
     difference = result2 - result;
-    SDLTest_AssertCheck(difference > (testDelay - marginOfError), "Check difference, expected: >%" SDL_PRIu32 ", got: %" SDL_PRIu32, testDelay - marginOfError, difference);
-    SDLTest_AssertCheck(difference < (testDelay + marginOfError), "Check difference, expected: <%" SDL_PRIu32 ", got: %" SDL_PRIu32, testDelay + marginOfError, difference);
+    SDLTest_AssertCheck(difference > (testDelay - marginOfError), "Check difference, expected: >%d, got: %" SDL_PRIu64, testDelay - marginOfError, difference);
+    SDLTest_AssertCheck(difference < (testDelay + marginOfError), "Check difference, expected: <%d, got: %" SDL_PRIu64, testDelay + marginOfError, difference);
 
     return TEST_COMPLETED;
 }
@@ -198,3 +195,5 @@ SDLTest_TestSuiteReference timerTestSuite = {
     timerTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

@@ -18,13 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* This provides the default mixing callback for the SDL audio routines */
 
-#include "SDL_cpuinfo.h"
-#include "SDL_timer.h"
-#include "SDL_audio.h"
 #include "SDL_sysaudio.h"
 
 /* This table is used to add two sound values together and pin
@@ -81,9 +78,9 @@ static const Uint8 mix8[] = {
 };
 
 /* The volume ranges from 0 - 128 */
-#define ADJUST_VOLUME(s, v)     (s = (s * v) / SDL_MIX_MAXVOLUME)
-#define ADJUST_VOLUME_U8(s, v)  (s = (((s - 128) * v) / SDL_MIX_MAXVOLUME) + 128)
-#define ADJUST_VOLUME_U16(s, v) (s = (((s - 32768) * v) / SDL_MIX_MAXVOLUME) + 32768)
+#define ADJUST_VOLUME(s, v)     ((s) = ((s) * (v)) / SDL_MIX_MAXVOLUME)
+#define ADJUST_VOLUME_U8(s, v)  ((s) = ((((s) - 128) * (v)) / SDL_MIX_MAXVOLUME) + 128)
+#define ADJUST_VOLUME_U16(s, v) ((s) = ((((s) - 32768) * (v)) / SDL_MIX_MAXVOLUME) + 32768)
 
 void SDL_MixAudioFormat(Uint8 *dst, const Uint8 *src, SDL_AudioFormat format,
                         Uint32 len, int volume)

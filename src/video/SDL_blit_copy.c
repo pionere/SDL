@@ -18,11 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
-#include "SDL_video.h"
 #include "SDL_blit.h"
 #include "SDL_blit_copy.h"
+#include "../SDL_intrin.h"
 
 #ifdef __SSE__
 /* This assumes 16-byte aligned src and dst */

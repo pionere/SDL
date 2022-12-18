@@ -18,14 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_JOYSTICK_HIDAPI
 
 /* Handle rumble on a separate thread so it doesn't block the application */
 
-#include "SDL_thread.h"
-#include "SDL_timer.h"
 #include "SDL_hidapijoystick_c.h"
 #include "SDL_hidapi_rumble.h"
 #include "../../thread/SDL_systhread.h"
@@ -51,6 +49,9 @@ typedef struct SDL_HIDAPI_RumbleContext
     SDL_HIDAPI_RumbleRequest *requests_tail;
 } SDL_HIDAPI_RumbleContext;
 
+#ifndef SDL_THREAD_SAFETY_ANALYSIS
+static
+#endif
 SDL_mutex *SDL_HIDAPI_rumble_lock;
 static SDL_HIDAPI_RumbleContext rumble_context SDL_GUARDED_BY(SDL_HIDAPI_rumble_lock);
 

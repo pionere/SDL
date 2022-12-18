@@ -9,8 +9,8 @@
   including commercial applications, and to alter it and redistribute it
   freely.
 */
-#include <stdio.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 static void
 print_devices(int iscapture)
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
         for (i = 0; i < n; ++i) {
             SDL_Log("  %d: %s\n", i, SDL_GetAudioDriver(i));
         }
-        SDL_Log("Select a driver with the SDL_AUDIODRIVER environment variable.\n");
+        SDL_Log("Select a driver with the SDL_AUDIO_DRIVER environment variable.\n");
     }
 
     SDL_Log("Using audio driver: %s\n\n", SDL_GetCurrentAudioDriver());
@@ -101,3 +101,5 @@ int main(int argc, char **argv)
     SDL_Quit();
     return 0;
 }
+
+/* vi: set ts=4 sw=4 expandtab: */

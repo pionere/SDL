@@ -13,14 +13,14 @@
 /* Simple program:  draw as many random objects on the screen as possible */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
 #define SWAP(typ, a, b) \
     do {                \
@@ -279,7 +279,8 @@ void loop()
 int main(int argc, char *argv[])
 {
     int i;
-    Uint32 then, now, frames;
+    Uint64 then, now;
+    Uint32 frames;
 
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);

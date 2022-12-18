@@ -8,9 +8,9 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := SDL2
+LOCAL_MODULE := SDL3
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/src
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 
@@ -80,7 +80,7 @@ LOCAL_CFLAGS += -Wno-unused-parameter -Wno-sign-compare
 
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -lOpenSLES -llog -landroid
 
-LOCAL_LDFLAGS := -Wl,--no-undefined
+LOCAL_LDFLAGS := -Wl,--no-undefined -Wl,--version-script=$(LOCAL_PATH)/src/dynapi/SDL_dynapi.sym
 
 ifeq ($(NDK_DEBUG),1)
     cmd-strip :=
@@ -97,32 +97,15 @@ include $(BUILD_SHARED_LIBRARY)
 #
 ###########################
 
-LOCAL_MODULE := SDL2_static
+LOCAL_MODULE := SDL3_static
 
-LOCAL_MODULE_FILENAME := libSDL2
+LOCAL_MODULE_FILENAME := libSDL3
 
 LOCAL_LDLIBS :=
 
 LOCAL_LDFLAGS :=
 
 LOCAL_EXPORT_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -landroid
-
-include $(BUILD_STATIC_LIBRARY)
-
-
-###########################
-#
-# SDL main static library
-#
-###########################
-
-include $(CLEAR_VARS)
-
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
-
-LOCAL_MODULE := SDL2_main
-
-LOCAL_MODULE_FILENAME := libSDL2main
 
 include $(BUILD_STATIC_LIBRARY)
 

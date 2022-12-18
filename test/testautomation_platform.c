@@ -2,11 +2,8 @@
  * Original code: automated SDL platform test written by Edgar Simo "bobbens"
  * Extended and updated by aschiffler at ferzkopp dot net
  */
-
-#include <stdio.h>
-
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* ================= Test Case Implementation ================== */
 
@@ -126,7 +123,6 @@ int platform_testEndianessAndSwap(void *arg)
  * http://wiki.libsdl.org/SDL_GetCPUCount
  * http://wiki.libsdl.org/SDL_GetCPUCacheLineSize
  * http://wiki.libsdl.org/SDL_GetRevision
- * http://wiki.libsdl.org/SDL_GetRevisionNumber
  */
 int platform_testGetFunctions(void *arg)
 {
@@ -608,3 +604,5 @@ SDLTest_TestSuiteReference platformTestSuite = {
     platformTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

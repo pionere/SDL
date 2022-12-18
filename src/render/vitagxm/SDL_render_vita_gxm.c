@@ -18,13 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_VITA_GXM
 
-#include "SDL_hints.h"
 #include "../SDL_sysrender.h"
-#include "SDL_log.h"
 
 #include <stdio.h>
 #include <string.h>

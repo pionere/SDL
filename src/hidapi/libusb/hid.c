@@ -27,11 +27,8 @@
  * Last upstream update was from July 25, 2019, Git commit 93dca807.
  */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 #include "../../thread/SDL_systhread.h"
-#include "SDL_hints.h"
-#include "SDL_mutex.h"
-#include "SDL_thread.h"
 
 #ifdef realloc
 #undef realloc
@@ -418,9 +415,6 @@ static int is_language_supported(libusb_device_handle *dev, uint16_t lang)
 /* This function returns a newly allocated wide string containing the USB
    device string numbered by the index. The returned string must be freed
    by using free(). */
-#if defined(__OS2__) /* don't use iconv on OS/2: no support for wchar_t. */
-#define NO_ICONV
-#endif
 static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 {
 	char buf[512];

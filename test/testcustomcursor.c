@@ -9,15 +9,14 @@
   including commercial applications, and to alter it and redistribute it
   freely.
 */
-
 #include <stdlib.h>
-#include <stdio.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
 /* Stolen from the mailing list */
 /* Creates a new mouse cursor from an XPM */

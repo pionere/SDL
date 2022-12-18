@@ -4,7 +4,8 @@
  *  use however you want
  */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "common.h"
 
 #define NUM_CHANNELS 8          /* max number of sounds we can play at once */
@@ -283,7 +284,7 @@ main(int argc, char *argv[])
         fatalError("could not initialize SDL");
     }
     window = SDL_CreateWindow(NULL, 0, 0, 320, 480, SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI);
-    renderer = SDL_CreateRenderer(window, 0, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
 
     SDL_GetWindowSize(window, &width, &height);
     SDL_RenderSetLogicalSize(renderer, width, height);

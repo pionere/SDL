@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WINRT
 
@@ -27,7 +27,6 @@
 #include <agile.h>
 
 /* SDL-specific includes */
-#include "SDL.h"
 #include "SDL_winrtevents_c.h"
 
 extern "C" {
@@ -352,7 +351,7 @@ void WINRT_ProcessKeyDownEvent(Windows::UI::Core::KeyEventArgs ^ args)
         SDL_GetKeyName(keycode));
     //args->Handled = true;
 #endif
-    SDL_SendKeyboardKey(SDL_PRESSED, sdlScancode);
+    SDL_SendKeyboardKey(0, SDL_PRESSED, sdlScancode);
 }
 
 void WINRT_ProcessKeyUpEvent(Windows::UI::Core::KeyEventArgs ^ args)
@@ -377,7 +376,7 @@ void WINRT_ProcessKeyUpEvent(Windows::UI::Core::KeyEventArgs ^ args)
         SDL_GetKeyName(keycode));
     //args->Handled = true;
 #endif
-    SDL_SendKeyboardKey(SDL_RELEASED, sdlScancode);
+    SDL_SendKeyboardKey(0, SDL_RELEASED, sdlScancode);
 }
 
 void WINRT_ProcessCharacterReceivedEvent(Windows::UI::Core::CharacterReceivedEventArgs ^ args)

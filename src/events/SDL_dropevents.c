@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Drag and drop event handling code for SDL */
 
-#include "SDL_events.h"
 #include "SDL_events_c.h"
 #include "SDL_dropevents_c.h"
 
@@ -41,11 +40,8 @@ static int SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const ch
         if (need_begin) {
             SDL_zero(event);
             event.type = SDL_DROPBEGIN;
-
-            if (window) {
-                event.drop.windowID = window->id;
-            }
-
+            event.common.timestamp = 0;
+            event.drop.windowID = window ? window->id : 0;
             posted = (SDL_PushEvent(&event) > 0);
             if (!posted) {
                 return 0;
@@ -59,6 +55,7 @@ static int SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const ch
 
         SDL_zero(event);
         event.type = evtype;
+        event.common.timestamp = 0;
         event.drop.file = data ? SDL_strdup(data) : NULL;
         event.drop.windowID = window ? window->id : 0;
         posted = (SDL_PushEvent(&event) > 0);

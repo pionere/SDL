@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* General (mostly internal) pixel/color manipulation routines for SDL */
 
-#include "SDL_endian.h"
-#include "SDL_video.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_pixels_c.h"
@@ -142,11 +140,14 @@ SDL_PixelFormatEnumToMasks(Uint32 format, int *bpp, Uint32 *Rmask,
 {
     Uint32 masks[4];
 
-    /* This function doesn't work with FourCC pixel formats */
+#if SDL_HAVE_YUV
+    /* Partial support for SDL_Surface with FOURCC */
+#else
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
-        SDL_SetError("FOURCC pixel formats are not supported");
+        SDL_SetError("SDL not built with YUV support");
         return SDL_FALSE;
     }
+#endif
 
     /* Initialize the values here */
     if (SDL_BYTESPERPIXEL(format) <= 2) {
@@ -179,6 +180,11 @@ SDL_PixelFormatEnumToMasks(Uint32 format, int *bpp, Uint32 *Rmask,
         *Gmask = 0x0000FF00;
         *Bmask = 0x000000FF;
 #endif
+        return SDL_TRUE;
+    }
+
+    if (SDL_ISPIXELFORMAT_FOURCC(format)) {
+        /* Not a format that uses masks */
         return SDL_TRUE;
     }
 
@@ -1134,46 +1140,6 @@ void SDL_FreeBlitMap(SDL_BlitMap *map)
     if (map) {
         SDL_InvalidateMap(map);
         SDL_free(map);
-    }
-}
-
-void
-SDL_CalculateGammaRamp(float gamma, Uint16 * ramp)
-{
-    int i;
-
-    /* Input validation */
-    if (gamma < 0.0f ) {
-      SDL_InvalidParamError("gamma");
-      return;
-    }
-    if (ramp == NULL) {
-      SDL_InvalidParamError("ramp");
-      return;
-    }
-
-    /* 0.0 gamma is all black */
-    if (gamma == 0.0f) {
-        SDL_memset(ramp, 0, 256 * sizeof(Uint16));
-        return;
-    } else if (gamma == 1.0f) {
-        /* 1.0 gamma is identity */
-        for (i = 0; i < 256; ++i) {
-            ramp[i] = (i << 8) | i;
-        }
-        return;
-    } else {
-        /* Calculate a real gamma ramp */
-        int value;
-        gamma = 1.0f / gamma;
-        for (i = 0; i < 256; ++i) {
-            value =
-                (int) (SDL_pow((double) i / 256.0, gamma) * 65535.0 + 0.5);
-            if (value > 65535) {
-                value = 65535;
-            }
-            ramp[i] = (Uint16) value;
-        }
     }
 }
 

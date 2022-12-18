@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Clipboard event handling code for SDL */
 
-#include "SDL_events.h"
 #include "SDL_events_c.h"
 #include "SDL_clipboardevents_c.h"
 
@@ -35,7 +34,7 @@ int SDL_SendClipboardUpdate(void)
     if (SDL_GetEventState(SDL_CLIPBOARDUPDATE) == SDL_ENABLE) {
         SDL_Event event;
         event.type = SDL_CLIPBOARDUPDATE;
-
+        event.common.timestamp = 0;
         posted = (SDL_PushEvent(&event) > 0);
     }
     return posted;

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_vivanteopengles_h_
 #define SDL_vivanteopengles_h_
@@ -29,9 +29,9 @@
 #include "../SDL_egl_c.h"
 
 /* OpenGLES functions */
-#define VIVANTE_GLES_GetAttribute SDL_EGL_GetAttribute
-#define VIVANTE_GLES_GetProcAddress SDL_EGL_GetProcAddress
-#define VIVANTE_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define VIVANTE_GLES_GetAttribute    SDL_EGL_GetAttribute
+#define VIVANTE_GLES_GetProcAddress  SDL_EGL_GetProcAddressInternal
+#define VIVANTE_GLES_UnloadLibrary   SDL_EGL_UnloadLibrary
 #define VIVANTE_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define VIVANTE_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define VIVANTE_GLES_DeleteContext   SDL_EGL_DeleteContext

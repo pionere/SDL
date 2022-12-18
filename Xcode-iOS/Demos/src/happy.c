@@ -4,7 +4,8 @@
  *  use however you want
  */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "common.h"
 
 #define NUM_HAPPY_FACES 100     /* number of faces to draw */
@@ -145,7 +146,7 @@ main(int argc, char *argv[])
      * (if SDL_WINDOW_RESIZABLE isn't specified). */
     window = SDL_CreateWindow(NULL, 0, 0, 320, 480, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
 
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
 
     SDL_GetWindowSize(window, &width, &height);
     SDL_RenderSetLogicalSize(renderer, width, height);

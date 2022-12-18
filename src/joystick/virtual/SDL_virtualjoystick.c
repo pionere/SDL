@@ -18,13 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if defined(SDL_JOYSTICK_VIRTUAL)
 
 /* This is the virtual implementation of the SDL joystick API */
 
-#include "SDL_endian.h"
 #include "SDL_virtualjoystick_c.h"
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
@@ -526,6 +525,7 @@ static void VIRTUAL_JoystickUpdate(SDL_Joystick *joystick)
 {
     joystick_hwdata *hwdata;
     int i;
+    Uint64 timestamp = SDL_GetTicksNS();
 
     SDL_AssertJoysticksLocked();
 
@@ -543,13 +543,13 @@ static void VIRTUAL_JoystickUpdate(SDL_Joystick *joystick)
     }
 
     for (i = 0; i < hwdata->desc.naxes; ++i) {
-        SDL_PrivateJoystickAxis(joystick, i, hwdata->axes[i]);
+        SDL_PrivateJoystickAxis(timestamp, joystick, i, hwdata->axes[i]);
     }
     for (i = 0; i < hwdata->desc.nbuttons; ++i) {
-        SDL_PrivateJoystickButton(joystick, i, hwdata->buttons[i]);
+        SDL_PrivateJoystickButton(timestamp, joystick, i, hwdata->buttons[i]);
     }
     for (i = 0; i < hwdata->desc.nhats; ++i) {
-        SDL_PrivateJoystickHat(joystick, i, hwdata->hats[i]);
+        SDL_PrivateJoystickHat(timestamp, joystick, i, hwdata->hats[i]);
     }
 }
 

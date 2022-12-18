@@ -18,21 +18,18 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
-
-#include "SDL_render.h"
-#include "SDL_system.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_D3D && !SDL_RENDER_DISABLED
 
 #include "../../core/windows/SDL_windows.h"
 
-#include "SDL_hints.h"
-#include "SDL_loadso.h"
-#include "SDL_syswm.h"
 #include "../SDL_sysrender.h"
 #include "../SDL_d3dmath.h"
 #include "../../video/windows/SDL_windowsvideo.h"
+
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 #if SDL_VIDEO_RENDER_D3D
 #define D3D_DEBUG_INFO
@@ -1523,6 +1520,7 @@ static int D3D_Reset(SDL_Renderer *renderer)
     {
         SDL_Event event;
         event.type = SDL_RENDER_TARGETS_RESET;
+        event.common.timestamp = 0;
         SDL_PushEvent(&event);
     }
 
@@ -1562,7 +1560,13 @@ D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_DisplayMode fullscreen_mode;
     int displayIndex;
 
-    renderer = (SDL_Renderer *) SDL_calloc(1, sizeof(*renderer));
+    if (SDL_GetWindowWMInfo(window, &windowinfo, SDL_SYSWM_CURRENT_VERSION) < 0 ||
+        windowinfo.subsystem != SDL_SYSWM_WINDOWS) {
+        SDL_SetError("Couldn't get window handle");
+        return NULL;
+    }
+
+    renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
     if (renderer == NULL) {
         SDL_OutOfMemory();
         return NULL;
@@ -1608,9 +1612,6 @@ D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info = D3D_RenderDriver.info;
     renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
-
-    SDL_VERSION(&windowinfo.version);
-    SDL_GetWindowWMInfo(window, &windowinfo);
 
     window_flags = SDL_GetWindowFlags(window);
     SDL_GetWindowSizeInPixels(window, &w, &h);

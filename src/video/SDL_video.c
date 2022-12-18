@@ -18,32 +18,31 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* The high-level video driver subsystem */
 
-#include "SDL.h"
-#include "SDL_video.h"
 #include "SDL_sysvideo.h"
+#include "SDL_egl_c.h"
 #include "SDL_blit.h"
 #include "SDL_pixels_c.h"
 #include "SDL_rect_c.h"
 #include "../events/SDL_events_c.h"
 #include "../timer/SDL_timer_c.h"
 
-#include "SDL_syswm.h"
+#include <SDL3/SDL_syswm.h>
 
 #if SDL_VIDEO_OPENGL
-#include "SDL_opengl.h"
+#include <SDL3/SDL_opengl.h>
 #endif /* SDL_VIDEO_OPENGL */
 
 #if SDL_VIDEO_OPENGL_ES && !SDL_VIDEO_OPENGL
-#include "SDL_opengles.h"
+#include <SDL3/SDL_opengles.h>
 #endif /* SDL_VIDEO_OPENGL_ES && !SDL_VIDEO_OPENGL */
 
 /* GL and GLES2 headers conflict on Linux 32 bits */
 #if SDL_VIDEO_OPENGL_ES2 && !SDL_VIDEO_OPENGL
-#include "SDL_opengles2.h"
+#include <SDL3/SDL_opengles2.h>
 #endif /* SDL_VIDEO_OPENGL_ES2 && !SDL_VIDEO_OPENGL */
 
 #if !SDL_VIDEO_OPENGL
@@ -67,17 +66,14 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_COCOA
     &COCOA_bootstrap,
 #endif
-#if SDL_VIDEO_DRIVER_X11
-    &X11_bootstrap,
-#endif
 #if SDL_VIDEO_DRIVER_WAYLAND
     &Wayland_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_X11
+    &X11_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_VIVANTE
     &VIVANTE_bootstrap,
-#endif
-#if SDL_VIDEO_DRIVER_DIRECTFB
-    &DirectFB_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_WINDOWS
     &WINDOWS_bootstrap,
@@ -87,9 +83,6 @@ static VideoBootStrap *bootstrap[] = {
 #endif
 #if SDL_VIDEO_DRIVER_HAIKU
     &HAIKU_bootstrap,
-#endif
-#if SDL_VIDEO_DRIVER_PANDORA
-    &PND_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_UIKIT
     &UIKIT_bootstrap,
@@ -118,24 +111,14 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_RPI
     &RPI_bootstrap,
 #endif
-#if SDL_VIDEO_DRIVER_NACL
-    &NACL_bootstrap,
-#endif
 #if SDL_VIDEO_DRIVER_EMSCRIPTEN
     &Emscripten_bootstrap,
-#endif
-#if SDL_VIDEO_DRIVER_QNX
-    &QNX_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_OFFSCREEN
     &OFFSCREEN_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_NGAGE
     &NGAGE_bootstrap,
-#endif
-#if SDL_VIDEO_DRIVER_OS2
-    &OS2DIVE_bootstrap,
-    &OS2VMAN_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_DUMMY
     &DUMMY_bootstrap,
@@ -146,33 +129,33 @@ static VideoBootStrap *bootstrap[] = {
     NULL
 };
 
-#define CHECK_WINDOW_MAGIC(window, retval)                  \
-    if (!_this) {                                           \
-        SDL_UninitializedVideo();                           \
-        return retval;                                      \
-    }                                                       \
-    if (!window || window->magic != &_this->window_magic) { \
-        SDL_SetError("Invalid window");                     \
-        return retval;                                      \
+#define CHECK_WINDOW_MAGIC(window, retval)                              \
+    if (!_this) {                                                       \
+        SDL_UninitializedVideo();                                       \
+        return retval;                                                  \
+    }                                                                   \
+    if (!(window) || (window)->magic != &_this->window_magic) {         \
+        SDL_SetError("Invalid window");                                 \
+        return retval;                                                  \
     }
 
-#define CHECK_DISPLAY_INDEX(displayIndex, retval)                  \
-    if (!_this) {                                                  \
-        SDL_UninitializedVideo();                                  \
-        return retval;                                             \
-    }                                                              \
-    if (displayIndex < 0 || displayIndex >= _this->num_displays) { \
-        SDL_SetError("displayIndex must be in the range 0 - %d",   \
-                     _this->num_displays - 1);                     \
-        return retval;                                             \
+#define CHECK_DISPLAY_INDEX(displayIndex, retval)                       \
+    if (!_this) {                                                       \
+        SDL_UninitializedVideo();                                       \
+        return retval;                                                  \
+    }                                                                   \
+    if ((displayIndex) < 0 || (displayIndex) >= _this->num_displays) {  \
+        SDL_SetError("displayIndex must be in the range 0 - %d",        \
+                     _this->num_displays - 1);                          \
+        return retval;                                                  \
     }
 
 #define FULLSCREEN_MASK (SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_FULLSCREEN)
 
-#if defined(__MACOSX__) && defined(SDL_VIDEO_DRIVER_COCOA)
-/* Support for Mac OS X fullscreen spaces */
-extern SDL_bool Cocoa_IsWindowInFullscreenSpace(SDL_Window * window);
-extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window * window, SDL_bool state);
+#if defined(__MACOS__) && defined(SDL_VIDEO_DRIVER_COCOA)
+/* Support for macOS fullscreen spaces */
+extern SDL_bool Cocoa_IsWindowInFullscreenSpace(SDL_Window *window);
+extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window *window, SDL_bool state);
 #endif
 
 /* Convenience functions for reading driver flags */
@@ -201,12 +184,12 @@ typedef struct
 
 static Uint32 SDL_DefaultGraphicsBackends(SDL_VideoDevice *_this)
 {
-#if (SDL_VIDEO_OPENGL && __MACOSX__) || (__IPHONEOS__ && !TARGET_OS_MACCATALYST) || __ANDROID__ || __NACL__
+#if (SDL_VIDEO_OPENGL && __MACOS__) || (__IOS__ && !TARGET_OS_MACCATALYST) || __ANDROID__
     if (_this->GL_CreateContext != NULL) {
         return SDL_WINDOW_OPENGL;
     }
 #endif
-#if SDL_VIDEO_METAL && (TARGET_OS_MACCATALYST || __MACOSX__ || __IPHONEOS__)
+#if SDL_VIDEO_METAL && (TARGET_OS_MACCATALYST || __MACOS__ || __IOS__)
     if (_this->Metal_CreateView != NULL) {
         return SDL_WINDOW_METAL;
     }
@@ -230,13 +213,7 @@ static int SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window *window, U
 
         /* Check to see if there's a specific driver requested */
         if (specific_accelerated_renderer) {
-            for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-                SDL_GetRenderDriverInfo(i, &info);
-                if (SDL_strcasecmp(info.name, hint) == 0) {
-                    renderer = SDL_CreateRenderer(window, i, 0);
-                    break;
-                }
-            }
+            renderer = SDL_CreateRenderer(window, hint, 0);
             if (renderer == NULL || (SDL_GetRendererInfo(renderer, &info) == -1)) {
                 if (renderer) {
                     SDL_DestroyRenderer(renderer);
@@ -245,10 +222,11 @@ static int SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window *window, U
             }
             /* if it was specifically requested, even if SDL_RENDERER_ACCELERATED isn't set, we'll accept this renderer. */
         } else {
-            for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-                SDL_GetRenderDriverInfo(i, &info);
-                if (SDL_strcmp(info.name, "software") != 0) {
-                    renderer = SDL_CreateRenderer(window, i, 0);
+            const int total = SDL_GetNumRenderDrivers();
+            for (i = 0; i < total; ++i) {
+                const char *name = SDL_GetRenderDriver(i);
+                if (name && (SDL_strcmp(name, "software") != 0)) {
+                    renderer = SDL_CreateRenderer(window, name, 0);
                     if (renderer && (SDL_GetRendererInfo(renderer, &info) == 0) && (info.flags & SDL_RENDERER_ACCELERATED)) {
                         break; /* this will work. */
                     }
@@ -460,7 +438,7 @@ int SDL_VideoInit(const char *driver_name)
     /* Select the proper video driver */
     video = NULL;
     if (driver_name == NULL) {
-        driver_name = SDL_GetHint(SDL_HINT_VIDEODRIVER);
+        driver_name = SDL_GetHint(SDL_HINT_VIDEO_DRIVER);
     }
     if (driver_name != NULL && *driver_name != 0) {
         const char *driver_attempt = driver_name;
@@ -1349,7 +1327,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
         return 0;
     }
 
-#if defined(__MACOSX__) && defined(SDL_VIDEO_DRIVER_COCOA)
+#if defined(__MACOS__) && defined(SDL_VIDEO_DRIVER_COCOA)
     /* if the window is going away and no resolution change is necessary,
        do nothing, or else we may trigger an ugly double-transition
      */
@@ -1737,7 +1715,6 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
     window->flags = ((flags & CREATE_FLAGS) | SDL_WINDOW_HIDDEN);
     window->last_fullscreen_flags = window->flags;
     window->opacity = 1.0f;
-    window->brightness = 1.0f;
     window->next = _this->windows;
     window->is_destroying = SDL_FALSE;
     window->display_index = SDL_GetWindowDisplayIndex(window);
@@ -1836,7 +1813,6 @@ SDL_CreateWindowFrom(const void *data)
     window->last_fullscreen_flags = window->flags;
     window->is_destroying = SDL_FALSE;
     window->opacity = 1.0f;
-    window->brightness = 1.0f;
     window->next = _this->windows;
     if (_this->windows) {
         _this->windows->prev = window;
@@ -1904,10 +1880,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         if (_this->DestroyWindowFramebuffer) {
             _this->DestroyWindowFramebuffer(_this, window);
         }
-    }
-
-    if (_this->DestroyWindow && !(flags & SDL_WINDOW_FOREIGN)) {
-        _this->DestroyWindow(_this, window);
+        _this->checked_texture_framebuffer = SDL_FALSE;
     }
 
     if ((window->flags & SDL_WINDOW_OPENGL) != (flags & SDL_WINDOW_OPENGL)) {
@@ -1938,6 +1911,10 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 
     if (need_vulkan_unload) {
         SDL_Vulkan_UnloadLibrary();
+    }
+
+    if (_this->DestroyWindow && !(flags & SDL_WINDOW_FOREIGN)) {
+        _this->DestroyWindow(_this, window);
     }
 
     if (need_gl_load) {
@@ -2066,7 +2043,7 @@ void SDL_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
     SDL_FreeSurface(window->icon);
 
     /* Convert the icon into ARGB8888 */
-    window->icon = SDL_ConvertSurfaceFormat(icon, SDL_PIXELFORMAT_ARGB8888, 0);
+    window->icon = SDL_ConvertSurfaceFormat(icon, SDL_PIXELFORMAT_ARGB8888);
     if (!window->icon) {
         return;
     }
@@ -2602,8 +2579,6 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
     Uint32 format = 0;
     void *pixels = NULL;
     int pitch = 0;
-    int bpp;
-    Uint32 Rmask, Gmask, Bmask, Amask;
     SDL_bool created_framebuffer = SDL_FALSE;
 
     /* This will switch the video backend from using a software surface to
@@ -2679,11 +2654,7 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
         return window->surface;
     }
 
-    if (!SDL_PixelFormatEnumToMasks(format, &bpp, &Rmask, &Gmask, &Bmask, &Amask)) {
-        return NULL;
-    }
-
-    return SDL_CreateRGBSurfaceFrom(pixels, window->w, window->h, bpp, pitch, Rmask, Gmask, Bmask, Amask);
+    return SDL_CreateSurfaceFrom(pixels, window->w, window->h, pitch, format);
 }
 
 SDL_Surface *
@@ -2733,32 +2704,7 @@ int SDL_UpdateWindowSurfaceRects(SDL_Window *window, const SDL_Rect *rects,
     return _this->UpdateWindowFramebuffer(_this, window, rects, numrects);
 }
 
-int
-SDL_SetWindowBrightness(SDL_Window * window, float brightness)
-{
-    Uint16 ramp[256];
-    int status;
-
-    CHECK_WINDOW_MAGIC(window, -1);
-
-    SDL_CalculateGammaRamp(brightness, ramp);
-    status = SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
-    if (status == 0) {
-        window->brightness = brightness;
-    }
-    return status;
-}
-
-float
-SDL_GetWindowBrightness(SDL_Window * window)
-{
-    CHECK_WINDOW_MAGIC(window, 1.0f);
-
-    return window->brightness;
-}
-
-int
-SDL_SetWindowOpacity(SDL_Window * window, float opacity)
+int SDL_SetWindowOpacity(SDL_Window *window, float opacity)
 {
     int retval;
     CHECK_WINDOW_MAGIC(window, -1);
@@ -2815,88 +2761,7 @@ int SDL_SetWindowInputFocus(SDL_Window *window)
     return _this->SetWindowInputFocus(_this, window);
 }
 
-
-int
-SDL_SetWindowGammaRamp(SDL_Window * window, const Uint16 * red,
-                                            const Uint16 * green,
-                                            const Uint16 * blue)
-{
-    CHECK_WINDOW_MAGIC(window, -1);
-
-    if (!_this->SetWindowGammaRamp) {
-        return SDL_Unsupported();
-    }
-
-    if (!window->gamma) {
-        if (SDL_GetWindowGammaRamp(window, NULL, NULL, NULL) < 0) {
-            return -1;
-        }
-        SDL_assert(window->gamma != NULL);
-    }
-
-    if (red) {
-        SDL_memcpy(&window->gamma[0*256], red, 256*sizeof(Uint16));
-    }
-    if (green) {
-        SDL_memcpy(&window->gamma[1*256], green, 256*sizeof(Uint16));
-    }
-    if (blue) {
-        SDL_memcpy(&window->gamma[2*256], blue, 256*sizeof(Uint16));
-    }
-    if (window->flags & SDL_WINDOW_INPUT_FOCUS) {
-        return _this->SetWindowGammaRamp(_this, window, window->gamma);
-    } else {
-        return 0;
-    }
-}
-
-int
-SDL_GetWindowGammaRamp(SDL_Window * window, Uint16 * red,
-                                            Uint16 * green,
-                                            Uint16 * blue)
-{
-    CHECK_WINDOW_MAGIC(window, -1);
-
-    if (!window->gamma) {
-        int i;
-
-        window->gamma = (Uint16 *)SDL_malloc(256*6*sizeof(Uint16));
-        if (!window->gamma) {
-            return SDL_OutOfMemory();
-        }
-        window->saved_gamma = window->gamma + 3*256;
-
-        if (_this->GetWindowGammaRamp) {
-            if (_this->GetWindowGammaRamp(_this, window, window->gamma) < 0) {
-                return -1;
-            }
-        } else {
-            /* Create an identity gamma ramp */
-            for (i = 0; i < 256; ++i) {
-                Uint16 value = (Uint16)((i << 8) | i);
-
-                window->gamma[0*256+i] = value;
-                window->gamma[1*256+i] = value;
-                window->gamma[2*256+i] = value;
-            }
-        }
-        SDL_memcpy(window->saved_gamma, window->gamma, 3*256*sizeof(Uint16));
-    }
-
-    if (red) {
-        SDL_memcpy(red, &window->gamma[0*256], 256*sizeof(Uint16));
-    }
-    if (green) {
-        SDL_memcpy(green, &window->gamma[1*256], 256*sizeof(Uint16));
-    }
-    if (blue) {
-        SDL_memcpy(blue, &window->gamma[2*256], 256*sizeof(Uint16));
-    }
-    return 0;
-}
-
-void
-SDL_UpdateWindowGrab(SDL_Window * window)
+void SDL_UpdateWindowGrab(SDL_Window *window)
 {
     SDL_bool keyboard_grabbed, mouse_grabbed;
 
@@ -3124,10 +2989,6 @@ void SDL_OnWindowFocusGained(SDL_Window *window)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
 
-    if (window->gamma && _this->SetWindowGammaRamp) {
-        _this->SetWindowGammaRamp(_this, window, window->gamma);
-    }
-
     if (mouse && mouse->relative_mode) {
         SDL_SetMouseFocus(window);
         if (mouse->relative_mode_warp) {
@@ -3146,8 +3007,8 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
         return SDL_FALSE;
     }
 
-#if defined(__MACOSX__) && defined(SDL_VIDEO_DRIVER_COCOA)
-    if (SDL_strcmp(_this->name, "cocoa") == 0) {  /* don't do this for X11, etc */
+#if defined(__MACOS__) && defined(SDL_VIDEO_DRIVER_COCOA)
+    if (SDL_strcmp(_this->name, "cocoa") == 0) { /* don't do this for X11, etc */
         if (Cocoa_IsWindowInFullscreenSpace(window)) {
             return SDL_FALSE;
         }
@@ -3178,10 +3039,6 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
 
 void SDL_OnWindowFocusLost(SDL_Window *window)
 {
-    if (window->gamma && _this->SetWindowGammaRamp) {
-        _this->SetWindowGammaRamp(_this, window, window->saved_gamma);
-    }
-
     SDL_UpdateWindowGrab(window);
 
     if (ShouldMinimizeOnFocusLoss(window)) {
@@ -3228,32 +3085,34 @@ void SDL_DestroyWindow(SDL_Window *window)
         SDL_SetMouseFocus(NULL);
     }
 
-    /* make no context current if this is the current context window. */
-    if (window->flags & SDL_WINDOW_OPENGL) {
-        if (_this->current_glwin == window) {
-            SDL_GL_MakeCurrent(window, NULL);
-        }
-    }
-
     if (window->surface) {
         window->surface->flags &= ~SDL_DONTFREE;
         SDL_FreeSurface(window->surface);
         window->surface = NULL;
         window->surface_valid = SDL_FALSE;
     }
+
     if (_this->checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (_this->DestroyWindowFramebuffer) {
             _this->DestroyWindowFramebuffer(_this, window);
         }
     }
-    if (_this->DestroyWindow) {
-        _this->DestroyWindow(_this, window);
+
+    /* make no context current if this is the current context window. */
+    if (window->flags & SDL_WINDOW_OPENGL) {
+        if (_this->current_glwin == window) {
+            SDL_GL_MakeCurrent(window, NULL);
+        }
     }
     if (window->flags & SDL_WINDOW_OPENGL) {
         SDL_GL_UnloadLibrary();
     }
     if (window->flags & SDL_WINDOW_VULKAN) {
         SDL_Vulkan_UnloadLibrary();
+    }
+
+    if (_this->DestroyWindow) {
+        _this->DestroyWindow(_this, window);
     }
 
     display = SDL_GetDisplayForWindow(window);
@@ -3267,7 +3126,6 @@ void SDL_DestroyWindow(SDL_Window *window)
     /* Free memory associated with the window */
     SDL_free(window->title);
     SDL_FreeSurface(window->icon);
-    SDL_free(window->gamma);
     while (window->data) {
         SDL_WindowUserData *data = window->data;
 
@@ -3420,8 +3278,32 @@ SDL_GL_GetProcAddress(const char *proc)
     return func;
 }
 
-void
-SDL_GL_UnloadLibrary(void)
+void *
+SDL_EGL_GetProcAddress(const char *proc)
+{
+#if SDL_VIDEO_OPENGL_EGL
+    void *func;
+
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return NULL;
+    }
+    func = NULL;
+
+    if (_this->egl_data) {
+        func = SDL_EGL_GetProcAddressInternal(_this, proc);
+    } else {
+        SDL_SetError("No EGL library has been loaded");
+    }
+
+    return func;
+#else
+    SDL_SetError("SDL was not built with EGL support");
+    return NULL;
+#endif
+}
+
+void SDL_GL_UnloadLibrary(void)
 {
     if (_this == NULL) {
         SDL_UninitializedVideo();
@@ -3561,12 +3443,27 @@ void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor)
 #endif
 }
 
-void
-SDL_GL_ResetAttributes()
+void SDL_EGL_SetEGLAttributeCallbacks(SDL_EGLAttribArrayCallback platformAttribCallback,
+                                      SDL_EGLIntArrayCallback surfaceAttribCallback,
+                                      SDL_EGLIntArrayCallback contextAttribCallback)
 {
     if (_this == NULL) {
         return;
     }
+    _this->egl_platformattrib_callback = platformAttribCallback;
+    _this->egl_surfaceattrib_callback = surfaceAttribCallback;
+    _this->egl_contextattrib_callback = contextAttribCallback;
+}
+
+void SDL_GL_ResetAttributes()
+{
+    if (_this == NULL) {
+        return;
+    }
+
+    _this->egl_platformattrib_callback = NULL;
+    _this->egl_surfaceattrib_callback = NULL;
+    _this->egl_contextattrib_callback = NULL;
 
     _this->gl_config.red_size = 3;
     _this->gl_config.green_size = 3;
@@ -3614,6 +3511,8 @@ SDL_GL_ResetAttributes()
     _this->gl_config.reset_notification = SDL_GL_CONTEXT_RESET_NO_NOTIFICATION;
 
     _this->gl_config.share_with_current_context = 0;
+
+    _this->gl_config.egl_platform = 0;
 }
 
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
@@ -3686,14 +3585,6 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
     case SDL_GL_CONTEXT_MINOR_VERSION:
         _this->gl_config.minor_version = value;
         break;
-    case SDL_GL_CONTEXT_EGL:
-        /* FIXME: SDL_GL_CONTEXT_EGL to be deprecated in SDL 2.1 */
-        if (value != 0) {
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-        } else {
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
-        }
-        break;
     case SDL_GL_CONTEXT_FLAGS:
         if (value & ~(
 #if DEBUG_RENDER
@@ -3731,6 +3622,9 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         break;
     case SDL_GL_CONTEXT_NO_ERROR:
         _this->gl_config.no_error = value;
+        break;
+    case SDL_GL_EGL_PLATFORM:
+        _this->gl_config.egl_platform = value;
         break;
     default:
         retval = SDL_SetError("Unknown OpenGL attribute");
@@ -3904,16 +3798,6 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
         *value = _this->gl_config.minor_version;
         return 0;
     }
-    case SDL_GL_CONTEXT_EGL:
-        /* FIXME: SDL_GL_CONTEXT_EGL to be deprecated in SDL 2.1 */
-        {
-            if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
-                *value = 1;
-            } else {
-                *value = 0;
-            }
-            return 0;
-        }
     case SDL_GL_CONTEXT_FLAGS:
     {
         *value = _this->gl_config.flags;
@@ -3935,10 +3819,15 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
         return 0;
     }
     case SDL_GL_CONTEXT_NO_ERROR:
-        {
-            *value = _this->gl_config.no_error;
-            return 0;
-        }
+    {
+        *value = _this->gl_config.no_error;
+        return 0;
+    }
+    case SDL_GL_EGL_PLATFORM:
+    {
+        *value = _this->gl_config.egl_platform;
+        return 0;
+    }
     default:
         return SDL_SetError("Unknown OpenGL attribute");
     }
@@ -4083,7 +3972,67 @@ SDL_GL_GetCurrentContext(void)
     return (SDL_GLContext)SDL_TLSGet(_this->current_glctx_tls);
 }
 
-void SDL_GL_GetDrawableSize(SDL_Window * window, int *w, int *h)
+SDL_EGLDisplay
+SDL_EGL_GetCurrentEGLDisplay(void)
+{
+#if SDL_VIDEO_OPENGL_EGL
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return EGL_NO_DISPLAY;
+    }
+    if (!_this->egl_data) {
+        SDL_SetError("There is no current EGL display");
+        return EGL_NO_DISPLAY;
+    }
+    return _this->egl_data->egl_display;
+#else
+    SDL_SetError("SDL was not built with EGL support");
+    return NULL;
+#endif
+}
+
+SDL_EGLConfig
+SDL_EGL_GetCurrentEGLConfig(void)
+{
+#if SDL_VIDEO_OPENGL_EGL
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return NULL;
+    }
+    if (!_this->egl_data) {
+        SDL_SetError("There is no current EGL display");
+        return NULL;
+    }
+    return _this->egl_data->egl_config;
+#else
+    SDL_SetError("SDL was not built with EGL support");
+    return NULL;
+#endif
+}
+
+SDL_EGLConfig
+SDL_EGL_GetWindowEGLSurface(SDL_Window *window)
+{
+#if SDL_VIDEO_OPENGL_EGL
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return NULL;
+    }
+    if (!_this->egl_data) {
+        SDL_SetError("There is no current EGL display");
+        return NULL;
+    }
+    if (_this->GL_GetEGLSurface) {
+        return _this->GL_GetEGLSurface(_this, window);
+    }
+    return NULL;
+#else
+    SDL_SetError("SDL was not built with EGL support");
+    return NULL;
+#endif
+}
+
+void SDL_GL_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
     CHECK_WINDOW_MAGIC(window, );
 
@@ -4251,22 +4200,31 @@ SDL_WM_SetIcon(SDL_Surface * icon, Uint8 * mask)
 }
 #endif
 
-SDL_bool
-SDL_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
+int SDL_GetWindowWMInfo(SDL_Window *window, struct SDL_SysWMinfo *info, Uint32 version)
 {
-    CHECK_WINDOW_MAGIC(window, SDL_FALSE);
+    CHECK_WINDOW_MAGIC(window, -1);
 
-    if (!info) {
-        SDL_InvalidParamError("info");
-        return SDL_FALSE;
+    if (info == NULL) {
+        return SDL_InvalidParamError("info");
     }
+
+    /* Set the version in the structure to the minimum of our version and the application expected version */
+    version = SDL_min(version, SDL_SYSWM_CURRENT_VERSION);
+
+    if (version == 1) {
+        SDL_memset(info, 0, SDL_SYSWM_INFO_SIZE_V1);
+    } else {
+        return SDL_SetError("Unknown info version");
+    }
+
     info->subsystem = SDL_SYSWM_UNKNOWN;
+    info->version = version;
 
-    if (!_this->GetWindowWMInfo) {
-        SDL_Unsupported();
-        return SDL_FALSE;
+    if (_this->GetWindowWMInfo) {
+        return (_this->GetWindowWMInfo(_this, window, info));
+    } else {
+        return 0;
     }
-    return (_this->GetWindowWMInfo(_this, window, info));
 }
 
 void SDL_StartTextInput(void)
@@ -4377,17 +4335,14 @@ int SDL_GetMessageBoxCount(void)
 #if SDL_VIDEO_DRIVER_UIKIT
 #include "uikit/SDL_uikitmessagebox.h"
 #endif
-#if SDL_VIDEO_DRIVER_X11
-#include "x11/SDL_x11messagebox.h"
-#endif
 #if SDL_VIDEO_DRIVER_WAYLAND
 #include "wayland/SDL_waylandmessagebox.h"
 #endif
+#if SDL_VIDEO_DRIVER_X11
+#include "x11/SDL_x11messagebox.h"
+#endif
 #if SDL_VIDEO_DRIVER_HAIKU
 #include "haiku/SDL_bmessagebox.h"
-#endif
-#if SDL_VIDEO_DRIVER_OS2
-#include "os2/SDL_os2messagebox.h"
 #endif
 #if SDL_VIDEO_DRIVER_RISCOS
 #include "riscos/SDL_riscosmessagebox.h"
@@ -4396,21 +4351,16 @@ int SDL_GetMessageBoxCount(void)
 #include "vita/SDL_vitamessagebox.h"
 #endif
 
-#if SDL_VIDEO_DRIVER_WINDOWS || SDL_VIDEO_DRIVER_WINRT || SDL_VIDEO_DRIVER_COCOA || SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_X11 || SDL_VIDEO_DRIVER_WAYLAND || SDL_VIDEO_DRIVER_HAIKU || SDL_VIDEO_DRIVER_OS2 || SDL_VIDEO_DRIVER_RISCOS
+#if SDL_VIDEO_DRIVER_WINDOWS || SDL_VIDEO_DRIVER_WINRT || SDL_VIDEO_DRIVER_COCOA || SDL_VIDEO_DRIVER_UIKIT || SDL_VIDEO_DRIVER_X11 || SDL_VIDEO_DRIVER_WAYLAND || SDL_VIDEO_DRIVER_HAIKU || SDL_VIDEO_DRIVER_RISCOS
 static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
 {
     SDL_SysWMinfo info;
     SDL_Window *window = messageboxdata->window;
 
-    if (!window) {
-        return SDL_TRUE;
-    }
-
-    SDL_VERSION(&info.version);
-    if (!SDL_GetWindowWMInfo(window, &info)) {
+    if (window == NULL || SDL_GetWindowWMInfo(window, &info, SDL_SYSWM_CURRENT_VERSION) < 0) {
         return SDL_TRUE;
     } else {
-        return (info.subsystem == drivertype);
+        return info.subsystem == drivertype;
     }
 }
 #endif
@@ -4493,18 +4443,17 @@ int SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         retval = UIKit_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
-#if SDL_VIDEO_DRIVER_X11
-    if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11)) {
-        has_driver = SDL_TRUE;
-        retval = X11_ShowMessageBox(messageboxdata, buttonid);
-    }
-#endif
 #if SDL_VIDEO_DRIVER_WAYLAND
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND)) {
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND) &&
         has_driver = SDL_TRUE;
         retval = Wayland_ShowMessageBox(messageboxdata, buttonid);
+    }
+#endif
+#if SDL_VIDEO_DRIVER_X11
+    if (retval == -1 &&
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11) &&
+        retval = X11_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_HAIKU
@@ -4512,13 +4461,6 @@ int SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_HAIKU)) {
         has_driver = SDL_TRUE;
         retval = HAIKU_ShowMessageBox(messageboxdata, buttonid);
-    }
-#endif
-#if SDL_VIDEO_DRIVER_OS2
-    if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_OS2)) {
-        has_driver = SDL_TRUE;
-        retval = OS2_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_RISCOS

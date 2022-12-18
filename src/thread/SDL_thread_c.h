@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_thread_c_h_
 #define SDL_thread_c_h_
-
-#include "SDL_thread.h"
 
 /* Need the definitions of SYS_ThreadHandle */
 #if SDL_THREADS_DISABLED || SDL_THREAD_DUMMY
@@ -42,8 +40,6 @@
 #include "n3ds/SDL_systhread_c.h"
 #elif SDL_THREAD_STDCPP
 #include "stdcpp/SDL_systhread_c.h"
-#elif SDL_THREAD_OS2
-#include "os2/SDL_systhread_c.h"
 #elif SDL_THREAD_NGAGE
 #include "ngage/SDL_systhread_c.h"
 #else

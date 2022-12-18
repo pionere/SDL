@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef _SDL_offscreenopengles_h
 #define _SDL_offscreenopengles_h
@@ -28,7 +28,7 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_egl_c.h"
 
-#define OFFSCREEN_GLES_GetProcAddress  SDL_EGL_GetProcAddress
+#define OFFSCREEN_GLES_GetProcAddress  SDL_EGL_GetProcAddressInternal
 #define OFFSCREEN_GLES_UnloadLibrary   SDL_EGL_UnloadLibrary
 #define OFFSCREEN_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define OFFSCREEN_GLES_SetSwapInterval SDL_EGL_SetSwapInterval

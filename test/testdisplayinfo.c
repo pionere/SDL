@@ -12,10 +12,10 @@
 
 /* Program to test querying of display info */
 
-#include "SDL.h"
-
-#include <stdio.h>
 #include <stdlib.h>
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 static void
 print_mode(const char *prefix, const SDL_DisplayMode *mode)
@@ -93,4 +93,3 @@ int main(int argc, char *argv[])
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
-

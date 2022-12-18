@@ -61,8 +61,7 @@ build_cmake_projects() {
             -DSDL_STATIC=ON \
             -DSDL_STATIC_PIC=ON \
             -DSDL_TEST=ON \
-            -DSDL2_DISABLE_SDL2MAIN=OFF \
-            -DSDL2_DISABLE_INSTALL=OFF \
+            -DSDL3_DISABLE_INSTALL=OFF \
             -DCMAKE_INSTALL_PREFIX="${build_root}/build_${android_abi}/prefix" \
             -DCMAKE_INSTALL_INCLUDEDIR=include \
             -DCMAKE_INSTALL_LIBDIR=lib \
@@ -204,8 +203,6 @@ create_shared_sdl_module() {
 EOF
         mkdir -p "${sdl_moduleworkdir}/include"
         cp -r "${abi_build_prefix}/include/SDL${sdl_major}/"* "${sdl_moduleworkdir}/include/"
-        rm "${sdl_moduleworkdir}/include/SDL_config.h"
-        cp "$sdl_root/include/SDL_config.h" "$sdl_root/include/SDL_config_android.h" "${sdl_moduleworkdir}/include/"
 
         abi_sdllibdir="${sdl_moduleworkdir}/libs/android.${android_abi}"
         mkdir -p "${abi_sdllibdir}"
@@ -238,8 +235,6 @@ create_static_sdl_module() {
 EOF
         mkdir -p "${sdl_moduleworkdir}/include"
         cp -r "${abi_build_prefix}/include/SDL${sdl_major}/"* "${sdl_moduleworkdir}/include"
-        rm "${sdl_moduleworkdir}/include/SDL_config.h"
-        cp "$sdl_root/include/SDL_config.h" "$sdl_root/include/SDL_config_android.h" "${sdl_moduleworkdir}/include/"
 
         abi_sdllibdir="${sdl_moduleworkdir}/libs/android.${android_abi}"
         mkdir -p "${abi_sdllibdir}"
@@ -253,35 +248,6 @@ EOF
 }
 EOF
         cp "${abi_build_prefix}/lib/libSDL${sdl_major}.a" "${abi_sdllibdir}"
-    done
-}
-
-create_sdlmain_module() {
-    echo "Creating SDL${sdl_major}main prefab module"
-    for android_abi in $android_abis; do
-        sdl_moduleworkdir="${modulesworkdir}/SDL${sdl_major}main"
-        mkdir -p "${sdl_moduleworkdir}"
-
-        abi_build_prefix="${build_root}/build_${android_abi}/prefix"
-
-        cat >"${sdl_moduleworkdir}/module.json" <<EOF
-{
-  "export_libraries": [],
-  "library_name": "libSDL${sdl_major}main"
-}
-EOF
-        abi_sdllibdir="${sdl_moduleworkdir}/libs/android.${android_abi}"
-        mkdir -p "${abi_sdllibdir}"
-        cat >"${abi_sdllibdir}/abi.json" <<EOF
-{
-  "abi": "${android_abi}",
-  "api": ${android_api},
-  "ndk": ${android_ndk},
-  "stl": "${android_stl}",
-  "static": true
-}
-EOF
-        cp "${abi_build_prefix}/lib/libSDL${sdl_major}main.a" "${abi_sdllibdir}"
     done
 }
 
@@ -325,8 +291,6 @@ create_aar_androidmanifest
 create_shared_sdl_module
 
 create_static_sdl_module
-
-create_sdlmain_module
 
 create_sdltest_module
 

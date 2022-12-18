@@ -14,6 +14,8 @@
 
 #ifdef TEST_NATIVE_WINDOWS
 
+#include <windows.h>
+
 static void *CreateWindowNative(int w, int h);
 static void DestroyWindowNative(void *window);
 
@@ -84,3 +86,5 @@ DestroyWindowNative(void *window)
 }
 
 #endif
+
+/* vi: set ts=4 sw=4 expandtab: */

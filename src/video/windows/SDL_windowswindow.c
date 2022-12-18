@@ -18,13 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WINDOWS
 
 #include "../../core/windows/SDL_windows.h"
 
-#include "SDL_log.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_keyboard_c.h"
@@ -35,14 +34,12 @@
 #include "SDL_windowsvideo.h"
 #include "SDL_windowswindow.h"
 #include "SDL_windowsshape.h"
-#include "SDL_hints.h"
-#include "SDL_timer.h"
 
 /* Dropfile support */
 #include <shellapi.h>
 
-/* This is included after SDL_windowsvideo.h, which includes windows.h */
-#include "SDL_syswm.h"
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 /* Windows CE compatibility */
 #ifndef SWP_NOCOPYBITS
@@ -81,20 +78,7 @@ static DWORD GetWindowStyle(SDL_Window *window)
         style |= STYLE_FULLSCREEN;
     } else {
         if (window->flags & SDL_WINDOW_BORDERLESS) {
-            /* SDL 2.1:
-               This behavior more closely matches other platform where the window is borderless
-               but still interacts with the window manager (e.g. task bar shows above it, it can
-               be resized to fit within usable desktop area, etc.) so this should be the behavior
-               for a future SDL release.
-
-               If you want a borderless window the size of the desktop that looks like a fullscreen
-               window, then you should use the SDL_WINDOW_FULLSCREEN_DESKTOP flag.
-             */
-            if (SDL_GetHintBoolean("SDL_BORDERLESS_WINDOWED_STYLE", SDL_FALSE)) {
-                style |= STYLE_BORDERLESS_WINDOWED;
-            } else {
-                style |= STYLE_BORDERLESS;
-            }
+            style |= STYLE_BORDERLESS_WINDOWED;
         } else {
             style |= STYLE_NORMAL;
         }
@@ -536,9 +520,10 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
 
     /* The rest of this macro mess is for OpenGL or OpenGL ES windows */
 #if SDL_VIDEO_OPENGL_ES2
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES
+    if ((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ||
+         SDL_GetHintBoolean(SDL_HINT_VIDEO_FORCE_EGL, SDL_FALSE)) &&
 #if SDL_VIDEO_OPENGL_WGL
-        && (!_this->gl_data || WIN_GL_UseEGL(_this))
+        (!_this->gl_data || WIN_GL_UseEGL(_this))
 #endif /* SDL_VIDEO_OPENGL_WGL */
     ) {
 #if SDL_VIDEO_OPENGL_EGL
@@ -761,9 +746,9 @@ int WIN_GetWindowBordersSize(_THIS, SDL_Window *window, int *top, int *left, int
 
     /* Now that both the inner and outer rects use the same coordinate system we can substract them to get the border size.
      * Keep in mind that the top/left coordinates of rcWindow are negative because the border lies slightly before {0,0},
-     * so switch them around because SDL2 wants them in positive. */
-    *top    = rcClient.top    - rcWindow.top;
-    *left   = rcClient.left   - rcWindow.left;
+     * so switch them around because SDL3 wants them in positive. */
+    *top = rcClient.top - rcWindow.top;
+    *left = rcClient.left - rcWindow.left;
     *bottom = rcWindow.bottom - rcClient.bottom;
     *right = rcWindow.right - rcClient.right;
 
@@ -995,27 +980,7 @@ void WIN_SetWindowFullscreen(_THIS, SDL_Window *window, SDL_VideoDisplay *displa
 }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-int
-WIN_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
-{
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData *data = (SDL_DisplayData *) display->driverdata;
-    HDC hdc;
-    BOOL succeeded = FALSE;
-
-    hdc = CreateDCW(data->DeviceName, NULL, NULL, NULL);
-    if (hdc) {
-        succeeded = SetDeviceGammaRamp(hdc, (LPVOID)ramp);
-        if (!succeeded) {
-            WIN_SetError("SetDeviceGammaRamp()");
-        }
-        DeleteDC(hdc);
-    }
-    return succeeded ? 0 : -1;
-}
-
-void
-WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event)
+void WIN_UpdateWindowICCProfile(SDL_Window *window, SDL_bool send_event)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
@@ -1048,7 +1013,7 @@ void *
 WIN_GetWindowICCProfile(_THIS, SDL_Window *window, size_t *size)
 {
 #if SDL_FILE_DISABLED
-    SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
+    SDL_SetError("Unsupported, because SDL3 is compiled without FILE subsystem");
     return NULL;
 #else
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -1067,25 +1032,6 @@ WIN_GetWindowICCProfile(_THIS, SDL_Window *window, size_t *size)
     }
     return iccProfileData;
 #endif /* SDL_FILE_DISABLED */
-}
-
-int
-WIN_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
-{
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData *data = (SDL_DisplayData *) display->driverdata;
-    HDC hdc;
-    BOOL succeeded = FALSE;
-
-    hdc = CreateDCW(data->DeviceName, NULL, NULL, NULL);
-    if (hdc) {
-        succeeded = GetDeviceGammaRamp(hdc, (LPVOID)ramp);
-        if (!succeeded) {
-            WIN_SetError("GetDeviceGammaRamp()");
-        }
-        DeleteDC(hdc);
-    }
-    return succeeded ? 0 : -1;
 }
 
 static void WIN_GrabKeyboard(SDL_Window *window)
@@ -1169,30 +1115,16 @@ void WIN_DestroyWindow(_THIS, SDL_Window *window)
     CleanupWindowData(_this, window);
 }
 
-SDL_bool
-WIN_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
+int WIN_GetWindowWMInfo(_THIS, SDL_Window *window, SDL_SysWMinfo *info)
 {
-    const SDL_WindowData *data = (const SDL_WindowData *) window->driverdata;
-    if (info->version.major <= SDL_MAJOR_VERSION) {
-        int versionnum = SDL_VERSIONNUM(info->version.major, info->version.minor, info->version.patch);
+    const SDL_WindowData *data = (const SDL_WindowData *)window->driverdata;
 
-        info->subsystem = SDL_SYSWM_WINDOWS;
-        info->info.win.window = data->hwnd;
+    info->subsystem = SDL_SYSWM_WINDOWS;
+    info->info.win.window = data->hwnd;
+    info->info.win.hdc = data->hdc;
+    info->info.win.hinstance = data->hinstance;
 
-        if (versionnum >= SDL_VERSIONNUM(2, 0, 4)) {
-            info->info.win.hdc = data->hdc;
-        }
-
-        if (versionnum >= SDL_VERSIONNUM(2, 0, 5)) {
-            info->info.win.hinstance = data->hinstance;
-        }
-
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("Application not compiled with SDL %d",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
+    return 0;
 }
 
 /*

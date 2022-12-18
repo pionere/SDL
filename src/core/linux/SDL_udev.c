@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 /*
  * To list the properties of a device, try something like:
@@ -32,11 +32,7 @@
 
 #include <linux/input.h>
 
-#include "SDL_assert.h"
 #include "SDL_evdev_capabilities.h"
-#include "SDL_loadso.h"
-#include "SDL_timer.h"
-#include "SDL_hints.h"
 #include "../unix/SDL_poll.h"
 
 static const char *SDL_UDEV_LIBS[] = { "libudev.so.1", "libudev.so.0" };

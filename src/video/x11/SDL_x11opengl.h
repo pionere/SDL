@@ -18,13 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_x11opengl_h_
 #define SDL_x11opengl_h_
 
 #if SDL_VIDEO_OPENGL_GLX
-#include "SDL_opengl.h"
+#include <SDL3/SDL_opengl.h>
 #include <GL/glx.h>
 
 struct SDL_GLDriverData

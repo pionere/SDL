@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_THREAD_N3DS
 
@@ -26,10 +26,7 @@
 
 #include <3ds.h>
 
-#include "SDL_thread.h"
-#include "SDL_timer.h"
-
-int WaitOnSemaphoreFor(SDL_sem *sem, Uint32 timeout);
+int WaitOnSemaphoreFor(SDL_sem *sem, Sint64 timeout);
 
 struct SDL_semaphore
 {
@@ -64,60 +61,40 @@ void SDL_DestroySemaphore(SDL_sem *sem)
     SDL_free(sem);
 }
 
-int SDL_SemTryWait(SDL_sem *sem)
+int SDL_SemWaitTimeoutNS(SDL_sem *sem, Sint64 timeoutNS)
 {
     if (sem == NULL) {
         return SDL_InvalidParamError("sem");
     }
 
-    if (LightSemaphore_TryAcquire(&sem->semaphore, 1) != 0) {
-        /* If we failed, yield to avoid starvation on busy waits */
-        svcSleepThread(1);
-        return SDL_MUTEX_TIMEDOUT;
-    }
-
-    return 0;
-}
-
-int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
-{
-    if (sem == NULL) {
-        return SDL_InvalidParamError("sem");
-    }
-
-    if (timeout == SDL_MUTEX_MAXWAIT) {
+    if (timeoutNS == SDL_MUTEX_MAXWAIT) {
         LightSemaphore_Acquire(&sem->semaphore, 1);
         return 0;
     }
 
     if (LightSemaphore_TryAcquire(&sem->semaphore, 1) != 0) {
-        return WaitOnSemaphoreFor(sem, timeout);
+        return WaitOnSemaphoreFor(sem, timeoutNS);
     }
 
     return 0;
 }
 
-int WaitOnSemaphoreFor(SDL_sem *sem, Uint32 timeout)
+int WaitOnSemaphoreFor(SDL_sem *sem, Sint64 timeout)
 {
-    Uint64 stop_time = SDL_GetTicks64() + timeout;
-    Uint64 current_time = SDL_GetTicks64();
+    Uint64 stop_time = SDL_GetTicksNS() + timeout;
+    Uint64 current_time = SDL_GetTicksNS();
     while (current_time < stop_time) {
         if (LightSemaphore_TryAcquire(&sem->semaphore, 1) == 0) {
             return 0;
         }
         /* 100 microseconds seems to be the sweet spot */
-        svcSleepThread(100000LL);
-        current_time = SDL_GetTicks64();
+        SDL_DelayNS(SDL_US_TO_NS(100));
+        current_time = SDL_GetTicksNS();
     }
 
     /* If we failed, yield to avoid starvation on busy waits */
-    svcSleepThread(1);
+    SDL_DelayNS(1);
     return SDL_MUTEX_TIMEDOUT;
-}
-
-int SDL_SemWait(SDL_sem *sem)
-{
-    return SDL_SemWaitTimeout(sem, SDL_MUTEX_MAXWAIT);
 }
 
 Uint32 SDL_SemValue(SDL_sem *sem)

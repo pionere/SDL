@@ -9,12 +9,9 @@
   including commercial applications, and to alter it and redistribute it
   freely.
 */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "SDL.h"
-#include "SDL_test_font.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_test_font.h>
 #include "testyuv_cvt.h"
 
 /* 422 (YUY2, etc) formats are the largest */
@@ -29,7 +26,7 @@ static SDL_bool is_packed_yuv_format(Uint32 format)
 /* Create a surface with a good pattern for verifying YUV conversion */
 static SDL_Surface *generate_test_pattern(int pattern_size)
 {
-    SDL_Surface *pattern = SDL_CreateRGBSurfaceWithFormat(0, pattern_size, pattern_size, 0, SDL_PIXELFORMAT_RGB24);
+    SDL_Surface *pattern = SDL_CreateSurface(pattern_size, pattern_size, SDL_PIXELFORMAT_RGB24);
 
     if (pattern) {
         int i, x, y;
@@ -258,7 +255,8 @@ int main(int argc, char **argv)
     int current = 0;
     int pitch;
     Uint8 *raw_yuv;
-    Uint32 then, now, i, iterations = 100;
+    Uint64 then, now;
+    Uint32 i, iterations = 100;
     SDL_bool should_run_automated_tests = SDL_FALSE;
 
     while (argv[arg] && *argv[arg] == '-') {
@@ -326,7 +324,7 @@ int main(int argc, char **argv)
     } else {
         filename = "testyuv.bmp";
     }
-    original = SDL_ConvertSurfaceFormat(SDL_LoadBMP(filename), SDL_PIXELFORMAT_RGB24, 0);
+    original = SDL_ConvertSurfaceFormat(SDL_LoadBMP(filename), SDL_PIXELFORMAT_RGB24);
     if (original == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't load %s: %s\n", filename, SDL_GetError());
         return 3;
@@ -338,7 +336,7 @@ int main(int argc, char **argv)
                     0, 100);
     pitch = CalculateYUVPitch(yuv_format, original->w);
 
-    converted = SDL_CreateRGBSurfaceWithFormat(0, original->w, original->h, 0, rgb_format);
+    converted = SDL_CreateSurface(original->w, original->h, rgb_format);
     if (converted == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create converted surface: %s\n", SDL_GetError());
         return 3;
@@ -349,7 +347,7 @@ int main(int argc, char **argv)
         SDL_ConvertPixels(original->w, original->h, yuv_format, raw_yuv, pitch, rgb_format, converted->pixels, converted->pitch);
     }
     now = SDL_GetTicks();
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%" SDL_PRIu32 " iterations in %" SDL_PRIu32 " ms, %.2fms each\n", iterations, (now - then), (float)(now - then) / iterations);
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%" SDL_PRIu32 " iterations in %" SDL_PRIu64 " ms, %.2fms each\n", iterations, (now - then), (float)(now - then) / iterations);
 
     window = SDL_CreateWindow("YUV test",
                               SDL_WINDOWPOS_UNDEFINED,
@@ -361,7 +359,7 @@ int main(int argc, char **argv)
         return 4;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     if (renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n", SDL_GetError());
         return 4;

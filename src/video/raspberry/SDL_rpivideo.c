@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_RPI
 
@@ -32,13 +32,10 @@
 
 /* SDL internals */
 #include "../SDL_sysvideo.h"
-#include "SDL_version.h"
-#include "SDL_syswm.h"
-#include "SDL_loadso.h"
-#include "SDL_events.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_keyboard_c.h"
-#include "SDL_hints.h"
+
+#include <SDL3/SDL_syswm.h>
 
 #ifdef SDL_INPUT_LINUXEV
 #include "../../core/linux/SDL_evdev.h"
@@ -116,9 +113,6 @@ static SDL_VideoDevice *RPI_Create()
     device->MinimizeWindow = RPI_MinimizeWindow;
     device->RestoreWindow = RPI_RestoreWindow;
     device->DestroyWindow = RPI_DestroyWindow;
-#if 0
-    device->GetWindowWMInfo = RPI_GetWindowWMInfo;
-#endif
     device->GL_LoadLibrary = RPI_GLES_LoadLibrary;
     device->GL_GetProcAddress = RPI_GLES_GetProcAddress;
     device->GL_UnloadLibrary = RPI_GLES_UnloadLibrary;
@@ -393,26 +387,6 @@ void RPI_MinimizeWindow(_THIS, SDL_Window *window)
 void RPI_RestoreWindow(_THIS, SDL_Window *window)
 {
 }
-
-/*****************************************************************************/
-/* SDL Window Manager function                                               */
-/*****************************************************************************/
-#if 0
-SDL_bool
-RPI_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
-{
-    if (info->version.major <= SDL_MAJOR_VERSION) {
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("application not compiled with SDL %d",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
-
-    /* Failed to get window manager information */
-    return SDL_FALSE;
-}
-#endif
 
 #endif /* SDL_VIDEO_DRIVER_RPI */
 

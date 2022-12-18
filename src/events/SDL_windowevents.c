@@ -18,14 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Window event handling code for SDL */
 
-#include "SDL_events.h"
 #include "SDL_events_c.h"
 #include "SDL_mouse_c.h"
-#include "SDL_hints.h"
 
 typedef struct RemovePendingSizeChangedAndResizedEvents_Data
 {
@@ -189,6 +187,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
     if (SDL_GetEventState(SDL_WINDOWEVENT) == SDL_ENABLE) {
         SDL_Event event;
         event.type = SDL_WINDOWEVENT;
+        event.common.timestamp = 0;
         event.window.event = windowevent;
         event.window.data1 = data1;
         event.window.data2 = data2;

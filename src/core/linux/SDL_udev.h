@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_udev_h_
 #define SDL_udev_h_
@@ -30,8 +30,6 @@
 #define SDL_USE_LIBUDEV 1
 #endif
 
-#include "SDL_loadso.h"
-#include "SDL_events.h"
 #include <libudev.h>
 #include <sys/time.h>
 #include <sys/types.h>

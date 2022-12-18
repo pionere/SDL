@@ -18,14 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* System independent thread management routines for SDL */
 
-#include "SDL_thread.h"
 #include "SDL_thread_c.h"
 #include "SDL_systhread.h"
-#include "SDL_hints.h"
 #include "../SDL_error_c.h"
 
 SDL_TLSID
@@ -122,6 +120,7 @@ SDL_Generic_GetTLSData(void)
     SDL_TLSEntry *entry;
     SDL_TLSData *storage = NULL;
 
+#if !SDL_THREADS_DISABLED
     if (SDL_generic_TLS_mutex == NULL) {
         static SDL_SpinLock tls_lock;
         SDL_AtomicLock(&tls_lock);
@@ -138,6 +137,7 @@ SDL_Generic_GetTLSData(void)
     }
     SDL_MemoryBarrierAcquire();
     SDL_LockMutex(SDL_generic_TLS_mutex);
+#endif /* SDL_THREADS_DISABLED */
 
     for (entry = SDL_generic_TLS; entry; entry = entry->next) {
         if (entry->thread == thread) {
@@ -145,7 +145,9 @@ SDL_Generic_GetTLSData(void)
             break;
         }
     }
+#if !SDL_THREADS_DISABLED
     SDL_UnlockMutex(SDL_generic_TLS_mutex);
+#endif /* SDL_THREADS_DISABLED */
 
     return storage;
 }
@@ -477,6 +479,45 @@ void SDL_DetachThread(SDL_Thread *thread)
             SDL_assert(0 && "Unexpected thread state");
         }
     }
+}
+
+int SDL_SemWait(SDL_sem *sem)
+{
+    return SDL_SemWaitTimeoutNS(sem, SDL_MUTEX_MAXWAIT);
+}
+
+int SDL_SemTryWait(SDL_sem *sem)
+{
+    return SDL_SemWaitTimeoutNS(sem, 0);
+}
+
+int SDL_SemWaitTimeout(SDL_sem *sem, Sint32 timeoutMS)
+{
+    Sint64 timeoutNS;
+
+    if (timeoutMS >= 0) {
+        timeoutNS = SDL_MS_TO_NS(timeoutMS);
+    } else {
+        timeoutNS = -1;
+    }
+    return SDL_SemWaitTimeoutNS(sem, timeoutNS);
+}
+
+int SDL_CondWait(SDL_cond *cond, SDL_mutex *mutex)
+{
+    return SDL_CondWaitTimeoutNS(cond, mutex, SDL_MUTEX_MAXWAIT);
+}
+
+int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, Sint32 timeoutMS)
+{
+    Sint64 timeoutNS;
+
+    if (timeoutMS >= 0) {
+        timeoutNS = SDL_MS_TO_NS(timeoutMS);
+    } else {
+        timeoutNS = -1;
+    }
+    return SDL_CondWaitTimeoutNS(cond, mutex, timeoutNS);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

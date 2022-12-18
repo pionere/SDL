@@ -18,17 +18,14 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_AUDIO_DRIVER_N3DS
-
-#include "SDL_audio.h"
 
 /* N3DS Audio driver */
 
 #include "../SDL_sysaudio.h"
 #include "SDL_n3dsaudio.h"
-#include "SDL_timer.h"
 
 #define N3DSAUDIO_DRIVER_NAME "n3ds"
 

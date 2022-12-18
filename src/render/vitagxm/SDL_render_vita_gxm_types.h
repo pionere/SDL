@@ -22,9 +22,8 @@
 #ifndef SDL_RENDER_VITA_GXM_TYPES_H
 #define SDL_RENDER_VITA_GXM_TYPES_H
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
-#include "SDL_hints.h"
 #include "../SDL_sysrender.h"
 
 #include <psp2/kernel/processmgr.h>

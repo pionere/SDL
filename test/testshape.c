@@ -10,10 +10,9 @@
   freely.
 */
 #include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-#include "SDL.h"
-#include "SDL_shape.h"
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #define SHAPED_WINDOW_X         150
 #define SHAPED_WINDOW_Y         150
@@ -115,7 +114,7 @@ int main(int argc, char **argv)
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not create shaped window for SDL_Shape.");
         exit(-4);
     }
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     if (renderer == NULL) {
         SDL_DestroyWindow(window);
         for (i = 0; i < num_pictures; i++) {

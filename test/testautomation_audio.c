@@ -9,10 +9,9 @@
 #endif
 
 #include <stdio.h>
-#include <string.h>
 
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* ================= Test Case Implementation ================== */
 
@@ -944,7 +943,7 @@ int audio_openCloseAudioDeviceConnected()
             SDLTest_AssertCheck(id > 1, "Validate device ID; expected: >1, got: %" SDL_PRIu32, id);
             if (id > 1) {
 
-/* TODO: enable test code when function is available in SDL2 */
+                /* TODO: enable test code when function is available in SDL3 */
 
 #ifdef AUDIODEVICECONNECTED_DEFINED
                 /* Get connected status */
@@ -1047,3 +1046,5 @@ SDLTest_TestSuiteReference audioTestSuite = {
     audioTests,
     _audioTearDown
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

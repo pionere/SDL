@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* uses BeOS euc.jp apm driver. */
 /* !!! FIXME: does this thing even work on Haiku? */
@@ -37,10 +37,8 @@
 #define APM_DEVICE_PATH           "/dev/misc/apm"
 #define APM_FUNC_OFFSET           0x5300
 #define APM_FUNC_GET_POWER_STATUS 10
-#define APM_DEVICE_ALL 1
-#define APM_BIOS_CALL (B_DEVICE_OP_CODES_END + 3)
-
-#include "SDL_power.h"
+#define APM_DEVICE_ALL            1
+#define APM_BIOS_CALL             (B_DEVICE_OP_CODES_END + 3)
 
 SDL_bool
 SDL_GetPowerInfo_Haiku(SDL_PowerState *state, int *seconds, int *percent)

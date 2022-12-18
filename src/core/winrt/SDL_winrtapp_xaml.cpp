@@ -18,6 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#include "SDL_internal.h"
 
 /* Windows includes */
 #include <agile.h>
@@ -28,8 +29,6 @@
 #endif
 
 /* SDL includes */
-#include "../../SDL_internal.h"
-#include "SDL.h"
 #include "../../video/winrt/SDL_winrtevents_c.h"
 #include "../../video/winrt/SDL_winrtvideo_cpp.h"
 #include "SDL_winrtapp_common.h"

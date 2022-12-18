@@ -18,13 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* This is the sensor API for Simple DirectMedia Layer */
 
-#include "SDL.h"
-#include "SDL_atomic.h"
-#include "SDL_events.h"
 #include "SDL_syssensor.h"
 
 #if !SDL_EVENTS_DISABLED
@@ -360,23 +357,12 @@ SDL_SensorID SDL_SensorGetInstanceID(SDL_Sensor *sensor)
  */
 int SDL_SensorGetData(SDL_Sensor *sensor, float *data, int num_values)
 {
-    return SDL_SensorGetDataWithTimestamp(sensor, NULL, data, num_values);
-}
-
-/*
- * Get the current state of this sensor
- */
-int SDL_SensorGetDataWithTimestamp(SDL_Sensor *sensor, Uint64 *timestamp, float *data, int num_values)
-{
     if (!SDL_PrivateSensorValid(sensor)) {
         return -1;
     }
 
     num_values = SDL_min(num_values, SDL_arraysize(sensor->data));
     SDL_memcpy(data, sensor->data, num_values * sizeof(*data));
-    if (timestamp) {
-        *timestamp = sensor->timestamp_us;
-    }
     return 0;
 }
 
@@ -466,7 +452,7 @@ void SDL_SensorQuit(void)
 
 /* These are global for SDL_syssensor.c and SDL_events.c */
 
-int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data, int num_values)
+int SDL_PrivateSensorUpdate(Uint64 timestamp, SDL_Sensor *sensor, Uint64 sensor_timestamp, float *data, int num_values)
 {
     int posted;
 
@@ -475,7 +461,6 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
     /* Update internal sensor state */
     num_values = SDL_min(num_values, SDL_arraysize(sensor->data));
     SDL_memcpy(sensor->data, data, num_values * sizeof(*data));
-    sensor->timestamp_us = timestamp_us;
 
     /* Post the event, if desired */
     posted = 0;
@@ -483,11 +468,12 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
     if (SDL_GetEventState(SDL_SENSORUPDATE) == SDL_ENABLE) {
         SDL_Event event;
         event.type = SDL_SENSORUPDATE;
+        event.common.timestamp = timestamp;
         event.sensor.which = sensor->instance_id;
         num_values = SDL_min(num_values, SDL_arraysize(event.sensor.data));
         SDL_memset(event.sensor.data, 0, sizeof(event.sensor.data));
         SDL_memcpy(event.sensor.data, data, num_values * sizeof(*data));
-        event.sensor.timestamp_us = timestamp_us;
+        event.sensor.sensor_timestamp = sensor_timestamp;
         posted = SDL_PushEvent(&event) == 1;
     }
 #endif /* !SDL_EVENTS_DISABLED */

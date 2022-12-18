@@ -18,35 +18,27 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_FILESYSTEM_UNIX
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* System dependent filesystem routines                                */
 
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <limits.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #if defined(__FREEBSD__) || defined(__OPENBSD__)
 #include <sys/sysctl.h>
 #endif
 
-#include "SDL_error.h"
-#include "SDL_stdinc.h"
-#include "SDL_filesystem.h"
-#include "SDL_rwops.h"
-
-/* QNX's /proc/self/exefile is a text file and not a symlink. */
-#if !defined(__QNXNTO__)
-static char *
-readSymLink(const char *path)
+static char *readSymLink(const char *path)
 {
     char *retval = NULL;
     ssize_t len = 64;
@@ -75,8 +67,6 @@ readSymLink(const char *path)
     SDL_free(retval);
     return NULL;
 }
-#endif
-
 
 #if defined(__OPENBSD__)
 static char *search_path_for_binary(const char *bin)
@@ -217,8 +207,6 @@ SDL_GetBasePath(void)
         retval = readSymLink("/proc/curproc/exe");
 #elif defined(__SOLARIS__)
         retval = readSymLink("/proc/self/path/a.out");
-#elif defined(__QNXNTO__)
-        retval = SDL_LoadFile("/proc/self/exefile", NULL);
 #else
         retval = readSymLink("/proc/self/exe"); /* linux. */
         if (retval == NULL) {
@@ -239,14 +227,13 @@ SDL_GetBasePath(void)
         const char *path = getexecname();
         if ((path != NULL) && (path[0] == '/')) { /* must be absolute path... */
             retval = SDL_strdup(path);
-            if (!retval) {
+            if (retval == NULL) {
                 SDL_OutOfMemory();
                 return NULL;
             }
         }
     }
 #endif
-
     /* If we had access to argv[0] here, we could check it for a path,
         or troll through $PATH looking for it, too. */
 

@@ -19,13 +19,11 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_windowsshape_h_
 #define SDL_windowsshape_h_
 
-#include "SDL_video.h"
-#include "SDL_shape.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_shape_internals.h"
 

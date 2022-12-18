@@ -11,8 +11,8 @@
 */
 /* Simple test of filesystem functions. */
 
-#include <stdio.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 int main(int argc, char *argv[])
 {
@@ -57,3 +57,5 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+/* vi: set ts=4 sw=4 expandtab: */

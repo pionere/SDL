@@ -18,16 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-
-#include "SDL_config.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_SENSOR_COREMOTION
 
 /* This is the system specific header for the SDL sensor API */
 #include <CoreMotion/CoreMotion.h>
 
-#include "SDL_error.h"
-#include "SDL_sensor.h"
 #include "SDL_coremotionsensor.h"
 #include "../SDL_syssensor.h"
 #include "../SDL_sensor_c.h"
@@ -140,6 +137,8 @@ static int SDL_COREMOTION_SensorOpen(SDL_Sensor *sensor, int device_index)
 
 static void SDL_COREMOTION_SensorUpdate(SDL_Sensor *sensor)
 {
+    Uint64 timestamp = SDL_GetTicks();
+
     switch (sensor->type) {
     case SDL_SENSOR_ACCEL:
     {
@@ -151,7 +150,7 @@ static void SDL_COREMOTION_SensorUpdate(SDL_Sensor *sensor)
             data[1] = -acceleration.y * SDL_STANDARD_GRAVITY;
             data[2] = -acceleration.z * SDL_STANDARD_GRAVITY;
             if (SDL_memcmp(data, sensor->hwdata->data, sizeof(data)) != 0) {
-                SDL_PrivateSensorUpdate(sensor, 0, data, SDL_arraysize(data));
+                SDL_PrivateSensorUpdate(timestamp, sensor, timestamp, data, SDL_arraysize(data));
                 SDL_memcpy(sensor->hwdata->data, data, sizeof(data));
             }
         }
@@ -166,7 +165,7 @@ static void SDL_COREMOTION_SensorUpdate(SDL_Sensor *sensor)
             data[1] = rotationRate.y;
             data[2] = rotationRate.z;
             if (SDL_memcmp(data, sensor->hwdata->data, sizeof(data)) != 0) {
-                SDL_PrivateSensorUpdate(sensor, 0, data, SDL_arraysize(data));
+                SDL_PrivateSensorUpdate(timestamp, sensor, timestamp, data, SDL_arraysize(data));
                 SDL_memcpy(sensor->hwdata->data, data, sizeof(data));
             }
         }

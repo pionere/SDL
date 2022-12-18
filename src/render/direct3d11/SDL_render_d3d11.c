@@ -18,10 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
-
-#include "SDL_render.h"
-#include "SDL_system.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_D3D11 && !SDL_RENDER_DISABLED
 
@@ -30,11 +27,11 @@
 #if !defined(__WINRT__)
 #include "../../video/windows/SDL_windowswindow.h"
 #endif
-#include "SDL_hints.h"
-#include "SDL_loadso.h"
-#include "SDL_syswm.h"
 #include "../SDL_sysrender.h"
 #include "../SDL_d3dmath.h"
+
+#define SDL_ENABLE_SYSWM_WINDOWS
+#include <SDL3/SDL_syswm.h>
 
 #include <d3d11_1.h>
 
@@ -813,8 +810,13 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     } else {
 #if defined(__WIN32__) || defined(__WINGDK__)
         SDL_SysWMinfo windowinfo;
-        SDL_VERSION(&windowinfo.version);
-        SDL_GetWindowWMInfo(renderer->window, &windowinfo);
+
+        if (SDL_GetWindowWMInfo(renderer->window, &windowinfo, SDL_SYSWM_CURRENT_VERSION) < 0 ||
+            windowinfo.subsystem != SDL_SYSWM_WINDOWS) {
+            SDL_SetError("Couldn't get window handle");
+            result = E_FAIL;
+            goto done;
+        }
 
         result = IDXGIFactory2_CreateSwapChainForHwnd(data->dxgiFactory,
                                                       (IUnknown *)data->d3dDevice,
@@ -873,6 +875,7 @@ D3D11_HandleDeviceLost(SDL_Renderer *renderer)
     {
         SDL_Event event;
         event.type = SDL_RENDER_DEVICE_RESET;
+        event.common.timestamp = 0;
         SDL_PushEvent(&event);
     }
 
@@ -1753,20 +1756,20 @@ static int D3D11_UpdateViewport(SDL_Renderer *renderer)
      * direction of the DXGI_MODE_ROTATION enumeration.
      */
     switch (rotation) {
-        case DXGI_MODE_ROTATION_IDENTITY:
-            projection = MatrixIdentity();
-            break;
-        case DXGI_MODE_ROTATION_ROTATE270:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI * 0.5f));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE180:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE90:
-            projection = MatrixRotationZ(SDL_static_cast(float, -M_PI * 0.5f));
-            break;
-        default:
-            return SDL_SetError("An unknown DisplayOrientation is being used");
+    case DXGI_MODE_ROTATION_IDENTITY:
+        projection = MatrixIdentity();
+        break;
+    case DXGI_MODE_ROTATION_ROTATE270:
+        projection = MatrixRotationZ(SDL_PI_F * 0.5f);
+        break;
+    case DXGI_MODE_ROTATION_ROTATE180:
+        projection = MatrixRotationZ(SDL_PI_F);
+        break;
+    case DXGI_MODE_ROTATION_ROTATE90:
+        projection = MatrixRotationZ(-SDL_PI_F * 0.5f);
+        break;
+    default:
+        return SDL_SetError("An unknown DisplayOrientation is being used");
     }
 
     /* Update the view matrix */

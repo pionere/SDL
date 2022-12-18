@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_X11 && SDL_VIDEO_OPENGL_EGL
 
-#include "SDL_hints.h"
 #include "SDL_x11video.h"
 #include "SDL_x11opengles.h"
 #include "SDL_x11opengl.h"
@@ -35,8 +34,8 @@ int X11_GLES_LoadLibrary(_THIS, const char *path)
 
     /* If the profile requested is not GL ES, switch over to X11_GL functions  */
     if ((_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) &&
-        !SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE)) {
-        #if SDL_VIDEO_OPENGL_GLX
+        !SDL_GetHintBoolean(SDL_HINT_VIDEO_FORCE_EGL, SDL_FALSE)) {
+#if SDL_VIDEO_OPENGL_GLX
         X11_GLES_UnloadLibrary(_this);
         _this->GL_LoadLibrary = X11_GL_LoadLibrary;
         _this->GL_GetProcAddress = X11_GL_GetProcAddress;
@@ -52,8 +51,8 @@ int X11_GLES_LoadLibrary(_THIS, const char *path)
         return SDL_SetError("SDL not configured with OpenGL/GLX support");
 #endif
     }
-    
-    return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
+
+    return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType)data->display, _this->gl_config.egl_platform);
 }
 
 XVisualInfo *
@@ -101,6 +100,13 @@ X11_GLES_CreateContext(_THIS, SDL_Window *window)
     X11_XSync(display, False);
 
     return context;
+}
+
+SDL_EGLSurface
+X11_GLES_GetEGLSurface(_THIS, SDL_Window *window)
+{
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    return data->egl_surface;
 }
 
 SDL_EGL_SwapWindow_impl(X11)

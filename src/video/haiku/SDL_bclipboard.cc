@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_HAIKU
 
@@ -28,7 +28,6 @@
 #include <TypeConstants.h>
 
 #include "SDL_BWin.h"
-#include "SDL_timer.h"
 #include "../SDL_sysvideo.h"
 
 #ifdef __cplusplus

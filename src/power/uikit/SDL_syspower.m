@@ -18,26 +18,24 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_POWER_DISABLED
 #if SDL_POWER_UIKIT
 
 #import <UIKit/UIKit.h>
 
-#include "SDL_power.h"
-#include "SDL_timer.h"
 #include "SDL_syspower.h"
 
 #if !TARGET_OS_TV
 /* turn off the battery monitor if it's been more than X ms since last check. */
 static const int BATTERY_MONITORING_TIMEOUT = 3000;
-static Uint32 SDL_UIKitLastPowerInfoQuery = 0;
+static Uint64 SDL_UIKitLastPowerInfoQuery = 0;
 
 void SDL_UIKit_UpdateBatteryMonitoring(void)
 {
     if (SDL_UIKitLastPowerInfoQuery) {
-        if (SDL_TICKS_PASSED(SDL_GetTicks(), SDL_UIKitLastPowerInfoQuery + BATTERY_MONITORING_TIMEOUT)) {
+        if (SDL_GetTicks() >= (SDL_UIKitLastPowerInfoQuery + BATTERY_MONITORING_TIMEOUT)) {
             UIDevice *uidev = [UIDevice currentDevice];
             SDL_assert([uidev isBatteryMonitoringEnabled] == YES);
             [uidev setBatteryMonitoringEnabled:NO];

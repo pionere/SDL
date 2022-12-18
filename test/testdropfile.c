@@ -11,9 +11,9 @@
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
 static SDLTest_CommonState *state;
 
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
         int consumed;
 
         consumed = SDLTest_CommonArg(state, i);
-        /* needed voodoo to allow app to launch via OS X Finder */
-        if (SDL_strncmp(argv[i], "-psn", 4)==0) {
+        /* needed voodoo to allow app to launch via macOS Finder */
+        if (SDL_strncmp(argv[i], "-psn", 4) == 0) {
             consumed = 1;
         }
         if (consumed == 0) {

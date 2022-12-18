@@ -11,12 +11,13 @@
 */
 /* Simple program:  Create a native window and attach an SDL renderer */
 
-#include <stdio.h>
 #include <stdlib.h> /* for srand() */
 #include <time.h>   /* for time() */
 
 #include "testnative.h"
 #include "testutils.h"
+
+#include <SDL3/SDL_main.h>
 
 #define WINDOW_W    640
 #define WINDOW_H    480
@@ -32,9 +33,6 @@ static NativeWindowFactory *factories[] = {
 #endif
 #ifdef TEST_NATIVE_COCOA
     &CocoaWindowFactory,
-#endif
-#ifdef TEST_NATIVE_OS2
-    &OS2WindowFactory,
 #endif
     NULL
 };
@@ -138,7 +136,7 @@ int main(int argc, char *argv[])
     SDL_SetWindowTitle(window, "SDL Native Window Test");
 
     /* Create the renderer */
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     if (renderer == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n", SDL_GetError());
         quit(5);

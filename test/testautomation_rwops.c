@@ -16,8 +16,8 @@
 
 #include <stdio.h>
 
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* ================= Test Case Implementation ================== */
 
@@ -99,7 +99,7 @@ void _testGenericRWopsValidations(SDL_RWops *rw, int write)
 {
     char buf[sizeof(RWopsHelloWorldTestString)];
     Sint64 i;
-    size_t s;
+    Sint64 s;
     int seekPos = SDLTest_RandomIntegerInRange(4, 8);
 
     /* Clear buffer */
@@ -111,12 +111,12 @@ void _testGenericRWopsValidations(SDL_RWops *rw, int write)
     SDLTest_AssertCheck(i == (Sint64)0, "Verify seek to 0 with SDL_RWseek (RW_SEEK_SET), expected 0, got %" SDL_PRIs64, i);
 
     /* Test write. */
-    s = SDL_RWwrite(rw, RWopsHelloWorldTestString, sizeof(RWopsHelloWorldTestString) - 1, 1);
+    s = SDL_RWwrite(rw, RWopsHelloWorldTestString, sizeof(RWopsHelloWorldTestString) - 1);
     SDLTest_AssertPass("Call to SDL_RWwrite succeeded");
     if (write) {
-        SDLTest_AssertCheck(s == (size_t)1, "Verify result of writing one byte with SDL_RWwrite, expected 1, got %i", (int)s);
+        SDLTest_AssertCheck(s == sizeof(RWopsHelloWorldTestString) - 1, "Verify result of writing one byte with SDL_RWwrite, expected 1, got %i", (int)s);
     } else {
-        SDLTest_AssertCheck(s == (size_t)0, "Verify result of writing with SDL_RWwrite, expected: 0, got %i", (int)s);
+        SDLTest_AssertCheck(s == -1, "Verify result of writing with SDL_RWwrite, expected: 0, got %i", (int)s);
     }
 
     /* Test seek to random position */
@@ -130,7 +130,7 @@ void _testGenericRWopsValidations(SDL_RWops *rw, int write)
     SDLTest_AssertCheck(i == (Sint64)0, "Verify seek to 0 with SDL_RWseek (RW_SEEK_SET), expected 0, got %" SDL_PRIs64, i);
 
     /* Test read */
-    s = SDL_RWread(rw, buf, 1, sizeof(RWopsHelloWorldTestString) - 1);
+    s = SDL_RWread(rw, buf, sizeof(RWopsHelloWorldTestString) - 1);
     SDLTest_AssertPass("Call to SDL_RWread succeeded");
     SDLTest_AssertCheck(
         s == (size_t)(sizeof(RWopsHelloWorldTestString) - 1),
@@ -385,111 +385,6 @@ int rwops_testFileWrite(void)
 }
 
 /**
- * @brief Tests reading from file handle
- *
- * \sa
- * http://wiki.libsdl.org/SDL_RWFromFP
- * http://wiki.libsdl.org/SDL_RWClose
- *
- */
-int
-rwops_testFPRead(void)
-{
-#ifdef HAVE_LIBC
-   FILE *fp;
-   SDL_RWops *rw;
-   int result;
-
-   /* Run read tests. */
-   fp = fopen(RWopsReadTestFilename, "r");
-   SDLTest_AssertCheck(fp != NULL, "Verify handle from opening file '%s' in read mode is not NULL", RWopsReadTestFilename);
-
-   /* Bail out if NULL */
-   if (fp == NULL) return TEST_ABORTED;
-
-   /* Open */
-   rw = SDL_RWFromFP( fp, SDL_TRUE );
-   SDLTest_AssertPass("Call to SDL_RWFromFP() succeeded");
-   SDLTest_AssertCheck(rw != NULL, "Verify opening file with SDL_RWFromFP in read mode does not return NULL");
-
-   /* Bail out if NULL */
-   if (rw == NULL) {
-     fclose(fp);
-     return TEST_ABORTED;
-   }
-
-   /* Check type */
-   SDLTest_AssertCheck(
-       rw->type == SDL_RWOPS_STDFILE,
-       "Verify RWops type is SDL_RWOPS_STDFILE; expected: %d, got: %" SDL_PRIu32, SDL_RWOPS_STDFILE, rw->type);
-
-   /* Run generic tests */
-   _testGenericRWopsValidations( rw, 0 );
-
-   /* Close handle - does fclose() */
-   result = SDL_RWclose(rw);
-   SDLTest_AssertPass("Call to SDL_RWclose() succeeded");
-   SDLTest_AssertCheck(result == 0, "Verify result value is 0; got: %d", result);
-
-#endif /* HAVE_LIBC */
-
-   return TEST_COMPLETED;
-}
-
-
-/**
- * @brief Tests writing to file handle
- *
- * \sa
- * http://wiki.libsdl.org/SDL_RWFromFP
- * http://wiki.libsdl.org/SDL_RWClose
- *
- */
-int
-rwops_testFPWrite(void)
-{
-#ifdef HAVE_LIBC
-   FILE *fp;
-   SDL_RWops *rw;
-   int result;
-
-   /* Run write tests. */
-   fp = fopen(RWopsWriteTestFilename, "w+");
-   SDLTest_AssertCheck(fp != NULL, "Verify handle from opening file '%s' in write mode is not NULL", RWopsWriteTestFilename);
-
-   /* Bail out if NULL */
-   if (fp == NULL) return TEST_ABORTED;
-
-   /* Open */
-   rw = SDL_RWFromFP( fp, SDL_TRUE );
-   SDLTest_AssertPass("Call to SDL_RWFromFP() succeeded");
-   SDLTest_AssertCheck(rw != NULL, "Verify opening file with SDL_RWFromFP in write mode does not return NULL");
-
-   /* Bail out if NULL */
-   if (rw == NULL) {
-     fclose(fp);
-     return TEST_ABORTED;
-   }
-
-   /* Check type */
-   SDLTest_AssertCheck(
-       rw->type == SDL_RWOPS_STDFILE,
-       "Verify RWops type is SDL_RWOPS_STDFILE; expected: %d, got: %" SDL_PRIu32, SDL_RWOPS_STDFILE, rw->type);
-
-   /* Run generic tests */
-   _testGenericRWopsValidations( rw, 1 );
-
-   /* Close handle - does fclose() */
-   result = SDL_RWclose(rw);
-   SDLTest_AssertPass("Call to SDL_RWclose() succeeded");
-   SDLTest_AssertCheck(result == 0, "Verify result value is 0; got: %d", result);
-
-#endif /* HAVE_LIBC */
-
-   return TEST_COMPLETED;
-}
-
-/**
  * @brief Tests alloc and free RW context.
  *
  * \sa http://wiki.libsdl.org/SDL_AllocRW
@@ -545,8 +440,8 @@ int rwops_testCompareRWFromMemWithRWFromFile(void)
         /* Read/seek from memory */
         rwops_mem = SDL_RWFromMem((void *)RWopsAlphabetString, slen);
         SDLTest_AssertPass("Call to SDL_RWFromMem()");
-        rv_mem = SDL_RWread(rwops_mem, buffer_mem, size, 6);
-        SDLTest_AssertPass("Call to SDL_RWread(mem, size=%d)", size);
+        rv_mem = (size_t)SDL_RWread(rwops_mem, buffer_mem, size * 6);
+        SDLTest_AssertPass("Call to SDL_RWread(mem, size=%d)", size * 6);
         sv_mem = SDL_RWseek(rwops_mem, 0, SEEK_END);
         SDLTest_AssertPass("Call to SDL_RWseek(mem,SEEK_END)");
         result = SDL_RWclose(rwops_mem);
@@ -556,8 +451,8 @@ int rwops_testCompareRWFromMemWithRWFromFile(void)
         /* Read/see from file */
         rwops_file = SDL_RWFromFile(RWopsAlphabetFilename, "r");
         SDLTest_AssertPass("Call to SDL_RWFromFile()");
-        rv_file = SDL_RWread(rwops_file, buffer_file, size, 6);
-        SDLTest_AssertPass("Call to SDL_RWread(file, size=%d)", size);
+        rv_file = (size_t)SDL_RWread(rwops_file, buffer_file, size * 6);
+        SDLTest_AssertPass("Call to SDL_RWread(file, size=%d)", size * 6);
         sv_file = SDL_RWseek(rwops_file, 0, SEEK_END);
         SDLTest_AssertPass("Call to SDL_RWseek(file,SEEK_END)");
         result = SDL_RWclose(rwops_file);
@@ -730,25 +625,22 @@ static const SDLTest_TestCaseReference rwopsTest5 = {
     (SDLTest_TestCaseFp)rwops_testFileWrite, "rwops_testFileWrite", "Test writing to a file", TEST_ENABLED
 };
 
-static const SDLTest_TestCaseReference rwopsTest6 =
-        { (SDLTest_TestCaseFp)rwops_testFPRead, "rwops_testFPRead", "Test reading from file pointer", TEST_ENABLED };
+static const SDLTest_TestCaseReference rwopsTest6 = {
+    (SDLTest_TestCaseFp)rwops_testAllocFree, "rwops_testAllocFree", "Test alloc and free of RW context", TEST_ENABLED
+};
 
-static const SDLTest_TestCaseReference rwopsTest7 =
-        { (SDLTest_TestCaseFp)rwops_testFPWrite, "rwops_testFPWrite", "Test writing to file pointer", TEST_ENABLED };
+static const SDLTest_TestCaseReference rwopsTest7 = {
+    (SDLTest_TestCaseFp)rwops_testFileWriteReadEndian, "rwops_testFileWriteReadEndian", "Test writing and reading via the Endian aware functions", TEST_ENABLED
+};
 
-static const SDLTest_TestCaseReference rwopsTest8 =
-        { (SDLTest_TestCaseFp)rwops_testAllocFree, "rwops_testAllocFree", "Test alloc and free of RW context", TEST_ENABLED };
-
-static const SDLTest_TestCaseReference rwopsTest9 =
-        { (SDLTest_TestCaseFp)rwops_testFileWriteReadEndian, "rwops_testFileWriteReadEndian", "Test writing and reading via the Endian aware functions", TEST_ENABLED };
-
-static const SDLTest_TestCaseReference rwopsTest10 =
-        { (SDLTest_TestCaseFp)rwops_testCompareRWFromMemWithRWFromFile, "rwops_testCompareRWFromMemWithRWFromFile", "Compare RWFromMem and RWFromFile RWops for read and seek", TEST_ENABLED };
+static const SDLTest_TestCaseReference rwopsTest8 = {
+    (SDLTest_TestCaseFp)rwops_testCompareRWFromMemWithRWFromFile, "rwops_testCompareRWFromMemWithRWFromFile", "Compare RWFromMem and RWFromFile RWops for read and seek", TEST_ENABLED
+};
 
 /* Sequence of RWops test cases */
 static const SDLTest_TestCaseReference *rwopsTests[] = {
     &rwopsTest1, &rwopsTest2, &rwopsTest3, &rwopsTest4, &rwopsTest5, &rwopsTest6,
-    &rwopsTest7, &rwopsTest8, &rwopsTest9, &rwopsTest10, NULL
+    &rwopsTest7, &rwopsTest8, NULL
 };
 
 /* RWops test suite (global) */
@@ -758,3 +650,5 @@ SDLTest_TestSuiteReference rwopsTestSuite = {
     rwopsTests,
     RWopsTearDown
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

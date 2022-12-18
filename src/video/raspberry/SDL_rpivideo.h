@@ -22,7 +22,7 @@
 #ifndef __SDL_RPIVIDEO_H__
 #define __SDL_RPIVIDEO_H__
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 #include "../SDL_sysvideo.h"
 
 #include <bcm_host.h>
@@ -79,10 +79,6 @@ void RPI_MaximizeWindow(_THIS, SDL_Window *window);
 void RPI_MinimizeWindow(_THIS, SDL_Window *window);
 void RPI_RestoreWindow(_THIS, SDL_Window *window);
 void RPI_DestroyWindow(_THIS, SDL_Window *window);
-
-/* Window manager function */
-SDL_bool RPI_GetWindowWMInfo(_THIS, SDL_Window * window,
-                             struct SDL_SysWMinfo *info);
 
 /* OpenGL/OpenGL ES functions */
 int RPI_GLES_LoadLibrary(_THIS, const char *path);

@@ -12,9 +12,6 @@
 
 /* Program to test hotplugging of audio devices */
 
-#include "SDL_config.h"
-
-#include <stdio.h>
 #include <stdlib.h>
 
 #if HAVE_SIGNAL_H
@@ -25,7 +22,8 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "testutils.h"
 
 static SDL_AudioSpec spec;
@@ -181,7 +179,7 @@ int main(int argc, char *argv[])
         SDL_Log("%i: %s", i, SDL_GetAudioDriver(i));
     }
 
-    SDL_Log("Select a driver with the SDL_AUDIODRIVER environment variable.\n");
+    SDL_Log("Select a driver with the SDL_AUDIO_DRIVER environment variable.\n");
     SDL_Log("Using audio driver: %s\n", SDL_GetCurrentAudioDriver());
 
 #ifdef __EMSCRIPTEN__

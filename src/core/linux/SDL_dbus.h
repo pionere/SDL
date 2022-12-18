@@ -19,14 +19,13 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_dbus_h_
 #define SDL_dbus_h_
 
 #ifdef HAVE_DBUS_DBUS_H
 #define SDL_USE_LIBDBUS 1
-#include "SDL_stdinc.h"
 #include <dbus/dbus.h>
 
 typedef struct SDL_DBusContext

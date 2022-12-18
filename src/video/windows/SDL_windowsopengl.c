@@ -18,19 +18,17 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WINDOWS && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 
-#include "SDL_loadso.h"
 #include "SDL_windowsvideo.h"
 #include "SDL_windowsopengles.h"
-#include "SDL_hints.h"
 
 /* WGL implementation of SDL OpenGL support */
 
 #if SDL_VIDEO_OPENGL_WGL
-#include "SDL_opengl.h"
+#include <SDL3/SDL_opengl.h>
 
 #define DEFAULT_OPENGL "OPENGL32.DLL"
 
@@ -686,7 +684,8 @@ WIN_GL_CreateContext(_THIS, SDL_Window *window)
         _this->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
         _this->GL_SwapWindow = WIN_GLES_SwapWindow;
         _this->GL_DeleteContext = WIN_GLES_DeleteContext;
-        
+        _this->GL_GetEGLSurface = WIN_GLES_GetEGLSurface;
+
         if (WIN_GLES_LoadLibrary(_this, NULL) != 0) {
             return NULL;
         }

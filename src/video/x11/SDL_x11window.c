@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_X11
 
-#include "SDL_hints.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_keyboard_c.h"
@@ -39,8 +38,8 @@
 #include "SDL_x11opengles.h"
 #endif
 
-#include "SDL_timer.h"
-#include "SDL_syswm.h"
+#define SDL_ENABLE_SYSWM_X11
+#include <SDL3/SDL_syswm.h>
 
 #define _NET_WM_STATE_REMOVE 0l
 #define _NET_WM_STATE_ADD    1l
@@ -63,10 +62,10 @@ static Bool isConfigureNotify(Display *dpy, XEvent *ev, XPointer win)
 }
 static Bool X11_XIfEventTimeout(Display *display, XEvent *event_return, Bool (*predicate)(), XPointer arg, int timeoutMS)
 {
-    Uint32 start = SDL_GetTicks();
+    Uint64 start = SDL_GetTicks();
 
     while (!X11_XCheckIfEvent(display, event_return, predicate, arg)) {
-        if (SDL_TICKS_PASSED(SDL_GetTicks(), start + timeoutMS)) {
+        if (SDL_GetTicks() >= (start + timeoutMS)) {
             return False;
         }
     }
@@ -417,9 +416,9 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
 
 #if SDL_VIDEO_OPENGL_EGL
         if (((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) ||
-             SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
-#if SDL_VIDEO_OPENGL_GLX            
-            && ( !_this->gl_data || X11_GL_UseEGL(_this) )
+             SDL_GetHintBoolean(SDL_HINT_VIDEO_FORCE_EGL, SDL_FALSE))
+#if SDL_VIDEO_OPENGL_GLX
+            && (!_this->gl_data || X11_GL_UseEGL(_this))
 #endif
         ) {
             vinfo = X11_GLES_GetVisual(_this, display, screen);
@@ -640,10 +639,10 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
 #if SDL_VIDEO_OPENGL_ES || SDL_VIDEO_OPENGL_ES2 || SDL_VIDEO_OPENGL_EGL
     if ((window->flags & SDL_WINDOW_OPENGL) &&
         ((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) ||
-         SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
-#if SDL_VIDEO_OPENGL_GLX            
-        && ( !_this->gl_data || X11_GL_UseEGL(_this) )
-#endif  
+         SDL_GetHintBoolean(SDL_HINT_VIDEO_FORCE_EGL, SDL_FALSE))
+#if SDL_VIDEO_OPENGL_GLX
+        && (!_this->gl_data || X11_GL_UseEGL(_this))
+#endif
     ) {
 #if SDL_VIDEO_OPENGL_EGL
         if (!_this->egl_data) {
@@ -798,7 +797,7 @@ void X11_SetWindowPosition(_THIS, SDL_Window *window)
     Window *children;
     XWindowAttributes attrs;
     int orig_x, orig_y;
-    Uint32 timeout;
+    Uint64 timeout;
 
     X11_XSync(display, False);
     X11_XQueryTree(display, data->xwindow, &root, &parent, &children, &childCount);
@@ -834,7 +833,7 @@ void X11_SetWindowPosition(_THIS, SDL_Window *window)
             }
         }
 
-        if (SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
+        if (SDL_GetTicks() >= timeout) {
             break;
         }
 
@@ -908,7 +907,7 @@ void X11_SetWindowSize(_THIS, SDL_Window *window)
     int (*prev_handler)(Display *, XErrorEvent *) = NULL;
     XWindowAttributes attrs;
     int orig_w, orig_h;
-    Uint32 timeout;
+    Uint64 timeout;
 
     X11_XSync(display, False);
     X11_XGetWindowAttributes(display, data->xwindow, &attrs);
@@ -978,7 +977,7 @@ void X11_SetWindowSize(_THIS, SDL_Window *window)
             }
         }
 
-        if (SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
+        if (SDL_GetTicks() >= timeout) {
             break;
         }
 
@@ -1378,7 +1377,7 @@ static void X11_SetWindowFullscreenViaWM(_THIS, SDL_Window *window, SDL_VideoDis
         X11_XSync(display, False);
         prev_handler = X11_XSetErrorHandler(X11_CatchAnyError);
 
-        timeout = SDL_GetTicks64() + 100;
+        timeout = SDL_GetTicks() + 100;
         while (SDL_TRUE) {
             int x, y;
 
@@ -1405,7 +1404,7 @@ static void X11_SetWindowFullscreenViaWM(_THIS, SDL_Window *window, SDL_VideoDis
                 }
             }
 
-            if (SDL_GetTicks64() >= timeout) {
+            if (SDL_GetTicks() >= timeout) {
                 break;
             }
 
@@ -1442,74 +1441,8 @@ void X11_SetWindowFullscreen(_THIS, SDL_Window *window, SDL_VideoDisplay *_displ
     X11_SetWindowFullscreenViaWM(_this, window, _display, fullscreen);
 }
 
-int
-X11_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
+typedef struct
 {
-    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-    Display *display = data->videodata->display;
-    Visual *visual = data->visual;
-    Colormap colormap = data->colormap;
-    XColor *colorcells;
-    int ncolors;
-    int rmask, gmask, bmask;
-    int rshift, gshift, bshift;
-    int i;
-
-    if (visual->class != DirectColor) {
-        return SDL_SetError("Window doesn't have DirectColor visual");
-    }
-
-    ncolors = visual->map_entries;
-    colorcells = SDL_malloc(ncolors * sizeof(XColor));
-    if (!colorcells) {
-        return SDL_OutOfMemory();
-    }
-
-    rshift = 0;
-    rmask = visual->red_mask;
-    while (0 == (rmask & 1)) {
-        rshift++;
-        rmask >>= 1;
-    }
-
-    gshift = 0;
-    gmask = visual->green_mask;
-    while (0 == (gmask & 1)) {
-        gshift++;
-        gmask >>= 1;
-    }
-
-    bshift = 0;
-    bmask = visual->blue_mask;
-    while (0 == (bmask & 1)) {
-        bshift++;
-        bmask >>= 1;
-    }
-
-    /* build the color table pixel values */
-    for (i = 0; i < ncolors; i++) {
-        Uint32 rbits = (rmask * i) / (ncolors - 1);
-        Uint32 gbits = (gmask * i) / (ncolors - 1);
-        Uint32 bbits = (bmask * i) / (ncolors - 1);
-        Uint32 pix = (rbits << rshift) | (gbits << gshift) | (bbits << bshift);
-
-        colorcells[i].pixel = pix;
-
-        colorcells[i].red = ramp[(0 * 256) + i];
-        colorcells[i].green = ramp[(1 * 256) + i];
-        colorcells[i].blue = ramp[(2 * 256) + i];
-
-        colorcells[i].flags = DoRed | DoGreen | DoBlue;
-    }
-
-    X11_XStoreColors(display, colormap, colorcells, ncolors);
-    X11_XFlush(display);
-    SDL_free(colorcells);
-
-    return 0;
-}
-
-typedef struct {
     unsigned char *data;
     int format, count;
     Atom type;
@@ -1725,30 +1658,21 @@ void X11_DestroyWindow(_THIS, SDL_Window *window)
     window->driverdata = NULL;
 }
 
-SDL_bool
-X11_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
+int X11_GetWindowWMInfo(_THIS, SDL_Window *window, SDL_SysWMinfo *info)
 {
-    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-    Display *display;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    SDL_DisplayData *displaydata = (SDL_DisplayData *)SDL_GetDisplayForWindow(window)->driverdata;
 
     if (data == NULL) {
         /* This sometimes happens in SDL_IBus_UpdateTextRect() while creating the window */
-        SDL_SetError("Window not initialized");
-        return SDL_FALSE;
+        return SDL_SetError("Window not initialized");
     }
 
-    display = data->videodata->display;
-
-    if (info->version.major == SDL_MAJOR_VERSION) {
-        info->subsystem = SDL_SYSWM_X11;
-        info->info.x11.display = display;
-        info->info.x11.window = data->xwindow;
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("Application not compiled with SDL %d",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
+    info->subsystem = SDL_SYSWM_X11;
+    info->info.x11.display = data->videodata->display;
+    info->info.x11.screen = displaydata->screen;
+    info->info.x11.window = data->xwindow;
+    return 0;
 }
 
 int X11_SetWindowHitTest(SDL_Window *window, SDL_bool enabled)
@@ -1796,9 +1720,6 @@ int X11_FlashWindow(_THIS, SDL_Window *window, SDL_FlashOperation operation)
             data->flashing_window = SDL_TRUE;
             /* On Ubuntu 21.04 this causes a dialog to pop up, so leave it up for a full second so users can see it */
             data->flash_cancel_time = SDL_GetTicks() + 1000;
-            if (!data->flash_cancel_time) {
-                data->flash_cancel_time = 1;
-            }
         }
         break;
     case SDL_FLASH_UNTIL_FOCUSED:

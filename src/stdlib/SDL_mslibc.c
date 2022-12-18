@@ -18,12 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-
-#if defined(__clang_analyzer__) && !defined(SDL_DISABLE_ANALYZE_MACROS)
-#define SDL_DISABLE_ANALYZE_MACROS 1
-#endif
-
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* This file contains SDL replacements for functions in the C library */
 
@@ -39,7 +34,7 @@ __declspec(selectany) int _fltused = 1;
 #endif
 
 /* The optimizer on Visual Studio 2005 and later generates memcpy() and memset() calls.
-   Always provide it for the SDL2 DLL, but skip it when building static lib w/ static runtime. */
+   Always provide it for the SDL3 DLL, but skip it when building static lib w/ static runtime. */
 #if (_MSC_VER >= 1400) && (!defined(_MT) || defined(DLL_EXPORT))
 /* NOLINTNEXTLINE(readability-redundant-declaration) */
 extern void *memcpy(void *dst, const void *src, size_t len);

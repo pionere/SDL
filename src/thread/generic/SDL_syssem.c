@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* An implementation of semaphores using mutexes and condition variables */
 
-#include "SDL_timer.h"
-#include "SDL_thread.h"
 #include "SDL_systhread_c.h"
 
 #if SDL_THREADS_DISABLED
@@ -82,26 +80,7 @@ void SDL_DestroySemaphore(SDL_sem *sem)
     }
 }
 
-int SDL_SemTryWait(SDL_sem *sem)
-{
-    int retval;
-
-    if (sem == NULL) {
-        return SDL_InvalidParamError("sem");
-    }
-
-    retval = SDL_MUTEX_TIMEDOUT;
-    SDL_LockMutex(sem->count_lock);
-    if (sem->count > 0) {
-        --sem->count;
-        retval = 0;
-    }
-    SDL_UnlockMutex(sem->count_lock);
-
-    return retval;
-}
-
-int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
+int SDL_SemWaitTimeoutNS(SDL_sem *sem, Sint64 timeoutNS)
 {
     int retval;
 
@@ -110,16 +89,24 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
     }
 
     /* A timeout of 0 is an easy case */
-    if (timeout == 0) {
-        return SDL_SemTryWait(sem);
+    if (timeoutNS == 0) {
+        retval = SDL_MUTEX_TIMEDOUT;
+        SDL_LockMutex(sem->count_lock);
+        if (sem->count > 0) {
+            --sem->count;
+            retval = 0;
+        }
+        SDL_UnlockMutex(sem->count_lock);
+
+        return retval;
     }
 
     SDL_LockMutex(sem->count_lock);
     ++sem->waiters_count;
     retval = 0;
     while ((sem->count == 0) && (retval != SDL_MUTEX_TIMEDOUT)) {
-        retval = SDL_CondWaitTimeout(sem->count_nonzero,
-                                     sem->count_lock, timeout);
+        retval = SDL_CondWaitTimeoutNS(sem->count_nonzero,
+                                     sem->count_lock, timeoutNS);
     }
     --sem->waiters_count;
     if (retval == 0) {
@@ -128,11 +115,6 @@ int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 timeout)
     SDL_UnlockMutex(sem->count_lock);
 
     return retval;
-}
-
-int SDL_SemWait(SDL_sem *sem)
-{
-    return SDL_SemWaitTimeout(sem, SDL_MUTEX_MAXWAIT);
 }
 
 Uint32

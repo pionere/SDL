@@ -14,14 +14,12 @@
 
 /* Sample program:  Draw a Chess Board  by using SDL_CreateSoftwareRenderer API */
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -135,3 +133,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* vi: set ts=4 sw=4 expandtab: */

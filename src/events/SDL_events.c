@@ -18,13 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* General event handling code for SDL */
 
-#include "SDL.h"
-#include "SDL_events.h"
-#include "SDL_thread.h"
 #include "SDL_events_c.h"
 #include "../SDL_hints_c.h"
 #include "../timer/SDL_timer_c.h"
@@ -32,7 +29,7 @@
 #include "../joystick/SDL_joystick_c.h"
 #endif
 #include "../video/SDL_sysvideo.h"
-#include "SDL_syswm.h"
+#include <SDL3/SDL_syswm.h>
 
 #undef SDL_PRIs64
 #if (defined(__WIN32__) || defined(__GDK__)) && !defined(__CYGWIN__)
@@ -45,7 +42,7 @@
 #define SDL_MAX_QUEUED_EVENTS 65535
 
 /* Determines how often we wake to call SDL_PumpEvents() in SDL_WaitEventTimeout_Device() */
-#define PERIODIC_POLL_INTERVAL_MS 3000
+#define PERIODIC_POLL_INTERVAL_NS (3 * SDL_NS_PER_SECOND)
 
 typedef struct SDL_EventWatcher
 {
@@ -364,12 +361,6 @@ static void SDL_LogEvent(const SDL_Event *event)
                            (uint)event->jaxis.axis, (int)event->jaxis.value);
         break;
 
-        SDL_EVENT_CASE(SDL_JOYBALLMOTION)
-        (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u which=%d ball=%u xrel=%d yrel=%d)",
-                           (uint)event->jball.timestamp, (int)event->jball.which,
-                           (uint)event->jball.ball, (int)event->jball.xrel, (int)event->jball.yrel);
-        break;
-
         SDL_EVENT_CASE(SDL_JOYHATMOTION)
         (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u which=%d hat=%u value=%u)",
                            (uint)event->jhat.timestamp, (int)event->jhat.which,
@@ -464,26 +455,6 @@ static void SDL_LogEvent(const SDL_Event *event)
         PRINT_FINGER_EVENT(event);
         break;
 #undef PRINT_FINGER_EVENT
-
-#define PRINT_DOLLAR_EVENT(event)                                                                                                                      \
-    (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u touchid=%" SDL_PRIs64 " gestureid=%" SDL_PRIs64 " numfingers=%u error=%f x=%f y=%f)", \
-                       (uint)event->dgesture.timestamp, (long long)event->dgesture.touchId,                                                            \
-                       (long long)event->dgesture.gestureId, (uint)event->dgesture.numFingers,                                                         \
-                       event->dgesture.error, event->dgesture.x, event->dgesture.y)
-        SDL_EVENT_CASE(SDL_DOLLARGESTURE)
-        PRINT_DOLLAR_EVENT(event);
-        break;
-        SDL_EVENT_CASE(SDL_DOLLARRECORD)
-        PRINT_DOLLAR_EVENT(event);
-        break;
-#undef PRINT_DOLLAR_EVENT
-
-        SDL_EVENT_CASE(SDL_MULTIGESTURE)
-        (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u touchid=%" SDL_PRIs64 " dtheta=%f ddist=%f x=%f y=%f numfingers=%u)",
-                           (uint)event->mgesture.timestamp, (long long)event->mgesture.touchId,
-                           event->mgesture.dTheta, event->mgesture.dDist,
-                           event->mgesture.x, event->mgesture.y, (uint)event->mgesture.numFingers);
-        break;
 
 #define PRINT_DROP_EVENT(event) (void)SDL_snprintf(details, sizeof(details), " (file='%s' timestamp=%u windowid=%u)", event->drop.file, (uint)event->drop.timestamp, (uint)event->drop.windowID)
         SDL_EVENT_CASE(SDL_DROPFILE)
@@ -943,8 +914,8 @@ static void SDL_PumpEventsInternal(SDL_bool push_sentinel)
     if (push_sentinel && SDL_GetEventState(SDL_POLLSENTINEL) == SDL_ENABLE) {
         SDL_Event sentinel;
 
-        SDL_zero(sentinel);
         sentinel.type = SDL_POLLSENTINEL;
+        sentinel.common.timestamp = 0;
         SDL_PushEvent(&sentinel);
     }
 }
@@ -958,7 +929,7 @@ void SDL_PumpEvents()
 
 int SDL_PollEvent(SDL_Event *event)
 {
-    return SDL_WaitEventTimeout(event, 0);
+    return SDL_WaitEventTimeoutNS(event, 0);
 }
 
 static SDL_bool SDL_events_need_periodic_poll()
@@ -978,12 +949,13 @@ static SDL_bool SDL_events_need_periodic_poll()
     return need_periodic_poll;
 }
 
-static int SDL_WaitEventTimeout_Device(_THIS, SDL_Window *wakeup_window, SDL_Event *event, Uint32 start, int timeout)
+static int SDL_WaitEventTimeout_Device(_THIS, SDL_Window *wakeup_window, SDL_Event *event, Uint64 start, Sint64 timeoutNS)
 {
-    int loop_timeout = timeout;
+    Sint64 loop_timeoutNS = timeoutNS;
     SDL_bool need_periodic_poll = SDL_events_need_periodic_poll();
 
     for (;;) {
+        int status;
         /* Pump events on entry and each time we wake to ensure:
            a) All pending events are batch processed after waking up from a wait
            b) Waiting can be completely skipped if events are already available to be pumped
@@ -1018,26 +990,26 @@ static int SDL_WaitEventTimeout_Device(_THIS, SDL_Window *wakeup_window, SDL_Eve
             return 1;
         }
         /* No events found in the queue, call WaitEventTimeout to wait for an event. */
-        if (timeout > 0) {
-            Uint32 elapsed = SDL_GetTicks() - start;
-            if (elapsed >= (Uint32)timeout) {
+        if (timeoutNS > 0) {
+            Sint64 elapsed = SDL_GetTicksNS() - start;
+            if (elapsed >= timeoutNS) {
                 /* Set wakeup_window to NULL without holding the lock. */
                 _this->wakeup_window = NULL;
                 return 0;
             }
-            loop_timeout = (int)((Uint32)timeout - elapsed);
+            loop_timeoutNS = (timeoutNS - elapsed);
         }
         if (need_periodic_poll) {
-            if (loop_timeout >= 0) {
-                loop_timeout = SDL_min(loop_timeout, PERIODIC_POLL_INTERVAL_MS);
+            if (loop_timeoutNS >= 0) {
+                loop_timeoutNS = SDL_min(loop_timeoutNS, PERIODIC_POLL_INTERVAL_NS);
             } else {
-                loop_timeout = PERIODIC_POLL_INTERVAL_MS;
+                loop_timeoutNS = PERIODIC_POLL_INTERVAL_NS;
             }
         }
-        status = _this->WaitEventTimeout(_this, loop_timeout);
+        status = _this->WaitEventTimeout(_this, loop_timeoutNS);
         /* Set wakeup_window to NULL without holding the lock. */
         _this->wakeup_window = NULL;
-        if (status == 0 && need_periodic_poll && loop_timeout == PERIODIC_POLL_INTERVAL_MS) {
+        if (status == 0 && need_periodic_poll && loop_timeoutNS == PERIODIC_POLL_INTERVAL_NS) {
             /* We may have woken up to poll. Try again */
             continue;
         } else if (status <= 0) {
@@ -1082,15 +1054,27 @@ static SDL_Window *SDL_find_active_window(SDL_VideoDevice *_this)
 
 int SDL_WaitEvent(SDL_Event *event)
 {
-    return SDL_WaitEventTimeout(event, -1);
+    return SDL_WaitEventTimeoutNS(event, -1);
 }
 
-int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
+int SDL_WaitEventTimeout(SDL_Event *event, Sint32 timeoutMS)
+{
+    Uint64 timeoutNS;
+
+    if (timeoutMS > 0) {
+        timeoutNS = SDL_MS_TO_NS(timeoutMS);
+    } else {
+        timeoutNS = timeoutMS;
+    }
+    return SDL_WaitEventTimeoutNS(event, timeoutNS);
+}
+
+int SDL_WaitEventTimeoutNS(SDL_Event *event, Sint64 timeoutNS)
 {
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
     SDL_Window *wakeup_window;
-    Uint32 start, expiration;
-    SDL_bool include_sentinel = (timeout == 0) ? SDL_TRUE : SDL_FALSE;
+    Uint64 start, expiration;
+    SDL_bool include_sentinel = (timeoutNS == 0) ? SDL_TRUE : SDL_FALSE;
     int result;
 
     /* If there isn't a poll sentinel event pending, pump events and add one */
@@ -1122,7 +1106,7 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
         }
     }
     if (result == 0) {
-        if (timeout == 0) {
+        if (timeoutNS == 0) {
             /* No events available, and not willing to wait */
             return 0;
         }
@@ -1130,12 +1114,12 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
         /* Has existing events */
         return 1;
     }
-    /* We should have completely handled timeout == 0 above */
-    SDL_assert(timeout != 0);
+    /* We should have completely handled timeoutNS == 0 above */
+    SDL_assert(timeoutNS != 0);
 
-    if (timeout > 0) {
-        start = SDL_GetTicks();
-        expiration = start + timeout;
+    if (timeoutNS > 0) {
+        start = SDL_GetTicksNS();
+        expiration = start + timeoutNS;
     } else {
         start = 0;
         expiration = 0;
@@ -1145,7 +1129,7 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
         /* Look if a shown window is available to send the wakeup event. */
         wakeup_window = SDL_find_active_window(_this);
         if (wakeup_window) {
-            int status = SDL_WaitEventTimeout_Device(_this, wakeup_window, event, start, timeout);
+            int status = SDL_WaitEventTimeout_Device(_this, wakeup_window, event, start, timeoutNS);
 
             /* There may be implementation-defined conditions where the backend cannot
                reliably wait for the next event. If that happens, fall back to polling. */
@@ -1161,7 +1145,7 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
         case -1:
             return 0;
         case 0:
-            if (timeout > 0 && SDL_TICKS_PASSED(SDL_GetTicks(), expiration)) {
+            if (timeoutNS > 0 && SDL_GetTicks() >= expiration) {
                 /* Timeout expired and no events */
                 return 0;
             }
@@ -1176,7 +1160,9 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
 
 int SDL_PushEvent(SDL_Event *event)
 {
-    event->common.timestamp = SDL_GetTicks();
+    if (!event->common.timestamp) {
+        event->common.timestamp = SDL_GetTicksNS();
+    }
 
     if (SDL_EventOK.callback || SDL_event_watchers_count > 0) {
         SDL_LockMutex(SDL_event_watchers_lock);
@@ -1217,8 +1203,6 @@ int SDL_PushEvent(SDL_Event *event)
     if (SDL_PeepEvents(event, 1, SDL_ADDEVENT, 0, 0) <= 0) {
         return -1;
     }
-
-    SDL_GestureProcessEvent(event);
 
     return 1;
 }
@@ -1360,6 +1344,11 @@ Uint8 SDL_EventState(Uint32 type, int state)
     return current_state;
 }
 
+Uint8 SDL_GetEventState(Uint32 type)
+{
+    return SDL_EventState(type, SDL_QUERY);
+}
+
 Uint32 SDL_RegisterEvents(int numevents)
 {
     Uint32 event_base;
@@ -1381,6 +1370,7 @@ int SDL_SendAppEvent(SDL_EventType eventType)
     if (SDL_GetEventState(eventType) == SDL_ENABLE) {
         SDL_Event event;
         event.type = eventType;
+        event.common.timestamp = 0;
         posted = (SDL_PushEvent(&event) > 0);
     }
     return posted;
@@ -1395,6 +1385,7 @@ int SDL_SendSysWMEvent(SDL_SysWMmsg *message)
         SDL_Event event;
         SDL_memset(&event, 0, sizeof(event));
         event.type = SDL_SYSWMEVENT;
+        event.common.timestamp = 0;
         event.syswm.msg = message;
         posted = (SDL_PushEvent(&event) > 0);
     }

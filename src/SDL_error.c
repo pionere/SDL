@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "./SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Simple error handling in SDL */
 
-#include "SDL_error.h"
 #include "SDL_error_c.h"
 
 #if !SDL_VERBOSE_ERROR_DISABLED
@@ -74,8 +73,7 @@ void SDL_ClearError(void)
     SDL_GetErrBuf()->error = 0;
 }
 #elif SDL_DYNAMIC_API
-int
-SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
+int SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 {
     return -1;
 }

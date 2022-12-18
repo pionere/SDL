@@ -12,21 +12,18 @@
 
 /* Simple program to test the SDL joystick routines */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#ifndef SDL_JOYSTICK_DISABLED
-
-#ifdef __IPHONEOS__
-#define SCREEN_WIDTH    320
-#define SCREEN_HEIGHT   480
+#ifdef __IOS__
+#define SCREEN_WIDTH  320
+#define SCREEN_HEIGHT 480
 #else
 #define SCREEN_WIDTH  640
 #define SCREEN_HEIGHT 480
@@ -84,7 +81,6 @@ PrintJoystick(SDL_Joystick *joy)
     SDL_Log("        rumble: %s\n", SDL_JoystickHasRumble(joy) ? "yes" : "no");
     SDL_Log("trigger rumble: %s\n", SDL_JoystickHasRumbleTriggers(joy) ? "yes" : "no");
     SDL_Log("          axes: %d\n", SDL_JoystickNumAxes(joy));
-    SDL_Log("         balls: %d\n", SDL_JoystickNumBalls(joy));
     SDL_Log("          hats: %d\n", SDL_JoystickNumHats(joy));
     SDL_Log("       buttons: %d\n", SDL_JoystickNumButtons(joy));
     SDL_Log("   instance id: %" SDL_PRIs32 "\n", SDL_JoystickInstanceID(joy));
@@ -159,11 +155,6 @@ void loop(void *arg)
                 SDL_Log(" left");
             }
             SDL_Log("\n");
-            break;
-        case SDL_JOYBALLMOTION:
-            SDL_Log("Joystick %" SDL_PRIs32 " ball %d delta: (%d,%d)\n",
-                    event.jball.which,
-                    event.jball.ball, event.jball.xrel, event.jball.yrel);
             break;
         case SDL_JOYBUTTONDOWN:
             SDL_Log("Joystick %" SDL_PRIs32 " button %d down\n",
@@ -301,7 +292,7 @@ int main(int argc, char *argv[])
         return SDL_FALSE;
     }
 
-    screen = SDL_CreateRenderer(window, -1, 0);
+    screen = SDL_CreateRenderer(window, NULL, 0);
     if (screen == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
@@ -328,16 +319,5 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-#else
-
-int
-main(int argc, char *argv[])
-{
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL compiled without Joystick support.\n");
-    return 1;
-}
-
-#endif
 
 /* vi: set ts=4 sw=4 expandtab: */

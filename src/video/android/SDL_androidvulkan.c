@@ -24,16 +24,17 @@
  * SDL_x11vulkan.c.
  */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_VULKAN && SDL_VIDEO_DRIVER_ANDROID
 
 #include "SDL_androidvideo.h"
 #include "SDL_androidwindow.h"
 
-#include "SDL_loadso.h"
 #include "SDL_androidvulkan.h"
-#include "SDL_syswm.h"
+
+#define SDL_ENABLE_SYSWM_ANDROID
+#include <SDL3/SDL_syswm.h>
 
 int Android_Vulkan_LoadLibrary(_THIS, const char *path)
 {

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_rpiopengles_h_
 #define SDL_rpiopengles_h_
@@ -29,9 +29,9 @@
 #include "../SDL_egl_c.h"
 
 /* OpenGLES functions */
-#define RPI_GLES_GetAttribute SDL_EGL_GetAttribute
-#define RPI_GLES_GetProcAddress SDL_EGL_GetProcAddress
-#define RPI_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define RPI_GLES_GetAttribute    SDL_EGL_GetAttribute
+#define RPI_GLES_GetProcAddress  SDL_EGL_GetProcAddressInternal
+#define RPI_GLES_UnloadLibrary   SDL_EGL_UnloadLibrary
 #define RPI_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define RPI_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define RPI_GLES_DeleteContext   SDL_EGL_DeleteContext

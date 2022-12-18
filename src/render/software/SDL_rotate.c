@@ -28,7 +28,7 @@ freely, subject to the following restrictions:
 Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_SW && !SDL_RENDER_DISABLED
 
@@ -39,7 +39,6 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL.h"
 #include "SDL_rotate.h"
 
 /* ---- Internally used structures */
@@ -122,7 +121,7 @@ void SDLgfx_rotozoomSurfaceSizeTrig(int width, int height, double angle, const S
     double sinangle;
     double cosangle;
 
-    radangle = angle * (M_PI / 180.0);
+    radangle = angle * (SDL_PI_D / 180.0);
     sinangle = SDL_sin(radangle);
     cosangle = SDL_cos(radangle);
 
@@ -524,7 +523,7 @@ SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, int flipx, int 
     rz_dst = NULL;
     if (is8bit) {
         /* Target surface is 8 bit */
-        rz_dst = SDL_CreateRGBSurfaceWithFormat(0, rect_dest->w, rect_dest->h + GUARD_ROWS, 8, src->format->format);
+        rz_dst = SDL_CreateSurface(rect_dest->w, rect_dest->h + GUARD_ROWS, src->format->format);
         if (rz_dst != NULL) {
             if (src->format->palette) {
                 for (i = 0; i < src->format->palette->ncolors; i++) {
@@ -535,9 +534,7 @@ SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, int flipx, int 
         }
     } else {
         /* Target surface is 32 bit with source RGBA ordering */
-        rz_dst = SDL_CreateRGBSurface(0, rect_dest->w, rect_dest->h + GUARD_ROWS, 32,
-                                      src->format->Rmask, src->format->Gmask,
-                                      src->format->Bmask, src->format->Amask);
+        rz_dst = SDL_CreateSurface(rect_dest->w, rect_dest->h + GUARD_ROWS, src->format->format);
     }
 
     /* Check target */

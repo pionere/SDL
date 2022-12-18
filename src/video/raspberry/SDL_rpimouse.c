@@ -18,12 +18,9 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_RPI
-
-#include "SDL_surface.h"
-#include "SDL_hints.h"
 
 #include "SDL_rpivideo.h"
 #include "SDL_rpimouse.h"
@@ -247,7 +244,7 @@ static int RPI_WarpMouseGlobal(int x, int y)
     }
 
     /* Update internal mouse position. */
-    SDL_SendMouseMotion(mouse->focus, mouse->mouseID, 0, x, y);
+    SDL_SendMouseMotion(0, mouse->focus, mouse->mouseID, 0, x, y);
 
     curdata = (RPI_CursorData *)mouse->cur_cursor->driverdata;
     if (curdata->element == DISPMANX_NO_HANDLE) {

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_JOYSTICK_PS2
 
@@ -34,12 +34,9 @@
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 
-#include "SDL_events.h"
-#include "SDL_error.h"
-
-#define PS2_MAX_PORT 2 /* each ps2 has 2 ports */
-#define PS2_MAX_SLOT 4 /* maximum - 4 slots in one multitap */
-#define MAX_CONTROLLERS (PS2_MAX_PORT * PS2_MAX_SLOT)
+#define PS2_MAX_PORT      2 /* each ps2 has 2 ports */
+#define PS2_MAX_SLOT      4 /* maximum - 4 slots in one multitap */
+#define MAX_CONTROLLERS   (PS2_MAX_PORT * PS2_MAX_SLOT)
 #define PS2_ANALOG_STICKS 2
 #define PS2_ANALOG_AXIS   2
 #define PS2_BUTTONS       16
@@ -279,6 +276,7 @@ static void PS2_JoystickUpdate(SDL_Joystick *joystick)
     int index = joystick->instance_id;
     struct JoyInfo *info = &joyInfo[index];
     int state = padGetState(info->port, info->slot);
+    Uint64 timestamp = SDL_GetTicksNS();
 
     if (state != PAD_STATE_DISCONN && state != PAD_STATE_EXECCMD && state != PAD_STATE_ERROR) {
         int ret = padRead(info->port, info->slot, &buttons); /* port, slot, buttons */
@@ -292,7 +290,7 @@ static void PS2_JoystickUpdate(SDL_Joystick *joystick)
                     previous = info->btns & mask;
                     current = pressed_buttons & mask;
                     if (previous != current) {
-                        SDL_PrivateJoystickButton(joystick, i, current ? SDL_PRESSED : SDL_RELEASED);
+                        SDL_PrivateJoystickButton(timestamp, joystick, i, current ? SDL_PRESSED : SDL_RELEASED);
                     }
                 }
             }
@@ -308,7 +306,7 @@ static void PS2_JoystickUpdate(SDL_Joystick *joystick)
                 previous_axis = info->analog_state[i];
                 current_axis = all_axis[i];
                 if (previous_axis != current_axis) {
-                    SDL_PrivateJoystickAxis(joystick, i, convert_u8_to_s16(current_axis));
+                    SDL_PrivateJoystickAxis(timestamp, joystick, i, convert_u8_to_s16(current_axis));
                 }
 
                 info->analog_state[i] = current_axis;

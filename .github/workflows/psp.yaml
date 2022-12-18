@@ -2,6 +2,10 @@ name: Build (Sony Playstation Portable)
 
 on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   psp:
     runs-on: ubuntu-latest
@@ -21,29 +25,23 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=prefix
     - name: Build
-      run: cmake --build build --config Release
+      run: cmake --build build --config Release --verbose
     - name: Install
       run: |
-        echo "SDL2_DIR=$(pwd)/prefix" >> $GITHUB_ENV
+        echo "SDL3_DIR=$(pwd)/prefix" >> $GITHUB_ENV
         cmake --install build --config Release
         ( cd prefix; find ) | LC_ALL=C sort -u
     - name: Verify CMake configuration files
       run: |
         cmake -S cmake/test -B cmake_config_build \
           -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake \
-          -DCMAKE_PREFIX_PATH=${{ env.SDL2_DIR }} \
+          -DCMAKE_PREFIX_PATH=${{ env.SDL3_DIR }} \
           -DTEST_SHARED=FALSE \
           -DCMAKE_BUILD_TYPE=Release
         cmake --build cmake_config_build --verbose
-    - name: Verify sdl2-config
+    - name: Verify sdl3.pc
       run: |
         export CC=psp-gcc
-        export PATH=${{ env.SDL2_DIR }}/bin:$PATH
-        export EXTRA_LDFLAGS="-L$PSPDEV/lib -L$PSPDEV/psp/lib -L$PSPDEV/psp/sdk/lib"
-        cmake/test/test_sdlconfig.sh
-    - name: Verify sdl2.pc
-      run: |
-        export CC=psp-gcc
-        export PKG_CONFIG_PATH=${{ env.SDL2_DIR }}/lib/pkgconfig
+        export PKG_CONFIG_PATH=${{ env.SDL3_DIR }}/lib/pkgconfig
         export EXTRA_LDFLAGS="-L$PSPDEV/lib -L$PSPDEV/psp/lib -L$PSPDEV/psp/sdk/lib"
         cmake/test/test_pkgconfig.sh

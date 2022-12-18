@@ -18,13 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* An implementation of mutexes using the Symbian API. */
 
 #include <e32std.h>
 
-#include "SDL_thread.h"
 #include "SDL_systhread_c.h"
 
 struct SDL_mutex

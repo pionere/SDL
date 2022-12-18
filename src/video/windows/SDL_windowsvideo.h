@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_windowsvideo_h_
 #define SDL_windowsvideo_h_
@@ -51,8 +51,6 @@
 #endif
 
 #include "SDL_windowswindow.h"
-#include "SDL_events.h"
-#include "SDL_loadso.h"
 
 #if WINVER < 0x0601
 /* Touch input definitions */

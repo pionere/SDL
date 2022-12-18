@@ -4,10 +4,12 @@
  *  use however you want
  */
 
-#include "SDL.h"
-#include "SDL_opengles.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_opengles.h>
 #include "common.h"
 #include <math.h>
+#include <stdlib.h>
 #include <time.h>
 
 #define ACCEL 0.0001f           /* acceleration due to gravity, units in pixels per millesecond squared */
@@ -327,8 +329,6 @@ void
 initializeTexture()
 {
 
-    int bpp;                    /* texture bits per pixel */
-    Uint32 Rmask, Gmask, Bmask, Amask;  /* masks for pixel format passed into OpenGL */
     SDL_Surface *bmp_surface;   /* the bmp is loaded here */
     SDL_Surface *bmp_surface_rgba8888;  /* this serves as a destination to convert the BMP
                                            to format passed into OpenGL */
@@ -338,13 +338,9 @@ initializeTexture()
         fatalError("could not load stroke.bmp");
     }
 
-    /* Grab info about format that will be passed into OpenGL */
-    SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_ABGR8888, &bpp, &Rmask, &Gmask,
-                               &Bmask, &Amask);
     /* Create surface that will hold pixels passed into OpenGL */
-    bmp_surface_rgba8888 =
-        SDL_CreateRGBSurface(0, bmp_surface->w, bmp_surface->h, bpp, Rmask,
-                             Gmask, Bmask, Amask);
+    bmp_surface_rgba8888 = SDL_CreateSurface(bmp_surface->w, bmp_surface->h, SDL_PIXELFORMAT_ABGR8888);
+    
     /* Blit to this surface, effectively converting the format */
     SDL_BlitSurface(bmp_surface, NULL, bmp_surface_rgba8888, NULL);
 

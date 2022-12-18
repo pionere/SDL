@@ -29,14 +29,10 @@
 
   So, combine them as best we can!
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_JOYSTICK_RAWINPUT
 
-#include "SDL_endian.h"
-#include "SDL_events.h"
-#include "SDL_hints.h"
-#include "SDL_timer.h"
 #include "../usb_ids.h"
 #include "../SDL_sysjoystick.h"
 #include "../../core/windows/SDL_windows.h"
@@ -133,7 +129,7 @@ struct joystick_hwdata
 
 #ifdef SDL_JOYSTICK_RAWINPUT_MATCHING
     Uint64 match_state; /* Lowest 16 bits for button states, higher 24 for 6 4bit axes */
-    Uint32 last_state_packet;
+    Uint64 last_state_packet;
 #endif
 
 #ifdef SDL_JOYSTICK_RAWINPUT_XINPUT
@@ -171,7 +167,7 @@ static const Uint16 subscribed_devices[] = {
 
 static struct
 {
-    Uint32 last_state_packet;
+    Uint64 last_state_packet;
     SDL_Joystick *joystick;
     SDL_Joystick *last_joystick;
 } guide_button_candidate;
@@ -968,7 +964,7 @@ static void RAWINPUT_PostUpdate(void)
             if (ctx->guide_hack) {
                 int guide_button = joystick->nbuttons - 1;
 
-                SDL_PrivateJoystickButton(guide_button_candidate.joystick, guide_button, SDL_PRESSED);
+                SDL_PrivateJoystickButton(SDL_GetTicksNS(), guide_button_candidate.joystick, guide_button, SDL_PRESSED);
             }
             guide_button_candidate.last_joystick = guide_button_candidate.joystick;
         }
@@ -978,7 +974,7 @@ static void RAWINPUT_PostUpdate(void)
         if (ctx->guide_hack) {
             int guide_button = joystick->nbuttons - 1;
 
-            SDL_PrivateJoystickButton(joystick, guide_button, SDL_RELEASED);
+            SDL_PrivateJoystickButton(SDL_GetTicksNS(), joystick, guide_button, SDL_RELEASED);
         }
         guide_button_candidate.last_joystick = NULL;
     }
@@ -1403,22 +1399,22 @@ static void RAWINPUT_HandleStatePacket(SDL_Joystick *joystick, Uint8 *data, int 
     };
     Uint64 match_state = ctx->match_state;
     /* Update match_state with button bit, then fall through */
-#define SDL_PrivateJoystickButton(joystick, button, state)                  \
+#define SDL_PrivateJoystickButton(timestamp, joystick, button, state)                  \
     if (button < SDL_arraysize(button_map)) {                               \
         Uint64 button_bit = 1ull << button_map[button];                     \
         match_state = (match_state & ~button_bit) | (button_bit * (state)); \
     }                                                                       \
-    SDL_PrivateJoystickButton(joystick, button, state)
+    SDL_PrivateJoystickButton(timestamp, joystick, button, state)
 #ifdef SDL_JOYSTICK_RAWINPUT_MATCH_AXES
     /* Grab high 4 bits of value, then fall through */
 #define AddAxisToMatchState(axis, value)                                                                    \
     {                                                                                                       \
         match_state = (match_state & ~(0xFull << (4 * axis + 16))) | ((value)&0xF000ull) << (4 * axis + 4); \
     }
-#define SDL_PrivateJoystickAxis(joystick, axis, value) \
+#define SDL_PrivateJoystickAxis(timestamp, joystick, axis, value) \
     if (axis < 4)                                      \
         AddAxisToMatchState(axis, value);              \
-    SDL_PrivateJoystickAxis(joystick, axis, value)
+    SDL_PrivateJoystickAxis(timestamp, joystick, axis, value)
 #endif
 #endif /* SDL_JOYSTICK_RAWINPUT_MATCHING */
 
@@ -1428,6 +1424,7 @@ static void RAWINPUT_HandleStatePacket(SDL_Joystick *joystick, Uint8 *data, int 
     int naxes = joystick->naxes - (ctx->trigger_hack * 2);
     int nhats = joystick->nhats;
     Uint32 button_mask = 0;
+    Uint64 timestamp = SDL_GetTicksNS();
 
     if (SDL_HidP_GetData(HidP_Input, ctx->data, &data_length, ctx->preparsed_data, (PCHAR)data, size) != HIDP_STATUS_SUCCESS) {
         return;
@@ -1440,14 +1437,14 @@ static void RAWINPUT_HandleStatePacket(SDL_Joystick *joystick, Uint8 *data, int 
         }
     }
     for (i = 0; i < nbuttons; ++i) {
-        SDL_PrivateJoystickButton(joystick, i, (button_mask & (1 << i)) ? SDL_PRESSED : SDL_RELEASED);
+        SDL_PrivateJoystickButton(timestamp, joystick, i, (button_mask & (1 << i)) ? SDL_PRESSED : SDL_RELEASED);
     }
 
     for (i = 0; i < naxes; ++i) {
         HIDP_DATA *item = GetData(ctx->axis_indices[i], ctx->data, data_length);
         if (item) {
             Sint16 axis = (int)(Uint16)item->RawValue - 0x8000;
-            SDL_PrivateJoystickAxis(joystick, i, axis);
+            SDL_PrivateJoystickAxis(timestamp, joystick, i, axis);
         }
     }
 
@@ -1475,7 +1472,7 @@ static void RAWINPUT_HandleStatePacket(SDL_Joystick *joystick, Uint8 *data, int 
 #endif
                 hat = hat_states[state];
             }
-            SDL_PrivateJoystickHat(joystick, i, hat);
+            SDL_PrivateJoystickHat(timestamp, joystick, i, hat);
         }
     }
 
@@ -1528,8 +1525,8 @@ static void RAWINPUT_HandleStatePacket(SDL_Joystick *joystick, Uint8 *data, int 
                 if (!has_trigger_data)
 #endif /* SDL_JOYSTICK_RAWINPUT_MATCH_TRIGGERS */
                 {
-                    SDL_PrivateJoystickAxis(joystick, left_trigger, left_value);
-                    SDL_PrivateJoystickAxis(joystick, right_trigger, right_value);
+                    SDL_PrivateJoystickAxis(timestamp, joystick, left_trigger, left_value);
+                    SDL_PrivateJoystickAxis(timestamp, joystick, right_trigger, right_value);
                 }
             }
         }
@@ -1597,7 +1594,7 @@ static void RAWINPUT_UpdateOtherAPIs(SDL_Joystick *joystick)
                 /* It gets left down if we were actually correlated incorrectly and it was released on the WindowsGamingInput
                   device but we didn't get a state packet. */
                 if (ctx->guide_hack) {
-                    SDL_PrivateJoystickButton(joystick, guide_button, SDL_RELEASED);
+                    SDL_PrivateJoystickButton(0, joystick, guide_button, SDL_RELEASED);
                 }
             }
         }
@@ -1693,7 +1690,7 @@ static void RAWINPUT_UpdateOtherAPIs(SDL_Joystick *joystick)
                     /* It gets left down if we were actually correlated incorrectly and it was released on the XInput
                       device but we didn't get a state packet. */
                     if (ctx->guide_hack) {
-                        SDL_PrivateJoystickButton(joystick, guide_button, SDL_RELEASED);
+                        SDL_PrivateJoystickButton(0, joystick, guide_button, SDL_RELEASED);
                     }
                 }
             }
@@ -1756,13 +1753,21 @@ static void RAWINPUT_UpdateOtherAPIs(SDL_Joystick *joystick)
         RAWINPUT_UpdateXInput();
         if (xinput_state[ctx->xinput_slot].connected) {
             XINPUT_BATTERY_INFORMATION_EX *battery_info = &xinput_state[ctx->xinput_slot].battery;
+            Uint64 timestamp;
+
+            if (ctx->guide_hack || ctx->trigger_hack) {
+                timestamp = SDL_GetTicksNS();
+            } else {
+                /* timestamp won't be used */
+                timestamp = 0;
+            }
 
             if (ctx->guide_hack) {
-                SDL_PrivateJoystickButton(joystick, guide_button, (xinput_state[ctx->xinput_slot].state.Gamepad.wButtons & XINPUT_GAMEPAD_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
+                SDL_PrivateJoystickButton(timestamp, joystick, guide_button, (xinput_state[ctx->xinput_slot].state.Gamepad.wButtons & XINPUT_GAMEPAD_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
             }
             if (ctx->trigger_hack) {
-                SDL_PrivateJoystickAxis(joystick, left_trigger, ((int)xinput_state[ctx->xinput_slot].state.Gamepad.bLeftTrigger * 257) - 32768);
-                SDL_PrivateJoystickAxis(joystick, right_trigger, ((int)xinput_state[ctx->xinput_slot].state.Gamepad.bRightTrigger * 257) - 32768);
+                SDL_PrivateJoystickAxis(timestamp, joystick, left_trigger, ((int)xinput_state[ctx->xinput_slot].state.Gamepad.bLeftTrigger * 257) - 32768);
+                SDL_PrivateJoystickAxis(timestamp, joystick, right_trigger, ((int)xinput_state[ctx->xinput_slot].state.Gamepad.bRightTrigger * 257) - 32768);
             }
             has_trigger_data = SDL_TRUE;
 
@@ -1799,13 +1804,21 @@ static void RAWINPUT_UpdateOtherAPIs(SDL_Joystick *joystick)
         RAWINPUT_UpdateWindowsGamingInput(); /* May detect disconnect / cause uncorrelation */
         if (ctx->wgi_correlated) {           /* Still connected */
             struct __x_ABI_CWindows_CGaming_CInput_CGamepadReading *state = &ctx->wgi_slot->state;
+            Uint64 timestamp;
+
+            if (ctx->guide_hack || ctx->trigger_hack) {
+                timestamp = SDL_GetTicksNS();
+            } else {
+                /* timestamp won't be used */
+                timestamp = 0;
+            }
 
             if (ctx->guide_hack) {
-                SDL_PrivateJoystickButton(joystick, guide_button, (state->Buttons & GamepadButtons_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
+                SDL_PrivateJoystickButton(timestamp, joystick, guide_button, (state->Buttons & GamepadButtons_GUIDE) ? SDL_PRESSED : SDL_RELEASED);
             }
             if (ctx->trigger_hack) {
-                SDL_PrivateJoystickAxis(joystick, left_trigger, ((int)(state->LeftTrigger * SDL_MAX_UINT16)) - 32768);
-                SDL_PrivateJoystickAxis(joystick, right_trigger, ((int)(state->RightTrigger * SDL_MAX_UINT16)) - 32768);
+                SDL_PrivateJoystickAxis(timestamp, joystick, left_trigger, ((int)(state->LeftTrigger * SDL_MAX_UINT16)) - 32768);
+                SDL_PrivateJoystickAxis(timestamp, joystick, right_trigger, ((int)(state->RightTrigger * SDL_MAX_UINT16)) - 32768);
             }
             has_trigger_data = SDL_TRUE;
         }
@@ -1815,7 +1828,7 @@ static void RAWINPUT_UpdateOtherAPIs(SDL_Joystick *joystick)
     if (!correlated) {
         if (!guide_button_candidate.joystick ||
             (ctx->last_state_packet && (!guide_button_candidate.last_state_packet ||
-                                        SDL_TICKS_PASSED(ctx->last_state_packet, guide_button_candidate.last_state_packet)))) {
+                                        ctx->last_state_packet >= guide_button_candidate.last_state_packet))) {
             guide_button_candidate.joystick = joystick;
             guide_button_candidate.last_state_packet = ctx->last_state_packet;
         }

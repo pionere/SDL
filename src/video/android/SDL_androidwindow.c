@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_ANDROID
 
-#include "SDL_syswm.h"
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"
@@ -31,7 +30,9 @@
 
 #include "SDL_androidvideo.h"
 #include "SDL_androidwindow.h"
-#include "SDL_hints.h"
+
+#define SDL_ENABLE_SYSWM_ANDROID
+#include <SDL3/SDL_syswm.h>
 
 /* Currently only one window */
 SDL_Window *Android_Window = NULL;
@@ -197,25 +198,18 @@ void Android_DestroyWindow(_THIS, SDL_Window *window)
     SDL_UnlockMutex(Android_ActivityMutex);
 }
 
-SDL_bool
-Android_GetWindowWMInfo(_THIS, SDL_Window *window, SDL_SysWMinfo *info)
+int Android_GetWindowWMInfo(_THIS, SDL_Window *window, SDL_SysWMinfo *info)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 
-    if (info->version.major == SDL_MAJOR_VERSION) {
-        info->subsystem = SDL_SYSWM_ANDROID;
-        info->info.android.window = data->native_window;
+    info->subsystem = SDL_SYSWM_ANDROID;
+    info->info.android.window = data->native_window;
 
 #if SDL_VIDEO_OPENGL_EGL
-        info->info.android.surface = data->egl_surface;
+    info->info.android.surface = data->egl_surface;
 #endif
 
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("Application not compiled with SDL %d",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
+    return 0;
 }
 
 #endif /* SDL_VIDEO_DRIVER_ANDROID */

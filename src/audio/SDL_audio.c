@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 /* Allow access to a raw mixing buffer */
 
-#include "SDL.h"
-#include "SDL_audio.h"
 #include "SDL_audio_c.h"
 #include "SDL_sysaudio.h"
 #include "../thread/SDL_systhread.h"
@@ -48,44 +46,17 @@ static const AudioBootStrap *const bootstrap[] = {
 #if SDL_AUDIO_DRIVER_NETBSD
     &NETBSDAUDIO_bootstrap,
 #endif
-#if SDL_AUDIO_DRIVER_QSA
-    &QSAAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_SUNAUDIO
-    &SUNAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_ARTS
-    &ARTS_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_ESD
-    &ESD_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_NACL
-    &NACLAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_NAS
-    &NAS_bootstrap,
-#endif
 #if SDL_AUDIO_DRIVER_WASAPI
     &WASAPI_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_DSOUND
     &DSOUND_bootstrap,
 #endif
-#if SDL_AUDIO_DRIVER_WINMM
-    &WINMM_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_PAUDIO
-    &PAUDIO_bootstrap,
-#endif
 #if SDL_AUDIO_DRIVER_HAIKU
     &HAIKUAUDIO_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_COREAUDIO
     &COREAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_FUSIONSOUND
-    &FUSIONSOUND_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_AAUDIO
     &aaudio_bootstrap,
@@ -119,9 +90,6 @@ static const AudioBootStrap *const bootstrap[] = {
 #endif
 #if SDL_AUDIO_DRIVER_OSS
     &DSP_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_OS2
-    &OS2AUDIO_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_DISK
     &DISKAUDIO_bootstrap,
@@ -442,8 +410,8 @@ void SDL_AddAudioDevice(const SDL_bool iscapture, const char *name, SDL_AudioSpe
         /* Post the event, if desired */
         if (SDL_GetEventState(SDL_AUDIODEVICEADDED) == SDL_ENABLE) {
             SDL_Event event;
-            SDL_zero(event);
-            event.adevice.type = SDL_AUDIODEVICEADDED;
+            event.type = SDL_AUDIODEVICEADDED;
+            event.common.timestamp = 0;
             event.adevice.which = device_index;
             event.adevice.iscapture = iscapture;
             SDL_PushEvent(&event);
@@ -473,8 +441,8 @@ void SDL_OpenedAudioDeviceDisconnected(SDL_AudioDevice *device)
     /* Post the event, if desired */
     if (SDL_GetEventState(SDL_AUDIODEVICEREMOVED) == SDL_ENABLE) {
         SDL_Event event;
-        SDL_zero(event);
-        event.adevice.type = SDL_AUDIODEVICEREMOVED;
+        event.type = SDL_AUDIODEVICEREMOVED;
+        event.common.timestamp = 0;
         event.adevice.which = device->id;
         event.adevice.iscapture = device->iscapture ? 1 : 0;
         SDL_PushEvent(&event);
@@ -525,8 +493,8 @@ void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle)
     if (!device_was_opened) {
         if (SDL_GetEventState(SDL_AUDIODEVICEREMOVED) == SDL_ENABLE) {
             SDL_Event event;
-            SDL_zero(event);
-            event.adevice.type = SDL_AUDIODEVICEREMOVED;
+            event.type = SDL_AUDIODEVICEREMOVED;
+            event.common.timestamp = 0;
             event.adevice.which = 0;
             event.adevice.iscapture = iscapture ? 1 : 0;
             SDL_PushEvent(&event);
@@ -920,7 +888,7 @@ int SDL_AudioInit(const char *driver_name)
 
     /* Select the proper audio driver */
     if (driver_name == NULL) {
-        driver_name = SDL_GetHint(SDL_HINT_AUDIODRIVER);
+        driver_name = SDL_GetHint(SDL_HINT_AUDIO_DRIVER);
     }
 
     if (driver_name != NULL && *driver_name != 0) {

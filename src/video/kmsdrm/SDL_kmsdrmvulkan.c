@@ -24,18 +24,18 @@
  * Based on Jacob Lifshay's SDL_x11vulkan.c.
  */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_VULKAN && SDL_VIDEO_DRIVER_KMSDRM
 
 #include "SDL_kmsdrmvideo.h"
 #include "SDL_kmsdrmdyn.h"
-#include "SDL_assert.h"
-
-#include "SDL_loadso.h"
 #include "SDL_kmsdrmvulkan.h"
-#include "SDL_syswm.h"
-#include "sys/ioctl.h"
+
+#define SDL_ENABLE_SYSWM_KMSDRM
+#include <SDL3/SDL_syswm.h>
+
+#include <sys/ioctl.h>
 
 #if defined(__OpenBSD__)
 #define DEFAULT_VULKAN "libvulkan.so"

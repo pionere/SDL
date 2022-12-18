@@ -19,14 +19,10 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 #include <dev/wscons/wsksymvar.h>
 #include <dev/wscons/wsksymdef.h>
-#include "SDL_scancode.h"
-#include "SDL_events.h"
-#include "SDL_keyboard.h"
 #include "SDL_wscons.h"
-#include "SDL_log.h"
 #include <sys/time.h>
 #include <dev/wscons/wsconsio.h>
 #include <dev/wscons/wsdisplay_usl_io.h>
@@ -45,7 +41,7 @@
 #endif
 
 #define RETIFIOCTLERR(x) \
-    if (x == -1) {       \
+    if ((x) == -1) {     \
         free(input);     \
         input = NULL;    \
         return NULL;     \
@@ -557,22 +553,22 @@ static void Translate_to_keycode(SDL_WSCONS_input_data *input, int type, keysym_
     switch (keyDesc.command) {
     case KS_Cmd_ScrollBack:
     {
-        SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_PAGEUP);
+        SDL_SendKeyboardKey(0, type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_PAGEUP);
         return;
     }
     case KS_Cmd_ScrollFwd:
     {
-        SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_PAGEDOWN);
+        SDL_SendKeyboardKey(0, type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_PAGEDOWN);
         return;
     }
     }
     for (i = 0; i < sizeof(conversion_table) / sizeof(struct wscons_keycode_to_SDL); i++) {
         if (conversion_table[i].sourcekey == group[0]) {
-            SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, conversion_table[i].targetKey);
+            SDL_SendKeyboardKey(0, type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, conversion_table[i].targetKey);
             return;
         }
     }
-    SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_UNKNOWN);
+    SDL_SendKeyboardKey(0, type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_UNKNOWN);
 }
 
 static void updateKeyboard(SDL_WSCONS_input_data *input)
@@ -806,13 +802,13 @@ static void updateKeyboard(SDL_WSCONS_input_data *input)
             } break;
             case WSCONS_EVENT_ALL_KEYS_UP:
                 for (i = 0; i < SDL_NUM_SCANCODES; i++) {
-                    SDL_SendKeyboardKey(SDL_RELEASED, i);
+                    SDL_SendKeyboardKey(0, SDL_RELEASED, i);
                 }
                 break;
             }
 
             if (input->type == WSKBD_TYPE_USB && events[i].value <= 0xE7)
-                SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)events[i].value);
+                SDL_SendKeyboardKey(0, type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)events[i].value);
             else
                 Translate_to_keycode(input, type, events[i].value);
 

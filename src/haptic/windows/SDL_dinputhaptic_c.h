@@ -18,9 +18,8 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
-#include "SDL_haptic.h"
 #include "SDL_windowshaptic_c.h"
 
 /* Set up for C function definitions, even when using C++ */

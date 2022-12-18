@@ -18,14 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_PSP
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL_error.h"
 #include "SDL_pspvideo.h"
 #include "SDL_pspgl_c.h"
 

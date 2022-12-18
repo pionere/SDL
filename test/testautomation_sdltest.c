@@ -3,24 +3,10 @@
  */
 
 #include <limits.h>
-/* Visual Studio 2008 doesn't have stdint.h */
-#if defined(_MSC_VER) && _MSC_VER <= 1500
-#define UINT8_MAX   _UI8_MAX
-#define UINT16_MAX  _UI16_MAX
-#define UINT32_MAX  _UI32_MAX
-#define INT64_MIN    _I64_MIN
-#define INT64_MAX    _I64_MAX
-#define UINT64_MAX  _UI64_MAX
-#else
-#include <stdint.h>
-#endif
-
-#include <stdio.h>
 #include <float.h>
-#include <ctype.h>
 
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 /* Test case functions */
 
@@ -1310,3 +1296,5 @@ SDLTest_TestSuiteReference sdltestTestSuite = {
     sdltestTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

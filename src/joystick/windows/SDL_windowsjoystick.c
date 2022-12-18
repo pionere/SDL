@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_JOYSTICK_DINPUT || SDL_JOYSTICK_XINPUT
 
@@ -32,12 +32,6 @@
  * with polled devices, and it's fine to call IDirectInputDevice8_GetDeviceData and
  * let it return 0 events. */
 
-#include "SDL_error.h"
-#include "SDL_events.h"
-#include "SDL_hints.h"
-#include "SDL_timer.h"
-#include "SDL_mutex.h"
-#include "SDL_joystick.h"
 #include "../SDL_sysjoystick.h"
 #include "../../thread/SDL_systhread.h"
 #include "../../core/windows/SDL_windows.h"

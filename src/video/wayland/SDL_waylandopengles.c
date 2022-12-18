@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_WAYLAND && SDL_VIDEO_OPENGL_EGL
 
-#include "SDL_timer.h"
 #include "../../core/unix/SDL_poll.h"
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_windowevents_c.h"
@@ -40,7 +39,7 @@ int Wayland_GLES_LoadLibrary(_THIS, const char *path)
     int ret;
     SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
 
-    ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
+    ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType)data->display, _this->gl_config.egl_platform);
 
     Wayland_PumpEvents(_this);
     WAYLAND_wl_display_flush(data->display);
@@ -126,9 +125,9 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
         struct wl_display *display = videodata->display;
         SDL_VideoDisplay *sdldisplay = SDL_GetDisplayForWindow(window);
         /* ~10 frames (or 1 sec), so we'll progress even if throttled to zero. */
-        const Uint32 max_wait = SDL_GetTicks() + (sdldisplay->current_mode.refresh_rate ? (10000 / sdldisplay->current_mode.refresh_rate) : 1000);
+        const Uint64 max_wait = SDL_GetTicksNS() + (sdldisplay->current_mode.refresh_rate ? ((SDL_NS_PER_SECOND * 10) / sdldisplay->current_mode.refresh_rate) : SDL_NS_PER_SECOND);
         while (SDL_AtomicGet(&data->swap_interval_ready) == 0) {
-            Uint32 now;
+            Uint64 now;
 
             WAYLAND_wl_display_flush(display);
 
@@ -142,8 +141,8 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 
             /* Beyond this point, we must either call wl_display_cancel_read() or wl_display_read_events() */
 
-            now = SDL_GetTicks();
-            if (SDL_TICKS_PASSED(now, max_wait)) {
+            now = SDL_GetTicksNS();
+            if (now >= max_wait) {
                 /* Timeout expired. Cancel the read. */
                 WAYLAND_wl_display_cancel_read(display);
                 break;
@@ -193,6 +192,13 @@ void Wayland_GLES_DeleteContext(_THIS, SDL_GLContext context)
 {
     SDL_EGL_DeleteContext(_this, context);
     WAYLAND_wl_display_flush(((SDL_VideoData *)_this->driverdata)->display);
+}
+
+EGLSurface Wayland_GLES_GetEGLSurface(_THIS, SDL_Window *window)
+{
+    SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
+
+    return windowdata->egl_surface;
 }
 
 #endif /* SDL_VIDEO_DRIVER_WAYLAND && SDL_VIDEO_OPENGL_EGL */

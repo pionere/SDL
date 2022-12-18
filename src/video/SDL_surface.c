@@ -18,15 +18,15 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
-#include "SDL_video.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 #include "SDL_yuv_c.h"
 #include "../render/SDL_sysrender.h"
+#include "../video/SDL_yuv_c.h"
 
 /* Check to make sure we can safely check multiplication of surface w and pitch and it won't overflow size_t */
 SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
@@ -39,13 +39,15 @@ SDL_COMPILE_TIME_ASSERT(can_indicate_overflow, SDL_SIZE_MAX > SDL_MAX_SINT32);
 /*
  * Calculate the pad-aligned scanline width of a surface.
  * Return SDL_SIZE_MAX on overflow.
+ *
+ * for FOURCC, use SDL_CalculateYUVSize()
  */
 static size_t
 SDL_CalculatePitch(Uint32 format, size_t width, SDL_bool minimal)
 {
     size_t pitch;
 
-    if (SDL_ISPIXELFORMAT_FOURCC(format) || SDL_BITSPERPIXEL(format) >= 8) {
+    if (SDL_BITSPERPIXEL(format) >= 8) {
         if (SDL_size_mul_overflow(width, SDL_BYTESPERPIXEL(format), &pitch)) {
             return SDL_SIZE_MAX;
         }
@@ -68,22 +70,15 @@ SDL_CalculatePitch(Uint32 format, size_t width, SDL_bool minimal)
     return pitch;
 }
 
-/* TODO: In SDL 3, drop the unused flags and depth parameters */
 /*
  * Create an empty RGB surface of the appropriate depth using the given
  * enum SDL_PIXELFORMAT_* format
  */
 SDL_Surface *
-SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
-                               Uint32 format)
+SDL_CreateSurface(int width, int height, Uint32 format)
 {
     size_t pitch;
     SDL_Surface *surface;
-
-    /* The flags are no longer used, make the compiler happy */
-    (void)flags;
-    /* The depth is no longer used, make the compiler happy */
-    (void)depth;
 
     if (width < 0) {
         SDL_InvalidParamError("width");
@@ -95,11 +90,21 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
         return NULL;
     }
 
-    pitch = SDL_CalculatePitch(format, width, SDL_FALSE);
-    if (pitch > SDL_MAX_SINT32) {
-        /* Overflow... */
-        SDL_OutOfMemory();
-        return NULL;
+    if (SDL_ISPIXELFORMAT_FOURCC(format)) {
+        int p;
+        if (SDL_CalculateYUVSize(format, width, height, NULL, &p) < 0) {
+            /* Overflow... */
+            SDL_OutOfMemory();
+            return NULL;
+        }
+        pitch = p;
+    } else {
+        pitch = SDL_CalculatePitch(format, width, SDL_FALSE);
+        if (pitch > SDL_MAX_SINT32) {
+            /* Overflow... */
+            SDL_OutOfMemory();
+            return NULL;
+        }
     }
 
     /* Allocate the surface */
@@ -141,13 +146,23 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 
     /* Get the pixels */
     if (surface->w && surface->h) {
-        /* Assumptions checked in surface_size_assumptions assert above */
         size_t size;
-        if (SDL_size_mul_overflow(surface->h, surface->pitch, &size)) {
-            /* Overflow... */
-            SDL_FreeSurface(surface);
-            SDL_OutOfMemory();
-            return NULL;
+        if (SDL_ISPIXELFORMAT_FOURCC(surface->format->format)) {
+            /* Get correct size and pitch for YUV formats */
+            if (SDL_CalculateYUVSize(surface->format->format, surface->w, surface->h, &size, &surface->pitch) < 0) {
+                /* Overflow... */
+                SDL_FreeSurface(surface);
+                SDL_OutOfMemory();
+                return NULL;
+            }
+        } else {
+            /* Assumptions checked in surface_size_assumptions assert above */
+            if (SDL_size_mul_overflow(surface->h, surface->pitch, &size)) {
+                /* Overflow... */
+                SDL_FreeSurface(surface);
+                SDL_OutOfMemory();
+                return NULL;
+            }
         }
 
         surface->pixels = SDL_SIMDAlloc(size);
@@ -178,85 +193,14 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
     return surface;
 }
 
-/* TODO: In SDL 3, drop the unused flags parameter */
-/*
- * Create an empty RGB surface of the appropriate depth
- */
-SDL_Surface *
-SDL_CreateRGBSurface(Uint32 flags,
-                     int width, int height, int depth,
-                     Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask)
-{
-    Uint32 format;
-
-    /* Get the pixel format */
-    format = SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
-    if (format == SDL_PIXELFORMAT_UNKNOWN) {
-        SDL_SetError("Unknown pixel format");
-        return NULL;
-    }
-
-    return SDL_CreateRGBSurfaceWithFormat(flags, width, height, depth, format);
-}
-
-/*
- * Create an RGB surface from an existing memory buffer
- */
-SDL_Surface *
-SDL_CreateRGBSurfaceFrom(void *pixels,
-                         int width, int height, int depth, int pitch,
-                         Uint32 Rmask, Uint32 Gmask, Uint32 Bmask,
-                         Uint32 Amask)
-{
-    SDL_Surface *surface;
-    Uint32 format;
-    size_t minimalPitch;
-
-    if (width < 0) {
-        SDL_InvalidParamError("width");
-        return NULL;
-    }
-
-    if (height < 0) {
-        SDL_InvalidParamError("height");
-        return NULL;
-    }
-
-    format = SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
-
-    if (format == SDL_PIXELFORMAT_UNKNOWN) {
-        SDL_SetError("Unknown pixel format");
-        return NULL;
-    }
-
-    minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
-
-    if (pitch < 0 || (pitch > 0 && ((size_t)pitch) < minimalPitch)) {
-        SDL_InvalidParamError("pitch");
-        return NULL;
-    }
-
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, depth, format);
-    if (surface != NULL) {
-        surface->flags |= SDL_PREALLOC;
-        surface->pixels = pixels;
-        surface->w = width;
-        surface->h = height;
-        surface->pitch = pitch;
-        SDL_SetClipRect(surface, NULL);
-    }
-    return surface;
-}
-
-/* TODO: In SDL 3, drop the unused depth parameter */
 /*
  * Create an RGB surface from an existing memory buffer using the given given
  * enum SDL_PIXELFORMAT_* format
  */
 SDL_Surface *
-SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
-                         int width, int height, int depth, int pitch,
-                         Uint32 format)
+SDL_CreateSurfaceFrom(void *pixels,
+                      int width, int height, int pitch,
+                      Uint32 format)
 {
     SDL_Surface *surface;
     size_t minimalPitch;
@@ -271,14 +215,23 @@ SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
         return NULL;
     }
 
-    minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
+    if (SDL_ISPIXELFORMAT_FOURCC(format)) {
+        int p;
+        if (SDL_CalculateYUVSize(format, width, height, NULL, &p) < 0) {
+            SDL_InvalidParamError("pitch");
+            return NULL;
+        }
+        minimalPitch = p;
+    } else {
+        minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
+    }
 
     if (pitch < 0 || (pitch > 0 && ((size_t)pitch) < minimalPitch)) {
         SDL_InvalidParamError("pitch");
         return NULL;
     }
 
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, 0, format);
+    surface = SDL_CreateSurface(0, 0, format);
     if (surface != NULL) {
         surface->flags |= SDL_PREALLOC;
         surface->pixels = pixels;
@@ -1012,13 +965,11 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             SDL_Rect srcrect2;
             int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
 
-            Uint32 flags;
             Uint8 r, g, b;
             Uint8 alpha;
             SDL_BlendMode blendMode;
 
             /* Save source infos */
-            flags = src->flags;
             SDL_GetSurfaceColorMod(src, &r, &g, &b);
             SDL_GetSurfaceAlphaMod(src, &alpha);
             SDL_GetSurfaceBlendMode(src, &blendMode);
@@ -1040,7 +991,7 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                 } else {
                     fmt = SDL_PIXELFORMAT_ARGB8888;
                 }
-                tmp1 = SDL_CreateRGBSurfaceWithFormat(flags, src->w, src->h, 0, fmt);
+                tmp1 = SDL_CreateSurface(src->w, src->h, fmt);
                 SDL_LowerBlit(src, srcrect, tmp1, &tmprect);
 
                 srcrect2.x = 0;
@@ -1055,7 +1006,7 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             /* Intermediate scaling */
             if (is_complex_copy_flags || src->format->format != dst->format->format) {
                 SDL_Rect tmprect;
-                SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(flags, dstrect->w, dstrect->h, 0, src->format->format);
+                SDL_Surface *tmp2 = SDL_CreateSurface(dstrect->w, dstrect->h, src->format->format);
                 SDL_SoftStretchLinear(src, &srcrect2, tmp2, NULL);
 
                 SDL_SetSurfaceColorMod(tmp2, r, g, b);
@@ -1125,15 +1076,14 @@ void SDL_UnlockSurface(SDL_Surface *surface)
 SDL_Surface *
 SDL_DuplicateSurface(SDL_Surface *surface)
 {
-    return SDL_ConvertSurface(surface, surface->format, surface->flags);
+    return SDL_ConvertSurface(surface, surface->format);
 }
 
 /*
  * Convert a surface into the specified pixel format.
  */
 SDL_Surface *
-SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
-                   Uint32 flags)
+SDL_ConvertSurface(SDL_Surface *surface, const SDL_PixelFormat *format)
 {
     SDL_Surface *convert;
     Uint32 copy_flags;
@@ -1170,12 +1120,26 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
     }
 
     /* Create a new surface with the desired format */
-    convert = SDL_CreateRGBSurface(flags, surface->w, surface->h,
-                                   format->BitsPerPixel, format->Rmask,
-                                   format->Gmask, format->Bmask,
-                                   format->Amask);
+    convert = SDL_CreateSurface(surface->w, surface->h, format->format);
     if (convert == NULL) {
         return NULL;
+    }
+
+    if (SDL_ISPIXELFORMAT_FOURCC(format->format) || SDL_ISPIXELFORMAT_FOURCC(surface->format->format)) {
+
+        ret = SDL_ConvertPixels(surface->w, surface->h,
+                                surface->format->format, surface->pixels, surface->pitch,
+                                convert->format->format, convert->pixels, convert->pitch);
+
+        if (ret < 0) {
+            SDL_FreeSurface(convert);
+            return NULL;
+        }
+
+        /* Save the original copy flags */
+        copy_flags = surface->map->info.flags;
+
+        goto end;
     }
 
     /* Copy the palette if any */
@@ -1314,10 +1278,7 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
             int converted_colorkey = 0;
 
             /* Create a dummy surface to get the colorkey converted */
-            tmp = SDL_CreateRGBSurface(0, 1, 1,
-                                   surface->format->BitsPerPixel, surface->format->Rmask,
-                                   surface->format->Gmask, surface->format->Bmask,
-                                   surface->format->Amask);
+            tmp = SDL_CreateSurface(1, 1, surface->format->format);
 
             /* Share the palette, if any */
             if (surface->format->palette) {
@@ -1329,7 +1290,7 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
             tmp->map->info.flags &= ~SDL_COPY_COLORKEY;
 
             /* Convertion of the colorkey */
-            tmp2 = SDL_ConvertSurface(tmp, format, 0);
+            tmp2 = SDL_ConvertSurface(tmp, format);
 
             /* Get the converted colorkey */
             SDL_memcpy(&converted_colorkey, tmp2->pixels, tmp2->format->BytesPerPixel);
@@ -1346,6 +1307,9 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
             }
         }
     }
+
+end:
+
     SDL_SetClipRect(convert, &surface->clip_rect);
 
     /* Enable alpha blending by default if the new surface has an
@@ -1355,7 +1319,7 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
         (copy_flags & SDL_COPY_MODULATE_ALPHA)) {
         SDL_SetSurfaceBlendMode(convert, SDL_BLENDMODE_BLEND);
     }
-    if ((copy_flags & SDL_COPY_RLE_DESIRED) || (flags & SDL_RLEACCEL)) {
+    if ((copy_flags & SDL_COPY_RLE_DESIRED)) {
         SDL_SetSurfaceRLE(convert, SDL_RLEACCEL);
     }
 
@@ -1364,15 +1328,14 @@ SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * format,
 }
 
 SDL_Surface *
-SDL_ConvertSurfaceFormat(SDL_Surface * surface, Uint32 pixel_format,
-                         Uint32 flags)
+SDL_ConvertSurfaceFormat(SDL_Surface *surface, Uint32 pixel_format)
 {
     SDL_PixelFormat *fmt;
     SDL_Surface *convert = NULL;
 
     fmt = SDL_AllocFormat(pixel_format);
     if (fmt) {
-        convert = SDL_ConvertSurface(surface, fmt, flags);
+        convert = SDL_ConvertSurface(surface, fmt);
         SDL_FreeFormat(fmt);
     }
     return convert;

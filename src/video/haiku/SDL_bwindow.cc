@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_HAIKU
 #include "../SDL_sysvideo.h"
@@ -26,7 +26,7 @@
 #include "SDL_BWin.h"
 #include <new>
 
-#include "SDL_syswm.h"
+#include <SDL3/SDL_syswm.h>
 
 /* Define a path to window's BWIN data */
 #ifdef __cplusplus
@@ -196,16 +196,6 @@ void HAIKU_SetWindowFullscreen(_THIS, SDL_Window * window,
     
 }
 
-int HAIKU_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp) {
-    /* FIXME: Not Haiku supported */
-    return -1;
-}
-
-int HAIKU_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp) {
-    /* FIXME: Not Haiku supported */
-    return -1;
-}
-
 
 void HAIKU_SetWindowMinimumSize(_THIS, SDL_Window * window) {
     BMessage msg(BWIN_MINIMUM_SIZE_WINDOW);
@@ -225,21 +215,11 @@ void HAIKU_DestroyWindow(_THIS, SDL_Window * window) {
     window->driverdata = NULL;
 }
 
-SDL_bool HAIKU_GetWindowWMInfo(_THIS, SDL_Window * window,
-                                    struct SDL_SysWMinfo *info) {
-    /* FIXME: What is the point of this? What information should be included? */
-	if (info->version.major == SDL_MAJOR_VERSION) {
-	    info->subsystem = SDL_SYSWM_HAIKU;
-	    return SDL_TRUE;
-	} else {
-	    SDL_SetError("Application not compiled with SDL %d",
-	                 SDL_MAJOR_VERSION);
-	    return SDL_FALSE;
-	}
+int HAIKU_GetWindowWMInfo(_THIS, SDL_Window *window, struct SDL_SysWMinfo *info)
+{
+    info->subsystem = SDL_SYSWM_HAIKU;
+    return 0;
 }
-
-
-
 
  
 #ifdef __cplusplus

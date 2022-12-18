@@ -18,14 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_THREAD_WINDOWS
 
 /* Win32 thread management routines for SDL */
 
-#include "SDL_hints.h"
-#include "SDL_thread.h"
 #include "../SDL_thread_c.h"
 #include "../SDL_systhread.h"
 #include "SDL_systhread_c.h"
@@ -44,23 +42,6 @@ typedef unsigned long(__cdecl *pfnSDL_CurrentBeginThread)(void *, unsigned,
                                                           unsigned(__stdcall *func)(void *), void *arg,
                                                           unsigned, unsigned *threadID);
 typedef void(__cdecl *pfnSDL_CurrentEndThread)(unsigned code);
-
-#elif defined(__WATCOMC__)
-/* This is for Watcom targets except OS2 */
-#if __WATCOMC__ < 1240
-#define __watcall
-#endif
-typedef unsigned long (__watcall * pfnSDL_CurrentBeginThread) (void *,
-                                                               unsigned,
-                                                               unsigned
-                                                               (__stdcall *
-                                                                func) (void
-                                                                       *),
-                                                               void *arg,
-                                                               unsigned,
-                                                               unsigned
-                                                               *threadID);
-typedef void (__watcall * pfnSDL_CurrentEndThread) (unsigned code);
 
 #else
 typedef uintptr_t(__cdecl *pfnSDL_CurrentBeginThread)(void *, unsigned,

@@ -19,12 +19,10 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_syshaptic_h_
 #define SDL_syshaptic_h_
-
-#include "SDL_haptic.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

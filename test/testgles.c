@@ -10,19 +10,17 @@
   freely.
 */
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
-#if defined(__IPHONEOS__) || defined(__ANDROID__)
+#if defined(__IOS__) || defined(__ANDROID__)
 #define HAVE_OPENGLES
 #endif
 
 #ifdef HAVE_OPENGLES
 
-#include "SDL_opengles.h"
+#include <SDL3/SDL_opengles.h>
 
 static SDLTest_CommonState *state;
 static SDL_GLContext *context = NULL;

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_VITA
 
@@ -26,9 +26,6 @@
 #include <psp2/ctrl.h>
 #include <psp2/hid.h>
 
-#include "SDL_events.h"
-#include "SDL_log.h"
-#include "SDL_mouse.h"
 #include "SDL_vitavideo.h"
 #include "SDL_vitamouse_c.h"
 #include "../../events/SDL_mouse_c.h"
@@ -57,27 +54,27 @@ void VITA_PollMouse(void)
 
                 if (changed_buttons & 0x1) {
                     if (prev_buttons & 0x1)
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_LEFT);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_LEFT);
                     else
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_LEFT);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_LEFT);
                 }
                 if (changed_buttons & 0x2) {
                     if (prev_buttons & 0x2)
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_RIGHT);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_RIGHT);
                     else
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_RIGHT);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_RIGHT);
                 }
                 if (changed_buttons & 0x4) {
                     if (prev_buttons & 0x4)
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_MIDDLE);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_RELEASED, SDL_BUTTON_MIDDLE);
                     else
-                        SDL_SendMouseButton(Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_MIDDLE);
+                        SDL_SendMouseButton(0, Vita_Window, 0, SDL_PRESSED, SDL_BUTTON_MIDDLE);
                 }
 
                 prev_buttons = m_reports[i].buttons;
 
                 if (m_reports[i].rel_x || m_reports[i].rel_y) {
-                    SDL_SendMouseMotion(Vita_Window, 0, 1, m_reports[i].rel_x, m_reports[i].rel_y);
+                    SDL_SendMouseMotion(0, Vita_Window, 0, 1, m_reports[i].rel_x, m_reports[i].rel_y);
                 }
             }
         }

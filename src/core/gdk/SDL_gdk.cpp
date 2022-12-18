@@ -18,14 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 extern "C" {
-#include "SDL_system.h"
 #include "../windows/SDL_windows.h"
-#include "SDL_messagebox.h"
-#include "SDL_main.h"
-#include "SDL_events.h"
 #include "../../events/SDL_events_c.h"
 }
 #include <XGameRuntime.h>
@@ -88,7 +84,7 @@ OutOfMemory(void)
 /* Gets the arguments with GetCommandLine, converts them to argc and argv
    and calls SDL_main */
 extern "C" DECLSPEC int
-SDL_GDKRunApp(SDL_main_func mainFunction, void *reserved)
+SDL_RunApp(int, char**, SDL_main_func mainFunction, void *reserved)
 {
     LPWSTR *argvw;
     char **argv;

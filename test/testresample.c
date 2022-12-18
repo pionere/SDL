@@ -10,7 +10,8 @@
   freely.
 */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 int main(int argc, char **argv)
 {
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
     SDL_WriteLE16(io, bitsize);                                /* significant bits per sample */
     SDL_WriteLE32(io, 0x61746164);                             /* data */
     SDL_WriteLE32(io, cvt.len_cvt);                            /* size */
-    SDL_RWwrite(io, cvt.buf, cvt.len_cvt, 1);
+    SDL_RWwrite(io, cvt.buf, cvt.len_cvt);
 
     if (SDL_RWclose(io) == -1) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "fclose('%s') failed: %s\n", argv[2], SDL_GetError());
@@ -117,3 +118,5 @@ int main(int argc, char **argv)
 } /* main */
 
 /* end of testresample.c ... */
+
+/* vi: set ts=4 sw=4 expandtab: */

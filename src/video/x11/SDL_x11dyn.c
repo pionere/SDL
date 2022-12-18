@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_X11
 
@@ -32,8 +32,7 @@
 
 #ifdef SDL_VIDEO_DRIVER_X11_DYNAMIC
 
-#include "SDL_name.h"
-#include "SDL_loadso.h"
+#include <SDL3/SDL_name.h>
 
 typedef struct
 {

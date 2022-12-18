@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_FILESYSTEM_RISCOS
 
@@ -28,10 +28,6 @@
 #include <kernel.h>
 #include <swis.h>
 #include <unixlib/local.h>
-
-#include "SDL_error.h"
-#include "SDL_stdinc.h"
-#include "SDL_filesystem.h"
 
 /* Wrapper around __unixify_std that uses SDL's memory allocators */
 static char *SDL_unixify_std(const char *ro_path, char *buffer, size_t buf_len, int filetype)

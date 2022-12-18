@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_EMSCRIPTEN
 
@@ -65,7 +65,7 @@ static SDL_Cursor *Emscripten_CreateCursor(SDL_Surface *surface, int hot_x, int 
     const char *cursor_url = NULL;
     SDL_Surface *conv_surf;
 
-    conv_surf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, 0);
+    conv_surf = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888);
 
     if (conv_surf == NULL) {
         return NULL;
@@ -88,28 +88,9 @@ static SDL_Cursor *Emscripten_CreateCursor(SDL_Surface *surface, int hot_x, int 
         var image = ctx.createImageData(w, h);
         var data = image.data;
         var src = pixels >> 2;
-        var dst = 0;
-        var num;
-        if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) {
-            // IE10/IE11: ImageData objects are backed by the deprecated CanvasPixelArray,
-            // not UInt8ClampedArray. These don't have buffers, so we need to revert
-            // to copying a byte at a time. We do the undefined check because modern
-            // browsers do not define CanvasPixelArray anymore.
-            num = data.length;
-            while (dst < num) {
-                var val = HEAP32[src]; // This is optimized. Instead, we could do {{{ makeGetValue('buffer', 'dst', 'i32') }}};
-                data[dst  ] = val & 0xff;
-                data[dst+1] = (val >> 8) & 0xff;
-                data[dst+2] = (val >> 16) & 0xff;
-                data[dst+3] = (val >> 24) & 0xff;
-                src++;
-                dst += 4;
-            }
-        } else {
-            var data32 = new Int32Array(data.buffer);
-            num = data32.length;
-            data32.set(HEAP32.subarray(src, src + num));
-        }
+
+        var data32 = new Int32Array(data.buffer);
+        data32.set(HEAP32.subarray(src, src + data32.length));
 
         ctx.putImageData(image, 0, 0);
         var url = hot_x === 0 && hot_y === 0

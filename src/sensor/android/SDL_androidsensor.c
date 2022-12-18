@@ -18,17 +18,13 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
-
-#include "SDL_config.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_SENSOR_ANDROID
 
 /* This is the system specific header for the SDL sensor API */
 #include <android/sensor.h>
 
-#include "SDL_error.h"
-#include "SDL_sensor.h"
 #include "SDL_androidsensor.h"
 #include "../SDL_syssensor.h"
 #include "../SDL_sensor_c.h"
@@ -160,11 +156,12 @@ static void SDL_ANDROID_SensorUpdate(SDL_Sensor *sensor)
     int events;
     ASensorEvent event;
     struct android_poll_source *source;
+    Uint64 timestamp = SDL_GetTicks();
 
     if (ALooper_pollAll(0, NULL, &events, (void **)&source) == LOOPER_ID_USER) {
         SDL_zero(event);
         while (ASensorEventQueue_getEvents(sensor->hwdata->eventqueue, &event, 1) > 0) {
-            SDL_PrivateSensorUpdate(sensor, 0, event.data, SDL_arraysize(event.data));
+            SDL_PrivateSensorUpdate(timestamp, sensor, timestamp, event.data, SDL_arraysize(event.data));
         }
     }
 }

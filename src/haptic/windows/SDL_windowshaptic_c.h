@@ -18,12 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_windowshaptic_c_h_
 #define SDL_windowshaptic_c_h_
 
-#include "SDL_thread.h"
 #include "../SDL_syshaptic.h"
 #include "../../core/windows/SDL_directx.h"
 #include "../../core/windows/SDL_xinput.h"
@@ -47,7 +46,7 @@ struct haptic_hwdata
     Uint8 userid;         /* XInput userid index for this joystick */
     SDL_Thread *thread;
     SDL_mutex *mutex;
-    Uint32 stopTicks;
+    Uint64 stopTicks;
     SDL_atomic_t stopThread;
 };
 

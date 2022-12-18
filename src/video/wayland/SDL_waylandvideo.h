@@ -19,8 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
-#include "SDL_stdinc.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_waylandvideo_h_
 #define SDL_waylandvideo_h_
@@ -80,6 +79,7 @@ typedef struct
     struct zxdg_output_manager_v1 *xdg_output_manager;
     struct wp_viewporter *viewporter;
     struct wp_fractional_scale_manager_v1 *fractional_scale_manager;
+    struct zwp_input_timestamps_manager_v1 *input_timestamps_manager;
 
     EGLDisplay edpy;
     EGLContext context;

@@ -19,18 +19,16 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_VITA
 
 /* SDL internals */
 #include "../SDL_sysvideo.h"
-#include "SDL_version.h"
-#include "SDL_syswm.h"
-#include "SDL_loadso.h"
-#include "SDL_events.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_keyboard_c.h"
+
+#include <SDL3/SDL_syswm.h>
 
 /* VITA declarations */
 #include <psp2/kernel/processmgr.h>
@@ -47,11 +45,11 @@
 #if defined(SDL_VIDEO_VITA_PVR_OGL)
 #include "SDL_vitagl_pvr_c.h"
 #endif
-  #define VITA_GLES_GetProcAddress SDL_EGL_GetProcAddress
-  #define VITA_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
-  #define VITA_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
-  #define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
-  #define VITA_GLES_DeleteContext SDL_EGL_DeleteContext
+#define VITA_GLES_GetProcAddress  SDL_EGL_GetProcAddressInternal
+#define VITA_GLES_UnloadLibrary   SDL_EGL_UnloadLibrary
+#define VITA_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
+#define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
+#define VITA_GLES_DeleteContext   SDL_EGL_DeleteContext
 #endif
 
 SDL_Window *Vita_Window;
@@ -130,7 +128,6 @@ static SDL_VideoDevice *VITA_Create()
     device->SetWindowMouseGrab = VITA_SetWindowGrab;
     device->SetWindowKeyboardGrab = VITA_SetWindowGrab;
     device->DestroyWindow = VITA_DestroyWindow;
-    device->GetWindowWMInfo = VITA_GetWindowWMInfo;
 
     /*
         // Disabled, causes issues on high-framerate updates. SDL still emulates this.
@@ -372,24 +369,6 @@ void VITA_DestroyWindow(_THIS, SDL_Window *window)
     Vita_Window = NULL;
 }
 
-/*****************************************************************************/
-/* SDL Window Manager function                                               */
-/*****************************************************************************/
-SDL_bool
-VITA_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
-{
-    if (info->version.major <= SDL_MAJOR_VERSION) {
-        return SDL_TRUE;
-    } else {
-        SDL_SetError("application not compiled with SDL %d\n",
-                     SDL_MAJOR_VERSION);
-        return SDL_FALSE;
-    }
-
-    /* Failed to get window manager information */
-    return SDL_FALSE;
-}
-
 SDL_bool VITA_HasScreenKeyboardSupport(_THIS)
 {
     return SDL_TRUE;
@@ -437,12 +416,12 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
     switch (e->id) {
     case SCE_IME_EVENT_UPDATE_TEXT:
         if (e->param.text.caretIndex == 0) {
-            SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_BACKSPACE);
+            SDL_SendKeyboardKeyAutoRelease(0, SDL_SCANCODE_BACKSPACE);
             sceImeSetText((SceWChar16 *)libime_initval, 4);
         } else {
             scancode = SDL_GetScancodeFromKey(*(SceWChar16 *)&libime_out[1]);
             if (scancode == SDL_SCANCODE_SPACE) {
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_SPACE);
+                SDL_SendKeyboardKeyAutoRelease(0, SDL_SCANCODE_SPACE);
             } else {
                 utf16_to_utf8((SceWChar16 *)&libime_out[1], utf8_buffer);
                 SDL_SendKeyboardText((const char *)utf8_buffer);
@@ -455,7 +434,7 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
         }
         break;
     case SCE_IME_EVENT_PRESS_ENTER:
-        SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
+        SDL_SendKeyboardKeyAutoRelease(0, SDL_SCANCODE_RETURN);
     case SCE_IME_EVENT_PRESS_CLOSE:
         sceImeClose();
         videodata->ime_active = SDL_FALSE;
@@ -591,7 +570,8 @@ void VITA_PumpEvents(_THIS)
 
             // Send enter key only on enter
             if (result.button == SCE_IME_DIALOG_BUTTON_ENTER) {
-                SDL_SendKeyboardKeyAutoRelease(SDL_SCANCODE_RETURN);
+                SDL_SendKeyboardKeyAutoRelease(0, SDL_SCANCODE_RETURN);
+            }
             }
 
             sceImeDialogTerm();

@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_AUDIO_DRIVER_OPENSLES
 
@@ -26,7 +26,6 @@
    https://googlesamples.github.io/android-audio-high-performance/guides/opensl_es.html
 */
 
-#include "SDL_audio.h"
 #include "../SDL_audio_c.h"
 #include "../../core/android/SDL_android.h"
 #include "SDL_openslES.h"

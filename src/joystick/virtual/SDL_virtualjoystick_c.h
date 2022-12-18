@@ -18,14 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_VIRTUALJOYSTICK_C_H
 #define SDL_VIRTUALJOYSTICK_C_H
 
 #if SDL_JOYSTICK_VIRTUAL
-
-#include "SDL_joystick.h"
 
 /**
  * Data for a virtual, software-only joystick.

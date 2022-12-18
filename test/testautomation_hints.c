@@ -2,17 +2,14 @@
  * Hints test suite
  */
 
-#include <stdio.h>
-
-#include "SDL.h"
-#include "SDL_test.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_test.h>
 
 const char *_HintsEnum[] = {
     SDL_HINT_ACCELEROMETER_AS_JOYSTICK,
     SDL_HINT_FRAMEBUFFER_ACCELERATION,
     SDL_HINT_GAMECONTROLLERCONFIG,
     SDL_HINT_GRAB_KEYBOARD,
-    SDL_HINT_IDLE_TIMER_DISABLED,
     SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
     SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK,
     SDL_HINT_MOUSE_RELATIVE_MODE_WARP,
@@ -37,7 +34,6 @@ const char *_HintsVerbose[] = {
     "SDL_FRAMEBUFFER_ACCELERATION",
     "SDL_GAMECONTROLLERCONFIG",
     "SDL_GRAB_KEYBOARD",
-    "SDL_IDLE_TIMER_DISABLED",
     "SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS",
     "SDL_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK",
     "SDL_MOUSE_RELATIVE_MODE_WARP",
@@ -264,3 +260,5 @@ SDLTest_TestSuiteReference hintsTestSuite = {
     hintsTests,
     NULL
 };
+
+/* vi: set ts=4 sw=4 expandtab: */

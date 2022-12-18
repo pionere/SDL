@@ -10,26 +10,21 @@
   freely.
 */
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
+#include <SDL3/SDL_main.h>
 
-#if defined(__IPHONEOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__NACL__) \
-    || defined(__WINDOWS__) || defined(__LINUX__)
-#ifndef HAVE_OPENGLES2
+#if defined(__IOS__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__WINDOWS__) || defined(__LINUX__)
 #define HAVE_OPENGLES2
-#endif
 #endif
 
 #ifdef HAVE_OPENGLES2
 
-#include "SDL_opengles2.h"
+#include <SDL3/SDL_opengles2.h>
 
 typedef struct GLES2_Context
 {
@@ -68,8 +63,6 @@ static int LoadContext(GLES2_Context *data)
 #if SDL_VIDEO_DRIVER_UIKIT
 #define __SDL_NOGETPROCADDR__
 #elif SDL_VIDEO_DRIVER_ANDROID
-#define __SDL_NOGETPROCADDR__
-#elif SDL_VIDEO_DRIVER_PANDORA
 #define __SDL_NOGETPROCADDR__
 #endif
 
@@ -130,7 +123,7 @@ rotate_matrix(float angle, float x, float y, float z, float *r)
     float radians, c, s, c1, u[3], length;
     int i, j;
 
-    radians = (float)(angle * M_PI) / 180.0f;
+    radians = (angle * SDL_PI_F) / 180.0f;
 
     c = SDL_cosf(radians);
     s = SDL_sinf(radians);
@@ -243,7 +236,6 @@ process_shader(GLuint *shader, const char *source, GLint shader_type)
         ctx.glGetShaderInfoLog(*shader, sizeof(buffer), &length, &buffer[0]);
         buffer[length] = '\0';
         SDL_Log("Shader compilation failed: %s", buffer);
-        fflush(stderr);
         quit(-1);
     }
 }
@@ -261,11 +253,10 @@ link_program(struct shader_data *data)
     GL_CHECK(ctx.glGetProgramiv(data->shader_program, GL_LINK_STATUS, &status));
 
     if (status != GL_TRUE) {
-         ctx.glGetProgramInfoLog(data->shader_program, sizeof(buffer), &length, &buffer[0]);
-         buffer[length] = '\0';
-         SDL_Log("Program linking failed: %s", buffer);
-         fflush(stderr);
-         quit(-1);
+        ctx.glGetProgramInfoLog(data->shader_program, sizeof(buffer), &length, &buffer[0]);
+        buffer[length] = '\0';
+        SDL_Log("Program linking failed: %s", buffer);
+        quit(-1);
     }
 }
 
@@ -625,7 +616,7 @@ int main(int argc, char *argv[])
     int value;
     int i;
     SDL_DisplayMode mode;
-    Uint32 then, now;
+    Uint64 then, now;
     int status;
     shader_data *data;
 
@@ -893,9 +884,9 @@ int main(int argc, char *argv[])
         SDL_Log("%2.2f frames per second\n",
                 ((double)frames * 1000) / (now - then));
     }
-#if !defined(__ANDROID__) && !defined(__NACL__)  
+#if !defined(__ANDROID__)
     quit(0);
-#endif    
+#endif
     return 0;
 }
 

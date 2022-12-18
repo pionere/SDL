@@ -18,14 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_sysrender_h_
 #define SDL_sysrender_h_
 
-#include "SDL_render.h"
-#include "SDL_events.h"
-#include "SDL_mutex.h"
 #include "SDL_yuv_sw_c.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -212,8 +209,8 @@ struct SDL_Renderer
     /* Whether we should simulate vsync */
     SDL_bool wanted_vsync;
     SDL_bool simulate_vsync;
-    Uint32 simulate_vsync_interval;
-    Uint32 next_present;
+    Uint64 simulate_vsync_interval_ns;
+    Uint64 next_present;
 
     /* The logical resolution for rendering */
     int logical_w;
@@ -300,8 +297,6 @@ extern SDL_RenderDriver D3D11_RenderDriver;
 extern SDL_RenderDriver D3D12_RenderDriver;
 extern SDL_RenderDriver GL_RenderDriver;
 extern SDL_RenderDriver GLES2_RenderDriver;
-extern SDL_RenderDriver GLES_RenderDriver;
-extern SDL_RenderDriver DirectFB_RenderDriver;
 extern SDL_RenderDriver METAL_RenderDriver;
 extern SDL_RenderDriver PS2_RenderDriver;
 extern SDL_RenderDriver PSP_RenderDriver;

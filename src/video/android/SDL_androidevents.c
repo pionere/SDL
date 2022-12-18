@@ -18,12 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_ANDROID
 
 #include "SDL_androidevents.h"
-#include "SDL_events.h"
 #include "SDL_androidkeyboard.h"
 #include "SDL_androidwindow.h"
 #include "../SDL_sysvideo.h"
@@ -79,6 +78,7 @@ static void android_egl_context_restore(SDL_Window *window)
             data->egl_context = (EGLContext)SDL_GL_CreateContext(window);
             SDL_GL_MakeCurrent(window, (SDL_GLContext)data->egl_context);
             event.type = SDL_RENDER_DEVICE_RESET;
+            event.common.timestamp = 0;
             SDL_PushEvent(&event);
         }
         data->backup_done = 0;

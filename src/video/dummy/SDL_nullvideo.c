@@ -18,7 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_DRIVER_DUMMY
 
@@ -37,8 +37,6 @@
  *  SDL video driver.  Renamed to "DUMMY" by Sam Lantinga.
  */
 
-#include "SDL_video.h"
-#include "SDL_mouse.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
@@ -46,7 +44,6 @@
 #include "SDL_nullvideo.h"
 #include "SDL_nullevents_c.h"
 #include "SDL_nullframebuffer_c.h"
-#include "SDL_hints.h"
 
 #define DUMMYVID_DRIVER_NAME       "dummy"
 #define DUMMYVID_DRIVER_EVDEV_NAME "evdev"
@@ -65,7 +62,7 @@ static void DUMMY_EVDEV_Poll(_THIS);
 
 static int DUMMY_Available(void)
 {
-    const char *envr = SDL_GetHint(SDL_HINT_VIDEODRIVER);
+    const char *envr = SDL_GetHint(SDL_HINT_VIDEO_DRIVER);
     if (envr) {
         if (SDL_strcmp(envr, DUMMYVID_DRIVER_NAME) == 0) {
             return 1;

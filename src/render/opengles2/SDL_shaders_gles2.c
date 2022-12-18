@@ -18,15 +18,14 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_OGL_ES2 && !SDL_RENDER_DISABLED
 
-#include "SDL_hints.h"
-#include "SDL_video.h"
-#include "SDL_opengles2.h"
+#include <SDL3/SDL_opengles2.h>
 #include "SDL_shaders_gles2.h"
-#include "SDL_stdinc.h"
+
+/* *INDENT-OFF* */ /* clang-format off */
 
 /* *INDENT-OFF* */ /* clang-format off */
 

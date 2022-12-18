@@ -18,11 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #if SDL_VIDEO_RENDER_D3D11 && !SDL_RENDER_DISABLED
 
-#include "SDL_syswm.h"
 #include "../../video/winrt/SDL_winrtvideo_cpp.h"
 extern "C" {
 #include "../SDL_sysrender.h"
@@ -40,6 +39,9 @@ using namespace Windows::Graphics::Display;
 
 #include <DXGI.h>
 
+#define SDL_ENABLE_SYSWM_WINRT
+#include <SDL3/SDL_syswm.h>
+
 #include "SDL_render_winrt.h"
 
 extern "C" void *
@@ -51,8 +53,9 @@ D3D11_GetCoreWindowFromSDLRenderer(SDL_Renderer *renderer)
     }
 
     SDL_SysWMinfo sdlWindowInfo;
-    SDL_VERSION(&sdlWindowInfo.version);
-    if ( ! SDL_GetWindowWMInfo(sdlWindow, &sdlWindowInfo) ) {
+    if (SDL_GetWindowWMInfo(sdlWindow, &sdlWindowInfo, SDL_SYSWM_CURRENT_VERSION) < 0 ||
+        sdlWindowInfo.subsystem != SDL_SYSWM_WINRT) {
+        SDL_SetError("Couldn't get window handle");
         return NULL;
     }
 

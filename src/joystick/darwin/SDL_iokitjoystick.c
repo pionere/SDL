@@ -18,12 +18,10 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef SDL_JOYSTICK_IOKIT
 
-#include "SDL_events.h"
-#include "SDL_joystick.h"
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 #include "SDL_iokitjoystick_c.h"
@@ -752,7 +750,6 @@ static int DARWIN_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
     joystick->naxes = device->axes;
     joystick->nhats = device->hats;
-    joystick->nballs = 0;
     joystick->nbuttons = device->buttons;
     return 0;
 }
@@ -929,6 +926,7 @@ static void DARWIN_JoystickUpdate(SDL_Joystick *joystick)
     recElement *element;
     SInt32 value, range;
     int i, goodRead = SDL_FALSE;
+    Uint64 timestamp = SDL_GetTicksNS();
 
     if (device == NULL) {
         return;
@@ -947,7 +945,7 @@ static void DARWIN_JoystickUpdate(SDL_Joystick *joystick)
     while (element) {
         goodRead = GetHIDScaledCalibratedState(device, element, -32768, 32767, &value);
         if (goodRead) {
-            SDL_PrivateJoystickAxis(joystick, i, value);
+            SDL_PrivateJoystickAxis(timestamp, joystick, i, value);
         }
 
         element = element->pNext;
@@ -962,7 +960,7 @@ static void DARWIN_JoystickUpdate(SDL_Joystick *joystick)
             if (value > 1) { /* handle pressure-sensitive buttons */
                 value = 1;
             }
-            SDL_PrivateJoystickButton(joystick, i, value);
+            SDL_PrivateJoystickButton(timestamp, joystick, i, value);
         }
 
         element = element->pNext;
@@ -1018,7 +1016,7 @@ static void DARWIN_JoystickUpdate(SDL_Joystick *joystick)
                 break;
             }
 
-            SDL_PrivateJoystickHat(joystick, i, pos);
+            SDL_PrivateJoystickHat(timestamp, joystick, i, pos);
         }
 
         element = element->pNext;

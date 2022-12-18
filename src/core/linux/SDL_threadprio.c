@@ -18,20 +18,15 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifdef __LINUX__
-
-#include "SDL_error.h"
-#include "SDL_stdinc.h"
-#include "SDL_thread.h"
 
 #if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "SDL_system.h"
 
 /* RLIMIT_RTTIME requires kernel >= 2.6.25 and is in glibc >= 2.14 */
 #ifndef RLIMIT_RTTIME

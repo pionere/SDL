@@ -18,13 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
 #ifndef SDL_sysjoystick_h_
 #define SDL_sysjoystick_h_
 
 /* This is the system specific header for the SDL joystick API */
-#include "SDL_joystick.h"
 #include "SDL_joystick_c.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -64,7 +63,6 @@ typedef struct _SDL_JoystickSensorInfo
     SDL_bool enabled;
     float rate;
     float data[3]; /* If this needs to expand, update SDL_ControllerSensorEvent */
-    Uint64 timestamp_us;
 } SDL_JoystickSensorInfo;
 
 #define _guarded SDL_GUARDED_BY(SDL_joystick_lock)
@@ -86,13 +84,6 @@ struct _SDL_Joystick
     int nhats _guarded;   /* Number of hats on the joystick */
     Uint8 *hats _guarded; /* Current hat states */
 
-    int nballs _guarded; /* Number of trackballs on the joystick */
-    struct balldelta
-    {
-        int dx;
-        int dy;
-    } *balls _guarded; /* Current ball motion deltas */
-
     int nbuttons _guarded;   /* Number of buttons on the joystick */
     Uint8 *buttons _guarded; /* Current button states */
 
@@ -105,17 +96,17 @@ struct _SDL_Joystick
 
     Uint16 low_frequency_rumble _guarded;
     Uint16 high_frequency_rumble _guarded;
-    Uint32 rumble_expiration _guarded;
-    Uint32 rumble_resend _guarded;
+    Uint64 rumble_expiration _guarded;
+    Uint64 rumble_resend _guarded;
 
     Uint16 left_trigger_rumble _guarded;
     Uint16 right_trigger_rumble _guarded;
-    Uint32 trigger_rumble_expiration _guarded;
+    Uint64 trigger_rumble_expiration _guarded;
 
     Uint8 led_red _guarded;
     Uint8 led_green _guarded;
     Uint8 led_blue _guarded;
-    Uint32 led_expiration _guarded;
+    Uint64 led_expiration _guarded;
 
     SDL_bool attached _guarded;
     SDL_bool is_game_controller _guarded;
@@ -244,7 +235,6 @@ extern SDL_JoystickDriver SDL_VIRTUAL_JoystickDriver;
 extern SDL_JoystickDriver SDL_WGI_JoystickDriver;
 extern SDL_JoystickDriver SDL_WINDOWS_JoystickDriver;
 extern SDL_JoystickDriver SDL_WINMM_JoystickDriver;
-extern SDL_JoystickDriver SDL_OS2_JoystickDriver;
 extern SDL_JoystickDriver SDL_PS2_JoystickDriver;
 extern SDL_JoystickDriver SDL_PSP_JoystickDriver;
 extern SDL_JoystickDriver SDL_VITA_JoystickDriver;

@@ -27,12 +27,8 @@
  * This merges the two, at a small performance cost, until distributions
  * have granted access to /dev/hidraw*
  */
-#include "../SDL_internal.h"
+#include "SDL_internal.h"
 
-#include "SDL_loadso.h"
-#include "SDL_hidapi.h"
-#include "SDL_thread.h"
-#include "SDL_timer.h"
 #include "SDL_hidapi_c.h"
 
 #if !SDL_HIDAPI_DISABLED
@@ -41,7 +37,7 @@
 #include "../core/windows/SDL_windows.h"
 #endif
 
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach.h>
 #include <IOKit/IOKitLib.h>
@@ -61,8 +57,8 @@
 #endif
 
 #ifdef HAVE_INOTIFY
-#include <unistd.h>  /* just in case we didn't use that SDL_USE_LIBUDEV block... */
-#include <errno.h>              /* errno, strerror */
+#include <string.h> /* strerror */
+#include <errno.h>  /* errno */
 #include <fcntl.h>
 #include <limits.h> /* For the definition of NAME_MAX */
 #include <sys/inotify.h>
@@ -96,7 +92,7 @@ static struct
     SDL_bool m_bInitialized;
     Uint32 m_unDeviceChangeCounter;
     SDL_bool m_bCanGetNotifications;
-    Uint32 m_unLastDetect;
+    Uint64 m_unLastDetect;
 
 #if defined(__WIN32__) || defined(__WINGDK__)
     SDL_threadID m_nThreadID;
@@ -106,7 +102,7 @@ static struct
     double m_flLastWin32MessageCheck;
 #endif
 
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
     IONotificationPortRef m_notificationPort;
     mach_port_t m_notificationMach;
 #endif
@@ -166,8 +162,7 @@ static LRESULT CALLBACK ControllerWndProc(HWND hwnd, UINT message, WPARAM wParam
 }
 #endif /* defined(__WIN32__) || defined(__WINGDK__) */
 
-
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
 static void CallbackIOServiceFunc(void *context, io_iterator_t portIterator)
 {
     /* Must drain the iterator, or we won't receive new notifications */
@@ -177,7 +172,7 @@ static void CallbackIOServiceFunc(void *context, io_iterator_t portIterator)
         ++SDL_HIDAPI_discovery.m_unDeviceChangeCounter;
     }
 }
-#endif /* __MACOSX__ */
+#endif /* __MACOS__ */
 
 #ifdef HAVE_INOTIFY
 #ifdef HAVE_INOTIFY_INIT1
@@ -260,7 +255,7 @@ HIDAPI_InitializeDiscovery()
     }
 #endif /* defined(__WIN32__) || defined(__WINGDK__) */
 
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
     SDL_HIDAPI_discovery.m_notificationPort = IONotificationPortCreate(kIOMainPortDefault);
     if (SDL_HIDAPI_discovery.m_notificationPort) {
         {
@@ -310,7 +305,7 @@ HIDAPI_InitializeDiscovery()
 
     SDL_HIDAPI_discovery.m_bCanGetNotifications = (SDL_HIDAPI_discovery.m_notificationMach != MACH_PORT_NULL);
 
-#endif /* __MACOSX__ */
+#endif /* __MACOS__ */
 
 #if defined(SDL_USE_LIBUDEV)
     if (linux_enumeration_method == ENUMERATION_LIBUDEV) {
@@ -372,8 +367,8 @@ HIDAPI_UpdateDiscovery()
 
     if (!SDL_HIDAPI_discovery.m_bCanGetNotifications) {
         const Uint32 SDL_HIDAPI_DETECT_INTERVAL_MS = 3000; /* Update every 3 seconds */
-        Uint32 now = SDL_GetTicks();
-        if (!SDL_HIDAPI_discovery.m_unLastDetect || SDL_TICKS_PASSED(now, SDL_HIDAPI_discovery.m_unLastDetect + SDL_HIDAPI_DETECT_INTERVAL_MS)) {
+        Uint64 now = SDL_GetTicks();
+        if (!SDL_HIDAPI_discovery.m_unLastDetect || now >= (SDL_HIDAPI_discovery.m_unLastDetect + SDL_HIDAPI_DETECT_INTERVAL_MS)) {
             ++SDL_HIDAPI_discovery.m_unDeviceChangeCounter;
             SDL_HIDAPI_discovery.m_unLastDetect = now;
         }
@@ -395,7 +390,7 @@ HIDAPI_UpdateDiscovery()
 #endif
 #endif /* defined(__WIN32__) || defined(__WINGDK__) */
 
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
     if (SDL_HIDAPI_discovery.m_notificationPort) {
         struct
         {
@@ -500,7 +495,7 @@ HIDAPI_ShutdownDiscovery()
     UnregisterClassA(SDL_HIDAPI_discovery.m_wndClass.lpszClassName, SDL_HIDAPI_discovery.m_wndClass.hInstance);
 #endif
 
-#if defined(__MACOSX__)
+#if defined(__MACOS__)
     if (SDL_HIDAPI_discovery.m_notificationPort) {
         IONotificationPortDestroy(SDL_HIDAPI_discovery.m_notificationPort);
     }
@@ -587,7 +582,7 @@ static const SDL_UDEV_Symbols *udev_ctx = NULL;
 #define HAVE_PLATFORM_BACKEND 1
 #endif /* SDL_USE_LIBUDEV */
 
-#elif __MACOSX__
+#elif __MACOS__
 #include "mac/hid.c"
 #define HAVE_PLATFORM_BACKEND 1
 #define udev_ctx              1
@@ -599,8 +594,8 @@ static const SDL_UDEV_Symbols *udev_ctx = NULL;
 /* The implementation for Android is in a separate .cpp file */
 #include "hidapi/hidapi.h"
 #define HAVE_PLATFORM_BACKEND 1
-#define udev_ctx 1
-#elif __IPHONEOS__ || __TVOS__
+#define udev_ctx              1
+#elif __IOS__ || __TVOS__
 /* The implementation for iOS and tvOS is in a separate .m file */
 #include "hidapi/hidapi.h"
 #define HAVE_PLATFORM_BACKEND 1
@@ -1591,7 +1586,7 @@ int SDL_hid_get_indexed_string(SDL_hid_device *device, int string_index, wchar_t
 
 void SDL_hid_ble_scan(SDL_bool active)
 {
-#if !SDL_HIDAPI_DISABLED && (__IPHONEOS__ || __TVOS__)
+#if !SDL_HIDAPI_DISABLED && (__IOS__ || __TVOS__)
     hid_ble_scan(active);
 #endif
 }

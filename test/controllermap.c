@@ -15,9 +15,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "testutils.h"
 
 #ifndef SDL_JOYSTICK_DISABLED
@@ -167,7 +167,7 @@ static int s_nNumAxes;
 static AxisState *s_arrAxisState;
 
 static int s_iCurrentBinding;
-static Uint32 s_unPendingAdvanceTime;
+static Uint64 s_unPendingAdvanceTime;
 static SDL_bool s_bBindingComplete;
 
 static SDL_Window *window;
@@ -357,7 +357,7 @@ WatchJoystick(SDL_Joystick *joystick)
     SDL_Event event;
     SDL_Rect dst;
     Uint8 alpha = 200, alpha_step = -1;
-    Uint32 alpha_ticks = 0;
+    Uint64 alpha_ticks = 0;
     SDL_JoystickID nJoystickID;
 
     background_front = LoadTexture(screen, "controllermap.bmp", SDL_FALSE, NULL, NULL);
@@ -373,9 +373,8 @@ WatchJoystick(SDL_Joystick *joystick)
     name = SDL_JoystickName(joystick);
     SDL_Log("Watching joystick %" SDL_PRIs32 ": (%s)\n", SDL_JoystickInstanceID(joystick),
             name ? name : "Unknown Joystick");
-    SDL_Log("Joystick has %d axes, %d hats, %d balls, and %d buttons\n",
-            SDL_JoystickNumAxes(joystick), SDL_JoystickNumHats(joystick),
-            SDL_JoystickNumBalls(joystick), SDL_JoystickNumButtons(joystick));
+    SDL_Log("Joystick has %d axes, %d hats, and %d buttons\n",
+            SDL_JoystickNumAxes(joystick), SDL_JoystickNumHats(joystick), SDL_JoystickNumButtons(joystick));
 
     SDL_Log("\n\n\
     ====================================================================================\n\
@@ -412,7 +411,7 @@ WatchJoystick(SDL_Joystick *joystick)
         dst.y = s_arrBindingDisplay[iElement].y;
         SDL_QueryTexture(marker, NULL, NULL, &dst.w, &dst.h);
 
-        if (SDL_GetTicks() - alpha_ticks > 5) {
+        if (SDL_GetTicks() >= (alpha_ticks + 5)) {
             alpha_ticks = SDL_GetTicks();
             alpha += alpha_step;
             if (alpha == 255) {
@@ -500,8 +499,6 @@ WatchJoystick(SDL_Joystick *joystick)
                         ConfigureBinding(&binding);
                     }
                 }
-                break;
-            case SDL_JOYBALLMOTION:
                 break;
             case SDL_JOYBUTTONDOWN:
                 if (event.jbutton.which == nJoystickID) {
@@ -736,7 +733,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    screen = SDL_CreateRenderer(window, -1, 0);
+    screen = SDL_CreateRenderer(window, NULL, 0);
     if (screen == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n", SDL_GetError());
         return 2;
@@ -776,7 +773,6 @@ int main(int argc, char *argv[])
             SDL_JoystickGetGUIDString(SDL_JoystickGetGUID(joystick),
                                       guid, sizeof(guid));
             SDL_Log("       axes: %d\n", SDL_JoystickNumAxes(joystick));
-            SDL_Log("      balls: %d\n", SDL_JoystickNumBalls(joystick));
             SDL_Log("       hats: %d\n", SDL_JoystickNumHats(joystick));
             SDL_Log("    buttons: %d\n", SDL_JoystickNumButtons(joystick));
             SDL_Log("instance id: %" SDL_PRIu32 "\n", SDL_JoystickInstanceID(joystick));

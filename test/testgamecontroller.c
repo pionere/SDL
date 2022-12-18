@@ -12,24 +12,16 @@
 
 /* Simple program to test the SDL game controller routines */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "testutils.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
-#ifndef SDL_JOYSTICK_DISABLED
-
-#define SCREEN_WIDTH    512
-#define SCREEN_HEIGHT   320
-
-#define BUTTON_SIZE     50
-#define AXIS_SIZE       50
+#define SCREEN_WIDTH  512
+#define SCREEN_HEIGHT 320
 
 #define BUTTON_SIZE 50
 #define AXIS_SIZE   50
@@ -605,7 +597,7 @@ void loop(void *arg)
                     event.csensor.data[0],
                     event.csensor.data[1],
                     event.csensor.data[2],
-                    event.csensor.timestamp_us);
+                    event.csensor.sensor_timestamp);
             break;
 #endif /* VERBOSE_SENSORS */
 
@@ -901,7 +893,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    screen = SDL_CreateRenderer(window, -1, 0);
+    screen = SDL_CreateRenderer(window, NULL, 0);
     if (screen == NULL) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create renderer: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
@@ -969,16 +961,5 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-#else
-
-int
-main(int argc, char *argv[])
-{
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL compiled without Joystick support.\n");
-    return 1;
-}
-
-#endif
 
 /* vi: set ts=4 sw=4 expandtab: */

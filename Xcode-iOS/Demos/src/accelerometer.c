@@ -4,7 +4,8 @@
  *  use however you want
  */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include <math.h>
 #include "common.h"
 
@@ -170,7 +171,7 @@ main(int argc, char *argv[])
 
     /* create main window and renderer */
     window = SDL_CreateWindow(NULL, 0, 0, 320, 480, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALLOW_HIGHDPI);
-    renderer = SDL_CreateRenderer(window, 0, 0);
+    renderer = SDL_CreateRenderer(window, NULL, 0);
     
     SDL_GetWindowSize(window, &w, &h);
     SDL_RenderSetLogicalSize(renderer, w, h);
@@ -186,8 +187,6 @@ main(int argc, char *argv[])
            SDL_JoystickNumAxes(accelerometer));
     printf("joystick number of hats = %d\n",
            SDL_JoystickNumHats(accelerometer));
-    printf("joystick number of balls = %d\n",
-           SDL_JoystickNumBalls(accelerometer));
     printf("joystick number of buttons = %d\n",
            SDL_JoystickNumButtons(accelerometer));
 

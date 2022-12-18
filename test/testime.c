@@ -13,21 +13,21 @@
    If you build without SDL_ttf, you can use the GNU Unifont hex file instead.
    Download at http://unifoundry.com/unifont.html */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #ifdef HAVE_SDL_TTF
 #include "SDL_ttf.h"
 #endif
 
-#include "SDL_test_common.h"
+#include <SDL3/SDL_test_common.h>
 #include "testutils.h"
 
-#define DEFAULT_PTSIZE 30
 #ifdef HAVE_SDL_TTF
-#ifdef __MACOSX__
+#define DEFAULT_PTSIZE 30
+#endif
+
+#ifdef HAVE_SDL_TTF
+#ifdef __MACOS__
 #define DEFAULT_FONT "/System/Library/Fonts/华文细黑.ttf"
 #elif __WIN32__
 /* Some japanese font present on at least Windows 8.1. */
@@ -60,7 +60,7 @@ static TTF_Font *font;
 #define UNIFONT_TEXTURE_SIZE      (UNIFONT_TEXTURE_WIDTH * UNIFONT_TEXTURE_WIDTH * 4)
 #define UNIFONT_TEXTURE_PITCH     (UNIFONT_TEXTURE_WIDTH * 4)
 #define UNIFONT_DRAW_SCALE        2
-struct UnifontGlyph
+static struct UnifontGlyph
 {
     Uint8 width;
     Uint8 data[32];
@@ -108,7 +108,7 @@ static int unifont_init(const char *fontname)
     Uint8 hexBuffer[65];
     Uint32 numGlyphs = 0;
     int lineNumber = 1;
-    size_t bytesRead;
+    Sint64 bytesRead;
     SDL_RWops *hexFile;
     const size_t unifontGlyphSize = UNIFONT_NUM_GLYPHS * sizeof(struct UnifontGlyph);
     const size_t unifontTextureSize = UNIFONT_NUM_TEXTURES * state->num_windows * sizeof(void *);
@@ -149,7 +149,12 @@ static int unifont_init(const char *fontname)
         Uint8 glyphWidth;
         Uint32 codepoint;
 
-        bytesRead = SDL_RWread(hexFile, hexBuffer, 1, 9);
+        bytesRead = SDL_RWread(hexFile, hexBuffer, 9);
+        if (bytesRead < 0) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error SDL_RWread\n");
+            return -1;
+        }
+
         if (numGlyphs > 0 && bytesRead == 0) {
             break; /* EOF */
         }
@@ -185,8 +190,15 @@ static int unifont_init(const char *fontname)
         if (codepointHexSize < 8) {
             SDL_memmove(hexBuffer, hexBuffer + codepointHexSize + 1, bytesOverread);
         }
-        bytesRead = SDL_RWread(hexFile, hexBuffer + bytesOverread, 1, 33 - bytesOverread);
-        if (bytesRead < (33 - bytesOverread)) {
+        bytesRead = SDL_RWread(hexFile, hexBuffer + bytesOverread, 33 - bytesOverread);
+        if (bytesRead < 0) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error SDL_RWread\n");
+            return -1;
+        }
+
+
+
+        if ((size_t)bytesRead < (33 - bytesOverread)) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "unifont: Unexpected end of hex file.\n");
             return -1;
         }
@@ -194,7 +206,12 @@ static int unifont_init(const char *fontname)
             glyphWidth = 8;
         } else {
             glyphWidth = 16;
-            bytesRead = SDL_RWread(hexFile, hexBuffer + 33, 1, 32);
+            bytesRead = SDL_RWread(hexFile, hexBuffer + 33, 32);
+            if (bytesRead < 0) {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "error SDL_RWread\n");
+                return -1;
+            }
+
             if (bytesRead < 32) {
                 SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "unifont: Unexpected end of hex file.\n");
                 return -1;
@@ -333,7 +350,7 @@ static Sint32 unifont_draw_glyph(Uint32 codepoint, int rendererID, SDL_Rect *dst
     return unifontGlyph[codepoint].width;
 }
 
-static void unifont_cleanup()
+static void unifont_cleanup(void)
 {
     int i, j;
     for (i = 0; i < state->num_windows; ++i) {
@@ -360,7 +377,7 @@ static void unifont_cleanup()
 /* Unifont code end */
 #endif
 
-size_t utf8_length(unsigned char c)
+static size_t utf8_length(unsigned char c)
 {
     c = (unsigned char)(0xff & c);
     if (c < 0x80) {
@@ -375,7 +392,8 @@ size_t utf8_length(unsigned char c)
     return 0;
 }
 
-char *utf8_next(char *p)
+#ifdef HAVE_SDL_TTF
+static char *utf8_next(char *p)
 {
     size_t len = utf8_length(*p);
     size_t i = 0;
@@ -392,7 +410,8 @@ char *utf8_next(char *p)
     return p;
 }
 
-char *utf8_advance(char *p, size_t distance)
+
+static char *utf8_advance(char *p, size_t distance)
 {
     size_t i = 0;
     for (; i < distance && p; ++i) {
@@ -400,8 +419,9 @@ char *utf8_advance(char *p, size_t distance)
     }
     return p;
 }
+#endif
 
-Uint32 utf8_decode(char *p, size_t len)
+static Uint32 utf8_decode(char *p, size_t len)
 {
     Uint32 codepoint = 0;
     size_t i = 0;
@@ -425,12 +445,12 @@ Uint32 utf8_decode(char *p, size_t len)
     return codepoint;
 }
 
-void usage()
+static void usage(void)
 {
     SDL_Log("usage: testime [--font fontfile]\n");
 }
 
-void InitInput()
+static void InitInput(void)
 {
     /* Prepare a rect for text input */
     textRect.x = textRect.y = 100;
@@ -444,7 +464,7 @@ void InitInput()
     SDL_StartTextInput();
 }
 
-void CleanupVideo()
+static void CleanupVideo(void)
 {
     SDL_StopTextInput();
 #ifdef HAVE_SDL_TTF
@@ -455,7 +475,7 @@ void CleanupVideo()
 #endif
 }
 
-void _Redraw(int rendererID)
+static void _Redraw(int rendererID)
 {
     SDL_Renderer *renderer = state->renderers[rendererID];
     SDL_Rect drawnTextRect, cursorRect, underlineRect;
@@ -597,7 +617,7 @@ void _Redraw(int rendererID)
     SDL_SetTextInputRect(&markedRect);
 }
 
-void Redraw()
+static void Redraw(void)
 {
     int i;
     for (i = 0; i < state->num_windows; ++i) {
@@ -770,6 +790,5 @@ int main(int argc, char *argv[])
     SDLTest_CommonQuit(state);
     return 0;
 }
-
 
 /* vi: set ts=4 sw=4 expandtab: */
