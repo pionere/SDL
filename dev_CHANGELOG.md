@@ -4,8 +4,6 @@ Major changes:
 - add option to enable/disable SDL_BLIT_SLOW (61855fc35c11ed8575ffffbb648f95477d997bee)
 - add option to enable/disable blit with modulo/alpha (SDL_BLIT_TRANSFORM) (e00e9a4f682bad39cce7c03d7f8786113257393b)
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
-- add option SDL_SANITIZE_ACCESS (3002789c7d9137f288be193cd003b76c76b98c01 + 90f2c195e6fe0206499dddaa463b87cd03a6c185)
-  1. assume SDL_GetTicks64/SDL_GetPerformanceCounter/SDL_GetPerformanceFrequency and SDL_Delay are not called before SDL_TicksInit
 - add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1)
 
 Minor changes:
@@ -17,7 +15,7 @@ Minor changes:
 - do not report dummy haptic subsystem as ON (dec3267bb8f863edc39b49499be38f8cdb672f9b)
 - make dummy/diskaudio and dummy video OFF by default (f2c73a7fb0c445074562a504b3badeea22a38568)
 - make virtual joystick OFF by default (2821272508d9fdf65db274ec314bf4323e03ed4f)
-- make offscreen video OFF by default (41ac06835dfc24ddc4a8d6e1d37739253d22279e)
+- make offscreen video OFF by default (41ac06835dfc24ddc4a8d6e1d37739253d22279e + e2d780db677cd95f82e4e29daf0aff2d935ebcec)
 - report if subsystem is live or just a dummy (b0e6a3e5d8f0cd734952364e197dd3a739314cb3 + 3418aab14301cfa3c85163b529ed8e3aa433fe4d)
 - upload created artifacts on push and pull_request (bf08b8f89ea2e37dee0d7e63386116e763f5eff6)
 - get rid of SDL_AudioDriver.desc (2b9a7d7601f756c3fa4621704ad7388f0ccc2417 + b4e62c06a29ec4ee9b0522e545c7f5fd5e871bd3 + 4dd9c3a4bebd96f411b71ca518138a3ac7d137e0)
