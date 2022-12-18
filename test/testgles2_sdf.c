@@ -355,22 +355,6 @@ void loop()
             break;
         }
 
-            if (sym == SDLK_LEFT) {
-                g_val -= 0.05f;
-            }
-            if (sym == SDLK_RIGHT) {
-                g_val += 0.05f;
-            }
-            if (sym == SDLK_UP) {
-                g_angle -= 1.0f;
-            }
-            if (sym == SDLK_DOWN) {
-                g_angle += 1.0f;
-            }
-
-            break;
-        }
-
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
             case SDL_WINDOWEVENT_RESIZED:

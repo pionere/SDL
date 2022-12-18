@@ -223,8 +223,8 @@
 #include <SDL3/SDL.h>
 #define SDL_MAIN_NOIMPL /* don't drag in header-only implementation of SDL_main */
 #include <SDL3/SDL_main.h>
-#include "SDL_assert.h"
-#include "SDL_log.h"
+#include <SDL3/SDL_assert.h>
+#include <SDL3/SDL_log.h>
 
 /* Override SDL_*Log functions.
   Necessary to eliminate the calls and the strings as well. */

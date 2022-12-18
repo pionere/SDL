@@ -2158,7 +2158,7 @@ elseif(APPLE)
 
   if(SDL_JOYSTICK)
     set(SDL_JOYSTICK_IOS 1)
-    file(GLOB MFI_JOYSTICK_SOURCES ${SDL3_SOURCE_DIR}/src/joystick/iphoneos/*.m)
+    file(GLOB MFI_JOYSTICK_SOURCES ${SDL3_SOURCE_DIR}/src/joystick/apple/*.m)
     if(IOS OR TVOS)
       file(GLOB JOYSTICK_SOURCES ${SDL3_SOURCE_DIR}/src/joystick/steam/*.c)
       set(SDL_JOYSTICK_MFI 1)

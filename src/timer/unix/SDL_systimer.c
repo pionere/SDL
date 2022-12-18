@@ -90,7 +90,7 @@ SDL_GetPerformanceCounter(void)
     if (!checked_monotonic_time) {
         CheckMonotonicTime();
     }
-#endif
+
     if (has_monotonic_time) {
 #if HAVE_CLOCK_GETTIME
         struct timespec now;
@@ -122,7 +122,7 @@ SDL_GetPerformanceFrequency(void)
     if (!checked_monotonic_time) {
         CheckMonotonicTime();
     }
-#endif
+
     if (has_monotonic_time) {
 #if HAVE_CLOCK_GETTIME
         return SDL_NS_PER_SECOND;

@@ -34,7 +34,7 @@ SDL_GetPerformanceCounter(void)
 {
     Uint64 ticks;
 	struct timeval now;
-#if !SDL_SANITIZE_ACCESS_DISABLED
+
 	gettimeofday(&now, NULL);
 	ticks = now.tv_sec;
 	ticks *= SDL_US_PER_SECOND;

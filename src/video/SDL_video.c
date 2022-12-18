@@ -4445,14 +4445,14 @@ int SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 #endif
 #if SDL_VIDEO_DRIVER_WAYLAND
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND) &&
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_WAYLAND)) {
         has_driver = SDL_TRUE;
         retval = Wayland_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif
 #if SDL_VIDEO_DRIVER_X11
     if (retval == -1 &&
-        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11) &&
+        SDL_MessageboxValidForDriver(messageboxdata, SDL_SYSWM_X11)) {
         retval = X11_ShowMessageBox(messageboxdata, buttonid);
     }
 #endif

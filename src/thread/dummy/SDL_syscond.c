@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#include "SDL_thread.h"
+#include <SDL3/SDL_thread.h>
 
 SDL_cond *
 SDL_CreateCond(void)
@@ -46,16 +46,10 @@ SDL_CondBroadcast(SDL_cond * cond)
     return SDL_SetError("SDL not built with thread support");
 }
 
-int
-SDL_CondWaitTimeout(SDL_cond * cond, SDL_mutex * mutex, Uint32 ms)
+int SDL_CondWaitTimeoutNS(SDL_cond *cond, SDL_mutex *mutex, Sint64 timeoutNS)
 {
     return SDL_SetError("SDL not built with thread support");
 }
 
-int
-SDL_CondWait(SDL_cond * cond, SDL_mutex * mutex)
-{
-    return SDL_SetError("SDL not built with thread support");
-}
 
 /* vi: set ts=4 sw=4 expandtab: */

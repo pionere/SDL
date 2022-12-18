@@ -22,8 +22,8 @@
 
 /* An implementation of semaphores using mutexes and condition variables */
 
-#include "SDL_timer.h"
-#include "SDL_thread.h"
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_thread.h>
 #include "SDL_systhread_c.h"
 
 
@@ -39,32 +39,19 @@ SDL_DestroySemaphore(SDL_sem * sem)
 {
 }
 
-int
-SDL_SemTryWait(SDL_sem * sem)
-{
-    return SDL_SetError("SDL not built with thread support");
-}
-
-int
-SDL_SemWaitTimeout(SDL_sem * sem, Uint32 timeout)
-{
-    return SDL_SetError("SDL not built with thread support");
-}
-
-int
-SDL_SemWait(SDL_sem * sem)
+int SDL_SemWaitTimeoutNS(SDL_sem *sem, Sint64 timeoutNS)
 {
     return SDL_SetError("SDL not built with thread support");
 }
 
 Uint32
-SDL_SemValue(SDL_sem * sem)
+SDL_SemValue(SDL_sem *sem)
 {
     return SDL_SetError("SDL not built with thread support");
 }
 
 int
-SDL_SemPost(SDL_sem * sem)
+SDL_SemPost(SDL_sem *sem)
 {
     return SDL_SetError("SDL not built with thread support");
 }

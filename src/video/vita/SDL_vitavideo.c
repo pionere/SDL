@@ -572,7 +572,6 @@ void VITA_PumpEvents(_THIS)
             if (result.button == SCE_IME_DIALOG_BUTTON_ENTER) {
                 SDL_SendKeyboardKeyAutoRelease(0, SDL_SCANCODE_RETURN);
             }
-            }
 
             sceImeDialogTerm();
 
