@@ -216,11 +216,10 @@ ESD_OpenDevice(_THIS, const char *devname)
 
     /* Initialize all variables that we clean on shutdown */
     this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc((sizeof *this->hidden));
+        SDL_calloc(1, sizeof(*this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(this->hidden);
     this->hidden->audio_fd = -1;
 
     /* Convert audio spec to the ESD audio format */

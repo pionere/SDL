@@ -1393,7 +1393,6 @@ int SDL_SendSysWMEvent(SDL_SysWMmsg *message)
     posted = 0;
     if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
         SDL_Event event;
-        SDL_memset(&event, 0, sizeof(event));
         event.type = SDL_SYSWMEVENT;
         event.syswm.msg = message;
         posted = (SDL_PushEvent(&event) > 0);

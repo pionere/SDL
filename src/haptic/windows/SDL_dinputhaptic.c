@@ -291,12 +291,11 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
     HRESULT ret;
     DIPROPDWORD dipdw;
 
-    /* Allocate the hwdata */
-    haptic->hwdata = (struct haptic_hwdata *)SDL_malloc(sizeof(*haptic->hwdata));
+    /* Allocate and clear the hwdata */
+    haptic->hwdata = (struct haptic_hwdata *)SDL_calloc(1, sizeof(*haptic->hwdata));
     if (haptic->hwdata == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_memset(haptic->hwdata, 0, sizeof(*haptic->hwdata));
 
     /* We'll use the device8 from now on. */
     haptic->hwdata->device = device8;
@@ -404,16 +403,13 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
                                instead and put warnings in SDL_haptic.h */
     haptic->nplaying = 128; /* Even more impossible to get this then neffects. */
 
-    /* Prepare effects memory. */
+    /* Allocate and clear the effects memory. */
     haptic->effects = (struct haptic_effect *)
-        SDL_malloc(sizeof(struct haptic_effect) * haptic->neffects);
+        SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
     if (haptic->effects == NULL) {
         SDL_OutOfMemory();
         goto acquire_err;
     }
-    /* Clear the memory */
-    SDL_memset(haptic->effects, 0,
-               sizeof(struct haptic_effect) * haptic->neffects);
 
     return 0;
 
@@ -545,11 +541,10 @@ static int SDL_SYS_SetDirection(DIEFFECT *effect, SDL_HapticDirection *dir, int 
     }
 
     /* Has axes. */
-    rglDir = SDL_malloc(sizeof(LONG) * naxes);
+    rglDir = SDL_calloc(naxes, sizeof(LONG));
     if (rglDir == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_memset(rglDir, 0, sizeof(LONG) * naxes);
     effect->rglDirection = rglDir;
 
     switch (dir->type) {
@@ -619,11 +614,10 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
     dest->dwFlags = DIEFF_OBJECTOFFSETS; /* Seems obligatory. */
 
     /* Envelope. */
-    envelope = SDL_malloc(sizeof(DIENVELOPE));
+    envelope = SDL_calloc(1, sizeof(DIENVELOPE));
     if (envelope == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_memset(envelope, 0, sizeof(DIENVELOPE));
     dest->lpEnvelope = envelope;
     envelope->dwSize = sizeof(DIENVELOPE); /* Always should be this. */
 
@@ -656,7 +650,7 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         if (constant == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(constant, 0, sizeof(DICONSTANTFORCE));
+        // SDL_memset(constant, 0, sizeof(DICONSTANTFORCE)); - unnecessary
 
         /* Specifics */
         constant->lMagnitude = CONVERT(hap_constant->level);
@@ -698,7 +692,7 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         if (periodic == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(periodic, 0, sizeof(DIPERIODIC));
+        // SDL_memset(periodic, 0, sizeof(DIPERIODIC)); - unnecessary
 
         /* Specifics */
         periodic->dwMagnitude = CONVERT(SDL_abs(hap_periodic->magnitude));
@@ -742,7 +736,7 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         if (condition == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(condition, 0, sizeof(DICONDITION));
+        // SDL_memset(condition, 0, sizeof(DICONDITION) * dest->cAxes); - unnecessary
 
         /* Specifics */
         for (i = 0; i < (int)dest->cAxes; i++) {
@@ -783,7 +777,7 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         if (ramp == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(ramp, 0, sizeof(DIRAMPFORCE));
+        // SDL_memset(ramp, 0, sizeof(DIRAMPFORCE)); - unnecessary
 
         /* Specifics */
         ramp->lStart = CONVERT(hap_ramp->start);
@@ -821,7 +815,7 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         if (custom == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(custom, 0, sizeof(DICUSTOMFORCE));
+        // SDL_memset(custom, 0, sizeof(DICUSTOMFORCE)); - unnecessary
 
         /* Specifics */
         custom->cChannels = hap_custom->channels;

@@ -211,9 +211,7 @@ static Uint8 *SNDIO_GetDeviceBuf(_THIS)
 
 static void SNDIO_CloseDevice(_THIS)
 {
-    if (this->hidden->pfd != NULL) {
-        SDL_free(this->hidden->pfd);
-    }
+    SDL_free(this->hidden->pfd);
     if (this->hidden->dev != NULL) {
         SNDIO_sio_stop(this->hidden->dev);
         SNDIO_sio_close(this->hidden->dev);
@@ -229,11 +227,10 @@ static int SNDIO_OpenDevice(_THIS, const char *devname)
     SDL_bool iscapture = this->iscapture;
 
     this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc(sizeof(*this->hidden));
+        SDL_calloc(1, sizeof(*this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(this->hidden);
 
     this->hidden->mixlen = this->spec.size;
 

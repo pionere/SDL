@@ -255,11 +255,10 @@ static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
     /* Initialize all variables that we clean on shutdown */
 #if 0  /* !!! FIXME: currently not used. Can we move some stuff off the SDL2 namespace? --ryan. */
     this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc((sizeof *this->hidden));
+        SDL_calloc(1, sizeof(*this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(this->hidden);
 #endif
     this->hidden = (struct SDL_PrivateAudioData *)0x1;
 

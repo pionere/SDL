@@ -381,14 +381,13 @@ SDL_SYS_HapticName(int index)
  */
 static int SDL_SYS_HapticOpenFromFD(SDL_Haptic *haptic, int fd)
 {
-    /* Allocate the hwdata */
+    /* Allocate and clear the hwdata */
     haptic->hwdata = (struct haptic_hwdata *)
-        SDL_malloc(sizeof(*haptic->hwdata));
+        SDL_calloc(1, sizeof(*haptic->hwdata));
     if (haptic->hwdata == NULL) {
         SDL_OutOfMemory();
         goto open_err;
     }
-    SDL_memset(haptic->hwdata, 0, sizeof(*haptic->hwdata));
 
     /* Set the data. */
     haptic->hwdata->fd = fd;
@@ -403,14 +402,11 @@ static int SDL_SYS_HapticOpenFromFD(SDL_Haptic *haptic, int fd)
     }
     haptic->nplaying = haptic->neffects; /* Linux makes no distinction. */
     haptic->effects = (struct haptic_effect *)
-        SDL_malloc(sizeof(struct haptic_effect) * haptic->neffects);
+        SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
     if (haptic->effects == NULL) {
         SDL_OutOfMemory();
         goto open_err;
     }
-    /* Clear the memory */
-    SDL_memset(haptic->effects, 0,
-               sizeof(struct haptic_effect) * haptic->neffects);
 
     return 0;
 

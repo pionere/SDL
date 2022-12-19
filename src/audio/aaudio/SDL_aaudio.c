@@ -75,7 +75,7 @@ static void aaudio_DetectDevices(void)
 {
     int *inputs;
     inputs = SDL_malloc(sizeof(int) * 100);
-    SDL_zerop(inputs);
+    // memset(inputs, 0, sizeof(int) * 100); - unnecessary
     int inputs_length = 0;
 
     Android_JNI_GetAudioInputDevices(inputs, &inputs_length);
@@ -93,7 +93,7 @@ static void aaudio_DetectDevices(void)
 
     int *outputs;
     outputs = SDL_malloc(sizeof(int) * 100);
-    SDL_zerop(outputs);
+    // memset(outputs, 0, sizeof(int) * 100); - unnecessary
     int outputs_length = 0;
 
     Android_JNI_GetAudioOutputDevices(outputs, &outputs_length);

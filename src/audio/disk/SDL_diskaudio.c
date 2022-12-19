@@ -125,11 +125,10 @@ static int DISKAUDIO_OpenDevice(_THIS, const char *devname)
     const char *envr = SDL_getenv(DISKENVR_IODELAY);
 
     _this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc(sizeof(*_this->hidden));
+        SDL_calloc(1, sizeof(*_this->hidden));
     if (_this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(_this->hidden);
 
     if (envr != NULL) {
         _this->hidden->io_delay = SDL_atoi(envr);

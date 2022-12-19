@@ -117,12 +117,11 @@ static SDL_hapticlist_item *OpenHaptic(SDL_Haptic *haptic, SDL_hapticlist_item *
     haptic->supported = SDL_HAPTIC_LEFTRIGHT;
     haptic->neffects = 1;
     haptic->nplaying = haptic->neffects;
-    haptic->effects = (struct haptic_effect *)SDL_malloc(sizeof(struct haptic_effect) * haptic->neffects);
+    haptic->effects = (struct haptic_effect *)SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
     if (haptic->effects == NULL) {
         SDL_OutOfMemory();
         return NULL;
     }
-    SDL_memset(haptic->effects, 0, sizeof(struct haptic_effect) * haptic->neffects);
     return item;
 }
 

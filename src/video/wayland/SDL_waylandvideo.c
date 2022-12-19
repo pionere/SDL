@@ -680,8 +680,7 @@ static void Wayland_add_display(SDL_VideoData *d, uint32_t id)
         SDL_SetError("Failed to retrieve output.");
         return;
     }
-    data = SDL_malloc(sizeof *data);
-    SDL_zerop(data);
+    data = SDL_calloc(1, sizeof(*data));
     data->videodata = d;
     data->output = output;
     data->registry_id = id;

@@ -46,11 +46,10 @@ static int PSPAUDIO_OpenDevice(_THIS, const char *devname)
     int format, mixlen, i;
 
     this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc(sizeof(*this->hidden));
+        SDL_calloc(1, sizeof(*this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(this->hidden);
 
     /* device only natively supports S16LSB */
     this->spec.format = AUDIO_S16LSB;
@@ -76,8 +75,6 @@ static int PSPAUDIO_OpenDevice(_THIS, const char *devname)
     }
 
     if (this->hidden->channel < 0) {
-        free(this->hidden->rawbuf);
-        this->hidden->rawbuf = NULL;
         return SDL_SetError("Couldn't reserve hardware channel");
     }
 
@@ -90,7 +87,7 @@ static int PSPAUDIO_OpenDevice(_THIS, const char *devname)
     mixlen = this->spec.size * NUM_BUFFERS;
     this->hidden->rawbuf = (Uint8 *)memalign(64, mixlen);
     if (this->hidden->rawbuf == NULL) {
-        return SDL_SetError("Couldn't allocate mixing buffer");
+        return SDL_OutOfMemory();
     }
 
     SDL_memset(this->hidden->rawbuf, 0, mixlen);
@@ -135,13 +132,9 @@ static void PSPAUDIO_CloseDevice(_THIS)
         } else {
             sceAudioChRelease(this->hidden->channel);
         }
-        this->hidden->channel = -1;
     }
 
-    if (this->hidden->rawbuf != NULL) {
-        free(this->hidden->rawbuf);
-        this->hidden->rawbuf = NULL;
-    }
+    free(this->hidden->rawbuf);
     SDL_free(this->hidden);
 }
 

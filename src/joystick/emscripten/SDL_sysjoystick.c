@@ -49,12 +49,11 @@ static EM_BOOL Emscripten_JoyStickConnected(int eventType, const EmscriptenGamep
         return 1;
     }
 
-    item = (SDL_joylist_item *)SDL_malloc(sizeof(SDL_joylist_item));
+    item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));
     if (item == NULL) {
         return 1;
     }
 
-    SDL_zerop(item);
     item->index = gamepadEvent->index;
 
     item->name = SDL_CreateJoystickName(0, 0, NULL, gamepadEvent->id);

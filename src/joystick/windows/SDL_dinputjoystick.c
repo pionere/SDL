@@ -489,10 +489,9 @@ static BOOL CALLBACK EnumJoystickDetectCallback(LPCDIDEVICEINSTANCE pDeviceInsta
         pNewJoystick = pNewJoystick->pNext;
     }
 
-    pNewJoystick = (JoyStick_DeviceData *)SDL_malloc(sizeof(JoyStick_DeviceData));
+    pNewJoystick = (JoyStick_DeviceData *)SDL_calloc(1, sizeof(JoyStick_DeviceData));
     CHECK(pNewJoystick);
 
-    SDL_zerop(pNewJoystick);
     SDL_strlcpy(pNewJoystick->path, hidPath, SDL_arraysize(pNewJoystick->path));
     SDL_memcpy(&pNewJoystick->dxdevice, pDeviceInstance, sizeof(DIDEVICEINSTANCE));
 

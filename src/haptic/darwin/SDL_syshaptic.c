@@ -476,14 +476,13 @@ static int SDL_SYS_HapticOpenFromService(SDL_Haptic *haptic, io_service_t servic
     HRESULT ret;
     int ret2;
 
-    /* Allocate the hwdata */
+    /* Allocate and clear the hwdata */
     haptic->hwdata = (struct haptic_hwdata *)
-        SDL_malloc(sizeof(*haptic->hwdata));
+        SDL_calloc(1, sizeof(*haptic->hwdata));
     if (haptic->hwdata == NULL) {
         SDL_OutOfMemory();
         goto creat_err;
     }
-    SDL_memset(haptic->hwdata, 0, sizeof(*haptic->hwdata));
 
     /* Open the device */
     ret = FFCreateDevice(service, &haptic->hwdata->device);
@@ -514,16 +513,13 @@ static int SDL_SYS_HapticOpenFromService(SDL_Haptic *haptic, io_service_t servic
         goto open_err;
     }
 
-    /* Allocate effects memory. */
+    /* Allocate and clear effects memory. */
     haptic->effects = (struct haptic_effect *)
-        SDL_malloc(sizeof(struct haptic_effect) * haptic->neffects);
+        SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
     if (haptic->effects == NULL) {
         SDL_OutOfMemory();
         goto open_err;
     }
-    /* Clear the memory */
-    SDL_memset(haptic->effects, 0,
-               sizeof(struct haptic_effect) * haptic->neffects);
 
     return 0;
 
@@ -703,11 +699,10 @@ static int SDL_SYS_SetDirection(FFEFFECT *effect, SDL_HapticDirection *dir, int 
     }
 
     /* Has axes. */
-    rglDir = SDL_malloc(sizeof(LONG) * naxes);
+    rglDir = SDL_calloc(naxes, sizeof(LONG));
     if (rglDir == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_memset(rglDir, 0, sizeof(LONG) * naxes);
     effect->rglDirection = rglDir;
 
     switch (dir->type) {
@@ -776,11 +771,10 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
     dest->dwFlags = FFEFF_OBJECTOFFSETS; /* Seems obligatory. */
 
     /* Envelope. */
-    envelope = SDL_malloc(sizeof(FFENVELOPE));
+    envelope = SDL_calloc(1, sizeof(FFENVELOPE));
     if (envelope == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_memset(envelope, 0, sizeof(FFENVELOPE));
     dest->lpEnvelope = envelope;
     envelope->dwSize = sizeof(FFENVELOPE); /* Always should be this. */
 
@@ -813,7 +807,7 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
         if (constant == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(constant, 0, sizeof(FFCONSTANTFORCE));
+        // SDL_memset(constant, 0, sizeof(FFCONSTANTFORCE)); - unnecessary
 
         /* Specifics */
         constant->lMagnitude = CONVERT(hap_constant->level);
@@ -855,7 +849,7 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
         if (periodic == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(periodic, 0, sizeof(FFPERIODIC));
+        // SDL_memset(periodic, 0, sizeof(FFPERIODIC)); - unnecessary
 
         /* Specifics */
         periodic->dwMagnitude = CONVERT(SDL_abs(hap_periodic->magnitude));
@@ -900,7 +894,7 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
             if (condition == NULL) {
                 return SDL_OutOfMemory();
             }
-            SDL_memset(condition, 0, sizeof(FFCONDITION));
+            // SDL_memset(condition, 0, sizeof(FFCONDITION) * dest->cAxes); - unnecessary
 
             /* Specifics */
             for (i = 0; i < dest->cAxes; i++) {
@@ -943,7 +937,7 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
         if (ramp == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(ramp, 0, sizeof(FFRAMPFORCE));
+        // SDL_memset(ramp, 0, sizeof(FFRAMPFORCE)); - unnecessary
 
         /* Specifics */
         ramp->lStart = CONVERT(hap_ramp->start);
@@ -981,7 +975,7 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
         if (custom == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(custom, 0, sizeof(FFCUSTOMFORCE));
+        // SDL_memset(custom, 0, sizeof(FFCUSTOMFORCE)); - unnecessary
 
         /* Specifics */
         custom->cChannels = hap_custom->channels;

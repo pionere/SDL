@@ -83,12 +83,10 @@ int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
         return -1; /* no force feedback on this device. */
     }
 
-    item = (SDL_hapticlist_item *)SDL_malloc(sizeof(SDL_hapticlist_item));
+    item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (item == NULL) {
         return SDL_OutOfMemory();
     }
-
-    SDL_zerop(item);
 
     /* !!! FIXME: I'm not bothering to query for a real name right now (can we even?) */
     {
@@ -175,23 +173,19 @@ static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 us
     haptic->neffects = 1;
     haptic->nplaying = 1;
 
-    /* Prepare effects memory. */
+    /* Allocate and clear the effects memory. */
     haptic->effects = (struct haptic_effect *)
-        SDL_malloc(sizeof(struct haptic_effect) * haptic->neffects);
+        SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
     if (haptic->effects == NULL) {
         return SDL_OutOfMemory();
     }
-    /* Clear the memory */
-    SDL_memset(haptic->effects, 0,
-               sizeof(struct haptic_effect) * haptic->neffects);
 
-    haptic->hwdata = (struct haptic_hwdata *)SDL_malloc(sizeof(*haptic->hwdata));
+    haptic->hwdata = (struct haptic_hwdata *)SDL_calloc(1, sizeof(*haptic->hwdata));
     if (haptic->hwdata == NULL) {
         SDL_free(haptic->effects);
         haptic->effects = NULL;
         return SDL_OutOfMemory();
     }
-    SDL_memset(haptic->hwdata, 0, sizeof(*haptic->hwdata));
 
     haptic->hwdata->bXInputHaptic = 1;
     haptic->hwdata->userid = userid;

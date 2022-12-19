@@ -131,11 +131,10 @@ extern "C"
         /* Create the joystick data structure */
         joystick->instance_id = device_index;
         joystick->hwdata = (struct joystick_hwdata *)
-            SDL_malloc(sizeof(*joystick->hwdata));
+            SDL_calloc(1, sizeof(*joystick->hwdata));
         if (joystick->hwdata == NULL) {
             return SDL_OutOfMemory();
         }
-        SDL_memset(joystick->hwdata, 0, sizeof(*joystick->hwdata));
         stick = new BJoystick;
         joystick->hwdata->stick = stick;
 

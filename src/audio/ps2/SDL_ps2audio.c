@@ -41,11 +41,10 @@ static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
     struct audsrv_fmt_t format;
 
     this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc(sizeof(*this->hidden));
+        SDL_calloc(1, sizeof(*this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }
-    SDL_zerop(this->hidden);
 
     /* These are the native supported audio PS2 configs  */
     switch (this->spec.freq) {
@@ -77,8 +76,6 @@ static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
     audsrv_set_volume(MAX_VOLUME);
 
     if (this->hidden->channel < 0) {
-        free(this->hidden->rawbuf);
-        this->hidden->rawbuf = NULL;
         return SDL_SetError("Couldn't reserve hardware channel");
     }
 
@@ -91,7 +88,7 @@ static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
     mixlen = this->spec.size * NUM_BUFFERS;
     this->hidden->rawbuf = (Uint8 *)memalign(64, mixlen);
     if (this->hidden->rawbuf == NULL) {
-        return SDL_SetError("Couldn't allocate mixing buffer");
+        return SDL_OutOfMemory();
     }
 
     SDL_memset(this->hidden->rawbuf, 0, mixlen);
@@ -126,13 +123,9 @@ static void PS2AUDIO_CloseDevice(_THIS)
 {
     if (this->hidden->channel >= 0) {
         audsrv_stop_audio();
-        this->hidden->channel = -1;
     }
 
-    if (this->hidden->rawbuf != NULL) {
-        free(this->hidden->rawbuf);
-        this->hidden->rawbuf = NULL;
-    }
+    free(this->hidden->rawbuf);
     SDL_free(this->hidden);
 }
 
