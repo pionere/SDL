@@ -4391,12 +4391,14 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         fi
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
+            AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
             AC_DEFINE(SDL_JOYSTICK_MFI, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
             SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
             have_joystick=yes
         else
             # Need this code for accelerometer as joystick support
+            AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
         fi
         # Set up files for the haptic library
@@ -4516,6 +4518,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         fi
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
+            AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
             AC_DEFINE(SDL_JOYSTICK_IOKIT, 1, [ ])
             SOURCES="$SOURCES $srcdir/src/joystick/darwin/*.c"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
