@@ -133,6 +133,7 @@ static void PS2AUDIO_CloseDevice(_THIS)
         free(this->hidden->rawbuf);
         this->hidden->rawbuf = NULL;
     }
+    SDL_free(this->hidden);
 }
 
 static void PS2AUDIO_ThreadInit(_THIS)
