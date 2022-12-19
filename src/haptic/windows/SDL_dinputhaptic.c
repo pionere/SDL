@@ -829,6 +829,10 @@ static int SDL_SYS_ToDIEFFECT(SDL_Haptic *haptic, DIEFFECT *dest,
         custom->cSamples = hap_custom->samples;
         custom->rglForceData =
             SDL_malloc(sizeof(LONG) * custom->cSamples * custom->cChannels);
+        if (custom->rglForceData == NULL) {
+            SDL_free(custom);
+            return -1;
+        }
         for (i = 0; i < hap_custom->samples * hap_custom->channels; i++) { /* Copy data. */
             custom->rglForceData[i] = CCONVERT(hap_custom->data[i]);
         }

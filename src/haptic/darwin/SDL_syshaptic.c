@@ -989,6 +989,10 @@ static int SDL_SYS_ToFFEFFECT(SDL_Haptic *haptic, FFEFFECT *dest, SDL_HapticEffe
         custom->cSamples = hap_custom->samples;
         custom->rglForceData =
             SDL_malloc(sizeof(LONG) * custom->cSamples * custom->cChannels);
+        if (custom->rglForceData == NULL) {
+            SDL_free(custom);
+            return SDL_OutOfMemory();
+        }
         for (i = 0; i < hap_custom->samples * hap_custom->channels; i++) { /* Copy data. */
             custom->rglForceData[i] = CCONVERT(hap_custom->data[i]);
         }
