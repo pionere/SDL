@@ -108,6 +108,7 @@ int SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *i
     }
     --numhaptics;
     /* !!! TODO: Send a haptic remove event? */
+    SDL_free(item->name);
     SDL_free(item);
     return retval;
 }
