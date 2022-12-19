@@ -9,7 +9,7 @@ Major changes:
 - add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1)
 
 Minor changes:
-- handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031)
+- handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031 + 6ddd5bdebe8dbec382795be01328a1ab2ba10469)
 - sync configuration report (2664f550c7aa20aa28e627f945266b8969e9de69)
 - cleanup test configuration (f8a63d295d1ed6c36d5a4180542dc4730ad3fd12 + 654eef8f7ba794360a9543ef6a3cc5d064d8522f + 89d6408f6aee0c2e40f80f296b1745f142ec96c8)
 - add option to enable/disable logging (66fcc1a70cf7af2dc6554071e8993e168dd48d81 + 7213a1683838d8db100bddfd5fc5b1c30b9f3df9 + a451eb2827020ec2a6d95a87f7c722c3341fdb0c + 24637692c62fa902398ac903b46a68b9ac6e512e + 5860b778795c24aa128c231e96e52dce2df14541 + 6fb7859b77b5a4c78b5dba90d0aab602e6d430f3 + 41d05015d991cc3ad8e44ccdcb3a14d0ffaa002b + aa4aea46bf9c33b2581155b7652450794480b1e0 + 3b1aa5de168ec1b8cbd250a52c652e3784bd0bff)
@@ -30,7 +30,15 @@ Minor changes:
 - sync handling of subsystems III. (threads) (4bf613e96b15d3087b43f10997b78d0932331e39 + ff609444f1c6d91186999d7459b42d1fe1aafdf3 + eb539788a342ba14b07c65568211bf5f3e75ad40)
 - simplify simulated vsync (d744aaf) (8c670433a51c111aa4c75d74e135f567c51a1267)
 - improve DUFFS_LOOP_124 (fddbd55c3d992ac361362e6ecbf3a7ffb4e07659)
+- prevent redefinition of _USE_MATH_DEFINES (daece4f51048120779df1bed50dc3b4786a630d7)
+- revert part of Clang-Tidy fixes (SDL_audio.c) (f3cdb1db49c1e75252e02becf27f8b90a37fec51)
+- simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
 - fix DUFFS_LOOP4/8 to handle width of zero (or less) (8d18c5e59856bd5e46b93d9de4550d1d0b89dc26)
+- fix vita error message when the port can not be opened (5c75e0c8577a4854d6c77e574bf56074d5bb542f)
+- fix memory handling of vita-audio (7f4f1b174c5aeddaaf99d14739330efa8e6da20f)
+- fix memory leak in windows/SDL_windowshaptic.c (da0323960b23913f6aec422f385b8ded56867510)
+- fix possible NULL-pointer errors due to allocation error (7af2b40ee1d40435c77b469dc5118c08575c20ad)
+- fix memory leaks in psp/ps2audio (01a453c59ac13281fa2416e48517886c13fbade3)
