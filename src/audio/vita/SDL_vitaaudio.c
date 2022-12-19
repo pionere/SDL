@@ -117,7 +117,7 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
     if (this->hidden->port < 0) {
         free(this->hidden->rawbuf);
         this->hidden->rawbuf = NULL;
-        return SDL_SetError("Couldn't open audio out port: %x", this->hidden->port);
+        return SDL_SetError("Couldn't open audio out port: %x", port);
     }
 
     sceAudioOutSetVolume(this->hidden->port, SCE_AUDIO_VOLUME_FLAG_L_CH | SCE_AUDIO_VOLUME_FLAG_R_CH, vols);
