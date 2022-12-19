@@ -65,13 +65,6 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
     int vols[2] = { SCE_AUDIO_MAX_VOLUME, SCE_AUDIO_MAX_VOLUME };
     SDL_AudioFormat test_format;
 
-    this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_malloc(sizeof(*this->hidden));
-    if (this->hidden == NULL) {
-        return SDL_OutOfMemory();
-    }
-    SDL_memset(this->hidden, 0, sizeof(*this->hidden));
-
     for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
         if (test_format == AUDIO_S16LSB) {
             this->spec.format = test_format;
@@ -81,6 +74,12 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
 
     if (!test_format) {
         return SDL_SetError("Unsupported audio format");
+    }
+
+    this->hidden = (struct SDL_PrivateAudioData *)
+        SDL_calloc(1, sizeof(*this->hidden));
+    if (this->hidden == NULL) {
+        return SDL_OutOfMemory();
     }
 
     if (this->iscapture) {
@@ -99,7 +98,9 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
     mixlen = this->spec.size * NUM_BUFFERS;
     this->hidden->rawbuf = (Uint8 *)memalign(64, mixlen);
     if (this->hidden->rawbuf == NULL) {
-        return SDL_SetError("Couldn't allocate mixing buffer");
+        SDL_free(this->hidden);
+        this->hidden = NULL;
+        return SDL_OutOfMemory();
     }
 
     /* Setup the hardware channel. */
@@ -117,6 +118,8 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
     if (this->hidden->port < 0) {
         free(this->hidden->rawbuf);
         this->hidden->rawbuf = NULL;
+        SDL_free(this->hidden);
+        this->hidden = NULL;
         return SDL_SetError("Couldn't open audio out port: %x", port);
     }
 
@@ -166,6 +169,9 @@ static void VITAAUD_CloseDevice(_THIS)
         free(this->hidden->rawbuf); /* this uses memalign(), not SDL_malloc(). */
         this->hidden->rawbuf = NULL;
     }
+
+    SDL_free(this->hidden);
+    this->hidden = NULL;
 }
 
 static int VITAAUD_CaptureFromDevice(_THIS, void *buffer, int buflen)
