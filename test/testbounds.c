@@ -18,7 +18,12 @@ int main(int argc, char **argv)
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL_Init(SDL_INIT_VIDEO) failed: %s", SDL_GetError());
+#if !SDL_DUMMYVIDEO
+        SDL_Log("Error of Bounds-test is ignored because the dummy video driver is disabled.");
+        return 0;
+#else
         return 1;
+#endif
     }
 
     total = SDL_GetNumVideoDisplays();
