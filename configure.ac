@@ -5044,22 +5044,34 @@ SUMMARY="SDL2 was configured with the following options:\n"
 SUMMARY="${SUMMARY}Subsystems:\n"
 # Enabled subsystems without dummies are ON (except for hidapi which itself is a dummy if not available)
 for MODULE in atomic render events power file cpuinfo; do
-    ENABLE_MODULE="enable_"$MODULE
-    if test "x${!ENABLE_MODULE}" = xyes; then
-        declare have_${MODULE}=yes
+    ENABLE_MODULE_VAR="enable_"$MODULE
+    #ENABLE_MODULE=${!ENABLE_MODULE_VAR}
+    eval ENABLE_MODULE=\$$ENABLE_MODULE_VAR
+    if test "x${ENABLE_MODULE}" = xyes; then
+        #declare have_${MODULE}=yes
+        #typeset have_${MODULE}=yes
+        #local have_${MODULE}=yes
+        eval have_${MODULE}=yes
+        #eval "\$have_${MODULE}=yes"
     fi
 done
 for MODULE in atomic audio video render events joystick haptic hidapi power threads timers file loadso cpuinfo filesystem sensor misc locale; do
-    HAVE_MODULE="have_"$MODULE
-    ENABLE_MODULE="enable_"$MODULE
+    HAVE_MODULE_VAR="have_"$MODULE
+    #HAVE_MODULE=${!HAVE_MODULE_VAR}
+    eval HAVE_MODULE=\$$HAVE_MODULE_VAR
+    ENABLE_MODULE_VAR="enable_"$MODULE
+    #ENABLE_MODULE=${!ENABLE_MODULE_VAR}
+    eval ENABLE_MODULE=\$$ENABLE_MODULE_VAR
     LENGTH_MODULE=${#MODULE}
-    LABEL_MODULE="${MODULE^}"
+    #LABEL_MODULE="${MODULE^^}"
+    LABEL_MODULE=`echo $MODULE | tr '[a-z]' '[A-Z]'`
     SUFFIX_MODULE="            "
-    SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
-    LABEL_MODULE="   ${LABEL_MODULE}${SUFFIX_MODULE}"
-    if test "x${!HAVE_MODULE}" = xyes; then
+    #SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
+    let LENGTH_MODULE=12-$LENGTH_MODULE
+    SUFFIX_MODULE=`echo "$SUFFIX_MODULE" | cut -c 1-$LENGTH_MODULE`
+    if test "x${HAVE_MODULE}" = xyes; then
         SUMMARY="${SUMMARY}${LABEL_MODULE}: YES\n"
-    elif test "x${!ENABLE_MODULE}" = xyes; then
+    elif test "x${ENABLE_MODULE}" = xyes; then
         SUMMARY="${SUMMARY}${LABEL_MODULE}: DUMMY\n"
     else
         SUMMARY="${SUMMARY}${LABEL_MODULE}: NO\n"
@@ -5080,9 +5092,12 @@ fi
 SUMMARY="${SUMMARY}Blitters"
 HAVE_BLITTER=no
 for BLITTER in blit0 blit1 blitA blitN_RGB565 blitAUTO blitSLOW rle_accel blitTRANSFORM yuv_format; do
-    ENABLE_BLITTER="enable_"$BLITTER
-    LABEL_BLITTER="${BLITTER^^}"
-    if test "x${!ENABLE_BLITTER}" = xyes; then
+    ENABLE_BLITTER_VAR="enable_"$BLITTER
+    #ENABLE_BLITTER=${!ENABLE_BLITTER_VAR}
+    eval ENABLE_BLITTER=\$$ENABLE_BLITTER_VAR
+    #LABEL_BLITTER="${BLITTER^^}"
+    LABEL_BLITTER=`echo $BLITTER | tr '[a-z]' '[A-Z]'`
+    if test "x${ENABLE_BLITTER}" = xyes; then
         if test x$HAVE_BLITTER = xyes; then
             SUMMARY="${SUMMARY},"
         else
