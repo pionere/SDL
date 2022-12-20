@@ -29241,6 +29241,7 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_COREAUDIO 1" >>confdefs.h
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
 
+printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_MFI 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
@@ -29248,6 +29249,8 @@ printf "%s\n" "#define SDL_JOYSTICK_MFI 1" >>confdefs.h
             have_joystick=yes
         else
             # Need this code for accelerometer as joystick support
+printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
+
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
         fi
         # Set up files for the haptic library
@@ -29388,6 +29391,7 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_COREAUDIO 1" >>confdefs.h
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
 
+printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_IOKIT 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/joystick/darwin/*.c"
