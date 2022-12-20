@@ -57,7 +57,12 @@ int main(int argc, char **argv)
     /* Load the SDL library */
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
+#if !SDL_DUMMYAUDIO
+        SDL_Log("Error of AudioInfo-test is ignored because the dummy audio driver is disabled.");
+        return 0;
+#else
         return 1;
+#endif
     }
 
     /* Print available audio drivers */
