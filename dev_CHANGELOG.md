@@ -1,6 +1,6 @@
 Major changes:
-- expose SDL_DYNAMIC_API (SDL_DYNAPI) (ae1585de941eb1a50ffc0402b65f9e43ae07302a + 51c55497fe80c1a797e86334c56fdf378e6f8e02 + a541b7bb0141a8aa332b2174dd7d65bbda23a3b9 + ff4c8b98ce5ed65aa9ed6145a1fb826bde5bdb4a + 67e3582f3d7b4e85019278fa6abb4b509dce528b)
-- expose the options of SDL_interal.h (f3f67e9e612a0a21c3e401f9fe9ab5bf22bd3b4b + 798bde6358eb59586a4e0fb4c500f4d1c737849e)
+- expose SDL_DYNAMIC_API (SDL_DYNAPI) (ae1585de941eb1a50ffc0402b65f9e43ae07302a + 51c55497fe80c1a797e86334c56fdf378e6f8e02 + a541b7bb0141a8aa332b2174dd7d65bbda23a3b9 + ff4c8b98ce5ed65aa9ed6145a1fb826bde5bdb4a + 67e3582f3d7b4e85019278fa6abb4b509dce528b + 8ea3bc6eeaf0038c9316045571771dcf56c652b9)
+- expose the options of SDL_interal.h (f3f67e9e612a0a21c3e401f9fe9ab5bf22bd3b4b + 798bde6358eb59586a4e0fb4c500f4d1c737849e + 2e46c251e601078462a6d3df33bac95c697bc53b)
 - add option to enable/disable SDL_BLIT_SLOW (61855fc35c11ed8575ffffbb648f95477d997bee)
 - add option to enable/disable blit with modulo/alpha (SDL_BLIT_TRANSFORM) (e00e9a4f682bad39cce7c03d7f8786113257393b)
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
@@ -9,13 +9,13 @@ Major changes:
 - add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1)
 
 Minor changes:
-- handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031)
-- sync configuration report (2664f550c7aa20aa28e627f945266b8969e9de69)
+- handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031 + 591f82e748da186684e934803418d4c24abe3325)
+- sync configuration report (2664f550c7aa20aa28e627f945266b8969e9de69 + 2ee57495f31b1138e679f4bd87e13e10df782418)
 - cleanup test configuration (f8a63d295d1ed6c36d5a4180542dc4730ad3fd12 + 654eef8f7ba794360a9543ef6a3cc5d064d8522f + 89d6408f6aee0c2e40f80f296b1745f142ec96c8)
 - add option to enable/disable logging (66fcc1a70cf7af2dc6554071e8993e168dd48d81 + 7213a1683838d8db100bddfd5fc5b1c30b9f3df9 + a451eb2827020ec2a6d95a87f7c722c3341fdb0c + 24637692c62fa902398ac903b46a68b9ac6e512e + 5860b778795c24aa128c231e96e52dce2df14541 + 6fb7859b77b5a4c78b5dba90d0aab602e6d430f3 + 41d05015d991cc3ad8e44ccdcb3a14d0ffaa002b + aa4aea46bf9c33b2581155b7652450794480b1e0 + 3b1aa5de168ec1b8cbd250a52c652e3784bd0bff)
 - allow building without 'file' subsystem (976215319d8ed419f473475ba1525f062753eb72 + 6c3e1e8106bb048bfcc5e5d8d93d5bdb53e5e1a4 + 20259e4c9d1c21d7f3765c0e4f48e395d2c13092)
 - do not report dummy haptic subsystem as ON (dec3267bb8f863edc39b49499be38f8cdb672f9b)
-- make dummy/diskaudio and dummy video OFF by default (f2c73a7fb0c445074562a504b3badeea22a38568)
+- make dummy/diskaudio and dummy video OFF by default (f2c73a7fb0c445074562a504b3badeea22a38568 + ca97a8a278da4fc29de337b159a240b9f1b59e4f)
 - make virtual joystick OFF by default (2821272508d9fdf65db274ec314bf4323e03ed4f)
 - make offscreen video OFF by default (41ac06835dfc24ddc4a8d6e1d37739253d22279e)
 - report if subsystem is live or just a dummy (b0e6a3e5d8f0cd734952364e197dd3a739314cb3 + 3418aab14301cfa3c85163b529ed8e3aa433fe4d)
@@ -30,6 +30,7 @@ Minor changes:
 - sync handling of subsystems III. (threads) (4bf613e96b15d3087b43f10997b78d0932331e39 + ff609444f1c6d91186999d7459b42d1fe1aafdf3 + eb539788a342ba14b07c65568211bf5f3e75ad40)
 - simplify simulated vsync (d744aaf) (8c670433a51c111aa4c75d74e135f567c51a1267)
 - improve DUFFS_LOOP_124 (fddbd55c3d992ac361362e6ecbf3a7ffb4e07659)
+- prevent redefinition of _USE_MATH_DEFINES (daece4f51048120779df1bed50dc3b4786a630d7)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
