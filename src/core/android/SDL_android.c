@@ -1492,7 +1492,7 @@ void Android_DetectDevices(void)
     int inputs_length = 0;
     int outputs_length = 0;
 
-    SDL_zeroa(inputs);
+    // SDL_zeroa(inputs); - unnecessary
 
     Android_JNI_GetAudioDevices(inputs, &inputs_length, 100, 1 /* input devices */);
 
@@ -1504,7 +1504,7 @@ void Android_DetectDevices(void)
         SDL_AddAudioDevice(SDL_TRUE, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
     }
 
-    SDL_zeroa(outputs);
+    // SDL_zeroa(outputs); - unnecessary
 
     Android_JNI_GetAudioDevices(outputs, &outputs_length, 100, 0 /* output devices */);
 
