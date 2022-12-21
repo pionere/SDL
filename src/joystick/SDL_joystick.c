@@ -109,6 +109,10 @@ static SDL_JoystickDriver *SDL_joystick_drivers[] = {
         &SDL_DUMMY_JoystickDriver
 #endif
 };
+
+#ifndef SDL_THREAD_SAFETY_ANALYSIS
+static
+#endif
 SDL_mutex *SDL_joystick_lock = NULL; /* This needs to support recursive locks */
 static int SDL_joysticks_locked;
 static SDL_bool SDL_joysticks_initialized;
@@ -2732,7 +2736,6 @@ SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid)
         MAKE_VIDPID(0x04d9, 0x8009), /* OBINLB USB-HID Keyboard (Anne Pro II) */
         MAKE_VIDPID(0x04d9, 0xa292), /* OBINLB USB-HID Keyboard (Anne Pro II) */
         MAKE_VIDPID(0x04d9, 0xa293), /* OBINLB USB-HID Keyboard (Anne Pro II) */
-        MAKE_VIDPID(0x1532, 0x0226), /* Razer Huntsman Elite */
         MAKE_VIDPID(0x1532, 0x0266), /* Razer Huntsman V2 Analog, non-functional DInput device */
         MAKE_VIDPID(0x1532, 0x0282), /* Razer Huntsman Mini Analog, non-functional DInput device */
         MAKE_VIDPID(0x26ce, 0x01a2), /* ASRock LED Controller */
