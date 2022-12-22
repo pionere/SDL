@@ -569,11 +569,11 @@ Uint64
 SDL_GetTicksNS(void)
 {
     Uint64 starting_value, value;
-
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!tick_start) {
         SDL_TicksInit();
     }
-
+#endif
     starting_value = (SDL_GetPerformanceCounter() - tick_start);
     value = (starting_value * tick_numerator_ns);
     SDL_assert(value >= starting_value);
@@ -584,11 +584,11 @@ SDL_GetTicksNS(void)
 Uint64 SDL_GetTicks(void)
 {
     Uint64 starting_value, value;
-
+#if !SDL_SANITIZE_ACCESS_DISABLED
     if (!tick_start) {
         SDL_TicksInit();
     }
-
+#endif
     starting_value = (SDL_GetPerformanceCounter() - tick_start);
     value = (starting_value * tick_numerator_ms);
     SDL_assert(value >= starting_value);
