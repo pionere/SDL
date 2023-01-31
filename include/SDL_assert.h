@@ -54,7 +54,7 @@ assert can have unique static variables associated with it.
 /* Don't include intrin.h here because it contains C++ code */
     extern void __cdecl __debugbreak(void);
     #define SDL_TriggerBreakpoint() __debugbreak()
-#elif defined(__SYMBIAN32__)
+#elif defined(ANDROID) || defined(__SYMBIAN32__)
     #include <assert.h>
     #define SDL_TriggerBreakpoint() assert(0)
 #elif _SDL_HAS_BUILTIN(__builtin_debugtrap)
