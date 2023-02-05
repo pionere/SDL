@@ -4364,17 +4364,9 @@ void SDL_DestroyTexture(SDL_Texture *texture)
     SDL_free(texture);
 }
 
-void SDL_DestroyRenderer(SDL_Renderer *renderer)
+static void SDL_DiscardAllCommands(SDL_Renderer *renderer)
 {
     SDL_RenderCommand *cmd;
-
-    CHECK_RENDERER_MAGIC(renderer, );
-
-    if (renderer->info.flags & SDL_RENDERER_DONTFREE) {
-        return;
-    }
-
-    SDL_DelEventWatch(SDL_RendererEventWatch, renderer);
 
     if (renderer->render_commands_tail) {
         renderer->render_commands_tail->next = renderer->render_commands_pool;
@@ -4392,10 +4384,24 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
         SDL_free(cmd);
         cmd = next;
     }
+}
+
+void SDL_DestroyRenderer(SDL_Renderer *renderer)
+{
+    CHECK_RENDERER_MAGIC(renderer, );
+
+    if (renderer->info.flags & SDL_RENDERER_DONTFREE) {
+        return;
+    }
+
+    SDL_DelEventWatch(SDL_RendererEventWatch, renderer);
+
+    SDL_DiscardAllCommands(renderer);
 
     SDL_free(renderer->vertex_data);
 
     /* Free existing textures for this renderer */
+    renderer->target = NULL; /* ensure the texture is not flushed */
     while (renderer->textures) {
         SDL_Texture *tex = renderer->textures;
         (void)tex;
