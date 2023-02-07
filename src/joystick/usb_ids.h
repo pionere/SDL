@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -78,6 +78,7 @@
 #define USB_PRODUCT_HORI_HORIPAD_PRO_SERIES_X             0x014f
 #define USB_PRODUCT_HORI_FIGHTING_STICK_ALPHA_PS4         0x011c
 #define USB_PRODUCT_HORI_FIGHTING_STICK_ALPHA_PS5         0x0184
+#define USB_PRODUCT_LOGITECH_CHILLSTREAM                  0xcad1
 #define USB_PRODUCT_NINTENDO_GAMECUBE_ADAPTER             0x0337
 #define USB_PRODUCT_NINTENDO_N64_CONTROLLER               0x2019
 #define USB_PRODUCT_NINTENDO_SEGA_GENESIS_CONTROLLER      0x201e
@@ -107,6 +108,7 @@
 #define USB_PRODUCT_SONY_DS4_STRIKEPAD                    0x05c5
 #define USB_PRODUCT_SONY_DS5                              0x0ce6
 #define USB_PRODUCT_SONY_DS5_EDGE                         0x0df2
+#define USB_PRODUCT_THRUSTMASTER_ESWAPX_PRO               0xd012
 #define USB_PRODUCT_VICTRIX_FS_PRO_V2                     0x0207
 #define USB_PRODUCT_XBOX360_XUSB_CONTROLLER               0x02a1 /* XUSB driver software PID */
 #define USB_PRODUCT_XBOX360_WIRED_CONTROLLER              0x028e

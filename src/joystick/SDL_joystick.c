@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -1869,7 +1869,7 @@ void SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, Uint16 *vendor, Uint16 *prod
     Uint16 *guid16 = (Uint16 *)guid.data;
     Uint16 bus = SDL_SwapLE16(guid16[0]);
 
-    if (bus < ' ' && guid16[3] == 0x0000 && guid16[5] == 0x0000) {
+    if ((bus < ' ' || bus == SDL_HARDWARE_BUS_VIRTUAL) && guid16[3] == 0x0000 && guid16[5] == 0x0000) {
         /* This GUID fits the standard form:
          * 16-bit bus
          * 16-bit CRC16 of the joystick name (can be zero)
@@ -2312,6 +2312,11 @@ SDL_bool SDL_IsJoystickXboxSeriesX(Uint16 vendor_id, Uint16 product_id)
     if (vendor_id == USB_VENDOR_HORI) {
         if (product_id == USB_PRODUCT_HORI_FIGHTING_COMMANDER_OCTA_SERIES_X ||
             product_id == USB_PRODUCT_HORI_HORIPAD_PRO_SERIES_X) {
+            return SDL_TRUE;
+        }
+    }
+    if (vendor_id == USB_VENDOR_THRUSTMASTER) {
+        if (product_id == USB_PRODUCT_THRUSTMASTER_ESWAPX_PRO) {
             return SDL_TRUE;
         }
     }
