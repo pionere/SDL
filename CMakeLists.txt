@@ -567,7 +567,7 @@ dep_option(SDL_VIRTUAL_JOYSTICK    "Enable the virtual-joystick driver" OFF SDL_
 set_option(SDL_LIBUDEV             "Enable libudev support" ${UNIX_SYS})
 set_option(SDL_ASAN                "Use AddressSanitizer to detect memory errors" OFF)
 option_string(SDL_VENDOR_INFO      "Vendor name and/or version to add to SDL_REVISION" "")
-set_option(SDL_CCACHE              "Use Ccache to speed up build" ON)
+set_option(SDL_CCACHE              "Use Ccache to speed up build" OFF)
 
 option(SDL_WERROR "Enable -Werror" OFF)
 
