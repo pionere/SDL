@@ -18,7 +18,10 @@ public class SDLAudioManager {
 
     private static void addAudioDevices(AudioDeviceInfo[] devices) {
         for (AudioDeviceInfo deviceInfo : devices) {
-            addAudioDevice(deviceInfo.isSink(), deviceInfo.getId());
+            boolean isCapture = deviceInfo.isSink();
+            if (!isCapture || deviceInfo.getType() != AudioDeviceInfo.TYPE_TELEPHONY) {
+                addAudioDevice(isCapture, deviceInfo.getId());
+            }
         }
     }
 
