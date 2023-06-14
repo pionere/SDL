@@ -101,12 +101,14 @@ static const IID IID_IRacingWheelStatics = { 0x3AC12CD5, 0x581B, 0x4936, { 0x9F,
 static const IID IID_IRacingWheelStatics2 = { 0xE666BCAA, 0xEDFD, 0x4323, { 0xA9, 0xF6, 0x3C, 0x38, 0x40, 0x48, 0xD1, 0xED } };
 /*static const IID IID_IRacingWheel = { 0xF546656F, 0xE106, 0x4C82, { 0xA9, 0x0F, 0x55, 0x40, 0x12, 0x90, 0x4B, 0x85 } };*/
 
+
 extern SDL_bool SDL_XINPUT_Enabled(void);
 extern SDL_bool SDL_DINPUT_JoystickPresent(Uint16 vendor, Uint16 product, Uint16 version);
 
+
 static SDL_bool SDL_IsXInputDevice(Uint16 vendor, Uint16 product)
 {
-#ifdef SDL_JOYSTICK_XINPUT
+#if defined(SDL_JOYSTICK_XINPUT) || defined(SDL_JOYSTICK_RAWINPUT)
     PRAWINPUTDEVICELIST raw_devices = NULL;
     UINT i, raw_device_count = 0;
     LONG vidpid = MAKELONG(vendor, product);
@@ -189,7 +191,7 @@ static SDL_bool SDL_IsXInputDevice(Uint16 vendor, Uint16 product)
             continue;
         }
 
-        (void)SDL_snprintf(devVidPidString, sizeof devVidPidString, "VID_%04X&PID_%04X", vendor, product);
+        (void)SDL_snprintf(devVidPidString, sizeof(devVidPidString), "VID_%04X&PID_%04X", vendor, product);
 
         while (CM_Get_Parent(&devNode, devNode, 0) == CR_SUCCESS) {
             char deviceId[MAX_DEVICE_ID_LEN];
@@ -204,7 +206,7 @@ static SDL_bool SDL_IsXInputDevice(Uint16 vendor, Uint16 product)
     }
 
     SDL_free(raw_devices);
-#endif /* SDL_JOYSTICK_XINPUT */
+#endif /* SDL_JOYSTICK_XINPUT || SDL_JOYSTICK_RAWINPUT */
 
     return SDL_FALSE;
 }
@@ -835,15 +837,18 @@ static void WGI_JoystickUpdate(SDL_Joystick *joystick)
     }
 
     hr = __x_ABI_CWindows_CGaming_CInput_CIRawGameController_GetCurrentReading(hwdata->controller, nbuttons, buttons, nhats, hats, naxes, axes, &timestamp);
-    if (SUCCEEDED(hr) && timestamp != hwdata->timestamp) {
+    if (SUCCEEDED(hr) && (!timestamp || timestamp != hwdata->timestamp)) {
         UINT32 i;
-        SDL_bool all_zero = SDL_TRUE;
+        SDL_bool all_zero = SDL_FALSE;
 
         /* The axes are all zero when the application loses focus */
-        for (i = 0; i < naxes; ++i) {
-            if (axes[i] != 0.0f) {
-                all_zero = SDL_FALSE;
-                break;
+        if (naxes > 0) {
+            all_zero = SDL_TRUE;
+            for (i = 0; i < naxes; ++i) {
+                if (axes[i] != 0.0f) {
+                    all_zero = SDL_FALSE;
+                    break;
+                }
             }
         }
         if (all_zero) {

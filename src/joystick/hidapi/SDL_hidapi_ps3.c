@@ -311,7 +311,7 @@ static float HIDAPI_DriverPS3_ScaleAccel(Sint16 value)
 {
     /* Accelerometer values are in big endian order */
     value = SDL_SwapBE16(value);
-    return (float)(value - 511) / 113.0f;
+    return ((float)(value - 511) / 113.0f) * SDL_STANDARD_GRAVITY;
 }
 
 static void HIDAPI_DriverPS3_HandleMiniStatePacket(SDL_Joystick *joystick, SDL_DriverPS3_Context *ctx, Uint8 *data, int size)
@@ -584,9 +584,9 @@ static SDL_bool HIDAPI_DriverPS3ThirdParty_IsSupportedDevice(SDL_HIDAPI_Device *
     Uint8 data[USB_PACKET_LENGTH];
     int size;
 
-    if (SONY_THIRDPARTY_VENDOR(vendor_id)) {
+    if (HIDAPI_SupportsPlaystationDetection(vendor_id, product_id)) {
         if (device && device->dev) {
-            size = ReadFeatureReport(device->dev, 0x03, data, sizeof data);
+            size = ReadFeatureReport(device->dev, 0x03, data, sizeof(data));
             if (size == 8 && data[2] == 0x26) {
                 /* Supported third party controller */
                 return SDL_TRUE;

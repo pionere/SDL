@@ -765,6 +765,8 @@ static void COREAUDIO_CloseDevice(_THIS)
 
     /* dispose of the audio queue before waiting on the thread, or it might stall for a long time! */
     if (this->hidden->audioQueue) {
+        AudioQueueFlush(this->hidden->audioQueue);
+        AudioQueueStop(this->hidden->audioQueue, 0);
         AudioQueueDispose(this->hidden->audioQueue, 0);
     }
 
@@ -1089,8 +1091,7 @@ static int COREAUDIO_OpenDevice(_THIS, const char *devname)
     SDL_AudioDevice **new_open_devices;
 
     /* Initialize all variables that we clean on shutdown */
-    this->hidden = (struct SDL_PrivateAudioData *)
-        SDL_calloc(1, (sizeof *this->hidden));
+    this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, (sizeof *this->hidden));
     if (this->hidden == NULL) {
         return SDL_OutOfMemory();
     }

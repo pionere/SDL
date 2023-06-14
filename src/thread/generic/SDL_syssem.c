@@ -38,8 +38,7 @@ struct SDL_semaphore
     SDL_cond *count_nonzero;
 };
 
-SDL_sem *
-SDL_CreateSemaphore(Uint32 initial_value)
+SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 {
     SDL_sem *sem;
 
@@ -135,8 +134,7 @@ int SDL_SemWait(SDL_sem *sem)
     return SDL_SemWaitTimeout(sem, SDL_MUTEX_MAXWAIT);
 }
 
-Uint32
-SDL_SemValue(SDL_sem *sem)
+Uint32 SDL_SemValue(SDL_sem *sem)
 {
     Uint32 value;
 

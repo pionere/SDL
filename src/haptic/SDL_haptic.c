@@ -85,8 +85,7 @@ int SDL_NumHaptics(void)
 /*
  * Gets the name of a Haptic device by index.
  */
-const char *
-SDL_HapticName(int device_index)
+const char *SDL_HapticName(int device_index)
 {
     if ((device_index < 0) || (device_index >= SDL_NumHaptics())) {
         SDL_SetError("Haptic: There are %d haptic devices available",
@@ -99,8 +98,7 @@ SDL_HapticName(int device_index)
 /*
  * Opens a Haptic device.
  */
-SDL_Haptic *
-SDL_HapticOpen(int device_index)
+SDL_Haptic *SDL_HapticOpen(int device_index)
 {
     SDL_Haptic *haptic;
     SDL_Haptic *hapticlist;
@@ -210,8 +208,7 @@ int SDL_MouseIsHaptic(void)
 /*
  * Returns the haptic device if mouse is haptic or NULL elsewise.
  */
-SDL_Haptic *
-SDL_HapticOpenFromMouse(void)
+SDL_Haptic *SDL_HapticOpenFromMouse(void)
 {
     int device_index;
 
@@ -256,8 +253,7 @@ int SDL_JoystickIsHaptic(SDL_Joystick *joystick)
 /*
  * Opens a haptic device from a joystick.
  */
-SDL_Haptic *
-SDL_HapticOpenFromJoystick(SDL_Joystick *joystick)
+SDL_Haptic *SDL_HapticOpenFromJoystick(SDL_Joystick *joystick)
 {
     SDL_Haptic *haptic;
     SDL_Haptic *hapticlist;
@@ -413,8 +409,7 @@ int SDL_HapticNumEffectsPlaying(SDL_Haptic *haptic)
 /*
  * Returns supported effects by the device.
  */
-unsigned int
-SDL_HapticQuery(SDL_Haptic *haptic)
+unsigned int SDL_HapticQuery(SDL_Haptic *haptic)
 {
     if (!ValidHaptic(haptic)) {
         return 0; /* same as if no effects were supported */
@@ -583,7 +578,7 @@ int SDL_HapticGetEffectStatus(SDL_Haptic *haptic, int effect)
         return -1;
     }
 
-    if ((haptic->supported & SDL_HAPTIC_STATUS) == 0) {
+    if (!(haptic->supported & SDL_HAPTIC_STATUS)) {
         return SDL_SetError("Haptic: Device does not support status queries.");
     }
 
@@ -602,7 +597,7 @@ int SDL_HapticSetGain(SDL_Haptic *haptic, int gain)
         return -1;
     }
 
-    if ((haptic->supported & SDL_HAPTIC_GAIN) == 0) {
+    if (!(haptic->supported & SDL_HAPTIC_GAIN)) {
         return SDL_SetError("Haptic: Device does not support setting gain.");
     }
 
@@ -644,7 +639,7 @@ int SDL_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter)
         return -1;
     }
 
-    if ((haptic->supported & SDL_HAPTIC_AUTOCENTER) == 0) {
+    if (!(haptic->supported & SDL_HAPTIC_AUTOCENTER)) {
         return SDL_SetError("Haptic: Device does not support setting autocenter.");
     }
 
@@ -668,7 +663,7 @@ int SDL_HapticPause(SDL_Haptic *haptic)
         return -1;
     }
 
-    if ((haptic->supported & SDL_HAPTIC_PAUSE) == 0) {
+    if (!(haptic->supported & SDL_HAPTIC_PAUSE)) {
         return SDL_SetError("Haptic: Device does not support setting pausing.");
     }
 
@@ -684,7 +679,7 @@ int SDL_HapticUnpause(SDL_Haptic *haptic)
         return -1;
     }
 
-    if ((haptic->supported & SDL_HAPTIC_PAUSE) == 0) {
+    if (!(haptic->supported & SDL_HAPTIC_PAUSE)) {
         return 0; /* Not going to be paused, so we pretend it's unpaused. */
     }
 

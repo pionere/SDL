@@ -62,8 +62,7 @@ int SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 }
 
 /* Available for backwards compatibility */
-const char *
-SDL_GetError(void)
+const char *SDL_GetError(void)
 {
     const SDL_error *error = SDL_GetErrBuf();
     return error->error ? error->str : "";
@@ -126,8 +125,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if !SDL_VERBOSE_ERROR_DISABLED
-char *
-SDL_GetErrorMsg(char *errstr, int maxlen)
+char *SDL_GetErrorMsg(char *errstr, int maxlen)
 {
     const SDL_error *error = SDL_GetErrBuf();
 

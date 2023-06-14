@@ -195,8 +195,7 @@ static void CorrectAlphaChannel(SDL_Surface *surface)
     }
 }
 
-SDL_Surface *
-SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
+SDL_Surface *SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
 {
 #if SDL_FILE_DISABLED
     SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
