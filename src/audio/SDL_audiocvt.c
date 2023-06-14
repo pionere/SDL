@@ -899,7 +899,7 @@ static Uint8 *EnsureStreamBufferSize(SDL_AudioStream *stream, int newlen)
     offset = ((size_t)ptr) & 15;
     return offset ? ptr + (16 - offset) : ptr;
 }
-
+#if !SDL_RESAMPLER_DISABLED
 #ifdef HAVE_LIBSAMPLERATE_H
 static int SDL_ResampleAudioStream_SRC(SDL_AudioStream *stream, const void *_inbuf, const int inbuflen, void *_outbuf, const int outbuflen)
 {
@@ -1013,7 +1013,7 @@ static void SDL_CleanupAudioStreamResampler(SDL_AudioStream *stream)
 {
     SDL_free(stream->resampler_state);
 }
-
+#endif /* !SDL_RESAMPLER_DISABLED */
 SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
                    const Uint8 src_channels,
                    const int src_rate,
