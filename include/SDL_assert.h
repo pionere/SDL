@@ -128,6 +128,8 @@ typedef struct SDL_AssertData
     const struct SDL_AssertData *next;
 } SDL_AssertData;
 
+#if (SDL_ASSERT_LEVEL > 0)
+
 /* Never call this directly. Use the SDL_assert* macros. */
 extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
                                                             const char *,
@@ -162,6 +164,8 @@ extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
             break; /* not retrying. */ \
         } \
     } while (SDL_NULL_WHILE_LOOP_CONDITION)
+
+#endif  /* enabled assertions support code */
 
 /* Enable various levels of assertions. */
 #if SDL_ASSERT_LEVEL == 0   /* assertions disabled */
