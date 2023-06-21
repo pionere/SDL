@@ -619,8 +619,6 @@ static SDL_bool BReadDeviceInfo(SDL_DriverSwitch_Context *ctx)
         return SDL_TRUE;
     }
 
-    ctx->device->is_bluetooth = SDL_FALSE;
-
     return SDL_FALSE;
 }
 
@@ -1042,7 +1040,8 @@ static SDL_bool HasHomeLED(SDL_DriverSwitch_Context *ctx)
     }
 
     /* Third party controllers don't have a home LED and will shut off if we try to set it */
-    if (ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_LicProController) {
+    if (ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_Unknown ||
+        ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_LicProController) {
         return SDL_FALSE;
     }
 
@@ -1243,6 +1242,9 @@ static void UpdateDeviceIdentity(SDL_HIDAPI_Device *device)
         HIDAPI_SetDeviceProduct(device, USB_VENDOR_NINTENDO, USB_PRODUCT_NINTENDO_SEGA_GENESIS_CONTROLLER);
         device->type = SDL_CONTROLLER_TYPE_UNKNOWN;
         break;
+    case k_eSwitchDeviceInfoControllerType_Unknown:
+        /* We couldn't read the device info for this controller, might not be fully compliant */
+        return;
     default:
         break;
     }
@@ -1285,12 +1287,7 @@ static SDL_bool HIDAPI_DriverSwitch_InitDevice(SDL_HIDAPI_Device *device)
         SetNeutralRumble(&ctx->m_RumblePacket.rumbleData[0]);
         SetNeutralRumble(&ctx->m_RumblePacket.rumbleData[1]);
 
-        if (!BReadDeviceInfo(ctx)) {
-            SDL_LogDebug(SDL_LOG_CATEGORY_INPUT,
-                         "HIDAPI_DriverSwitch_InitDevice(): Couldn't read device info");
-            return SDL_FALSE;
-        }
-
+        BReadDeviceInfo(ctx);
         UpdateDeviceIdentity(device);
     }
 
@@ -1345,37 +1342,34 @@ static SDL_bool HIDAPI_DriverSwitch_OpenJoystick(SDL_HIDAPI_Device *device, SDL_
             }
         }
 
-        if (ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_NESLeft &&
-            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_NESRight &&
-            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_SNES &&
-            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_N64 &&
-            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_SEGA_Genesis) {
-            /* Use the right sensor in the combined Joy-Con pair */
-            if (!device->parent ||
-                ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConRight) {
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO, 200.0f);
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL, 200.0f);
-            }
-            if (device->parent &&
-                ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConLeft) {
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO_L, 200.0f);
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL_L, 200.0f);
-            }
-            if (device->parent &&
-                ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConRight) {
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO_R, 200.0f);
-                SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL_R, 200.0f);
-            }
-        }
-
         if (!LoadStickCalibration(ctx)) {
             SDL_SetError("Couldn't load stick calibration");
             return SDL_FALSE;
         }
 
-        if (!LoadIMUCalibration(ctx)) {
-            SDL_SetError("Couldn't load sensor calibration");
-            return SDL_FALSE;
+        if (ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_NESLeft &&
+            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_NESRight &&
+            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_SNES &&
+            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_N64 &&
+            ctx->m_eControllerType != k_eSwitchDeviceInfoControllerType_SEGA_Genesis) {
+            if (LoadIMUCalibration(ctx)) {
+                /* Use the right sensor in the combined Joy-Con pair */
+                if (!device->parent ||
+                    ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConRight) {
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO, 200.0f);
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL, 200.0f);
+                }
+                if (device->parent &&
+                    ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConLeft) {
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO_L, 200.0f);
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL_L, 200.0f);
+                }
+                if (device->parent &&
+                    ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConRight) {
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_GYRO_R, 200.0f);
+                    SDL_PrivateJoystickAddSensor(joystick, SDL_SENSOR_ACCEL_R, 200.0f);
+                }
+            }
         }
 
         if (!SetVibrationEnabled(ctx, 1)) {
