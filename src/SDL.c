@@ -553,6 +553,8 @@ const char *SDL_GetPlatform(void)
     return "Nintendo 3DS";
 #elif defined(__GNU__)
     return "GNU/Hurd";
+#elif defined(__managarm__)
+    return "Managarm";
 #else
     return "Unknown (see SDL_platform.h)";
 #endif
