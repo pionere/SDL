@@ -308,7 +308,6 @@ static void SDLCALL SDL_Convert_Byteswap(SDL_AudioCVT *cvt, SDL_AudioFormat form
 
         CASESWAP(16);
         CASESWAP(32);
-        CASESWAP(64);
 
 #undef CASESWAP
 
