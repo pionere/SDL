@@ -6,7 +6,7 @@ Major changes:
 - add option to enable/disable verbose errors (c56c7206fadefe9df406181cfcc6b3fe5dab18f1 + 887a3392fb9f03c400762c2f626ab7eb27917e50)
 - add option SDL_SANITIZE_ACCESS (3002789c7d9137f288be193cd003b76c76b98c01 + 90f2c195e6fe0206499dddaa463b87cd03a6c185)
   1. assume SDL_GetTicks64/SDL_GetPerformanceCounter/SDL_GetPerformanceFrequency and SDL_Delay are not called before SDL_TicksInit
-- add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1)
+- add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1 + 0ab351d753504700ff331f8971f5885e7af5b8e8)
 
 Minor changes:
 - handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031 + 6ddd5bdebe8dbec382795be01328a1ab2ba10469)
@@ -32,10 +32,11 @@ Minor changes:
 - improve DUFFS_LOOP_124 (fddbd55c3d992ac361362e6ecbf3a7ffb4e07659)
 - prevent redefinition of _USE_MATH_DEFINES (daece4f51048120779df1bed50dc3b4786a630d7)
 - revert part of Clang-Tidy fixes (SDL_audio.c) (f3cdb1db49c1e75252e02becf27f8b90a37fec51)
-- simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4)
+- simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4 + ae8ba6fc19b4f94d3d6cf06b28884fd95e3d8f1b)
+- minor cleanup SDL_GetPrefPath of unix/SDL_sysfilesystem.c (202cd041545e8f239a6a05214596afff689d0c24)
 
 Bugfixes:
-- really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193)
+- really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193 + bda335ce5920d850dfaa266f499d846d1d4f1f1e)
 - fix DUFFS_LOOP4/8 to handle width of zero (or less) (8d18c5e59856bd5e46b93d9de4550d1d0b89dc26)
 - fix vita error message when the port can not be opened (5c75e0c8577a4854d6c77e574bf56074d5bb542f)
 - fix memory handling of vita-audio (7f4f1b174c5aeddaaf99d14739330efa8e6da20f)
