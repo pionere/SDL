@@ -327,16 +327,12 @@ char *SDL_GetPrefPath(const char *org, const char *app)
         if (*ptr == '/') {
             *ptr = '\0';
             if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
-                goto error;
+                SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
+                SDL_free(retval);
+                return NULL;
             }
             *ptr = '/';
         }
-    }
-    if (mkdir(retval, 0700) != 0 && errno != EEXIST) {
-    error:
-        SDL_SetError("Couldn't create directory '%s': '%s'", retval, strerror(errno));
-        SDL_free(retval);
-        return NULL;
     }
 
     return retval;
