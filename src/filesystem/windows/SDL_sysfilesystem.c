@@ -34,51 +34,22 @@
 
 char *SDL_GetBasePath(void)
 {
-    DWORD buflen = 128;
-    WCHAR *path = NULL;
-    char *retval = NULL;
-    DWORD len = 0;
-    int i;
-
-    while (SDL_TRUE) {
-        void *ptr = SDL_realloc(path, buflen * sizeof(WCHAR));
-        if (ptr == NULL) {
-            SDL_free(path);
-            SDL_OutOfMemory();
-            return NULL;
-        }
-
-        path = (WCHAR *)ptr;
-
-        len = GetModuleFileNameW(NULL, path, buflen);
-        /* if it truncated, then len >= buflen - 1 */
-        /* if there was enough room (or failure), len < buflen - 1 */
-        if (len < buflen - 1) {
-            break;
-        }
-
-        /* buffer too small? Try again. */
-        buflen *= 2;
-    }
-
+    char *retval;
+    WCHAR path[MAX_PATH];
+    DWORD len = GetModuleFileNameW(NULL, path, MAX_PATH);
     if (len == 0) {
-        SDL_free(path);
         WIN_SetError("Couldn't locate our .exe");
         return NULL;
     }
-
-    for (i = len - 1; i > 0; i--) {
-        if (path[i] == '\\') {
+    /* chop off filename. */
+    for (len--; len > 0; len--) {
+        if (path[len] == '\\') {
             break;
         }
     }
-
-    SDL_assert(i > 0);  /* Should have been an absolute path. */
-    path[i + 1] = '\0'; /* chop off filename. */
+    path[len + 1] = '\0';
 
     retval = WIN_StringToUTF8W(path);
-    SDL_free(path);
-
     return retval;
 }
 
