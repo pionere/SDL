@@ -76,12 +76,16 @@ static FILE *TryOpenFile(const char *file, const char *mode)
 static FILE *TryOpenInRomfs(const char *file, const char *mode)
 {
     FILE *fp = NULL;
-    char *prefixed_filepath = NULL;
+    char *prefixed_filepath;
 
-    if (SDL_asprintf(&prefixed_filepath, "romfs:/%s", file) < 0) {
+    // if (SDL_asprintf(&prefixed_filepath, "romfs:/%s", file) < 0) {
+    int len = sizeof("romfs:/") - 1 + SDL_strlen(file) + 1;
+    prefixed_filepath = (char*)SDL_malloc(len);
+    if (prefixed_filepath == NULL) {
         SDL_OutOfMemory();
         return NULL;
     }
+    SDL_snprintf(prefixed_filepath, len, "romfs:/%s", file);
 
     fp = fopen(prefixed_filepath, mode);
 

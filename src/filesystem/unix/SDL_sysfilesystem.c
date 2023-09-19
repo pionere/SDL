@@ -174,7 +174,15 @@ char *SDL_GetBasePath(void)
             if (exe && *exe == '.') {
                 const char *pwd = SDL_getenv("PWD");
                 if (pwd && *pwd) {
-                    SDL_asprintf(&pwddst, "%s/%s", pwd, exe);
+                    // SDL_asprintf(&pwddst, "%s/%s", pwd, exe);
+                    len = SDL_strlen(pwd) + sizeof("/") - 1 + SDL_strlen(exe) + 1;
+                    pwddst = (char*)SDL_malloc(len);
+                    if (pwddst == NULL) {
+                        SDL_free(cmdline);
+                        SDL_free(realpathbuf);
+                        SDL_OutOfMemory();
+                    }
+                    SDL_snprintf(pwddst, len, "%s/%s", pwd, exe);
                 }
             }
         }

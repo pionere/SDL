@@ -534,17 +534,16 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
 
 #ifdef DEBUG_PRINT_SHADERS
         {
-            int i;
-            char *message = NULL;
-
-            SDL_asprintf(&message, "Compiling shader:\n");
-            for (i = 0; i < num_src; ++i) {
-                char *last_message = message;
-                SDL_asprintf(&message, "%s%s", last_message, shader_src_list[i]);
-                SDL_free(last_message);
+            static_assert(SDL_arraysize(shader_src_list) == 3);
+            const GLchar *shader_msg[3];
+            for (i = 0; i < 3; ++i) {
+                if (i < num_src) {
+                    shader_msg[i] = shader_src_list[i];
+                } else {
+                    shader_msg[i] = "";
+                }
             }
-            SDL_Log("%s\n", message);
-            SDL_free(message);
+            SDL_Log("Compiling shader:\n%s%s%s\n", shader_msg[0], shader_msg[1], shader_msg[2]);
         }
 #endif
 

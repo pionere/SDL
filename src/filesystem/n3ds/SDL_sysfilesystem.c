@@ -66,10 +66,14 @@ SDL_FORCE_INLINE char *
 MakePrefPath(const char *app)
 {
     char *pref_path;
-    if (SDL_asprintf(&pref_path, "sdmc:/3ds/%s/", app) < 0) {
+    // if (SDL_asprintf(&pref_path, "sdmc:/3ds/%s/", app) < 0) {
+    int len = sizeof("sdmc:/3ds/") - 1 + SDL_strlen(app) + sizeof("/") - 1 + 1;
+    pref_path = (char*)SDL_malloc(len);
+    if (pref_path == NULL) {
         SDL_OutOfMemory();
         return NULL;
     }
+    SDL_snprintf(pref_path, len, "sdmc:/3ds/%s/", app);
     return pref_path;
 }
 

@@ -1272,6 +1272,7 @@ static ControllerMapping_t *SDL_PrivateAddMappingForGUID(SDL_JoystickGUID jGUID,
         char *new_mapping;
         char *crc_end = "";
         char *crc_string = SDL_strstr(pchMapping, SDL_CONTROLLER_CRC_FIELD);
+        size_t len;
         if (crc_string) {
             crc_end = SDL_strchr(crc_string, ',');
             if (crc_end) {
@@ -1282,7 +1283,11 @@ static ControllerMapping_t *SDL_PrivateAddMappingForGUID(SDL_JoystickGUID jGUID,
             *crc_string = '\0';
         }
 
-        if (SDL_asprintf(&new_mapping, "%s%s%.4x,%s", pchMapping, SDL_CONTROLLER_CRC_FIELD, crc, crc_end) >= 0) {
+        // if (SDL_asprintf(&new_mapping, "%s%s%.4x,%s", pchMapping, SDL_CONTROLLER_CRC_FIELD, crc, crc_end) >= 0) {
+        len = SDL_strlen(pchMapping) + sizeof(SDL_CONTROLLER_CRC_FIELD) - 1 + 4 + SDL_strlen(crc_end) + 1;
+        new_mapping = (char*)SDL_malloc(len);
+        if (new_mapping != NULL) {
+            SDL_snprintf(new_mapping, len, "%s%s%.4x,%s", pchMapping, SDL_CONTROLLER_CRC_FIELD, crc, crc_end);
             SDL_free(pchMapping);
             pchMapping = new_mapping;
         }
