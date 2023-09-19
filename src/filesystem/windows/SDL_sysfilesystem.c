@@ -53,6 +53,27 @@ char *SDL_GetBasePath(void)
     return retval;
 }
 
+static SDL_bool TryAppendDir(const char *dir, SDL_iconv_t cd, WCHAR **cursor, size_t *wleft)
+{
+    size_t convres;
+    size_t dirLen = SDL_strlen(dir);
+
+    **cursor = L'\\';
+    ++*cursor;
+    if (*wleft-- == 0) {
+        return SDL_FALSE;
+    }
+    convres = SDL_iconv(cd, &dir, &dirLen, (char **)cursor, wleft);
+    switch (convres) {
+    case SDL_ICONV_E2BIG:
+    case SDL_ICONV_EILSEQ:
+    case SDL_ICONV_EINVAL:
+    case SDL_ICONV_ERROR:
+        return SDL_FALSE;
+    }
+    return SDL_TRUE;
+}
+
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
     /*
@@ -64,18 +85,15 @@ char *SDL_GetPrefPath(const char *org, const char *app)
      */
 
     WCHAR path[MAX_PATH];
-    char *retval = NULL;
-    WCHAR *worg = NULL;
-    WCHAR *wapp = NULL;
-    size_t new_wpath_len = 0;
+    size_t len, wleft;
+    WCHAR *cursor;
+    char *retval;
     BOOL api_result = FALSE;
+    SDL_iconv_t cd;
 
     if (app == NULL) {
         SDL_InvalidParamError("app");
         return NULL;
-    }
-    if (org == NULL) {
-        org = "";
     }
 
     if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path))) {
@@ -83,60 +101,49 @@ char *SDL_GetPrefPath(const char *org, const char *app)
         return NULL;
     }
 
-    worg = WIN_UTF8ToStringW(org);
-    if (worg == NULL) {
+    cd = SDL_iconv_open("UTF-16LE", "UTF-8"); // WIN_UTF8ToStringW
+    if (cd == (SDL_iconv_t)-1) {
         SDL_OutOfMemory();
         return NULL;
     }
 
-    wapp = WIN_UTF8ToStringW(app);
-    if (wapp == NULL) {
-        SDL_free(worg);
-        SDL_OutOfMemory();
-        return NULL;
+    len = SDL_wcslen(path);
+    cursor = &path[len];
+    wleft = MAX_PATH - (len + 1);
+    if (org != NULL && *org && !TryAppendDir(org, cd, &cursor, &wleft)) {
+        goto errlong;
     }
-
-    new_wpath_len = SDL_wcslen(worg) + SDL_wcslen(wapp) + SDL_wcslen(path) + 3;
-
-    if ((new_wpath_len + 1) > MAX_PATH) {
-        SDL_free(worg);
-        SDL_free(wapp);
-        WIN_SetError("Path too long.");
-        return NULL;
+    if (*app && !TryAppendDir(app, cd, &cursor, &wleft)) {
+        goto errlong;
     }
-
-    if (*worg) {
-        SDL_wcslcat(path, L"\\", SDL_arraysize(path));
-        SDL_wcslcat(path, worg, SDL_arraysize(path));
+    if (wleft == 0) {
+        goto errlong;
     }
-    SDL_free(worg);
+    *cursor = L'\\';
+    cursor++;
+    *cursor = L'\0';
 
-    api_result = CreateDirectoryW(path, NULL);
-    if (api_result == FALSE) {
-        if (GetLastError() != ERROR_ALREADY_EXISTS) {
-            SDL_free(wapp);
-            WIN_SetError("Couldn't create a prefpath.");
-            return NULL;
+    for (cursor = &path[len + 1]; *cursor; cursor++) {
+        if (*cursor == L'\\') {
+            *cursor = L'\0';
+            api_result = CreateDirectoryW(path, NULL);
+
+            if (api_result == FALSE && GetLastError() != ERROR_ALREADY_EXISTS) {
+                WIN_SetError("Couldn't create a prefpath.");
+                return NULL;
+            }
+            *cursor = L'\\';
         }
     }
 
-    SDL_wcslcat(path, L"\\", SDL_arraysize(path));
-    SDL_wcslcat(path, wapp, SDL_arraysize(path));
-    SDL_free(wapp);
-
-    api_result = CreateDirectoryW(path, NULL);
-    if (api_result == FALSE) {
-        if (GetLastError() != ERROR_ALREADY_EXISTS) {
-            WIN_SetError("Couldn't create a prefpath.");
-            return NULL;
-        }
-    }
-
-    SDL_wcslcat(path, L"\\", SDL_arraysize(path));
+    SDL_iconv_close(cd);
 
     retval = WIN_StringToUTF8W(path);
 
     return retval;
+errlong:
+    WIN_SetError("Path too long.");
+    return NULL;
 }
 
 #endif /* SDL_FILESYSTEM_WINDOWS */
