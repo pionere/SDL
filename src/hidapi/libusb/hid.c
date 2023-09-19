@@ -488,7 +488,11 @@ static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 	outptr = (char*) wbuf;
 	outbytes = sizeof(wbuf);
 	res = SDL_iconv(ic, &inptr, &inbytes, &outptr, &outbytes);
-	if (res == (size_t)-1) {
+	switch (res) {
+	case SDL_ICONV_E2BIG:
+	case SDL_ICONV_EILSEQ:
+	case SDL_ICONV_EINVAL:
+	case SDL_ICONV_ERROR:
 		LOG("SDL_iconv() failed\n");
 		goto err;
 	}
