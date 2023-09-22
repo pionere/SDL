@@ -25,6 +25,7 @@ Minor changes:
 - replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba + 56e6db8d93fe1b63a72906ecb72c987727d33936 + a922acdd7cead695061786db984a33f2e76c3ccd)
 - update SDL_CreateRGBSurface* interface (2b389c5133a0151a73ca6a4af6f4e26722a2abe6)
 - do not use SDL_GetError internally (4da1368a2bbd99e92e61455c037bed17952fea63 + f2bb79190f57d19ee6893aed1ca89a04bbb5b1ec)
+- do not use SDL_asprintf internally (4f9378bab2005448ac245016006d5ac9b40f9d2a)
 - Turn off debug code in normal release (9f81725966733df9bee2cc12ad6d2ac9862d04ce)
 - hide SDL_GenerateAssertionReport in case SDL_ASSERT_LEVEL is 0 (9d4f4056fa836e0f5cd264da27f53c2dc8deedd8)
 - sync handling of subsystems III. (threads) (4bf613e96b15d3087b43f10997b78d0932331e39 + ff609444f1c6d91186999d7459b42d1fe1aafdf3 + eb539788a342ba14b07c65568211bf5f3e75ad40)
@@ -33,7 +34,11 @@ Minor changes:
 - prevent redefinition of _USE_MATH_DEFINES (daece4f51048120779df1bed50dc3b4786a630d7)
 - revert part of Clang-Tidy fixes (SDL_audio.c) (f3cdb1db49c1e75252e02becf27f8b90a37fec51)
 - simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4 + ae8ba6fc19b4f94d3d6cf06b28884fd95e3d8f1b)
-- minor cleanup SDL_GetPrefPath of unix/SDL_sysfilesystem.c (202cd041545e8f239a6a05214596afff689d0c24)
+- minor cleanup SDL_GetPrefPath of unix/SDL_sysfilesystem.c (202cd041545e8f239a6a05214596afff689d0c24 + f47b03501cfac63e04ef9a167682a7a2b2bb1f13)
+- cleanup SDL_GetBasePath of windows/SDL_sysfilesystem.c (97004742179c468411a12fa63e3787105412f80f)
+- cleanup SDL_GetPrefPath of windows/SDL_sysfilesystem.c (f0c63f403f3bb787beced2588de9d01e2742e872)
+- revert 'Retry to open the clipboard in case another application has it open' (2515e71a17717f7e329977653f20db1a9fe45f19)
+- revert 'Don't crash if SDL_MapRGB() and SDL_MapRGBA() are passed a NULL format (bbb0affb35fc535813220dbb874f23c1c176f733)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193 + bda335ce5920d850dfaa266f499d846d1d4f1f1e)
@@ -43,3 +48,4 @@ Bugfixes:
 - fix memory leak in windows/SDL_windowshaptic.c (da0323960b23913f6aec422f385b8ded56867510)
 - fix possible NULL-pointer errors due to allocation error (7af2b40ee1d40435c77b469dc5118c08575c20ad)
 - fix memory leaks in psp/ps2audio (01a453c59ac13281fa2416e48517886c13fbade3)
+- fix error handling in get_usb_string (21a61a0b7eb70cb27e72afc6b1081fd4e441394c)
