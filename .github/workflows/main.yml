@@ -1,4 +1,4 @@
-name: Build
+name: Build (Main)
 
 on: [push, pull_request]
 
@@ -20,16 +20,16 @@ jobs:
         - { name: Windows (clang32),              os: windows-latest, shell: 'msys2 {0}', msystem: clang32, msys-env: mingw-w64-clang-i686, artifact: SDL2.dll, artifact-name: SDL2_clang_x86.dll }
         - { name: Windows (clang64),              os: windows-latest, shell: 'msys2 {0}', msystem: clang64, msys-env: mingw-w64-clang-x86_64, artifact: SDL2.dll, artifact-name: SDL2_clang_x64.dll }
         - { name: Windows (ucrt64),               os: windows-latest, shell: 'msys2 {0}', msystem: ucrt64,  msys-env: mingw-w64-ucrt-x86_64, artifact: SDL2.dll, artifact-name: SDL2_ucrt_x64.dll }
-        - { name: Ubuntu 20.04 (CMake),           os: ubuntu-20.04,   shell: sh, artifact: libSDL2-27.0.so, artifact-name: libSDL2-27.0.so }
-        - { name: Ubuntu 20.04 (autotools),       os: ubuntu-20.04,   shell: sh,    autotools: true, artifact: libSDL2-26.0.so, artifact-name: libSDL2-27.0.so }
-        #- { name: Intel oneAPI (Ubuntu 20.04),    os: ubuntu-20.04,   shell: bash, artifact: 'SDL-ubuntu20.04-oneapi', artifact-name: libSDL2-27.0.so, intel: true,
+        - { name: Ubuntu 20.04 (CMake),           os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so }
+        - { name: Ubuntu 20.04 (autotools),       os: ubuntu-20.04,   shell: sh,    autotools: true, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04_auto.so }
+        #- { name: Intel oneAPI (Ubuntu 20.04),    os: ubuntu-20.04,   shell: bash, artifact: 'SDL-ubuntu20.04-oneapi', artifact-name: libSDL2-28.0_intel.so, intel: true,
         #    source_cmd: 'source /opt/intel/oneapi/setvars.sh; export CC=icx; export CXX=icx;'}
-        #- { name: Intel Compiler (Ubuntu 20.04),  os: ubuntu-20.04,   shell: bash, artifact: 'SDL-ubuntu20.04-icc', artifact-name: libSDL2-27.0.so, intel: true, cmake: '-DSDL_CLANG_TIDY=OFF',
+        #- { name: Intel Compiler (Ubuntu 20.04),  os: ubuntu-20.04,   shell: bash, artifact: 'SDL-ubuntu20.04-icc', artifact-name: libSDL2-28.0_intel_auto.so, intel: true, cmake: '-DSDL_CLANG_TIDY=OFF',
         #     source_cmd: 'source /opt/intel/oneapi/setvars.sh; export CC=icc; export CXX=icpc; export CFLAGS=-diag-disable=10441; export CXXFLAGS=-diag-disable=10441; '}
-        - { name: Ubuntu 22.04 (CMake),           os: ubuntu-22.04,   shell: sh, artifact: libSDL2-26.0.so, artifact-name: libSDL2-27.0.so }
-        - { name: Ubuntu 22.04 (autotools),       os: ubuntu-22.04,   shell: sh,    autotools: true, artifact: libSDL2-27.0.so, artifact-name: libSDL2-27.0.so }
-        - { name: MacOS (CMake),                  os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"', artifact: libSDL2-27.0.dylib, artifact-name: libSDL2-27.0.dylib }
-        - { name: MacOS (autotools),              os: macos-latest,   shell: sh,    autotools: true, artifact: libSDL2-27.0.dylib, artifact-name: libSDL2-27.0.dylib }
+        - { name: Ubuntu 22.04 (CMake),           os: ubuntu-22.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub22.04.so }
+        - { name: Ubuntu 22.04 (autotools),       os: ubuntu-22.04,   shell: sh,    autotools: true, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub22.04_auto.so }
+        - { name: MacOS (CMake),                  os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"', artifact: libSDL2.dylib, artifact-name: libSDL2-28.0.dylib }
+        - { name: MacOS (autotools),              os: macos-latest,   shell: sh,    autotools: true, artifact: libSDL2.dylib, artifact-name: libSDL2-28.0_auto.dylib }
 
     steps:
     - name: Set up MSYS2
@@ -235,8 +235,16 @@ jobs:
             ginsttest-runner --tap SDL2
 
     # Upload the created artifact
-    - name: Upload
-      uses: actions/upload-artifact@v2
+    - name: Upload (CMake)
+      if: "! matrix.platform.autotools"
+      uses: actions/upload-artifact@v3
       with:
         path: build/${{ matrix.platform.artifact }}
+        name: ${{ matrix.platform.artifact-name }}
+
+    - name: Upload (autotools)
+      if: matrix.platform.autotools
+      uses: actions/upload-artifact@v3
+      with:
+        path: build-autotools/build/.libs/${{ matrix.platform.artifact }}
         name: ${{ matrix.platform.artifact-name }}

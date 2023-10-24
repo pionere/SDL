@@ -11,16 +11,16 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows (x64),          flags: -A x64,   project: VisualC/SDL.sln, projectflags: '/p:Platform=x64', artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x64.dll }
-        - { name: Windows (x86),          flags: -A Win32, project: VisualC/SDL.sln, projectflags: '/p:Platform=Win32', artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x86.dll }
-        - { name: Windows static VCRT (x64), flags: -A x64 -DSDL_FORCE_STATIC_VCRT=ON, artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x64.dll }
-        - { name: Windows static VCRT (x86), flags: -A Win32 -DSDL_FORCE_STATIC_VCRT=ON, artifact: Release/SDL2.dll, artifact-name: SDL2_gcc_x86.dll }
-        - { name: Windows (clang-cl x64), flags: -T ClangCL -A x64, artifact: Release/SDL2.dll, artifact-name: SDL2_clang_x64.dll }
-        - { name: Windows (clang-cl x86), flags: -T ClangCL -A Win32, artifact: Release/SDL2.dll, artifact-name: SDL2_clang_x86.dll }
-        - { name: Windows (ARM),          flags: -A ARM, artifact: Release/SDL2.dll, artifact-name: SDL2_arm_x86.dll }
-        - { name: Windows (ARM64),        flags: -A ARM64, artifact: Release/SDL2.dll, artifact-name: SDL2_arm_x64.dll }
+        - { name: Windows (x64),          flags: -A x64,   project: VisualC/SDL.sln, projectflags: '/p:Platform=x64', artifact: SDL2.dll, artifact-name: SDL2_gcc_x64.dll }
+        - { name: Windows (x86),          flags: -A Win32, project: VisualC/SDL.sln, projectflags: '/p:Platform=Win32', artifact: SDL2.dll, artifact-name: SDL2_gcc_x86.dll }
+        - { name: Windows static VCRT (x64), flags: -A x64 -DSDL_FORCE_STATIC_VCRT=ON, static: true }
+        - { name: Windows static VCRT (x86), flags: -A Win32 -DSDL_FORCE_STATIC_VCRT=ON, static: true }
+        - { name: Windows (clang-cl x64), flags: -T ClangCL -A x64, artifact: SDL2.dll, artifact-name: SDL2_clang_x64.dll }
+        - { name: Windows (clang-cl x86), flags: -T ClangCL -A Win32, artifact: SDL2.dll, artifact-name: SDL2_clang_x86.dll }
+        - { name: Windows (ARM),          flags: -A ARM, artifact: SDL2.dll, artifact-name: SDL2_arm_x86.dll }
+        - { name: Windows (ARM64),        flags: -A ARM64, artifact: SDL2.dll, artifact-name: SDL2_arm_x64.dll }
         - { name: UWP (x64),              flags: -A x64 -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION="10.0" -DSDL_TESTS=OFF, nowerror: true,
-            project: VisualC-WinRT/SDL-UWP.sln, projectflags: '/p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.17763.0', artifact: Release/SDL2.dll, artifact-name: SDL2_uwp_x64.dll }
+            project: VisualC-WinRT/SDL-UWP.sln, projectflags: '/p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.17763.0', artifact: SDL2.dll, artifact-name: SDL2_uwp_x64.dll }
 
     steps:
     - uses: actions/checkout@v3
@@ -80,7 +80,8 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v2
+      if: "! matrix.platform.static"
+      uses: actions/upload-artifact@v3
       with:
-        path: build/${{ matrix.platform.artifact }}
+        path: build/SDL/Release/${{ matrix.platform.artifact }}
         name: ${{ matrix.platform.artifact-name }}
