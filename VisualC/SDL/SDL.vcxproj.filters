@@ -612,7 +612,13 @@
     <ClInclude Include="..\..\src\video\dummy\SDL_nullframebuffer_c.h">
       <Filter>video\dummy</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\dummy\SDL_nullmouse.h">
+      <Filter>video\dummy</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\video\dummy\SDL_nullvideo.h">
+      <Filter>video\dummy</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\dummy\SDL_nullwindow.h">
       <Filter>video\dummy</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\video\yuv2rgb\yuv_rgb.h">
@@ -1177,7 +1183,13 @@
     <ClCompile Include="..\..\src\video\dummy\SDL_nullframebuffer.c">
       <Filter>video\dummy</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\video\dummy\SDL_nullmouse.c">
+      <Filter>video\dummy</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\video\dummy\SDL_nullvideo.c">
+      <Filter>video\dummy</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\dummy\SDL_nullwindow.c">
       <Filter>video\dummy</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\video\yuv2rgb\yuv_rgb.c">

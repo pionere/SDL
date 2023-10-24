@@ -171,7 +171,7 @@ static void SDLCALL SDL_MouseRelativeWarpMotionChanged(void *userdata, const cha
 }
 
 /* Public functions */
-int SDL_MousePreInit(void)
+int SDL_MouseInit(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
 
@@ -216,59 +216,9 @@ int SDL_MousePreInit(void)
     return 0;
 }
 
-void SDL_MousePostInit(void)
-{
-    SDL_Mouse *mouse = SDL_GetMouse();
-
-    /* Create a dummy mouse cursor for video backends that don't support true cursors,
-     * so that mouse grab and focus functionality will work.
-     */
-    if (!mouse->def_cursor) {
-        SDL_Surface *surface = SDL_CreateRGBSurface(0, 1, 1, 32, 0xFF, 0xFF, 0xFF, 0xFF);
-        if (surface) {
-            SDL_memset(surface->pixels, 0, (size_t)surface->h * surface->pitch);
-            SDL_SetDefaultCursor(SDL_CreateColorCursor(surface, 0, 0));
-            SDL_FreeSurface(surface);
-        }
-    }
-}
-
 void SDL_SetDefaultCursor(SDL_Cursor *cursor)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
-
-    if (cursor == mouse->def_cursor) {
-        return;
-    }
-
-    if (mouse->def_cursor) {
-        SDL_Cursor *default_cursor = mouse->def_cursor;
-        SDL_Cursor *prev, *curr;
-
-        if (mouse->cur_cursor == mouse->def_cursor) {
-            mouse->cur_cursor = NULL;
-        }
-        mouse->def_cursor = NULL;
-
-        for (prev = NULL, curr = mouse->cursors; curr;
-             prev = curr, curr = curr->next) {
-            if (curr == default_cursor) {
-                if (prev) {
-                    prev->next = curr->next;
-                } else {
-                    mouse->cursors = curr->next;
-                }
-
-                break;
-            }
-        }
-
-        if (mouse->FreeCursor && default_cursor->driverdata) {
-            mouse->FreeCursor(default_cursor);
-        } else {
-            SDL_free(default_cursor);
-        }
-    }
 
     mouse->def_cursor = cursor;
 
@@ -1322,6 +1272,11 @@ SDL_Cursor *SDL_CreateColorCursor(SDL_Surface *surface, int hot_x, int hot_y)
         return NULL;
     }
 
+    if (!mouse->CreateCursor) {
+        SDL_SetError("Cursors are not currently supported");
+        return NULL;
+    }
+
     /* Sanity check the hot spot */
     if ((hot_x < 0) || (hot_y < 0) ||
         (hot_x >= surface->w) || (hot_y >= surface->h)) {
@@ -1337,14 +1292,7 @@ SDL_Cursor *SDL_CreateColorCursor(SDL_Surface *surface, int hot_x, int hot_y)
         surface = temp;
     }
 
-    if (mouse->CreateCursor) {
-        cursor = mouse->CreateCursor(surface, hot_x, hot_y);
-    } else {
-        cursor = SDL_calloc(1, sizeof(*cursor));
-        if (!cursor) {
-            SDL_OutOfMemory();
-        }
-    }
+    cursor = mouse->CreateCursor(surface, hot_x, hot_y);
 
     if (cursor) {
         cursor->next = mouse->cursors;
@@ -1470,8 +1418,6 @@ void SDL_FreeCursor(SDL_Cursor *cursor)
 
             if (mouse->FreeCursor) {
                 mouse->FreeCursor(curr);
-            } else {
-                SDL_free(curr);
             }
             return;
         }

@@ -468,7 +468,9 @@
     <ClInclude Include="..\..\src\timer\SDL_timer_c.h" />
     <ClInclude Include="..\..\src\video\dummy\SDL_nullevents_c.h" />
     <ClInclude Include="..\..\src\video\dummy\SDL_nullframebuffer_c.h" />
+    <ClInclude Include="..\..\src\video\dummy\SDL_nullmouse.h" />
     <ClInclude Include="..\..\src\video\dummy\SDL_nullvideo.h" />
+    <ClInclude Include="..\..\src\video\dummy\SDL_nullwindow.h" />
     <ClInclude Include="..\..\src\video\khronos\vulkan\vk_icd.h" />
     <ClInclude Include="..\..\src\video\khronos\vulkan\vk_layer.h" />
     <ClInclude Include="..\..\src\video\khronos\vulkan\vk_platform.h" />
@@ -717,7 +719,9 @@
     <ClCompile Include="..\..\src\timer\windows\SDL_systimer.c" />
     <ClCompile Include="..\..\src\video\dummy\SDL_nullevents.c" />
     <ClCompile Include="..\..\src\video\dummy\SDL_nullframebuffer.c" />
+    <ClCompile Include="..\..\src\video\dummy\SDL_nullmouse.c" />
     <ClCompile Include="..\..\src\video\dummy\SDL_nullvideo.c" />
+    <ClCompile Include="..\..\src\video\dummy\SDL_nullwindow.c" />
     <ClCompile Include="..\..\src\video\SDL_blit.c" />
     <ClCompile Include="..\..\src\video\SDL_blit_0.c" />
     <ClCompile Include="..\..\src\video\SDL_blit_1.c" />

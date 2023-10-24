@@ -46,6 +46,8 @@
 #include "SDL_nullvideo.h"
 #include "SDL_nullevents_c.h"
 #include "SDL_nullframebuffer_c.h"
+#include "SDL_nullmouse.h"
+#include "SDL_nullwindow.h"
 #include "SDL_hints.h"
 
 #define DUMMYVID_DRIVER_NAME       "dummy"
@@ -109,6 +111,8 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
         device->PumpEvents = DUMMY_EVDEV_Poll;
     }
 #endif
+    device->ShowWindow = DUMMY_ShowWindow;
+    device->HideWindow = DUMMY_HideWindow;
     device->CreateWindowFramebuffer = SDL_DUMMY_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = SDL_DUMMY_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = SDL_DUMMY_DestroyWindowFramebuffer;
@@ -158,6 +162,9 @@ int DUMMY_VideoInit(_THIS)
     SDL_EVDEV_Init();
 #endif
 
+    // DUMMY_InitKeyboard(_this);
+    DUMMY_InitMouse(_this);
+
     /* We're done! */
     return 0;
 }
@@ -167,6 +174,9 @@ void DUMMY_VideoQuit(_THIS)
 #if SDL_INPUT_LINUXEV
     SDL_EVDEV_Quit();
 #endif
+
+    // DUMMY_QuitKeyboard(_this);
+    // DUMMY_QuitMouse(_this);
 }
 
 #endif /* SDL_VIDEO_DRIVER_DUMMY */
