@@ -53,6 +53,13 @@ char *SDL_GetBasePath(void)
     return retval;
 }
 
+/**
+ * Suppress GCC warning till (if ever...) they fix https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56456 .
+ */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 static SDL_bool TryAppendDir(const char *dir, SDL_iconv_t cd, WCHAR **cursor, size_t *wleft)
 {
     size_t convres;
@@ -73,6 +80,9 @@ static SDL_bool TryAppendDir(const char *dir, SDL_iconv_t cd, WCHAR **cursor, si
     }
     return SDL_TRUE;
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
