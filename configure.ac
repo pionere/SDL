@@ -231,6 +231,15 @@ esac
 dnl For use in static assertions
 EXTRA_CFLAGS="$EXTRA_CFLAGS -DSDL_BUILD_MAJOR_VERSION=$SDL_MAJOR_VERSION -DSDL_BUILD_MINOR_VERSION=$SDL_MINOR_VERSION -DSDL_BUILD_MICRO_VERSION=$SDL_MICRO_VERSION"
 
+dnl See whether we want to support the override of the standard memory-allocation functions
+AC_ARG_ENABLE(dyn_memfuncs,
+[AS_HELP_STRING([--enable-dyn-memfuncs],
+               [Support override of the standard memory-allocation functions [default=yes]])],
+              , enable_dyn_memfuncs=yes)
+if test x$enable_dyn_memfuncs != xyes; then
+    AC_DEFINE(SDL_DYN_MEMFUNCS_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want the optional blit/rle/yuv features
 AC_ARG_ENABLE(lean-and-mean,
 [AS_HELP_STRING([--enable-lean-and-mean],
@@ -474,7 +483,7 @@ dnl Checks for library functions.
         AC_DEFINE(HAVE_MPROTECT, 1, [ ])
         ],[]),
     )
-    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit)
+    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen _strdup strdup strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit)
 
     AC_CHECK_LIB(m, pow, [LIBS="$LIBS -lm"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"])
     AC_CHECK_FUNCS(acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf sin sinf sqrt sqrtf tan tanf trunc truncf)
@@ -5097,6 +5106,11 @@ if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
 else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+if test x$enable_dyn_memfuncs = xyes; then
+    SUMMARY="${SUMMARY}Dynamic allocators supported : YES\n"
+else
+    SUMMARY="${SUMMARY}Dynamic allocators supported : NO\n"
 fi
 SUMMARY="${SUMMARY}Blitters"
 HAVE_BLITTER=no

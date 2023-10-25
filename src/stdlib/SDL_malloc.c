@@ -5204,6 +5204,7 @@ static void  SDLCALL real_free(void *p) { free(p); }
 #define real_free dlfree
 #endif
 
+#if !SDL_DYN_MEMFUNCS_DISABLED
 /* Memory functions used by SDL that can be replaced by the application */
 static struct
 {
@@ -5339,5 +5340,69 @@ void SDL_free(void *ptr)
     s_mem.free_func(ptr);
     (void)SDL_AtomicDecRef(&s_mem.num_allocations);
 }
+
+#else
+
+void SDL_GetOriginalMemoryFunctions(SDL_malloc_func *malloc_func,
+                                    SDL_calloc_func *calloc_func,
+                                    SDL_realloc_func *realloc_func,
+                                    SDL_free_func *free_func)
+{
+    if (malloc_func) {
+        *malloc_func = real_malloc;
+    }
+    if (calloc_func) {
+        *calloc_func = real_calloc;
+    }
+    if (realloc_func) {
+        *realloc_func = real_realloc;
+    }
+    if (free_func) {
+        *free_func = real_free;
+    }
+}
+
+void SDL_GetMemoryFunctions(SDL_malloc_func *malloc_func,
+                            SDL_calloc_func *calloc_func,
+                            SDL_realloc_func *realloc_func,
+                            SDL_free_func *free_func)
+{
+    SDL_GetOriginalMemoryFunctions(malloc_func, calloc_func, realloc_func, free_func);
+}
+
+int SDL_SetMemoryFunctions(SDL_malloc_func malloc_func,
+                           SDL_calloc_func calloc_func,
+                           SDL_realloc_func realloc_func,
+                           SDL_free_func free_func)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_GetNumAllocations(void)
+{
+    return SDL_Unsupported();
+}
+
+void *SDL_malloc(size_t size)
+{
+    return real_malloc(size);
+}
+
+void *SDL_calloc(size_t nmemb, size_t size)
+{
+    return real_calloc(nmemb, size);
+}
+
+void *SDL_realloc(void *ptr, size_t size)
+{
+    return real_realloc(ptr, size);
+}
+
+void SDL_free(void *ptr)
+{
+    real_free(ptr);
+}
+
+#endif // !SDL_DYN_MEMFUNCS_DISABLED
 
 /* vi: set ts=4 sw=4 expandtab: */

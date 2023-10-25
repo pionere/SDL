@@ -842,6 +842,7 @@ with_sysroot
 enable_libtool_lock
 enable_largefile
 enable_assertions
+enable_dyn_memfuncs
 enable_lean_and_mean
 enable_blit0
 enable-blit1
@@ -1675,6 +1676,7 @@ Optional Features:
   --enable-dependency-tracking
                           Use gcc -MMD -MT dependency tracking [default=yes]
   --enable-libc           Use the system C library [default=yes]
+  --enable-dyn-memfuncs   Support override of the standard memory-allocation functions. [default=yes]
   --enable-system-iconv   Use iconv() from system-installed libraries
                           [default=yes]
   --enable-gcc-atomics    Use gcc builtin atomics [default=yes]
@@ -18676,6 +18678,19 @@ esac
 EXTRA_CFLAGS="$EXTRA_CFLAGS -DSDL_BUILD_MAJOR_VERSION=$SDL_MAJOR_VERSION -DSDL_BUILD_MINOR_VERSION=$SDL_MINOR_VERSION -DSDL_BUILD_MICRO_VERSION=$SDL_MICRO_VERSION"
 
 
+# Check whether --enable-dyn-memfuncs was given.
+if test ${enable_dyn_memfuncs+y}
+then :
+  enableval=$enable_dyn_memfuncs;
+else $as_nop
+  enable_dyn_memfuncs=yes
+fi
+
+if test x$enable_dyn_memfuncs != xyes; then
+
+printf "%s\n" "#define SDL_DYN_MEMFUNCS_DISABLED 1" >>confdefs.h
+
+fi
 # Check whether --enable-lean-and-mean was given.
 if test ${enable_lean_and_mean+y}
 then :
@@ -19650,6 +19665,18 @@ ac_fn_c_check_func "$LINENO" "strlen" "ac_cv_func_strlen"
 if test "x$ac_cv_func_strlen" = xyes
 then :
   printf "%s\n" "#define HAVE_STRLEN 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_strdup" "ac_cv_func__strdup"
+if test "x$ac_cv_func__strdup" = xyes
+then :
+  printf "%s\n" "#define HAVE__STRDUP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strdup" "ac_cv_func_strdup"
+if test "x$ac_cv_func_strdup" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRDUP 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "strlcpy" "ac_cv_func_strlcpy"
@@ -30397,6 +30424,11 @@ if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
 else
     SUMMARY="${SUMMARY}Using dynamic API   : NO\n"
+fi
+if test x$enable_dyn_memfuncs = xyes; then
+    SUMMARY="${SUMMARY}Dynamic allocators supported : YES\n"
+else
+    SUMMARY="${SUMMARY}Dynamic allocators supported : NO\n"
 fi
 SUMMARY="${SUMMARY}Blitters"
 HAVE_BLITTER=no

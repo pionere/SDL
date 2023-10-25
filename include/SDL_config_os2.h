@@ -130,6 +130,7 @@
 #define HAVE_WCSCMP 1
 #define HAVE_WCSNCMP 1
 #define HAVE_STRLEN 1
+#define HAVE_STRDUP 1
 #define HAVE_STRLCPY 1
 #define HAVE_STRLCAT 1
 #define HAVE__STRREV 1

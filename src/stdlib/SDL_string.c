@@ -399,12 +399,18 @@ SDL_wcslcat(SDL_INOUT_Z_CAP(maxlen) wchar_t *dst, const wchar_t *src, size_t max
 
 wchar_t *SDL_wcsdup(const wchar_t *string)
 {
+#if defined(HAVE__WCSDUP) && !SDL_DYN_MEMFUNCS_DISABLED
+    return _wcsdup(string);
+#elif defined(HAVE_WCSDUP) && !SDL_DYN_MEMFUNCS_DISABLED
+    return wcsdup(string);
+#else
     size_t len = ((SDL_wcslen(string) + 1) * sizeof(wchar_t));
     wchar_t *newstr = (wchar_t *)SDL_malloc(len);
     if (newstr) {
         SDL_memcpy(newstr, string, len);
     }
     return newstr;
+#endif
 }
 
 wchar_t *SDL_wcsstr(const wchar_t *haystack, const wchar_t *needle)
@@ -638,12 +644,18 @@ SDL_strlcat(SDL_INOUT_Z_CAP(maxlen) char *dst, const char *src, size_t maxlen)
 
 char *SDL_strdup(const char *string)
 {
+#if defined(HAVE__STRDUP) && !SDL_DYN_MEMFUNCS_DISABLED
+    return _strdup(string);
+#elif defined(HAVE_STRDUP) && !SDL_DYN_MEMFUNCS_DISABLED
+    return strdup(string);
+#else
     size_t len = SDL_strlen(string) + 1;
     char *newstr = (char *)SDL_malloc(len);
     if (newstr) {
         SDL_memcpy(newstr, string, len);
     }
     return newstr;
+#endif
 }
 
 char *SDL_strrev(char *string)

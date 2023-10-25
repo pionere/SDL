@@ -110,6 +110,8 @@
 #cmakedefine HAVE_WCSNCASECMP 1
 #cmakedefine HAVE__WCSNICMP 1
 #cmakedefine HAVE_STRLEN 1
+#cmakedefine HAVE__STRDUP 1
+#cmakedefine HAVE_STRDUP 1
 #cmakedefine HAVE_STRLCPY 1
 #cmakedefine HAVE_STRLCAT 1
 #cmakedefine HAVE__STRREV 1
@@ -275,6 +277,7 @@
 #cmakedefine SDL_VERBOSE_ERROR_DISABLED @SDL_VERBOSE_ERROR_DISABLED@
 
 /* SDL optional features */
+#cmakedefine SDL_DYN_MEMFUNCS_DISABLED @SDL_DYN_MEMFUNCS_DISABLED@
 #cmakedefine SDL_BLIT_0_DISABLED @SDL_BLIT_0_DISABLED@
 #cmakedefine SDL_BLIT_1_DISABLED @SDL_BLIT_1_DISABLED@
 #cmakedefine SDL_BLIT_A_DISABLED @SDL_BLIT_A_DISABLED@

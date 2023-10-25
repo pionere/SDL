@@ -497,6 +497,7 @@ option(SDL_STATIC "Build a static version of the library" ${SDL_STATIC_ENABLED_B
 option(SDL_TEST   "Build the SDL2_test library" ${SDL_TEST_ENABLED_BY_DEFAULT})
 
 dep_option(SDL_STATIC_PIC      "Static version of the library should be built with Position Independent Code" "${CMAKE_POSITION_INDEPENDENT_CODE}" "SDL_STATIC" OFF)
+set_option(SDL_DYN_MEMFUNCS    "Support override of the standard memory-allocation functions." ON)
 set(SDL_LEAN_AND_MEAN OFF CACHE BOOL  "Turn off optional blit/rle/yuv features")
 dep_option(SDL_BLIT_0          "Use optimized functions from 'SDL_blit_0.c' to blit with source BitsPerPixel < 8" ON "NOT SDL_LEAN_AND_MEAN" OFF)
 dep_option(SDL_BLIT_1          "Use optimized functions from 'SDL_blit_1.c' to blit with source BitsPerPixel == 1" ON "NOT SDL_LEAN_AND_MEAN" OFF)
@@ -583,6 +584,12 @@ else()
 endif()
 set(HAVE_ASSERTIONS ${SDL_ASSERTIONS})
 
+
+if(SDL_DYN_MEMFUNCS)
+ set(HAVE_DYN_MEMFUNCS TRUE)
+else()
+  set(SDL_DYN_MEMFUNCS_DISABLED 1)
+endif()
 if(SDL_BLIT_0)
   set(HAVE_BLIT_0 TRUE)
 else()
@@ -1119,7 +1126,7 @@ if(SDL_LIBC)
     foreach(_FN
             malloc calloc realloc free
             bsearch qsort abs memset memcpy memmove memcmp
-            strlen _strrev _strupr _strlwr strchr strrchr strstr
+            strlen _strdup strdup _strrev _strupr _strlwr strchr strrchr strstr
             strcmp strncmp _stricmp _strnicmp 
             wcslen _wcsdup wcsdup wcsstr
             wcscmp wcsncmp _wcsicmp _wcsnicmp
@@ -1175,7 +1182,7 @@ if(SDL_LIBC)
     foreach(_FN
             malloc calloc realloc free getenv setenv putenv unsetenv
             bsearch qsort abs bcopy memset memcpy memmove memcmp
-            strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r
+            strlen _strdup strdup strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r
             strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr
             wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy
             wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp

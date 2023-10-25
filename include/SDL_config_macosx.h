@@ -71,6 +71,7 @@
 #define HAVE_MEMMOVE    1
 #define HAVE_MEMCMP 1
 #define HAVE_STRLEN 1
+#define HAVE_STRDUP 1
 #define HAVE_STRLCPY    1
 #define HAVE_STRLCAT    1
 #define HAVE_STRCHR 1
