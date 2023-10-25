@@ -7,6 +7,7 @@ Major changes:
 - add option SDL_SANITIZE_ACCESS (3002789c7d9137f288be193cd003b76c76b98c01 + 90f2c195e6fe0206499dddaa463b87cd03a6c185)
   1. assume SDL_GetTicks64/SDL_GetPerformanceCounter/SDL_GetPerformanceFrequency and SDL_Delay are not called before SDL_TicksInit
 - add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1 + 0ab351d753504700ff331f8971f5885e7af5b8e8)
+- add option to enable/disable the override of the memory-allocators (SDL_DYN_MEMFUNCS) (37cf21dcac3511df9379935f02843c7caaef4f74)
 
 Minor changes:
 - handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031 + 6ddd5bdebe8dbec382795be01328a1ab2ba10469)
@@ -19,7 +20,7 @@ Minor changes:
 - make virtual joystick OFF by default (2821272508d9fdf65db274ec314bf4323e03ed4f)
 - make offscreen video OFF by default (41ac06835dfc24ddc4a8d6e1d37739253d22279e)
 - report if subsystem is live or just a dummy (b0e6a3e5d8f0cd734952364e197dd3a739314cb3 + 3418aab14301cfa3c85163b529ed8e3aa433fe4d)
-- upload created artifacts on push and pull_request (bf08b8f89ea2e37dee0d7e63386116e763f5eff6)
+- upload created artifacts on push and pull_request (bf08b8f89ea2e37dee0d7e63386116e763f5eff6 + 69091cc9ff23801b731e7d664266154b8993cf4f)
 - get rid of SDL_AudioDriver.desc (2b9a7d7601f756c3fa4621704ad7388f0ccc2417 + b4e62c06a29ec4ee9b0522e545c7f5fd5e871bd3 + 4dd9c3a4bebd96f411b71ca518138a3ac7d137e0)
 - get rid of SDL_VideoDriver.desc (990453165480988f66ae47b13dad2835480d7dee + 57e79ab7c20977b386d6bf5e56dd2f792f2d579d + )
 - replace OnlyHasDefault*Device flags with PreventSimultaneousOpens (e9d327dcac6ffb7e5033539933e029b8fc99e9ba + 56e6db8d93fe1b63a72906ecb72c987727d33936 + a922acdd7cead695061786db984a33f2e76c3ccd)
@@ -35,10 +36,12 @@ Minor changes:
 - revert part of Clang-Tidy fixes (SDL_audio.c) (f3cdb1db49c1e75252e02becf27f8b90a37fec51)
 - simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4 + ae8ba6fc19b4f94d3d6cf06b28884fd95e3d8f1b)
 - minor cleanup SDL_GetPrefPath of unix/SDL_sysfilesystem.c (202cd041545e8f239a6a05214596afff689d0c24 + f47b03501cfac63e04ef9a167682a7a2b2bb1f13)
+- sort the library function-names to check (e361bda5a19230182ad74c07159c9e02ec5e52d0)
 - cleanup SDL_GetBasePath of windows/SDL_sysfilesystem.c (97004742179c468411a12fa63e3787105412f80f)
-- cleanup SDL_GetPrefPath of windows/SDL_sysfilesystem.c (f0c63f403f3bb787beced2588de9d01e2742e872)
+- cleanup SDL_GetPrefPath of windows/SDL_sysfilesystem.c (f0c63f403f3bb787beced2588de9d01e2742e872 + 8312e25445729f4fceb6aef0c6e21cce8d2a7e49)
 - revert 'Retry to open the clipboard in case another application has it open' (2515e71a17717f7e329977653f20db1a9fe45f19)
 - revert 'Don't crash if SDL_MapRGB() and SDL_MapRGBA() are passed a NULL format (bbb0affb35fc535813220dbb874f23c1c176f733)
+- reduce footprint of 'Fix automated tests using the dummy video driver'/f9dc49c21c99cd6eb63d80d60b6e706a51234b46 (46904534cfc2ba0f4c5202b2b4e01245f8473b26)
 
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193 + bda335ce5920d850dfaa266f499d846d1d4f1f1e)
@@ -49,3 +52,4 @@ Bugfixes:
 - fix possible NULL-pointer errors due to allocation error (7af2b40ee1d40435c77b469dc5118c08575c20ad)
 - fix memory leaks in psp/ps2audio (01a453c59ac13281fa2416e48517886c13fbade3)
 - fix error handling in get_usb_string (21a61a0b7eb70cb27e72afc6b1081fd4e441394c)
+- add missing sscanf check to configure (3effa86076e5609ea8c7786c6fc05d5a65b7144c)
