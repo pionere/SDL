@@ -474,7 +474,7 @@ dnl Checks for library functions.
         AC_DEFINE(HAVE_MPROTECT, 1, [ ])
         ],[]),
     )
-    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit)
+    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll _Exit)
 
     AC_CHECK_LIB(m, pow, [LIBS="$LIBS -lm"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"])
     AC_CHECK_FUNCS(acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf sin sinf sqrt sqrtf tan tanf trunc truncf)

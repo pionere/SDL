@@ -19910,6 +19910,12 @@ then :
   printf "%s\n" "#define HAVE_ATOF 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "sscanf" "ac_cv_func_sscanf"
+if test "x$ac_cv_func_sscanf" = xyes
+then :
+  printf "%s\n" "#define HAVE_SSCANF 1" >>confdefs.h
+
+fi
 ac_fn_c_check_func "$LINENO" "vsscanf" "ac_cv_func_vsscanf"
 if test "x$ac_cv_func_vsscanf" = xyes
 then :
