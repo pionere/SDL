@@ -19628,12 +19628,6 @@ then :
   printf "%s\n" "#define HAVE_MEMSET 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "memcmp" "ac_cv_func_memcmp"
-if test "x$ac_cv_func_memcmp" = xyes
-then :
-  printf "%s\n" "#define HAVE_MEMCMP 1" >>confdefs.h
-
-fi
 ac_fn_c_check_func "$LINENO" "memcpy" "ac_cv_func_memcpy"
 if test "x$ac_cv_func_memcpy" = xyes
 then :
@@ -19646,76 +19640,10 @@ then :
   printf "%s\n" "#define HAVE_MEMMOVE 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "wcslen" "ac_cv_func_wcslen"
-if test "x$ac_cv_func_wcslen" = xyes
+ac_fn_c_check_func "$LINENO" "memcmp" "ac_cv_func_memcmp"
+if test "x$ac_cv_func_memcmp" = xyes
 then :
-  printf "%s\n" "#define HAVE_WCSLEN 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcslcpy" "ac_cv_func_wcslcpy"
-if test "x$ac_cv_func_wcslcpy" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSLCPY 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcslcat" "ac_cv_func_wcslcat"
-if test "x$ac_cv_func_wcslcat" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSLCAT 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_wcsdup" "ac_cv_func__wcsdup"
-if test "x$ac_cv_func__wcsdup" = xyes
-then :
-  printf "%s\n" "#define HAVE__WCSDUP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcsdup" "ac_cv_func_wcsdup"
-if test "x$ac_cv_func_wcsdup" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSDUP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcsstr" "ac_cv_func_wcsstr"
-if test "x$ac_cv_func_wcsstr" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSSTR 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcscmp" "ac_cv_func_wcscmp"
-if test "x$ac_cv_func_wcscmp" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSCMP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcsncmp" "ac_cv_func_wcsncmp"
-if test "x$ac_cv_func_wcsncmp" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSNCMP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcscasecmp" "ac_cv_func_wcscasecmp"
-if test "x$ac_cv_func_wcscasecmp" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSCASECMP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_wcsicmp" "ac_cv_func__wcsicmp"
-if test "x$ac_cv_func__wcsicmp" = xyes
-then :
-  printf "%s\n" "#define HAVE__WCSICMP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "wcsncasecmp" "ac_cv_func_wcsncasecmp"
-if test "x$ac_cv_func_wcsncasecmp" = xyes
-then :
-  printf "%s\n" "#define HAVE_WCSNCASECMP 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_wcsnicmp" "ac_cv_func__wcsnicmp"
-if test "x$ac_cv_func__wcsnicmp" = xyes
-then :
-  printf "%s\n" "#define HAVE__WCSNICMP 1" >>confdefs.h
+  printf "%s\n" "#define HAVE_MEMCMP 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "strlen" "ac_cv_func_strlen"
@@ -19790,84 +19718,6 @@ then :
   printf "%s\n" "#define HAVE_STRTOK_R 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "itoa" "ac_cv_func_itoa"
-if test "x$ac_cv_func_itoa" = xyes
-then :
-  printf "%s\n" "#define HAVE_ITOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_ltoa" "ac_cv_func__ltoa"
-if test "x$ac_cv_func__ltoa" = xyes
-then :
-  printf "%s\n" "#define HAVE__LTOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_uitoa" "ac_cv_func__uitoa"
-if test "x$ac_cv_func__uitoa" = xyes
-then :
-  printf "%s\n" "#define HAVE__UITOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_ultoa" "ac_cv_func__ultoa"
-if test "x$ac_cv_func__ultoa" = xyes
-then :
-  printf "%s\n" "#define HAVE__ULTOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtod" "ac_cv_func_strtod"
-if test "x$ac_cv_func_strtod" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOD 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtol" "ac_cv_func_strtol"
-if test "x$ac_cv_func_strtol" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOL 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtoul" "ac_cv_func_strtoul"
-if test "x$ac_cv_func_strtoul" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOUL 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_i64toa" "ac_cv_func__i64toa"
-if test "x$ac_cv_func__i64toa" = xyes
-then :
-  printf "%s\n" "#define HAVE__I64TOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "_ui64toa" "ac_cv_func__ui64toa"
-if test "x$ac_cv_func__ui64toa" = xyes
-then :
-  printf "%s\n" "#define HAVE__UI64TOA 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtoll" "ac_cv_func_strtoll"
-if test "x$ac_cv_func_strtoll" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOLL 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "strtoull" "ac_cv_func_strtoull"
-if test "x$ac_cv_func_strtoull" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRTOULL 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "atoi" "ac_cv_func_atoi"
-if test "x$ac_cv_func_atoi" = xyes
-then :
-  printf "%s\n" "#define HAVE_ATOI 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "atof" "ac_cv_func_atof"
-if test "x$ac_cv_func_atof" = xyes
-then :
-  printf "%s\n" "#define HAVE_ATOF 1" >>confdefs.h
-
-fi
 ac_fn_c_check_func "$LINENO" "strcmp" "ac_cv_func_strcmp"
 if test "x$ac_cv_func_strcmp" = xyes
 then :
@@ -19908,6 +19758,156 @@ ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
 if test "x$ac_cv_func_strcasestr" = xyes
 then :
   printf "%s\n" "#define HAVE_STRCASESTR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcslen" "ac_cv_func_wcslen"
+if test "x$ac_cv_func_wcslen" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSLEN 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_wcsdup" "ac_cv_func__wcsdup"
+if test "x$ac_cv_func__wcsdup" = xyes
+then :
+  printf "%s\n" "#define HAVE__WCSDUP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcsdup" "ac_cv_func_wcsdup"
+if test "x$ac_cv_func_wcsdup" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSDUP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcsstr" "ac_cv_func_wcsstr"
+if test "x$ac_cv_func_wcsstr" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSSTR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcslcat" "ac_cv_func_wcslcat"
+if test "x$ac_cv_func_wcslcat" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSLCAT 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcslcpy" "ac_cv_func_wcslcpy"
+if test "x$ac_cv_func_wcslcpy" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSLCPY 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcscmp" "ac_cv_func_wcscmp"
+if test "x$ac_cv_func_wcscmp" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSCMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcsncmp" "ac_cv_func_wcsncmp"
+if test "x$ac_cv_func_wcsncmp" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSNCMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcscasecmp" "ac_cv_func_wcscasecmp"
+if test "x$ac_cv_func_wcscasecmp" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSCASECMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_wcsicmp" "ac_cv_func__wcsicmp"
+if test "x$ac_cv_func__wcsicmp" = xyes
+then :
+  printf "%s\n" "#define HAVE__WCSICMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "wcsncasecmp" "ac_cv_func_wcsncasecmp"
+if test "x$ac_cv_func_wcsncasecmp" = xyes
+then :
+  printf "%s\n" "#define HAVE_WCSNCASECMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_wcsnicmp" "ac_cv_func__wcsnicmp"
+if test "x$ac_cv_func__wcsnicmp" = xyes
+then :
+  printf "%s\n" "#define HAVE__WCSNICMP 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "itoa" "ac_cv_func_itoa"
+if test "x$ac_cv_func_itoa" = xyes
+then :
+  printf "%s\n" "#define HAVE_ITOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_ltoa" "ac_cv_func__ltoa"
+if test "x$ac_cv_func__ltoa" = xyes
+then :
+  printf "%s\n" "#define HAVE__LTOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_uitoa" "ac_cv_func__uitoa"
+if test "x$ac_cv_func__uitoa" = xyes
+then :
+  printf "%s\n" "#define HAVE__UITOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_ultoa" "ac_cv_func__ultoa"
+if test "x$ac_cv_func__ultoa" = xyes
+then :
+  printf "%s\n" "#define HAVE__ULTOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strtol" "ac_cv_func_strtol"
+if test "x$ac_cv_func_strtol" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strtoul" "ac_cv_func_strtoul"
+if test "x$ac_cv_func_strtoul" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOUL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_i64toa" "ac_cv_func__i64toa"
+if test "x$ac_cv_func__i64toa" = xyes
+then :
+  printf "%s\n" "#define HAVE__I64TOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "_ui64toa" "ac_cv_func__ui64toa"
+if test "x$ac_cv_func__ui64toa" = xyes
+then :
+  printf "%s\n" "#define HAVE__UI64TOA 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strtoll" "ac_cv_func_strtoll"
+if test "x$ac_cv_func_strtoll" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOLL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strtoull" "ac_cv_func_strtoull"
+if test "x$ac_cv_func_strtoull" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOULL 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strtod" "ac_cv_func_strtod"
+if test "x$ac_cv_func_strtod" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRTOD 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "atoi" "ac_cv_func_atoi"
+if test "x$ac_cv_func_atoi" = xyes
+then :
+  printf "%s\n" "#define HAVE_ATOI 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "atof" "ac_cv_func_atof"
+if test "x$ac_cv_func_atof" = xyes
+then :
+  printf "%s\n" "#define HAVE_ATOF 1" >>confdefs.h
 
 fi
 ac_fn_c_check_func "$LINENO" "vsscanf" "ac_cv_func_vsscanf"

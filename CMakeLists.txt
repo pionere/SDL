@@ -1117,11 +1117,14 @@ if(SDL_LIBC)
     endforeach()
     set(HAVE_SIGNAL_H 1)
     foreach(_FN
-            malloc calloc realloc free bsearch qsort abs memset memcpy memmove memcmp
-            wcslen _wcsdup wcsdup wcsstr wcscmp wcsncmp _wcsicmp _wcsnicmp
-            strlen _strrev _strupr _strlwr strchr strrchr strstr itoa _ltoa
-            _ultoa strtol strtoul strtoll strtod atoi atof strcmp strncmp
-            _stricmp _strnicmp sscanf
+            malloc calloc realloc free
+            bsearch qsort abs memset memcpy memmove memcmp
+            strlen _strrev _strupr _strlwr strchr strrchr strstr
+            strcmp strncmp _stricmp _strnicmp 
+            wcslen _wcsdup wcsdup wcsstr
+            wcscmp wcsncmp _wcsicmp _wcsnicmp
+            itoa _ltoa _ultoa strtol strtoul strtoll strtod
+            atoi atof sscanf
             acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf
             copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf
             log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf
@@ -1170,14 +1173,14 @@ if(SDL_LIBC)
                              #include <sys/mman.h>
                              int main(void) { return 0; }" HAVE_MPROTECT)
     foreach(_FN
-            strtod malloc calloc realloc free getenv setenv putenv unsetenv
-            bsearch qsort abs bcopy memset memcpy memmove memcmp strlen strlcpy strlcat
-            _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r
-            itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull
-            atoi atof strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr
-            wcscmp _wcsdup wcsdup wcslcat wcslcpy wcslen wcsncmp wcsstr
-            wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp
-            sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 _Exit
+            malloc calloc realloc free getenv setenv putenv unsetenv
+            bsearch qsort abs bcopy memset memcpy memmove memcmp
+            strlen strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r
+            strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr
+            wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy
+            wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp
+            itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod
+            atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 _Exit
             )
       string(TOUPPER ${_FN} _UPPER)
       set(_HAVEVAR "HAVE_${_UPPER}")
@@ -1198,10 +1201,10 @@ if(SDL_LIBC)
       set(CMAKE_REQUIRED_LIBRARIES m)
     endif()
     foreach(_FN
-              atan atan2 atanf atan2f ceil ceilf copysign copysignf cos cosf
-              exp expf fabs fabsf floor floorf fmod fmodf log logf log10 log10f
-              lround lroundf pow powf round roundf scalbn scalbnf sin sinf sqrt
-              sqrtf tan tanf acos acosf asin asinf trunc truncf)
+              acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf
+              copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf
+              log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf
+              sin sinf sqrt sqrtf tan tanf trunc truncf)
         string(TOUPPER ${_FN} _UPPER)
         set(_HAVEVAR "HAVE_${_UPPER}")
         check_symbol_exists("${_FN}" "math.h" ${_HAVEVAR})
