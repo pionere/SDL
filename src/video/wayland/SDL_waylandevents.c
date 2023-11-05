@@ -861,12 +861,18 @@ static void touch_handler_down(void *data, struct wl_touch *touch, uint32_t seri
     window_data = (SDL_WindowData *)wl_surface_get_user_data(surface);
 
     if (window_data) {
-        const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
-        const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
-        const float x = dblx / window_data->sdlwindow->wrect.w;
-        const float y = dbly / window_data->sdlwindow->wrect.h;
+        float x, y;
 
-        SDL_SetMouseFocus(window_data->sdlwindow);
+        if (window_data->window_width <= 1) {
+            x = 0.5f;
+        } else {
+            x = wl_fixed_to_double(fx) / (window_data->window_width - 1);
+        }
+        if (window_data->window_height <= 1) {
+            y = 0.5f;
+        } else {
+            y = wl_fixed_to_double(fy) / (window_data->window_height - 1);
+        }
 
         SDL_SendTouch((SDL_TouchID)(intptr_t)touch, (SDL_FingerID)id,
                       window_data->sdlwindow, SDL_TRUE, x, y, 1.0f);

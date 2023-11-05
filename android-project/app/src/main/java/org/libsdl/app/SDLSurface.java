@@ -190,11 +190,20 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         return SDLActivity.handleKeyEvent(v, keyCode, event, null);
     }
 
+    private static float getNormalized(float v, float max)
+    {
+        if (max <= 1) {
+            return 0.5f;
+        } else {
+            return (v / (max - 1));
+        }
+    }
+
     private void touchEvent(int touchDevId, MotionEvent event, int i, int action) {
         float x,y,p;
         int pointerFingerId = event.getPointerId(i);
-        x = event.getX(i) / mWidth;
-        y = event.getY(i) / mHeight;
+        x = getNormalized(event.getX(i), mWidth);
+        y = getNormalized(event.getY(i), mHeight);
         p = event.getPressure(i);
         if (p > 1.0f) {
             // may be larger than 1.0f on some devices
