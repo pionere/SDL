@@ -704,7 +704,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Try a transition to resumed state
         if (mNextNativeState == NativeState.RESUMED) {
-            if (mSurface.mIsSurfaceReady && mHasFocus && mIsResumedCalled) {
+            if (mSurface.mIsSurfaceReady && (mHasFocus || mHasMultiWindow) && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
                     // Start up the C app thread and enable sensor input for the first time
@@ -1049,23 +1049,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean shouldMinimizeOnFocusLoss() {
-/*
-        if (Build.VERSION.SDK_INT >= 24) {
-            if (mSingleton == null) {
-                return true;
-            }
-
-            if (mSingleton.isInMultiWindowMode()) {
-                return false;
-            }
-
-            if (mSingleton.isInPictureInPictureMode()) {
-                return false;
-            }
-        }
-
-        return true;
-*/
         return false;
     }
 
