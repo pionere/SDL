@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -34,7 +34,7 @@ void *SDL_LoadObject(const char *sofile)
     void *handle;
     LPTSTR tstr;
 
-    if (sofile == NULL) {
+    if (!sofile) {
         SDL_InvalidParamError("sofile");
         return NULL;
     }
@@ -51,8 +51,8 @@ void *SDL_LoadObject(const char *sofile)
     SDL_free(tstr);
 
     /* Generate an error message if all loads failed */
-#if !SDL_VERBOSE_ERROR_DISABLED
-    if (handle == NULL) {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    if (!handle) {
         char errbuf[512];
         SDL_strlcpy(errbuf, "Failed loading ", SDL_arraysize(errbuf));
         SDL_strlcat(errbuf, sofile, SDL_arraysize(errbuf));
@@ -65,8 +65,8 @@ void *SDL_LoadObject(const char *sofile)
 void *SDL_LoadFunction(void *handle, const char *name)
 {
     void *symbol = (void *)GetProcAddress((HMODULE)handle, name);
-#if !SDL_VERBOSE_ERROR_DISABLED
-    if (symbol == NULL) {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    if (!symbol) {
         char errbuf[512];
         SDL_strlcpy(errbuf, "Failed loading ", SDL_arraysize(errbuf));
         SDL_strlcat(errbuf, name, SDL_arraysize(errbuf));
@@ -78,7 +78,7 @@ void *SDL_LoadFunction(void *handle, const char *name)
 
 void SDL_UnloadObject(void *handle)
 {
-    if (handle != NULL) {
+    if (handle) {
         FreeLibrary((HMODULE)handle);
     }
 }

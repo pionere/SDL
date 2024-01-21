@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -49,7 +49,7 @@
 
 /* Comment this if you want to build without any C library requirements */
 #cmakedefine HAVE_LIBC 1
-#if HAVE_LIBC
+#ifdef HAVE_LIBC
 
 /* Useful headers */
 #cmakedefine STDC_HEADERS 1
@@ -202,6 +202,7 @@
 #cmakedefine HAVE_GETPAGESIZE 1
 #cmakedefine HAVE_MPROTECT 1
 #cmakedefine HAVE_ICONV 1
+#cmakedefine SDL_USE_LIBICONV 1
 #cmakedefine HAVE_PTHREAD_SETNAME_NP 1
 #cmakedefine HAVE_PTHREAD_SET_NAME_NP 1
 #cmakedefine HAVE_SEM_TIMEDWAIT 1
@@ -242,7 +243,7 @@
 
 #cmakedefine HAVE_LIBUDEV_H 1
 #cmakedefine HAVE_LIBSAMPLERATE_H 1
-#cmakedefine HAVE_LIBDECOR_H  1
+#cmakedefine HAVE_LIBDECOR_H 1
 
 #cmakedefine HAVE_D3D_H @HAVE_D3D_H@
 #cmakedefine HAVE_D3D11_H @HAVE_D3D11_H@
@@ -260,9 +261,6 @@
 #cmakedefine HAVE_SENSORSAPI_H @HAVE_SENSORSAPI_H@
 #cmakedefine HAVE_ROAPI_H @HAVE_ROAPI_H@
 #cmakedefine HAVE_SHELLSCALINGAPI_H @HAVE_SHELLSCALINGAPI_H@
-
-#cmakedefine HAVE_XINPUT_GAMEPAD_EX @HAVE_XINPUT_GAMEPAD_EX@
-#cmakedefine HAVE_XINPUT_STATE_EX @HAVE_XINPUT_STATE_EX@
 
 #cmakedefine USE_POSIX_SPAWN @USE_POSIX_SPAWN@
 

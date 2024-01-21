@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_AUDIO_DRIVER_AAUDIO
+#ifdef SDL_AUDIO_DRIVER_AAUDIO
 
 #include "SDL_audio.h"
 #include "SDL_loadso.h"
@@ -95,14 +95,14 @@ static int aaudio_OpenDevice(_THIS, const char *devname)
     }
 
     this->hidden = (struct SDL_PrivateAudioData *)SDL_calloc(1, sizeof(*this->hidden));
-    if (this->hidden == NULL) {
+    if (!this->hidden) {
         return SDL_OutOfMemory();
     }
     private = this->hidden;
 
     ctx.AAudioStreamBuilder_setSampleRate(ctx.builder, this->spec.freq);
     ctx.AAudioStreamBuilder_setChannelCount(ctx.builder, this->spec.channels);
-    if(devname != NULL) {
+    if(devname) {
         int aaudio_device_id = SDL_atoi(devname);
         LOGI("Opening device id %d", aaudio_device_id);
         ctx.AAudioStreamBuilder_setDeviceId(ctx.builder, aaudio_device_id);
@@ -154,7 +154,7 @@ static int aaudio_OpenDevice(_THIS, const char *devname)
     if (!iscapture) {
         private->mixlen = this->spec.size;
         private->mixbuf = (Uint8 *)SDL_malloc(private->mixlen);
-        if (private->mixbuf == NULL) {
+        if (!private->mixbuf) {
             return SDL_OutOfMemory();
         }
         SDL_memset(private->mixbuf, this->spec.silence, this->spec.size);
@@ -286,7 +286,7 @@ static SDL_bool aaudio_Init(SDL_AudioDriverImpl *impl)
     SDL_zero(ctx);
 
     ctx.handle = SDL_LoadObject(LIB_AAUDIO_SO);
-    if (ctx.handle == NULL) {
+    if (!ctx.handle) {
         LOGI("SDL couldn't find " LIB_AAUDIO_SO);
         goto failure;
     }
@@ -301,7 +301,7 @@ static SDL_bool aaudio_Init(SDL_AudioDriverImpl *impl)
         goto failure;
     }
 
-    if (ctx.builder == NULL) {
+    if (!ctx.builder) {
         LOGI("SDL Failed AAudio_createStreamBuilder - builder NULL");
         goto failure;
     }
@@ -344,9 +344,9 @@ void aaudio_PauseDevices(void)
 {
     /* TODO: Handle multiple devices? */
     struct SDL_PrivateAudioData *private;
-    if (audioDevice != NULL && audioDevice->hidden != NULL) {
+    if (audioDevice && audioDevice->hidden) {
+        SDL_LockMutex(audioDevice->mixer_lock);
         private = (struct SDL_PrivateAudioData *)audioDevice->hidden;
-
         if (private->stream) {
             aaudio_result_t res = ctx.AAudioStream_requestPause(private->stream);
             if (res != AAUDIO_OK) {
@@ -354,20 +354,11 @@ void aaudio_PauseDevices(void)
                 SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
             }
         }
-
-        if (SDL_AtomicGet(&audioDevice->paused)) {
-            /* The device is already paused, leave it alone */
-            private->resume = SDL_FALSE;
-        } else {
-            SDL_LockMutex(audioDevice->mixer_lock);
-            SDL_AtomicSet(&audioDevice->paused, 1);
-            private->resume = SDL_TRUE;
-        }
     }
 
-    if (captureDevice != NULL && captureDevice->hidden != NULL) {
+    if (captureDevice && captureDevice->hidden) {
+        SDL_LockMutex(captureDevice->mixer_lock);
         private = (struct SDL_PrivateAudioData *)captureDevice->hidden;
-
         if (private->stream) {
             /* Pause() isn't implemented for 'capture', use Stop() */
             aaudio_result_t res = ctx.AAudioStream_requestStop(private->stream);
@@ -375,15 +366,6 @@ void aaudio_PauseDevices(void)
                 LOGI("SDL Failed AAudioStream_requestStop %d", res);
                 SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
             }
-        }
-
-        if (SDL_AtomicGet(&captureDevice->paused)) {
-            /* The device is already paused, leave it alone */
-            private->resume = SDL_FALSE;
-        } else {
-            SDL_LockMutex(captureDevice->mixer_lock);
-            SDL_AtomicSet(&captureDevice->paused, 1);
-            private->resume = SDL_TRUE;
         }
     }
 }
@@ -393,15 +375,8 @@ void aaudio_ResumeDevices(void)
 {
     /* TODO: Handle multiple devices? */
     struct SDL_PrivateAudioData *private;
-    if (audioDevice != NULL && audioDevice->hidden != NULL) {
+    if (audioDevice && audioDevice->hidden) {
         private = (struct SDL_PrivateAudioData *)audioDevice->hidden;
-
-        if (private->resume) {
-            SDL_AtomicSet(&audioDevice->paused, 0);
-            private->resume = SDL_FALSE;
-            SDL_UnlockMutex(audioDevice->mixer_lock);
-        }
-
         if (private->stream) {
             aaudio_result_t res = ctx.AAudioStream_requestStart(private->stream);
             if (res != AAUDIO_OK) {
@@ -409,17 +384,11 @@ void aaudio_ResumeDevices(void)
                 SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
             }
         }
+        SDL_UnlockMutex(audioDevice->mixer_lock);
     }
 
-    if (captureDevice != NULL && captureDevice->hidden != NULL) {
+    if (captureDevice && captureDevice->hidden) {
         private = (struct SDL_PrivateAudioData *)captureDevice->hidden;
-
-        if (private->resume) {
-            SDL_AtomicSet(&captureDevice->paused, 0);
-            private->resume = SDL_FALSE;
-            SDL_UnlockMutex(captureDevice->mixer_lock);
-        }
-
         if (private->stream) {
             aaudio_result_t res = ctx.AAudioStream_requestStart(private->stream);
             if (res != AAUDIO_OK) {
@@ -427,6 +396,7 @@ void aaudio_ResumeDevices(void)
                 SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
             }
         }
+        SDL_UnlockMutex(captureDevice->mixer_lock);
     }
 }
 
@@ -441,7 +411,7 @@ SDL_bool aaudio_DetectBrokenPlayState(void)
     int64_t framePosition, timeNanoseconds;
     aaudio_result_t res;
 
-    if (audioDevice == NULL || !audioDevice->hidden) {
+    if (!audioDevice || !audioDevice->hidden) {
         return SDL_FALSE;
     }
 

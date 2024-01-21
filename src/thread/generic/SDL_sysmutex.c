@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -25,7 +25,7 @@
 #include "SDL_thread.h"
 #include "SDL_systhread_c.h"
 
-#if SDL_THREADS_DISABLED
+#ifdef SDL_THREADS_DISABLED
 #error You should not be here.
 #endif
 
@@ -44,7 +44,7 @@ SDL_mutex *SDL_CreateMutex(void)
     /* Allocate mutex memory */
     mutex = (SDL_mutex *)SDL_calloc(1, sizeof(*mutex));
 
-#if !SDL_THREADS_DISABLED
+#ifndef SDL_THREADS_DISABLED
     if (mutex) {
         /* Create the mutex semaphore, with initial value 1 */
         mutex->sem = SDL_CreateSemaphore(1);
@@ -78,7 +78,7 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
 {
     SDL_threadID this_thread;
 
-    if (mutex == NULL) {
+    if (!mutex) {
         return 0;
     }
 
@@ -104,7 +104,7 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
     int retval = 0;
     SDL_threadID this_thread;
 
-    if (mutex == NULL) {
+    if (!mutex) {
         return 0;
     }
 
@@ -129,7 +129,7 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
 /* Unlock the mutex */
 int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
-    if (mutex == NULL) {
+    if (!mutex) {
         return 0;
     }
 

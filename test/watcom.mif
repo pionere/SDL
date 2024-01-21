@@ -58,9 +58,9 @@ TASRCS = testautomation.c &
 	testautomation_pixels.c testautomation_platform.c &
 	testautomation_rect.c testautomation_render.c &
 	testautomation_rwops.c testautomation_sdltest.c &
-	testautomation_stdlib.c testautomation_surface.c &
-	testautomation_syswm.c testautomation_timer.c &
-	testautomation_video.c
+	testautomation_stdlib.c testautomation_subsystems.c &
+	testautomation_surface.c testautomation_syswm.c &
+	testautomation_timer.c testautomation_video.c
 
 OBJS = $(TARGETS:.exe=.obj)
 COBJS = $(CSRCS:.c=.obj)
@@ -68,8 +68,6 @@ TAOBJS = $(TASRCS:.c=.obj)
 TNOBJS = $(TNSRCS:.c=.obj)
 
 all: testutils.lib $(TARGETS)
-
-.c: ../src/test
 
 .obj.exe:
   wlink SYS $(SYSTEM) libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@
@@ -81,6 +79,9 @@ all: testutils.lib $(TARGETS)
 testvulkan.obj: testvulkan.c
   # new vulkan headers result in lots of W202 warnings
   wcc386 $(CFLAGS) -wcd=202 -fo=$^@ $<
+
+testautomation_stdlib.obj: testautomation_stdlib.c
+  wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
 
 testautomation.exe: $(TAOBJS)
   wlink SYS $(SYSTEM) libpath $(LIBPATH) lib {$(LIBS)} op q op el file {$<} name $@

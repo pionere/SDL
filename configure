@@ -862,6 +862,7 @@ enable_logging
 enable_dependency_tracking
 enable_libc
 enable_system_iconv
+enable_libiconv
 enable_gcc_atomics
 enable_dynapi
 enable_atomic
@@ -1678,7 +1679,9 @@ Optional Features:
   --enable-libc           Use the system C library [default=yes]
   --enable-dyn-memfuncs   Support override of the standard memory-allocation functions. [default=yes]
   --enable-system-iconv   Use iconv() from system-installed libraries
-                          [default=yes]
+                          [default=no for windows, yes for others]
+  --enable-libiconv       Prefer iconv() from libiconv, if available, over
+                          libc version [default=no]
   --enable-gcc-atomics    Use gcc builtin atomics [default=yes]
   --enable-dynapi         Use dynamic API [default=yes]
   --enable-atomic         Enable the atomic operations subsystem [default=yes]
@@ -3546,7 +3549,7 @@ orig_CFLAGS="$CFLAGS"
 # See docs/release_checklist.md
 SDL_MAJOR_VERSION=2
 SDL_MINOR_VERSION=29
-SDL_MICRO_VERSION=0
+SDL_MICRO_VERSION=1
 SDL_VERSION=$SDL_MAJOR_VERSION.$SDL_MINOR_VERSION.$SDL_MICRO_VERSION
 
 SDL_BINARY_AGE=`expr $SDL_MINOR_VERSION \* 100 + $SDL_MICRO_VERSION`
@@ -19077,12 +19080,26 @@ else $as_nop
 fi
 
 
+enable_system_iconv_default=yes
+case "$host" in
+  *-*-cygwin*|*-*-mingw*)
+    enable_system_iconv_default=no
+    ;;
+esac
 # Check whether --enable-system-iconv was given.
 if test ${enable_system_iconv+y}
 then :
   enableval=$enable_system_iconv;
 else $as_nop
-  enable_system_iconv=yes
+  enable_system_iconv=$enable_system_iconv_default
+fi
+
+# Check whether --enable-libiconv was given.
+if test ${enable_libiconv+y}
+then :
+  enableval=$enable_libiconv;
+else $as_nop
+  enable_libiconv=no
 fi
 
 
@@ -19198,12 +19215,6 @@ ac_fn_c_check_header_compile "$LINENO" "signal.h" "ac_cv_header_signal_h" "$ac_i
 if test "x$ac_cv_header_signal_h" = xyes
 then :
   printf "%s\n" "#define HAVE_SIGNAL_H 1" >>confdefs.h
-
-fi
-ac_fn_c_check_header_compile "$LINENO" "linux/input.h" "ac_cv_header_linux_input_h" "$ac_includes_default"
-if test "x$ac_cv_header_linux_input_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_LINUX_INPUT_H 1" >>confdefs.h
 
 fi
 
@@ -20324,53 +20335,90 @@ fi
 
 
     if test x$enable_system_iconv = xyes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for iconv_open in -liconv" >&5
-printf %s "checking for iconv_open in -liconv... " >&6; }
-if test ${ac_cv_lib_iconv_iconv_open+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-liconv  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for iconv in libc" >&5
+printf %s "checking for iconv in libc... " >&6; }
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char iconv_open ();
+         #define LIBICONV_PLUG 1 /* in case libiconv header is in include path */
+         #include <stddef.h>
+         #include <iconv.h>
+
 int
 main (void)
 {
-return iconv_open ();
+
+         iconv_open(NULL,NULL);
+
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_iconv_iconv_open=yes
+  have_libc_iconv=yes
 else $as_nop
-  ac_cv_lib_iconv_iconv_open=no
+  have_libc_iconv=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_iconv_iconv_open" >&5
-printf "%s\n" "$ac_cv_lib_iconv_iconv_open" >&6; }
-if test "x$ac_cv_lib_iconv_iconv_open" = xyes
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_libc_iconv" >&5
+printf "%s\n" "$have_libc_iconv" >&6; }
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for iconv in libiconv" >&5
+printf %s "checking for iconv in libiconv... " >&6; }
+        save_LIBS="$LIBS"
+        LIBS="$LIBS -liconv"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+         #include <stddef.h>
+         #include <iconv.h>
+
+int
+main (void)
+{
+
+         iconv_open(NULL,NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
 then :
-  LIBS="$LIBS -liconv"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+  have_libiconv=yes
+else $as_nop
+  have_libiconv=no
 fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+        LIBS="$save_LIBS"
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_libiconv" >&5
+printf "%s\n" "$have_libiconv" >&6; }
 
-        ac_fn_c_check_func "$LINENO" "iconv" "ac_cv_func_iconv"
-if test "x$ac_cv_func_iconv" = xyes
-then :
-  printf "%s\n" "#define HAVE_ICONV 1" >>confdefs.h
+        if test x$have_libc_iconv = xyes || test x$have_libiconv = xyes; then
 
-fi
+printf "%s\n" "#define HAVE_ICONV 1" >>confdefs.h
 
+
+           if test x$have_libiconv = xyes; then
+              if test x$have_libc_iconv != xyes; then
+                 use_libiconv=yes
+              elif test x$enable_libiconv = xyes; then
+                 use_libiconv=yes
+              fi
+           fi
+           if test x$use_libiconv = xyes; then
+
+printf "%s\n" "#define SDL_USE_LIBICONV 1" >>confdefs.h
+
+              EXTRA_LDFLAGS="$EXTRA_LDFLAGS -liconv"
+              echo "-- Using iconv from libiconv"
+           else
+              echo "-- Using iconv from libc"
+           fi
+        fi
     fi
 
     ac_fn_c_check_member "$LINENO" "struct sigaction" "sa_sigaction" "ac_cv_member_struct_sigaction_sa_sigaction" "#include <signal.h>
@@ -26666,6 +26714,14 @@ printf "%s\n" "#define SDL_VIDEO_VULKAN 1" >>confdefs.h
 
 CheckInputEvents()
 {
+        ac_fn_c_check_header_compile "$LINENO" "linux/input.h" "ac_cv_header_linux_input_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_input_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LINUX_INPUT_H 1" >>confdefs.h
+
+fi
+
+
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Linux 2.4 unified input interface" >&5
 printf %s "checking for Linux 2.4 unified input interface... " >&6; }
         use_input_events=no
@@ -27883,76 +27939,15 @@ else $as_nop
 fi
 
     if test x$enable_xinput = xyes; then
-        have_xinput_gamepadex=no
-        have_xinput_stateex=no
         ac_fn_c_check_header_compile "$LINENO" "xinput.h" "ac_cv_header_xinput_h" "$ac_includes_default"
 if test "x$ac_cv_header_xinput_h" = xyes
 then :
   have_xinput=yes
 fi
 
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for struct XINPUT_GAMEPAD_EX" >&5
-printf %s "checking for struct XINPUT_GAMEPAD_EX... " >&6; }
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <windows.h>
-#include <xinput.h>
-XINPUT_GAMEPAD_EX x1;
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  have_xinput_gamepadex=yes
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_xinput_gamepadex" >&5
-printf "%s\n" "$have_xinput_gamepadex" >&6; }
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for struct XINPUT_STATE_EX" >&5
-printf %s "checking for struct XINPUT_STATE_EX... " >&6; }
-        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <windows.h>
-#include <xinput.h>
-XINPUT_STATE_EX s1;
-
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  have_xinput_stateex=yes
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_xinput_stateex" >&5
-printf "%s\n" "$have_xinput_stateex" >&6; }
-
         if test x$have_xinput = xyes; then
 
 printf "%s\n" "#define HAVE_XINPUT_H 1" >>confdefs.h
-
-        fi
-        if test x$have_xinput_gamepadex = xyes; then
-
-printf "%s\n" "#define HAVE_XINPUT_GAMEPAD_EX 1" >>confdefs.h
-
-        fi
-        if test x$have_xinput_stateex = xyes; then
-
-printf "%s\n" "#define HAVE_XINPUT_STATE_EX 1" >>confdefs.h
 
         fi
     fi

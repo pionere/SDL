@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_AUDIO_DRIVER_VITA
+#ifdef SDL_AUDIO_DRIVER_VITA
 
 #include <stdio.h>
 #include <string.h>
@@ -78,7 +78,7 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
 
     this->hidden = (struct SDL_PrivateAudioData *)
         SDL_calloc(1, sizeof(*this->hidden));
-    if (this->hidden == NULL) {
+    if (!this->hidden) {
         return SDL_OutOfMemory();
     }
 
@@ -97,7 +97,7 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
        64, so spec->size should be a multiple of 64 as well. */
     mixlen = this->spec.size * NUM_BUFFERS;
     this->hidden->rawbuf = (Uint8 *)memalign(64, mixlen);
-    if (this->hidden->rawbuf == NULL) {
+    if (!this->hidden->rawbuf) {
         SDL_free(this->hidden);
         this->hidden = NULL;
         return SDL_OutOfMemory();
@@ -165,7 +165,7 @@ static void VITAAUD_CloseDevice(_THIS)
         this->hidden->port = -1;
     }
 
-    if (!this->iscapture && this->hidden->rawbuf != NULL) {
+    if (!this->iscapture && this->hidden->rawbuf) {
         free(this->hidden->rawbuf); /* this uses memalign(), not SDL_malloc(). */
         this->hidden->rawbuf = NULL;
     }

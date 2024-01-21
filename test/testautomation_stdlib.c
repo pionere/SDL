@@ -187,6 +187,13 @@ int stdlib_snprintf(void *arg)
     SDLTest_AssertCheck(SDL_strcmp(text, expected) == 0, "Check text, expected: '%s', got: '%s'", expected, text);
     SDLTest_AssertCheck(result == SDL_strlen(expected), "Check result value, expected: %d, got: %d", (int)SDL_strlen(expected), result);
 
+    if (sizeof(void *) >= 8) {
+        result = SDL_snprintf(text, sizeof(text), "%p", (void *)0x1ba07bddf60L);
+        expected = "0x1ba07bddf60";
+        SDLTest_AssertPass("Call to SDL_snprintf(text, sizeof(text), \"%%p\", 0x1ba07bddf60)");
+        SDLTest_AssertCheck(SDL_strcmp(text, expected) == 0, "Check text, expected: '%s', got: '%s'", expected, text);
+        SDLTest_AssertCheck(result == SDL_strlen(expected), "Check result value, expected: %d, got: %d", (int)SDL_strlen(expected), result);
+    }
     return TEST_COMPLETED;
 }
 
@@ -219,10 +226,10 @@ int stdlib_getsetenv(void *arg)
 
         text = SDL_getenv(name);
         SDLTest_AssertPass("Call to SDL_getenv('%s')", name);
-        if (text != NULL) {
+        if (text) {
             SDLTest_Log("Expected: NULL, Got: '%s' (%i)", text, (int)SDL_strlen(text));
         }
-    } while (text != NULL);
+    } while (text);
 
     /* Create random values to set */
     value1 = SDLTest_RandomAsciiStringOfSize(10);
@@ -351,7 +358,7 @@ int stdlib_sscanf(void *arg)
     long long_output, expected_long_output;
     long long long_long_output, expected_long_long_output;
     size_t size_output, expected_size_output;
-    char text[128];
+    char text[128], text2[128];
 
     expected_output = output = 123;
     expected_result = -1;
@@ -413,6 +420,82 @@ int stdlib_sscanf(void *arg)
     result = SDL_sscanf(text, "%zu", &size_output);
     SDLTest_AssertPass("Call to SDL_sscanf(\"%s\", \"%%zu\", &output)", text);
     SDLTest_AssertCheck(expected_size_output == size_output, "Check output, expected: %zu, got: %zu", expected_size_output, size_output);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc def", "%s", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc def\", \"%%s\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc,def", "%s", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%s\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc,def") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[cba]", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[cba]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[a-z]", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[z-a]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[^,]", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[^,]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 0;
+    text[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[A-Z]", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[A-Z]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "") == 0, "Check output, expected: \"\", got: \"%s\"", text);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 2;
+    text[0] = '\0';
+    text2[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[abc],%[def]", text, text2);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[abc],%%[def]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(SDL_strcmp(text2, "def") == 0, "Check output, expected: \"def\", got: \"%s\"", text2);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 2;
+    text[0] = '\0';
+    text2[0] = '\0';
+    result = SDL_sscanf("abc,def", "%[abc]%*[,]%[def]", text, text2);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc,def\", \"%%[abc]%%*[,]%%[def]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(SDL_strcmp(text2, "def") == 0, "Check output, expected: \"def\", got: \"%s\"", text2);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 2;
+    text[0] = '\0';
+    text2[0] = '\0';
+    result = SDL_sscanf("abc   def", "%[abc] %[def]", text, text2);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc   def\", \"%%[abc] %%[def]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc") == 0, "Check output, expected: \"abc\", got: \"%s\"", text);
+    SDLTest_AssertCheck(SDL_strcmp(text2, "def") == 0, "Check output, expected: \"def\", got: \"%s\"", text2);
+    SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
+
+    expected_result = 1;
+    text[0] = '\0';
+    result = SDL_sscanf("abc123XYZ", "%[a-zA-Z0-9]", text);
+    SDLTest_AssertPass("Call to SDL_sscanf(\"abc123XYZ\", \"%%[a-zA-Z0-9]\", text)");
+    SDLTest_AssertCheck(SDL_strcmp(text, "abc123XYZ") == 0, "Check output, expected: \"abc123XYZ\", got: \"%s\"", text);
     SDLTest_AssertCheck(expected_result == result, "Check return value, expected: %i, got: %i", expected_result, result);
 
     return TEST_COMPLETED;

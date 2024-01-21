@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2023 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_RENDER_OGL && !SDL_RENDER_DISABLED
+#if defined(SDL_VIDEO_RENDER_OGL) && !defined(SDL_RENDER_DISABLED)
 #include "SDL_hints.h"
 #include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult */
 #include "SDL_opengl.h"
@@ -187,7 +187,7 @@ GL_ClearErrors(SDL_Renderer *renderer)
             data->errors = 0;
             data->error_messages = NULL;
         }
-    } else if (data->glGetError != NULL) {
+    } else if (data->glGetError) {
         while (data->glGetError() != GL_NO_ERROR) {
             /* continue; */
         }
@@ -309,7 +309,7 @@ static GL_FBOList *GL_GetFBO(GL_RenderData *data, Uint32 w, Uint32 h)
         result = result->next;
     }
 
-    if (result == NULL) {
+    if (!result) {
         result = SDL_malloc(sizeof(GL_FBOList));
         if (result) {
             result->w = w;
@@ -461,6 +461,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     GL_ActivateRenderer(renderer);
 
     renderdata->drawstate.texture = NULL; /* we trash this state. */
+    renderdata->drawstate.texturing = SDL_FALSE; /* we trash this state. */
 
     if (texture->access == SDL_TEXTUREACCESS_TARGET &&
         !renderdata->GL_EXT_framebuffer_object_supported) {
@@ -474,7 +475,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     data = (GL_TextureData *)SDL_calloc(1, sizeof(*data));
-    if (data == NULL) {
+    if (!data) {
         return SDL_OutOfMemory();
     }
 
@@ -891,7 +892,7 @@ static int GL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
 
     data->drawstate.viewport_dirty = SDL_TRUE;
 
-    if (texture == NULL) {
+    if (!texture) {
         data->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         return 0;
     }
@@ -921,7 +922,7 @@ static int GL_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd, co
     GLfloat *verts = (GLfloat *)SDL_AllocateRenderVertices(renderer, count * 2 * sizeof(GLfloat), 0, &cmd->data.draw.first);
     int i;
 
-    if (verts == NULL) {
+    if (!verts) {
         return -1;
     }
 
@@ -941,7 +942,7 @@ static int GL_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cmd, con
     const size_t vertlen = (sizeof(GLfloat) * 2) * count;
     GLfloat *verts = (GLfloat *)SDL_AllocateRenderVertices(renderer, vertlen, 0, &cmd->data.draw.first);
 
-    if (verts == NULL) {
+    if (!verts) {
         return -1;
     }
     cmd->data.draw.count = count;
@@ -986,7 +987,7 @@ static int GL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
     size_t sz = 2 * sizeof(GLfloat) + 4 * sizeof(Uint8) + (texture ? 2 : 0) * sizeof(GLfloat);
 
     verts = (GLfloat *)SDL_AllocateRenderVertices(renderer, count * sz, 0, &cmd->data.draw.first);
-    if (verts == NULL) {
+    if (!verts) {
         return -1;
     }
 
@@ -1092,7 +1093,7 @@ static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const
     }
 
     if ((cmd->data.draw.texture != NULL) != data->drawstate.texturing) {
-        if (cmd->data.draw.texture == NULL) {
+        if (!cmd->data.draw.texture) {
             data->glDisable(data->textype);
             data->drawstate.texturing = SDL_FALSE;
         } else {
@@ -1297,7 +1298,7 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                     SDL_RenderCommand *nextcmd = cmd->next;
                     SDL_BlendMode thisblend = cmd->data.draw.blend;
 
-                    while (nextcmd != NULL) {
+                    while (nextcmd) {
                         const SDL_RenderCommandType nextcmdtype = nextcmd->command;
                         if (nextcmdtype != SDL_RENDERCMD_DRAW_LINES) {
                             break; /* can't go any further on this draw call, different render command up next. */
@@ -1331,7 +1332,7 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
             SDL_RenderCommand *nextcmd = cmd->next;
             size_t count = cmd->data.draw.count;
             int ret;
-            while (nextcmd != NULL) {
+            while (nextcmd) {
                 const SDL_RenderCommandType nextcmdtype = nextcmd->command;
                 if (nextcmdtype != thiscmdtype) {
                     break; /* can't go any further on this draw call, different render command up next. */
@@ -1440,7 +1441,7 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
     temp_pixels = SDL_malloc((size_t)rect->h * temp_pitch);
-    if (temp_pixels == NULL) {
+    if (!temp_pixels) {
         return SDL_OutOfMemory();
     }
 
@@ -1505,7 +1506,7 @@ static void GL_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         renderdata->drawstate.target = NULL;
     }
 
-    if (data == NULL) {
+    if (!data) {
         return;
     }
     if (data->texture) {
@@ -1527,7 +1528,7 @@ static void GL_DestroyRenderer(SDL_Renderer *renderer)
     GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
 
     if (data) {
-        if (data->context != NULL) {
+        if (data->context) {
             /* make sure we delete the right resources! */
             GL_ActivateRenderer(renderer);
         }
@@ -1668,7 +1669,7 @@ static int GL_SetVSync(SDL_Renderer *renderer, const int vsync)
     if (retval != 0) {
         return retval;
     }
-    if (SDL_GL_GetSwapInterval() > 0) {
+    if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     } else {
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -1734,13 +1735,13 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
 #endif
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (renderer == NULL) {
+    if (!renderer) {
         SDL_OutOfMemory();
         goto error;
     }
 
     data = (GL_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (data == NULL) {
+    if (!data) {
         SDL_free(renderer);
         SDL_OutOfMemory();
         goto error;
@@ -1813,7 +1814,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     } else {
         SDL_GL_SetSwapInterval(0);
     }
-    if (SDL_GL_GetSwapInterval() > 0) {
+    if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
 #if DEBUG_RENDER
@@ -1835,7 +1836,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
 #endif
     hint = SDL_getenv("GL_ARB_texture_non_power_of_two");
-    if (hint == NULL || *hint != '0') {
+    if (!hint || *hint != '0') {
         SDL_bool isGL2 = SDL_FALSE;
         const char *verstr = (const char *)data->glGetString(GL_VERSION);
         if (verstr) {
