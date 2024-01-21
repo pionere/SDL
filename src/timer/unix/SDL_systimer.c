@@ -103,7 +103,7 @@ void SDL_TicksQuit(void)
 
 Uint64 SDL_GetTicks64(void)
 {
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
@@ -130,7 +130,7 @@ Uint64 SDL_GetTicks64(void)
 Uint64 SDL_GetPerformanceCounter(void)
 {
     Uint64 ticks;
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
@@ -162,7 +162,7 @@ Uint64 SDL_GetPerformanceCounter(void)
 
 Uint64 SDL_GetPerformanceFrequency(void)
 {
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }

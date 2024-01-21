@@ -197,7 +197,7 @@ static void CorrectAlphaChannel(SDL_Surface *surface)
 
 SDL_Surface *SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
     return (SDL_Surface *) 0;
 #else
@@ -622,7 +622,7 @@ done:
 
 int SDL_SaveBMP_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
     Sint64 fp_offset;

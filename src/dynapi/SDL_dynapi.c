@@ -22,7 +22,7 @@
 #include "SDL_config.h"
 #include "SDL_dynapi.h"
 
-#if SDL_DYNAMIC_API
+#ifdef SDL_DYNAMIC_API
 
 #define SDL_DYNAMIC_API_ENVVAR "SDL_DYNAMIC_API"
 

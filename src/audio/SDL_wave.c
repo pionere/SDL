@@ -2079,7 +2079,7 @@ static int WaveLoad(SDL_RWops *src, WaveFile *file, SDL_AudioSpec *spec, Uint8 *
 
 SDL_AudioSpec *SDL_LoadWAV_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
     return (SDL_AudioSpec *) 0;
 #else

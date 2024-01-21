@@ -17,7 +17,7 @@
   Absolutely basic tests just to see if we get the expected value
   after calling each function.
 */
-#if !SDL_ATOMIC_DISABLED
+#ifndef SDL_ATOMIC_DISABLED
 static const char *
 tf(SDL_bool _tf)
 {
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
 {
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
-#if SDL_ATOMIC_DISABLED
+#ifdef SDL_ATOMIC_DISABLED
     SDL_Log("Skipping atomic test because the subsystem is disabled.\n");
 #else
     RunBasicTest();

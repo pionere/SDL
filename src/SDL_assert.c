@@ -64,7 +64,7 @@ static SDL_assert_state SDLCALL SDL_PromptAssertion(const SDL_assert_data *data,
  */
 static SDL_assert_data *triggered_assertions = NULL;
 
-#if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
+#if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
 static SDL_mutex *assertion_mutex = NULL;
 #endif
 
@@ -339,7 +339,7 @@ SDL_assert_state SDL_ReportAssertion(SDL_assert_data *data, const char *func, co
     SDL_assert_state state = SDL_ASSERTION_IGNORE;
     static int assertion_running = 0;
 
-#if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
+#if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
     static SDL_SpinLock spinlock = 0;
     SDL_AtomicLock(&spinlock);
     if (!assertion_mutex) { /* never called SDL_Init()? */
@@ -397,7 +397,7 @@ SDL_assert_state SDL_ReportAssertion(SDL_assert_data *data, const char *func, co
 
     assertion_running--;
 
-#if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
+#if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
     SDL_UnlockMutex(assertion_mutex);
 #endif
 
@@ -408,7 +408,7 @@ void SDL_AssertionsQuit(void)
 {
 #if SDL_ASSERT_LEVEL > 0
     SDL_GenerateAssertionReport();
-#if !SDL_THREADS_DISABLED && !SDL_THREAD_DUMMY
+#if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
     if (assertion_mutex) {
         SDL_DestroyMutex(assertion_mutex);
         assertion_mutex = NULL;

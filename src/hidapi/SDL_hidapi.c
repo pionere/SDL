@@ -1027,7 +1027,7 @@ static int SDL_hidapi_refcount = 0;
 
 static void SDL_SetHIDAPIError(const wchar_t *error)
 {
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     if (error) {
         char *error_utf8 = SDL_iconv_wchar_utf8(error);
         if (error_utf8) {
@@ -1047,7 +1047,7 @@ int SDL_hid_init(void)
         return 0;
     }
 
-#if defined(SDL_USE_LIBUDEV)
+#ifdef SDL_USE_LIBUDEV
     if (SDL_getenv("SDL_HIDAPI_JOYSTICK_DISABLE_UDEV") != NULL) {
         SDL_LogDebug(SDL_LOG_CATEGORY_INPUT,
                      "udev disabled by SDL_HIDAPI_JOYSTICK_DISABLE_UDEV");

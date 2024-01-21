@@ -1189,7 +1189,7 @@ SDL_bool SDLTest_CommonInit(SDLTest_CommonState *state)
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, state->gl_major_version);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, state->gl_minor_version);
         }
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
         if (state->gl_debug) {
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
         }

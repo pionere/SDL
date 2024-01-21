@@ -451,7 +451,7 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     /* we've gotten reports that WASAPI's resampler introduces distortions, but in the short term
        it fixes some other WASAPI-specific quirks we haven't quite tracked down.
        Refer to bug #6326 for the immediate concern. */
-#if !SDL_RESAMPLER_DISABLED
+#ifndef SDL_RESAMPLER_DISABLED
     this->spec.freq = waveformat->nSamplesPerSec;  /* force sampling rate so our resampler kicks in, if necessary. */
 #else
     /* favor WASAPI's resampler over our own */

@@ -54,7 +54,7 @@ typedef enum RO_INIT_TYPE
 /* Sets an error message based on an HRESULT */
 int WIN_SetErrorFromHRESULT(const char *prefix, HRESULT hr)
 {
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     TCHAR buffer[1024];
     char *message;
     TCHAR *p = buffer;

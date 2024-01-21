@@ -38,7 +38,7 @@ extern "C" {
 
 /* Public functions */
 
-#if !SDL_VERBOSE_ERROR_DISABLED || SDL_DYNAMIC_API
+#if !defined(SDL_VERBOSE_ERROR_DISABLED) || defined(SDL_DYNAMIC_API)
 /**
  * Set the SDL error message for the current thread.
  *

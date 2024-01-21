@@ -173,7 +173,7 @@ static void
 loop(void)
 {
     SDL_Event event;
-#if !SDL_FILE_DISABLED
+#ifndef SDL_FILE_DISABLED
     SDL_RWops *stream;
 #endif
     int i;
@@ -203,7 +203,7 @@ loop(void)
                 break;
 
             case SDLK_s:
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
                 SDL_Log("GestureWrite test skipped because the FILE subsystem is disabled.");
 #else
                 stream = SDL_RWFromFile("gestureSave", "w");
@@ -213,7 +213,7 @@ loop(void)
                 break;
 
             case SDLK_l:
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
                 SDL_Log("GestureLoad test skipped because the FILE subsystem is disabled.");
 #else
                 stream = SDL_RWFromFile("gestureSave", "r");

@@ -25,7 +25,7 @@
 #include "SDL_error.h"
 #include "SDL_error_c.h"
 
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 int SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 {
     /* Ignore call if invalid format pointer was passed */
@@ -72,7 +72,7 @@ void SDL_ClearError(void)
 {
     SDL_GetErrBuf()->error = 0;
 }
-#elif SDL_DYNAMIC_API
+#elif defined(SDL_DYNAMIC_API)
 int
 SDL_SetError(SDL_PRINTF_FORMAT_STRING const char *fmt, ...)
 {
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 }
 #endif
 
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 char *SDL_GetErrorMsg(char *errstr, int maxlen)
 {
     const SDL_error *error = SDL_GetErrBuf();
@@ -137,7 +137,7 @@ char *SDL_GetErrorMsg(char *errstr, int maxlen)
 
     return errstr;
 }
-#elif SDL_DYNAMIC_API
+#elif defined(SDL_DYNAMIC_API)
 char *
 SDL_GetErrorMsg(char *errstr, int maxlen)
 {

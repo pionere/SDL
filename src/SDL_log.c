@@ -20,7 +20,7 @@
 */
 #include "./SDL_internal.h"
 
-#if !SDL_LOGGING_DISABLED || SDL_DYNAMIC_API
+#if !defined(SDL_LOGGING_DISABLED) || defined(SDL_DYNAMIC_API)
 
 #if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__)
 #include "core/windows/SDL_windows.h"
@@ -106,7 +106,7 @@ static int SDL_android_priority[SDL_NUM_LOG_PRIORITIES] = {
 };
 #endif /* __ANDROID__ */
 
-#if !SDL_LOGGING_DISABLED
+#ifndef SDL_LOGGING_DISABLED
 void SDL_LogInit(void)
 {
     if (!log_function_mutex) {
@@ -504,7 +504,7 @@ void SDL_LogSetOutputFunction(SDL_LogOutputFunction callback, void *userdata)
     SDL_log_function = callback;
     SDL_log_userdata = userdata;
 }
-#elif SDL_DYNAMIC_API /* !SDL_LOGGING_DISABLED */
+#elif defined(SDL_DYNAMIC_API) /* !SDL_LOGGING_DISABLED */
 /* TODO: move to a separate folder (with dummy, etc...)? */
 void
 SDL_LogSetAllPriority(SDL_LogPriority priority)

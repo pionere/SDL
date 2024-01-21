@@ -176,7 +176,7 @@ typedef struct GLES2_RenderData
 
 static const float inv255f = 1.0f / 255.0f;
 
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
 SDL_FORCE_INLINE const char*
 GL_TranslateError(GLenum error)
 {
@@ -198,7 +198,7 @@ GL_TranslateError(GLenum error)
 SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     GLES2_RenderData *data = (GLES2_RenderData *)renderer->driverdata;
 
     if (!data->debug_enabled) {
@@ -214,7 +214,7 @@ SDL_FORCE_INLINE int
 GL_CheckAllErrors(const char *prefix, SDL_Renderer *renderer, const char *file, int line, const char *function)
 {
     int ret = 0;
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     GLES2_RenderData *data = (GLES2_RenderData *)renderer->driverdata;
     if (!data->debug_enabled) {
         return 0;
@@ -2131,7 +2131,7 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&
         (value & SDL_GL_CONTEXT_DEBUG_FLAG)) {

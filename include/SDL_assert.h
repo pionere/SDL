@@ -1,4 +1,4 @@
-/*
+ /*
   Simple DirectMedia Layer
   Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#if SDL_ASSERT_DISABLED
+#ifdef SDL_ASSERT_DISABLED
 #define SDL_ASSERT_LEVEL 0
 #endif
 #ifndef SDL_ASSERT_LEVEL

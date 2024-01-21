@@ -110,7 +110,7 @@ typedef enum
     SDL_NUM_LOG_PRIORITIES
 } SDL_LogPriority;
 
-#if !SDL_LOGGING_DISABLED
+#ifndef SDL_LOGGING_DISABLED
 /**
  * Set the priority of all log categories.
  *

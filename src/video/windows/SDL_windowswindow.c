@@ -1051,7 +1051,7 @@ void WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event)
 
 void *WIN_GetWindowICCProfile(_THIS, SDL_Window *window, size_t *size)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
     return NULL;
 #else

@@ -163,7 +163,7 @@ static int SaveTemplate(SDL_DollarTemplate *templ, SDL_RWops *dst)
 
 int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
     int i, j, rtrn = 0;
@@ -179,7 +179,7 @@ int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
 
 int SDL_SaveDollarTemplate(SDL_GestureID gestureId, SDL_RWops *dst)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
     int i, j;
@@ -244,7 +244,7 @@ static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
 
 int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
     int i, loaded = 0;

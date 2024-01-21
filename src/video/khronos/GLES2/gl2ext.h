@@ -65,7 +65,7 @@ GL_APICALL void GL_APIENTRY glBlendBarrierKHR (void);
 #define GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH_KHR 0x82FC
 #endif /* GL_KHR_context_flush_control */
 
-#if GL_KHR_debug
+#if defined(GL_KHR_debug) && GL_KHR_debug
 typedef void (GL_APIENTRY  *GLDEBUGPROCKHR)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 #define GL_SAMPLER                        0x82E6
 #define GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR   0x8242
@@ -1225,7 +1225,7 @@ GL_APICALL void GL_APIENTRY glCopyImageSubDataEXT (GLuint srcName, GLenum srcTar
 #endif
 #endif /* GL_EXT_copy_image */
 
-#if GL_EXT_debug_label
+#if defined(GL_EXT_debug_label) && GL_EXT_debug_label
 #define GL_PROGRAM_PIPELINE_OBJECT_EXT    0x8A4F
 #define GL_PROGRAM_OBJECT_EXT             0x8B40
 #define GL_SHADER_OBJECT_EXT              0x8B48
@@ -1241,7 +1241,7 @@ GL_APICALL void GL_APIENTRY glGetObjectLabelEXT (GLenum type, GLuint object, GLs
 #endif
 #endif /* GL_EXT_debug_label */
 
-#if GL_EXT_debug_marker
+#if defined(GL_EXT_debug_marker) && GL_EXT_debug_marker
 typedef void (GL_APIENTRYP PFNGLINSERTEVENTMARKEREXTPROC) (GLsizei length, const GLchar *marker);
 typedef void (GL_APIENTRYP PFNGLPUSHGROUPMARKEREXTPROC) (GLsizei length, const GLchar *marker);
 typedef void (GL_APIENTRYP PFNGLPOPGROUPMARKEREXTPROC) (void);

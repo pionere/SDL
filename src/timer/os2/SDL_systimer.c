@@ -78,7 +78,7 @@ Uint64 SDL_GetTicks64(void)
 {
     Uint64 ui64Result;
     ULLONG ullTmrNow;
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }

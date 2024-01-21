@@ -1325,7 +1325,6 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
             }
         }
         SDL_UnlockMutex(current_audio.detectionLock);
-    }
 
         /* has to be in our device list. */
         if (!current_audio.impl.AllowsArbitraryDeviceNames && handle == NULL) {

@@ -158,7 +158,7 @@ static const char *SDL_EGL_GetErrorName(EGLint eglErrorCode)
 
 int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, EGLint eglErrorCode)
 {
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     const char *errorText = SDL_EGL_GetErrorName(eglErrorCode);
     char altErrorText[32];
     if (errorText[0] == '\0') {
@@ -958,7 +958,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
         share_context = (EGLContext)SDL_GL_GetCurrentContext();
     }
 
-#if DEBUG_RENDER && defined(SDL_VIDEO_DRIVER_ANDROID)
+#if defined(DEBUG_RENDER) && defined(SDL_VIDEO_DRIVER_ANDROID)
     if (_this->gl_config.flags & SDL_GL_CONTEXT_DEBUG_FLAG) {
         /* If SDL_GL_CONTEXT_DEBUG_FLAG is set but EGL_KHR_debug unsupported, unset.
          * This is required because some Android devices like to complain about it

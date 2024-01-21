@@ -3727,7 +3727,7 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         break;
     case SDL_GL_CONTEXT_FLAGS:
         if (value & ~(
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
                       SDL_GL_CONTEXT_DEBUG_FLAG |
 #endif
                       SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG |

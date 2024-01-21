@@ -130,7 +130,7 @@ static void CALLBACK FillSound(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DW
 
 static int SetMMerror(const char *function, MMRESULT code)
 {
-#if !SDL_VERBOSE_ERROR_DISABLED
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     int len;
     char errbuf[MAXERRORLENGTH];
     wchar_t werrbuf[MAXERRORLENGTH];

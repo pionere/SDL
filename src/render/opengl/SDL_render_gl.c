@@ -86,7 +86,7 @@ typedef struct
 typedef struct
 {
     SDL_GLContext context;
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     SDL_bool debug_enabled;
     SDL_bool GL_ARB_debug_output_supported;
     int errors;
@@ -145,7 +145,7 @@ typedef struct
 
     GL_FBOList *fbo;
 } GL_TextureData;
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
 SDL_FORCE_INLINE const char *
 GL_TranslateError(GLenum error)
 {
@@ -170,7 +170,7 @@ GL_TranslateError(GLenum error)
 SDL_FORCE_INLINE void
 GL_ClearErrors(SDL_Renderer *renderer)
 {
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
 
     if (!data->debug_enabled) {
@@ -199,7 +199,7 @@ SDL_FORCE_INLINE int
 GL_CheckAllErrors(const char *prefix, SDL_Renderer *renderer, const char *file, int line, const char *function)
 {
     int ret = 0;
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
     if (!data->debug_enabled) {
         return 0;
@@ -272,7 +272,7 @@ static int GL_ActivateRenderer(SDL_Renderer *renderer)
 
     return 0;
 }
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
 static void APIENTRY GL_HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message, const void *userParam)
 {
     SDL_Renderer *renderer = (SDL_Renderer *)userParam;
@@ -1532,7 +1532,7 @@ static void GL_DestroyRenderer(SDL_Renderer *renderer)
             /* make sure we delete the right resources! */
             GL_ActivateRenderer(renderer);
         }
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
         GL_ClearErrors(renderer);
         if (data->GL_ARB_debug_output_supported) {
             PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARBFunc = (PFNGLDEBUGMESSAGECALLBACKARBPROC)SDL_GL_GetProcAddress("glDebugMessageCallbackARB");
@@ -1817,7 +1817,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&
         (value & SDL_GL_CONTEXT_DEBUG_FLAG)) {

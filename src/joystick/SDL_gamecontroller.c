@@ -1519,7 +1519,7 @@ static ControllerMapping_t *SDL_PrivateGetControllerMapping(int device_index)
  */
 int SDL_GameControllerAddMappingsFromRW(SDL_RWops *rw, int freerw)
 {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
     const char *platform = SDL_GetPlatform();
@@ -1926,7 +1926,7 @@ int SDL_GameControllerInitMappings(void)
     }
 
     if (SDL_GetControllerMappingFilePath(szControllerMapPath, sizeof(szControllerMapPath))) {
-#if SDL_FILE_DISABLED
+#ifdef SDL_FILE_DISABLED
         SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", szControllerMapPath);
 #else
         SDL_GameControllerAddMappingsFromFile(szControllerMapPath);

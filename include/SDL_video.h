@@ -262,7 +262,7 @@ typedef enum
 
 typedef enum
 {
-#if DEBUG_RENDER
+#ifdef DEBUG_RENDER
     SDL_GL_CONTEXT_DEBUG_FLAG              = 0x0001,
 #endif
     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG = 0x0002,

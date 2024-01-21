@@ -52,7 +52,7 @@ void SDL_TicksQuit(void)
 Uint64 SDL_GetTicks64(void)
 {
     struct timeval now;
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }

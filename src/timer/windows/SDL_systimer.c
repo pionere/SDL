@@ -110,7 +110,7 @@ Uint64 SDL_GetTicks64(void)
 {
     LARGE_INTEGER now;
     BOOL rc;
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }
@@ -157,7 +157,7 @@ void SDL_Delay(Uint32 ms)
     }
     WaitForSingleObjectEx(mutex, ms, FALSE);
 #else
-#if !SDL_SANITIZE_ACCESS_DISABLED
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
     if (!ticks_started) {
         SDL_TicksInit();
     }

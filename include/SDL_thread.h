@@ -135,7 +135,7 @@ SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn,
                  pfnSDL_CurrentEndThread pfnEndThread);
 
 
-#if defined(SDL_CreateThread) && SDL_DYNAMIC_API
+#if defined(SDL_CreateThread) && defined(SDL_DYNAMIC_API)
 #undef SDL_CreateThread
 #define SDL_CreateThread(fn, name, data) SDL_CreateThread_REAL(fn, name, data, (pfnSDL_CurrentBeginThread)SDL_beginthread, (pfnSDL_CurrentEndThread)SDL_endthread)
 #undef SDL_CreateThreadWithStackSize
@@ -171,7 +171,7 @@ SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn, const char *name, const siz
                  pfnSDL_CurrentBeginThread pfnBeginThread,
                  pfnSDL_CurrentEndThread pfnEndThread);
 
-#if defined(SDL_CreateThread) && SDL_DYNAMIC_API
+#if defined(SDL_CreateThread) && defined(SDL_DYNAMIC_API)
 #undef SDL_CreateThread
 #define SDL_CreateThread(fn, name, data) SDL_CreateThread_REAL(fn, name, data, (pfnSDL_CurrentBeginThread)SDL_beginthread, (pfnSDL_CurrentEndThread)SDL_endthread)
 #undef SDL_CreateThreadWithStackSize

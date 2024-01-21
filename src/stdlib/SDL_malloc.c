@@ -5204,7 +5204,7 @@ static void  SDLCALL real_free(void *p) { free(p); }
 #define real_free dlfree
 #endif
 
-#if !SDL_DYN_MEMFUNCS_DISABLED
+#ifndef SDL_DYN_MEMFUNCS_DISABLED
 /* Memory functions used by SDL that can be replaced by the application */
 static struct
 {

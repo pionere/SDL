@@ -46,7 +46,7 @@
 
 #include "dynapi/SDL_dynapi.h"
 
-#if SDL_DYNAMIC_API
+#ifdef SDL_DYNAMIC_API
 #include "dynapi/SDL_dynapi_overrides.h"
 /* force DECLSPEC off...it's all internal symbols now.
    These will have actual #defines during SDL_dynapi.c only */
@@ -170,7 +170,7 @@
 
 /* Override SDL_*Log functions.
   Necessary to eliminate the calls and the strings as well. */
-#if SDL_LOGGING_DISABLED && !SDL_DYNAMIC_API
+#if defined(SDL_LOGGING_DISABLED) && !defined(SDL_DYNAMIC_API)
 #define SDL_LogGetPriority(category) SDL_LOG_PRIORITY_CRITICAL
 #define SDL_LogResetPriorities()
 #define SDL_Log(fmt, ...)
@@ -186,7 +186,7 @@
 
 /* Override SDL_*Error functions.
   Necessary to eliminate the calls and the strings as well. */
-#if SDL_VERBOSE_ERROR_DISABLED && !SDL_DYNAMIC_API
+#if defined(SDL_VERBOSE_ERROR_DISABLED) && !defined(SDL_DYNAMIC_API)
 #define SDL_SetError(fmt, ...) -1
 #define SDL_GetError() ""
 #define SDL_ClearError()

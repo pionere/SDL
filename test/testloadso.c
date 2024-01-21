@@ -24,7 +24,7 @@ typedef int (*fntype)(const char *);
 int main(int argc, char *argv[])
 {
     int retval = 0;
-#if SDL_LOADSO_DISABLED
+#ifdef SDL_LOADSO_DISABLED
     SDL_Log("Skipping loadso test because the subsystem is disabled.\n");
 #else
     int hello = 0;

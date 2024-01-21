@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
-#if !SDL_DUMMYVIDEO
+#ifndef SDL_DUMMYVIDEO
         SDL_Log("Error of Keys-test is ignored because the dummy video driver is disabled.");
         return 0;
 #else
