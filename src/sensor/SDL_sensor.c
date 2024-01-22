@@ -76,9 +76,7 @@ int SDL_SensorInit(void)
     }
 
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0) {
-        return -1;
-    }
+    SDL_assert(SDL_WasInit(SDL_INIT_EVENTS));
 #endif /* !SDL_EVENTS_DISABLED */
 
     status = -1;
@@ -453,10 +451,6 @@ void SDL_SensorQuit(void)
     }
 
     SDL_UnlockSensors();
-
-#ifndef SDL_EVENTS_DISABLED
-    SDL_QuitSubSystem(SDL_INIT_EVENTS);
-#endif
 
     if (SDL_sensor_lock) {
         SDL_DestroyMutex(SDL_sensor_lock);

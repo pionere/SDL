@@ -1515,12 +1515,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
     SDL_AudioDeviceID id = 0;
 
-    /* Start up the audio driver, if necessary. This is legacy behaviour! */
-    if (!SDL_WasInit(SDL_INIT_AUDIO)) {
-        if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
-            return -1;
-        }
-    }
+    SDL_assert(SDL_WasInit(SDL_INIT_AUDIO));
 
     /* SDL_OpenAudio() is legacy and can only act on Device ID #1. */
     if (open_devices[0] != NULL) {

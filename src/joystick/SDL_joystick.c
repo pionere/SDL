@@ -599,9 +599,7 @@ int SDL_JoystickInit(void)
     }
 
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_InitSubSystem(SDL_INIT_EVENTS) < 0) {
-        return -1;
-    }
+    SDL_assert(SDL_WasInit(SDL_INIT_EVENTS));
 #endif /* !SDL_EVENTS_DISABLED */
 
     SDL_LockJoysticks();
@@ -1636,10 +1634,6 @@ void SDL_JoystickQuit(void)
         SDL_joystick_players = NULL;
         SDL_joystick_player_count = 0;
     }
-
-#ifndef SDL_EVENTS_DISABLED
-    SDL_QuitSubSystem(SDL_INIT_EVENTS);
-#endif
 
     SDL_QuitSteamVirtualGamepadInfo();
 
