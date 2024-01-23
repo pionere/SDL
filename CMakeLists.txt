@@ -87,7 +87,7 @@ endif()
 # See docs/release_checklist.md
 set(SDL_MAJOR_VERSION 2)
 set(SDL_MINOR_VERSION 29)
-set(SDL_MICRO_VERSION 1)
+set(SDL_MICRO_VERSION 2)
 set(SDL_VERSION "${SDL_MAJOR_VERSION}.${SDL_MINOR_VERSION}.${SDL_MICRO_VERSION}")
 
 # Set defaults preventing destination file conflicts
@@ -1013,7 +1013,7 @@ if(SDL_ASSEMBLY)
 
     if(SDL_LSX)
       cmake_push_check_state()
-      list(APPEND CMAKE_REQUIRED_FLAGS "-mlsx")
+      set(CMAKE_REQUIRED_FLAGS "-mlsx")
       check_c_source_compiles("
           #ifndef __loongarch_sx
           #error Assembler CPP flag not enabled
@@ -1030,7 +1030,7 @@ if(SDL_ASSEMBLY)
 
     if(SDL_LASX)
       cmake_push_check_state()
-      list(APPEND CMAKE_REQUIRED_FLAGS "-mlasx")
+      set(CMAKE_REQUIRED_FLAGS "-mlasx")
       check_c_source_compiles("
           #ifndef __loongarch_asx
           #error Assembler CPP flag not enabled
