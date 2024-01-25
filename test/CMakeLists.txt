@@ -143,9 +143,9 @@ add_sdl_test_executable(checkkeys checkkeys.c)
 add_sdl_test_executable(checkkeysthreads checkkeysthreads.c)
 add_sdl_test_executable(loopwave loopwave.c testutils.c)
 add_sdl_test_executable(loopwavequeue loopwavequeue.c testutils.c)
-add_sdl_test_executable(testsurround testsurround.c)
+add_sdl_test_executable(testsurround NONINTERACTIVE testsurround.c)
 add_sdl_test_executable(testresample testresample.c)
-add_sdl_test_executable(testaudioinfo testaudioinfo.c)
+add_sdl_test_executable(testaudioinfo NONINTERACTIVE testaudioinfo.c)
 
 file(GLOB TESTAUTOMATION_SOURCE_FILES testautomation*.c)
 add_sdl_test_executable(testautomation NONINTERACTIVE NEEDS_RESOURCES ${TESTAUTOMATION_SOURCE_FILES})
@@ -180,7 +180,7 @@ add_sdl_test_executable(testthread NONINTERACTIVE testthread.c)
 add_sdl_test_executable(testiconv NEEDS_RESOURCES testiconv.c testutils.c)
 add_sdl_test_executable(testime NEEDS_RESOURCES testime.c testutils.c)
 add_sdl_test_executable(testjoystick testjoystick.c)
-add_sdl_test_executable(testkeys testkeys.c)
+add_sdl_test_executable(testkeys NONINTERACTIVE testkeys.c)
 add_sdl_test_executable(testloadso testloadso.c)
 add_sdl_test_executable(testlocale NONINTERACTIVE testlocale.c)
 add_sdl_test_executable(testlock testlock.c)
@@ -234,9 +234,9 @@ add_sdl_test_executable(testyuv NEEDS_RESOURCES testyuv.c testyuv_cvt.c)
 add_sdl_test_executable(torturethread torturethread.c)
 add_sdl_test_executable(testrendercopyex NEEDS_RESOURCES testrendercopyex.c testutils.c)
 add_sdl_test_executable(testmessage testmessage.c)
-add_sdl_test_executable(testdisplayinfo testdisplayinfo.c)
+add_sdl_test_executable(testdisplayinfo NONINTERACTIVE testdisplayinfo.c)
 add_sdl_test_executable(testqsort NONINTERACTIVE testqsort.c)
-add_sdl_test_executable(testbounds testbounds.c)
+add_sdl_test_executable(testbounds NONINTERACTIVE testbounds.c)
 add_sdl_test_executable(testcustomcursor testcustomcursor.c)
 add_sdl_test_executable(controllermap NEEDS_RESOURCES controllermap.c testutils.c)
 add_sdl_test_executable(testvulkan testvulkan.c)
@@ -260,21 +260,6 @@ if(HAVE_WFORMAT_EXTRA_ARGS)
 endif()
 
 cmake_pop_check_state()
-
-if(SDL_DUMMYAUDIO)
-    list(APPEND SDL_TESTS_NONINTERACTIVE
-        testaudioinfo
-        testsurround
-    )
-endif()
-
-if(SDL_DUMMYVIDEO)
-    list(APPEND SDL_TESTS_NONINTERACTIVE
-        testkeys
-        testbounds
-        testdisplayinfo
-    )
-endif()
 
 if(OPENGL_FOUND)
     if(TARGET OpenGL::GL)
