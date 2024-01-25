@@ -27,6 +27,7 @@
 #include "SDL_timer.h"
 #include "SDL_sysrender.h"
 #include "software/SDL_render_sw_c.h"
+#include "../SDL_hints_c.h"
 #include "../video/SDL_pixels_c.h"
 
 #if defined(__ANDROID__)
@@ -962,7 +963,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
 
     hint = SDL_GetHint(SDL_HINT_RENDER_VSYNC);
     if (hint && *hint) {
-        if (SDL_GetHintBoolean(SDL_HINT_RENDER_VSYNC, SDL_TRUE)) {
+        if (SDL_GetStringBoolean(hint, SDL_TRUE)) {
             flags |= SDL_RENDERER_PRESENTVSYNC;
         } else {
             flags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -1033,8 +1034,11 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     /* let app/user override batching decisions. */
     if (renderer->always_batch) {
         batching = SDL_TRUE;
-    } else if (SDL_GetHint(SDL_HINT_RENDER_BATCHING)) {
-        batching = SDL_GetHintBoolean(SDL_HINT_RENDER_BATCHING, SDL_TRUE);
+    } else {
+        hint = SDL_GetHint(SDL_HINT_RENDER_BATCHING);
+        if (hint) {
+            batching = SDL_GetStringBoolean(hint, SDL_TRUE);
+        }
     }
 
     renderer->batching = batching;
