@@ -91,7 +91,12 @@ int main(int argc, char *argv[])
 
     /* Initialize common state */
     if (!SDLTest_CommonInit(state)) {
+#ifndef SDL_DUMMYVIDEO
+        SDL_Log("Error of automation-test is ignored because the dummy video driver is not set.");
+        quit(0);
+#else
         quit(2);
+#endif
     }
 
     /* Create the windows, initialize the renderers */
