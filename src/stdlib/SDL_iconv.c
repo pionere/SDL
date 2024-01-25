@@ -29,6 +29,7 @@
 
 #include "SDL_stdinc.h"
 #include "SDL_endian.h"
+#include "SDL_error.h"
 
 #if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
 #ifndef SDL_USE_LIBICONV
@@ -199,15 +200,20 @@ SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
     int src_fmt = ENCODING_UNKNOWN;
     int dst_fmt = ENCODING_UNKNOWN;
     int i;
+#ifndef SDL_LOCALE_DISABLED
     char fromcode_buffer[64];
     char tocode_buffer[64];
-
     if (!fromcode || !*fromcode) {
         fromcode = getlocale(fromcode_buffer, sizeof(fromcode_buffer));
     }
     if (!tocode || !*tocode) {
         tocode = getlocale(tocode_buffer, sizeof(tocode_buffer));
     }
+#else
+    if (!fromcode || !tocode) {
+        return (SDL_iconv_t)SDL_InvalidParamError("fromcode/tocode");
+    }
+#endif
     for (i = 0; i < SDL_arraysize(encodings); ++i) {
         if (SDL_strcasecmp(fromcode, encodings[i].name) == 0) {
             src_fmt = encodings[i].format;
