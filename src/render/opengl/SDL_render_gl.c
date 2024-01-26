@@ -1840,15 +1840,8 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
         SDL_bool isGL2 = SDL_FALSE;
         const char *verstr = (const char *)data->glGetString(GL_VERSION);
         if (verstr) {
-            char verbuf[16];
-            char *ptr;
-            SDL_strlcpy(verbuf, verstr, sizeof(verbuf));
-            ptr = SDL_strchr(verbuf, '.');
-            if (ptr) {
-                *ptr = '\0';
-                if (SDL_atoi(verbuf) >= 2) {
-                    isGL2 = SDL_TRUE;
-                }
+            if (verstr[0] >= '2' || verstr[1] != '.') {
+                isGL2 = SDL_TRUE;
             }
         }
         if (isGL2 || SDL_GL_ExtensionSupported("GL_ARB_texture_non_power_of_two")) {
