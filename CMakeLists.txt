@@ -1135,7 +1135,7 @@ if(SDL_LIBC)
     endforeach()
     set(HAVE_SIGNAL_H 1)
     foreach(_FN
-            malloc calloc realloc free
+            malloc calloc realloc free getenv
             bsearch qsort abs memset memcpy memmove memcmp
             strlen _strdup strdup _strrev _strupr _strlwr strchr strrchr strstr
             strcmp strncmp _stricmp _strnicmp 

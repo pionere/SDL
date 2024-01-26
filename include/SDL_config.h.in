@@ -86,12 +86,10 @@
 #undef HAVE_REALLOC
 #undef HAVE_FREE
 #undef HAVE_ALLOCA
-#ifndef __WIN32__ /* Don't use C runtime versions of these on Windows */
 #undef HAVE_GETENV
 #undef HAVE_SETENV
 #undef HAVE_PUTENV
 #undef HAVE_UNSETENV
-#endif
 #undef HAVE_QSORT
 #undef HAVE_BSEARCH
 #undef HAVE_ABS

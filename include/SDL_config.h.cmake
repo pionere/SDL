@@ -83,12 +83,10 @@
 #cmakedefine HAVE_REALLOC 1
 #cmakedefine HAVE_FREE 1
 #cmakedefine HAVE_ALLOCA 1
-#ifndef __WIN32__ /* Don't use C runtime versions of these on Windows */
 #cmakedefine HAVE_GETENV 1
 #cmakedefine HAVE_SETENV 1
 #cmakedefine HAVE_PUTENV 1
 #cmakedefine HAVE_UNSETENV 1
-#endif
 #cmakedefine HAVE_QSORT 1
 #cmakedefine HAVE_BSEARCH 1
 #cmakedefine HAVE_ABS 1
