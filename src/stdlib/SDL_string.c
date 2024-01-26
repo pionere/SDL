@@ -774,8 +774,7 @@ char *SDL_strcasestr(const char *haystack, const char *needle)
 #endif /* HAVE_STRCASESTR */
 }
 
-#if !defined(HAVE__LTOA) || !defined(HAVE__I64TOA) || \
-    !defined(HAVE__ULTOA) || !defined(HAVE__UI64TOA)
+#if !defined(HAVE__ULTOA) || !defined(HAVE__UI64TOA)
 static const char ntoa_table[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',

@@ -35,7 +35,7 @@
 
 #include "SDL_stdinc.h"
 
-#if (defined(__WIN32__) || defined(__WINGDK__)) && (!defined(HAVE_SETENV) || !defined(HAVE_GETENV))
+#if (defined(__WIN32__) || defined(__WINGDK__)) && !defined(HAVE_GETENV)
 /* Note this isn't thread-safe! */
 static char *SDL_envmem = NULL; /* Ugh, memory leak */
 static size_t SDL_envmemlen = 0;
@@ -54,6 +54,12 @@ int SDL_setenv(const char *name, const char *value, int overwrite)
     return setenv(name, value, overwrite);
 }
 #elif defined(__WIN32__) || defined(__WINGDK__)
+#if defined(HAVE_GETENV)
+int SDL_setenv(const char *name, const char *value, int overwrite)
+{
+    return SDL_Unsupported();
+}
+#else
 int SDL_setenv(const char *name, const char *value, int overwrite)
 {
     /* Input validation */
@@ -71,8 +77,9 @@ int SDL_setenv(const char *name, const char *value, int overwrite)
     }
     return 0;
 }
+#endif // HAVE_GETENV
 /* We have a real environment table, but no real setenv? Fake it w/ putenv. */
-#elif (defined(HAVE_GETENV) && defined(HAVE_PUTENV) && !defined(HAVE_SETENV))
+#elif defined(HAVE_GETENV) && defined(HAVE_PUTENV) && defined(HAVE_UNSETENV)
 int SDL_setenv(const char *name, const char *value, int overwrite)
 {
     size_t len;

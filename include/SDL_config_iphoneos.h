@@ -57,7 +57,6 @@
 #define HAVE_GETENV 1
 #define HAVE_SETENV 1
 #define HAVE_PUTENV 1
-#define HAVE_SETENV 1
 #define HAVE_UNSETENV   1
 #define HAVE_QSORT  1
 #define HAVE_BSEARCH 1
