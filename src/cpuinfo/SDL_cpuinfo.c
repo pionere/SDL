@@ -702,11 +702,7 @@ int SDL_GetCPUCount(void)
 inline const char *
 SDL_GetCPUType(void)
 {
-    static char SDL_CPUType[13];
-
-    SDL_strlcpy(SDL_CPUType, "E2K MACHINE", sizeof(SDL_CPUType));
-
-    return SDL_CPUType;
+    return "E2K MACHINE";
 }
 #else
 /* Oh, such a sweet sweet trick, just not very useful. :) */
@@ -747,7 +743,7 @@ static const char *SDL_GetCPUType(void)
             SDL_CPUType[i++] = (char)(c & 0xff);
         }
         if (!SDL_CPUType[0]) {
-            SDL_strlcpy(SDL_CPUType, "Unknown", sizeof(SDL_CPUType));
+            SDL_memcpy(SDL_CPUType, "Unknown", sizeof("Unknown"));
         }
     }
     return SDL_CPUType;
@@ -880,7 +876,7 @@ static const char *SDL_GetCPUName(void)
             }
         }
         if (!SDL_CPUName[0]) {
-            SDL_strlcpy(SDL_CPUName, "Unknown", sizeof(SDL_CPUName));
+            SDL_memcpy(SDL_CPUName, "Unknown", sizeof("Unknown"));
         }
     }
     return SDL_CPUName;
