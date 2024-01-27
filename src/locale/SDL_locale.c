@@ -23,28 +23,30 @@
 #include "SDL_syslocale.h"
 #include "SDL_hints.h"
 
-static SDL_Locale *build_locales_from_csv_string(char *csv)
+static SDL_Locale *build_locales_from_csv_string(const char *csv)
 {
     size_t num_locales = 1; /* at least one */
     size_t slen;
     size_t alloclen;
+    const char *cur;
     char *ptr;
     SDL_Locale *loc;
     SDL_Locale *retval;
 
-    if (!csv || !csv[0]) {
+    SDL_assert(csv != NULL);
+    if (!csv[0]) {
         return NULL; /* nothing to report */
     }
 
-    for (ptr = csv; *ptr; ptr++) {
-        if (*ptr == ',') {
+    for (cur = csv; *cur; cur++) {
+        if (*cur == ',') {
             num_locales++;
         }
     }
 
     num_locales++; /* one more for terminator */
 
-    slen = ((size_t)(ptr - csv)) + 1; /* SDL_strlen(csv) + 1 */
+    slen = ((size_t)(cur - csv)) + 1; /* SDL_strlen(csv) + 1 */
     alloclen = slen + (num_locales * sizeof(SDL_Locale));
 
     loc = retval = (SDL_Locale *)SDL_calloc(1, alloclen);
@@ -53,7 +55,7 @@ static SDL_Locale *build_locales_from_csv_string(char *csv)
         return NULL; /* oh well */
     }
     ptr = (char *)(retval + num_locales);
-    SDL_strlcpy(ptr, csv, slen);
+    SDL_memcpy(ptr, csv, slen);
 
     while (SDL_TRUE) { /* parse out the string */
         while (*ptr == ' ') {
@@ -90,14 +92,13 @@ static SDL_Locale *build_locales_from_csv_string(char *csv)
 SDL_Locale *SDL_GetPreferredLocales(void)
 {
     char locbuf[128]; /* enough for 21 "xx_YY," language strings. */
-    const char *hint = SDL_GetHint(SDL_HINT_PREFERRED_LOCALES);
-    if (hint) {
-        SDL_strlcpy(locbuf, hint, sizeof(locbuf));
-    } else {
-        SDL_zeroa(locbuf);
+    const char *locstr = SDL_GetHint(SDL_HINT_PREFERRED_LOCALES);
+    if (!locstr) {
+        locbuf[0] = '\0';
         SDL_SYS_GetPreferredLocales(locbuf, sizeof(locbuf));
+        locstr = locbuf;
     }
-    return build_locales_from_csv_string(locbuf);
+    return build_locales_from_csv_string(locstr);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
