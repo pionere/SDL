@@ -1141,7 +1141,7 @@ if(SDL_LIBC)
             strcmp strncmp _stricmp _strnicmp 
             wcslen _wcsdup wcsdup wcsstr
             wcscmp wcsncmp _wcsicmp _wcsnicmp
-            itoa _ltoa _ultoa strtol strtoul i64toa _ui64toa strtoll strtoull strtod
+            itoa _ltoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod
             atoi atof sscanf
             acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf
             copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf

@@ -224,12 +224,16 @@ typedef unsigned int uintptr_t;
 #endif
 /* This function is available with at least the VC++ 2008 C runtime library */
 #if _MSC_VER >= 1400
+#define HAVE__I64TOA 1
+#define HAVE__UI64TOA 1
 #define HAVE__FSEEKI64 1
 #endif
 #ifdef _USE_MATH_DEFINES
 #define HAVE_M_PI 1
 #endif
 #elif defined(__WATCOMC__)
+#define HAVE__I64TOA 1
+#define HAVE__UI64TOA 1
 #define HAVE__FSEEKI64 1
 #define HAVE_STRTOLL 1
 #define HAVE_STRTOULL 1
