@@ -515,15 +515,7 @@ static void IME_GetReadingString(SDL_VideoData *videodata, HWND hwnd)
     }
 
     if (videodata->GetReadingString) {
-        len = videodata->GetReadingString(himc, 0, 0, &err, &vertical, &maxuilen);
-        if (len) {
-            if (len > SDL_arraysize(buffer)) {
-                len = SDL_arraysize(buffer);
-            }
-
-            len = videodata->GetReadingString(himc, len, s, &err, &vertical, &maxuilen);
-        }
-        SDL_wcslcpy(videodata->ime_readingstring, s, len);
+        videodata->GetReadingString(himc, SDL_arraysize(videodata->ime_readingstring), videodata->ime_readingstring, &err, &vertical, &maxuilen);
     } else {
         LPINPUTCONTEXT2 lpimc = videodata->ImmLockIMC(himc);
         LPBYTE p = 0;
@@ -579,7 +571,7 @@ static void IME_GetReadingString(SDL_VideoData *videodata, HWND hwnd)
         }
         if (s) {
             size_t size = SDL_min((size_t)(len + 1), SDL_arraysize(videodata->ime_readingstring));
-            SDL_wcslcpy(videodata->ime_readingstring, s, size);
+            SDL_memcpy(videodata->ime_readingstring, s, size * sizeof(WCHAR));
         }
 
         videodata->ImmUnlockIMCC(lpimc->hPrivate);
@@ -867,27 +859,37 @@ static void IME_SendEditingEvent(SDL_VideoData *videodata)
 {
     char *s = NULL;
     WCHAR *buffer = NULL;
-    size_t size = videodata->ime_composition_length;
+    size_t rssize;
     if (videodata->ime_readingstring[0]) {
-        size_t len = SDL_min(SDL_wcslen(videodata->ime_composition), (size_t)videodata->ime_cursor);
+        size_t cosize = SDL_wcslen(videodata->ime_composition) * sizeof(WCHAR);
+        size_t cursize;
+        char *cursor;
 
-        size += sizeof(videodata->ime_readingstring);
-        buffer = (WCHAR *)SDL_malloc(size + sizeof(WCHAR));
-        buffer[0] = 0;
-
-        SDL_wcslcpy(buffer, videodata->ime_composition, len + 1);
-        SDL_wcslcat(buffer, videodata->ime_readingstring, size);
-        SDL_wcslcat(buffer, &videodata->ime_composition[len], size);
+        buffer = (WCHAR *)SDL_malloc(cosize + sizeof(videodata->ime_readingstring) + sizeof(WCHAR));
+        if (buffer == NULL) {
+            SDL_OutOfMemory();
+            return;
+        }
+        cursor = (char *)buffer;
+        cursize = SDL_min(cosize, (size_t)videodata->ime_cursor * sizeof(WCHAR));
+        SDL_memcpy(cursor, videodata->ime_composition, cursize);
+        cursor += cursize;
+        rssize = SDL_wcslen(videodata->ime_readingstring) * sizeof(WCHAR);
+        SDL_memcpy(cursor, videodata->ime_readingstring, rssize);
+        cursor += rssize;
+        SDL_memcpy(cursor, &videodata->ime_composition[cursize / sizeof(WCHAR)], cosize - cursize + sizeof(WCHAR));
+        // cursor += (cosize - cursize);
     } else {
-        buffer = (WCHAR *)SDL_malloc(size + sizeof(WCHAR));
-        buffer[0] = 0;
-        SDL_wcslcpy(buffer, videodata->ime_composition, size);
+        buffer = videodata->ime_composition;
+        rssize = 0;
     }
 
     s = WIN_StringToUTF8W(buffer);
-    SDL_SendEditingText(s, videodata->ime_cursor + (int)SDL_wcslen(videodata->ime_readingstring), 0);
+    if (buffer != videodata->ime_composition) {
+        SDL_free(buffer);
+    }
+    SDL_SendEditingText(s, videodata->ime_cursor + (int)(rssize / sizeof(WCHAR)), 0);
     SDL_free(s);
-    SDL_free(buffer);
 }
 
 static void IME_AddCandidate(SDL_VideoData *videodata, UINT i, LPCWSTR candidate)
