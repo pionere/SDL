@@ -87,12 +87,11 @@ static SDL_bool HIDAPI_DriverCombined_OpenJoystick(SDL_HIDAPI_Device *device, SD
             new_length = serial_length + 1 + SDL_strlen(joystick->serial);
             new_serial = (char *)SDL_realloc(serial, new_length);
             if (new_serial) {
-                if (serial) {
-                    SDL_strlcat(new_serial, ",", new_length);
-                    SDL_strlcat(new_serial, joystick->serial, new_length);
-                } else {
-                    SDL_strlcpy(new_serial, joystick->serial, new_length);
+                if (serial_length != 0) {
+                    new_serial[serial_length - 1] = ',';
                 }
+                SDL_memcpy(&new_serial[serial_length], joystick->serial, new_length - serial_length);
+
                 serial = new_serial;
                 serial_length = new_length;
             }
