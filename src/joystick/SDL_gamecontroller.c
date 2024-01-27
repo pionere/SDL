@@ -45,17 +45,17 @@
 #define SDL_MINIMUM_GUIDE_BUTTON_DELAY_MS 250
 
 #define SDL_CONTROLLER_CRC_FIELD           "crc:"
-#define SDL_CONTROLLER_CRC_FIELD_SIZE      4 /* hard-coded for speed */
+#define SDL_CONTROLLER_CRC_FIELD_SIZE      4
 #define SDL_CONTROLLER_TYPE_FIELD          "type:"
-#define SDL_CONTROLLER_TYPE_FIELD_SIZE     SDL_strlen(SDL_CONTROLLER_TYPE_FIELD)
+#define SDL_CONTROLLER_TYPE_FIELD_SIZE     5
 #define SDL_CONTROLLER_PLATFORM_FIELD      "platform:"
-#define SDL_CONTROLLER_PLATFORM_FIELD_SIZE SDL_strlen(SDL_CONTROLLER_PLATFORM_FIELD)
+#define SDL_CONTROLLER_PLATFORM_FIELD_SIZE 9
 #define SDL_CONTROLLER_HINT_FIELD          "hint:"
-#define SDL_CONTROLLER_HINT_FIELD_SIZE     SDL_strlen(SDL_CONTROLLER_HINT_FIELD)
+#define SDL_CONTROLLER_HINT_FIELD_SIZE     5
 #define SDL_CONTROLLER_SDKGE_FIELD         "sdk>=:"
-#define SDL_CONTROLLER_SDKGE_FIELD_SIZE    SDL_strlen(SDL_CONTROLLER_SDKGE_FIELD)
+#define SDL_CONTROLLER_SDKGE_FIELD_SIZE    6
 #define SDL_CONTROLLER_SDKLE_FIELD         "sdk<=:"
-#define SDL_CONTROLLER_SDKLE_FIELD_SIZE    SDL_strlen(SDL_CONTROLLER_SDKLE_FIELD)
+#define SDL_CONTROLLER_SDKLE_FIELD_SIZE    6
 
 /* a list of currently opened game controllers */
 static SDL_GameController *SDL_gamecontrollers SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
@@ -1892,17 +1892,27 @@ static void SDL_GameControllerLoadHints(void)
  * Usually this will just be SDL_HINT_GAMECONTROLLERCONFIG_FILE, but for
  * Android, we want to get the internal storage path.
  */
-static SDL_bool SDL_GetControllerMappingFilePath(char *path, size_t size)
+static void SDL_InitControllerMappingFromFile()
 {
-    const char *hint = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
-    if (hint && *hint) {
-        return SDL_strlcpy(path, hint, size) < size;
-    }
-
+    const char *path = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
 #if defined(__ANDROID__)
-    return SDL_snprintf(path, size, "%s/controller_map.txt", SDL_AndroidGetInternalStoragePath()) < size;
+    char szControllerMapPath[1024];
+    if (!path || !*path) {
+        int size = SDL_snprintf(szControllerMapPath, sizeof(szControllerMapPath), "%s/controller_map.txt", SDL_AndroidGetInternalStoragePath());
+        if (size < 0 || size >= sizeof(szControllerMapPath)) {
+            return;
+        }
+        path = szControllerMapPath;
+    }
 #else
-    return SDL_FALSE;
+    if (!path || !*path) {
+        return;
+    }
+#endif
+#ifdef SDL_FILE_DISABLED
+    SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", SDL_HINT_GAMECONTROLLERCONFIG_FILE);
+#else
+    SDL_GameControllerAddMappingsFromFile(path);
 #endif
 }
 
@@ -1911,7 +1921,6 @@ static SDL_bool SDL_GetControllerMappingFilePath(char *path, size_t size)
  */
 int SDL_GameControllerInitMappings(void)
 {
-    char szControllerMapPath[1024];
     int i = 0;
     const char *pMappingString = NULL;
 
@@ -1925,13 +1934,7 @@ int SDL_GameControllerInitMappings(void)
         pMappingString = s_ControllerMappings[i];
     }
 
-    if (SDL_GetControllerMappingFilePath(szControllerMapPath, sizeof(szControllerMapPath))) {
-#ifdef SDL_FILE_DISABLED
-        SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", szControllerMapPath);
-#else
-        SDL_GameControllerAddMappingsFromFile(szControllerMapPath);
-#endif
-    }
+    SDL_InitControllerMappingFromFile();
 
     /* load in any user supplied config */
     SDL_GameControllerLoadHints();
@@ -1973,7 +1976,7 @@ const char *SDL_GameControllerNameForIndex(int joystick_index)
     {
         ControllerMapping_t *mapping = SDL_PrivateGetControllerMapping(joystick_index);
         if (mapping) {
-            if (SDL_strcmp(mapping->name, "*") == 0) {
+            if (mapping->name[0] == '*' && mapping->name[1] == '\0') {
                 retval = SDL_JoystickNameForIndex(joystick_index);
             } else {
                 retval = mapping->name;
@@ -2691,7 +2694,7 @@ const char *SDL_GameControllerName(SDL_GameController *gamecontroller)
     {
         CHECK_GAMECONTROLLER_MAGIC(gamecontroller, NULL);
 
-        if (SDL_strcmp(gamecontroller->name, "*") == 0 ||
+        if ((gamecontroller->name[0] == '*' && gamecontroller->name[1] == '\0') ||
             gamecontroller->joystick->steam_handle != 0) {
             retval = SDL_JoystickName(gamecontroller->joystick);
         } else {
