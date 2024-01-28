@@ -57,6 +57,8 @@
 #define SDL_CONTROLLER_SDKLE_FIELD         "sdk<=:"
 #define SDL_CONTROLLER_SDKLE_FIELD_SIZE    6
 
+#define SDL_CONTROLLER_MAPPING_MAXLEN 1024
+
 /* a list of currently opened game controllers */
 static SDL_GameController *SDL_gamecontrollers SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
 
@@ -419,7 +421,7 @@ static ControllerMapping_t *SDL_CreateMappingForAndroidController(SDL_JoystickGU
                                   (1 << SDL_CONTROLLER_BUTTON_X) |
                                   (1 << SDL_CONTROLLER_BUTTON_Y));
     SDL_bool existing;
-    char mapping_string[1024];
+    char mapping_string[SDL_CONTROLLER_MAPPING_MAXLEN];
     int button_mask;
     int axis_mask;
     unsigned cursor = 0;
@@ -518,7 +520,7 @@ static ControllerMapping_t *SDL_CreateMappingForAndroidController(SDL_JoystickGU
 static ControllerMapping_t *SDL_CreateMappingForHIDAPIController(SDL_JoystickGUID guid)
 {
     SDL_bool existing;
-    char mapping_string[1024];
+    char mapping_string[SDL_CONTROLLER_MAPPING_MAXLEN];
     Uint16 vendor;
     Uint16 product;
     const char *s1 = "none,*,";
@@ -671,7 +673,7 @@ static ControllerMapping_t *SDL_CreateMappingForHIDAPIController(SDL_JoystickGUI
 static ControllerMapping_t *SDL_CreateMappingForRAWINPUTController(SDL_JoystickGUID guid)
 {
     SDL_bool existing;
-    char mapping_string[1024];
+    char mapping_string[SDL_CONTROLLER_MAPPING_MAXLEN];
     const char *s1 = "none,*,";
     const char *s2 = "";
     const char *s3 = "";
@@ -690,7 +692,7 @@ static ControllerMapping_t *SDL_CreateMappingForRAWINPUTController(SDL_JoystickG
 static ControllerMapping_t *SDL_CreateMappingForWGIController(SDL_JoystickGUID guid)
 {
     SDL_bool existing;
-    char mapping_string[1024];
+    char mapping_string[SDL_CONTROLLER_MAPPING_MAXLEN];
     const char *s1 = "none,*,";
     const char *s2 = "";
     const char *s3 = "";
@@ -1424,19 +1426,16 @@ static ControllerMapping_t *SDL_PrivateGetControllerMappingForNameAndGUID(const 
     return mapping;
 }
 
-static void SDL_PrivateAppendToMappingString(char *mapping_string,
-                                             size_t mapping_string_len,
+static void SDL_PrivateAppendToMappingString(char mapping_string[SDL_CONTROLLER_MAPPING_MAXLEN],
                                              const char *input_name,
                                              SDL_InputMapping *mapping)
 {
     char buffer[16];
-    if (mapping->kind == EMappingKind_None) {
-        return;
-    }
+    size_t len;
 
-    SDL_strlcat(mapping_string, input_name, mapping_string_len);
-    SDL_strlcat(mapping_string, ":", mapping_string_len);
     switch (mapping->kind) {
+    case EMappingKind_None:
+        return;
     case EMappingKind_Button:
         (void)SDL_snprintf(buffer, sizeof(buffer), "b%i", mapping->target);
         break;
@@ -1454,8 +1453,8 @@ static void SDL_PrivateAppendToMappingString(char *mapping_string,
         SDL_assert(SDL_FALSE);
     }
 
-    SDL_strlcat(mapping_string, buffer, mapping_string_len);
-    SDL_strlcat(mapping_string, ",", mapping_string_len);
+    len = SDL_strlen(mapping_string);
+    SDL_snprintf(&mapping_string[len], SDL_CONTROLLER_MAPPING_MAXLEN - len, "%s:%s,", input_name, buffer);
 }
 
 static ControllerMapping_t *SDL_PrivateGenerateAutomaticControllerMapping(const char *name,
@@ -1464,46 +1463,51 @@ static ControllerMapping_t *SDL_PrivateGenerateAutomaticControllerMapping(const 
 {
     SDL_bool existing;
     char name_string[128];
-    char mapping[1024];
+    char mapping[SDL_CONTROLLER_MAPPING_MAXLEN];
 
     /* Remove any commas in the name */
-    SDL_strlcpy(name_string, name, sizeof(name_string));
     {
-        char *spot;
-        for (spot = name_string; *spot; ++spot) {
-            if (*spot == ',') {
-                *spot = ' ';
+        unsigned cursor = 0; 
+        while (name[cursor]) {
+            char c = name[cursor];
+            if (c == ',') {
+                c = ' ';
+            }
+            name_string[cursor] = c;
+            if (++cursor == sizeof(name_string) - 1) {
+                break;
             }
         }
+        name_string[cursor] = '\0';
     }
     (void)SDL_snprintf(mapping, sizeof(mapping), "none,%s,", name_string);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "a", &raw_map->a);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "b", &raw_map->b);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "x", &raw_map->x);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "y", &raw_map->y);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "back", &raw_map->back);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "guide", &raw_map->guide);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "start", &raw_map->start);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "leftstick", &raw_map->leftstick);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "rightstick", &raw_map->rightstick);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "leftshoulder", &raw_map->leftshoulder);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "rightshoulder", &raw_map->rightshoulder);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "dpup", &raw_map->dpup);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "dpdown", &raw_map->dpdown);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "dpleft", &raw_map->dpleft);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "dpright", &raw_map->dpright);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "misc1", &raw_map->misc1);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "paddle1", &raw_map->paddle1);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "paddle2", &raw_map->paddle2);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "paddle3", &raw_map->paddle3);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "paddle4", &raw_map->paddle4);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "leftx", &raw_map->leftx);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "lefty", &raw_map->lefty);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "rightx", &raw_map->rightx);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "righty", &raw_map->righty);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "lefttrigger", &raw_map->lefttrigger);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "righttrigger", &raw_map->righttrigger);
-    SDL_PrivateAppendToMappingString(mapping, sizeof(mapping), "touchpad", &raw_map->touchpad);
+    SDL_PrivateAppendToMappingString(mapping, "a", &raw_map->a);
+    SDL_PrivateAppendToMappingString(mapping, "b", &raw_map->b);
+    SDL_PrivateAppendToMappingString(mapping, "x", &raw_map->x);
+    SDL_PrivateAppendToMappingString(mapping, "y", &raw_map->y);
+    SDL_PrivateAppendToMappingString(mapping, "back", &raw_map->back);
+    SDL_PrivateAppendToMappingString(mapping, "guide", &raw_map->guide);
+    SDL_PrivateAppendToMappingString(mapping, "start", &raw_map->start);
+    SDL_PrivateAppendToMappingString(mapping, "leftstick", &raw_map->leftstick);
+    SDL_PrivateAppendToMappingString(mapping, "rightstick", &raw_map->rightstick);
+    SDL_PrivateAppendToMappingString(mapping, "leftshoulder", &raw_map->leftshoulder);
+    SDL_PrivateAppendToMappingString(mapping, "rightshoulder", &raw_map->rightshoulder);
+    SDL_PrivateAppendToMappingString(mapping, "dpup", &raw_map->dpup);
+    SDL_PrivateAppendToMappingString(mapping, "dpdown", &raw_map->dpdown);
+    SDL_PrivateAppendToMappingString(mapping, "dpleft", &raw_map->dpleft);
+    SDL_PrivateAppendToMappingString(mapping, "dpright", &raw_map->dpright);
+    SDL_PrivateAppendToMappingString(mapping, "misc1", &raw_map->misc1);
+    SDL_PrivateAppendToMappingString(mapping, "paddle1", &raw_map->paddle1);
+    SDL_PrivateAppendToMappingString(mapping, "paddle2", &raw_map->paddle2);
+    SDL_PrivateAppendToMappingString(mapping, "paddle3", &raw_map->paddle3);
+    SDL_PrivateAppendToMappingString(mapping, "paddle4", &raw_map->paddle4);
+    SDL_PrivateAppendToMappingString(mapping, "leftx", &raw_map->leftx);
+    SDL_PrivateAppendToMappingString(mapping, "lefty", &raw_map->lefty);
+    SDL_PrivateAppendToMappingString(mapping, "rightx", &raw_map->rightx);
+    SDL_PrivateAppendToMappingString(mapping, "righty", &raw_map->righty);
+    SDL_PrivateAppendToMappingString(mapping, "lefttrigger", &raw_map->lefttrigger);
+    SDL_PrivateAppendToMappingString(mapping, "righttrigger", &raw_map->righttrigger);
+    SDL_PrivateAppendToMappingString(mapping, "touchpad", &raw_map->touchpad);
 
     return SDL_PrivateAddMappingForGUID(guid, mapping, &existing, SDL_CONTROLLER_MAPPING_PRIORITY_DEFAULT);
 }
