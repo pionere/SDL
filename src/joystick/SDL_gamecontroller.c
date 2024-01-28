@@ -1180,18 +1180,20 @@ static void SDL_PrivateLoadButtonMapping(SDL_GameController *gamecontroller, Con
 static char *SDL_PrivateGetControllerGUIDFromMappingString(const char *pMapping)
 {
     const char *pFirstComma = SDL_strchr(pMapping, ',');
+    char *pchGUID = NULL;
     if (pFirstComma) {
-        char *pchGUID = SDL_malloc(pFirstComma - pMapping + 1);
+        size_t len = pFirstComma - pMapping;
+        pchGUID = SDL_malloc(len + 1);
         if (!pchGUID) {
             SDL_OutOfMemory();
             return NULL;
         }
-        SDL_memcpy(pchGUID, pMapping, pFirstComma - pMapping);
-        pchGUID[pFirstComma - pMapping] = '\0';
+        SDL_memcpy(pchGUID, pMapping, len);
+        pchGUID[len] = '\0';
 
         /* Convert old style GUIDs to the new style in 2.0.5 */
 #if defined(__WIN32__) || defined(__WINGDK__)
-        if (SDL_strlen(pchGUID) == 32 &&
+        if (len == 32 &&
             SDL_memcmp(&pchGUID[20], "504944564944", 12) == 0) {
             SDL_memcpy(&pchGUID[20], "000000000000", 12);
             SDL_memcpy(&pchGUID[16], &pchGUID[4], 4);
@@ -1199,7 +1201,7 @@ static char *SDL_PrivateGetControllerGUIDFromMappingString(const char *pMapping)
             SDL_memcpy(&pchGUID[0], "03000000", 8);
         }
 #elif defined(__MACOSX__)
-        if (SDL_strlen(pchGUID) == 32 &&
+        if (len == 32 &&
             SDL_memcmp(&pchGUID[4], "000000000000", 12) == 0 &&
             SDL_memcmp(&pchGUID[20], "000000000000", 12) == 0) {
             SDL_memcpy(&pchGUID[20], "000000000000", 12);
@@ -1207,9 +1209,8 @@ static char *SDL_PrivateGetControllerGUIDFromMappingString(const char *pMapping)
             SDL_memcpy(&pchGUID[0], "03000000", 8);
         }
 #endif
-        return pchGUID;
     }
-    return NULL;
+    return pchGUID;
 }
 
 /*
@@ -1627,10 +1628,7 @@ static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_Co
     ControllerMapping_t *pControllerMapping;
 
     SDL_AssertJoysticksLocked();
-
-    if (!mappingString) {
-        return SDL_InvalidParamError("mappingString");
-    }
+    SDL_assert(mappingString != NULL);
 
     { /* Extract and verify the hint field */
         const char *tmp;
@@ -1730,11 +1728,15 @@ int SDL_GameControllerAddMapping(const char *mappingString)
 {
     int retval;
 
-    SDL_LockJoysticks();
-    {
+    if (mappingString) {
+        SDL_LockJoysticks();
+
         retval = SDL_PrivateGameControllerAddMapping(mappingString, SDL_CONTROLLER_MAPPING_PRIORITY_API);
+
+        SDL_UnlockJoysticks();
+    } else {
+        retval = SDL_InvalidParamError("mappingString");
     }
-    SDL_UnlockJoysticks();
 
     return retval;
 }
