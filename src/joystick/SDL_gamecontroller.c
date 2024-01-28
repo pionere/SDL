@@ -514,8 +514,9 @@ static ControllerMapping_t *SDL_CreateMappingForHIDAPIController(SDL_JoystickGUI
     char mapping_string[1024];
     Uint16 vendor;
     Uint16 product;
-
-    SDL_strlcpy(mapping_string, "none,*,", sizeof(mapping_string));
+    const char *s1 = "none,*,";
+    const char *s2 = "";
+    const char *s3 = "";
 
     SDL_GetJoystickGUIDInfo(guid, &vendor, &product, NULL, NULL);
 
@@ -524,7 +525,7 @@ static ControllerMapping_t *SDL_CreateMappingForHIDAPIController(SDL_JoystickGUI
          (product == USB_PRODUCT_EVORETRO_GAMECUBE_ADAPTER1 ||
           product == USB_PRODUCT_EVORETRO_GAMECUBE_ADAPTER2))) {
         /* GameCube driver has 12 buttons and 6 axes */
-        SDL_strlcat(mapping_string, "a:b0,b:b1,dpdown:b6,dpleft:b4,dpright:b5,dpup:b7,lefttrigger:a4,leftx:a0,lefty:a1~,rightshoulder:b9,righttrigger:a5,rightx:a2,righty:a3~,start:b8,x:b2,y:b3,", sizeof(mapping_string));
+        s2 = "a:b0,b:b1,dpdown:b6,dpleft:b4,dpright:b5,dpup:b7,lefttrigger:a4,leftx:a0,lefty:a1~,rightshoulder:b9,righttrigger:a5,rightx:a2,righty:a3~,start:b8,x:b2,y:b3,";
     } else if (vendor == USB_VENDOR_NINTENDO &&
                (guid.data[15] == k_eSwitchDeviceInfoControllerType_HVCLeft ||
                 guid.data[15] == k_eSwitchDeviceInfoControllerType_HVCRight ||
@@ -539,116 +540,120 @@ static ControllerMapping_t *SDL_CreateMappingForHIDAPIController(SDL_JoystickGUI
                 guid.data[15] == k_eSwitchDeviceInfoControllerType_JoyConRight)) {
         switch (guid.data[15]) {
         case k_eSwitchDeviceInfoControllerType_HVCLeft:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,start:b6,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,start:b6,";
             break;
         case k_eSwitchDeviceInfoControllerType_HVCRight:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,";
             break;
         case k_eSwitchDeviceInfoControllerType_NESLeft:
         case k_eSwitchDeviceInfoControllerType_NESRight:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,start:b6,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,rightshoulder:b10,start:b6,";
             break;
         case k_eSwitchDeviceInfoControllerType_SNES:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,lefttrigger:a4,rightshoulder:b10,righttrigger:a5,start:b6,x:b2,y:b3,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,lefttrigger:a4,rightshoulder:b10,righttrigger:a5,start:b6,x:b2,y:b3,";
             break;
         case k_eSwitchDeviceInfoControllerType_N64:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b10,righttrigger:a5,start:b6,x:b2,y:b3,misc1:b15,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b10,righttrigger:a5,start:b6,x:b2,y:b3,misc1:b15,";
             break;
         case k_eSwitchDeviceInfoControllerType_SEGA_Genesis:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,rightshoulder:b10,righttrigger:a5,start:b6,misc1:b15,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,rightshoulder:b10,righttrigger:a5,start:b6,misc1:b15,";
             break;
         case k_eWiiExtensionControllerType_None:
-            SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,start:b6,x:b2,y:b3,", sizeof(mapping_string));
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,start:b6,x:b2,y:b3,";
             break;
         case k_eWiiExtensionControllerType_Nunchuk:
         {
             /* FIXME: Should we map this to the left or right side? */
             const SDL_bool map_nunchuck_left_side = SDL_TRUE;
-
+            s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,start:b6,x:b2,y:b3,";
             if (map_nunchuck_left_side) {
-                SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,lefttrigger:a4,leftx:a0,lefty:a1,start:b6,x:b2,y:b3,", sizeof(mapping_string));
+                s3 = "leftshoulder:b9,lefttrigger:a4,leftx:a0,lefty:a1,";
             } else {
-                SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,rightshoulder:b9,righttrigger:a4,rightx:a0,righty:a1,start:b6,x:b2,y:b3,", sizeof(mapping_string));
+                s3 = "rightshoulder:b9,righttrigger:a4,rightx:a0,righty:a1,";
             }
         } break;
         default:
             if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_HIDAPI_VERTICAL_JOY_CONS, SDL_FALSE)) {
                 /* Vertical mode */
                 if (guid.data[15] == k_eSwitchDeviceInfoControllerType_JoyConLeft) {
-                    SDL_strlcat(mapping_string, "back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,misc1:b15,paddle2:b17,paddle4:b19,", sizeof(mapping_string));
+                    s2 = "back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,misc1:b15,paddle2:b17,paddle4:b19,";
                 } else {
-                    SDL_strlcat(mapping_string, "a:b0,b:b1,guide:b5,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,paddle1:b16,paddle3:b18,", sizeof(mapping_string));
+                    s2 = "a:b0,b:b1,guide:b5,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,paddle1:b16,paddle3:b18,";
                 }
             } else {
                 /* Mini gamepad mode */
+                s2 = "a:b0,b:b1,guide:b5,leftshoulder:b9,leftstick:b7,leftx:a0,lefty:a1,rightshoulder:b10,start:b6,x:b2,y:b3,";
                 if (guid.data[15] == k_eSwitchDeviceInfoControllerType_JoyConLeft) {
-                    SDL_strlcat(mapping_string, "a:b0,b:b1,guide:b5,leftshoulder:b9,leftstick:b7,leftx:a0,lefty:a1,rightshoulder:b10,start:b6,x:b2,y:b3,paddle2:b17,paddle4:b19,", sizeof(mapping_string));
+                    s3 = "paddle2:b17,paddle4:b19,";
                 } else {
-                    SDL_strlcat(mapping_string, "a:b0,b:b1,guide:b5,leftshoulder:b9,leftstick:b7,leftx:a0,lefty:a1,rightshoulder:b10,start:b6,x:b2,y:b3,paddle1:b16,paddle3:b18,", sizeof(mapping_string));
+                    s3 = "paddle1:b16,paddle3:b18,";
                 }
             }
             break;
         }
     } else {
         /* All other controllers have the standard set of 19 buttons and 6 axes */
-        SDL_strlcat(mapping_string, "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,", sizeof(mapping_string));
+        s2 = "a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,";
 
         if (SDL_IsJoystickXboxSeriesX(vendor, product)) {
             /* XBox Series X Controllers have a share button under the guide button */
-            SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
+            s3 = "misc1:b15,";
         } else if (SDL_IsJoystickXboxOneElite(vendor, product)) {
             /* XBox One Elite Controllers have 4 back paddle buttons */
-            SDL_strlcat(mapping_string, "paddle1:b15,paddle2:b17,paddle3:b16,paddle4:b18,", sizeof(mapping_string));
+            s3 = "paddle1:b15,paddle2:b17,paddle3:b16,paddle4:b18,";
         } else if (SDL_IsJoystickSteamController(vendor, product)) {
             /* Steam controllers have 2 back paddle buttons */
-            SDL_strlcat(mapping_string, "paddle1:b16,paddle2:b15,", sizeof(mapping_string));
+            s3 = "paddle1:b16,paddle2:b15,";
         } else if (SDL_IsJoystickNintendoSwitchJoyConPair(vendor, product)) {
             /* The Nintendo Switch Joy-Con combined controller has a share button and paddles */
-            SDL_strlcat(mapping_string, "misc1:b15,paddle1:b16,paddle2:b17,paddle3:b18,paddle4:b19,", sizeof(mapping_string));
+            s3 = "misc1:b15,paddle1:b16,paddle2:b17,paddle3:b18,paddle4:b19,";
         } else {
             switch (SDL_GetJoystickGameControllerTypeFromGUID(guid, NULL)) {
             case SDL_CONTROLLER_TYPE_PS4:
                 /* PS4 controllers have an additional touchpad button */
-                SDL_strlcat(mapping_string, "touchpad:b15,", sizeof(mapping_string));
+                s3 = "touchpad:b15,";
                 break;
             case SDL_CONTROLLER_TYPE_PS5:
                 /* PS5 controllers have a microphone button and an additional touchpad button */
-                SDL_strlcat(mapping_string, "touchpad:b15,misc1:b16,", sizeof(mapping_string));
                 /* DualSense Edge controllers have paddles */
                 if (SDL_IsJoystickDualSenseEdge(vendor, product)) {
-                    SDL_strlcat(mapping_string, "paddle1:b20,paddle2:b19,paddle3:b18,paddle4:b17,", sizeof(mapping_string));
+                    s3 = "touchpad:b15,misc1:b16,paddle1:b20,paddle2:b19,paddle3:b18,paddle4:b17,";
+                } else {
+                    s3 = "touchpad:b15,misc1:b16,";
                 }
                 break;
             case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
                 /* Nintendo Switch Pro controllers have a screenshot button */
-                SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
+                s3 = "misc1:b15,";
                 break;
             case SDL_CONTROLLER_TYPE_AMAZON_LUNA:
                 /* Amazon Luna Controller has a mic button under the guide button */
-                SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
+                s3 = "misc1:b15,";
                 break;
             case SDL_CONTROLLER_TYPE_GOOGLE_STADIA:
                 /* The Google Stadia controller has a share button and a Google Assistant button */
-                SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
+                s3 = "misc1:b15,";
                 break;
             case SDL_CONTROLLER_TYPE_NVIDIA_SHIELD:
                 /* The NVIDIA SHIELD controller has a share button between back and start buttons */
-                SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
-
                 if (product == USB_PRODUCT_NVIDIA_SHIELD_CONTROLLER_V103) {
                     /* The original SHIELD controller has a touchpad as well */
-                    SDL_strlcat(mapping_string, "touchpad:b16,", sizeof(mapping_string));
+                    s3 = "misc1:b15,touchpad:b16,";
+                } else {
+                    s3 = "misc1:b15,";
                 }
                 break;
             default:
                 if (vendor == 0 && product == 0) {
                     /* This is a Bluetooth Nintendo Switch Pro controller */
-                    SDL_strlcat(mapping_string, "misc1:b15,", sizeof(mapping_string));
+                    s3 = "misc1:b15,";
                 }
                 break;
             }
         }
     }
+
+    SDL_snprintf(mapping_string, sizeof(mapping_string), "%s%s%s", s1, s2, s3);
 
     return SDL_PrivateAddMappingForGUID(guid, mapping_string, &existing, SDL_CONTROLLER_MAPPING_PRIORITY_DEFAULT);
 }
