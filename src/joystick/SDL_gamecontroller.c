@@ -1741,25 +1741,30 @@ int SDL_GameControllerNumMappings(void)
  */
 static char *CreateMappingString(ControllerMapping_t *mapping, SDL_JoystickGUID guid)
 {
-    char *pMappingString, *pPlatformString;
+    char *pMappingString;
     char pchGUID[33];
     size_t needed;
     const char *platform = SDL_GetPlatform();
+    const char *format = "%s,%s,%s";
 
     SDL_AssertJoysticksLocked();
 
     SDL_JoystickGetGUIDString(guid, pchGUID, sizeof(pchGUID));
 
     /* allocate enough memory for GUID + ',' + name + ',' + mapping + \0 */
-    needed = SDL_strlen(pchGUID) + 1 + SDL_strlen(mapping->name) + 1 + SDL_strlen(mapping->mapping) + 1;
+    needed = SDL_strlen(mapping->mapping);
 
     if (!SDL_strstr(mapping->mapping, SDL_CONTROLLER_PLATFORM_FIELD)) {
         /* add memory for ',' + platform:PLATFORM */
-        if (mapping->mapping[SDL_strlen(mapping->mapping) - 1] != ',') {
+        if (mapping->mapping[needed - 1] != ',') {
             needed += 1;
+            format = "%s,%s,%s,%s%s";
+        } else {
+            format = "%s,%s,%s%s%s";
         }
         needed += SDL_CONTROLLER_PLATFORM_FIELD_SIZE + SDL_strlen(platform);
     }
+    needed = SDL_strlen(pchGUID) + 1 + SDL_strlen(mapping->name) + 1 + needed + 1;
 
     pMappingString = SDL_malloc(needed);
     if (!pMappingString) {
@@ -1767,24 +1772,8 @@ static char *CreateMappingString(ControllerMapping_t *mapping, SDL_JoystickGUID 
         return NULL;
     }
 
-    (void)SDL_snprintf(pMappingString, needed, "%s,%s,%s", pchGUID, mapping->name, mapping->mapping);
+    (void)SDL_snprintf(pMappingString, needed, format, pchGUID, mapping->name, mapping->mapping, SDL_CONTROLLER_PLATFORM_FIELD, platform);
 
-    if (!SDL_strstr(mapping->mapping, SDL_CONTROLLER_PLATFORM_FIELD)) {
-        if (mapping->mapping[SDL_strlen(mapping->mapping) - 1] != ',') {
-            SDL_strlcat(pMappingString, ",", needed);
-        }
-        SDL_strlcat(pMappingString, SDL_CONTROLLER_PLATFORM_FIELD, needed);
-        SDL_strlcat(pMappingString, platform, needed);
-    }
-
-    /* Make sure multiple platform strings haven't made their way into the mapping */
-    pPlatformString = SDL_strstr(pMappingString, SDL_CONTROLLER_PLATFORM_FIELD);
-    if (pPlatformString) {
-        pPlatformString = SDL_strstr(pPlatformString + 1, SDL_CONTROLLER_PLATFORM_FIELD);
-        if (pPlatformString) {
-            *pPlatformString = '\0';
-        }
-    }
     return pMappingString;
 }
 
