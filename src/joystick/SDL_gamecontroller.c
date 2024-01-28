@@ -1114,29 +1114,40 @@ static void SDL_PrivateGameControllerParseControllerConfigString(SDL_GameControl
     }
 }
 
-static void SDL_UpdateGameControllerType(SDL_GameController *gamecontroller)
+static SDL_GameControllerType SDL_PrivateGameControllerTypeFromMapping(const char *mapping)
 {
     char *type_string, *comma;
+    SDL_GameControllerType result = SDL_CONTROLLER_TYPE_UNKNOWN;
 
-    SDL_AssertJoysticksLocked();
-
-    gamecontroller->type = SDL_CONTROLLER_TYPE_UNKNOWN;
-
-    type_string = SDL_strstr(gamecontroller->mapping->mapping, SDL_CONTROLLER_TYPE_FIELD);
+    type_string = SDL_strstr(mapping, SDL_CONTROLLER_TYPE_FIELD);
     if (type_string) {
         type_string += SDL_CONTROLLER_TYPE_FIELD_SIZE;
         comma = SDL_strchr(type_string, ',');
         if (comma) {
             *comma = '\0';
-            gamecontroller->type = SDL_GetGameControllerTypeFromString(type_string);
+        }
+
+        result = SDL_GetGameControllerTypeFromString(type_string);
+
+        if (comma) {
             *comma = ',';
-        } else {
-            gamecontroller->type = SDL_GetGameControllerTypeFromString(type_string);
         }
     }
-    if (gamecontroller->type == SDL_CONTROLLER_TYPE_UNKNOWN) {
-        gamecontroller->type = SDL_GetJoystickGameControllerTypeFromGUID(SDL_JoystickGetGUID(gamecontroller->joystick), SDL_JoystickName(gamecontroller->joystick));
+    return result;
+}
+
+static void SDL_UpdateGameControllerType(SDL_GameController *gamecontroller)
+{
+    SDL_GameControllerType type;
+
+    SDL_AssertJoysticksLocked();
+
+    type = SDL_PrivateGameControllerTypeFromMapping(gamecontroller->mapping->mapping);
+
+    if (type == SDL_CONTROLLER_TYPE_UNKNOWN) {
+        type = SDL_GetJoystickGameControllerTypeFromGUID(SDL_JoystickGetGUID(gamecontroller->joystick), SDL_JoystickName(gamecontroller->joystick));
     }
+    gamecontroller->type = type;
 }
 
 /*
@@ -2024,26 +2035,16 @@ const char *SDL_GameControllerPathForIndex(int joystick_index)
  */
 SDL_GameControllerType SDL_GameControllerTypeForIndex(int joystick_index)
 {
+    SDL_GameControllerType type = SDL_CONTROLLER_TYPE_UNKNOWN;
     SDL_JoystickGUID joystick_guid = SDL_JoystickGetDeviceGUID(joystick_index);
     const char *mapping = SDL_GameControllerMappingForGUID(joystick_guid);
-    char *type_string, *comma;
-    SDL_GameControllerType type;
     if (mapping) {
-        type_string = SDL_strstr(mapping, SDL_CONTROLLER_TYPE_FIELD);
-        if (type_string) {
-            type_string += SDL_CONTROLLER_TYPE_FIELD_SIZE;
-            comma = SDL_strchr(type_string, ',');
-            if (comma) {
-                *comma = '\0';
-                type = SDL_GetGameControllerTypeFromString(type_string);
-                *comma = ',';
-            } else {
-                type = SDL_GetGameControllerTypeFromString(type_string);
-            }
-            return type;
-        }
+        type = SDL_PrivateGameControllerTypeFromMapping(mapping);
     }
-    return SDL_GetJoystickGameControllerTypeFromGUID(joystick_guid, SDL_JoystickNameForIndex(joystick_index));
+    if (type == SDL_CONTROLLER_TYPE_UNKNOWN) {
+        type = SDL_GetJoystickGameControllerTypeFromGUID(joystick_guid, SDL_JoystickNameForIndex(joystick_index));
+    }
+    return type;
 }
 
 /**
