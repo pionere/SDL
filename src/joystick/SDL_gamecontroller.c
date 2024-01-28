@@ -1876,16 +1876,11 @@ char *SDL_GameControllerMapping(SDL_GameController *gamecontroller)
 static void SDL_GameControllerLoadHints(void)
 {
     const char *hint = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG);
-    if (hint && hint[0]) {
-        size_t nchHints = SDL_strlen(hint);
-        char *pUserMappings = SDL_malloc(nchHints + 1);
+    if (hint && *hint) {
+        char *pUserMappings = SDL_strdup(hint);
         char *pTempMappings = pUserMappings;
-        SDL_memcpy(pUserMappings, hint, nchHints);
-        pUserMappings[nchHints] = '\0';
         while (pUserMappings) {
-            char *pchNewLine = NULL;
-
-            pchNewLine = SDL_strchr(pUserMappings, '\n');
+            char *pchNewLine = SDL_strchr(pUserMappings, '\n');
             if (pchNewLine) {
                 *pchNewLine = '\0';
             }
