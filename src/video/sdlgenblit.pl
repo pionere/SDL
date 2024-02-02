@@ -432,6 +432,9 @@ sub output_copyfunc
     output_copyfuncname("static void", $src, $dst, $modulate, $blend, $scale, 1, "\n");
     print FILE <<__EOF__;
 {
+    int height = info->dst_h;
+    Uint8 *rawDst = info->dst;
+    Uint8 *rawSrc = info->src;
 __EOF__
     if ( $modulate || $blend ) {
         print FILE <<__EOF__;
@@ -525,20 +528,20 @@ __EOF__
 
     print FILE <<__EOF__;
 
-    incy = (info->src_h << 16) / info->dst_h;
+    incy = (info->src_h << 16) / height;
     incx = (info->src_w << 16) / info->dst_w;
     posy = incy / 2;
 
-    while (info->dst_h--) {
+    while (height--) {
         $format_type{$src} *src = 0;
-        $format_type{$dst} *dst = ($format_type{$dst} *)info->dst;
+        $format_type{$dst} *dst = ($format_type{$dst} *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
         srcy = posy >> 16;
         while (n--) {
             srcx = posx >> 16;
-            src = ($format_type{$src} *)(info->src + (srcy * info->src_pitch) + (srcx * $format_size{$src}));
+            src = ($format_type{$src} *)(rawSrc + (srcy * info->src_pitch) + (srcx * $format_size{$src}));
 __EOF__
         print FILE <<__EOF__;
 __EOF__
@@ -548,15 +551,15 @@ __EOF__
             ++dst;
         }
         posy += incy;
-        info->dst += info->dst_pitch;
+        rawDst += info->dst_pitch;
     }
 __EOF__
     } else {
         print FILE <<__EOF__;
 
-    while (info->dst_h--) {
-        $format_type{$src} *src = ($format_type{$src} *)info->src;
-        $format_type{$dst} *dst = ($format_type{$dst} *)info->dst;
+    while (height--) {
+        $format_type{$src} *src = ($format_type{$src} *)rawSrc;
+        $format_type{$dst} *dst = ($format_type{$dst} *)rawDst;
         int n = info->dst_w;
         while (n--) {
 __EOF__
@@ -565,8 +568,8 @@ __EOF__
             ++src;
             ++dst;
         }
-        info->src += info->src_pitch;
-        info->dst += info->dst_pitch;
+        rawSrc += info->src_pitch;
+        rawDst += info->dst_pitch;
     }
 __EOF__
     }
