@@ -54,9 +54,9 @@ void SDL_Blit_Slow(SDL_BlitInfo *info)
     Uint32 srcR, srcG, srcB, srcA;
     Uint32 dstpixel;
     Uint32 dstR, dstG, dstB, dstA;
-    Uint64 srcy, srcx;
-    Uint64 posy, posx;
-    Uint64 incy, incx;
+    int srcy, srcx;
+    Uint32 posy, posx;
+    int incy, incx;
     SDL_PixelFormat *src_fmt = info->src_fmt;
     SDL_PixelFormat *dst_fmt = info->dst_fmt;
     int srcbpp = src_fmt->BytesPerPixel;
@@ -69,8 +69,8 @@ void SDL_Blit_Slow(SDL_BlitInfo *info)
     srcfmt_val = detect_format(src_fmt);
     dstfmt_val = detect_format(dst_fmt);
 
-    incy = ((Uint64)info->src_h << 16) / info->dst_h;
-    incx = ((Uint64)info->src_w << 16) / info->dst_w;
+    incy = (info->src_h << 16) / info->dst_h;
+    incx = (info->src_w << 16) / info->dst_w;
     posy = incy / 2; /* start at the middle of pixel */
 
     while (info->dst_h--) {
