@@ -529,7 +529,7 @@ __EOF__
     }
     if ( $scale ) {
         print FILE <<__EOF__;
-    int srcy, srcx;
+    $format_type{$src} *srcRow;
     Uint32 posy, posx;
     int incy, incx;
 __EOF__
@@ -541,14 +541,12 @@ __EOF__
     posy = incy / 2;
 
     while (height--) {
-        $format_type{$src} *src = 0;
         int n = info->dst_w;
         posx = incx / 2;
 
-        srcy = posy >> 16;
+        srcRow = ($format_type{$src} *)(rawSrc + ((posy >> 16) * info->src_pitch));
         while (n--) {
-            srcx = posx >> 16;
-            src = ($format_type{$src} *)(rawSrc + (srcy * info->src_pitch) + (srcx * $format_size{$src}));
+            $format_type{$src} *src = &srcRow[posx >> 16];
 __EOF__
         print FILE <<__EOF__;
 __EOF__

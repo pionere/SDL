@@ -46,6 +46,7 @@ static int SDL_INLINE detect_format(SDL_PixelFormat *pf)
 void SDL_Blit_Slow(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
+    Uint8 *rawSrc = info->src;
     Uint8 *dst = info->dst;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -56,7 +57,7 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
     Uint32 srcR, srcG, srcB, srcA;
     Uint32 dstpixel;
     Uint32 dstR, dstG, dstB, dstA;
-    int srcy, srcx;
+    Uint8 *srcRow;
     Uint32 posy, posx;
     int incy, incx;
     SDL_PixelFormat *src_fmt = info->src_fmt;
@@ -76,13 +77,11 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
     posy = incy / 2; /* start at the middle of pixel */
 
     while (height--) {
-        Uint8 *src = 0;
         int n = info->dst_w;
         posx = incx / 2; /* start at the middle of pixel */
-        srcy = posy >> 16;
+        srcRow = rawSrc + (posy >> 16) * info->src_pitch;
         while (n--) {
-            srcx = posx >> 16;
-            src = (info->src + (srcy * info->src_pitch) + (srcx * srcbpp));
+            Uint8 *src = &srcRow[(posx >> 16) * srcbpp];
 
             if (FORMAT_HAS_ALPHA(srcfmt_val)) {
                 DISEMBLE_RGBA(src, srcbpp, src_fmt, srcpixel, srcR, srcG, srcB, srcA);
