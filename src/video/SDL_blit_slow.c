@@ -43,7 +43,7 @@ static int SDL_INLINE detect_format(SDL_PixelFormat *pf)
 /* The ONE TRUE BLITTER
  * This puppy has to handle all the unoptimized cases - yes, it's slow.
  */
-void SDL_Blit_Slow(SDL_BlitInfo *info)
+void SDL_Blit_Slow(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;

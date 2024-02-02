@@ -29,7 +29,7 @@
 
 /* Functions to blit from 8-bit surfaces to other surfaces */
 
-static void Blit1to1(SDL_BlitInfo *info)
+static void Blit1to1(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -80,7 +80,7 @@ static void Blit1to1(SDL_BlitInfo *info)
 #define LO 1
 #endif
 #endif
-static void Blit1to2(SDL_BlitInfo *info)
+static void Blit1to2(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -188,7 +188,7 @@ static void Blit1to2(SDL_BlitInfo *info)
 #endif /* USE_DUFFS_LOOP */
 }
 
-static void Blit1to3(SDL_BlitInfo *info)
+static void Blit1to3(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -236,7 +236,7 @@ static void Blit1to3(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1to4(SDL_BlitInfo *info)
+static void Blit1to4(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -285,7 +285,7 @@ static void Blit1to4(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1to1Key(SDL_BlitInfo *info)
+static void Blit1to1Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -331,7 +331,7 @@ static void Blit1to1Key(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1to2Key(SDL_BlitInfo *info)
+static void Blit1to2Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -362,7 +362,7 @@ static void Blit1to2Key(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1to3Key(SDL_BlitInfo *info)
+static void Blit1to3Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -394,7 +394,7 @@ static void Blit1to3Key(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1to4Key(SDL_BlitInfo *info)
+static void Blit1to4Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -425,7 +425,7 @@ static void Blit1to4Key(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1toNAlpha(SDL_BlitInfo *info)
+static void Blit1toNAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -464,7 +464,7 @@ static void Blit1toNAlpha(SDL_BlitInfo *info)
     }
 }
 
-static void Blit1toNAlphaKey(SDL_BlitInfo *info)
+static void Blit1toNAlphaKey(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;

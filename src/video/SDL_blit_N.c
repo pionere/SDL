@@ -199,8 +199,8 @@ static vector unsigned char reorder_ppc64le_vec(vector unsigned char vpermute)
 }
 #endif
 
-static void Blit_RGB888_RGB565(SDL_BlitInfo *info);
-static void Blit_RGB888_RGB565Altivec(SDL_BlitInfo *info)
+static void Blit_RGB888_RGB565(const SDL_BlitInfo *info);
+static void Blit_RGB888_RGB565Altivec(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *src = (Uint8 *)info->src;
@@ -301,7 +301,7 @@ static void Blit_RGB888_RGB565Altivec(SDL_BlitInfo *info)
     }
 }
 
-static void Blit_RGB565_32Altivec(SDL_BlitInfo *info)
+static void Blit_RGB565_32Altivec(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *src = (Uint8 *)info->src;
@@ -439,7 +439,7 @@ static void Blit_RGB565_32Altivec(SDL_BlitInfo *info)
     }
 }
 
-static void Blit_RGB555_32Altivec(SDL_BlitInfo *info)
+static void Blit_RGB555_32Altivec(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *src = (Uint8 *)info->src;
@@ -577,9 +577,9 @@ static void Blit_RGB555_32Altivec(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNtoNKey(SDL_BlitInfo *info);
-static void BlitNtoNKeyCopyAlpha(SDL_BlitInfo *info);
-static void Blit32to32KeyAltivec(SDL_BlitInfo *info)
+static void BlitNtoNKey(const SDL_BlitInfo *info);
+static void BlitNtoNKeyCopyAlpha(const SDL_BlitInfo *info);
+static void Blit32to32KeyAltivec(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint32 *srcp = (Uint32 *)info->src;
@@ -701,7 +701,7 @@ static void Blit32to32KeyAltivec(SDL_BlitInfo *info)
 
 /* Altivec code to swizzle one 32-bit surface to a different 32-bit format. */
 /* Use this on a G5 */
-static void ConvertAltivec32to32_noprefetch(SDL_BlitInfo *info)
+static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint32 *src = (Uint32 *)info->src;
@@ -784,7 +784,7 @@ static void ConvertAltivec32to32_noprefetch(SDL_BlitInfo *info)
 
 /* Altivec code to swizzle one 32-bit surface to a different 32-bit format. */
 /* Use this on a G4 */
-static void ConvertAltivec32to32_prefetch(SDL_BlitInfo *info)
+static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
 {
     const int scalar_dst_lead = sizeof(Uint32) * 4;
     const int vector_dst_lead = sizeof(Uint32) * 16;
@@ -914,7 +914,7 @@ static enum blit_features GetBlitFeatures(void)
 #ifdef SDL_ARM_SIMD_BLITTERS
 void Blit_BGR888_RGB888ARMSIMDAsm(int32_t w, int32_t h, uint32_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
 
-static void Blit_BGR888_RGB888ARMSIMD(SDL_BlitInfo *info)
+static void Blit_BGR888_RGB888ARMSIMD(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -928,7 +928,7 @@ static void Blit_BGR888_RGB888ARMSIMD(SDL_BlitInfo *info)
 
 void Blit_RGB444_RGB888ARMSIMDAsm(int32_t w, int32_t h, uint32_t *dst, int32_t dst_stride, uint16_t *src, int32_t src_stride);
 
-static void Blit_RGB444_RGB888ARMSIMD(SDL_BlitInfo *info)
+static void Blit_RGB444_RGB888ARMSIMD(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -957,7 +957,7 @@ static void Blit_RGB444_RGB888ARMSIMD(SDL_BlitInfo *info)
                       (((src)&0x0000E000) >> 11) | \
                       (((src)&0x000000C0) >> 6));  \
     }
-static void Blit_RGB888_index8(SDL_BlitInfo *info)
+static void Blit_RGB888_index8(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -1071,7 +1071,7 @@ static void Blit_RGB888_index8(SDL_BlitInfo *info)
                       (((src)&0x000E0000) >> 15) | \
                       (((src)&0x00000300) >> 8));  \
     }
-static void Blit_RGB101010_index8(SDL_BlitInfo *info)
+static void Blit_RGB101010_index8(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -1197,7 +1197,7 @@ static void Blit_RGB101010_index8(SDL_BlitInfo *info)
                            (((src[LO]) & 0x000000F8) >> 3);    \
     }
 #endif
-static void Blit_RGB888_RGB555(SDL_BlitInfo *info)
+static void Blit_RGB888_RGB555(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -1327,7 +1327,7 @@ static void Blit_RGB888_RGB555(SDL_BlitInfo *info)
                            (((src[LO]) & 0x000000F8) >> 3);    \
     }
 #endif
-static void Blit_RGB888_RGB565(SDL_BlitInfo *info)
+static void Blit_RGB888_RGB565(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -1442,7 +1442,7 @@ static void Blit_RGB888_RGB565(SDL_BlitInfo *info)
 
 /* Special optimized blit for RGB 5-6-5 --> 32-bit RGB surfaces */
 #define RGB565_32(dst, src, map) (map[src[LO] * 2] + map[src[HI] * 2 + 1])
-static void Blit_RGB565_32(SDL_BlitInfo *info, const Uint32 *map)
+static void Blit_RGB565_32(const SDL_BlitInfo *info, const Uint32 *map)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -1641,7 +1641,7 @@ static const Uint32 RGB565_ARGB8888_LUT[512] = {
     0x00001cf6, 0xffffc200, 0x00001cff, 0xffffe200
 };
 
-static void Blit_RGB565_ARGB8888(SDL_BlitInfo * info)
+static void Blit_RGB565_ARGB8888(const SDL_BlitInfo *info)
 {
     Blit_RGB565_32(info, RGB565_ARGB8888_LUT);
 }
@@ -1778,7 +1778,7 @@ static const Uint32 RGB565_ABGR8888_LUT[512] = {
     0xfff61c00, 0x0000c2ff, 0xffff1c00, 0x0000e2ff
 };
 
-static void Blit_RGB565_ABGR8888(SDL_BlitInfo * info)
+static void Blit_RGB565_ABGR8888(const SDL_BlitInfo *info)
 {
     Blit_RGB565_32(info, RGB565_ABGR8888_LUT);
 }
@@ -1915,7 +1915,7 @@ static const Uint32 RGB565_RGBA8888_LUT[512] = {
     0x001cf6ff, 0xffc20000, 0x001cffff, 0xffe20000,
 };
 
-static void Blit_RGB565_RGBA8888(SDL_BlitInfo * info)
+static void Blit_RGB565_RGBA8888(const SDL_BlitInfo *info)
 {
     Blit_RGB565_32(info, RGB565_RGBA8888_LUT);
 }
@@ -2052,7 +2052,7 @@ static const Uint32 RGB565_BGRA8888_LUT[512] = {
     0xf61c0000, 0x00c2ffff, 0xff1c0000, 0x00e2ffff
 };
 
-static void Blit_RGB565_BGRA8888(SDL_BlitInfo * info)
+static void Blit_RGB565_BGRA8888(const SDL_BlitInfo *info)
 {
     Blit_RGB565_32(info, RGB565_BGRA8888_LUT);
 }
@@ -2062,7 +2062,7 @@ static void Blit_RGB565_BGRA8888(SDL_BlitInfo * info)
 #endif /* SDL_HAVE_BLIT_N_RGB565 */
 
 /* RGB555->ARGB1555, and BGR555->ABGR1555, SET_ALPHA */
-static void Blit_RGB555_ARGB1555(SDL_BlitInfo *info)
+static void Blit_RGB555_ARGB1555(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2089,7 +2089,7 @@ static void Blit_RGB555_ARGB1555(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNto1(SDL_BlitInfo *info)
+static void BlitNto1(const SDL_BlitInfo *info)
 {
 #ifndef USE_DUFFS_LOOP
     int c;
@@ -2183,7 +2183,7 @@ static void BlitNto1(SDL_BlitInfo *info)
 }
 
 /* blits 32 bit RGB<->RGBA with both surfaces having the same R,G,B fields */
-static void Blit4to4MaskAlpha(SDL_BlitInfo *info)
+static void Blit4to4MaskAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2318,7 +2318,7 @@ static void get_permutation(SDL_PixelFormat *srcfmt, SDL_PixelFormat *dstfmt,
     }
 }
 
-static void BlitNtoN(SDL_BlitInfo *info)
+static void BlitNtoN(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2436,7 +2436,7 @@ static void BlitNtoN(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNtoNCopyAlpha(SDL_BlitInfo *info)
+static void BlitNtoNCopyAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2493,7 +2493,7 @@ static void BlitNtoNCopyAlpha(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNto1Key(SDL_BlitInfo *info)
+static void BlitNto1Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2558,7 +2558,7 @@ static void BlitNto1Key(SDL_BlitInfo *info)
     }
 }
 
-static void Blit2to2Key(SDL_BlitInfo *info)
+static void Blit2to2Key(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2591,7 +2591,7 @@ static void Blit2to2Key(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNtoNKey(SDL_BlitInfo *info)
+static void BlitNtoNKey(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2862,7 +2862,7 @@ static void BlitNtoNKey(SDL_BlitInfo *info)
     }
 }
 
-static void BlitNtoNKeyCopyAlpha(SDL_BlitInfo *info)
+static void BlitNtoNKeyCopyAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2965,7 +2965,7 @@ static void BlitNtoNKeyCopyAlpha(SDL_BlitInfo *info)
 }
 
 /* Special optimized blit for ARGB 2-10-10-10 --> RGBA */
-static void Blit2101010toN(SDL_BlitInfo *info)
+static void Blit2101010toN(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -2996,7 +2996,7 @@ static void Blit2101010toN(SDL_BlitInfo *info)
 }
 
 /* Special optimized blit for RGBA --> ARGB 2-10-10-10 */
-static void BlitNto2101010(SDL_BlitInfo *info)
+static void BlitNto2101010(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -3027,7 +3027,7 @@ static void BlitNto2101010(SDL_BlitInfo *info)
 }
 
 /* Blit_3or4_to_3or4__same_rgb: 3 or 4 bpp, same RGB triplet */
-static void Blit_3or4_to_3or4__same_rgb(SDL_BlitInfo *info)
+static void Blit_3or4_to_3or4__same_rgb(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -3100,7 +3100,7 @@ static void Blit_3or4_to_3or4__same_rgb(SDL_BlitInfo *info)
 }
 
 /* Blit_3or4_to_3or4__inversed_rgb: 3 or 4 bpp, inversed RGB triplet */
-static void Blit_3or4_to_3or4__inversed_rgb(SDL_BlitInfo *info)
+static void Blit_3or4_to_3or4__inversed_rgb(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;

@@ -165,7 +165,7 @@ sub output_copyfuncname
         print FILE "_Scale";
     }
     if ( $args ) {
-        print FILE "(SDL_BlitInfo *info)";
+        print FILE "(const SDL_BlitInfo *info)";
     }
     print FILE "$suffix";
 }

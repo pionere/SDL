@@ -29,7 +29,7 @@
 #include "SDL_blit.h"
 #include "SDL_blit_auto.h"
 
-static void SDL_Blit_RGB888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -61,7 +61,7 @@ static void SDL_Blit_RGB888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -113,7 +113,7 @@ static void SDL_Blit_RGB888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -177,7 +177,7 @@ static void SDL_Blit_RGB888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -211,7 +211,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -257,7 +257,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -327,7 +327,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -409,7 +409,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -446,7 +446,7 @@ static void SDL_Blit_RGB888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -498,7 +498,7 @@ static void SDL_Blit_RGB888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -562,7 +562,7 @@ static void SDL_Blit_RGB888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -596,7 +596,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -642,7 +642,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -712,7 +712,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -794,7 +794,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -830,7 +830,7 @@ static void SDL_Blit_RGB888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -883,7 +883,7 @@ static void SDL_Blit_RGB888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -948,7 +948,7 @@ static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -984,7 +984,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1032,7 +1032,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1103,7 +1103,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1186,7 +1186,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1223,7 +1223,7 @@ static void SDL_Blit_BGR888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1275,7 +1275,7 @@ static void SDL_Blit_BGR888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1339,7 +1339,7 @@ static void SDL_Blit_BGR888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1373,7 +1373,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1419,7 +1419,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1489,7 +1489,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1571,7 +1571,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1603,7 +1603,7 @@ static void SDL_Blit_BGR888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1655,7 +1655,7 @@ static void SDL_Blit_BGR888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1719,7 +1719,7 @@ static void SDL_Blit_BGR888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1753,7 +1753,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1799,7 +1799,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1869,7 +1869,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1951,7 +1951,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -1989,7 +1989,7 @@ static void SDL_Blit_BGR888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2042,7 +2042,7 @@ static void SDL_Blit_BGR888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2107,7 +2107,7 @@ static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2143,7 +2143,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2191,7 +2191,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2262,7 +2262,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2345,7 +2345,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2380,7 +2380,7 @@ static void SDL_Blit_ARGB8888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2440,7 +2440,7 @@ static void SDL_Blit_ARGB8888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2512,7 +2512,7 @@ static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2546,7 +2546,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2592,7 +2592,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2664,7 +2664,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2748,7 +2748,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2785,7 +2785,7 @@ static void SDL_Blit_ARGB8888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2845,7 +2845,7 @@ static void SDL_Blit_ARGB8888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2917,7 +2917,7 @@ static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2951,7 +2951,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -2997,7 +2997,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3069,7 +3069,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3153,7 +3153,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3185,7 +3185,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3246,7 +3246,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3319,7 +3319,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3357,7 +3357,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3407,7 +3407,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3480,7 +3480,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3565,7 +3565,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3600,7 +3600,7 @@ static void SDL_Blit_RGBA8888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3660,7 +3660,7 @@ static void SDL_Blit_RGBA8888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3732,7 +3732,7 @@ static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3766,7 +3766,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3812,7 +3812,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3884,7 +3884,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -3968,7 +3968,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4005,7 +4005,7 @@ static void SDL_Blit_RGBA8888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4065,7 +4065,7 @@ static void SDL_Blit_RGBA8888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4137,7 +4137,7 @@ static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4171,7 +4171,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4217,7 +4217,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4289,7 +4289,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4373,7 +4373,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4408,7 +4408,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4469,7 +4469,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4542,7 +4542,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4580,7 +4580,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4630,7 +4630,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4703,7 +4703,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4788,7 +4788,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4825,7 +4825,7 @@ static void SDL_Blit_ABGR8888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4885,7 +4885,7 @@ static void SDL_Blit_ABGR8888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4957,7 +4957,7 @@ static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -4991,7 +4991,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5037,7 +5037,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5109,7 +5109,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5193,7 +5193,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5228,7 +5228,7 @@ static void SDL_Blit_ABGR8888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5288,7 +5288,7 @@ static void SDL_Blit_ABGR8888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5360,7 +5360,7 @@ static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5394,7 +5394,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5440,7 +5440,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5512,7 +5512,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5596,7 +5596,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5633,7 +5633,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5694,7 +5694,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5767,7 +5767,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5805,7 +5805,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5855,7 +5855,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -5928,7 +5928,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6013,7 +6013,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6050,7 +6050,7 @@ static void SDL_Blit_BGRA8888_RGB888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6110,7 +6110,7 @@ static void SDL_Blit_BGRA8888_RGB888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6182,7 +6182,7 @@ static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6216,7 +6216,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6262,7 +6262,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6334,7 +6334,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6418,7 +6418,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6453,7 +6453,7 @@ static void SDL_Blit_BGRA8888_BGR888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6513,7 +6513,7 @@ static void SDL_Blit_BGRA8888_BGR888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6585,7 +6585,7 @@ static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6619,7 +6619,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6665,7 +6665,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6737,7 +6737,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6821,7 +6821,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6858,7 +6858,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6919,7 +6919,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -6992,7 +6992,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Modulate(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -7030,7 +7030,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -7080,7 +7080,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;
@@ -7153,7 +7153,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(SDL_BlitInfo *info)
     }
 }
 
-static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(SDL_BlitInfo *info)
+static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint8 *rawDst = info->dst;

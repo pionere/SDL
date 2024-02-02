@@ -28,7 +28,7 @@
 /* Functions to perform alpha blended blitting */
 
 /* N->1 blending with per-surface alpha */
-static void BlitNto1SurfaceAlpha(SDL_BlitInfo *info)
+static void BlitNto1SurfaceAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -74,7 +74,7 @@ static void BlitNto1SurfaceAlpha(SDL_BlitInfo *info)
 }
 
 /* N->1 blending with pixel alpha */
-static void BlitNto1PixelAlpha(SDL_BlitInfo *info)
+static void BlitNto1PixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -119,7 +119,7 @@ static void BlitNto1PixelAlpha(SDL_BlitInfo *info)
 }
 
 /* colorkeyed N->1 blending with per-surface alpha */
-static void BlitNto1SurfaceAlphaKey(SDL_BlitInfo *info)
+static void BlitNto1SurfaceAlphaKey(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -170,7 +170,7 @@ static void BlitNto1SurfaceAlphaKey(SDL_BlitInfo *info)
 #ifdef __MMX__
 
 /* fast RGB888->(A)RGB888 blending with surface alpha=128 special case */
-static void BlitRGBtoRGBSurfaceAlpha128MMX(SDL_BlitInfo *info)
+static void BlitRGBtoRGBSurfaceAlpha128MMX(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -224,7 +224,7 @@ static void BlitRGBtoRGBSurfaceAlpha128MMX(SDL_BlitInfo *info)
 }
 
 /* fast RGB888->(A)RGB888 blending with surface alpha */
-static void BlitRGBtoRGBSurfaceAlphaMMX(SDL_BlitInfo *info)
+static void BlitRGBtoRGBSurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
     SDL_PixelFormat *df = info->dst_fmt;
     Uint32 chanmask;
@@ -319,7 +319,7 @@ static void BlitRGBtoRGBSurfaceAlphaMMX(SDL_BlitInfo *info)
 }
 
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
-static void BlitRGBtoRGBPixelAlphaMMX(SDL_BlitInfo *info)
+static void BlitRGBtoRGBPixelAlphaMMX(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -415,7 +415,7 @@ static void BlitRGBtoRGBPixelAlphaMMX(SDL_BlitInfo *info)
 #ifdef SDL_ARM_SIMD_BLITTERS
 void BlitARGBto565PixelAlphaARMSIMDAsm(int32_t w, int32_t h, uint16_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
 
-static void BlitARGBto565PixelAlphaARMSIMD(SDL_BlitInfo *info)
+static void BlitARGBto565PixelAlphaARMSIMD(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -429,7 +429,7 @@ static void BlitARGBto565PixelAlphaARMSIMD(SDL_BlitInfo *info)
 
 void BlitRGBtoRGBPixelAlphaARMSIMDAsm(int32_t w, int32_t h, uint32_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
 
-static void BlitRGBtoRGBPixelAlphaARMSIMD(SDL_BlitInfo *info)
+static void BlitRGBtoRGBPixelAlphaARMSIMD(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -445,7 +445,7 @@ static void BlitRGBtoRGBPixelAlphaARMSIMD(SDL_BlitInfo *info)
 #ifdef SDL_ARM_NEON_BLITTERS
 void BlitARGBto565PixelAlphaARMNEONAsm(int32_t w, int32_t h, uint16_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
 
-static void BlitARGBto565PixelAlphaARMNEON(SDL_BlitInfo *info)
+static void BlitARGBto565PixelAlphaARMNEON(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -459,7 +459,7 @@ static void BlitARGBto565PixelAlphaARMNEON(SDL_BlitInfo *info)
 
 void BlitRGBtoRGBPixelAlphaARMNEONAsm(int32_t w, int32_t h, uint32_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
 
-static void BlitRGBtoRGBPixelAlphaARMNEON(SDL_BlitInfo *info)
+static void BlitRGBtoRGBPixelAlphaARMNEON(const SDL_BlitInfo *info)
 {
     int32_t width = info->dst_w;
     int32_t height = info->dst_h;
@@ -473,7 +473,7 @@ static void BlitRGBtoRGBPixelAlphaARMNEON(SDL_BlitInfo *info)
 #endif
 
 /* fast RGB888->(A)RGB888 blending with surface alpha=128 special case */
-static void BlitRGBtoRGBSurfaceAlpha128(SDL_BlitInfo *info)
+static void BlitRGBtoRGBSurfaceAlpha128(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -497,7 +497,7 @@ static void BlitRGBtoRGBSurfaceAlpha128(SDL_BlitInfo *info)
 }
 
 /* fast RGB888->(A)RGB888 blending with surface alpha */
-static void BlitRGBtoRGBSurfaceAlpha(SDL_BlitInfo *info)
+static void BlitRGBtoRGBSurfaceAlpha(const SDL_BlitInfo *info)
 {
     unsigned alpha = info->a;
     if (alpha == 128) {
@@ -538,7 +538,7 @@ static void BlitRGBtoRGBSurfaceAlpha(SDL_BlitInfo *info)
 }
 
 /* fast ARGB888->(A)RGB888 blending with pixel alpha */
-static void BlitRGBtoRGBPixelAlpha(SDL_BlitInfo *info)
+static void BlitRGBtoRGBPixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -590,7 +590,7 @@ static void BlitRGBtoRGBPixelAlpha(SDL_BlitInfo *info)
 }
 
 /* fast ARGB888->(A)BGR888 blending with pixel alpha */
-static void BlitRGBtoBGRPixelAlpha(SDL_BlitInfo *info)
+static void BlitRGBtoBGRPixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -645,7 +645,7 @@ static void BlitRGBtoBGRPixelAlpha(SDL_BlitInfo *info)
 
 #ifdef __3dNOW__
 /* fast (as in MMX with prefetch) ARGB888->(A)RGB888 blending with pixel alpha */
-static void BlitRGBtoRGBPixelAlphaMMX3DNOW(SDL_BlitInfo *info)
+static void BlitRGBtoRGBPixelAlphaMMX3DNOW(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -753,7 +753,7 @@ static void BlitRGBtoRGBPixelAlphaMMX3DNOW(SDL_BlitInfo *info)
 #define BLEND2x16_50(d, s, mask) \
     (((s & (mask | mask << 16)) >> 1) + ((d & (mask | mask << 16)) >> 1) + (s & d & (~(mask | mask << 16))))
 
-static void Blit16to16SurfaceAlpha128(SDL_BlitInfo *info, Uint16 mask)
+static void Blit16to16SurfaceAlpha128(const SDL_BlitInfo *info, Uint16 mask)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -854,7 +854,7 @@ static void Blit16to16SurfaceAlpha128(SDL_BlitInfo *info, Uint16 mask)
 #ifdef __MMX__
 
 /* fast RGB565->RGB565 blending with surface alpha */
-static void Blit565to565SurfaceAlphaMMX(SDL_BlitInfo *info)
+static void Blit565to565SurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
     unsigned alpha = info->a;
     if (alpha == 128) {
@@ -992,7 +992,7 @@ static void Blit565to565SurfaceAlphaMMX(SDL_BlitInfo *info)
 }
 
 /* fast RGB555->RGB555 blending with surface alpha */
-static void Blit555to555SurfaceAlphaMMX(SDL_BlitInfo *info)
+static void Blit555to555SurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
     unsigned alpha = info->a;
     if (alpha == 128) {
@@ -1132,7 +1132,7 @@ static void Blit555to555SurfaceAlphaMMX(SDL_BlitInfo *info)
 #endif /* __MMX__ */
 
 /* fast RGB565->RGB565 blending with surface alpha */
-static void Blit565to565SurfaceAlpha(SDL_BlitInfo *info)
+static void Blit565to565SurfaceAlpha(const SDL_BlitInfo *info)
 {
     unsigned alpha = info->a;
     if (alpha == 128) {
@@ -1170,7 +1170,7 @@ static void Blit565to565SurfaceAlpha(SDL_BlitInfo *info)
 }
 
 /* fast RGB555->RGB555 blending with surface alpha */
-static void Blit555to555SurfaceAlpha(SDL_BlitInfo *info)
+static void Blit555to555SurfaceAlpha(const SDL_BlitInfo *info)
 {
     unsigned alpha = info->a; /* downscale alpha to 5 bits */
     if (alpha == 128) {
@@ -1208,7 +1208,7 @@ static void Blit555to555SurfaceAlpha(SDL_BlitInfo *info)
 }
 
 /* fast ARGB8888->RGB565 blending with pixel alpha */
-static void BlitARGBto565PixelAlpha(SDL_BlitInfo *info)
+static void BlitARGBto565PixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -1253,7 +1253,7 @@ static void BlitARGBto565PixelAlpha(SDL_BlitInfo *info)
 }
 
 /* fast ARGB8888->RGB555 blending with pixel alpha */
-static void BlitARGBto555PixelAlpha(SDL_BlitInfo *info)
+static void BlitARGBto555PixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -1299,7 +1299,7 @@ static void BlitARGBto555PixelAlpha(SDL_BlitInfo *info)
 }
 
 /* General (slow) N->N blending with per-surface alpha */
-static void BlitNtoNSurfaceAlpha(SDL_BlitInfo *info)
+static void BlitNtoNSurfaceAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -1337,7 +1337,7 @@ static void BlitNtoNSurfaceAlpha(SDL_BlitInfo *info)
 }
 
 /* General (slow) colorkeyed N->N blending with per-surface alpha */
-static void BlitNtoNSurfaceAlphaKey(SDL_BlitInfo *info)
+static void BlitNtoNSurfaceAlphaKey(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -1377,7 +1377,7 @@ static void BlitNtoNSurfaceAlphaKey(SDL_BlitInfo *info)
 }
 
 /* General (slow) N->N blending with pixel alpha */
-static void BlitNtoNPixelAlpha(SDL_BlitInfo *info)
+static void BlitNtoNPixelAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
