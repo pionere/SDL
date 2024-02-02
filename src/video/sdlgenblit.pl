@@ -639,7 +639,7 @@ __EOF__
                                 print FILE <<__EOF__;
 #if SDL_HAVE_BLIT_TRANSFORM
 __EOF__
-                            } else if ( $modulate && $blend && $scale ) {
+                            } elsif ( $modulate && $blend && $scale ) {
                                 print FILE <<__EOF__;
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
 __EOF__
