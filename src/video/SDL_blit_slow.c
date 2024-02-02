@@ -40,6 +40,9 @@ static int SDL_INLINE detect_format(SDL_PixelFormat *pf)
     }
 }
 
+#define FIXED_POINT(i) ((Uint32)(i) << 16)
+#define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
+
 /* The ONE TRUE BLITTER
  * This puppy has to handle all the unoptimized cases - yes, it's slow.
  */
@@ -75,16 +78,16 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
     srcfmt_val = detect_format(src_fmt);
     dstfmt_val = detect_format(dst_fmt);
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2; /* start at the middle of pixel */
 
     while (height--) {
         int n = width;
         posx = incx / 2; /* start at the middle of pixel */
-        srcRow = rawSrc + (posy >> 16) * srcpitch;
+        srcRow = rawSrc + SRC_INDEX(posy) * srcpitch;
         while (n--) {
-            Uint8 *src = &srcRow[(posx >> 16) * srcbpp];
+            Uint8 *src = &srcRow[SRC_INDEX(posx) * srcbpp];
 
             if (FORMAT_HAS_ALPHA(srcfmt_val)) {
                 DISEMBLE_RGBA(src, srcbpp, src_fmt, srcpixel, srcR, srcG, srcB, srcA);

@@ -540,17 +540,17 @@ __EOF__
 
     print FILE <<__EOF__;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = ($format_type{$src} *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = ($format_type{$src} *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            $format_type{$src} *src = &srcRow[posx >> 16];
+            $format_type{$src} *src = &srcRow[SRC_INDEX(posx)];
 __EOF__
         print FILE <<__EOF__;
 __EOF__
@@ -596,6 +596,9 @@ sub output_copyinc
 #include "SDL_video.h"
 #include "SDL_blit.h"
 #include "SDL_blit_auto.h"
+
+#define FIXED_POINT(i) ((Uint32)(i) << 16)
+#define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
 
 __EOF__
 }

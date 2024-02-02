@@ -29,6 +29,9 @@
 #include "SDL_blit.h"
 #include "SDL_blit_auto.h"
 
+#define FIXED_POINT(i) ((Uint32)(i) << 16)
+#define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
+
 static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -41,17 +44,17 @@ static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             *dst = *src;
             posx += incx;
             ++dst;
@@ -131,17 +134,17 @@ static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -231,17 +234,17 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -352,17 +355,17 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -426,17 +429,17 @@ static void SDL_Blit_RGB888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             pixel = (B << 16) | (G << 8) | R;
@@ -519,17 +522,17 @@ static void SDL_Blit_RGB888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -619,17 +622,17 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -740,17 +743,17 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -814,17 +817,17 @@ static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel |= (A << 24);
             *dst = pixel;
@@ -907,17 +910,17 @@ static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1012,17 +1015,17 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -1134,17 +1137,17 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1209,17 +1212,17 @@ static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             pixel = (R << 16) | (G << 8) | B;
@@ -1302,17 +1305,17 @@ static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1402,17 +1405,17 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -1523,17 +1526,17 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1595,17 +1598,17 @@ static void SDL_Blit_BGR888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             *dst = *src;
             posx += incx;
             ++dst;
@@ -1685,17 +1688,17 @@ static void SDL_Blit_BGR888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1785,17 +1788,17 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -1906,17 +1909,17 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -1981,17 +1984,17 @@ static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             pixel = (A << 24) | (R << 16) | (G << 8) | B;
@@ -2075,17 +2078,17 @@ static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -2180,17 +2183,17 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -2302,17 +2305,17 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -2376,17 +2379,17 @@ static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel &= 0xFFFFFF;
             *dst = pixel;
@@ -2476,17 +2479,17 @@ static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -2584,17 +2587,17 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -2706,17 +2709,17 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -2783,17 +2786,17 @@ static void SDL_Blit_ARGB8888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             pixel = (B << 16) | (G << 8) | R;
@@ -2884,17 +2887,17 @@ static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -2992,17 +2995,17 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -3114,17 +3117,17 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -3189,17 +3192,17 @@ static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             *dst = *src;
             posx += incx;
             ++dst;
@@ -3288,17 +3291,17 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -3402,17 +3405,17 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); B = (Uint8)pixel; A = (Uint8)(pixel >> 24);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -3528,17 +3531,17 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcB = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -3605,17 +3608,17 @@ static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel >>= 8;
             *dst = pixel;
@@ -3705,17 +3708,17 @@ static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -3813,17 +3816,17 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); B = (Uint8)(pixel >> 8);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -3935,17 +3938,17 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -4012,17 +4015,17 @@ static void SDL_Blit_RGBA8888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); B = (Uint8)(pixel >> 8);
             pixel = (B << 16) | (G << 8) | R;
@@ -4113,17 +4116,17 @@ static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -4221,17 +4224,17 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); B = (Uint8)(pixel >> 8);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -4343,17 +4346,17 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -4419,17 +4422,17 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel = (pixel >> 8) | (pixel << 24);
             *dst = pixel;
@@ -4520,17 +4523,17 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -4634,17 +4637,17 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             R = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); B = (Uint8)(pixel >> 8); A = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -4760,17 +4763,17 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcR = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcB = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -4838,17 +4841,17 @@ static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             pixel = (R << 16) | (G << 8) | B;
@@ -4939,17 +4942,17 @@ static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -5047,17 +5050,17 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -5169,17 +5172,17 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -5245,17 +5248,17 @@ static void SDL_Blit_ABGR8888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel &= 0xFFFFFF;
             *dst = pixel;
@@ -5345,17 +5348,17 @@ static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -5453,17 +5456,17 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -5575,17 +5578,17 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -5652,17 +5655,17 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel; A = (Uint8)(pixel >> 24);
             pixel = (A << 24) | (R << 16) | (G << 8) | B;
@@ -5754,17 +5757,17 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -5868,17 +5871,17 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 16); G = (Uint8)(pixel >> 8); R = (Uint8)pixel; A = (Uint8)(pixel >> 24);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -5994,17 +5997,17 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 16); srcG = (Uint8)(srcpixel >> 8); srcR = (Uint8)srcpixel; srcA = (Uint8)(srcpixel >> 24);
             dstpixel = *dst;
@@ -6072,17 +6075,17 @@ static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); R = (Uint8)(pixel >> 8);
             pixel = (R << 16) | (G << 8) | B;
@@ -6173,17 +6176,17 @@ static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -6281,17 +6284,17 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); R = (Uint8)(pixel >> 8);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -6403,17 +6406,17 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -6479,17 +6482,17 @@ static void SDL_Blit_BGRA8888_BGR888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             pixel >>= 8;
             *dst = pixel;
@@ -6579,17 +6582,17 @@ static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -6687,17 +6690,17 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); R = (Uint8)(pixel >> 8);
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -6809,17 +6812,17 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -6886,17 +6889,17 @@ static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); R = (Uint8)(pixel >> 8); A = (Uint8)pixel;
             pixel = (A << 24) | (R << 16) | (G << 8) | B;
@@ -6988,17 +6991,17 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
@@ -7102,17 +7105,17 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
             B = (Uint8)(pixel >> 24); G = (Uint8)(pixel >> 16); R = (Uint8)(pixel >> 8); A = (Uint8)pixel;
             if (flags & SDL_COPY_MODULATE_COLOR) {
@@ -7228,17 +7231,17 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
     Uint32 posy, posx;
     int incy, incx;
 
-    incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / width;
+    incy = FIXED_POINT(info->src_h) / height;
+    incx = FIXED_POINT(info->src_w) / width;
     posy = incy / 2;
 
     while (height--) {
         int n = width;
         posx = incx / 2;
 
-        srcRow = (Uint32 *)(rawSrc + ((posy >> 16) * srcpitch));
+        srcRow = (Uint32 *)(rawSrc + SRC_INDEX(posy) * srcpitch);
         while (n--) {
-            Uint32 *src = &srcRow[posx >> 16];
+            Uint32 *src = &srcRow[SRC_INDEX(posx)];
             srcpixel = *src;
             srcB = (Uint8)(srcpixel >> 24); srcG = (Uint8)(srcpixel >> 16); srcR = (Uint8)(srcpixel >> 8); srcA = (Uint8)srcpixel;
             dstpixel = *dst;
