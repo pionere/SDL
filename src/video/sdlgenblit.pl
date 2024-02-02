@@ -432,16 +432,20 @@ sub output_copyfunc
     output_copyfuncname("static void", $src, $dst, $modulate, $blend, $scale, 1, "\n");
     print FILE <<__EOF__;
 {
+    int width = info->dst_w;
     int height = info->dst_h;
     $format_type{$dst} *dst = ($format_type{$dst} *)info->dst;
+    int dstskip = info->dst_skip;
 __EOF__
     if ( $scale ) {
         print FILE <<__EOF__;
     Uint8 *rawSrc = info->src;
+    int srcpitch = info->src_pitch;
 __EOF__
     } else {
         print FILE <<__EOF__;
     $format_type{$src} *src = ($format_type{$src} *)info->src;
+    int srcskip = info->src_skip;
 __EOF__
     }
     if ( $modulate || $blend ) {
@@ -537,14 +541,14 @@ __EOF__
     print FILE <<__EOF__;
 
     incy = (info->src_h << 16) / height;
-    incx = (info->src_w << 16) / info->dst_w;
+    incx = (info->src_w << 16) / width;
     posy = incy / 2;
 
     while (height--) {
-        int n = info->dst_w;
+        int n = width;
         posx = incx / 2;
 
-        srcRow = ($format_type{$src} *)(rawSrc + ((posy >> 16) * info->src_pitch));
+        srcRow = ($format_type{$src} *)(rawSrc + ((posy >> 16) * srcpitch));
         while (n--) {
             $format_type{$src} *src = &srcRow[posx >> 16];
 __EOF__
@@ -556,14 +560,14 @@ __EOF__
             ++dst;
         }
         posy += incy;
-        dst = ($format_type{$dst} *)((Uint8 *)dst + info->dst_skip);
+        dst = ($format_type{$dst} *)((Uint8 *)dst + dstskip);
     }
 __EOF__
     } else {
         print FILE <<__EOF__;
 
     while (height--) {
-        int n = info->dst_w;
+        int n = width;
         while (n--) {
 __EOF__
         output_copycore($src, $dst, $modulate, $blend, $is_modulateA_done, $A_is_const_FF);
@@ -571,8 +575,8 @@ __EOF__
             ++src;
             ++dst;
         }
-        src = ($format_type{$src} *)((Uint8 *)src + info->src_skip);
-        dst = ($format_type{$dst} *)((Uint8 *)dst + info->dst_skip);
+        src = ($format_type{$src} *)((Uint8 *)src + srcskip);
+        dst = ($format_type{$dst} *)((Uint8 *)dst + dstskip);
     }
 __EOF__
     }
