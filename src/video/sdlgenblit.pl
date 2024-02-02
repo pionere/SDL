@@ -434,8 +434,16 @@ sub output_copyfunc
 {
     int height = info->dst_h;
     $format_type{$dst} *dst = ($format_type{$dst} *)info->dst;
+__EOF__
+    if ( $scale ) {
+        print FILE <<__EOF__;
     Uint8 *rawSrc = info->src;
 __EOF__
+    } else {
+        print FILE <<__EOF__;
+    $format_type{$src} *src = ($format_type{$src} *)info->src;
+__EOF__
+    }
     if ( $modulate || $blend ) {
         print FILE <<__EOF__;
     const int flags = info->flags;
@@ -557,7 +565,6 @@ __EOF__
         print FILE <<__EOF__;
 
     while (height--) {
-        $format_type{$src} *src = ($format_type{$src} *)rawSrc;
         int n = info->dst_w;
         while (n--) {
 __EOF__
@@ -566,7 +573,7 @@ __EOF__
             ++src;
             ++dst;
         }
-        rawSrc += info->src_pitch;
+        src = ($format_type{$src} *)((Uint8 *)src + info->src_skip);
         dst = ($format_type{$dst} *)((Uint8 *)dst + info->dst_skip);
     }
 __EOF__
