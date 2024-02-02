@@ -27,6 +27,7 @@
 #include "SDL_pixels_c.h"
 #include "SDL_yuv_c.h"
 #include "../render/SDL_sysrender.h"
+#include "../SDL_assert_c.h"
 
 /* Check to make sure we can safely check multiplication of surface w and pitch and it won't overflow size_t */
 SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
@@ -769,13 +770,14 @@ int SDL_UpperBlit(SDL_Surface *src, const SDL_Rect *srcrect,
         SDL_InvalidateMap(src->map);
     }
 
-    if (r_dst.w > 0 && r_dst.h > 0) {
-        if (dstrect) { /* update output parameter */
-            *dstrect = r_dst;
-        }
-        return SDL_LowerBlit(src, &r_src, dst, &r_dst);
+    SDL_assert(r_dst.w == r_src.w && r_dst.h == r_src.h);
+    SDL_assert(!SDL_RectEmpty(&r_src) && !SDL_RectEmpty(&r_dst));
+
+    if (dstrect) { /* update output parameter */
+        *dstrect = r_dst;
     }
 
+    return SDL_LowerBlit(src, &r_src, dst, &r_dst);
 end:
     if (dstrect) { /* update output parameter */
         dstrect->w = dstrect->h = 0;
@@ -928,23 +930,28 @@ int SDL_PrivateUpperBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect,
         tmp.y = 0;
         tmp.w = src->w;
         tmp.h = src->h;
-        SDL_IntersectRect(&tmp, &final_src, &final_src);
+        if (SDL_IntersectRect(&tmp, &final_src, &final_src) == SDL_FALSE) {
+            goto end;
+        }
     }
 
     /* Clip again */
-    SDL_IntersectRect(&dst->clip_rect, &final_dst, &final_dst);
+    if (SDL_IntersectRect(&dst->clip_rect, &final_dst, &final_dst) == SDL_FALSE) {
+        goto end;
+    }
+
+    SDL_assert(!SDL_RectEmpty(&final_src) && !SDL_RectEmpty(&final_dst));
 
     if (dstrect) {
         *dstrect = final_dst;
     }
 
-    if (final_dst.w == 0 || final_dst.h == 0 ||
-        final_src.w <= 0 || final_src.h <= 0) {
-        /* No-op. */
-        return 0;
-    }
-
     return SDL_PrivateLowerBlitScaled(src, &final_src, dst, &final_dst, scaleMode);
+end:
+    if (dstrect) { /* update output parameter */
+        dstrect->w = dstrect->h = 0;
+    }
+    return 0;
 }
 
 /**
@@ -954,6 +961,11 @@ int SDL_PrivateUpperBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect,
 int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect)
 {
+    if (SDL_RectEmpty(srcrect) || SDL_RectEmpty(dstrect)) {
+        /* No-op */
+        return 0;
+    }
+
     return SDL_PrivateLowerBlitScaled(src, srcrect, dst, dstrect, SDL_ScaleModeNearest);
 }
 
@@ -963,6 +975,8 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     static const Uint32 complex_copy_flags = (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA |
                                               SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL |
                                               SDL_COPY_COLORKEY);
+
+    SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
     if (srcrect->w > SDL_MAX_UINT16 || srcrect->h > SDL_MAX_UINT16 ||
         dstrect->w > SDL_MAX_UINT16 || dstrect->h > SDL_MAX_UINT16) {
@@ -1227,7 +1241,11 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
         }
     }
 
-    ret = SDL_LowerBlit(surface, &bounds, convert, &bounds);
+    if (!SDL_RectEmpty(&bounds)) {
+        ret = SDL_LowerBlit(surface, &bounds, convert, &bounds);
+    } else {
+        ret = 0; /* No-op */
+    }
 
     /* Restore colorkey alpha value */
     if (palette_ck_transform) {
@@ -1438,6 +1456,10 @@ int SDL_ConvertPixels(int width, int height,
         return SDL_SetError("SDL not built with YUV support");
     }
 #endif
+    if (width <= 0 || height <= 0) {
+        /* No-op*/
+        return 0;
+    }
 
     /* Fast path for same format copy */
     if (src_format == dst_format) {

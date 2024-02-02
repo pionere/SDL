@@ -28,6 +28,7 @@
 #include "SDL_blit_slow.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
+#include "../SDL_assert_c.h"
 
 /* The general purpose software blit routine */
 static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
@@ -36,6 +37,8 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
     int okay;
     int src_locked;
     int dst_locked;
+
+    SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
     /* Everything is okay at the beginning...  */
     okay = 1;
@@ -60,7 +63,7 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
     }
 
     /* Set up source and destination buffer pointers, and BLIT! */
-    if (okay && !SDL_RectEmpty(srcrect)) {
+    if (okay) {
         SDL_BlitFunc RunBlit;
         SDL_BlitInfo *info = &src->map->info;
 

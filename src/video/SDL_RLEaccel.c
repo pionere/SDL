@@ -91,6 +91,7 @@
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
+#include "../SDL_assert_c.h"
 
 #define PIXEL_COPY(to, from, len, bpp) \
     SDL_memcpy(to, from, (size_t)(len) * (bpp))
@@ -452,6 +453,8 @@ static int SDLCALL SDL_RLEBlit(SDL_Surface *surf_src, SDL_Rect *srcrect,
     int w = surf_src->w;
     unsigned alpha;
 
+    SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
+
     /* Lock the destination if necessary */
     if (SDL_MUSTLOCK(surf_dst)) {
         if (SDL_LockSurface(surf_dst) < 0) {
@@ -725,6 +728,8 @@ static int SDLCALL SDL_RLEAlphaBlit(SDL_Surface *surf_src, SDL_Rect *srcrect,
     int w = surf_src->w;
     Uint8 *srcbuf, *dstbuf;
     SDL_PixelFormat *df = surf_dst->format;
+
+    SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
     /* Lock the destination if necessary */
     if (SDL_MUSTLOCK(surf_dst)) {
