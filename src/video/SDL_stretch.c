@@ -831,13 +831,13 @@ int SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
     int dst_gap;                       \
     int srcy, n;                       \
     const Uint32 *src_h0;              \
-    incy = (src_h << 16) / dst_h;      \
-    incx = (src_w << 16) / dst_w;      \
+    incy = FIXED_POINT(src_h) / dst_h; \
+    incx = FIXED_POINT(src_w) / dst_w; \
     dst_gap = dst_pitch - bpp * dst_w; \
     posy = incy / 2;
 
 #define SDL_SCALE_NEAREST__HEIGHT                                         \
-    srcy = (posy >> 16);                                                  \
+    srcy = SRC_INDEX(posy);                                               \
     src_h0 = (const Uint32 *)((const Uint8 *)src_ptr + srcy * src_pitch); \
     posy += incy;                                                         \
     posx = incx / 2;                                                      \
@@ -852,7 +852,7 @@ static int scale_mat_nearest_1(const Uint32 *src_ptr, int src_w, int src_h, int 
         SDL_SCALE_NEAREST__HEIGHT
         while (n--) {
             const Uint8 *src;
-            int srcx = bpp * (posx >> 16);
+            int srcx = bpp * SRC_INDEX(posx);
             posx += incx;
             src = (const Uint8 *)src_h0 + srcx;
             *(Uint8 *)dst = *src;
@@ -872,7 +872,7 @@ static int scale_mat_nearest_2(const Uint32 *src_ptr, int src_w, int src_h, int 
         SDL_SCALE_NEAREST__HEIGHT
         while (n--) {
             const Uint16 *src;
-            int srcx = bpp * (posx >> 16);
+            int srcx = bpp * SRC_INDEX(posx);
             posx += incx;
             src = (const Uint16 *)((const Uint8 *)src_h0 + srcx);
             *(Uint16 *)dst = *src;
@@ -892,7 +892,7 @@ static int scale_mat_nearest_3(const Uint32 *src_ptr, int src_w, int src_h, int 
         SDL_SCALE_NEAREST__HEIGHT
         while (n--) {
             const Uint8 *src;
-            int srcx = bpp * (posx >> 16);
+            int srcx = bpp * SRC_INDEX(posx);
             posx += incx;
             src = (const Uint8 *)src_h0 + srcx;
             ((Uint8 *)dst)[0] = src[0];
@@ -914,7 +914,7 @@ static int scale_mat_nearest_4(const Uint32 *src_ptr, int src_w, int src_h, int 
         SDL_SCALE_NEAREST__HEIGHT
         while (n--) {
             const Uint32 *src;
-            int srcx = bpp * (posx >> 16);
+            int srcx = bpp * SRC_INDEX(posx);
             posx += incx;
             src = (const Uint32 *)((const Uint8 *)src_h0 + srcx);
             *dst = *src;
