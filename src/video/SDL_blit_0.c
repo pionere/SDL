@@ -145,7 +145,7 @@ SDL_FORCE_INLINE void BlitBto2(const SDL_BlitInfo *info, const Uint32 srcbpp)
     src = info->src;
     srcskip = info->src_skip;
     dst = (Uint16 *)info->dst;
-    dstskip = info->dst_skip / 2;
+    dstskip = info->dst_skip >> 1;
     map = (Uint16 *)info->table;
 
     if (srcbpp == 4)
@@ -278,7 +278,7 @@ SDL_FORCE_INLINE void BlitBto4(const SDL_BlitInfo *info, const Uint32 srcbpp)
     src = info->src;
     srcskip = info->src_skip;
     dst = (Uint32 *)info->dst;
-    dstskip = info->dst_skip / 4;
+    dstskip = info->dst_skip >> 2;
     map = (Uint32 *)info->table;
 
     if (srcbpp == 4)

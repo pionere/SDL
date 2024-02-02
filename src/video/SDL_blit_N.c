@@ -583,9 +583,9 @@ static void Blit32to32KeyAltivec(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint32 *srcp = (Uint32 *)info->src;
-    int srcskip = info->src_skip / 4;
+    int srcskip = info->src_skip >> 2;
     Uint32 *dstp = (Uint32 *)info->dst;
-    int dstskip = info->dst_skip / 4;
+    int dstskip = info->dst_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src_fmt;
     int srcbpp = srcfmt->BytesPerPixel;
     SDL_PixelFormat *dstfmt = info->dst_fmt;
@@ -705,9 +705,9 @@ static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
     Uint32 *src = (Uint32 *)info->src;
-    int srcskip = info->src_skip / 4;
+    int srcskip = info->src_skip >> 2;
     Uint32 *dst = (Uint32 *)info->dst;
-    int dstskip = info->dst_skip / 4;
+    int dstskip = info->dst_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src_fmt;
     SDL_PixelFormat *dstfmt = info->dst_fmt;
     vector unsigned int vzero = vec_splat_u32(0);
@@ -791,9 +791,9 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
 
     int height = info->dst_h;
     Uint32 *src = (Uint32 *)info->src;
-    int srcskip = info->src_skip / 4;
+    int srcskip = info->src_skip >> 2;
     Uint32 *dst = (Uint32 *)info->dst;
-    int dstskip = info->dst_skip / 4;
+    int dstskip = info->dst_skip >> 2;
     SDL_PixelFormat *srcfmt = info->src_fmt;
     SDL_PixelFormat *dstfmt = info->dst_fmt;
     vector unsigned int vzero = vec_splat_u32(0);
@@ -972,7 +972,7 @@ static void Blit_RGB888_index8(const SDL_BlitInfo *info)
     width = info->dst_w;
     height = info->dst_h;
     src = (Uint32 *)info->src;
-    srcskip = info->src_skip / 4;
+    srcskip = info->src_skip >> 2;
     dst = info->dst;
     dstskip = info->dst_skip;
     map = info->table;
@@ -1086,7 +1086,7 @@ static void Blit_RGB101010_index8(const SDL_BlitInfo *info)
     width = info->dst_w;
     height = info->dst_h;
     src = (Uint32 *)info->src;
-    srcskip = info->src_skip / 4;
+    srcskip = info->src_skip >> 2;
     dst = info->dst;
     dstskip = info->dst_skip;
     map = info->table;
@@ -1211,9 +1211,9 @@ static void Blit_RGB888_RGB555(const SDL_BlitInfo *info)
     width = info->dst_w;
     height = info->dst_h;
     src = (Uint32 *)info->src;
-    srcskip = info->src_skip / 4;
+    srcskip = info->src_skip >> 2;
     dst = (Uint16 *)info->dst;
-    dstskip = info->dst_skip / 2;
+    dstskip = info->dst_skip >> 1;
 
 #ifdef USE_DUFFS_LOOP
     while (height--) {
@@ -1341,9 +1341,9 @@ static void Blit_RGB888_RGB565(const SDL_BlitInfo *info)
     width = info->dst_w;
     height = info->dst_h;
     src = (Uint32 *)info->src;
-    srcskip = info->src_skip / 4;
+    srcskip = info->src_skip >> 2;
     dst = (Uint16 *)info->dst;
-    dstskip = info->dst_skip / 2;
+    dstskip = info->dst_skip >> 1;
 
 #ifdef USE_DUFFS_LOOP
     while (height--) {
@@ -1458,7 +1458,7 @@ static void Blit_RGB565_32(const SDL_BlitInfo *info, const Uint32 *map)
     src = info->src;
     srcskip = info->src_skip;
     dst = (Uint32 *)info->dst;
-    dstskip = info->dst_skip / 4;
+    dstskip = info->dst_skip >> 2;
 
 #ifdef USE_DUFFS_LOOP
     while (height--) {

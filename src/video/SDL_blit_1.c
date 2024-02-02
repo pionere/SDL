@@ -252,7 +252,7 @@ static void Blit1to4(const SDL_BlitInfo *info)
     src = info->src;
     srcskip = info->src_skip;
     dst = (Uint32 *)info->dst;
-    dstskip = info->dst_skip / 4;
+    dstskip = info->dst_skip >> 2;
     map = (Uint32 *)info->table;
 
     while (height--) {
