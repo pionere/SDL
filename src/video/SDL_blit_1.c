@@ -127,7 +127,7 @@ static void Blit1to2(const SDL_BlitInfo *info)
             dst += 2;
 
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width >> 2; c; --c) {
                 *(Uint32 *)dst = (map[src[HI]] << 16) | (map[src[LO]]);
                 src += 2;
                 dst += 4;
@@ -157,7 +157,7 @@ static void Blit1to2(const SDL_BlitInfo *info)
     } else {
         while (height--) {
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width >> 2; c; --c) {
                 *(Uint32 *)dst = (map[src[HI]] << 16) | (map[src[LO]]);
                 src += 2;
                 dst += 4;
@@ -263,7 +263,7 @@ static void Blit1to4(const SDL_BlitInfo *info)
         , width);
         /* *INDENT-ON* */ /* clang-format on */
 #else
-        for (c = width / 4; c; --c) {
+        for (c = width >> 2; c; --c) {
             *dst++ = map[*src++];
             *dst++ = map[*src++];
             *dst++ = map[*src++];

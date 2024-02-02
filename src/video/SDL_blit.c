@@ -35,8 +35,8 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
                                 SDL_Surface *dst, SDL_Rect *dstrect)
 {
     int okay;
-    int src_locked;
-    int dst_locked;
+    SDL_bool src_locked;
+    SDL_bool dst_locked;
 
     SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
@@ -44,21 +44,21 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
     okay = 1;
 
     /* Lock the destination if it's in hardware */
-    dst_locked = 0;
+    dst_locked = SDL_FALSE;
     if (SDL_MUSTLOCK(dst)) {
         if (SDL_LockSurface(dst) < 0) {
             okay = 0;
         } else {
-            dst_locked = 1;
+            dst_locked = SDL_TRUE;
         }
     }
     /* Lock the source if it's in hardware */
-    src_locked = 0;
+    src_locked = SDL_FALSE;
     if (SDL_MUSTLOCK(src)) {
         if (SDL_LockSurface(src) < 0) {
             okay = 0;
         } else {
-            src_locked = 1;
+            src_locked = SDL_TRUE;
         }
     }
 
@@ -98,7 +98,7 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
         SDL_UnlockSurface(src);
     }
     /* Blit is done! */
-    return okay ? 0 : -1;
+    return okay - 1;
 }
 
 #if SDL_HAVE_BLIT_AUTO
