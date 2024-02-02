@@ -46,7 +46,7 @@ static int SDL_INLINE detect_format(SDL_PixelFormat *pf)
 void SDL_Blit_Slow(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint8 *dst = info->dst;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
     const Uint32 modulateG = info->g;
@@ -77,7 +77,6 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint8 *src = 0;
-        Uint8 *dst = rawDst;
         int n = info->dst_w;
         posx = incx / 2; /* start at the middle of pixel */
         srcy = posy >> 16;
@@ -201,7 +200,7 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
             dst += dstbpp;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst += info->dst_skip;
     }
 }
 

@@ -433,7 +433,7 @@ sub output_copyfunc
     print FILE <<__EOF__;
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    $format_type{$dst} *dst = ($format_type{$dst} *)info->dst;
     Uint8 *rawSrc = info->src;
 __EOF__
     if ( $modulate || $blend ) {
@@ -534,7 +534,6 @@ __EOF__
 
     while (height--) {
         $format_type{$src} *src = 0;
-        $format_type{$dst} *dst = ($format_type{$dst} *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -551,7 +550,7 @@ __EOF__
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = ($format_type{$dst} *)((Uint8 *)dst + info->dst_skip);
     }
 __EOF__
     } else {
@@ -559,7 +558,6 @@ __EOF__
 
     while (height--) {
         $format_type{$src} *src = ($format_type{$src} *)rawSrc;
-        $format_type{$dst} *dst = ($format_type{$dst} *)rawDst;
         int n = info->dst_w;
         while (n--) {
 __EOF__
@@ -569,7 +567,7 @@ __EOF__
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = ($format_type{$dst} *)((Uint8 *)dst + info->dst_skip);
     }
 __EOF__
     }

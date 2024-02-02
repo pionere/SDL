@@ -32,7 +32,7 @@
 static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     int srcy, srcx;
     Uint32 posy, posx;
@@ -44,7 +44,6 @@ static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -57,14 +56,14 @@ static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -74,7 +73,6 @@ static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -109,14 +107,14 @@ static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -133,7 +131,6 @@ static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -173,14 +170,14 @@ static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -191,7 +188,6 @@ static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -207,14 +203,14 @@ static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -232,7 +228,6 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -253,14 +248,14 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -275,7 +270,6 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -323,14 +317,14 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -352,7 +346,6 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -405,14 +398,14 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -426,7 +419,6 @@ static void SDL_Blit_RGB888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -442,14 +434,14 @@ static void SDL_Blit_RGB888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -459,7 +451,6 @@ static void SDL_Blit_RGB888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -494,14 +485,14 @@ static void SDL_Blit_RGB888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -518,7 +509,6 @@ static void SDL_Blit_RGB888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -558,14 +548,14 @@ static void SDL_Blit_RGB888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -576,7 +566,6 @@ static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -592,14 +581,14 @@ static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -617,7 +606,6 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -638,14 +626,14 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -660,7 +648,6 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -708,14 +695,14 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -737,7 +724,6 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -790,14 +776,14 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     const Uint32 A = 0xFF;
@@ -811,7 +797,6 @@ static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -826,14 +811,14 @@ static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -843,7 +828,6 @@ static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -879,14 +863,14 @@ static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -903,7 +887,6 @@ static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -944,14 +927,14 @@ static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -964,7 +947,6 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -980,14 +962,14 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1007,7 +989,6 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1028,14 +1009,14 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1050,7 +1031,6 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -1099,14 +1079,14 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1128,7 +1108,6 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1182,14 +1161,14 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -1203,7 +1182,6 @@ static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1219,14 +1197,14 @@ static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -1236,7 +1214,6 @@ static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -1271,14 +1248,14 @@ static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -1295,7 +1272,6 @@ static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1335,14 +1311,14 @@ static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1353,7 +1329,6 @@ static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -1369,14 +1344,14 @@ static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1394,7 +1369,6 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1415,14 +1389,14 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1437,7 +1411,6 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -1485,14 +1458,14 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1514,7 +1487,6 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1567,14 +1539,14 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     int srcy, srcx;
     Uint32 posy, posx;
@@ -1586,7 +1558,6 @@ static void SDL_Blit_BGR888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1599,14 +1570,14 @@ static void SDL_Blit_BGR888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -1616,7 +1587,6 @@ static void SDL_Blit_BGR888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -1651,14 +1621,14 @@ static void SDL_Blit_BGR888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -1675,7 +1645,6 @@ static void SDL_Blit_BGR888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1715,14 +1684,14 @@ static void SDL_Blit_BGR888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1733,7 +1702,6 @@ static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -1749,14 +1717,14 @@ static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1774,7 +1742,6 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1795,14 +1762,14 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1817,7 +1784,6 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -1865,14 +1831,14 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -1894,7 +1860,6 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1947,14 +1912,14 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     const Uint32 A = 0xFF;
@@ -1969,7 +1934,6 @@ static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -1985,14 +1949,14 @@ static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2002,7 +1966,6 @@ static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -2038,14 +2001,14 @@ static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2062,7 +2025,6 @@ static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2103,14 +2065,14 @@ static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2123,7 +2085,6 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -2139,14 +2100,14 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2166,7 +2127,6 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2187,14 +2147,14 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2209,7 +2169,6 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -2258,14 +2217,14 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2287,7 +2246,6 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2341,14 +2299,14 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     int srcy, srcx;
@@ -2361,7 +2319,6 @@ static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2376,14 +2333,14 @@ static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2393,7 +2350,6 @@ static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -2436,14 +2392,14 @@ static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2460,7 +2416,6 @@ static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2508,14 +2463,14 @@ static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2526,7 +2481,6 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -2542,14 +2496,14 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2567,7 +2521,6 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2588,14 +2541,14 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2609,7 +2562,6 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -2660,14 +2612,14 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2688,7 +2640,6 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2744,14 +2695,14 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -2765,7 +2716,6 @@ static void SDL_Blit_ARGB8888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2781,14 +2731,14 @@ static void SDL_Blit_ARGB8888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2798,7 +2748,6 @@ static void SDL_Blit_ARGB8888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -2841,14 +2790,14 @@ static void SDL_Blit_ARGB8888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -2865,7 +2814,6 @@ static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2913,14 +2861,14 @@ static void SDL_Blit_ARGB8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2931,7 +2879,6 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -2947,14 +2894,14 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -2972,7 +2919,6 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -2993,14 +2939,14 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3014,7 +2960,6 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -3065,14 +3010,14 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3093,7 +3038,6 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3149,14 +3093,14 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     int srcy, srcx;
     Uint32 posy, posx;
@@ -3168,7 +3112,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3181,14 +3124,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -3198,7 +3141,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -3242,14 +3184,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -3266,7 +3208,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3315,14 +3256,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3334,7 +3275,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -3353,14 +3293,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3379,7 +3319,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3403,14 +3342,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3424,7 +3363,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -3476,14 +3414,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3504,7 +3442,6 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3561,14 +3498,14 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     int srcy, srcx;
@@ -3581,7 +3518,6 @@ static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3596,14 +3532,14 @@ static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -3613,7 +3549,6 @@ static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -3656,14 +3591,14 @@ static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -3680,7 +3615,6 @@ static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3728,14 +3662,14 @@ static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3746,7 +3680,6 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -3762,14 +3695,14 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3787,7 +3720,6 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3808,14 +3740,14 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3829,7 +3761,6 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -3880,14 +3811,14 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -3908,7 +3839,6 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -3964,14 +3894,14 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -3985,7 +3915,6 @@ static void SDL_Blit_RGBA8888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4001,14 +3930,14 @@ static void SDL_Blit_RGBA8888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4018,7 +3947,6 @@ static void SDL_Blit_RGBA8888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -4061,14 +3989,14 @@ static void SDL_Blit_RGBA8888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4085,7 +4013,6 @@ static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4133,14 +4060,14 @@ static void SDL_Blit_RGBA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4151,7 +4078,6 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -4167,14 +4093,14 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4192,7 +4118,6 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4213,14 +4138,14 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4234,7 +4159,6 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -4285,14 +4209,14 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4313,7 +4237,6 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4369,14 +4292,14 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     int srcy, srcx;
@@ -4389,7 +4312,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4404,14 +4326,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4421,7 +4343,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -4465,14 +4386,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4489,7 +4410,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4538,14 +4458,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4557,7 +4477,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -4576,14 +4495,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4602,7 +4521,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4626,14 +4544,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4647,7 +4565,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -4699,14 +4616,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4727,7 +4644,6 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4784,14 +4700,14 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -4805,7 +4721,6 @@ static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4821,14 +4736,14 @@ static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4838,7 +4753,6 @@ static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -4881,14 +4795,14 @@ static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -4905,7 +4819,6 @@ static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -4953,14 +4866,14 @@ static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -4971,7 +4884,6 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -4987,14 +4899,14 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5012,7 +4924,6 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5033,14 +4944,14 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5054,7 +4965,6 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -5105,14 +5015,14 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5133,7 +5043,6 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5189,14 +5098,14 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     int srcy, srcx;
@@ -5209,7 +5118,6 @@ static void SDL_Blit_ABGR8888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5224,14 +5132,14 @@ static void SDL_Blit_ABGR8888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -5241,7 +5149,6 @@ static void SDL_Blit_ABGR8888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -5284,14 +5191,14 @@ static void SDL_Blit_ABGR8888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -5308,7 +5215,6 @@ static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5356,14 +5262,14 @@ static void SDL_Blit_ABGR8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5374,7 +5280,6 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -5390,14 +5295,14 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5415,7 +5320,6 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5436,14 +5340,14 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5457,7 +5361,6 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -5508,14 +5411,14 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5536,7 +5439,6 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5592,14 +5494,14 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B, A;
@@ -5613,7 +5515,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5629,14 +5530,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -5646,7 +5547,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -5690,14 +5590,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -5714,7 +5614,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5763,14 +5662,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5782,7 +5681,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -5801,14 +5699,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5827,7 +5725,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -5851,14 +5748,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5872,7 +5769,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -5924,14 +5820,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -5952,7 +5848,6 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6009,14 +5904,14 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B;
@@ -6030,7 +5925,6 @@ static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6046,14 +5940,14 @@ static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6063,7 +5957,6 @@ static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -6106,14 +5999,14 @@ static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6130,7 +6023,6 @@ static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6178,14 +6070,14 @@ static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6196,7 +6088,6 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -6212,14 +6103,14 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6237,7 +6128,6 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6258,14 +6148,14 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6279,7 +6169,6 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -6330,14 +6219,14 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6358,7 +6247,6 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6414,14 +6302,14 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     int srcy, srcx;
@@ -6434,7 +6322,6 @@ static void SDL_Blit_BGRA8888_BGR888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6449,14 +6336,14 @@ static void SDL_Blit_BGRA8888_BGR888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6466,7 +6353,6 @@ static void SDL_Blit_BGRA8888_BGR888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -6509,14 +6395,14 @@ static void SDL_Blit_BGRA8888_BGR888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6533,7 +6419,6 @@ static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6581,14 +6466,14 @@ static void SDL_Blit_BGRA8888_BGR888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6599,7 +6484,6 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -6615,14 +6499,14 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6640,7 +6524,6 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6661,14 +6544,14 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6682,7 +6565,6 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -6733,14 +6615,14 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -6761,7 +6643,6 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6817,14 +6698,14 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     Uint32 pixel;
     Uint32 R, G, B, A;
@@ -6838,7 +6719,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6854,14 +6734,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6871,7 +6751,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -6915,14 +6794,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     Uint32 srcpixel;
@@ -6939,7 +6818,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -6988,14 +6866,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -7007,7 +6885,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             pixel = *src;
@@ -7026,14 +6903,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -7052,7 +6929,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -7076,14 +6952,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -7097,7 +6973,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 
     while (height--) {
         Uint32 *src = (Uint32 *)rawSrc;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         while (n--) {
             srcpixel = *src;
@@ -7149,14 +7024,14 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
             ++dst;
         }
         rawSrc += info->src_pitch;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int height = info->dst_h;
-    Uint8 *rawDst = info->dst;
+    Uint32 *dst = (Uint32 *)info->dst;
     Uint8 *rawSrc = info->src;
     const int flags = info->flags;
     const Uint32 modulateR = info->r;
@@ -7177,7 +7052,6 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
 
     while (height--) {
         Uint32 *src = 0;
-        Uint32 *dst = (Uint32 *)rawDst;
         int n = info->dst_w;
         posx = incx / 2;
 
@@ -7234,7 +7108,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
             ++dst;
         }
         posy += incy;
-        rawDst += info->dst_pitch;
+        dst = (Uint32 *)((Uint8 *)dst + info->dst_skip);
     }
 }
 
