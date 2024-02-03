@@ -1241,7 +1241,8 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
         }
     }
 
-    if (!SDL_RectEmpty(&bounds)) {
+    // if (!SDL_RectEmpty(&bounds)) {
+    if (bounds.w > 0 && bounds.h > 0) {
         ret = SDL_LowerBlit(surface, &bounds, convert, &bounds);
     } else {
         ret = 0; /* No-op */

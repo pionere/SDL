@@ -123,7 +123,9 @@ static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
         dstrect = &full_dst;
     }
 
-    if (dstrect->w <= 0 || dstrect->h <= 0) {
+    // if (SDL_RectEmpty(srcrect) || SDL_RectEmpty(dstrect)) {
+    if ((srcrect->w <= 0 || srcrect->h <= 0) || (dstrect->w <= 0 || dstrect->h <= 0)) {
+        /* No-op */
         return 0;
     }
 
