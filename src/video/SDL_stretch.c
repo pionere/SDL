@@ -24,6 +24,40 @@
 #include "SDL_blit.h"
 #include "SDL_render.h"
 
+#ifdef __SSE2__
+#define HAVE_SSE2_INTRINSICS
+#endif
+
+#ifdef __ARM_NEON
+#define HAVE_NEON_INTRINSICS 1
+#define CAST_uint8x8_t       (uint8x8_t)
+#define CAST_uint32x2_t      (uint32x2_t)
+#endif
+
+#if defined(__WINRT__) || defined(_MSC_VER)
+#ifdef HAVE_NEON_INTRINSICS
+#undef CAST_uint8x8_t
+#undef CAST_uint32x2_t
+#define CAST_uint8x8_t
+#define CAST_uint32x2_t
+#endif
+#endif
+
+#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_STRETCHER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
+#define NEED_SCALAR_STRETCHER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8) && defined(HAVE_NEON_INTRINSICS)
+#define NEED_SCALAR_STRETCHER_FALLBACKS 0 /* ARMv8+ promise NEON. */
+#elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7) && defined(HAVE_NEON_INTRINSICS)
+#define NEED_SCALAR_STRETCHER_FALLBACKS 0 /* All Apple ARMv7 chips promise NEON support. */
+#endif
+
+/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
+#ifndef NEED_SCALAR_STRETCHER_FALLBACKS
+#define NEED_SCALAR_STRETCHER_FALLBACKS 1
+#endif
+
 static void SDL_LowerSoftStretchNearest(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
 static void SDL_LowerSoftStretchLinear(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
 static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
@@ -235,7 +269,7 @@ static void get_scaler_datas(int src_nb, int dst_nb, int *fp_start, int *fp_step
     }
     //    SDL_Log("%d -> %d  x0=%d step=%d left_pad=%d right_pad=%d", src_nb, dst_nb, *fp_start, *fp_step, *left_pad, *right_pad);
 }
-
+#if NEED_SCALAR_STRETCHER_FALLBACKS
 typedef struct color_t
 {
     Uint8 a;
@@ -333,27 +367,9 @@ static void scale_mat(const Uint32 *src, int src_w, int src_h, int src_pitch,
         dst = (Uint32 *)((Uint8 *)dst + dst_gap);
     }
 }
+#endif // NEED_SCALAR_STRETCHER_FALLBACKS
 
-#if defined(__SSE2__)
-#define HAVE_SSE2_INTRINSICS
-#endif
-
-#if defined(__ARM_NEON)
-#define HAVE_NEON_INTRINSICS 1
-#define CAST_uint8x8_t       (uint8x8_t)
-#define CAST_uint32x2_t      (uint32x2_t)
-#endif
-
-#if defined(__WINRT__) || defined(_MSC_VER)
-#if defined(HAVE_NEON_INTRINSICS)
-#undef CAST_uint8x8_t
-#undef CAST_uint32x2_t
-#define CAST_uint8x8_t
-#define CAST_uint32x2_t
-#endif
-#endif
-
-#if defined(HAVE_SSE2_INTRINSICS)
+#ifdef HAVE_SSE2_INTRINSICS
 
 #if 0
 static void printf_128(const char *str, __m128i var)
@@ -518,9 +534,9 @@ static void scale_mat_SSE(const Uint32 *src, int src_w, int src_h, int src_pitch
         dst = (Uint32 *)((Uint8 *)dst + dst_gap);
     }
 }
-#endif
+#endif // HAVE_SSE2_INTRINSICS
 
-#if defined(HAVE_NEON_INTRINSICS)
+#ifdef HAVE_NEON_INTRINSICS
 
 static SDL_INLINE void INTERPOL_BILINEAR_NEON(const Uint32 *s0, const Uint32 *s1, int frac_w, uint8x8_t v_frac_h0, uint8x8_t v_frac_h1, Uint32 *dst)
 {
@@ -769,7 +785,7 @@ static void scale_mat_NEON(const Uint32 *src, int src_w, int src_h, int src_pitc
         dst = (Uint32 *)((Uint8 *)dst + dst_gap);
     }
 }
-#endif
+#endif // HAVE_NEON_INTRINSICS
 
 void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
                                SDL_Surface *d, const SDL_Rect *dstrect)
@@ -784,20 +800,32 @@ void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
     Uint32 *dst = (Uint32 *)((Uint8 *)d->pixels + dstrect->x * 4 + dstrect->y * dst_pitch);
 
     if (SDL_Scale_linear == NULL) {
+#if NEED_SCALAR_STRETCHER_FALLBACKS
         SDL_Scale_linear = scale_mat;
-#if defined(HAVE_NEON_INTRINSICS)
+#endif
+#ifdef HAVE_NEON_INTRINSICS
+#if NEED_SCALAR_STRETCHER_FALLBACKS
         if (SDL_HasNEON()) {
+#else
+        SDL_assert(SDL_HasNEON());
+        if (1) {
+#endif
             SDL_Scale_linear = scale_mat_NEON;
         }
 #endif
 
-#if defined(HAVE_SSE2_INTRINSICS)
+#ifdef HAVE_SSE2_INTRINSICS
+#if NEED_SCALAR_STRETCHER_FALLBACKS
         if (SDL_HasSSE2()) {
+#else
+        SDL_assert(SDL_HasSSE2());
+        if (1) {
+#endif
             SDL_Scale_linear = scale_mat_SSE;
         }
 #endif
+        SDL_assert(SDL_Scale_linear != NULL);
     }
-
     SDL_Scale_linear(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_pitch);
 }
 
