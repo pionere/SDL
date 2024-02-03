@@ -1421,10 +1421,8 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
 
 void SDL_ChooseAudioConverters(void)
 {
-    static SDL_bool converters_chosen = SDL_FALSE;
-
-    if (converters_chosen) {
-        return;
+    if (SDL_Convert_S8_to_F32) {
+        return; // converters chosen
     }
 
 #define SET_CONVERTER_FUNCS(fntype)                           \
@@ -1438,17 +1436,26 @@ void SDL_ChooseAudioConverters(void)
     SDL_Convert_F32_to_S16 = SDL_Convert_F32_to_S16_##fntype; \
     SDL_Convert_F32_to_U16 = SDL_Convert_F32_to_U16_##fntype; \
     SDL_Convert_F32_to_S32 = SDL_Convert_F32_to_S32_##fntype; \
-    converters_chosen = SDL_TRUE
 
 #ifdef HAVE_SSE2_INTRINSICS
+#if NEED_SCALAR_CONVERTER_FALLBACKS
     if (SDL_HasSSE2()) {
+#else
+    SDL_assert(SDL_HasSSE2());
+    if (1) {
+#endif
         SET_CONVERTER_FUNCS(SSE2);
         return;
     }
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
+#if NEED_SCALAR_CONVERTER_FALLBACKS
     if (SDL_HasNEON()) {
+#else
+    SDL_assert(SDL_HasNEON());
+    if (1) {
+#endif
         SET_CONVERTER_FUNCS(NEON);
         return;
     }
@@ -1460,7 +1467,7 @@ void SDL_ChooseAudioConverters(void)
 
 #undef SET_CONVERTER_FUNCS
 
-    SDL_assert(converters_chosen == SDL_TRUE);
+    SDL_assert(SDL_Convert_S8_to_F32 != NULL);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
