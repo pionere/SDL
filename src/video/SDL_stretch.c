@@ -28,6 +28,9 @@ static void SDL_LowerSoftStretchNearest(SDL_Surface *src, const SDL_Rect *srcrec
 static void SDL_LowerSoftStretchLinear(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
 static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
 
+/* Function pointer set to a CPU-specific implementation. */
+static void (*SDL_Scale_linear)(const Uint32 *src, int src_w, int src_h, int src_pitch, Uint32 *dst, int dst_w, int dst_h, int dst_pitch) = NULL;
+
 int SDL_SoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
                     SDL_Surface *dst, const SDL_Rect *dstrect)
 {
@@ -361,16 +364,6 @@ static void printf_128(const char *str, __m128i var)
 }
 #endif
 
-static SDL_INLINE int hasSSE2()
-{
-    static int val = -1;
-    if (val != -1) {
-        return val;
-    }
-    val = SDL_HasSSE2();
-    return val;
-}
-
 static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1, int frac_w, __m128i v_frac_h0, __m128i v_frac_h1, Uint32 *dst, __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
@@ -528,16 +521,6 @@ static void scale_mat_SSE(const Uint32 *src, int src_w, int src_h, int src_pitch
 #endif
 
 #if defined(HAVE_NEON_INTRINSICS)
-
-static SDL_INLINE int hasNEON(void)
-{
-    static int val = -1;
-    if (val != -1) {
-        return val;
-    }
-    val = SDL_HasNEON();
-    return val;
-}
 
 static SDL_INLINE void INTERPOL_BILINEAR_NEON(const Uint32 *s0, const Uint32 *s1, int frac_w, uint8x8_t v_frac_h0, uint8x8_t v_frac_h1, Uint32 *dst)
 {
@@ -800,21 +783,22 @@ void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
     Uint32 *src = (Uint32 *)((Uint8 *)s->pixels + srcrect->x * 4 + srcrect->y * src_pitch);
     Uint32 *dst = (Uint32 *)((Uint8 *)d->pixels + dstrect->x * 4 + dstrect->y * dst_pitch);
 
+    if (SDL_Scale_linear == NULL) {
+        SDL_Scale_linear = scale_mat;
 #if defined(HAVE_NEON_INTRINSICS)
-    if (hasNEON()) {
-        scale_mat_NEON(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_pitch);
-        return;
-    }
+        if (SDL_HasNEON()) {
+            SDL_Scale_linear = scale_mat_NEON;
+        }
 #endif
 
 #if defined(HAVE_SSE2_INTRINSICS)
-    if (hasSSE2()) {
-        scale_mat_SSE(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_pitch);
-        return;
-    }
+        if (SDL_HasSSE2()) {
+            SDL_Scale_linear = scale_mat_SSE;
+        }
 #endif
+    }
 
-    scale_mat(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_pitch);
+    SDL_Scale_linear(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_pitch);
 }
 
 #define SDL_SCALE_NEAREST__START       \
