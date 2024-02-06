@@ -58,6 +58,8 @@
 #define NEED_SCALAR_STRETCHER_FALLBACKS 1
 #endif
 
+#define SDL_STRETCH_LIMIT SDL_MAX_UINT16
+
 static void SDL_LowerSoftStretchNearest(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
 static void SDL_LowerSoftStretchLinear(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
 static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
@@ -129,8 +131,8 @@ static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
         return 0;
     }
 
-    if (srcrect->w > SDL_MAX_UINT16 || srcrect->h > SDL_MAX_UINT16 ||
-        dstrect->w > SDL_MAX_UINT16 || dstrect->h > SDL_MAX_UINT16) {
+    if (srcrect->w > SDL_STRETCH_LIMIT || srcrect->h > SDL_STRETCH_LIMIT ||
+        dstrect->w > SDL_STRETCH_LIMIT || dstrect->h > SDL_STRETCH_LIMIT) {
         return SDL_SetError("Size too large for scaling");
     }
 
@@ -185,92 +187,32 @@ static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
 #define FRAC_ONE       (1 << PRECISION)
 #define FP_ONE         FIXED_POINT(1)
 
-#define BILINEAR___START                                                              \
-    Uint32 *dst = (Uint32 *)dst_ptr;                                                  \
-    int i;                                                                            \
-    int fp_sum_h, fp_step_h, left_pad_h, right_pad_h;                                 \
-    int fp_sum_w, fp_step_w, left_pad_w, right_pad_w;                                 \
-    int fp_sum_w_init, left_pad_w_init, right_pad_w_init, middle_init;                \
-    get_scaler_datas(src_h, dst_h, &fp_sum_h, &fp_step_h, &left_pad_h, &right_pad_h); \
-    get_scaler_datas(src_w, dst_w, &fp_sum_w, &fp_step_w, &left_pad_w, &right_pad_w); \
-    fp_sum_w_init = fp_sum_w + left_pad_w * fp_step_w;                                \
-    left_pad_w_init = left_pad_w;                                                     \
-    right_pad_w_init = right_pad_w;                                                   \
-    middle_init = dst_w - left_pad_w - right_pad_w;
+SDL_COMPILE_TIME_ASSERT(stretch_limit, SRC_INDEX(FIXED_POINT(SDL_STRETCH_LIMIT)) == SDL_STRETCH_LIMIT);
+SDL_COMPILE_TIME_ASSERT(stretch_limit_round, FP_ONE > SDL_STRETCH_LIMIT);
+#define BILINEAR___START             \
+    Uint32 *dst = (Uint32 *)dst_ptr; \
+    Uint32 posx, posy;               \
+    Uint32 incx, incy;               \
+    Uint32 columns;                  \
+    Uint32 rows = dst_h;             \
+    incx = dst_w > 1 ? FIXED_POINT(src_w - 1) / (dst_w - 1) : 0; \
+    incy = dst_h > 1 ? FIXED_POINT(src_h - 1) / (dst_h - 1) : 0; \
+    incx += src_w > 1 && src_w < SDL_STRETCH_LIMIT ? 1 : 0; \
+    incy += src_h > 1 && src_h < SDL_STRETCH_LIMIT ? 1 : 0; \
+    posy = 0;
 
-#define BILINEAR___HEIGHT                                              \
-    int index_h, frac_h0, frac_h1, middle;                             \
-    const Uint32 *src_h0, *src_h1;                                     \
-    int no_padding, incr_h0, incr_h1;                                  \
-                                                                       \
-    no_padding = !(i < left_pad_h || i > dst_h - 1 - right_pad_h);     \
-    index_h = SRC_INDEX(fp_sum_h);                                     \
-    frac_h0 = FRAC(fp_sum_h);                                          \
-                                                                       \
-    index_h = no_padding ? index_h : (i < left_pad_h ? 0 : src_h - 1); \
-    frac_h0 = no_padding ? frac_h0 : 0;                                \
-    incr_h1 = no_padding ? src_pitch : 0;                              \
-    incr_h0 = index_h * src_pitch;                                     \
-                                                                       \
-    src_h0 = (const Uint32 *)(src_ptr + incr_h0);                      \
-    src_h1 = (const Uint32 *)((const Uint8 *)src_h0 + incr_h1);        \
-                                                                       \
-    fp_sum_h += fp_step_h;                                             \
-                                                                       \
-    frac_h1 = FRAC_ONE - frac_h0;                                      \
-    fp_sum_w = fp_sum_w_init;                                          \
-    right_pad_w = right_pad_w_init;                                    \
-    left_pad_w = left_pad_w_init;                                      \
-    middle = middle_init;
+#define BILINEAR___HEIGHT                                         \
+    int frac_h0;                                                  \
+    const Uint32 *src_h0, *src_h1;                                \
+    int incr_h0;                                                  \
+    frac_h0 = FRAC(posy);                                         \
+    incr_h0 = SRC_INDEX(posy) * src_pitch;                        \
+    src_h0 = (const Uint32 *)(src_ptr + incr_h0);                 \
+    src_h1 = (const Uint32 *)((const Uint8 *)src_h0 + src_pitch); \
+    posy += incy;                                                 \
+    posx = 0;                                                     \
+    columns = dst_w;
 
-#if defined(__clang__)
-// Remove inlining of this function
-// Compiler crash with clang 9.0.8 / android-ndk-r21d
-// Compiler crash with clang 11.0.3 / Xcode
-// OK with clang 11.0.5 / android-ndk-22
-// OK with clang 12.0.0 / Xcode
-__attribute__((noinline))
-#endif
-static void get_scaler_datas(int src_nb, int dst_nb, int *fp_start, int *fp_step, int *left_pad, int *right_pad)
-{
-
-    int step = FIXED_POINT(src_nb) / (dst_nb); /* source step in fixed point */
-    int x0 = FP_ONE / 2;                       /* dst first pixel center at 0.5 in fixed point */
-    int fp_sum;
-    int i;
-#if 0
-    /* scale to source coordinates */
-    x0 *= src_nb;
-    x0 /= dst_nb; /* x0 == step / 2 */
-#else
-    /* Use this code for perfect match with pixman */
-    Sint64 tmp[2];
-    tmp[0] = (Sint64)step * (x0 >> 16);
-    tmp[1] = (Sint64)step * (x0 & 0xFFFF);
-    x0 = (int)(tmp[0] + ((tmp[1] + 0x8000) >> 16)); /*  x0 == (step + 1) / 2  */
-#endif
-    /* -= 0.5, get back the pixel origin, in source coordinates  */
-    x0 -= FP_ONE / 2;
-
-    *fp_start = x0;
-    *fp_step = step;
-    *left_pad = 0;
-    *right_pad = 0;
-
-    fp_sum = x0;
-    for (i = 0; i < dst_nb; i++) {
-        if (fp_sum < 0) {
-            *left_pad += 1;
-        } else {
-            int index = SRC_INDEX(fp_sum);
-            if (index > src_nb - 2) {
-                *right_pad += 1;
-            }
-        }
-        fp_sum += step;
-    }
-    //    SDL_Log("%d -> %d  x0=%d step=%d left_pad=%d right_pad=%d", src_nb, dst_nb, *fp_start, *fp_step, *left_pad, *right_pad);
-}
 #if NEED_SCALAR_STRETCHER_FALLBACKS
 typedef struct color_t
 {
@@ -280,28 +222,20 @@ typedef struct color_t
     Uint8 d;
 } color_t;
 
-#if 0
-static void printf_64(const char *str, void *var)
-{
-    uint8_t *val = (uint8_t*) var;
-    printf(" *   %s: %02x %02x %02x %02x _ %02x %02x %02x %02x\n",
-           str, val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
-}
-#endif
-
 /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
 
-static SDL_INLINE void INTERPOL(const Uint32 *src_x0, const Uint32 *src_x1, int frac0, int frac1, Uint32 *dst)
+static SDL_INLINE void INTERPOL(const Uint32 *src_x0, const Uint32 *src_x1, int frac0, Uint32 *dst)
 {
     const color_t *c0 = (const color_t *)src_x0;
     const color_t *c1 = (const color_t *)src_x1;
     color_t *cx = (color_t *)dst;
-#if 0
+#if 1
     cx->a = c0->a + INTEGER(frac0 * (c1->a - c0->a));
     cx->b = c0->b + INTEGER(frac0 * (c1->b - c0->b));
     cx->c = c0->c + INTEGER(frac0 * (c1->c - c0->c));
     cx->d = c0->d + INTEGER(frac0 * (c1->d - c0->d));
 #else
+    unsigned int frac1 = FRAC_ONE - frac0;
     cx->a = INTEGER(frac1 * c0->a + frac0 * c1->a);
     cx->b = INTEGER(frac1 * c0->b + frac0 * c1->b);
     cx->c = INTEGER(frac1 * c0->c + frac0 * c1->c);
@@ -309,79 +243,155 @@ static SDL_INLINE void INTERPOL(const Uint32 *src_x0, const Uint32 *src_x1, int 
 #endif
 }
 
-static SDL_INLINE void INTERPOL_BILINEAR(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_h0, int frac_h1, Uint32 *dst)
+static SDL_INLINE void INTERPOL_BILINEAR(const Uint32 *s0, const Uint32 *s1, int frac_w, int frac_h, Uint32 *dst)
 {
     Uint32 tmp[2];
-    unsigned int frac_w1 = FRAC_ONE - frac_w0;
 
     /* Vertical first, store to 'tmp' */
-    INTERPOL(s0, s1, frac_h0, frac_h1, tmp);
-    INTERPOL(s0 + 1, s1 + 1, frac_h0, frac_h1, tmp + 1);
+    INTERPOL(s0, s1, frac_h, tmp);
+    INTERPOL(s0 + 1, s1 + 1, frac_h, tmp + 1);
 
     /* Horizontal, store to 'dst' */
-    INTERPOL(tmp, tmp + 1, frac_w0, frac_w1, dst);
+    INTERPOL(tmp, tmp + 1, frac_w, dst);
 }
 
 static void scale_mat(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
 {
     BILINEAR___START
 
-    for (i = 0; i < dst_h; i++) {
+    // SDL_assert(rows != 0 && columns != 0);
+
+    while (1) {
 
         BILINEAR___HEIGHT
 
-        while (left_pad_w--) {
-            INTERPOL_BILINEAR(src_h0, src_h1, FRAC_ZERO, frac_h0, frac_h1, dst);
-            dst += 1;
-        }
+        if (--rows) {
+            while (1) {
+                const Uint32 *s_00_01;
+                const Uint32 *s_10_11;
+                int index_w = 4 * SRC_INDEX(posx);
+                int frac_w = FRAC(posx);
+                posx += incx;
 
-        while (middle--) {
-            const Uint32 *s_00_01;
-            const Uint32 *s_10_11;
-            int index_w = 4 * SRC_INDEX(fp_sum_w);
-            int frac_w = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
+                s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+                s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
 
-            /*
+                if (--columns) {
+                    /*
                         x00 ... x0_ ..... x01
                         .       .         .
                         .       x         .
                         .       .         .
                         .       .         .
                         x10 ... x1_ ..... x11
-            */
+                    */
+                    INTERPOL_BILINEAR(s_00_01, s_10_11, frac_w, frac_h0, dst);
+                    dst += 1;
+                } else {
+                    /* last column
+                        x00
+                        .
+                        x
+                        .
+                        .
+                        x10
+                    */
+                    INTERPOL(&s_00_01[0], &s_10_11[0], frac_h0, dst);
+                    dst += 1;
+                    break;
+                }
+            }
+            dst = (Uint32 *)((Uint8 *)dst + dst_skip);
+            continue;
+        }
+        /* last row
+                        x00 ... x ..... x01
+        */
+        while (1) {
+            const Uint32 *s_00_01;
+            int index_w = 4 * SRC_INDEX(posx);
+            int frac_w = FRAC(posx);
+            posx += incx;
+
             s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
 
-            INTERPOL_BILINEAR(s_00_01, s_10_11, frac_w, frac_h0, frac_h1, dst);
-
-            dst += 1;
+            if (--columns) {
+                INTERPOL(&s_00_01[0], &s_00_01[1], frac_w, dst);
+                dst += 1;
+            } else {
+                /* last column and row
+                        x00
+                */
+                *dst = s_00_01[0];
+                break;
+            }
         }
-
-        while (right_pad_w--) {
-            int index_w = 4 * (src_w - 2);
-            const Uint32 *s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            const Uint32 *s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
-            INTERPOL_BILINEAR(s_00_01, s_10_11, FRAC_ONE, frac_h0, frac_h1, dst);
-            dst += 1;
-        }
-        dst = (Uint32 *)((Uint8 *)dst + dst_skip);
+        break;
     }
 }
 #endif // NEED_SCALAR_STRETCHER_FALLBACKS
 
 #ifdef HAVE_SSE2_INTRINSICS
 
-#if 0
-static void printf_128(const char *str, __m128i var)
+/* Interpolate between colors at s0 and s1 using frac_w and store the result to dst */
+static SDL_INLINE void INTERPOL_SSE(const Uint32 *s0, const Uint32 *s1, const __m128i v_frac_w0, const __m128i v_frac_w1, Uint32 *dst, const __m128i zero)
 {
-    uint16_t *val = (uint16_t*) &var;
-    printf(" *   %s: %04x %04x %04x %04x _ %04x %04x %04x %04x\n",
-           str, val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
-}
-#endif
+    __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
+    __m128i k0, l0, d0, e0;
 
-static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1, int frac_w, __m128i v_frac_h0, __m128i v_frac_h1, Uint32 *dst, __m128i zero)
+    x_00_01 = _mm_cvtsi32_si128(*s0); /* Load x00 and x01 */
+    x_10_11 = _mm_cvtsi32_si128(*s1);
+
+    /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
+
+    /* Interpolation */
+    k0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_00_01, zero), v_frac_w1);
+    l0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_10_11, zero), v_frac_w0);
+    k0 = _mm_add_epi16(k0, l0);
+
+    /* FRAC to INTEGER */
+    d0 = _mm_srli_epi16(k0, PRECISION);
+
+    /* Store 1 pixel */
+    e0 = _mm_packus_epi16(d0, d0);
+    *dst = _mm_cvtsi128_si32(e0);
+}
+
+/* Interpolate between color pairs at s0 and s1 using frac_w0 and frac_w1 and store the result to dst */
+static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_w1, Uint32 *dst, const __m128i zero)
+{
+    __m128i x_00_01, x_10_11; /* (Pixels in 4*uint8 in row) * 2 */
+    __m128i v_frac_w0, v_frac_w1, k0, l0, d0, e0;
+
+    int f00, f01, f10, f11;
+    f00 = frac_w0;
+    f01 = FRAC_ONE - frac_w0;
+
+    f10 = frac_w1;
+    f11 = FRAC_ONE - frac_w1;
+
+    v_frac_w0 = _mm_set_epi16(f10, f10, f10, f10, f00, f00, f00, f00);
+    v_frac_w1 = _mm_set_epi16(f11, f11, f11, f11, f01, f01, f01, f01);
+
+    x_00_01 = _mm_loadl_epi64((const __m128i *)s0); /* Load s0[0],s0[1] and s1[0],s1[1] */
+    x_10_11 = _mm_loadl_epi64((const __m128i *)s1);
+
+    /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
+
+    /* Interpolation */
+    k0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_00_01, zero), v_frac_w1);
+    l0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_10_11, zero), v_frac_w0);
+    k0 = _mm_add_epi16(k0, l0);
+
+    /* FRAC to INTEGER */
+    d0 = _mm_srli_epi16(k0, PRECISION);
+
+    /* Store 2 pixels */
+    e0 = _mm_packus_epi16(d0, d0);
+    _mm_storeu_si64((Uint64 *)dst, e0);
+}
+
+static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1, int frac_w, const __m128i v_frac_h0, const __m128i v_frac_h1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
     __m128i v_frac_w0, k0, l0, d0, e0;
@@ -397,9 +407,9 @@ static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1,
     /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
 
     /* Interpolation vertical */
-    k0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_00_01, zero), v_frac_h1); // zfill(x_00_01) * v_frac_h1
-    l0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_10_11, zero), v_frac_h0); // zfill(x_10_11) * v_frac_h0
-    k0 = _mm_add_epi16(k0, l0);                                        // Interpolated  tmp[0] tmp[1] * FRAC_ONE
+    k0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_00_01, zero), v_frac_h1);
+    l0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_10_11, zero), v_frac_h0);
+    k0 = _mm_add_epi16(k0, l0);
 
     /* For perfect match, clear the factionnal part eventually. */
     /*
@@ -408,13 +418,15 @@ static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1,
     */
 
     /* Interpolation horizontal */
-    l0 = _mm_unpacklo_epi64(/* unused */ l0, k0);                 // tmp[0] | (l0 &0xFFFFFFFFFFFFFFFF)
-    k0 = _mm_madd_epi16(_mm_unpackhi_epi16(l0, k0), v_frac_w0);   // add ((tmp[0] int tmp[1]) * (v_frac_w1 int v_frac_w0)) -> 4x32bit
+    l0 = _mm_unpacklo_epi64(/* unused */ l0, k0);
+    k0 = _mm_madd_epi16(_mm_unpackhi_epi16(l0, k0), v_frac_w0);
+
+    /* FRAC to INTEGER */
+    d0 = _mm_srli_epi32(k0, PRECISION * 2);
 
     /* Store 1 pixel */
-    d0 = _mm_srli_epi32(k0, PRECISION * 2);                       // res >> (2 * PRECISION)
-    e0 = _mm_packs_epi32(d0, d0);                                 // (int16_t)res -> (4x16bit * 2)
-    e0 = _mm_packus_epi16(e0, e0);                                // (uint8_t)res -> (4x8bit * 2 * 2)
+    e0 = _mm_packs_epi32(d0, d0);
+    e0 = _mm_packus_epi16(e0, e0);
     *dst = _mm_cvtsi128_si32(e0);
 }
 
@@ -422,122 +434,137 @@ static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pi
 {
     BILINEAR___START
 
-    for (i = 0; i < dst_h; i++) {
-        int nb_block2;
+    // SDL_assert(rows != 0 && columns != 0);
+
+    while (1) {
+        int f, f2;
         __m128i v_frac_h0;
         __m128i v_frac_h1;
-        __m128i zero;
+        const __m128i zero = _mm_setzero_si128();
 
         BILINEAR___HEIGHT
 
-        nb_block2 = middle / 2;
+        if (--rows) {
+            f = frac_h0;
+            f2 = FRAC_ONE - frac_h0;
+            v_frac_h0 = _mm_set1_epi16(f);
+            v_frac_h1 = _mm_set1_epi16(f2);
 
-        v_frac_h0 = _mm_set_epi16(frac_h0, frac_h0, frac_h0, frac_h0, frac_h0, frac_h0, frac_h0, frac_h0);
-        v_frac_h1 = _mm_set_epi16(frac_h1, frac_h1, frac_h1, frac_h1, frac_h1, frac_h1, frac_h1, frac_h1);
-        zero = _mm_setzero_si128();
+            while (1) {
+                const Uint32 *s_00_01;
+                const Uint32 *s_10_11;
+                int index_w = 4 * SRC_INDEX(posx);
+                int frac_w = FRAC(posx);
+                posx += incx;
 
-        while (left_pad_w--) {
-            INTERPOL_BILINEAR_SSE(src_h0, src_h1, FRAC_ZERO, v_frac_h0, v_frac_h1, dst, zero);
-            dst += 1;
+                s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+                s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
+
+                if (--columns) {
+                    /*
+                        x00 ... x0_ ..... x01
+                        .       .         .
+                        .       x         .
+                        .       .         .
+                        .       .         .
+                        x10 ... x1_ ..... x11
+                    */
+                    INTERPOL_BILINEAR_SSE(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst, zero);
+                    dst += 1;
+                } else {
+                    /* last column
+                        x00
+                        .
+                        x
+                        .
+                        .
+                        x10
+                    */
+                    INTERPOL_SSE(&s_00_01[0], &s_10_11[0], v_frac_h0, v_frac_h1, dst, zero);
+                    dst += 1;
+                    break;
+                }
+            }
+
+            dst = (Uint32 *)((Uint8 *)dst + dst_skip);
+        } else {
+            /* last row
+                        x00 ... x ..... x01
+            */
+            int nb_block2 = (columns - 1) >> 1;
+            columns -= nb_block2 * 2;
+
+            while (nb_block2--) {
+                const Uint32 *s0_00_01, *s1_00_01;
+                int frac_w0, frac_w1;
+                int index_w;
+
+                index_w = 4 * SRC_INDEX(posx);
+                frac_w0 = FRAC(posx);
+                posx += incx;
+
+                s0_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+
+                index_w = 4 * SRC_INDEX(posx);
+                frac_w1 = FRAC(posx);
+                posx += incx;
+
+                s1_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+
+                INTERPOL_SSE2(&s0_00_01[0], &s1_00_01[0], frac_w0, frac_w1, dst, zero);
+                dst += 2;
+            }
+
+            while (1) {
+                const Uint32 *s_00_01;
+                int index_w = 4 * SRC_INDEX(posx);
+                int frac_w = FRAC(posx);
+                __m128i v_frac_w0, v_frac_w1;
+                posx += incx;
+
+                s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+
+                v_frac_w0 = _mm_set1_epi16(frac_w);
+                v_frac_w1 = _mm_set1_epi16(FRAC_ONE - frac_w);
+
+                if (--columns) {
+                    INTERPOL_SSE(&s_00_01[0], &s_00_01[1], v_frac_w0, v_frac_w1, dst, zero);
+                    dst += 1;
+                } else {
+                    /* last column and row
+                            x00
+                    */
+                    *dst = s_00_01[0];
+                    break;
+                }
+            }
+            break;
         }
-
-        while (nb_block2--) {
-            int index_w_0, frac_w_0;
-            int index_w_1, frac_w_1;
-
-            const Uint32 *s_00_01, *s_02_03, *s_10_11, *s_12_13;
-
-            __m128i x_00_01, x_10_11, x_02_03, x_12_13; /* Pixels in 4*uint8 in row */
-            __m128i v_frac_w0, k0, l0, d0, e0;
-            __m128i v_frac_w1, k1, l1, d1, e1;
-
-            int f, f2;
-            index_w_0 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_0 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            index_w_1 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_1 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            /*
-                        x00............ x01   x02...........x03
-                        .      .         .     .       .     .
-                        j0     f0        j1    j2      f1    j3
-                        .      .         .     .       .     .
-                        .      .         .     .       .     .
-                        .      .         .     .       .     .
-                        x10............ x11   x12...........x13
-             */
-            s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_0);
-            s_02_03 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_1);
-            s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w_0);
-            s_12_13 = (const Uint32 *)((const Uint8 *)src_h1 + index_w_1);
-
-            f = frac_w_0;
-            f2 = FRAC_ONE - frac_w_0;
-            v_frac_w0 = _mm_set_epi16(f, f2, f, f2, f, f2, f, f2);
-
-            f = frac_w_1;
-            f2 = FRAC_ONE - frac_w_1;
-            v_frac_w1 = _mm_set_epi16(f, f2, f, f2, f, f2, f, f2);
-
-            x_00_01 = _mm_loadl_epi64((const __m128i *)s_00_01); /* Load x00 and x01 */
-            x_02_03 = _mm_loadl_epi64((const __m128i *)s_02_03);
-            x_10_11 = _mm_loadl_epi64((const __m128i *)s_10_11);
-            x_12_13 = _mm_loadl_epi64((const __m128i *)s_12_13);
-
-            /* Interpolation vertical */
-            k0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_00_01, zero), v_frac_h1);
-            l0 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_10_11, zero), v_frac_h0);
-            k0 = _mm_add_epi16(k0, l0);
-            k1 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_02_03, zero), v_frac_h1);
-            l1 = _mm_mullo_epi16(_mm_unpacklo_epi8(x_12_13, zero), v_frac_h0);
-            k1 = _mm_add_epi16(k1, l1);
-
-            /* Interpolation horizontal */
-            l0 = _mm_unpacklo_epi64(/* unused */ l0, k0);
-            k0 = _mm_madd_epi16(_mm_unpackhi_epi16(l0, k0), v_frac_w0);
-            l1 = _mm_unpacklo_epi64(/* unused */ l1, k1);
-            k1 = _mm_madd_epi16(_mm_unpackhi_epi16(l1, k1), v_frac_w1);
-
-            /* Store 1 pixel */
-            d0 = _mm_srli_epi32(k0, PRECISION * 2);
-            e0 = _mm_packs_epi32(d0, d0);
-            e0 = _mm_packus_epi16(e0, e0);
-            *dst++ = _mm_cvtsi128_si32(e0);
-
-            /* Store 1 pixel */
-            d1 = _mm_srli_epi32(k1, PRECISION * 2);
-            e1 = _mm_packs_epi32(d1, d1);
-            e1 = _mm_packus_epi16(e1, e1);
-            *dst++ = _mm_cvtsi128_si32(e1);
-        }
-
-        /* Last point */
-        if (middle & 0x1) {
-            const Uint32 *s_00_01;
-            const Uint32 *s_10_11;
-            int index_w = 4 * SRC_INDEX(fp_sum_w);
-            int frac_w = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
-            INTERPOL_BILINEAR_SSE(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst, zero);
-            dst += 1;
-        }
-
-        while (right_pad_w--) {
-            int index_w = 4 * (src_w - 2);
-            const Uint32 *s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            const Uint32 *s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
-            INTERPOL_BILINEAR_SSE(s_00_01, s_10_11, FRAC_ONE, v_frac_h0, v_frac_h1, dst, zero);
-            dst += 1;
-        }
-        dst = (Uint32 *)((Uint8 *)dst + dst_skip);
     }
 }
 #endif // HAVE_SSE2_INTRINSICS
 
 #ifdef HAVE_NEON_INTRINSICS
+
+static SDL_INLINE void INTERPOL_NEON(const Uint32 *s0, const Uint32 *s1, uint8x8_t v_frac_w0, uint8x8_t v_frac_w1, Uint32 *dst)
+{
+    uint8x8_t x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
+    uint16x8_t k0;
+    uint8x8_t e0;
+
+    x_00_01 = CAST_uint8x8_t vld1_u32(s0); /* Load 2 pixels */
+    x_10_11 = CAST_uint8x8_t vld1_u32(s1);
+
+    /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
+    k0 = vmull_u8(x_00_01, v_frac_w1);     /* k0 := x0 * (1 - frac)    */
+    k0 = vmlal_u8(k0, x_10_11, v_frac_w0); /* k0 += x1 * frac          */
+
+    /* FRAC to INTEGER and narrow */
+    e0 = vshrn_n_u16(k0, PRECISION);
+
+    /* Store 1 pixel */
+    *dst = vget_lane_u32(CAST_uint32x2_t e0, 0);
+}
 
 static SDL_INLINE void INTERPOL_BILINEAR_NEON(const Uint32 *s0, const Uint32 *s1, int frac_w, uint8x8_t v_frac_h0, uint8x8_t v_frac_h1, Uint32 *dst)
 {
@@ -573,23 +600,26 @@ static SDL_INLINE void INTERPOL_BILINEAR_NEON(const Uint32 *s0, const Uint32 *s1
 
 static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
 {
+    int nb4;
+
     BILINEAR___START
 
-    for (i = 0; i < dst_h; i++) {
-        int nb_block4;
+    // SDL_assert(rows != 0 && columns != 0);
+    nb4 = (dst_w - 1) >> 2;
+
+    while (1) {
+        int f, f2;
         uint8x8_t v_frac_h0, v_frac_h1;
 
         BILINEAR___HEIGHT
 
-        nb_block4 = middle / 4;
-
-        v_frac_h0 = vmov_n_u8(frac_h0);
-        v_frac_h1 = vmov_n_u8(frac_h1);
-
-        while (left_pad_w--) {
-            INTERPOL_BILINEAR_NEON(src_h0, src_h1, FRAC_ZERO, v_frac_h0, v_frac_h1, dst);
-            dst += 1;
-        }
+        if (--rows) {
+            int nb_block4 = nb4;
+            columns -= nb_block4 * 4;
+            f = frac_h0;
+            f2 = FRAC_ONE - frac_h0;
+            v_frac_h0 = vmov_n_u8(f);
+            v_frac_h1 = vmov_n_u8(f2);
 
         while (nb_block4--) {
             int index_w_0, frac_w_0;
@@ -609,18 +639,18 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
             uint8x8_t e0, e1;
             uint32x4_t f0;
 
-            index_w_0 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_0 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            index_w_1 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_1 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            index_w_2 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_2 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            index_w_3 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_3 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
+            index_w_0 = 4 * SRC_INDEX(posx);
+            frac_w_0 = FRAC(posx);
+            posx += incx;
+            index_w_1 = 4 * SRC_INDEX(posx);
+            frac_w_1 = FRAC(posx);
+            posx += incx;
+            index_w_2 = 4 * SRC_INDEX(posx);
+            frac_w_2 = FRAC(posx);
+            posx += incx;
+            index_w_3 = 4 * SRC_INDEX(posx);
+            frac_w_3 = FRAC(posx);
+            posx += incx;
 
             s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_0);
             s_02_03 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_1);
@@ -696,94 +726,73 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
             dst += 4;
         }
 
-        if (middle & 0x2) {
-            int index_w_0, frac_w_0;
-            int index_w_1, frac_w_1;
-            const Uint32 *s_00_01, *s_02_03;
-            const Uint32 *s_10_11, *s_12_13;
-            uint8x8_t x_00_01, x_10_11, x_02_03, x_12_13; /* Pixels in 4*uint8 in row */
-            uint16x8_t k0, k1;
-            uint32x4_t l0, l1;
-            uint16x8_t d0;
-            uint8x8_t e0;
+            while (1) {
+                const Uint32 *s_00_01;
+                const Uint32 *s_10_11;
+                int index_w = 4 * SRC_INDEX(posx);
+                int frac_w = FRAC(posx);
+                posx += incx;
 
-            index_w_0 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_0 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            index_w_1 = 4 * SRC_INDEX(fp_sum_w);
-            frac_w_1 = FRAC(fp_sum_w);
-            fp_sum_w += fp_step_w;
-            /*
-                        x00............ x01   x02...........x03
-                        .      .         .     .       .     .
-                        j0   dest0       j1    j2    dest1   j3
-                        .      .         .     .       .     .
-                        .      .         .     .       .     .
-                        .      .         .     .       .     .
-                        x10............ x11   x12...........x13
+                s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
+                s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
+
+                if (--columns) {
+                    /*
+                        x00 ... x0_ ..... x01
+                        .       .         .
+                        .       x         .
+                        .       .         .
+                        .       .         .
+                        x10 ... x1_ ..... x11
+                    */
+                    INTERPOL_BILINEAR_NEON(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst);
+                    dst += 1;
+                } else {
+                    /* last column
+                        x00
+                        .
+                        x
+                        .
+                        .
+                        x10
+                    */
+                    INTERPOL_NEON(&s_00_01[0], &s_10_11[0], v_frac_h0, v_frac_h1, dst);
+                    dst += 1;
+                    break;
+                }
+            }
+            dst = (Uint32 *)((Uint8 *)dst + dst_skip);
+        } else {
+            /* last row
+                        x00 ... x ..... x01
             */
-            s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_0);
-            s_02_03 = (const Uint32 *)((const Uint8 *)src_h0 + index_w_1);
-            s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w_0);
-            s_12_13 = (const Uint32 *)((const Uint8 *)src_h1 + index_w_1);
+            // TODO: INTERPOL_NEON2/4?
 
-            /* Interpolation vertical */
-            x_00_01 = CAST_uint8x8_t vld1_u32(s_00_01); /* Load 2 pixels */
-            x_02_03 = CAST_uint8x8_t vld1_u32(s_02_03);
-            x_10_11 = CAST_uint8x8_t vld1_u32(s_10_11);
-            x_12_13 = CAST_uint8x8_t vld1_u32(s_12_13);
+            while (1) {
+                const Uint32 *s_00_01;
+                int index_w = 4 * SRC_INDEX(posx);
+                int frac_w = FRAC(posx);
+                uint8x8_t v_frac_w0, v_frac_w1;
+                posx += incx;
 
-            /* Interpolated == x0 + frac * (x1 - x0) == x0 * (1 - frac) + x1 * frac */
-            k0 = vmull_u8(x_00_01, v_frac_h1);     /* k0 := x0 * (1 - frac)    */
-            k0 = vmlal_u8(k0, x_10_11, v_frac_h0); /* k0 += x1 * frac          */
+                s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
 
-            k1 = vmull_u8(x_02_03, v_frac_h1);
-            k1 = vmlal_u8(k1, x_12_13, v_frac_h0);
+                v_frac_w0 = vmov_n_u8(frac_w);
+                v_frac_w1 = vmov_n_u8(FRAC_ONE - frac_w);
 
-            /* k0 now contains 2 interpolated pixels { j0, j1 } */
-            /* k1 now contains 2 interpolated pixels { j2, j3 } */
-
-            l0 = vshll_n_u16(vget_low_u16(k0), PRECISION);
-            l0 = vmlsl_n_u16(l0, vget_low_u16(k0), frac_w_0);
-            l0 = vmlal_n_u16(l0, vget_high_u16(k0), frac_w_0);
-
-            l1 = vshll_n_u16(vget_low_u16(k1), PRECISION);
-            l1 = vmlsl_n_u16(l1, vget_low_u16(k1), frac_w_1);
-            l1 = vmlal_n_u16(l1, vget_high_u16(k1), frac_w_1);
-
-            /* Shift and narrow */
-
-            d0 = vcombine_u16(
-                /* uint16x4_t */ vshrn_n_u32(l0, 2 * PRECISION),
-                /* uint16x4_t */ vshrn_n_u32(l1, 2 * PRECISION));
-
-            /* Narrow again */
-            e0 = vmovn_u16(d0);
-
-            /* Store 2 pixels */
-            vst1_u32(dst, CAST_uint32x2_t e0);
-            dst += 2;
+                if (--columns) {
+                    INTERPOL_NEON(&s_00_01[0], &s_00_01[1], v_frac_w0, v_frac_w1, dst);
+                    dst += 1;
+                } else {
+                    /* last column and row
+                            x00
+                    */
+                    *dst = s_00_01[0];
+                    break;
+                }
+            }
+            break;
         }
-
-        /* Last point */
-        if (middle & 0x1) {
-            int index_w = 4 * SRC_INDEX(fp_sum_w);
-            int frac_w = FRAC(fp_sum_w);
-            const Uint32 *s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            const Uint32 *s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
-            INTERPOL_BILINEAR_NEON(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst);
-            dst += 1;
-        }
-
-        while (right_pad_w--) {
-            int index_w = 4 * (src_w - 2);
-            const Uint32 *s_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
-            const Uint32 *s_10_11 = (const Uint32 *)((const Uint8 *)src_h1 + index_w);
-            INTERPOL_BILINEAR_NEON(s_00_01, s_10_11, FRAC_ONE, v_frac_h0, v_frac_h1, dst);
-            dst += 1;
-        }
-
-        dst = (Uint32 *)((Uint8 *)dst + dst_skip);
     }
 }
 #endif // HAVE_NEON_INTRINSICS
