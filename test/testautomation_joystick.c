@@ -18,6 +18,9 @@
 static int
 TestVirtualJoystick(void *arg)
 {
+#ifndef SDL_JOYSTICK_VIRTUAL
+    return TEST_SKIPPED;
+#else
     SDL_VirtualJoystickDesc desc;
     SDL_Joystick *joystick = NULL;
     int device_index;
@@ -67,6 +70,7 @@ TestVirtualJoystick(void *arg)
     SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 
     return TEST_COMPLETED;
+#endif
 }
 
 /* ================= Test References ================== */
