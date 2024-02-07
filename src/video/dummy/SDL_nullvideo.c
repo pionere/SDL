@@ -113,6 +113,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
 #endif
     device->ShowWindow = DUMMY_ShowWindow;
     device->HideWindow = DUMMY_HideWindow;
+    device->SetWindowFullscreen = DUMMY_SetWindowFullscreen;
     device->CreateWindowFramebuffer = SDL_DUMMY_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = SDL_DUMMY_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = SDL_DUMMY_DestroyWindowFramebuffer;
