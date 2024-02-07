@@ -194,6 +194,9 @@ SDL_Surface *SDL_CreateRGBSurface(Uint32 flags,
 {
     Uint32 format;
 
+    /* The flags are no longer used, make the compiler happy */
+    (void)flags;
+
     /* Get the pixel format */
     format = SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
     if (format == SDL_PIXELFORMAT_UNKNOWN) {
@@ -201,7 +204,7 @@ SDL_Surface *SDL_CreateRGBSurface(Uint32 flags,
         return NULL;
     }
 
-    return SDL_CreateRGBSurfaceWithFormat(flags, width, height, depth, format);
+    return SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, format);
 }
 
 /*
@@ -240,7 +243,7 @@ SDL_Surface *SDL_CreateRGBSurfaceFrom(void *pixels,
         return NULL;
     }
 
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, depth, format);
+    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, 0, format);
     if (surface) {
         surface->flags |= SDL_PREALLOC;
         surface->pixels = pixels;
@@ -1011,13 +1014,11 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             SDL_Rect srcrect2;
             int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
 
-            Uint32 flags;
             Uint8 r, g, b;
             Uint8 alpha;
             SDL_BlendMode blendMode;
 
             /* Save source infos */
-            flags = src->flags;
             SDL_GetSurfaceColorMod(src, &r, &g, &b);
             SDL_GetSurfaceAlphaMod(src, &alpha);
             SDL_GetSurfaceBlendMode(src, &blendMode);
@@ -1039,7 +1040,7 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                 } else {
                     fmt = SDL_PIXELFORMAT_ARGB8888;
                 }
-                tmp1 = SDL_CreateRGBSurfaceWithFormat(flags, src->w, src->h, 0, fmt);
+                tmp1 = SDL_CreateRGBSurfaceWithFormat(0, src->w, src->h, 0, fmt);
                 SDL_LowerBlit(src, srcrect, tmp1, &tmprect);
 
                 srcrect2.x = 0;
@@ -1054,7 +1055,7 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             /* Intermediate scaling */
             if (is_complex_copy_flags || src->format->format != dst->format->format) {
                 SDL_Rect tmprect;
-                SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(flags, dstrect->w, dstrect->h, 0, src->format->format);
+                SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(0, dstrect->w, dstrect->h, 0, src->format->format);
                 SDL_SoftStretchLinear(src, &srcrect2, tmp2, NULL);
 
                 SDL_SetSurfaceColorMod(tmp2, r, g, b);
