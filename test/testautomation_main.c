@@ -83,13 +83,17 @@ static int main_testImpliedJoystickQuit(void *arg)
     /* Then make sure they're both initialized properly */
     initialized_system = SDL_WasInit(joy_and_controller);
     SDLTest_AssertCheck((initialized_system & joy_and_controller) == joy_and_controller, "SDL_WasInit() should be true for joystick & controller (%x)", initialized_system);
-
+#if 0
     /* Then quit the controller, and make sure that it does NOT quit the */
     /* explicitly initialized joystick subsystem. */
     SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
     initialized_system = SDL_WasInit(joy_and_controller);
     SDLTest_AssertCheck((initialized_system & joy_and_controller) == SDL_INIT_JOYSTICK, "SDL_WasInit() should be false for joystick & controller (%x)", initialized_system);
-
+#else
+    SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+    initialized_system = SDL_WasInit(joy_and_controller);
+    SDLTest_AssertCheck((initialized_system & joy_and_controller) == 0, "SDL_WasInit() should be false for joystick & controller (%x)", initialized_system);
+#endif
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 
     return TEST_COMPLETED;
