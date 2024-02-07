@@ -215,44 +215,15 @@ SDL_Surface *SDL_CreateRGBSurfaceFrom(void *pixels,
                          Uint32 Rmask, Uint32 Gmask, Uint32 Bmask,
                          Uint32 Amask)
 {
-    SDL_Surface *surface;
     Uint32 format;
-    size_t minimalPitch;
-
-    if (width < 0) {
-        SDL_InvalidParamError("width");
-        return NULL;
-    }
-
-    if (height < 0) {
-        SDL_InvalidParamError("height");
-        return NULL;
-    }
 
     format = SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
-
     if (format == SDL_PIXELFORMAT_UNKNOWN) {
         SDL_SetError("Unknown pixel format");
         return NULL;
     }
 
-    minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
-
-    if (pitch < 0 || (pitch > 0 && ((size_t)pitch) < minimalPitch)) {
-        SDL_InvalidParamError("pitch");
-        return NULL;
-    }
-
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, 0, format);
-    if (surface) {
-        surface->flags |= SDL_PREALLOC;
-        surface->pixels = pixels;
-        surface->w = width;
-        surface->h = height;
-        surface->pitch = pitch;
-        SDL_SetClipRect(surface, NULL);
-    }
-    return surface;
+    return SDL_CreateRGBSurfaceWithFormatFrom(pixels, width, height, 0, pitch, format);
 }
 
 /* TODO: In SDL 3, drop the unused depth parameter */
