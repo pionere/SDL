@@ -359,9 +359,6 @@ int SDL_SW_CopyYUVToRGB(SDL_SW_YUVTexture *swdata, const SDL_Rect *srcrect,
         stretch = 1;
     }
     if (stretch) {
-        int bpp;
-        Uint32 Rmask, Gmask, Bmask, Amask;
-
         if (swdata->display) {
             swdata->display->w = w;
             swdata->display->h = h;
@@ -369,22 +366,14 @@ int SDL_SW_CopyYUVToRGB(SDL_SW_YUVTexture *swdata, const SDL_Rect *srcrect,
             swdata->display->pitch = pitch;
         } else {
             /* This must have succeeded in SDL_SW_SetupYUVDisplay() earlier */
-            SDL_PixelFormatEnumToMasks(target_format, &bpp, &Rmask, &Gmask,
-                                       &Bmask, &Amask);
-            swdata->display =
-                SDL_CreateRGBSurfaceFrom(pixels, w, h, bpp, pitch, Rmask,
-                                         Gmask, Bmask, Amask);
+            swdata->display = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, 0, pitch, target_format);
             if (!swdata->display) {
                 return -1;
             }
         }
         if (!swdata->stretch) {
             /* This must have succeeded in SDL_SW_SetupYUVDisplay() earlier */
-            SDL_PixelFormatEnumToMasks(target_format, &bpp, &Rmask, &Gmask,
-                                       &Bmask, &Amask);
-            swdata->stretch =
-                SDL_CreateRGBSurface(0, swdata->w, swdata->h, bpp, Rmask,
-                                     Gmask, Bmask, Amask);
+            swdata->stretch = SDL_CreateRGBSurfaceWithFormat(0, swdata->w, swdata->h, 0, target_format);
             if (!swdata->stretch) {
                 return -1;
             }
