@@ -506,46 +506,48 @@ static void Blit1toNAlphaKey(const SDL_BlitInfo *info)
     }
 }
 
-static const SDL_BlitFunc one_blit[] = {
-    (SDL_BlitFunc)NULL, Blit1to1, Blit1to2, Blit1to3, Blit1to4
+static const SDL_BlitFunc one_bitmap_blit[] = {
+    Blit1to1, Blit1to2, Blit1to3, Blit1to4
 };
 
-static const SDL_BlitFunc one_blitkey[] = {
-    (SDL_BlitFunc)NULL, Blit1to1Key, Blit1to2Key, Blit1to3Key, Blit1to4Key
+static const SDL_BlitFunc one_color_blit[] = {
+    Blit1to1Key, Blit1to2Key, Blit1to3Key, Blit1to4Key
 };
 
 SDL_BlitFunc SDL_CalculateBlit1(SDL_Surface *surface)
 {
-    int which;
-    SDL_PixelFormat *dstfmt;
+    int dst_Bpp = surface->map->dst->format->BytesPerPixel;
+    SDL_BlitFunc result = NULL;
 
-    dstfmt = surface->map->dst->format;
-    if (dstfmt->BitsPerPixel < 8) {
-        which = 0;
-    } else {
-        which = dstfmt->BytesPerPixel;
-    }
-    switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
-    case 0:
-        return one_blit[which];
+    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+    SDL_assert(surface->format->BitsPerPixel == 8);
+    SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
 
-    case SDL_COPY_COLORKEY:
-        return one_blitkey[which];
-    case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
-        return (surface->map->info.a == 255) ? one_blitkey[which] : (SDL_BlitFunc)NULL;
-
+    if (surface->map->dst->format->BitsPerPixel >= 8) {
+        switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
+        case 0:
+            result = one_bitmap_blit[dst_Bpp - 1];
+            break;
+        case SDL_COPY_COLORKEY:
+            result = one_color_blit[dst_Bpp - 1];
+            break;
 #if SDL_HAVE_BLIT_TRANSFORM
-    case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-        /* Supporting 8bpp->8bpp alpha is doable but requires lots of
-           tables which consume space and takes time to precompute,
-           so is better left to the user */
-        return which >= 2 ? Blit1toNAlpha : (SDL_BlitFunc)NULL;
-
-    case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-        return which >= 2 ? Blit1toNAlphaKey : (SDL_BlitFunc)NULL;
+        case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
+            result = (surface->map->info.a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
+            break;
+        case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+            /* Supporting 8bpp->8bpp alpha is doable but requires lots of
+               tables which consume space and takes time to precompute,
+               so is better left to the user */
+            result = dst_Bpp >= 2 ? Blit1toNAlpha : (SDL_BlitFunc)NULL;
+            break;
+        case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+            result = dst_Bpp >= 2 ? Blit1toNAlphaKey : (SDL_BlitFunc)NULL;
+            break;
 #endif
+        }
     }
-    return (SDL_BlitFunc)NULL;
+    return result;
 }
 
 #endif /* SDL_HAVE_BLIT_1 */
