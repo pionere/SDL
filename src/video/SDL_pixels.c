@@ -753,12 +753,9 @@ void SDL_FreePalette(SDL_Palette *palette)
 /*
  * Calculate an 8-bit (3 red, 3 green, 2 blue) dithered palette of colors
  */
-void SDL_DitherColors(SDL_Color *colors, int bpp)
+static void SDL_DitherColors(SDL_Color *colors)
 {
     int i;
-    if (bpp != 8) {
-        return; /* only 8bpp supported right now */
-    }
 
     for (i = 0; i < 256; i++) {
         int r, g, b;
@@ -781,7 +778,7 @@ void SDL_DitherColors(SDL_Color *colors, int bpp)
 /*
  * Match an RGB value to a particular palette index
  */
-Uint8 SDL_FindColor(SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static Uint8 SDL_FindColor(const SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     /* Do colorspace distance matching */
     unsigned int smallest;
@@ -922,7 +919,7 @@ void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
 }
 
 /* Map from Palette to Palette */
-static Uint8 *Map1to1(SDL_Palette *src, SDL_Palette *dst, int *identical)
+static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, int *identical)
 {
     Uint8 *map;
     int i;
@@ -980,17 +977,16 @@ static Uint8 *Map1toN(SDL_PixelFormat *src, Uint8 Rmod, Uint8 Gmod, Uint8 Bmod, 
 }
 
 /* Map from BitField to Dithered-Palette to Palette */
-static Uint8 *MapNto1(SDL_PixelFormat *src, SDL_PixelFormat *dst, int *identical)
+static Uint8 *MapNto1(const SDL_Palette *dst, int *identical)
 {
     /* Generate a 256 color dither palette */
     SDL_Palette dithered;
     SDL_Color colors[256];
-    SDL_Palette *pal = dst->palette;
 
     dithered.ncolors = 256;
-    SDL_DitherColors(colors, 8);
+    SDL_DitherColors(colors);
     dithered.colors = colors;
-    return Map1to1(&dithered, pal, identical);
+    return Map1to1(&dithered, dst, identical);
 }
 
 SDL_BlitMap *SDL_AllocBlitMap(void)
@@ -1086,7 +1082,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     } else {
         if (SDL_ISPIXELFORMAT_INDEXED(dstfmt->format)) {
             /* BitField --> Palette */
-            map->info.table = MapNto1(srcfmt, dstfmt, &map->identity);
+            map->info.table = MapNto1(dstfmt->palette, &map->identity);
             if (!map->identity) {
                 if (!map->info.table) {
                     return -1;
