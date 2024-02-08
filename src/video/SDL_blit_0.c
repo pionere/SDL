@@ -24,6 +24,7 @@
 
 #include "SDL_video.h"
 #include "SDL_blit.h"
+#include "../SDL_assert_c.h"
 
 /* Functions to blit from bitmaps to other surfaces */
 
@@ -777,10 +778,6 @@ static void Blit1bto4(const SDL_BlitInfo *info) {
     BlitBto4(info, 1);
 }
 
-static const SDL_BlitFunc bitmap_blit_1b[] = {
-    (SDL_BlitFunc)NULL, Blit1bto1, Blit1bto2, Blit1bto3, Blit1bto4
-};
-
 static void Blit1bto1Key(const SDL_BlitInfo *info) {
     BlitBto1Key(info, 1);
 }
@@ -796,10 +793,6 @@ static void Blit1bto3Key(const SDL_BlitInfo *info) {
 static void Blit1bto4Key(const SDL_BlitInfo *info) {
     BlitBto4Key(info, 1);
 }
-
-static const SDL_BlitFunc colorkey_blit_1b[] = {
-    (SDL_BlitFunc)NULL, Blit1bto1Key, Blit1bto2Key, Blit1bto3Key, Blit1bto4Key
-};
 
 static void Blit1btoNAlpha(const SDL_BlitInfo *info)
 {
@@ -829,10 +822,6 @@ static void Blit2bto4(const SDL_BlitInfo *info) {
     BlitBto4(info, 2);
 }
 
-static const SDL_BlitFunc bitmap_blit_2b[] = {
-    (SDL_BlitFunc)NULL, Blit2bto1, Blit2bto2, Blit2bto3, Blit2bto4
-};
-
 static void Blit2bto1Key(const SDL_BlitInfo *info) {
     BlitBto1Key(info, 2);
 }
@@ -848,10 +837,6 @@ static void Blit2bto3Key(const SDL_BlitInfo *info) {
 static void Blit2bto4Key(const SDL_BlitInfo *info) {
     BlitBto4Key(info, 2);
 }
-
-static const SDL_BlitFunc colorkey_blit_2b[] = {
-    (SDL_BlitFunc)NULL, Blit2bto1Key, Blit2bto2Key, Blit2bto3Key, Blit2bto4Key
-};
 
 static void Blit2btoNAlpha(const SDL_BlitInfo *info)
 {
@@ -881,10 +866,6 @@ static void Blit4bto4(const SDL_BlitInfo *info) {
     BlitBto4(info, 4);
 }
 
-static const SDL_BlitFunc bitmap_blit_4b[] = {
-    (SDL_BlitFunc)NULL, Blit4bto1, Blit4bto2, Blit4bto3, Blit4bto4
-};
-
 static void Blit4bto1Key(const SDL_BlitInfo *info) {
     BlitBto1Key(info, 4);
 }
@@ -901,10 +882,6 @@ static void Blit4bto4Key(const SDL_BlitInfo *info) {
     BlitBto4Key(info, 4);
 }
 
-static const SDL_BlitFunc colorkey_blit_4b[] = {
-    (SDL_BlitFunc)NULL, Blit4bto1Key, Blit4bto2Key, Blit4bto3Key, Blit4bto4Key
-};
-
 static void Blit4btoNAlpha(const SDL_BlitInfo *info)
 {
     BlitBtoNAlpha(info, 4);
@@ -915,70 +892,59 @@ static void Blit4btoNAlphaKey(const SDL_BlitInfo *info)
     BlitBtoNAlphaKey(info, 4);
 }
 
+static const SDL_BlitFunc bitmap_blit[3][4] = {
+    { Blit1bto1, Blit1bto2, Blit1bto3, Blit1bto4 },
+    { Blit2bto1, Blit2bto2, Blit2bto3, Blit2bto4 },
+    { Blit4bto1, Blit4bto2, Blit4bto3, Blit4bto4 },
+};
 
+static const SDL_BlitFunc color_blit[3][4] = {
+    { Blit1bto1Key, Blit1bto2Key, Blit1bto3Key, Blit1bto4Key },
+    { Blit2bto1Key, Blit2bto2Key, Blit2bto3Key, Blit2bto4Key },
+    { Blit4bto1Key, Blit4bto2Key, Blit4bto3Key, Blit4bto4Key },
+};
+#if SDL_HAVE_BLIT_TRANSFORM
+static const SDL_BlitFunc blend_bitmap_blit[3] = {
+    Blit1btoNAlpha, Blit2btoNAlpha, Blit4btoNAlpha
+};
+
+static const SDL_BlitFunc blend_color_blit[3] = {
+    Blit1btoNAlphaKey, Blit2btoNAlphaKey, Blit4btoNAlphaKey
+};
+#endif
 
 SDL_BlitFunc SDL_CalculateBlit0(SDL_Surface *surface)
 {
-    int which;
+    int dst_Bpp = surface->map->dst->format->BytesPerPixel;
+    int src_bpp = surface->format->BitsPerPixel;
+    SDL_BlitFunc result = NULL;
 
-    if (surface->map->dst->format->BitsPerPixel < 8) {
-        which = 0;
-    } else {
-        which = surface->map->dst->format->BytesPerPixel;
-    }
+    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+    SDL_assert(src_bpp == 1 || src_bpp == 2 || src_bpp == 4);
+    SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
 
-    if (SDL_PIXELTYPE(surface->format->format) == SDL_PIXELTYPE_INDEX1) {
+    if (surface->map->dst->format->BitsPerPixel >= 8) {
+        src_bpp = src_bpp <= 2 ? src_bpp - 1 : 2;
+
         switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
         case 0:
-            return bitmap_blit_1b[which];
-
+            result = bitmap_blit[src_bpp][dst_Bpp - 1];
+            break;
         case SDL_COPY_COLORKEY:
-            return colorkey_blit_1b[which];
-
+            result = color_blit[src_bpp][dst_Bpp - 1];
+            break;
+#if SDL_HAVE_BLIT_TRANSFORM
         case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit1btoNAlpha : (SDL_BlitFunc)NULL;
-
+            result = dst_Bpp >= 2 ? blend_bitmap_blit[src_bpp] : (SDL_BlitFunc)NULL;
+            break;
         case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit1btoNAlphaKey : (SDL_BlitFunc)NULL;
+            result = dst_Bpp >= 2 ? blend_color_blit[src_bpp] : (SDL_BlitFunc)NULL;
+            break;
+#endif
         }
-        return NULL;
     }
 
-    if (SDL_PIXELTYPE(surface->format->format) == SDL_PIXELTYPE_INDEX2) {
-        switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
-        case 0:
-            return bitmap_blit_2b[which];
-
-        case SDL_COPY_COLORKEY:
-            return colorkey_blit_2b[which];
-
-        case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit2btoNAlpha : (SDL_BlitFunc)NULL;
-
-        case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit2btoNAlphaKey : (SDL_BlitFunc)NULL;
-        }
-        return NULL;
-    }
-
-    if (SDL_PIXELTYPE(surface->format->format) == SDL_PIXELTYPE_INDEX4) {
-        switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
-        case 0:
-            return bitmap_blit_4b[which];
-
-        case SDL_COPY_COLORKEY:
-            return colorkey_blit_4b[which];
-
-        case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit4btoNAlpha : (SDL_BlitFunc)NULL;
-
-        case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            return which >= 2 ? Blit4btoNAlphaKey : (SDL_BlitFunc)NULL;
-        }
-        return NULL;
-    }
-
-    return NULL;
+    return result;
 }
 
 #endif /* SDL_HAVE_BLIT_0 */
