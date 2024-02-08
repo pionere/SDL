@@ -236,29 +236,25 @@ int SDL_CalculateBlit(SDL_Surface *surface)
         SDL_InvalidateMap(map);
         return SDL_SetError("Blit combination not supported");
 #endif
-    }
+    } else if (surface->format->BitsPerPixel < 8 &&
+             SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
 #if SDL_HAVE_BLIT_0
-    else if (surface->format->BitsPerPixel < 8 &&
-             SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
         blit = SDL_CalculateBlit0(surface);
-    }
 #endif
-#if SDL_HAVE_BLIT_1
-    else if (surface->format->BytesPerPixel == 1 &&
+    } else if (surface->format->BytesPerPixel == 1 &&
              SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
+#if SDL_HAVE_BLIT_1
         blit = SDL_CalculateBlit1(surface);
-    }
 #endif
 #if SDL_HAVE_BLIT_A
-    else if (map->info.flags & SDL_COPY_BLEND) {
+    } else if (map->info.flags & SDL_COPY_BLEND) {
         blit = SDL_CalculateBlitA(surface);
-    }
 #endif
 #if SDL_HAVE_BLIT_N
-    else {
+    } else {
         blit = SDL_CalculateBlitN(surface);
-    }
 #endif
+    }
 #if SDL_HAVE_BLIT_AUTO
     if (!blit) {
         Uint32 src_format = surface->format->format;
