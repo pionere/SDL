@@ -130,18 +130,17 @@ static SDL_BlitFunc SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int
                                        SDL_BlitFuncEntry *entries)
 {
     int i, flagcheck = (flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL | SDL_COPY_COLORKEY | SDL_COPY_NEAREST));
-    static int features = 0x7fffffff;
-
+    static int features = -1;
     /* Get the available CPU features */
-    if (features == 0x7fffffff) {
-        const char *override = SDL_getenv("SDL_BLIT_CPU_FEATURES");
-
-        features = SDL_CPU_ANY;
-
+    if (features < 0) {
         /* Allow an override for testing .. */
-        if (override) {
-            (void)SDL_sscanf(override, "%u", &features);
-        } else {
+        const char *hint = SDL_getenv("SDL_BLIT_CPU_FEATURES");
+        if (hint) {
+            (void)SDL_sscanf(hint, "%d", &features);
+        }
+        if (features < 0) {
+            features = SDL_CPU_ANY;
+
             if (SDL_HasMMX()) {
                 features |= SDL_CPU_MMX;
             }

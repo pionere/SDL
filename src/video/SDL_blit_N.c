@@ -880,18 +880,18 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
     vec_dss(DST_CHAN_DEST);
 }
 
-static enum blit_features GetBlitFeatures(void)
+static int GetBlitFeatures(void)
 {
-    static enum blit_features features = -1;
-    if (features == (enum blit_features) - 1) {
-        /* Provide an override for testing .. */
-        char *override = SDL_getenv("SDL_ALTIVEC_BLIT_FEATURES");
-        if (override) {
-            unsigned int features_as_uint = 0;
-            SDL_sscanf(override, "%u", &features_as_uint);
-            features = (enum blit_features)features_as_uint;
-        } else {
-            features = (0
+    static int features = -1;
+    /* Get the available CPU features */
+    if (features < 0) {
+        /* Allow an override for testing .. */
+        char *hint = SDL_getenv("SDL_ALTIVEC_BLIT_FEATURES");
+        if (hint) {
+            SDL_sscanf(hint, "%d", &features);
+        }
+        if (features < 0) {
+            features = (BLIT_FEATURE_NONE
                         /* Feature 1 is has-MMX */
                         | ((SDL_HasMMX()) ? BLIT_FEATURE_HAS_MMX : 0)
                         /* Feature 2 is has-AltiVec */
@@ -3212,7 +3212,7 @@ struct blit_table
     Uint32 srcR, srcG, srcB;
     int dstbpp;
     Uint32 dstR, dstG, dstB;
-    enum blit_features blit_features;
+    int blit_features;
     SDL_BlitFunc blitfunc;
     Uint32 alpha; /* bitwise NO_ALPHA, SET_ALPHA, COPY_ALPHA */
 };
