@@ -524,30 +524,28 @@ SDL_BlitFunc SDL_CalculateBlit1(const SDL_BlitInfo *info)
     SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
     SDL_assert(info->dst_fmt->BitsPerPixel >= 8);
 
-    // if (info->dst_fmt->BitsPerPixel >= 8) {
-        switch (info->flags & ~SDL_COPY_RLE_MASK) {
-        case 0:
-            result = one_bitmap_blit[dst_Bpp - 1];
-            break;
-        case SDL_COPY_COLORKEY:
-            result = one_color_blit[dst_Bpp - 1];
-            break;
+    switch (info->flags & ~SDL_COPY_RLE_MASK) {
+    case 0:
+        result = one_bitmap_blit[dst_Bpp - 1];
+        break;
+    case SDL_COPY_COLORKEY:
+        result = one_color_blit[dst_Bpp - 1];
+        break;
 #if SDL_HAVE_BLIT_TRANSFORM
-        case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
-            result = (info->a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
-            break;
-        case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            /* Supporting 8bpp->8bpp alpha is doable but requires lots of
-               tables which consume space and takes time to precompute,
-               so is better left to the user */
-            result = dst_Bpp >= 2 ? Blit1toNAlpha : (SDL_BlitFunc)NULL;
-            break;
-        case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            result = dst_Bpp >= 2 ? Blit1toNAlphaKey : (SDL_BlitFunc)NULL;
-            break;
+    case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
+        result = (info->a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
+        break;
+    case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+        /* Supporting 8bpp->8bpp alpha is doable but requires lots of
+           tables which consume space and takes time to precompute,
+           so is better left to the user */
+        result = dst_Bpp >= 2 ? Blit1toNAlpha : (SDL_BlitFunc)NULL;
+        break;
+    case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+        result = dst_Bpp >= 2 ? Blit1toNAlphaKey : (SDL_BlitFunc)NULL;
+        break;
 #endif
-        }
-    // }
+    }
     return result;
 }
 

@@ -924,26 +924,24 @@ SDL_BlitFunc SDL_CalculateBlit0(const SDL_BlitInfo *info)
     SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
     SDL_assert(info->dst_fmt->BitsPerPixel >= 8);
 
-    // if (info->dst_fmt->BitsPerPixel >= 8) {
-        src_bpp = src_bpp <= 2 ? src_bpp - 1 : 2;
+    src_bpp = src_bpp <= 2 ? src_bpp - 1 : 2;
 
-        switch (info->flags & ~SDL_COPY_RLE_MASK) {
-        case 0:
-            result = bitmap_blit[src_bpp][dst_Bpp - 1];
-            break;
-        case SDL_COPY_COLORKEY:
-            result = color_blit[src_bpp][dst_Bpp - 1];
-            break;
+    switch (info->flags & ~SDL_COPY_RLE_MASK) {
+    case 0:
+        result = bitmap_blit[src_bpp][dst_Bpp - 1];
+        break;
+    case SDL_COPY_COLORKEY:
+        result = color_blit[src_bpp][dst_Bpp - 1];
+        break;
 #if SDL_HAVE_BLIT_TRANSFORM
-        case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            result = dst_Bpp >= 2 ? blend_bitmap_blit[src_bpp] : (SDL_BlitFunc)NULL;
-            break;
-        case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
-            result = dst_Bpp >= 2 ? blend_color_blit[src_bpp] : (SDL_BlitFunc)NULL;
-            break;
+    case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+        result = dst_Bpp >= 2 ? blend_bitmap_blit[src_bpp] : (SDL_BlitFunc)NULL;
+        break;
+    case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
+        result = dst_Bpp >= 2 ? blend_color_blit[src_bpp] : (SDL_BlitFunc)NULL;
+        break;
 #endif
-        }
-    // }
+    }
 
     return result;
 }

@@ -3358,98 +3358,98 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
     /* We don't support blitting with palette */
     SDL_assert(srcfmt->palette == NULL);
     if (dstfmt->palette == NULL) {
-    SDL_assert(dstfmt->BitsPerPixel >= 8);
-    switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
-    case 0:
-        if (dstfmt->BytesPerPixel == 1) {
-            SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
-            if ((srcfmt->BytesPerPixel == 4) &&
-                (srcfmt->Rmask == 0x00FF0000) &&
-                (srcfmt->Gmask == 0x0000FF00) &&
-                (srcfmt->Bmask == 0x000000FF)) {
-                result = Blit_RGB888_index8;
-            } else if ((srcfmt->BytesPerPixel == 4) &&
-                       (srcfmt->Rmask == 0x3FF00000) &&
-                       (srcfmt->Gmask == 0x000FFC00) &&
-                       (srcfmt->Bmask == 0x000003FF)) {
-                result = Blit_RGB101010_index8;
-            } else {
-                result = BlitNto1;
-            }
-        } else {
-            /* Now the meat, choose the blitter we want */
-            Uint32 a_need = NO_ALPHA;
-            if (dstfmt->Amask) {
-                a_need = srcfmt->Amask ? COPY_ALPHA : SET_ALPHA;
-            }
-            table = normal_blit[srcfmt->BytesPerPixel - 1];
-            for (which = 0; table[which].dstbpp; ++which) {
-                if (MASKOK(srcfmt->Rmask, table[which].srcR) &&
-                    MASKOK(srcfmt->Gmask, table[which].srcG) &&
-                    MASKOK(srcfmt->Bmask, table[which].srcB) &&
-                    MASKOK(dstfmt->Rmask, table[which].dstR) &&
-                    MASKOK(dstfmt->Gmask, table[which].dstG) &&
-                    MASKOK(dstfmt->Bmask, table[which].dstB) &&
-                    dstfmt->BytesPerPixel == table[which].dstbpp &&
-                    (a_need & table[which].alpha) == a_need &&
-                    ((table[which].blit_features & GetBlitFeatures()) ==
-                     table[which].blit_features)) {
-                    break;
+        SDL_assert(dstfmt->BitsPerPixel >= 8);
+        switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
+        case 0:
+            if (dstfmt->BytesPerPixel == 1) {
+                SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
+                if ((srcfmt->BytesPerPixel == 4) &&
+                    (srcfmt->Rmask == 0x00FF0000) &&
+                    (srcfmt->Gmask == 0x0000FF00) &&
+                    (srcfmt->Bmask == 0x000000FF)) {
+                    result = Blit_RGB888_index8;
+                } else if ((srcfmt->BytesPerPixel == 4) &&
+                           (srcfmt->Rmask == 0x3FF00000) &&
+                           (srcfmt->Gmask == 0x000FFC00) &&
+                           (srcfmt->Bmask == 0x000003FF)) {
+                    result = Blit_RGB101010_index8;
+                } else {
+                    result = BlitNto1;
                 }
-            }
-            result = table[which].blitfunc;
-
-            if (result == BlitNtoN) { /* default C fallback catch-all. Slow! */
-                if (srcfmt->format == SDL_PIXELFORMAT_ARGB2101010) {
-                    result = Blit2101010toN;
-                } else if (dstfmt->format == SDL_PIXELFORMAT_ARGB2101010) {
-                    result = BlitNto2101010;
-                } else if (srcfmt->BytesPerPixel == 4 &&
-                           dstfmt->BytesPerPixel == 4 &&
-                           srcfmt->Rmask == dstfmt->Rmask &&
-                           srcfmt->Gmask == dstfmt->Gmask &&
-                           srcfmt->Bmask == dstfmt->Bmask) {
-                    if (a_need == COPY_ALPHA) {
-                        if (srcfmt->Amask == dstfmt->Amask) {
-                            /* Fastpath C fallback: 32bit RGBA<->RGBA blit with matching RGBA */
-                            result = SDL_BlitCopy;
-                        } else {
-                            result = BlitNtoNCopyAlpha;
-                        }
-                    } else {
-                        /* Fastpath C fallback: 32bit RGB<->RGBA blit with matching RGB */
-                        result = Blit4to4MaskAlpha;
+            } else {
+                /* Now the meat, choose the blitter we want */
+                Uint32 a_need = NO_ALPHA;
+                if (dstfmt->Amask) {
+                    a_need = srcfmt->Amask ? COPY_ALPHA : SET_ALPHA;
+                }
+                table = normal_blit[srcfmt->BytesPerPixel - 1];
+                for (which = 0; table[which].dstbpp; ++which) {
+                    if (MASKOK(srcfmt->Rmask, table[which].srcR) &&
+                        MASKOK(srcfmt->Gmask, table[which].srcG) &&
+                        MASKOK(srcfmt->Bmask, table[which].srcB) &&
+                        MASKOK(dstfmt->Rmask, table[which].dstR) &&
+                        MASKOK(dstfmt->Gmask, table[which].dstG) &&
+                        MASKOK(dstfmt->Bmask, table[which].dstB) &&
+                        dstfmt->BytesPerPixel == table[which].dstbpp &&
+                        (a_need & table[which].alpha) == a_need &&
+                        ((table[which].blit_features & GetBlitFeatures()) ==
+                         table[which].blit_features)) {
+                        break;
                     }
-                } else if (a_need == COPY_ALPHA) {
-                    result = BlitNtoNCopyAlpha;
+                }
+                result = table[which].blitfunc;
+
+                if (result == BlitNtoN) { /* default C fallback catch-all. Slow! */
+                    if (srcfmt->format == SDL_PIXELFORMAT_ARGB2101010) {
+                        result = Blit2101010toN;
+                    } else if (dstfmt->format == SDL_PIXELFORMAT_ARGB2101010) {
+                        result = BlitNto2101010;
+                    } else if (srcfmt->BytesPerPixel == 4 &&
+                               dstfmt->BytesPerPixel == 4 &&
+                               srcfmt->Rmask == dstfmt->Rmask &&
+                               srcfmt->Gmask == dstfmt->Gmask &&
+                               srcfmt->Bmask == dstfmt->Bmask) {
+                        if (a_need == COPY_ALPHA) {
+                            if (srcfmt->Amask == dstfmt->Amask) {
+                                /* Fastpath C fallback: 32bit RGBA<->RGBA blit with matching RGBA */
+                                result = SDL_BlitCopy;
+                            } else {
+                                result = BlitNtoNCopyAlpha;
+                            }
+                        } else {
+                            /* Fastpath C fallback: 32bit RGB<->RGBA blit with matching RGB */
+                            result = Blit4to4MaskAlpha;
+                        }
+                    } else if (a_need == COPY_ALPHA) {
+                        result = BlitNtoNCopyAlpha;
+                    }
                 }
             }
-        }
-        break;
-    case SDL_COPY_COLORKEY:
-        /* colorkey blit: Here we don't have too many options, mostly
-           because RLE is the preferred fast way to deal with this.
-           If a particular case turns out to be useful we'll add it. */
+            break;
+        case SDL_COPY_COLORKEY:
+            /* colorkey blit: Here we don't have too many options, mostly
+               because RLE is the preferred fast way to deal with this.
+               If a particular case turns out to be useful we'll add it. */
 
-        if (srcfmt->BytesPerPixel == 2 && map->identity != 0) {
-            result = Blit2to2Key;
-        } else if (dstfmt->BytesPerPixel == 1) {
-            SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
-            result = BlitNto1Key;
-        } else {
-#ifdef SDL_ALTIVEC_BLITTERS
-            if ((srcfmt->BytesPerPixel == 4) && (dstfmt->BytesPerPixel == 4) && SDL_HasAltiVec()) {
-                result = Blit32to32KeyAltivec;
-            } else
-#endif
-                if (srcfmt->Amask && dstfmt->Amask) {
-                result = BlitNtoNKeyCopyAlpha;
+            if (srcfmt->BytesPerPixel == 2 && map->identity != 0) {
+                result = Blit2to2Key;
+            } else if (dstfmt->BytesPerPixel == 1) {
+                SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
+                result = BlitNto1Key;
             } else {
-                result = BlitNtoNKey;
+#ifdef SDL_ALTIVEC_BLITTERS
+                if ((srcfmt->BytesPerPixel == 4) && (dstfmt->BytesPerPixel == 4) && SDL_HasAltiVec()) {
+                    result = Blit32to32KeyAltivec;
+                } else
+#endif
+                    if (srcfmt->Amask && dstfmt->Amask) {
+                    result = BlitNtoNKeyCopyAlpha;
+                } else {
+                    result = BlitNtoNKey;
+                }
             }
+            break;
         }
-        break;
-    }
     }
     return result;
 }
