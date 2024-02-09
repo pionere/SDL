@@ -514,17 +514,18 @@ static const SDL_BlitFunc one_color_blit[] = {
     Blit1to1Key, Blit1to2Key, Blit1to3Key, Blit1to4Key
 };
 
-SDL_BlitFunc SDL_CalculateBlit1(SDL_Surface *surface)
+SDL_BlitFunc SDL_CalculateBlit1(const SDL_BlitInfo *info)
 {
-    int dst_Bpp = surface->map->dst->format->BytesPerPixel;
+    int dst_Bpp = info->dst_fmt->BytesPerPixel;
     SDL_BlitFunc result = NULL;
 
-    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
-    SDL_assert(surface->format->BitsPerPixel == 8);
+    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(info->src_fmt->format));
+    SDL_assert(info->src_fmt->BitsPerPixel == 8);
     SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
+    SDL_assert(info->dst_fmt->BitsPerPixel >= 8);
 
-    if (surface->map->dst->format->BitsPerPixel >= 8) {
-        switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
+    // if (info->dst_fmt->BitsPerPixel >= 8) {
+        switch (info->flags & ~SDL_COPY_RLE_MASK) {
         case 0:
             result = one_bitmap_blit[dst_Bpp - 1];
             break;
@@ -533,7 +534,7 @@ SDL_BlitFunc SDL_CalculateBlit1(SDL_Surface *surface)
             break;
 #if SDL_HAVE_BLIT_TRANSFORM
         case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
-            result = (surface->map->info.a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
+            result = (info->a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
             break;
         case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
             /* Supporting 8bpp->8bpp alpha is doable but requires lots of
@@ -546,7 +547,7 @@ SDL_BlitFunc SDL_CalculateBlit1(SDL_Surface *surface)
             break;
 #endif
         }
-    }
+    // }
     return result;
 }
 

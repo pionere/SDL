@@ -3343,7 +3343,7 @@ static const struct blit_table *const normal_blit[] = {
 /* Mask matches table, or table entry is zero */
 #define MASKOK(x, y) (((x) == (y)) || ((y) == 0x00000000))
 
-SDL_BlitFunc SDL_CalculateBlitN(SDL_Surface *surface)
+SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
 {
     SDL_PixelFormat *srcfmt;
     SDL_PixelFormat *dstfmt;
@@ -3352,19 +3352,21 @@ SDL_BlitFunc SDL_CalculateBlitN(SDL_Surface *surface)
     SDL_BlitFunc blitfun;
 
     /* Set up data for choosing the blit */
-    srcfmt = surface->format;
-    dstfmt = surface->map->dst->format;
+    srcfmt = map->info.src_fmt;
+    dstfmt = map->info.dst_fmt;
 
-    /* We don't support destinations less than 8-bits */
+    /* We don't support blitting with palette */
+    SDL_assert(srcfmt->palette == NULL);
     if (dstfmt->palette != NULL) {
         return NULL;
     }
     SDL_assert(dstfmt->BitsPerPixel >= 8);
 
-    switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
+    switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
     case 0:
         blitfun = NULL;
-        if (dstfmt->BitsPerPixel == 8) {
+        if (dstfmt->BytesPerPixel == 1) {
+            SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
             if ((srcfmt->BytesPerPixel == 4) &&
                 (srcfmt->Rmask == 0x00FF0000) &&
                 (srcfmt->Gmask == 0x0000FF00) &&
@@ -3434,9 +3436,10 @@ SDL_BlitFunc SDL_CalculateBlitN(SDL_Surface *surface)
            because RLE is the preferred fast way to deal with this.
            If a particular case turns out to be useful we'll add it. */
 
-        if (srcfmt->BytesPerPixel == 2 && surface->map->identity != 0) {
+        if (srcfmt->BytesPerPixel == 2 && map->identity != 0) {
             return Blit2to2Key;
         } else if (dstfmt->BytesPerPixel == 1) {
+            SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
             return BlitNto1Key;
         } else {
 #ifdef SDL_ALTIVEC_BLITTERS

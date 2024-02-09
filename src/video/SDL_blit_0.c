@@ -913,20 +913,21 @@ static const SDL_BlitFunc blend_color_blit[3] = {
 };
 #endif
 
-SDL_BlitFunc SDL_CalculateBlit0(SDL_Surface *surface)
+SDL_BlitFunc SDL_CalculateBlit0(const SDL_BlitInfo *info)
 {
-    int dst_Bpp = surface->map->dst->format->BytesPerPixel;
-    int src_bpp = surface->format->BitsPerPixel;
+    int dst_Bpp = info->dst_fmt->BytesPerPixel;
+    int src_bpp = info->src_fmt->BitsPerPixel;
     SDL_BlitFunc result = NULL;
 
-    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(info->src_fmt->format));
     SDL_assert(src_bpp == 1 || src_bpp == 2 || src_bpp == 4);
     SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
+    SDL_assert(info->dst_fmt->BitsPerPixel >= 8);
 
-    if (surface->map->dst->format->BitsPerPixel >= 8) {
+    // if (info->dst_fmt->BitsPerPixel >= 8) {
         src_bpp = src_bpp <= 2 ? src_bpp - 1 : 2;
 
-        switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
+        switch (info->flags & ~SDL_COPY_RLE_MASK) {
         case 0:
             result = bitmap_blit[src_bpp][dst_Bpp - 1];
             break;
@@ -942,7 +943,7 @@ SDL_BlitFunc SDL_CalculateBlit0(SDL_Surface *surface)
             break;
 #endif
         }
-    }
+    // }
 
     return result;
 }

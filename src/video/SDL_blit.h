@@ -107,10 +107,10 @@ struct SDL_BlitMap
 extern int SDL_CalculateBlit(SDL_Surface *surface);
 
 /* Functions found in SDL_blit_*.c */
-extern SDL_BlitFunc SDL_CalculateBlit0(SDL_Surface *surface);
-extern SDL_BlitFunc SDL_CalculateBlit1(SDL_Surface *surface);
-extern SDL_BlitFunc SDL_CalculateBlitN(SDL_Surface *surface);
-extern SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface);
+extern SDL_BlitFunc SDL_CalculateBlit0(const SDL_BlitInfo *info);
+extern SDL_BlitFunc SDL_CalculateBlit1(const SDL_BlitInfo *info);
+extern SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map);
+extern SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map);
 
 /*
  * Useful macros for blitting routines

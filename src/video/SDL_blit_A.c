@@ -24,6 +24,7 @@
 
 #include "SDL_video.h"
 #include "SDL_blit.h"
+#include "../SDL_assert_c.h"
 
 /* Functions to perform alpha blended blitting */
 
@@ -1417,13 +1418,16 @@ static void BlitNtoNPixelAlpha(const SDL_BlitInfo *info)
     }
 }
 
-SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
+SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map)
 {
-    SDL_PixelFormat *sf = surface->format;
-    SDL_PixelFormat *df = surface->map->dst->format;
+    SDL_PixelFormat *sf = map->info.src_fmt;
+    SDL_PixelFormat *df = map->info.dst_fmt;
     SDL_BlitFunc result = NULL;
 
-    switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
+    SDL_assert(map->info.flags & SDL_COPY_BLEND);
+    SDL_assert(df->BitsPerPixel >= 8);
+
+    switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
     case SDL_COPY_BLEND:
         /* Per-pixel alpha blits */
         result = BlitNtoNPixelAlpha;
@@ -1527,7 +1531,7 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
                 }
 
             case 2:
-                if (surface->map->identity) {
+                if (map->identity) {
                     if (df->Gmask == 0x7e0) {
 #ifdef __MMX__
                         if (SDL_HasMMX()) {
