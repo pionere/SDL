@@ -646,7 +646,7 @@ __EOF__
                             if ( $flags eq "" ) {
                                 $flags = "0";
                             }
-                            print FILE "($flags), SDL_CPU_ANY,";
+                            print FILE "($flags),";
                             output_copyfuncname("", $src_formats[$i], $dst_formats[$j], $modulate, $blend, $scale, 0, " },\n");
                             if ( !$modulate && !$blend) {
                                 print FILE <<__EOF__;
@@ -664,7 +664,7 @@ __EOF__
         }
     }
     print FILE <<__EOF__;
-    { 0, 0, 0, 0, NULL }
+    { 0, 0, 0, NULL }
 };
 
 __EOF__

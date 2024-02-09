@@ -103,6 +103,7 @@ static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
 
 #if SDL_HAVE_BLIT_AUTO
 
+#if 0
 #ifdef __MACOSX__
 #include <sys/sysctl.h>
 
@@ -126,10 +127,13 @@ static SDL_bool SDL_UseAltivecPrefetch(void)
 }
 #endif /* __MACOSX__ */
 
+#endif // 0
+
 static SDL_BlitFunc SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int flags,
                                        SDL_BlitFuncEntry *entries)
 {
     int i, flagcheck = (flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL | SDL_COPY_COLORKEY | SDL_COPY_NEAREST));
+#if 0
     static int features = -1;
     /* Get the available CPU features */
     if (features < 0) {
@@ -162,7 +166,7 @@ static SDL_BlitFunc SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int
             }
         }
     }
-
+#endif
     for (i = 0; entries[i].func; ++i) {
         /* Check for matching pixel formats */
         if (src_format != entries[i].src_format) {
@@ -176,12 +180,12 @@ static SDL_BlitFunc SDL_ChooseBlitFunc(Uint32 src_format, Uint32 dst_format, int
         if ((flagcheck & entries[i].flags) != flagcheck) {
             continue;
         }
-
+#if 0
         /* Check CPU features */
         if ((entries[i].cpu & features) != entries[i].cpu) {
             continue;
         }
-
+#endif
         /* We found the best one! */
         return entries[i].func;
     }
