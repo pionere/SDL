@@ -1559,7 +1559,6 @@ void SDL_FreeSurface(SDL_Surface *surface)
     }
 #endif
     if (surface->format) {
-        SDL_SetSurfacePalette(surface, NULL);
         SDL_FreeFormat(surface->format);
         surface->format = NULL;
     }
