@@ -27,6 +27,7 @@
 #include "SDL_cpuinfo.h"
 #include "SDL_blit.h"
 #include "SDL_blit_copy.h"
+#include "../SDL_assert_c.h"
 
 /* General optimized routines that write char by char */
 #define HAVE_FAST_WRITE_INT8 1
@@ -3355,9 +3356,10 @@ SDL_BlitFunc SDL_CalculateBlitN(SDL_Surface *surface)
     dstfmt = surface->map->dst->format;
 
     /* We don't support destinations less than 8-bits */
-    if (dstfmt->BitsPerPixel < 8) {
+    if (dstfmt->palette != NULL) {
         return NULL;
     }
+    SDL_assert(dstfmt->BitsPerPixel >= 8);
 
     switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
     case 0:
