@@ -1139,7 +1139,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
     }
 
     /* Create a new surface with the desired format */
-    convert = SDL_CreateRGBSurface(flags, surface->w, surface->h,
+    convert = SDL_CreateRGBSurface(0, surface->w, surface->h,
                                    format->BitsPerPixel, format->Rmask,
                                    format->Gmask, format->Bmask,
                                    format->Amask);
@@ -1257,8 +1257,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
     }
 
     if (copy_flags & SDL_COPY_COLORKEY) {
-        SDL_bool set_colorkey_by_color = SDL_FALSE;
-        SDL_bool convert_colorkey = SDL_TRUE;
+        int set_colorkey_by_color = 0;
 
         if (surface->format->palette) {
             if (format->palette &&
@@ -1272,14 +1271,15 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
                     /* No need to add the colorkey, transparency is in the alpha channel*/
                 } else {
                     /* Only set the colorkey information */
-                    set_colorkey_by_color = SDL_TRUE;
-                    convert_colorkey = SDL_FALSE;
+                    set_colorkey_by_color = 2;
                 }
             } else {
-                set_colorkey_by_color = SDL_TRUE;
+                /* set colorkey and convert to alpha */
+                set_colorkey_by_color = 1;
             }
         } else {
-            set_colorkey_by_color = SDL_TRUE;
+            /* set colorkey and convert to alpha */
+            set_colorkey_by_color = 1;
         }
 
         if (set_colorkey_by_color) {
@@ -1315,7 +1315,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
             SDL_SetColorKey(convert, 1, converted_colorkey);
 
             /* This is needed when converting for 3D texture upload */
-            if (convert_colorkey) {
+            if (set_colorkey_by_color == 1) {
                 SDL_ConvertColorkeyToAlpha(convert, SDL_TRUE);
             }
         }
