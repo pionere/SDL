@@ -197,12 +197,6 @@ int SDL_CalculateBlit(SDL_Surface *surface)
     SDL_BlitMap *map = surface->map;
     SDL_Surface *dst = map->dst;
 
-    /* We don't currently support blitting to < 8 bpp surfaces */
-    if (dst->format->BitsPerPixel < 8) {
-        SDL_InvalidateMap(map);
-        return SDL_SetError("Blit combination not supported");
-    }
-
 #if SDL_HAVE_RLE
     /* Clean everything out to start */
     if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
@@ -226,64 +220,56 @@ int SDL_CalculateBlit(SDL_Surface *surface)
 #endif
 
     /* Choose a standard blit function */
-    if (map->identity && !(map->info.flags & ~SDL_COPY_RLE_DESIRED)) {
+    if (map->info.dst_fmt->BitsPerPixel < 8) {
+        ; // We don't currently support blitting to < 8 bpp surfaces
+    } else if (map->identity && !(map->info.flags & ~SDL_COPY_RLE_DESIRED)) {
         blit = SDL_BlitCopy;
-    } else if (surface->format->Rloss > 8 || dst->format->Rloss > 8) {
-#if SDL_HAVE_BLIT_SLOW
-        blit = SDL_Blit_Slow;
-#else
-        /* Greater than 8 bits per channel not supported yet */
-        SDL_InvalidateMap(map);
-        return SDL_SetError("Blit combination not supported");
-#endif
-    } else if (surface->format->BitsPerPixel < 8 &&
-             map->info.src_fmt->palette) {
-        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+    } else if (map->info.src_fmt->palette) {
+        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(map->info.src_fmt->format));
+        if (map->info.src_fmt->BitsPerPixel < 8) {
 #if SDL_HAVE_BLIT_0
-        blit = SDL_CalculateBlit0(surface);
+            blit = SDL_CalculateBlit0(surface);
 #endif
-    } else if (surface->format->BytesPerPixel == 1 &&
-             map->info.src_fmt->palette) {
-        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+        } else {
+            SDL_assert(map->info.src_fmt->BitsPerPixel == 8);
 #if SDL_HAVE_BLIT_1
-        blit = SDL_CalculateBlit1(surface);
+            blit = SDL_CalculateBlit1(surface);
 #endif
-#if SDL_HAVE_BLIT_A
-    } else if (map->info.flags & SDL_COPY_BLEND) {
-        blit = SDL_CalculateBlitA(surface);
-#endif
-#if SDL_HAVE_BLIT_N
+        }
     } else {
-        blit = SDL_CalculateBlitN(surface);
+        SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(map->info.src_fmt->format));
+        if (map->info.src_fmt->Rloss <= 8 && map->info.dst_fmt->Rloss <= 8) {
+#if SDL_HAVE_BLIT_A
+            if (map->info.flags & SDL_COPY_BLEND) {
+                blit = SDL_CalculateBlitA(surface);
+            } else
 #endif
-    }
+            {
+#if SDL_HAVE_BLIT_N
+                blit = SDL_CalculateBlitN(surface);
+#endif
+            }
 #if SDL_HAVE_BLIT_AUTO
-    if (!blit) {
-        Uint32 src_format = surface->format->format;
-        Uint32 dst_format = dst->format->format;
+            if (!blit) {
+                Uint32 src_format = map->info.src_fmt->format;
+                Uint32 dst_format = map->info.dst_fmt->format;
 
-        blit =
-            SDL_ChooseBlitFunc(src_format, dst_format, map->info.flags,
+                blit = SDL_ChooseBlitFunc(src_format, dst_format, map->info.flags,
                                SDL_GeneratedBlitFuncTable);
-    }
+            }
 #endif
+        }
 #if SDL_HAVE_BLIT_SLOW
 #ifndef TEST_SLOW_BLIT
-    if (!blit)
+        if (!blit)
 #endif
-    {
-        Uint32 src_format = surface->format->format;
-        Uint32 dst_format = dst->format->format;
-
-        if (map->info.src_fmt->palette == NULL && map->info.dst_fmt->palette == NULL &&
-            !SDL_ISPIXELFORMAT_FOURCC(src_format) &&
-            !SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
-            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
-            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(dst->format->format));
-            blit = SDL_Blit_Slow;
+        {
+            if (map->info.dst_fmt->palette == NULL) {
+                blit = SDL_Blit_Slow;
+            }
         }
-    }
 #endif /* SDL_HAVE_BLIT_SLOW */
+    }
     map->data = blit;
 
     /* Make sure we have a blit function */
