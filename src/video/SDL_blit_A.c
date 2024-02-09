@@ -1421,17 +1421,20 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
 {
     SDL_PixelFormat *sf = surface->format;
     SDL_PixelFormat *df = surface->map->dst->format;
+    SDL_BlitFunc result = NULL;
 
     switch (surface->map->info.flags & ~SDL_COPY_RLE_MASK) {
     case SDL_COPY_BLEND:
         /* Per-pixel alpha blits */
+        result = BlitNtoNPixelAlpha;
         switch (df->BytesPerPixel) {
         case 1:
             if (df->palette) {
-                return BlitNto1PixelAlpha;
+                result = BlitNto1PixelAlpha;
+                break;
             } else {
                 /* RGB332 has no palette ! */
-                return BlitNtoNPixelAlpha;
+                break;
             }
 
         case 2:
@@ -1439,24 +1442,28 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
             if (sf->BytesPerPixel == 4 && sf->Amask == 0xff000000 && sf->Gmask == 0xff00 && df->Gmask == 0x7e0 && ((sf->Rmask == 0xff && df->Rmask == 0x1f) || (sf->Bmask == 0xff && df->Bmask == 0x1f))) {
 #ifdef SDL_ARM_NEON_BLITTERS
                 if (SDL_HasNEON()) {
-                    return BlitARGBto565PixelAlphaARMNEON;
+                    result = BlitARGBto565PixelAlphaARMNEON;
+                    break;
                 }
 #endif
 #ifdef SDL_ARM_SIMD_BLITTERS
                 if (SDL_HasARMSIMD()) {
-                    return BlitARGBto565PixelAlphaARMSIMD;
+                    result = BlitARGBto565PixelAlphaARMSIMD;
+                    break;
                 }
 #endif
             }
 #endif
             if (sf->BytesPerPixel == 4 && sf->Amask == 0xff000000 && sf->Gmask == 0xff00 && ((sf->Rmask == 0xff && df->Rmask == 0x1f) || (sf->Bmask == 0xff && df->Bmask == 0x1f))) {
                 if (df->Gmask == 0x7e0) {
-                    return BlitARGBto565PixelAlpha;
+                    result = BlitARGBto565PixelAlpha;
+                    break;
                 } else if (df->Gmask == 0x3e0) {
-                    return BlitARGBto555PixelAlpha;
+                    result = BlitARGBto555PixelAlpha;
+                    break;
                 }
             }
-            return BlitNtoNPixelAlpha;
+            break;
 
         case 4:
             if (sf->Rmask == df->Rmask && sf->Gmask == df->Gmask && sf->Bmask == df->Bmask && sf->BytesPerPixel == 4) {
@@ -1464,12 +1471,14 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
                 if (sf->Rshift % 8 == 0 && sf->Gshift % 8 == 0 && sf->Bshift % 8 == 0 && sf->Ashift % 8 == 0 && sf->Aloss == 0) {
 #ifdef __3dNOW__
                     if (SDL_Has3DNow()) {
-                        return BlitRGBtoRGBPixelAlphaMMX3DNOW;
+                        result = BlitRGBtoRGBPixelAlphaMMX3DNOW;
+                        break;
                     }
 #endif
 #ifdef __MMX__
                     if (SDL_HasMMX()) {
-                        return BlitRGBtoRGBPixelAlphaMMX;
+                        result = BlitRGBtoRGBPixelAlphaMMX;
+                        break;
                     }
 #endif
                 }
@@ -1477,39 +1486,44 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
                 if (sf->Amask == 0xff000000) {
 #ifdef SDL_ARM_NEON_BLITTERS
                     if (SDL_HasNEON()) {
-                        return BlitRGBtoRGBPixelAlphaARMNEON;
+                        result = BlitRGBtoRGBPixelAlphaARMNEON;
+                        break;
                     }
 #endif
 #ifdef SDL_ARM_SIMD_BLITTERS
                     if (SDL_HasARMSIMD()) {
-                        return BlitRGBtoRGBPixelAlphaARMSIMD;
+                        result = BlitRGBtoRGBPixelAlphaARMSIMD;
+                        break;
                     }
 #endif
-                    return BlitRGBtoRGBPixelAlpha;
+                    result = BlitRGBtoRGBPixelAlpha;
+                    break;
                 }
             } else if (sf->Rmask == df->Bmask && sf->Gmask == df->Gmask && sf->Bmask == df->Rmask && sf->BytesPerPixel == 4) {
                 if (sf->Amask == 0xff000000) {
-                    return BlitRGBtoBGRPixelAlpha;
+                    result = BlitRGBtoBGRPixelAlpha;
+                    break;
                 }
             }
-            return BlitNtoNPixelAlpha;
-
+            break;
         case 3:
         default:
             break;
         }
-        return BlitNtoNPixelAlpha;
+        break;
 
     case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
         if (sf->Amask == 0) {
             /* Per-surface alpha blits */
+            result = BlitNtoNSurfaceAlpha;
             switch (df->BytesPerPixel) {
             case 1:
                 if (df->palette) {
-                    return BlitNto1SurfaceAlpha;
+                    result = BlitNto1SurfaceAlpha;
+                    break;
                 } else {
                     /* RGB332 has no palette ! */
-                    return BlitNtoNSurfaceAlpha;
+                    break;
                 }
 
             case 2:
@@ -1517,63 +1531,66 @@ SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface *surface)
                     if (df->Gmask == 0x7e0) {
 #ifdef __MMX__
                         if (SDL_HasMMX()) {
-                            return Blit565to565SurfaceAlphaMMX;
+                            result = Blit565to565SurfaceAlphaMMX;
+                            break;
                         } else
 #endif
                         {
-                            return Blit565to565SurfaceAlpha;
+                            result = Blit565to565SurfaceAlpha;
+                            break;
                         }
                     } else if (df->Gmask == 0x3e0) {
 #ifdef __MMX__
                         if (SDL_HasMMX()) {
-                            return Blit555to555SurfaceAlphaMMX;
+                            result = Blit555to555SurfaceAlphaMMX;
+                            break;
                         } else
 #endif
                         {
-                            return Blit555to555SurfaceAlpha;
+                            result = Blit555to555SurfaceAlpha;
+                            break;
                         }
                     }
                 }
-                return BlitNtoNSurfaceAlpha;
-
+                break;
             case 4:
                 if (sf->Rmask == df->Rmask && sf->Gmask == df->Gmask && sf->Bmask == df->Bmask && sf->BytesPerPixel == 4) {
 #ifdef __MMX__
                     if (sf->Rshift % 8 == 0 && sf->Gshift % 8 == 0 && sf->Bshift % 8 == 0 && SDL_HasMMX()) {
-                        return BlitRGBtoRGBSurfaceAlphaMMX;
+                        result = BlitRGBtoRGBSurfaceAlphaMMX;
+                        break;
                     }
 #endif
                     if ((sf->Rmask | sf->Gmask | sf->Bmask) == 0xffffff) {
-                        return BlitRGBtoRGBSurfaceAlpha;
+                        result = BlitRGBtoRGBSurfaceAlpha;
+                        break;
                     }
                 }
-                return BlitNtoNSurfaceAlpha;
-
+                break;
             case 3:
             default:
-                return BlitNtoNSurfaceAlpha;
+                break;
             }
         }
         break;
 
     case SDL_COPY_COLORKEY | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
         if (sf->Amask == 0) {
+            result = BlitNtoNSurfaceAlphaKey;
             if (df->BytesPerPixel == 1) {
-
                 if (df->palette) {
-                    return BlitNto1SurfaceAlphaKey;
+                    result = BlitNto1SurfaceAlphaKey;
+                    break;
                 } else {
                     /* RGB332 has no palette ! */
-                    return BlitNtoNSurfaceAlphaKey;
+                    break;
                 }
-            } else {
-                return BlitNtoNSurfaceAlphaKey;
             }
         }
         break;
     }
 
-    return NULL;
+    return result;
 }
 
 #endif /* SDL_HAVE_BLIT_A */
