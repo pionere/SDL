@@ -965,7 +965,8 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     if (scaleMode == SDL_ScaleModeNearest) {
         if (!(src->map->info.flags & complex_copy_flags) &&
             src->format->format == dst->format->format &&
-            !SDL_ISPIXELFORMAT_INDEXED(src->format->format)) {
+            src->format->palette == NULL) {
+            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(src->format->format));
             return SDL_SoftStretch(src, srcrect, dst, dstrect);
         } else {
             return SDL_LowerBlit(src, srcrect, dst, dstrect);
@@ -973,9 +974,10 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     } else {
         if (!(src->map->info.flags & complex_copy_flags) &&
             src->format->format == dst->format->format &&
-            !SDL_ISPIXELFORMAT_INDEXED(src->format->format) &&
+            src->format->palette == NULL &&
             src->format->BytesPerPixel == 4 &&
             src->format->format != SDL_PIXELFORMAT_ARGB2101010) {
+            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(src->format->format));
             /* fast path */
             return SDL_SoftStretchLinear(src, srcrect, dst, dstrect);
         } else {

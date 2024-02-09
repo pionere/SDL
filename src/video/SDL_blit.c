@@ -237,12 +237,14 @@ int SDL_CalculateBlit(SDL_Surface *surface)
         return SDL_SetError("Blit combination not supported");
 #endif
     } else if (surface->format->BitsPerPixel < 8 &&
-             SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
+             map->info.src_fmt->palette) {
+        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
 #if SDL_HAVE_BLIT_0
         blit = SDL_CalculateBlit0(surface);
 #endif
     } else if (surface->format->BytesPerPixel == 1 &&
-             SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
+             map->info.src_fmt->palette) {
+        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
 #if SDL_HAVE_BLIT_1
         blit = SDL_CalculateBlit1(surface);
 #endif
@@ -273,10 +275,11 @@ int SDL_CalculateBlit(SDL_Surface *surface)
         Uint32 src_format = surface->format->format;
         Uint32 dst_format = dst->format->format;
 
-        if (!SDL_ISPIXELFORMAT_INDEXED(src_format) &&
+        if (map->info.src_fmt->palette == NULL && map->info.dst_fmt->palette == NULL &&
             !SDL_ISPIXELFORMAT_FOURCC(src_format) &&
-            !SDL_ISPIXELFORMAT_INDEXED(dst_format) &&
             !SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
+            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(surface->format->format));
+            SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(dst->format->format));
             blit = SDL_Blit_Slow;
         }
     }

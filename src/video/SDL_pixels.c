@@ -690,6 +690,10 @@ int SDL_SetPixelFormatPalette(SDL_PixelFormat *format, SDL_Palette *palette)
         return SDL_InvalidParamError("SDL_SetPixelFormatPalette(): format");
     }
 
+    SDL_assert(palette != NULL); // TODO: enforce these assertions
+    SDL_assert(format->BitsPerPixel <= 8);
+    SDL_assert(SDL_ISPIXELFORMAT_INDEXED(format->format));
+
     if (palette && palette->ncolors > (1 << format->BitsPerPixel)) {
         return SDL_SetError("SDL_SetPixelFormatPalette() passed a palette that doesn't match the format");
     }
@@ -1057,9 +1061,11 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     map->identity = 0;
     srcfmt = src->format;
     dstfmt = dst->format;
-    if (SDL_ISPIXELFORMAT_INDEXED(srcfmt->format)) {
-        if (SDL_ISPIXELFORMAT_INDEXED(dstfmt->format)) {
+    if (srcfmt->palette) {
+        SDL_assert(SDL_ISPIXELFORMAT_INDEXED(srcfmt->format));
+        if (dstfmt->palette) {
             /* Palette --> Palette */
+            SDL_assert(SDL_ISPIXELFORMAT_INDEXED(dstfmt->format));
             map->info.table =
                 Map1to1(srcfmt->palette, dstfmt->palette, &map->identity);
             if (!map->identity) {
@@ -1080,8 +1086,9 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
             }
         }
     } else {
-        if (SDL_ISPIXELFORMAT_INDEXED(dstfmt->format)) {
+        if (dstfmt->palette) {
             /* BitField --> Palette */
+            SDL_assert(SDL_ISPIXELFORMAT_INDEXED(dstfmt->format));
             map->info.table = MapNto1(dstfmt->palette, &map->identity);
             if (!map->identity) {
                 if (!map->info.table) {
