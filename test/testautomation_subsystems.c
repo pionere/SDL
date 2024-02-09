@@ -45,11 +45,12 @@ static int subsystems_referenceCount()
     const int system = SDL_INIT_VIDEO;
     int result;
     /* Ensure that we start with a non-initialized subsystem. */
-    SDLTest_AssertCheck(SDL_WasInit(system) == 0, "Check result from SDL_WasInit(0x%x)", system);
+    result = SDL_WasInit(system);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_WasInit(0x%x), expected: 0, got: 0x%x", system, result);
 
     /* Init subsystem once, and quit once */
-    SDL_InitSubSystem(system);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(0x%x)", system);
+    result = SDL_InitSubSystem(system);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(0x%x), expected: 0, got: 0x%x", system, result);
     result = SDL_WasInit(system);
     SDLTest_AssertCheck(result == system, "Check result from SDL_WasInit(0x%x), expected: 0x%x, got: 0x%x", system, system, result);
 
@@ -59,10 +60,12 @@ static int subsystems_referenceCount()
     SDLTest_AssertCheck(result == 0, "Check result from SDL_WasInit(0x%x), expected: 0, got: 0x%x", system, result);
 
     /* Init subsystem number of times, then decrement reference count until it's disposed of. */
-    SDL_InitSubSystem(system);
-    SDL_InitSubSystem(system);
-    SDL_InitSubSystem(system);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(0x%x) x3 times", system);
+    result = SDL_InitSubSystem(system);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(0x%x) I., expected: 0, got: 0x%x", system, result);
+    result = SDL_InitSubSystem(system);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(0x%x) II., expected: 0, got: 0x%x", system, result);
+    result = SDL_InitSubSystem(system);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(0x%x) III., expected: 0, got: 0x%x", system, result);
     result = SDL_WasInit(system);
     SDLTest_AssertCheck(result == system, "Check result from SDL_WasInit(0x%x), expected: 0x%x, got: 0x%x", system, system, result);
 
@@ -96,12 +99,12 @@ static int subsystems_dependRefCountInitAllQuitByOne()
 {
     int result;
     /* Ensure that we start with reset subsystems. */
-    SDLTest_AssertCheck(SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) == 0,
-                        "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS)");
+    result = SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS), expected: 0, got: 0x%x", result);
 
     /* Following should init SDL_INIT_EVENTS and give it +3 ref counts. */
-    SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK)");
+    result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK), expected: 0, got: 0x%x", result);
     result = SDL_WasInit(SDL_INIT_EVENTS);
     SDLTest_AssertCheck(result == SDL_INIT_EVENTS, "Check result from SDL_WasInit(SDL_INIT_EVENTS), expected: 0x4000, got: 0x%x", result);
 
@@ -134,18 +137,18 @@ static int subsystems_dependRefCountInitByOneQuitAll()
 {
     int result;
     /* Ensure that we start with reset subsystems. */
-    SDLTest_AssertCheck(SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) == 0,
-                        "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS)");
+    result = SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS), expected: 0, got: 0x%x", result);
 
     /* Following should init SDL_INIT_EVENTS and give it +3 ref counts. */
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_VIDEO)");
+    result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_VIDEO), expected: 0, got: 0x%x", result);
     result = SDL_WasInit(SDL_INIT_EVENTS);
     SDLTest_AssertCheck(result == SDL_INIT_EVENTS, "Check result from SDL_WasInit(SDL_INIT_EVENTS), expected: 0x4000, got: 0x%x", result);
-    SDL_InitSubSystem(SDL_INIT_AUDIO);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_AUDIO)");
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_JOYSTICK)");
+    result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_AUDIO), expected: 0, got: 0x%x", result);
+    result = SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_JOYSTICK), expected: 0, got: 0x%x", result);
 
     /* Quit systems all at once. */
     SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
@@ -169,21 +172,21 @@ static int subsystems_dependRefCountWithExtraInit()
 {
     int result;
     /* Ensure that we start with reset subsystems. */
-    SDLTest_AssertCheck(SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) == 0,
-                        "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS)");
+    result = SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS), expected: 0, got: 0x%x", result);
 
     /* Init EVENTS explicitly, +1 ref count. */
-    SDL_InitSubSystem(SDL_INIT_EVENTS);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_EVENTS)");
+    result = SDL_InitSubSystem(SDL_INIT_EVENTS);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_EVENTS), expected: 0, got: 0x%x", result);
     result = SDL_WasInit(SDL_INIT_EVENTS);
     SDLTest_AssertCheck(result == SDL_INIT_EVENTS, "Check result from SDL_WasInit(SDL_INIT_EVENTS), expected: 0x4000, got: 0x%x", result);
     /* Following should init SDL_INIT_EVENTS and give it +3 ref counts. */
-    SDL_InitSubSystem(SDL_INIT_VIDEO);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_VIDEO)");
-    SDL_InitSubSystem(SDL_INIT_AUDIO);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_AUDIO)");
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-    SDLTest_AssertPass("Call to SDL_InitSubSystem(SDL_INIT_JOYSTICK)");
+    result = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_VIDEO), expected: 0, got: 0x%x", result);
+    result = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_AUDIO), expected: 0, got: 0x%x", result);
+    result = SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+    SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_JOYSTICK), expected: 0, got: 0x%x", result);
 
     /* Quit EVENTS explicitly, -1 ref count. */
     SDL_QuitSubSystem(SDL_INIT_EVENTS);
