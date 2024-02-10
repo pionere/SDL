@@ -1371,51 +1371,50 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
 
     /* See what the best texture format is */
     fmt = surface->format;
-    if (fmt->Amask || SDL_HasColorKey(surface)) {
+    format = fmt->format;
+    if (fmt->Amask) {
+        /* Has alpha => try exact match */
         needAlpha = SDL_TRUE;
+    } else if (SDL_HasColorKey(surface)) {
+        /* No alpha, but a colorkey => promote to alpha */
+        needAlpha = SDL_TRUE;
+        if (format == SDL_PIXELFORMAT_RGB888) {
+            format = SDL_PIXELFORMAT_ARGB8888;
+        } else if (format == SDL_PIXELFORMAT_BGR888) {
+            format = SDL_PIXELFORMAT_ABGR8888;
+        } else if (format == SDL_PIXELFORMAT_RGB444) {
+            format = SDL_PIXELFORMAT_ARGB4444;
+        } else if (format == SDL_PIXELFORMAT_BGR444) {
+            format = SDL_PIXELFORMAT_ABGR4444;
+        } else {
+            format = SDL_PIXELFORMAT_UNKNOWN;
+        }
     } else {
         needAlpha = SDL_FALSE;
-    }
-
-    /* If Palette contains alpha values, promotes to alpha format */
-    if (fmt->palette) {
-        SDL_bool is_opaque, has_alpha_channel;
-        SDL_DetectPalette(fmt->palette, &is_opaque, &has_alpha_channel);
-        if (!is_opaque) {
-            needAlpha = SDL_TRUE;
-        }
-    }
-
-    /* Try to have the best pixel format for the texture */
-    /* No alpha, but a colorkey => promote to alpha */
-    if (!fmt->Amask && SDL_HasColorKey(surface)) {
-        if (fmt->format == SDL_PIXELFORMAT_RGB888) {
-            for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
-                if (renderer->info.texture_formats[i] == SDL_PIXELFORMAT_ARGB8888) {
-                    format = SDL_PIXELFORMAT_ARGB8888;
-                    break;
-                }
-            }
-        } else if (fmt->format == SDL_PIXELFORMAT_BGR888) {
-            for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
-                if (renderer->info.texture_formats[i] == SDL_PIXELFORMAT_ABGR8888) {
-                    format = SDL_PIXELFORMAT_ABGR8888;
-                    break;
-                }
+        /* If Palette contains alpha values, prefer alpha format if exact match does not work */
+        if (fmt->palette) {
+            SDL_bool is_opaque, has_alpha_channel;
+            SDL_DetectPalette(fmt->palette, &is_opaque, &has_alpha_channel);
+            if (!is_opaque) {
+                needAlpha = SDL_TRUE;
             }
         }
-    } else {
-        /* Exact match would be fine */
+    }
+    /* Check if the target format is available */
+    // if (format != SDL_PIXELFORMAT_UNKNOWN) {
         for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
-            if (renderer->info.texture_formats[i] == fmt->format) {
-                format = fmt->format;
+            if (renderer->info.texture_formats[i] == format) {
+                SDL_assert(format != SDL_PIXELFORMAT_UNKNOWN);
                 break;
             }
         }
-    }
+        if (i >= (int)renderer->info.num_texture_formats) {
+/*            format = SDL_PIXELFORMAT_UNKNOWN;
+        }
+    // }
 
-    /* Fallback, choose a valid pixel format */
-    if (format == SDL_PIXELFORMAT_UNKNOWN) {
+    if (format == SDL_PIXELFORMAT_UNKNOWN) {*/
+        /* Fallback, choose a valid pixel format */
         format = renderer->info.texture_formats[0];
         for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
             if (!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]) &&
