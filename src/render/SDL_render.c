@@ -1345,6 +1345,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
             texture->pitch = (((w * SDL_BYTESPERPIXEL(format)) + 3) & ~3);
             texture->pixels = SDL_calloc(1, (size_t)texture->pitch * h);
             if (!texture->pixels) {
+                SDL_OutOfMemory();
                 SDL_DestroyTexture(texture);
                 return NULL;
             }
@@ -1951,7 +1952,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         }
     }
 #else
-    return -1;
+    return SDL_Unsupported();
 #endif
 }
 
@@ -2011,7 +2012,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         }
     }
 #else
-    return -1;
+    return SDL_Unsupported();
 #endif
 }
 
