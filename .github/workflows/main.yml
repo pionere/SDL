@@ -20,7 +20,7 @@ jobs:
         - { name: Windows (clang32),              os: windows-latest, shell: 'msys2 {0}', msystem: clang32, msys-env: mingw-w64-clang-i686, artifact: SDL2.dll, artifact-name: SDL2_clang_x86.dll }
         - { name: Windows (clang64),              os: windows-latest, shell: 'msys2 {0}', msystem: clang64, msys-env: mingw-w64-clang-x86_64, artifact: SDL2.dll, artifact-name: SDL2_clang_x64.dll }
         - { name: Windows (ucrt64),               os: windows-latest, shell: 'msys2 {0}', msystem: ucrt64,  msys-env: mingw-w64-ucrt-x86_64, artifact: SDL2.dll, artifact-name: SDL2_ucrt_x64.dll }
-        - { name: Ubuntu 20.04 (CMake),           os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so }
+        - { name: Ubuntu 20.04 (CMake),           os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so, cmake: '-DSDL_DUMMYVIDEO=ON -DSDL_DUMMYAUDIO=ON' }
         - { name: Ubuntu 20.04 (autotools),       os: ubuntu-20.04,   shell: sh,    autotools: true, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04_auto.so }
         - { name: Intel oneAPI (Ubuntu 20.04),    os: ubuntu-20.04,   shell: bash, artifact: 'SDL-ubuntu20.04-oneapi', artifact-name: libSDL2-28.0_intel.so, intel: true,
             source_cmd: 'source /opt/intel/oneapi/setvars.sh; export CC=icx; export CXX=icx;'}
