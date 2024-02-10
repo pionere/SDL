@@ -43,7 +43,9 @@
 enum blit_features
 {
     BLIT_FEATURE_NONE = 0,
+#if 0
     BLIT_FEATURE_HAS_MMX = 1,
+#endif
     BLIT_FEATURE_HAS_ALTIVEC = 2,
     BLIT_FEATURE_ALTIVEC_DONT_USE_PREFETCH = 4,
     BLIT_FEATURE_HAS_ARM_SIMD = 8
@@ -880,37 +882,51 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
     vec_dss(DST_CHAN_DEST);
 }
 
-static int GetBlitFeatures(void)
+#ifdef __MWERKS__
+#pragma altivec_model off
+#endif
+#endif // SDL_ALTIVEC_BLITTERS
+
+static SDL_bool HasBlitFeatures(int feature)
 {
+#if defined(SDL_ALTIVEC_BLITTERS) || defined(SDL_ARM_SIMD_BLITTERS)
     static int features = -1;
     /* Get the available CPU features */
     if (features < 0) {
+#ifdef SDL_ALTIVEC_BLITTERS
         /* Allow an override for testing .. */
         char *hint = SDL_getenv("SDL_ALTIVEC_BLIT_FEATURES");
         if (hint) {
             SDL_sscanf(hint, "%d", &features);
         }
         if (features < 0) {
-            features = (BLIT_FEATURE_NONE
+            features = BLIT_FEATURE_NONE
+#if 0
                         /* Feature 1 is has-MMX */
                         | ((SDL_HasMMX()) ? BLIT_FEATURE_HAS_MMX : 0)
+#endif
                         /* Feature 2 is has-AltiVec */
                         | ((SDL_HasAltiVec()) ? BLIT_FEATURE_HAS_ALTIVEC : 0)
                         /* Feature 4 is dont-use-prefetch */
                         /* !!!! FIXME: Check for G5 or later, not the cache size! Always prefetch on a G4. */
-                        | ((GetL3CacheSize() == 0) ? BLIT_FEATURE_ALTIVEC_DONT_USE_PREFETCH : 0));
+                        | ((GetL3CacheSize() == 0) ? BLIT_FEATURE_ALTIVEC_DONT_USE_PREFETCH : 0);
         }
-    }
-    return features;
-}
-
-#ifdef __MWERKS__
-#pragma altivec_model off
-#endif
 #else
-/* Feature 1 is has-MMX */
-#define GetBlitFeatures() ((SDL_HasMMX() ? BLIT_FEATURE_HAS_MMX : 0) | (SDL_HasARMSIMD() ? BLIT_FEATURE_HAS_ARM_SIMD : 0))
+            features = BLIT_FEATURE_NONE
+#if 0
+                        /* Feature 1 is has-MMX */
+                        | ((SDL_HasMMX()) ? BLIT_FEATURE_HAS_MMX : 0)
 #endif
+                        /* Feature 8 is has-ARMSimd */
+                        | ((SDL_HasARMSIMD()) ? BLIT_FEATURE_HAS_ARM_SIMD : 0);
+#endif // SDL_ALTIVEC_BLITTERS
+    }
+    return (features & feature) == feature;
+#else
+    SDL_assert(feature == 0);
+    return SDL_TRUE;
+#endif // SDL_ALTIVEC_BLITTERS || SDL_ARM_SIMD_BLITTERS
+}
 
 #ifdef SDL_ARM_SIMD_BLITTERS
 void Blit_BGR888_RGB888ARMSIMDAsm(int32_t w, int32_t h, uint32_t *dst, int32_t dst_stride, uint32_t *src, int32_t src_stride);
@@ -3392,8 +3408,7 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
                         MASKOK(dstfmt->Bmask, table[which].dstB) &&
                         dstfmt->BytesPerPixel == table[which].dstbpp &&
                         (a_need & table[which].alpha) == a_need &&
-                        ((table[which].blit_features & GetBlitFeatures()) ==
-                         table[which].blit_features)) {
+                        HasBlitFeatures(table[which].blit_features)) {
                         break;
                     }
                 }
