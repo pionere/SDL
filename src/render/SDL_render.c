@@ -1295,12 +1295,11 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
     renderer->textures = texture;
 
     /* FOURCC format cannot be used directly by renderer back-ends for target texture */
-    texture_is_fourcc_and_target = (access == SDL_TEXTUREACCESS_TARGET && SDL_ISPIXELFORMAT_FOURCC(texture->format));
+    texture_is_fourcc_and_target = (access == SDL_TEXTUREACCESS_TARGET && SDL_ISPIXELFORMAT_FOURCC(format));
 
     if (texture_is_fourcc_and_target == SDL_FALSE && IsSupportedFormat(renderer, format)) {
         if (renderer->CreateTexture(renderer, texture) < 0) {
-            SDL_DestroyTexture(texture);
-            return NULL;
+            goto error;
         }
     } else {
         int closest_format;
@@ -1313,8 +1312,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
 
         texture->native = SDL_CreateTexture(renderer, closest_format, access, w, h);
         if (!texture->native) {
-            SDL_DestroyTexture(texture);
-            return NULL;
+            goto error;
         }
 
         /* Swap textures to have texture before texture->native in the list */
@@ -1330,15 +1328,14 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
         texture->next = texture->native;
         renderer->textures = texture;
 
-        if (SDL_ISPIXELFORMAT_FOURCC(texture->format)) {
+        if (SDL_ISPIXELFORMAT_FOURCC(format)) {
 #if SDL_HAVE_YUV
             texture->yuv = SDL_SW_CreateYUVTexture(format, w, h);
 #else
             SDL_SetError("SDL not built with YUV support");
 #endif
             if (!texture->yuv) {
-                SDL_DestroyTexture(texture);
-                return NULL;
+                goto error;
             }
         } else if (access == SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
@@ -1346,12 +1343,14 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
             texture->pixels = SDL_calloc(1, (size_t)texture->pitch * h);
             if (!texture->pixels) {
                 SDL_OutOfMemory();
-                SDL_DestroyTexture(texture);
-                return NULL;
+                goto error;
             }
         }
     }
     return texture;
+error:
+    SDL_DestroyTexture(texture);
+    return NULL;
 }
 
 SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *surface)
