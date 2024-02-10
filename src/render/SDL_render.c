@@ -1209,10 +1209,8 @@ static Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
 
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
         /* Look for an exact match */
-        for (i = 0; i < renderer->info.num_texture_formats; ++i) {
-            if (renderer->info.texture_formats[i] == format) {
-                return renderer->info.texture_formats[i];
-            }
+        if (IsSupportedFormat(renderer, format)) {
+            return format;
         }
     } else {
         SDL_bool hasAlpha = SDL_ISPIXELFORMAT_ALPHA(format);
@@ -1358,7 +1356,7 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
     const SDL_PixelFormat *fmt;
     SDL_bool needAlpha;
     SDL_bool direct_update;
-    int i;
+    Uint32 i;
     Uint32 format = SDL_PIXELFORMAT_UNKNOWN;
     SDL_Texture *texture;
 
@@ -1382,10 +1380,12 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
             format = SDL_PIXELFORMAT_ARGB8888;
         } else if (format == SDL_PIXELFORMAT_BGR888) {
             format = SDL_PIXELFORMAT_ABGR8888;
-        } else if (format == SDL_PIXELFORMAT_RGB444) {
+#if 0
+        } else if (format == SDL_PIXELFORMAT_RGB444) { -- none of the renderers support this
             format = SDL_PIXELFORMAT_ARGB4444;
-        } else if (format == SDL_PIXELFORMAT_BGR444) {
+        } else if (format == SDL_PIXELFORMAT_BGR444) { -- psp-renderer supports this, but does not help blitting
             format = SDL_PIXELFORMAT_ABGR4444;
+#endif
         } else {
             format = SDL_PIXELFORMAT_UNKNOWN;
         }
@@ -1402,13 +1402,7 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
     }
     /* Check if the target format is available */
     // if (format != SDL_PIXELFORMAT_UNKNOWN) {
-        for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
-            if (renderer->info.texture_formats[i] == format) {
-                SDL_assert(format != SDL_PIXELFORMAT_UNKNOWN);
-                break;
-            }
-        }
-        if (i >= (int)renderer->info.num_texture_formats) {
+        if (!IsSupportedFormat(renderer, format)) {
 /*            format = SDL_PIXELFORMAT_UNKNOWN;
         }
     // }
@@ -1416,7 +1410,7 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
     if (format == SDL_PIXELFORMAT_UNKNOWN) {*/
         /* Fallback, choose a valid pixel format */
         format = renderer->info.texture_formats[0];
-        for (i = 0; i < (int)renderer->info.num_texture_formats; ++i) {
+        for (i = 0; i < renderer->info.num_texture_formats; ++i) {
             if (!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]) &&
                 SDL_ISPIXELFORMAT_ALPHA(renderer->info.texture_formats[i]) == needAlpha) {
                 format = renderer->info.texture_formats[i];
