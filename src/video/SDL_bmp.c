@@ -695,19 +695,12 @@ int SDL_SaveBMP_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
         ) {
             intermediate_surface = surface;
         } else {
-            SDL_PixelFormat format;
-
             /* If the surface has a colorkey or alpha channel we'll save a
                32-bit BMP with alpha channel, otherwise save a 24-bit BMP. */
-            if (save32bit) {
-                SDL_InitFormat(&format, SDL_PIXELFORMAT_BGRA32);
-            } else {
-                SDL_InitFormat(&format, SDL_PIXELFORMAT_BGR24);
-            }
-            intermediate_surface = SDL_ConvertSurface(surface, &format, 0);
+            intermediate_surface = SDL_ConvertSurfaceFormat(surface, save32bit ? SDL_PIXELFORMAT_BGRA32 : SDL_PIXELFORMAT_BGR24, 0);
             if (!intermediate_surface) {
                 SDL_SetError("Couldn't convert image to %d bpp",
-                             format.BitsPerPixel);
+                             save32bit ? 32 : 24);
             }
         }
     } else {

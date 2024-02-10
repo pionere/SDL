@@ -196,15 +196,13 @@ void DirectFB_SetWindowIcon(_THIS, SDL_Window * window, SDL_Surface * icon)
     SDL_Surface *surface = NULL;
 
     if (icon) {
-        SDL_PixelFormat format;
         DFBSurfaceDescription dsc;
         Uint32 *dest;
         Uint32 *p;
         int pitch, i;
 
         /* Convert the icon to ARGB for modern window managers */
-        SDL_InitFormat(&format, SDL_PIXELFORMAT_ARGB8888);
-        surface = SDL_ConvertSurface(icon, &format, 0);
+        surface = SDL_ConvertSurfaceFormat(icon, SDL_PIXELFORMAT_ARGB8888, 0);
         if (!surface) {
             return;
         }
