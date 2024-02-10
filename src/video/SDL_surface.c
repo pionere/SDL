@@ -1125,7 +1125,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
         SDL_InvalidParamError("format");
         return NULL;
     }
-
+#if 0
     /* Check for empty destination palette! (results in empty image) */
     if (format->palette) {
         int i;
@@ -1139,7 +1139,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
             return NULL;
         }
     }
-
+#endif
     /* Create a new surface with the desired format */
     convert = SDL_CreateRGBSurface(0, surface->w, surface->h,
                                    format->BitsPerPixel, format->Rmask,
