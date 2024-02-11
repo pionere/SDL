@@ -143,8 +143,10 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
             palette->colors[1].b = 0x00;
         }
 #endif
-        SDL_SetSurfacePalette(surface, palette);
-        SDL_FreePalette(palette);
+        // SDL_SetSurfacePalette(surface, palette);
+        // SDL_FreePalette(palette);
+        SDL_assert(surface->format->palette == NULL);
+        surface->format->palette = palette;
     }
 
     /* Get the pixels */
