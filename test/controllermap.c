@@ -711,8 +711,6 @@ int main(int argc, char *argv[])
     int joystick_index;
     SDL_Joystick *joystick;
 
-    SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
-
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
