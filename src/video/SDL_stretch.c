@@ -82,17 +82,18 @@ int SDL_SoftStretchLinear(SDL_Surface *src, const SDL_Rect *srcrect,
 static int SDL_UpperSoftStretch(SDL_Surface *src, const SDL_Rect *srcrect,
                                 SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode)
 {
+    Uint32 format = src->format->format;
     int src_locked;
     int dst_locked;
     SDL_Rect full_src;
     SDL_Rect full_dst;
 
-    if (src->format->format != dst->format->format) {
+    if (format != dst->format->format) {
         return SDL_SetError("Only works with same format surfaces");
     }
 
     if (scaleMode != SDL_ScaleModeNearest) {
-        if (src->format->BytesPerPixel != 4 || src->format->format == SDL_PIXELFORMAT_ARGB2101010) {
+        if (src->format->BytesPerPixel != 4 || format == SDL_PIXELFORMAT_ARGB2101010) {
             return SDL_SetError("Wrong format");
         }
     }
@@ -800,15 +801,8 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
 void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
                                 SDL_Surface *d, const SDL_Rect *dstrect)
 {
-    int src_w = srcrect->w;
-    int src_h = srcrect->h;
-    int dst_w = dstrect->w;
-    int dst_h = dstrect->h;
-    int src_pitch = s->pitch;
-    int dst_pitch = d->pitch;
-    Uint8 *src = (Uint8 *)s->pixels + srcrect->x * 4 + srcrect->y * src_pitch;
-    Uint8 *dst = (Uint8 *)d->pixels + dstrect->x * 4 + dstrect->y * dst_pitch;
-    int dst_skip = dst_pitch - 4 * dst_w;
+    int src_w, src_h, dst_w, dst_h, src_pitch, dst_pitch, dst_skip;
+    Uint8 *src, *dst;
 
     if (SDL_Scale_linear == NULL) {
 #if NEED_SCALAR_STRETCHER_FALLBACKS
@@ -837,6 +831,17 @@ void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
 #endif
         SDL_assert(SDL_Scale_linear != NULL);
     }
+
+    src_w = srcrect->w;
+    src_h = srcrect->h;
+    dst_w = dstrect->w;
+    dst_h = dstrect->h;
+    src_pitch = s->pitch;
+    dst_pitch = d->pitch;
+    src = (Uint8 *)s->pixels + srcrect->x * 4 + srcrect->y * src_pitch;
+    dst = (Uint8 *)d->pixels + dstrect->x * 4 + dstrect->y * dst_pitch;
+    dst_skip = dst_pitch - 4 * dst_w;
+
     SDL_Scale_linear(src, src_w, src_h, src_pitch, dst, dst_w, dst_h, dst_skip);
 }
 
@@ -844,7 +849,7 @@ void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
     Uint8 *dst = dst_ptr;              \
     Uint32 posy, incy;                 \
     Uint32 posx, incx;                 \
-    int srcy, srcx, n;                 \
+    Uint32 srcy, srcx, n;              \
     const Uint32 *src_h0;              \
     incy = FIXED_POINT(src_h) / dst_h; \
     incx = FIXED_POINT(src_w) / dst_w; \
