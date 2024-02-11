@@ -40,6 +40,10 @@ my @dst_formats = (
     "ARGB8888",
 );
 
+my @format_combinations =  undef;
+my @format_combinations_nonmodulate = undef;
+my @dimap1 = ( 1, 0, 4, 5, 2, 3 ); # remap for dst_formats[1] for nonmodulate combinations
+
 my %format_size = (
     "RGB888" => 4,
     "BGR888" => 4,
@@ -84,6 +88,21 @@ my %set_rgba_string = (
     "ABGR8888" => "_pixel = (_A << 24) | (_B << 16) | (_G << 8) | _R;",
     "BGRA8888" => "_pixel = (_B << 24) | (_G << 16) | (_R << 8) | _A;",
 );
+
+sub init_format_combinations
+{
+    for(my $i = 0; $i <= $#src_formats; $i++) {
+        for(my $j = 0; $j <= $#dst_formats; $j++) {
+            my $combination = "${src_formats[$i]}_${dst_formats[$j]}";
+            $format_combinations[$i]->[$j] = $combination;
+            if ($j eq 1) {
+                my $di = $dimap1[$i];
+                $combination = "${src_formats[$di]}_${dst_formats[0]}";
+            }
+            $format_combinations_nonmodulate[$i]->[$j] = $combination;
+        }
+    }
+}
 
 sub open_file {
     my $name = shift;
@@ -146,15 +165,14 @@ __EOF__
 sub output_copyfuncname
 {
     my $prefix = shift;
-    my $src = shift;
-    my $dst = shift;
+    my $format_combination = shift;
     my $modulate = shift;
     my $blend = shift;
     my $scale = shift;
     my $args = shift;
     my $suffix = shift;
 
-    print FILE "$prefix SDL_Blit_${src}_${dst}";
+    print FILE "$prefix SDL_Blit_${format_combination}";
     if ( $modulate ) {
         print FILE "_Modulate";
     }
@@ -494,6 +512,7 @@ sub output_copyfunc
 {
     my $src = shift;
     my $dst = shift;
+    my $combination = shift;
     my $modulate = shift;
     my $blend = shift;
     my $scale = shift;
@@ -514,7 +533,7 @@ sub output_copyfunc
     $da =~ s/[A8]//g;
     $matching_or_reverse_colors = (!$modulate && !$blend) ? 1 : 0;
 
-    output_copyfuncname("static void", $src, $dst, $modulate, $blend, $scale, 1, "\n");
+    output_copyfuncname("static void", $combination, $modulate, $blend, $scale, 1, "\n");
     print FILE <<__EOF__;
 {
     int width = info->dst_w;
@@ -734,7 +753,11 @@ __EOF__
                                 $flags = "0";
                             }
                             print FILE "($flags),";
-                            output_copyfuncname("", $src_formats[$i], $dst_formats[$j], $modulate, $blend, $scale, 0, " },\n");
+                            if ( $modulate ) {
+                                output_copyfuncname("", $format_combinations[$i][$j], $modulate, $blend, $scale, 0, " },\n");
+                            } else {
+                                output_copyfuncname("", $format_combinations_nonmodulate[$i][$j], $modulate, $blend, $scale, 0, " },\n");
+                            }
                             if ( !$modulate && !$blend) {
                                 print FILE <<__EOF__;
 #if SDL_HAVE_BLIT_TRANSFORM
@@ -761,18 +784,21 @@ sub output_copyfunc_c
 {
     my $src = shift;
     my $dst = shift;
+    my $combination = shift;
+    my $nonmodulate_combination = shift;
 
     for (my $modulate = 0; $modulate <= 1; ++$modulate) {
         for (my $blend = 0; $blend <= 1; ++$blend) {
             for (my $scale = 0; $scale <= 1; ++$scale) {
-                if ( $modulate || $blend || $scale ) {
-                    output_copyfunc($src, $dst, $modulate, $blend, $scale);
+                if ( $modulate || (($blend || $scale) && ($combination eq $nonmodulate_combination)) ) {
+                    output_copyfunc($src, $dst, $combination, $modulate, $blend, $scale);
                 }
             }
         }
     }
 }
 
+init_format_combinations();
 open_file("SDL_blit_auto.h");
 output_copydefs();
 for (my $i = 0; $i <= $#src_formats; ++$i) {
@@ -787,7 +813,7 @@ open_file("SDL_blit_auto.c");
 output_copyinc();
 for (my $i = 0; $i <= $#src_formats; ++$i) {
     for (my $j = 0; $j <= $#dst_formats; ++$j) {
-        output_copyfunc_c($src_formats[$i], $dst_formats[$j]);
+        output_copyfunc_c($src_formats[$i], $dst_formats[$j], $format_combinations[$i][$j], $format_combinations_nonmodulate[$i][$j]);
     }
 }
 output_copyfunctable();
