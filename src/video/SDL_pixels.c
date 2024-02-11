@@ -545,11 +545,39 @@ SDL_PixelFormat *SDL_AllocFormat(Uint32 pixel_format)
     return format;
 }
 
+typedef struct {
+    Uint8 loss;
+    Uint8 shift;
+} ColorLossShift;
+static ColorLossShift SDL_ColorLossShift(Uint32 mask)
+{
+    /*Uint8 shift = 0, loss = 8;
+    if (mask) {
+        for (; !(mask & 0x01); mask >>= 1) {
+            ++shift;
+        }
+        for (; (mask & 0x01); mask >>= 1) {
+            --loss;
+        }
+    }
+    return shift << 8 | loss;*/
+    ColorLossShift result = { 8, 0 };
+    if (mask) {
+        for (; !(mask & 0x01); mask >>= 1) {
+            result.shift++;
+        }
+        for (; (mask & 0x01); mask >>= 1) {
+            result.loss--;
+        }
+    }
+    return result;
+}
+
 int SDL_InitFormat(SDL_PixelFormat *format, Uint32 pixel_format)
 {
     int bpp;
     Uint32 Rmask, Gmask, Bmask, Amask;
-    Uint32 mask;
+    ColorLossShift cls;
 
     if (!SDL_PixelFormatEnumToMasks(pixel_format, &bpp,
                                     &Rmask, &Gmask, &Bmask, &Amask)) {
@@ -563,52 +591,24 @@ int SDL_InitFormat(SDL_PixelFormat *format, Uint32 pixel_format)
     format->BytesPerPixel = (bpp + 7) / 8;
 
     format->Rmask = Rmask;
-    format->Rshift = 0;
-    format->Rloss = 8;
-    if (Rmask) {
-        for (mask = Rmask; !(mask & 0x01); mask >>= 1) {
-            ++format->Rshift;
-        }
-        for (; (mask & 0x01); mask >>= 1) {
-            --format->Rloss;
-        }
-    }
+    cls = SDL_ColorLossShift(Rmask);
+    format->Rshift = cls.shift;
+    format->Rloss = cls.loss;
 
     format->Gmask = Gmask;
-    format->Gshift = 0;
-    format->Gloss = 8;
-    if (Gmask) {
-        for (mask = Gmask; !(mask & 0x01); mask >>= 1) {
-            ++format->Gshift;
-        }
-        for (; (mask & 0x01); mask >>= 1) {
-            --format->Gloss;
-        }
-    }
+    cls = SDL_ColorLossShift(Gmask);
+    format->Gshift = cls.shift;
+    format->Gloss = cls.loss;
 
     format->Bmask = Bmask;
-    format->Bshift = 0;
-    format->Bloss = 8;
-    if (Bmask) {
-        for (mask = Bmask; !(mask & 0x01); mask >>= 1) {
-            ++format->Bshift;
-        }
-        for (; (mask & 0x01); mask >>= 1) {
-            --format->Bloss;
-        }
-    }
+    cls = SDL_ColorLossShift(Bmask);
+    format->Bshift = cls.shift;
+    format->Bloss = cls.loss;
 
     format->Amask = Amask;
-    format->Ashift = 0;
-    format->Aloss = 8;
-    if (Amask) {
-        for (mask = Amask; !(mask & 0x01); mask >>= 1) {
-            ++format->Ashift;
-        }
-        for (; (mask & 0x01); mask >>= 1) {
-            --format->Aloss;
-        }
-    }
+    cls = SDL_ColorLossShift(Amask);
+    format->Ashift = cls.shift;
+    format->Aloss = cls.loss;
 
     format->palette = NULL;
     format->refcount = 1;
