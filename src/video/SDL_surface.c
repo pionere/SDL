@@ -1153,10 +1153,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
 
     /* Copy the palette if any */
     if (format->palette && convert->format->palette) {
-        SDL_memcpy(convert->format->palette->colors,
-                   format->palette->colors,
-                   format->palette->ncolors * sizeof(SDL_Color));
-        convert->format->palette->ncolors = format->palette->ncolors;
+        SDL_SetSurfacePalette(convert, format->palette);
     }
 
     /* Save the original copy flags */
