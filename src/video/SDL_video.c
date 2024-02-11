@@ -387,6 +387,30 @@ static void SDL_DestroyWindowTexture(SDL_VideoDevice *unused, SDL_Window *window
     SDL_free(data);
 }
 
+static void SDL_StartTextInputPrivate(SDL_bool default_value)
+{
+    SDL_Window *window;
+
+    if (_this) {
+        /* First, enable text events */
+        (void)SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
+        (void)SDL_EventState(SDL_TEXTEDITING, SDL_ENABLE);
+
+        /* Then show the on-screen keyboard, if any */
+        if (_this->ShowScreenKeyboard && SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, default_value)) {
+            window = SDL_GetFocusWindow();
+            if (window) {
+                _this->ShowScreenKeyboard(_this, window);
+            }
+        }
+
+        /* Finally start the text input system */
+        if (_this->StartTextInput) {
+            _this->StartTextInput(_this);
+        }
+    }
+}
+
 static int SDLCALL cmpmodes(const void *A, const void *B)
 {
     const SDL_DisplayMode *a = (const SDL_DisplayMode *)A;
@@ -566,16 +590,7 @@ int SDL_VideoInit(const char *driver_name)
     /* In the initial state we don't want to pop up an on-screen keyboard,
      * but we do want to allow text input from other mechanisms.
      */
-    {
-        const char *hint = SDL_GetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD);
-        if (!hint) {
-            SDL_SetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD, "0");
-        }
-        SDL_StartTextInput();
-        if (!hint) {
-            SDL_SetHint(SDL_HINT_ENABLE_SCREEN_KEYBOARD, NULL);
-        }
-    }
+    SDL_StartTextInputPrivate(SDL_FALSE);
 #endif /* !SDL_VIDEO_DRIVER_N3DS */
 
     /* We're ready to go! */
@@ -4302,24 +4317,7 @@ SDL_bool SDL_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 
 void SDL_StartTextInput(void)
 {
-    SDL_Window *window;
-
-    /* First, enable text events */
-    (void)SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
-    (void)SDL_EventState(SDL_TEXTEDITING, SDL_ENABLE);
-
-    /* Then show the on-screen keyboard, if any */
-    if (SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
-        window = SDL_GetFocusWindow();
-        if (window && _this && _this->ShowScreenKeyboard) {
-            _this->ShowScreenKeyboard(_this, window);
-        }
-    }
-
-    /* Finally start the text input system */
-    if (_this && _this->StartTextInput) {
-        _this->StartTextInput(_this);
-    }
+    SDL_StartTextInputPrivate(SDL_TRUE);
 }
 
 void SDL_ClearComposition(void)
