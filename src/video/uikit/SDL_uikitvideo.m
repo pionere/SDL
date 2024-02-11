@@ -39,6 +39,7 @@
 #include "SDL_uikitclipboard.h"
 #include "SDL_uikitvulkan.h"
 #include "SDL_uikitmetalview.h"
+#include "SDL_uikitmessagebox.h"
 
 #define UIKITVID_DRIVER_NAME "uikit"
 
@@ -146,7 +147,8 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
 }
 /* "SDL UIKit video driver" */
 VideoBootStrap UIKIT_bootstrap = {
-    UIKITVID_DRIVER_NAME, UIKit_CreateDevice
+    UIKITVID_DRIVER_NAME, UIKit_CreateDevice,
+    UIKit_ShowMessageBox
 };
 
 

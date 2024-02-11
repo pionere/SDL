@@ -37,6 +37,7 @@
 #include "SDL_x11touch.h"
 #include "SDL_x11xinput2.h"
 #include "SDL_x11xfixes.h"
+#include "SDL_x11messagebox.h"
 
 #ifdef SDL_VIDEO_OPENGL_EGL
 #include "SDL_x11opengles.h"
@@ -325,7 +326,8 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 }
 /* "SDL X11 video driver" */
 VideoBootStrap X11_bootstrap = {
-    "x11", X11_CreateDevice
+    "x11", X11_CreateDevice,
+    X11_ShowMessageBox
 };
 
 static int (*handler)(Display *, XErrorEvent *) = NULL;

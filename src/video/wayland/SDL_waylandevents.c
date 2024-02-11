@@ -994,6 +994,13 @@ static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
         return;
     }
 
+    if (input->xkb.keymap != NULL) {
+        /* if there's already a keymap loaded, throw it away rather than leaking it before
+         * parsing the new one
+         */
+        WAYLAND_xkb_keymap_unref(input->xkb.keymap);
+        input->xkb.keymap = NULL;
+    }
     input->xkb.keymap = WAYLAND_xkb_keymap_new_from_string(input->display->xkb_context,
                                                            map_str,
                                                            XKB_KEYMAP_FORMAT_TEXT_V1,
@@ -1016,6 +1023,13 @@ static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
     input->xkb.idx_caps = 1 << GET_MOD_INDEX(CAPS);
 #undef GET_MOD_INDEX
 
+    if (input->xkb.state != NULL) {
+        /* if there's already a state, throw it away rather than leaking it before
+         * trying to create a new one with the new keymap.
+         */
+        WAYLAND_xkb_state_unref(input->xkb.state);
+        input->xkb.state = NULL;
+    }
     input->xkb.state = WAYLAND_xkb_state_new(input->xkb.keymap);
     if (!input->xkb.state) {
         SDL_SetError("failed to create XKB state\n");
@@ -1061,10 +1075,18 @@ static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
     }
 
     /* Set up XKB compose table */
+    if (input->xkb.compose_table != NULL) {
+        WAYLAND_xkb_compose_table_unref(input->xkb.compose_table);
+        input->xkb.compose_table = NULL;
+    }
     input->xkb.compose_table = WAYLAND_xkb_compose_table_new_from_locale(input->display->xkb_context,
                                                                          locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
     if (input->xkb.compose_table) {
         /* Set up XKB compose state */
+        if (input->xkb.compose_state != NULL) {
+            WAYLAND_xkb_compose_state_unref(input->xkb.compose_state);
+            input->xkb.compose_state = NULL;
+        }
         input->xkb.compose_state = WAYLAND_xkb_compose_state_new(input->xkb.compose_table,
                                                                  XKB_COMPOSE_STATE_NO_FLAGS);
         if (!input->xkb.compose_state) {
@@ -1298,6 +1320,12 @@ static void keyboard_handle_modifiers(void *data, struct wl_keyboard *keyboard,
     struct SDL_WaylandInput *input = data;
     Wayland_Keymap keymap;
     const uint32_t modstate = (mods_depressed | mods_latched | mods_locked);
+
+    if (input->xkb.state == NULL) {
+        /* if we get a modifier notification before the keymap, there's nothing we can do with the information
+        */
+        return;
+    }
 
     WAYLAND_xkb_state_update_mask(input->xkb.state, mods_depressed, mods_latched,
                                   mods_locked, 0, 0, group);
@@ -2004,6 +2032,11 @@ static void Wayland_create_data_device(SDL_VideoData *d)
 {
     SDL_WaylandDataDevice *data_device = NULL;
 
+    if (!d->input->seat) {
+        /* No seat yet, will be initialized later. */
+        return;
+    }
+
     data_device = SDL_calloc(1, sizeof(*data_device));
     if (!data_device) {
         return;
@@ -2026,6 +2059,11 @@ static void Wayland_create_data_device(SDL_VideoData *d)
 static void Wayland_create_primary_selection_device(SDL_VideoData *d)
 {
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
+
+    if (!d->input->seat) {
+        /* No seat yet, will be initialized later. */
+        return;
+    }
 
     primary_selection_device = SDL_calloc(1, sizeof(*primary_selection_device));
     if (!primary_selection_device) {
@@ -2050,6 +2088,11 @@ static void Wayland_create_primary_selection_device(SDL_VideoData *d)
 static void Wayland_create_text_input(SDL_VideoData *d)
 {
     SDL_WaylandTextInput *text_input = NULL;
+
+    if (!d->input->seat) {
+        /* No seat yet, will be initialized later. */
+        return;
+    }
 
     text_input = SDL_calloc(1, sizeof(*text_input));
     if (!text_input) {
@@ -2392,7 +2435,7 @@ void Wayland_input_add_tablet(struct SDL_WaylandInput *input, struct SDL_Wayland
 {
     struct SDL_WaylandTabletInput *tablet_input;
 
-    if (!tablet_manager || !input || !input->seat) {
+    if (!tablet_manager || !input->seat) {
         return;
     }
 
@@ -2427,19 +2470,9 @@ void Wayland_input_destroy_tablet(struct SDL_WaylandInput *input)
 
 void Wayland_display_add_input(SDL_VideoData *d, uint32_t id, uint32_t version)
 {
-    struct SDL_WaylandInput *input;
+    struct SDL_WaylandInput *input = d->input;
 
-    input = SDL_calloc(1, sizeof(*input));
-    if (!input) {
-        return;
-    }
-
-    input->display = d;
     input->seat = wl_registry_bind(d->registry, id, &wl_seat_interface, SDL_min(SDL_WL_SEAT_VERSION, version));
-    input->sx_w = wl_fixed_from_int(0);
-    input->sy_w = wl_fixed_from_int(0);
-    input->xkb.current_group = XKB_GROUP_INVALID;
-    d->input = input;
 
     if (d->data_device_manager) {
         Wayland_create_data_device(d);

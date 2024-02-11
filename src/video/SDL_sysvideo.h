@@ -450,6 +450,7 @@ typedef struct VideoBootStrap
 {
     const char *name;
     SDL_VideoDevice *(*create)(void);
+    int (*ShowMessageBox)(const SDL_MessageBoxData *messageboxdata, int *buttonid);  /* can be done without initializing backend! */
 } VideoBootStrap;
 
 /* Not all of these are available in a given build. Use #ifdefs, etc. */

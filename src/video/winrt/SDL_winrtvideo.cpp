@@ -29,10 +29,8 @@
  */
 
 /* Standard C++11 includes */
-#include <functional>
-#include <string>
 #include <sstream>
-using namespace std;
+#include <string>
 
 /* Windows includes */
 #include <agile.h>
@@ -61,6 +59,7 @@ extern "C" {
 #include "SDL_syswm.h"
 #include "SDL_winrtopengles.h"
 #include "../../core/windows/SDL_windows.h"
+#include "SDL_winrtmessagebox.h"
 }
 
 #include "../../core/winrt/SDL_winrtapp_direct3d.h"
@@ -166,9 +165,9 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     return device;
 }
 /* "SDL WinRT video driver" */
-#define WINRTVID_DRIVER_NAME "winrt"
 VideoBootStrap WINRT_bootstrap = {
-    WINRTVID_DRIVER_NAME, WINRT_CreateDevice
+    "winrt", WINRT_CreateDevice,
+    WINRT_ShowMessageBox
 };
 
 static void SDLCALL WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const char *oldValue, const char *newValue)
