@@ -954,16 +954,20 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, int *ident
 }
 
 /* Map from Palette to BitField */
-static Uint8 *Map1toN(SDL_PixelFormat *src, Uint8 Rmod, Uint8 Gmod, Uint8 Bmod, Uint8 Amod,
-                      SDL_PixelFormat *dst)
+static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, const SDL_PixelFormat *dst)
 {
     Uint8 *map;
     int i;
-    int bpp;
-    SDL_Palette *pal = src->palette;
+    int bpp, mbp;
+    const SDL_Palette *pal = src->palette;
+    const Uint8 Rmod = info->r;
+    const Uint8 Gmod = info->g;
+    const Uint8 Bmod = info->b;
+    const Uint8 Amod = info->a;
 
-    bpp = ((dst->BytesPerPixel == 3) ? 4 : dst->BytesPerPixel);
-    map = (Uint8 *)SDL_calloc(256, bpp);
+    bpp = dst->BytesPerPixel;
+    mbp = (bpp == 3) ? 4 : bpp;
+    map = (Uint8 *)SDL_calloc(256, mbp);
     if (!map) {
         SDL_OutOfMemory();
         return NULL;
@@ -975,7 +979,7 @@ static Uint8 *Map1toN(SDL_PixelFormat *src, Uint8 Rmod, Uint8 Gmod, Uint8 Bmod, 
         Uint8 G = (Uint8)((pal->colors[i].g * Gmod) / 255);
         Uint8 B = (Uint8)((pal->colors[i].b * Bmod) / 255);
         Uint8 A = (Uint8)((pal->colors[i].a * Amod) / 255);
-        ASSEMBLE_RGBA(&map[i * bpp], dst->BytesPerPixel, dst, (Uint32)R, (Uint32)G, (Uint32)B, (Uint32)A);
+        ASSEMBLE_RGBA(&map[i * mbp], bpp, dst, (Uint32)R, (Uint32)G, (Uint32)B, (Uint32)A);
     }
     return map;
 }
@@ -1079,8 +1083,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
         } else {
             /* Palette --> BitField */
             map->info.table =
-                Map1toN(srcfmt, src->map->info.r, src->map->info.g,
-                        src->map->info.b, src->map->info.a, dstfmt);
+                Map1toN(srcfmt, &src->map->info, dstfmt);
             if (!map->info.table) {
                 return -1;
             }
