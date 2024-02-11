@@ -123,7 +123,7 @@ struct _SDL_Joystick
     SDL_bool delayed_guide_button _guarded;      /* SDL_TRUE if this device has the guide button event delayed */
     SDL_JoystickPowerLevel epowerlevel _guarded; /* power level of this joystick, SDL_JOYSTICK_POWER_UNKNOWN if not supported */
 
-    struct _SDL_JoystickDriver *driver _guarded;
+    const struct _SDL_JoystickDriver *driver _guarded;
 
     struct joystick_hwdata *hwdata _guarded; /* Driver dependent information */
 

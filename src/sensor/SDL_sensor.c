@@ -31,7 +31,7 @@
 #include "../events/SDL_events_c.h"
 #endif
 
-static SDL_SensorDriver *SDL_sensor_drivers[] = {
+static const SDL_SensorDriver *const SDL_sensor_drivers[] = {
 #ifdef SDL_SENSOR_ANDROID
     &SDL_ANDROID_SensorDriver,
 #endif
@@ -115,7 +115,7 @@ SDL_SensorID SDL_GetNextSensorInstanceID(void)
  * Get the driver and device index for an API device index
  * This should be called while the sensor lock is held, to prevent another thread from updating the list
  */
-static SDL_bool SDL_GetDriverAndSensorIndex(int device_index, SDL_SensorDriver **driver, int *driver_index)
+static SDL_bool SDL_GetDriverAndSensorIndex(int device_index, const SDL_SensorDriver **driver, int *driver_index)
 {
     int i, num_sensors, total_sensors = 0;
 
@@ -141,7 +141,7 @@ static SDL_bool SDL_GetDriverAndSensorIndex(int device_index, SDL_SensorDriver *
  */
 const char *SDL_SensorGetDeviceName(int device_index)
 {
-    SDL_SensorDriver *driver;
+    const SDL_SensorDriver *driver;
     const char *name = NULL;
 
     SDL_LockSensors();
@@ -156,7 +156,7 @@ const char *SDL_SensorGetDeviceName(int device_index)
 
 SDL_SensorType SDL_SensorGetDeviceType(int device_index)
 {
-    SDL_SensorDriver *driver;
+    const SDL_SensorDriver *driver;
     SDL_SensorType type = SDL_SENSOR_INVALID;
 
     SDL_LockSensors();
@@ -170,7 +170,7 @@ SDL_SensorType SDL_SensorGetDeviceType(int device_index)
 
 int SDL_SensorGetDeviceNonPortableType(int device_index)
 {
-    SDL_SensorDriver *driver;
+    const SDL_SensorDriver *driver;
     int type = -1;
 
     SDL_LockSensors();
@@ -184,7 +184,7 @@ int SDL_SensorGetDeviceNonPortableType(int device_index)
 
 SDL_SensorID SDL_SensorGetDeviceInstanceID(int device_index)
 {
-    SDL_SensorDriver *driver;
+    const SDL_SensorDriver *driver;
     SDL_SensorID instance_id = -1;
 
     SDL_LockSensors();
@@ -205,7 +205,7 @@ SDL_SensorID SDL_SensorGetDeviceInstanceID(int device_index)
  */
 SDL_Sensor *SDL_SensorOpen(int device_index)
 {
-    SDL_SensorDriver *driver;
+    const SDL_SensorDriver *driver;
     SDL_SensorID instance_id;
     SDL_Sensor *sensor;
     SDL_Sensor *sensorlist;

@@ -77,7 +77,7 @@ typedef struct _SDL_HIDAPI_Device
     SDL_JoystickType joystick_type;
     SDL_GameControllerType type;
 
-    struct _SDL_HIDAPI_DeviceDriver *driver;
+    const struct _SDL_HIDAPI_DeviceDriver *driver;
     void *context;
     SDL_mutex *dev_lock;
     SDL_hid_device *dev;

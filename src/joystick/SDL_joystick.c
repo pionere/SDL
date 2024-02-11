@@ -51,7 +51,7 @@
 #include "./virtual/SDL_virtualjoystick_c.h"
 #endif
 
-static SDL_JoystickDriver *SDL_joystick_drivers[] = {
+static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #ifdef SDL_JOYSTICK_HIDAPI /* Before WINDOWS_ driver, as WINDOWS wants to check if this driver is handling things */
     &SDL_HIDAPI_JoystickDriver,
 #endif
@@ -107,7 +107,7 @@ static SDL_JoystickDriver *SDL_joystick_drivers[] = {
     &SDL_N3DS_JoystickDriver
 #endif
 #if defined(SDL_JOYSTICK_DUMMY) || defined(SDL_JOYSTICK_DISABLED)
-        &SDL_DUMMY_JoystickDriver
+    &SDL_DUMMY_JoystickDriver
 #endif
 };
 
@@ -470,7 +470,7 @@ void SDL_AssertJoysticksLocked(void)
  * Get the driver and device index for an API device index
  * This should be called while the joystick lock is held, to prevent another thread from updating the list
  */
-static SDL_bool SDL_GetDriverAndJoystickIndex(int device_index, SDL_JoystickDriver **driver, int *driver_index)
+static SDL_bool SDL_GetDriverAndJoystickIndex(int device_index, const SDL_JoystickDriver **driver, int *driver_index)
 {
     int i, num_joysticks, total_joysticks = 0;
 
@@ -537,7 +537,7 @@ static SDL_JoystickID SDL_GetJoystickIDForPlayerIndex(int player_index)
 static SDL_bool SDL_SetJoystickIDForPlayerIndex(int player_index, SDL_JoystickID instance_id)
 {
     SDL_JoystickID existing_instance = SDL_GetJoystickIDForPlayerIndex(player_index);
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     int device_index;
     int existing_player_index;
 
@@ -664,7 +664,7 @@ SDL_JoystickID SDL_GetNextJoystickInstanceID(void)
 
 const SDL_SteamVirtualGamepadInfo *SDL_GetJoystickInstanceVirtualGamepadInfo(SDL_JoystickID instance_id)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     int device_index;
     const SDL_SteamVirtualGamepadInfo *info = NULL;
 
@@ -680,7 +680,7 @@ const SDL_SteamVirtualGamepadInfo *SDL_GetJoystickInstanceVirtualGamepadInfo(SDL
  */
 const char *SDL_JoystickNameForIndex(int device_index)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     const char *name = NULL;
     const SDL_SteamVirtualGamepadInfo *info;
 
@@ -702,7 +702,7 @@ const char *SDL_JoystickNameForIndex(int device_index)
  */
 const char *SDL_JoystickPathForIndex(int device_index)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     const char *path = NULL;
 
     SDL_LockJoysticks();
@@ -762,7 +762,7 @@ static SDL_bool SDL_JoystickAxesCenteredAtZero(SDL_Joystick *joystick)
  */
 SDL_Joystick *SDL_JoystickOpen(int device_index)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     SDL_JoystickID instance_id;
     SDL_Joystick *joystick;
     SDL_Joystick *joysticklist;
@@ -913,7 +913,7 @@ int SDL_JoystickAttachVirtualEx(const SDL_VirtualJoystickDesc *desc)
 int SDL_JoystickDetachVirtual(int device_index)
 {
 #ifdef SDL_JOYSTICK_VIRTUAL
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
 
     SDL_LockJoysticks();
     if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &device_index)) {
@@ -934,7 +934,7 @@ int SDL_JoystickDetachVirtual(int device_index)
 SDL_bool SDL_JoystickIsVirtual(int device_index)
 {
 #ifdef SDL_JOYSTICK_VIRTUAL
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     int driver_device_index;
     SDL_bool is_virtual = SDL_FALSE;
 
@@ -1020,7 +1020,7 @@ SDL_bool SDL_PrivateJoystickValid(SDL_Joystick *joystick)
 
 SDL_bool SDL_PrivateJoystickGetAutoGamepadMapping(int device_index, SDL_GamepadMapping *out)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     SDL_bool is_ok = SDL_FALSE;
 
     SDL_LockJoysticks();
@@ -1723,7 +1723,7 @@ void SDL_PrivateJoystickAddSensor(SDL_Joystick *joystick, SDL_SensorType type, f
 
 void SDL_PrivateJoystickAdded(SDL_JoystickID device_instance)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     int driver_device_index;
     int player_index = -1;
     int device_index = SDL_JoystickGetDeviceIndexFromInstanceID(device_instance);
@@ -2967,7 +2967,7 @@ SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid)
 /* return the guid for this index */
 SDL_JoystickGUID SDL_JoystickGetDeviceGUID(int device_index)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     SDL_JoystickGUID guid;
 
     SDL_LockJoysticks();
@@ -3044,7 +3044,7 @@ SDL_JoystickType SDL_JoystickGetDeviceType(int device_index)
 
 SDL_JoystickID SDL_JoystickGetDeviceInstanceID(int device_index)
 {
-    SDL_JoystickDriver *driver;
+    const SDL_JoystickDriver *driver;
     SDL_JoystickID instance_id = -1;
 
     SDL_LockJoysticks();

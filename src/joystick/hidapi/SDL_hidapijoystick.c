@@ -45,7 +45,7 @@ struct joystick_hwdata
     SDL_HIDAPI_Device *device;
 };
 
-static SDL_HIDAPI_DeviceDriver *SDL_HIDAPI_drivers[] = {
+static SDL_HIDAPI_DeviceDriver *const SDL_HIDAPI_drivers[] = {
 #ifdef SDL_JOYSTICK_HIDAPI_GAMECUBE
     &SDL_HIDAPI_DriverGameCube,
 #endif
@@ -312,7 +312,7 @@ static SDL_bool HIDAPI_IsDeviceSupported(Uint16 vendor_id, Uint16 product_id, Ui
     SDL_GameControllerType type = SDL_GetJoystickGameControllerProtocol(name, vendor_id, product_id, -1, 0, 0, 0);
 
     for (i = 0; i < SDL_arraysize(SDL_HIDAPI_drivers); ++i) {
-        SDL_HIDAPI_DeviceDriver *driver = SDL_HIDAPI_drivers[i];
+        const SDL_HIDAPI_DeviceDriver *driver = SDL_HIDAPI_drivers[i];
         if (driver->enabled && driver->IsSupportedDevice(NULL, name, type, vendor_id, product_id, version, -1, 0, 0, 0)) {
             return SDL_TRUE;
         }
@@ -320,7 +320,7 @@ static SDL_bool HIDAPI_IsDeviceSupported(Uint16 vendor_id, Uint16 product_id, Ui
     return SDL_FALSE;
 }
 
-static SDL_HIDAPI_DeviceDriver *HIDAPI_GetDeviceDriver(SDL_HIDAPI_Device *device)
+static const SDL_HIDAPI_DeviceDriver *HIDAPI_GetDeviceDriver(SDL_HIDAPI_Device *device)
 {
     const Uint16 USAGE_PAGE_GENERIC_DESKTOP = 0x0001;
     const Uint16 USAGE_JOYSTICK = 0x0004;
@@ -346,7 +346,7 @@ static SDL_HIDAPI_DeviceDriver *HIDAPI_GetDeviceDriver(SDL_HIDAPI_Device *device
     }
 
     for (i = 0; i < SDL_arraysize(SDL_HIDAPI_drivers); ++i) {
-        SDL_HIDAPI_DeviceDriver *driver = SDL_HIDAPI_drivers[i];
+        const SDL_HIDAPI_DeviceDriver *driver = SDL_HIDAPI_drivers[i];
         if (driver->enabled && driver->IsSupportedDevice(device, device->name, device->type, device->vendor_id, device->product_id, device->version, device->interface_number, device->interface_class, device->interface_subclass, device->interface_protocol)) {
             return driver;
         }

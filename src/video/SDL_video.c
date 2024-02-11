@@ -65,7 +65,7 @@
 #endif
 
 /* Available video drivers */
-static VideoBootStrap *bootstrap[] = {
+static const VideoBootStrap *const bootstrap[] = {
 #ifdef SDL_VIDEO_DRIVER_COCOA
     &COCOA_bootstrap,
 #endif

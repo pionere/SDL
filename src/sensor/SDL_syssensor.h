@@ -40,7 +40,7 @@ struct _SDL_Sensor
     Uint64 timestamp_us; /* The timestamp of the last sensor update */
     float data[16];      /* The current state of the sensor */
 
-    struct _SDL_SensorDriver *driver;
+    const struct _SDL_SensorDriver *driver;
 
     struct sensor_hwdata *hwdata; /* Driver dependent information */
 
