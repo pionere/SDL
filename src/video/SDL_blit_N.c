@@ -2622,9 +2622,9 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
     int srcbpp = srcfmt->BytesPerPixel;
     int dstbpp = dstfmt->BytesPerPixel;
     unsigned alpha = dstfmt->Amask ? info->a : 0;
-    Uint32 rgbmask = ~srcfmt->Amask;
-    int sfmt = srcfmt->format;
-    int dfmt = dstfmt->format;
+    const Uint32 rgbmask = ~srcfmt->Amask;
+    const Uint32 sfmt = srcfmt->format;
+    const Uint32 dfmt = dstfmt->format;
 
     /* Set up some basic variables */
     ckey &= rgbmask;
@@ -2676,8 +2676,8 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
 #if HAVE_FAST_WRITE_INT8
     /* Blit with permutation: 4->4 */
     if (srcbpp == 4 && dstbpp == 4 &&
-        srcfmt->format != SDL_PIXELFORMAT_ARGB2101010 &&
-        dstfmt->format != SDL_PIXELFORMAT_ARGB2101010) {
+        sfmt != SDL_PIXELFORMAT_ARGB2101010 &&
+        dfmt != SDL_PIXELFORMAT_ARGB2101010) {
 
         /* Find the appropriate permutation */
         int alpha_channel, p0, p1, p2, p3;
@@ -2785,7 +2785,7 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
 
     /* Blit with permutation: 4->3 */
     if (srcbpp == 4 && dstbpp == 3 &&
-        srcfmt->format != SDL_PIXELFORMAT_ARGB2101010) {
+        sfmt != SDL_PIXELFORMAT_ARGB2101010) {
 
         /* Find the appropriate permutation */
         int p0, p1, p2, p3;
@@ -2814,7 +2814,7 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
 #if HAVE_FAST_WRITE_INT8
     /* Blit with permutation: 3->4 */
     if (srcbpp == 3 && dstbpp == 4 &&
-        dstfmt->format != SDL_PIXELFORMAT_ARGB2101010) {
+        dfmt != SDL_PIXELFORMAT_ARGB2101010) {
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         Uint8 k0 = ckey & 0xFF;
