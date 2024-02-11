@@ -140,8 +140,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
 }
 
 VideoBootStrap NGAGE_bootstrap = {
-    NGAGEVID_DRIVER_NAME, NGAGE_CreateDevice,
-    NULL /* no ShowMessageBox implementation */
+    NGAGEVID_DRIVER_NAME, NGAGE_CreateDevice
 };
 
 int NGAGE_VideoInit(_THIS)

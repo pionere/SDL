@@ -34,7 +34,6 @@
 #include "SDL_riscosmouse.h"
 #include "SDL_riscosmodes.h"
 #include "SDL_riscoswindow.h"
-#include "SDL_riscosmessagebox.h"
 
 #define RISCOSVID_DRIVER_NAME "riscos"
 
@@ -94,8 +93,7 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
 }
 /* "SDL RISC OS video driver" */
 VideoBootStrap RISCOS_bootstrap = {
-    RISCOSVID_DRIVER_NAME, RISCOS_CreateDevice,
-    RISCOS_ShowMessageBox
+    RISCOSVID_DRIVER_NAME, RISCOS_CreateDevice
 };
 
 static int RISCOS_VideoInit(_THIS)

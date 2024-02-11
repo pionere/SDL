@@ -59,7 +59,6 @@ extern "C" {
 #include "SDL_syswm.h"
 #include "SDL_winrtopengles.h"
 #include "../../core/windows/SDL_windows.h"
-#include "SDL_winrtmessagebox.h"
 }
 
 #include "../../core/winrt/SDL_winrtapp_direct3d.h"
@@ -166,8 +165,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
 }
 /* "SDL WinRT video driver" */
 VideoBootStrap WINRT_bootstrap = {
-    "winrt", WINRT_CreateDevice,
-    WINRT_ShowMessageBox
+    "winrt", WINRT_CreateDevice
 };
 
 static void SDLCALL WINRT_SetDisplayOrientationsPreference(void *userdata, const char *name, const char *oldValue, const char *newValue)

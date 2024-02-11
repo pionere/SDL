@@ -35,7 +35,6 @@
 #include "SDL_windowsframebuffer.h"
 #include "SDL_windowsshape.h"
 #include "SDL_windowsvulkan.h"
-#include "SDL_windowsmessagebox.h"
 
 /* #define HIGHDPI_DEBUG */
 
@@ -264,12 +263,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 
 /* "SDL Windows video driver"*/
 VideoBootStrap WINDOWS_bootstrap = {
-    "windows", WIN_CreateDevice,
-    #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_ShowMessageBox
-    #else
-    NULL
-    #endif
+    "windows", WIN_CreateDevice
 };
 
 static BOOL WIN_DeclareDPIAwareUnaware(_THIS)

@@ -124,8 +124,7 @@ VideoBootStrap PND_bootstrap = {
 #else
     "pandora",
 #endif
-    PND_create,
-    NULL /* no ShowMessageBox implementation */
+    PND_create
 };
 
 /*****************************************************************************/

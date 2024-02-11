@@ -136,8 +136,7 @@ static SDL_VideoDevice *RPI_Create()
 }
 /* "RPI Video Driver"*/
 VideoBootStrap RPI_bootstrap = {
-    "RPI", RPI_Create,
-    NULL /* no ShowMessageBox implementation */
+    "RPI", RPI_Create
 };
 
 /*****************************************************************************/

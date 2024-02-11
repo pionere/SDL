@@ -313,8 +313,7 @@ cleanup:
 }
 /* "KMS/DRM Video Driver" */
 VideoBootStrap KMSDRM_bootstrap = {
-    "KMSDRM", KMSDRM_CreateDevice,
-    NULL /* no ShowMessageBox implementation */
+    "KMSDRM", KMSDRM_CreateDevice
 };
 
 static void KMSDRM_FBDestroyCallback(struct gbm_bo *bo, void *data)

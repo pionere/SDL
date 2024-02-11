@@ -125,8 +125,7 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
 // "PS2 Video Driver"
 VideoBootStrap PS2_bootstrap = {
     "PS2",
-    PS2_CreateDevice,
-    NULL /* no ShowMessageBox implementation */
+    PS2_CreateDevice
 };
 
 #endif /* SDL_VIDEO_DRIVER_PS2 */

@@ -132,8 +132,7 @@ static SDL_VideoDevice *PSP_Create()
 }
 /* "PSP Video Driver" */
 VideoBootStrap PSP_bootstrap = {
-    "PSP", PSP_Create,
-    NULL /* no ShowMessageBox implementation */
+    "PSP", PSP_Create
 };
 
 /*****************************************************************************/

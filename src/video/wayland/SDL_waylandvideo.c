@@ -37,7 +37,6 @@
 #include "SDL_waylandtouch.h"
 #include "SDL_waylandclipboard.h"
 #include "SDL_waylandvulkan.h"
-#include "SDL_waylandmessagebox.h"
 #include "SDL_hints.h"
 
 #include <sys/types.h>
@@ -307,8 +306,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
 }
 /* "SDL Wayland video driver" */
 VideoBootStrap Wayland_bootstrap = {
-    WAYLANDVID_DRIVER_NAME, Wayland_CreateDevice,
-    Wayland_ShowMessageBox
+    WAYLANDVID_DRIVER_NAME, Wayland_CreateDevice
 };
 
 static void xdg_output_handle_logical_position(void *data, struct zxdg_output_v1 *xdg_output,

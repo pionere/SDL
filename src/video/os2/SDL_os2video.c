@@ -31,7 +31,6 @@
 #include "SDL_os2video.h"
 #include "SDL_syswm.h"
 #include "SDL_os2util.h"
-#include "SDL_os2messagebox.h"
 
 #define __MEERROR_H__
 #define  _MEERROR_H_
@@ -1685,13 +1684,11 @@ static SDL_VideoDevice *OS2VMAN_CreateDevice(void)
  */
 VideoBootStrap OS2DIVE_bootstrap =
 {
-    OS2DRIVER_NAME_DIVE, OS2DIVE_CreateDevice,
-    OS2_ShowMessageBox
+    OS2DRIVER_NAME_DIVE, OS2DIVE_CreateDevice
 };
 VideoBootStrap OS2VMAN_bootstrap =
 {
-    OS2DRIVER_NAME_VMAN, OS2VMAN_CreateDevice,
-    OS2_ShowMessageBox
+    OS2DRIVER_NAME_VMAN, OS2VMAN_CreateDevice
 };
 
 #endif /* SDL_VIDEO_DRIVER_OS2 */
