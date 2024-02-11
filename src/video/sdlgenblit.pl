@@ -246,14 +246,14 @@ __EOF__
                     # RGBA -> ARGB
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = (pixel >> 8) | (pixel << 24);
+            pixel = SDL_Ror32(pixel);
             *dst = pixel;
 __EOF__
                 } else {
                     # ARGB -> RGBA -- unused
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = (pixel << 8) | A;
+            pixel = SDL_Rol32(pixel);
             *dst = pixel;
 __EOF__
                 }
@@ -292,8 +292,93 @@ __EOF__
 __EOF__
                 }
             }
-            return;
+        } else {
+            # reverse color-order
+            $da = substr $dst, 0, 1;
+            $sa = substr $src, 0, 1;
+            if ($dst_has_alpha && $src_has_alpha) {
+                if ($da eq "A") {
+                    if ($sa eq "A") {
+                        # ARGB -> ABGR -- unused
+                        print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Rol32(pixel);
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+                    } else {
+                        # ARGB -> BGRA -- unused
+                        print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+                    }
+                } else {
+                    if ($sa eq "A") {
+                        # RGBA -> ABGR -- unused
+                        print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+                    } else {
+                        # RGBA -> BGRA -- unused
+                        print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Ror32(pixel);
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+                    }
+                }
+            } elsif ($dst_has_alpha) {
+                if ($da eq "A") {
+                    # XRGB -> ABGR -- unused
+                    print FILE <<__EOF__;
+            pixel = *src;
+            pixel = (pixel << 8) | A;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+               } else {
+                   # XRGB -> BGRA -- unused
+                    print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel | A;
+__EOF__
+               }
+            } elsif ($src_has_alpha) {
+                if ($sa eq "A") {
+                    # ARGB -> XBGR
+                    print FILE <<__EOF__;
+            pixel = *src;
+            pixel = pixel << 8;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+                } else {
+                    # RGBA -> XBGR
+                    print FILE <<__EOF__;
+            pixel = *src;
+            pixel = SDL_Swap32(pixel);
+            pixel &= 0xFFFFFF;
+            *dst = pixel;
+__EOF__
+                }
+            } else {
+                # XRGB -> XBGR
+                # XBGR -> XRGB
+                print FILE <<__EOF__;
+            pixel = *src;
+            pixel = pixel << 8;
+            pixel = SDL_Swap32(pixel);
+            *dst = pixel;
+__EOF__
+            }
         }
+        return;
     }
 
     my $ignore_dst_alpha = !$dst_has_alpha && !$blend;
@@ -423,11 +508,11 @@ sub output_copyfunc
 
     my $sa = $src;
     my $da = $dst;
-    my $matching_colors = 0;
+    my $matching_or_reverse_colors = 0;
 
     $sa =~ s/[A8]//g;
     $da =~ s/[A8]//g;
-    $matching_colors = (!$modulate && !$blend && ($sa eq $da)) ? 1 : 0;
+    $matching_or_reverse_colors = (!$modulate && !$blend) ? 1 : 0;
 
     output_copyfuncname("static void", $src, $dst, $modulate, $blend, $scale, 1, "\n");
     print FILE <<__EOF__;
@@ -514,18 +599,18 @@ __EOF__
     const Uint32 A = 0xFF;
 __EOF__
             }
-            if ( !$matching_colors ) {
+            if ( !$matching_or_reverse_colors ) {
                 print FILE <<__EOF__;
     Uint32 R, G, B;
 __EOF__
             }
         } elsif ( !$ignore_dst_alpha ) {
-            if ( !$matching_colors ) {
+            if ( !$matching_or_reverse_colors ) {
                 print FILE <<__EOF__;
     Uint32 R, G, B, A;
 __EOF__
             }
-        } elsif ( !$matching_colors ) {
+        } elsif ( !$matching_or_reverse_colors ) {
             print FILE <<__EOF__;
     Uint32 R, G, B;
 __EOF__
@@ -535,7 +620,7 @@ __EOF__
         print FILE <<__EOF__;
     $format_type{$src} *srcRow;
     Uint32 posy, posx;
-    int incy, incx;
+    Uint32 incy, incx;
 __EOF__
 
     print FILE <<__EOF__;
@@ -599,6 +684,8 @@ sub output_copyinc
 
 #define FIXED_POINT(i) ((Uint32)(i) << 16)
 #define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
+#define SDL_Ror32(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
+#define SDL_Rol32(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
 
 __EOF__
 }

@@ -65,7 +65,7 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
     Uint32 dstR, dstG, dstB, dstA;
     Uint8 *srcRow;
     Uint32 posy, posx;
-    int incy, incx;
+    Uint32 incy, incx;
     SDL_PixelFormat *src_fmt = info->src_fmt;
     SDL_PixelFormat *dst_fmt = info->dst_fmt;
     int srcbpp = src_fmt->BytesPerPixel;
