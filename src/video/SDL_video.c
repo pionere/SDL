@@ -514,9 +514,9 @@ int SDL_VideoInit(const char *driver_name)
         }
     }
 #endif
-    if (driver_name && *driver_name != 0) {
+    if (driver_name && *driver_name != '\0') {
         const char *driver_attempt = driver_name;
-        while (driver_attempt && *driver_attempt != 0 && !video) {
+        while (1) {
             const char *driver_attempt_end = SDL_strchr(driver_attempt, ',');
             size_t driver_attempt_len = (driver_attempt_end) ? (driver_attempt_end - driver_attempt)
                                                                      : SDL_strlen(driver_attempt);
@@ -528,8 +528,14 @@ int SDL_VideoInit(const char *driver_name)
                     break;
                 }
             }
-
-            driver_attempt = (driver_attempt_end) ? (driver_attempt_end + 1) : NULL;
+            if (video) {
+                break;
+            }
+            if (!driver_attempt_end) {
+                SDL_SetError("%s not available", driver_name);
+                goto pre_driver_error;
+            }
+            driver_attempt = driver_attempt_end + 1;
         }
     } else {
         for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
@@ -538,14 +544,10 @@ int SDL_VideoInit(const char *driver_name)
                 break;
             }
         }
-    }
-    if (!video) {
-        if (driver_name) {
-            SDL_SetError("%s not available", driver_name);
+        if (!video) {
+            SDL_SetError("No available video device");
             goto pre_driver_error;
         }
-        SDL_SetError("No available video device");
-        goto pre_driver_error;
     }
 
     /* From this point on, use SDL_VideoQuit to cleanup on error, rather than
