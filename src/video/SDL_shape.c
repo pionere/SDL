@@ -33,11 +33,12 @@ SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned i
     SDL_Window *result = NULL;
     result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
     if (result) {
-        if (SDL_GetVideoDevice()->shape_driver.CreateShaper == NULL) {
+        SDL_VideoDevice *_this = SDL_GetVideoDevice();
+        if (_this->shape_driver.CreateShaper == NULL) {
             SDL_DestroyWindow(result);
             return NULL;
         }
-        result->shaper = SDL_GetVideoDevice()->shape_driver.CreateShaper(result);
+        result->shaper = _this->shape_driver.CreateShaper(result);
         if (result->shaper) {
             result->shaper->userx = x;
             result->shaper->usery = y;
@@ -265,7 +266,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
     int result;
 
-    if (!window || !SDL_IsShapedWindow(window)) {
+    if (!SDL_IsShapedWindow(window)) {
         /* The window given was not a shapeable window. */
         return SDL_NONSHAPEABLE_WINDOW;
     }
@@ -317,7 +318,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
 
 static SDL_bool SDL_WindowHasAShape(SDL_Window *window)
 {
-    if (!window || !SDL_IsShapedWindow(window)) {
+    if (!SDL_IsShapedWindow(window)) {
         return SDL_FALSE;
     }
     return window->shaper->hasshape;
@@ -325,7 +326,7 @@ static SDL_bool SDL_WindowHasAShape(SDL_Window *window)
 
 int SDL_GetShapedWindowMode(SDL_Window *window, SDL_WindowShapeMode *shape_mode)
 {
-    if (window && SDL_IsShapedWindow(window)) {
+    if (SDL_IsShapedWindow(window)) {
         if (!shape_mode) {
             if (SDL_WindowHasAShape(window)) {
                 return 0; /* The window given has a shape. */
