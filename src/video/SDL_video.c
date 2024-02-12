@@ -145,7 +145,6 @@ static const VideoBootStrap *const bootstrap[] = {
     &DUMMY_evdev_bootstrap,
 #endif
 #endif
-    NULL
 };
 
 #define CHECK_WINDOW_MAGIC(window, retval)                  \
@@ -438,12 +437,12 @@ static int SDL_UninitializedVideo(void)
 
 int SDL_GetNumVideoDrivers(void)
 {
-    return SDL_arraysize(bootstrap) - 1;
+    return SDL_arraysize(bootstrap);
 }
 
 const char *SDL_GetVideoDriver(int index)
 {
-    if (index >= 0 && index < SDL_GetNumVideoDrivers()) {
+    if (index >= 0 && index < SDL_arraysize(bootstrap)) {
         return bootstrap[index]->name;
     }
     return NULL;
@@ -522,7 +521,7 @@ int SDL_VideoInit(const char *driver_name)
             size_t driver_attempt_len = (driver_attempt_end) ? (driver_attempt_end - driver_attempt)
                                                                      : SDL_strlen(driver_attempt);
 
-            for (i = 0; bootstrap[i]; ++i) {
+            for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
                 if ((driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
                     (SDL_strncasecmp(bootstrap[i]->name, driver_attempt, driver_attempt_len) == 0)) {
                     video = bootstrap[i]->create();
@@ -533,7 +532,7 @@ int SDL_VideoInit(const char *driver_name)
             driver_attempt = (driver_attempt_end) ? (driver_attempt_end + 1) : NULL;
         }
     } else {
-        for (i = 0; bootstrap[i]; ++i) {
+        for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
             video = bootstrap[i]->create();
             if (video) {
                 break;
