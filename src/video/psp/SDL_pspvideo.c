@@ -85,9 +85,6 @@ static SDL_VideoDevice *PSP_Create()
 
     phdata->egl_initialized = SDL_TRUE;
 
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
     /* Set device free function */
     device->free = PSP_Destroy;
 
@@ -143,7 +140,7 @@ int PSP_VideoInit(_THIS)
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
-    if (PSP_EventInit(_this) == -1) {
+    if (PSP_EventInit(_this) < 0) {
         return -1;  /* error string would already be set */
     }
 

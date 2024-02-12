@@ -104,9 +104,6 @@ static SDL_VideoDevice *VITA_Create()
 
     device->driverdata = phdata;
 
-    /* Setup amount of available displays and current display */
-    device->num_displays = 0;
-
     /* Set device free function */
     device->free = VITA_Destroy;
 
@@ -226,7 +223,7 @@ int VITA_VideoInit(_THIS)
     VITA_InitKeyboard();
     VITA_InitMouse();
 
-    return 1;
+    return 0;
 }
 
 void VITA_VideoQuit(_THIS)

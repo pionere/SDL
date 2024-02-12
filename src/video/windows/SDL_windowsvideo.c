@@ -439,9 +439,7 @@ int WIN_VideoInit(_THIS)
         SDL_AddVideoDisplay(&display, SDL_FALSE);
     }
 #else /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
-    if (WIN_InitModes(_this) < 0) {
-        return -1;
-    }
+    WIN_InitModes(_this);
 
     WIN_InitKeyboard(_this);
     WIN_InitMouse(_this);

@@ -36,7 +36,7 @@ typedef struct
     DEVMODE DeviceMode;
 } SDL_DisplayModeData;
 
-extern int WIN_InitModes(_THIS);
+extern void WIN_InitModes(_THIS);
 extern int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
 extern int WIN_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
 extern void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut);

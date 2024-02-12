@@ -69,9 +69,6 @@ static SDL_VideoDevice *VIVANTE_Create()
 
     device->driverdata = data;
 
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
     /* Set device free function */
     device->free = VIVANTE_Destroy;
 

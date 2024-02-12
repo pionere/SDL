@@ -92,9 +92,6 @@ static SDL_VideoDevice *RPI_Create()
 
     device->driverdata = phdata;
 
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
     /* Set device free function */
     device->free = RPI_Destroy;
 
@@ -205,7 +202,7 @@ int RPI_VideoInit(_THIS)
 
     RPI_InitMouse(_this);
 
-    return 1;
+    return 0;
 }
 
 void RPI_VideoQuit(_THIS)

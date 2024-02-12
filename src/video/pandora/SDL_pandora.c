@@ -74,10 +74,6 @@ static SDL_VideoDevice *PND_create(void)
 
     phdata->egl_initialized = SDL_TRUE;
 
-
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
     /* Set device free function */
     device->free = PND_destroy;
 
@@ -154,7 +150,7 @@ int PND_videoinit(_THIS)
 
     SDL_AddVideoDisplay(&display, SDL_FALSE);
 
-    return 1;
+    return 0;
 }
 
 void PND_videoquit(_THIS)

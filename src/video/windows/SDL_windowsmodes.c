@@ -429,14 +429,9 @@ static void WIN_AddDisplays(_THIS, SDL_bool send_event)
     EnumDisplayMonitors(NULL, NULL, WIN_AddDisplaysCallback, (LPARAM)&callback_data);
 }
 
-int WIN_InitModes(_THIS)
+void WIN_InitModes(_THIS)
 {
     WIN_AddDisplays(_this, SDL_FALSE);
-
-    if (_this->num_displays == 0) {
-        return SDL_SetError("No displays available");
-    }
-    return 0;
 }
 
 /**
