@@ -135,7 +135,6 @@ static const AudioBootStrap *const bootstrap[] = {
 #ifdef SDL_AUDIO_DRIVER_DUMMY
     &DUMMYAUDIO_bootstrap,
 #endif
-    NULL
 };
 
 #ifdef HAVE_LIBSAMPLERATE_H
@@ -909,12 +908,12 @@ static SDL_AudioFormat SDL_ParseAudioFormat(const char *string)
 
 int SDL_GetNumAudioDrivers(void)
 {
-    return SDL_arraysize(bootstrap) - 1;
+    return SDL_arraysize(bootstrap);
 }
 
 const char *SDL_GetAudioDriver(int index)
 {
-    if (index >= 0 && index < SDL_GetNumAudioDrivers()) {
+    if (index >= 0 && index < SDL_arraysize(bootstrap)) {
         return bootstrap[index]->name;
     }
     return NULL;
@@ -960,7 +959,7 @@ int SDL_AudioInit(const char *driver_name)
             }
 #endif
 
-            for (i = 0; bootstrap[i]; ++i) {
+            for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
                 if ((driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
                     (SDL_strncasecmp(bootstrap[i]->name, driver_attempt, driver_attempt_len) == 0)) {
                     tried_to_init = SDL_TRUE;
@@ -974,7 +973,7 @@ int SDL_AudioInit(const char *driver_name)
             driver_attempt = (driver_attempt_end) ? (driver_attempt_end + 1) : NULL;
         }
     } else {
-        for (i = 0; (!initialized) && (bootstrap[i]); ++i) {
+        for (i = 0; (!initialized) && i < SDL_arraysize(bootstrap); ++i) {
             if (bootstrap[i]->demand_only) {
                 continue;
             }
