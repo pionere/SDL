@@ -318,17 +318,20 @@ static void SDL_AudioUnlockDevice_Default(SDL_AudioDevice *device) SDL_NO_THREAD
     }
 }
 
-static void finish_audio_entry_points_init(void)
+static void init_current_audio(const char *name)
 {
+    SDL_zero(current_audio);
+
+    current_audio.name = name;
+
     /*
      * Fill in stub functions for unused driver entry points. This lets us
      *  blindly call them without having to check for validity first.
      */
 
-#define FILL_STUB(x)                                   \
-    if (current_audio.impl.x == NULL) {                \
-        current_audio.impl.x = SDL_Audio##x##_Default; \
-    }
+#define FILL_STUB(x)        \
+        current_audio.impl.x = SDL_Audio##x##_Default;
+
     FILL_STUB(DetectDevices);
     FILL_STUB(OpenDevice);
     FILL_STUB(ThreadInit);
@@ -922,7 +925,7 @@ const char *SDL_GetAudioDriver(int index)
 int SDL_AudioInit(const char *driver_name)
 {
     int i;
-    SDL_bool initialized = SDL_FALSE, tried_to_init = SDL_FALSE;
+    SDL_bool tried_to_init = SDL_FALSE;
 
     if (SDL_GetCurrentAudioDriver()) {
         SDL_AudioQuit(); /* shutdown driver if already running. */
@@ -937,7 +940,7 @@ int SDL_AudioInit(const char *driver_name)
 
     if (driver_name != NULL && *driver_name != 0) {
         const char *driver_attempt = driver_name;
-        while (driver_attempt != NULL && *driver_attempt != 0 && !initialized) {
+        while (1) {
             const char *driver_attempt_end = SDL_strchr(driver_attempt, ',');
             size_t driver_attempt_len = (driver_attempt_end != NULL) ? (driver_attempt_end - driver_attempt)
                                                                      : SDL_strlen(driver_attempt);
@@ -963,45 +966,46 @@ int SDL_AudioInit(const char *driver_name)
                 if ((driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
                     (SDL_strncasecmp(bootstrap[i]->name, driver_attempt, driver_attempt_len) == 0)) {
                     tried_to_init = SDL_TRUE;
-                    SDL_zero(current_audio);
-                    current_audio.name = bootstrap[i]->name;
-                    initialized = bootstrap[i]->init(&current_audio.impl);
-                    break;
+                    init_current_audio(bootstrap[i]->name);
+                    if (bootstrap[i]->init(&current_audio.impl)) {
+                        break;
+                    }
                 }
             }
-
-            driver_attempt = (driver_attempt_end) ? (driver_attempt_end + 1) : NULL;
+            if (i < SDL_arraysize(bootstrap)) {
+                break;
+            }
+            if (!driver_attempt_end) {
+                /* specific drivers will set the error message if they fail... */
+                if (!tried_to_init) {
+                    SDL_SetError("%s not available", driver_name);
+                }
+                goto error;
+            }
+            driver_attempt = driver_attempt_end + 1;
         }
     } else {
-        for (i = 0; (!initialized) && i < SDL_arraysize(bootstrap); ++i) {
+        for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
             if (bootstrap[i]->demand_only) {
                 continue;
             }
 
             tried_to_init = SDL_TRUE;
-            SDL_zero(current_audio);
-            current_audio.name = bootstrap[i]->name;
-            initialized = bootstrap[i]->init(&current_audio.impl);
-        }
-    }
-
-    if (!initialized) {
-        /* specific drivers will set the error message if they fail... */
-        if (!tried_to_init) {
-            if (driver_name) {
-                SDL_SetError("Audio target '%s' not available", driver_name);
-            } else {
-                SDL_SetError("No available audio device");
+            init_current_audio(bootstrap[i]->name);
+            if (bootstrap[i]->init(&current_audio.impl)) {
+                break;
             }
         }
-
-        SDL_zero(current_audio);
-        return -1; /* No driver was available, so fail. */
+        if (i >= SDL_arraysize(bootstrap)) {
+            /* specific drivers will set the error message if they fail... */
+            if (!tried_to_init) {
+                SDL_SetError("No available audio device");
+            }
+            goto error;
+        }
     }
 
     current_audio.detectionLock = SDL_CreateMutex();
-
-    finish_audio_entry_points_init();
 
     /* Make sure we have a list of devices available at startup. */
     current_audio.impl.DetectDevices();
@@ -1011,6 +1015,9 @@ int SDL_AudioInit(const char *driver_name)
 #endif
 
     return 0;
+error:
+    SDL_zero(current_audio);
+    return -1; /* No driver was available, so fail. */
 }
 
 /*
