@@ -46,7 +46,7 @@ static HWND GetWindowHandle(_THIS)
 
 int WIN_SetClipboardText(_THIS, const char *text)
 {
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
     int result = 0;
 
     if (OpenClipboard(GetWindowHandle(_this))) {
@@ -137,8 +137,9 @@ SDL_bool WIN_HasClipboardText(_THIS)
     return result;
 }
 
-void WIN_CheckClipboardUpdate(struct WIN_VideoData *data)
+void WIN_CheckClipboardUpdate()
 {
+    WIN_VideoData *data = &winVideoData;
     const DWORD count = GetClipboardSequenceNumber();
     if (count != data->clipboard_count) {
         if (data->clipboard_count) {

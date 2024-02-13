@@ -464,11 +464,12 @@ typedef struct WIN_VideoData
 extern SDL_bool g_WindowsEnableMessageLoop;
 extern SDL_bool g_WindowsEnableMenuMnemonics;
 extern SDL_bool g_WindowFrameUsableWhileCursorHidden;
+extern WIN_VideoData winVideoData;
 
 typedef struct IDirect3D9 IDirect3D9;
 extern SDL_bool D3D_LoadDLL(void **pD3DDLL, IDirect3D9 **pDirect3D9Interface);
 
-extern SDL_bool WIN_IsPerMonitorV2DPIAware(_THIS);
+extern SDL_bool WIN_IsPerMonitorV2DPIAware();
 
 #endif /* SDL_windowsvideo_h_ */
 

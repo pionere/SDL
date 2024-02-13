@@ -123,7 +123,7 @@ static DWORD GetWindowStyle(SDL_Window *window)
  */
 static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL menu, int *x, int *y, int *width, int *height, SDL_bool use_current)
 {
-    WIN_VideoData *videodata = SDL_GetVideoDevice() ? (WIN_VideoData *)SDL_GetVideoDevice()->driverdata : NULL;
+    WIN_VideoData *videodata = SDL_GetVideoDevice() ? &winVideoData : NULL;
     RECT rect;
     int dpi = 96;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -165,7 +165,7 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
         AdjustWindowRectEx(&rect, style, menu, 0);
 #else
-        if (WIN_IsPerMonitorV2DPIAware(SDL_GetVideoDevice())) {
+        if (WIN_IsPerMonitorV2DPIAware()) {
             /* With per-monitor v2, the window border/titlebar size depend on the DPI, so we need to call AdjustWindowRectExForDpi instead of
                AdjustWindowRectEx. */
             UINT unused;
@@ -253,11 +253,13 @@ static void SDLCALL WIN_MouseRelativeModeCenterChanged(void *userdata, const cha
     data->mouse_relative_mode_center = SDL_GetStringBoolean(hint, SDL_TRUE);
 }
 
-static int WIN_GetScalingDPIForHWND(const WIN_VideoData *videodata, HWND hwnd)
+static int WIN_GetScalingDPIForHWND(HWND hwnd)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return 96;
 #else
+    WIN_VideoData *videodata = &winVideoData;
+
     /* DPI scaling not requested? */
     if (!videodata->dpi_scaling_enabled) {
         return 96;
@@ -295,7 +297,7 @@ static int WIN_GetScalingDPIForHWND(const WIN_VideoData *videodata, HWND hwnd)
 
 static int SetupWindowData(_THIS, SDL_Window *window, HWND hwnd, HWND parent, SDL_bool created)
 {
-    WIN_VideoData *videodata = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *videodata = &winVideoData;
     SDL_WindowData *data;
 
     /* Allocate the window data */
@@ -316,9 +318,8 @@ static int SetupWindowData(_THIS, SDL_Window *window, HWND hwnd, HWND parent, SD
     data->high_surrogate = 0;
     data->mouse_button_flags = (WPARAM)-1;
     data->last_pointer_update = (LPARAM)-1;
-    data->videodata = videodata;
     data->initializing = SDL_TRUE;
-    data->scaling_dpi = WIN_GetScalingDPIForHWND(videodata, hwnd);
+    data->scaling_dpi = WIN_GetScalingDPIForHWND(hwnd);
 
 #ifdef HIGHDPI_DEBUG
     SDL_Log("SetupWindowData: initialized data->scaling_dpi to %d", data->scaling_dpi);
@@ -1094,6 +1095,7 @@ int WIN_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
 static void WIN_GrabKeyboard(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    WIN_VideoData *videodata = &winVideoData;
     HMODULE module;
 
     if (data->keyboard_hook) {
@@ -1113,7 +1115,7 @@ static void WIN_GrabKeyboard(SDL_Window *window)
     }
 
     /* Capture a snapshot of the current keyboard state before the hook */
-    if (!GetKeyboardState(data->videodata->pre_hook_key_state)) {
+    if (!GetKeyboardState(videodata->pre_hook_key_state)) {
         return;
     }
 
@@ -1427,7 +1429,7 @@ int WIN_SetWindowOpacity(_THIS, SDL_Window *window, float opacity)
 void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 {
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
-    const WIN_VideoData *videodata = data->videodata;
+    const WIN_VideoData *videodata = &winVideoData;
 
     if (!videodata->dpi_scaling_enabled) {
         return;
@@ -1445,7 +1447,7 @@ void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y)
 {
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
-    const WIN_VideoData *videodata = data->videodata;
+    const WIN_VideoData *videodata = &winVideoData;
 
     if (!videodata->dpi_scaling_enabled) {
         return;

@@ -38,6 +38,9 @@
 
 /* #define HIGHDPI_DEBUG */
 
+/* Instance */
+WIN_VideoData winVideoData;
+
 /* Initialization/Query functions */
 static int WIN_VideoInit(_THIS);
 static void WIN_VideoQuit(_THIS);
@@ -81,40 +84,32 @@ extern void D3D12_XBOX_GetResolution(Uint32 *width, Uint32 *height);
 
 static void WIN_DeleteDevice(SDL_VideoDevice *device)
 {
-    WIN_VideoData *data = (WIN_VideoData *)device->driverdata;
-
     SDL_UnregisterApp();
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (data->userDLL) {
-        SDL_UnloadObject(data->userDLL);
+    if (winVideoData.userDLL) {
+        SDL_UnloadObject(winVideoData.userDLL);
     }
-    if (data->shcoreDLL) {
-        SDL_UnloadObject(data->shcoreDLL);
+    if (winVideoData.shcoreDLL) {
+        SDL_UnloadObject(winVideoData.shcoreDLL);
     }
 #endif
     if (device->wakeup_lock) {
         SDL_DestroyMutex(device->wakeup_lock);
     }
-    SDL_free(device->driverdata);
+    SDL_zero(winVideoData);
     SDL_free(device);
 }
 
 static SDL_VideoDevice *WIN_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    WIN_VideoData *data;
+    WIN_VideoData *data = &winVideoData;
 
     SDL_RegisterApp(NULL, 0, NULL);
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device) {
-        data = (struct WIN_VideoData *)SDL_calloc(1, sizeof(WIN_VideoData));
-    } else {
-        data = NULL;
-    }
-    if (!data) {
-        SDL_free(device);
+    if (!device) {
         SDL_OutOfMemory();
         return NULL;
     }
@@ -266,10 +261,10 @@ VideoBootStrap WINDOWS_bootstrap = {
     "windows", WIN_CreateDevice
 };
 
-static BOOL WIN_DeclareDPIAwareUnaware(_THIS)
+static BOOL WIN_DeclareDPIAwareUnaware()
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
         return data->SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_UNAWARE);
@@ -281,10 +276,10 @@ static BOOL WIN_DeclareDPIAwareUnaware(_THIS)
     return FALSE;
 }
 
-static BOOL WIN_DeclareDPIAwareSystem(_THIS)
+static BOOL WIN_DeclareDPIAwareSystem()
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
         /* Windows 10, version 1607 */
@@ -300,10 +295,10 @@ static BOOL WIN_DeclareDPIAwareSystem(_THIS)
     return FALSE;
 }
 
-static BOOL WIN_DeclareDPIAwarePerMonitor(_THIS)
+static BOOL WIN_DeclareDPIAwarePerMonitor()
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
         /* Windows 10, version 1607 */
@@ -313,18 +308,18 @@ static BOOL WIN_DeclareDPIAwarePerMonitor(_THIS)
         return SUCCEEDED(data->SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE));
     } else {
         /* Older OS: fall back to system DPI aware */
-        return WIN_DeclareDPIAwareSystem(_this);
+        return WIN_DeclareDPIAwareSystem();
     }
 #endif
     return FALSE;
 }
 
-static BOOL WIN_DeclareDPIAwarePerMonitorV2(_THIS)
+static BOOL WIN_DeclareDPIAwarePerMonitorV2()
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return FALSE;
 #else
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     /* Declare DPI aware (may have been done in external code or a manifest, as well) */
     if (data->SetProcessDpiAwarenessContext) {
@@ -348,19 +343,19 @@ static BOOL WIN_DeclareDPIAwarePerMonitorV2(_THIS)
         if (data->SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)) {
             return TRUE;
         } else {
-            return WIN_DeclareDPIAwarePerMonitor(_this);
+            return WIN_DeclareDPIAwarePerMonitor();
         }
     } else {
         /* Older OS: fall back to per-monitor (or system) */
-        return WIN_DeclareDPIAwarePerMonitor(_this);
+        return WIN_DeclareDPIAwarePerMonitor();
     }
 #endif
 }
 
 #ifdef HIGHDPI_DEBUG
-static const char *WIN_GetDPIAwareness(_THIS)
+static const char *WIN_GetDPIAwareness()
 {
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (data->GetThreadDpiAwarenessContext && data->AreDpiAwarenessContextsEqual) {
         DPI_AWARENESS_CONTEXT context = data->GetThreadDpiAwarenessContext();
@@ -382,29 +377,29 @@ static const char *WIN_GetDPIAwareness(_THIS)
 }
 #endif
 
-static void WIN_InitDPIAwareness(_THIS)
+static void WIN_InitDPIAwareness()
 {
     const char *hint = SDL_GetHint(SDL_HINT_WINDOWS_DPI_AWARENESS);
 
     if (hint) {
         if (SDL_strcmp(hint, "permonitorv2") == 0) {
-            WIN_DeclareDPIAwarePerMonitorV2(_this);
+            WIN_DeclareDPIAwarePerMonitorV2();
         } else if (SDL_strcmp(hint, "permonitor") == 0) {
-            WIN_DeclareDPIAwarePerMonitor(_this);
+            WIN_DeclareDPIAwarePerMonitor();
         } else if (SDL_strcmp(hint, "system") == 0) {
-            WIN_DeclareDPIAwareSystem(_this);
+            WIN_DeclareDPIAwareSystem();
         } else if (SDL_strcmp(hint, "unaware") == 0) {
-            WIN_DeclareDPIAwareUnaware(_this);
+            WIN_DeclareDPIAwareUnaware();
         }
     }
 }
 
-static void WIN_InitDPIScaling(_THIS)
+static void WIN_InitDPIScaling()
 {
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (SDL_GetHintBoolean(SDL_HINT_WINDOWS_DPI_SCALING, SDL_FALSE)) {
-        WIN_DeclareDPIAwarePerMonitorV2(_this);
+        WIN_DeclareDPIAwarePerMonitorV2();
 
         data->dpi_scaling_enabled = SDL_TRUE;
     }
@@ -412,13 +407,13 @@ static void WIN_InitDPIScaling(_THIS)
 
 int WIN_VideoInit(_THIS)
 {
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
-    WIN_InitDPIAwareness(_this);
-    WIN_InitDPIScaling(_this);
+    WIN_InitDPIAwareness();
+    WIN_InitDPIScaling();
 
 #ifdef HIGHDPI_DEBUG
-    SDL_Log("DPI awareness: %s", WIN_GetDPIAwareness(_this));
+    SDL_Log("DPI awareness: %s", WIN_GetDPIAwareness());
 #endif
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
@@ -441,7 +436,7 @@ int WIN_VideoInit(_THIS)
 #else /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
     WIN_InitModes(_this);
 
-    WIN_InitKeyboard(_this);
+    WIN_InitKeyboard();
     WIN_InitMouse();
 #endif
 
@@ -460,7 +455,7 @@ void WIN_VideoQuit(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_QuitModes();
-    WIN_QuitKeyboard(_this);
+    WIN_QuitKeyboard();
     WIN_QuitMouse();
 #endif
 }
@@ -679,10 +674,10 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
 #endif
 }
 
-SDL_bool WIN_IsPerMonitorV2DPIAware(_THIS)
+SDL_bool WIN_IsPerMonitorV2DPIAware()
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
+    WIN_VideoData *data = &winVideoData;
 
     if (data->AreDpiAwarenessContextsEqual && data->GetThreadDpiAwarenessContext) {
         /* Windows 10, version 1607 */

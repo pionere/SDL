@@ -440,8 +440,9 @@ void WIN_InitModes(_THIS)
  *
  * No-op if DPI scaling is not enabled.
  */
-static void WIN_MonitorInfoToSDL(const WIN_VideoData *videodata, HMONITOR monitor, MONITORINFO *info)
+static void WIN_MonitorInfoToSDL(HMONITOR monitor, MONITORINFO *info)
 {
+    const WIN_VideoData *videodata = &winVideoData;
     UINT xdpi, ydpi;
 
     if (!videodata->dpi_scaling_enabled) {
@@ -471,7 +472,6 @@ static void WIN_MonitorInfoToSDL(const WIN_VideoData *videodata, HMONITOR monito
 int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
-    const WIN_VideoData *videodata = (WIN_VideoData *)display->device->driverdata;
     MONITORINFO minfo;
     BOOL rc;
 
@@ -483,7 +483,7 @@ int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
         return SDL_SetError("Couldn't find monitor data");
     }
 
-    WIN_MonitorInfoToSDL(videodata, data->MonitorHandle, &minfo);
+    WIN_MonitorInfoToSDL(data->MonitorHandle, &minfo);
     rect->x = minfo.rcMonitor.left;
     rect->y = minfo.rcMonitor.top;
     rect->w = minfo.rcMonitor.right - minfo.rcMonitor.left;
@@ -495,7 +495,7 @@ int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
 int WIN_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi_out, float *hdpi_out, float *vdpi_out)
 {
     const SDL_DisplayData *displaydata = (SDL_DisplayData *)display->driverdata;
-    const WIN_VideoData *videodata = (WIN_VideoData *)display->device->driverdata;
+    const WIN_VideoData *videodata = &winVideoData;
     float hdpi = 0, vdpi = 0, ddpi = 0;
 
     if (videodata->GetDpiForMonitor) {
@@ -553,7 +553,6 @@ int WIN_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi_out, float *
 int WIN_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
-    const WIN_VideoData *videodata = (WIN_VideoData *)display->device->driverdata;
     MONITORINFO minfo;
     BOOL rc;
 
@@ -565,7 +564,7 @@ int WIN_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
         return SDL_SetError("Couldn't find monitor data");
     }
 
-    WIN_MonitorInfoToSDL(videodata, data->MonitorHandle, &minfo);
+    WIN_MonitorInfoToSDL(data->MonitorHandle, &minfo);
     rect->x = minfo.rcWork.left;
     rect->y = minfo.rcWork.top;
     rect->w = minfo.rcWork.right - minfo.rcWork.left;
@@ -584,8 +583,7 @@ int WIN_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
  */
 void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut)
 {
-    const SDL_VideoDevice *videodevice = SDL_GetVideoDevice();
-    const WIN_VideoData *videodata;
+    const WIN_VideoData *videodata = &winVideoData;
     int displayIndex;
     SDL_Rect bounds;
     float ddpi, hdpi, vdpi;
@@ -598,11 +596,6 @@ void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut)
         *dpiOut = 96;
     }
 
-    if (!videodevice || !videodevice->driverdata) {
-        return;
-    }
-
-    videodata = (WIN_VideoData *)videodevice->driverdata;
     if (!videodata->dpi_scaling_enabled) {
         return;
     }
@@ -643,7 +636,7 @@ void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut)
 void WIN_ScreenPointToSDL(int *x, int *y)
 {
     const SDL_VideoDevice *videodevice = SDL_GetVideoDevice();
-    const WIN_VideoData *videodata;
+    const WIN_VideoData *videodata = &winVideoData;
     POINT point;
     HMONITOR monitor;
     int i, displayIndex;
@@ -651,12 +644,7 @@ void WIN_ScreenPointToSDL(int *x, int *y)
     float ddpi, hdpi, vdpi;
     int x_pixels, y_pixels;
 
-    if (!videodevice || !videodevice->driverdata) {
-        return;
-    }
-
-    videodata = (WIN_VideoData *)videodevice->driverdata;
-    if (!videodata->dpi_scaling_enabled) {
+    if (!videodevice || !videodata->dpi_scaling_enabled) {
         return;
     }
 

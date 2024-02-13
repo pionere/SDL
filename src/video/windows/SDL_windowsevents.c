@@ -502,7 +502,7 @@ static void WIN_UpdateFocus(SDL_Window *window, SDL_bool expect_focus)
         /*
          * FIXME: Update keyboard state
          */
-        WIN_CheckClipboardUpdate(data->videodata);
+        WIN_CheckClipboardUpdate();
 
         SDL_ToggleModState(KMOD_CAPS, (GetKeyState(VK_CAPITAL) & 0x0001) ? SDL_TRUE : SDL_FALSE);
         SDL_ToggleModState(KMOD_NUM, (GetKeyState(VK_NUMLOCK) & 0x0001) ? SDL_TRUE : SDL_FALSE);
@@ -623,7 +623,7 @@ LRESULT CALLBACK
 WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     KBDLLHOOKSTRUCT *hookData = (KBDLLHOOKSTRUCT *)lParam;
-    WIN_VideoData *data = SDL_GetVideoDevice()->driverdata;
+    WIN_VideoData *data = &winVideoData;
     SDL_Scancode scanCode;
 
     if (nCode < 0 || nCode != HC_ACTION) {
@@ -688,6 +688,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static SDL_bool s_ModalMoveResizeLoop;
     SDL_WindowData *data;
+    WIN_VideoData *videodata = &winVideoData;
     LRESULT returnCode = -1;
 
     /* Send a SDL_SYSWMEVENT if the application wants them */
@@ -728,7 +729,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #endif /* WMMSG_DEBUG */
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (IME_HandleMessage(hwnd, msg, wParam, &lParam, data->videodata)) {
+    if (IME_HandleMessage(hwnd, msg, wParam, &lParam)) {
         return 0;
     }
 #endif
@@ -1161,9 +1162,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             size.bottom = h;
             size.right = w;
 
-            if (WIN_IsPerMonitorV2DPIAware(SDL_GetVideoDevice())) {
-                dpi = data->videodata->GetDpiForWindow(hwnd);
-                data->videodata->AdjustWindowRectExForDpi(&size, style, menu, 0, dpi);
+            if (WIN_IsPerMonitorV2DPIAware()) {
+                dpi = videodata->GetDpiForWindow(hwnd);
+                videodata->AdjustWindowRectExForDpi(&size, style, menu, 0, dpi);
             } else {
                 AdjustWindowRectEx(&size, style, menu, 0);
             }
@@ -1253,7 +1254,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #ifdef HIGHDPI_DEBUG
         SDL_Log("WM_WINDOWPOSCHANGED: Windows client rect (pixels): (%d, %d) (%d x %d)\tSDL client rect (points): (%d, %d) (%d x %d) cached dpi %d, windows reported dpi %d",
                 rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
-                x, y, w, h, data->scaling_dpi, data->videodata->GetDpiForWindow ? data->videodata->GetDpiForWindow(data->hwnd) : 0);
+                x, y, w, h, data->scaling_dpi, videodata->GetDpiForWindow ? videodata->GetDpiForWindow(data->hwnd) : 0);
 #endif
 
         /* Forces a WM_PAINT event */
@@ -1336,10 +1337,10 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         /* We'll do our own drawing, prevent flicker */
     case WM_ERASEBKGND:
-        if (!data->videodata->cleared) {
+        if (!videodata->cleared) {
             RECT client_rect;
             HBRUSH brush;
-            data->videodata->cleared = SDL_TRUE;
+            videodata->cleared = SDL_TRUE;
             GetClientRect(hwnd, &client_rect);
             brush = CreateSolidBrush(0);
             FillRect(GetDC(hwnd), &client_rect, brush);
@@ -1374,11 +1375,11 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_TOUCH:
-        if (data->videodata->GetTouchInputInfo && data->videodata->CloseTouchInputHandle) {
+        if (videodata->GetTouchInputInfo && videodata->CloseTouchInputHandle) {
             UINT i, num_inputs = LOWORD(wParam);
             SDL_bool isstack;
             PTOUCHINPUT inputs = SDL_small_alloc(TOUCHINPUT, num_inputs, &isstack);
-            if (data->videodata->GetTouchInputInfo((HTOUCHINPUT)lParam, num_inputs, inputs, sizeof(TOUCHINPUT))) {
+            if (videodata->GetTouchInputInfo((HTOUCHINPUT)lParam, num_inputs, inputs, sizeof(TOUCHINPUT))) {
                 RECT rect;
                 float x, y;
 
@@ -1424,7 +1425,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
             SDL_small_free(inputs, isstack);
 
-            data->videodata->CloseTouchInputHandle((HTOUCHINPUT)lParam);
+            videodata->CloseTouchInputHandle((HTOUCHINPUT)lParam);
             return 0;
         }
         break;
@@ -1543,7 +1544,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
            Experimentation shows it's only sent during interactive dragging, not in response to
            SetWindowPos. */
-        if (data->videodata->GetDpiForWindow && data->videodata->AdjustWindowRectExForDpi) {
+        if (videodata->GetDpiForWindow && videodata->AdjustWindowRectExForDpi) {
             /* Windows expects applications to scale their window rects linearly
                when dragging between monitors with different DPI's.
                e.g. a 100x100 window dragged to a 200% scaled monitor
@@ -1556,7 +1557,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                scaling. */
 
             const int nextDPI = (int)wParam;
-            const int prevDPI = (int)data->videodata->GetDpiForWindow(hwnd);
+            const int prevDPI = (int)videodata->GetDpiForWindow(hwnd);
             SIZE *sizeInOut = (SIZE *)lParam;
 
             int frame_w, frame_h;
@@ -1575,7 +1576,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 RECT rect = { 0 };
 
                 if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
-                    data->videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, prevDPI);
+                    videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, prevDPI);
                 }
 
                 frame_w = -rect.left + rect.right;
@@ -1588,7 +1589,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             /* Convert to new dpi if we are using scaling.
              * Otherwise leave as pixels.
              */
-            if (data->videodata->dpi_scaling_enabled) {
+            if (videodata->dpi_scaling_enabled) {
                 query_client_w_win = MulDiv(query_client_w_win, nextDPI, prevDPI);
                 query_client_h_win = MulDiv(query_client_h_win, nextDPI, prevDPI);
             }
@@ -1600,7 +1601,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 rect.bottom = query_client_h_win;
 
                 if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
-                    data->videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, nextDPI);
+                    videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, nextDPI);
                 }
 
                 /* This is supposed to control the suggested rect param of WM_DPICHANGED */
@@ -1632,7 +1633,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                    Assume all call sites are calculating the DPI-aware frame correctly, so
                    we don't need to do any further adjustment. */
 
-                if (data->videodata->dpi_scaling_enabled) {
+                if (videodata->dpi_scaling_enabled) {
                     /* Update the cached DPI value for this window */
                     data->scaling_dpi = newDPI;
 
@@ -1656,7 +1657,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
             /* Interactive user-initiated resizing/movement */
 
-            if (WIN_IsPerMonitorV2DPIAware(SDL_GetVideoDevice())) {
+            if (WIN_IsPerMonitorV2DPIAware()) {
                 /* WM_GETDPISCALEDSIZE should have been called prior, so we can trust the given
                    suggestedRect. */
                 w = suggestedRect->right - suggestedRect->left;
@@ -1675,7 +1676,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 rect.right = data->window->w;
                 rect.bottom = data->window->h;
 
-                if (data->videodata->dpi_scaling_enabled) {
+                if (videodata->dpi_scaling_enabled) {
                     /* scale client size to from points to the new DPI */
                     rect.right = MulDiv(rect.right, newDPI, 96);
                     rect.bottom = MulDiv(rect.bottom, newDPI, 96);
@@ -1705,7 +1706,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                          SWP_NOZORDER | SWP_NOACTIVATE);
             data->expected_resize = SDL_FALSE;
 
-            if (data->videodata->dpi_scaling_enabled) {
+            if (videodata->dpi_scaling_enabled) {
                 /* Update the cached DPI value for this window */
                 data->scaling_dpi = newDPI;
 
@@ -1820,7 +1821,8 @@ int WIN_WaitEventTimeout(_THIS, int timeout)
 void WIN_SendWakeupEvent(_THIS, SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    PostMessage(data->hwnd, data->videodata->_SDL_WAKEUP, 0, 0);
+    WIN_VideoData *videodata = &winVideoData;
+    PostMessage(data->hwnd, videodata->_SDL_WAKEUP, 0, 0);
 }
 
 void WIN_PumpEvents(_THIS)

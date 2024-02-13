@@ -63,7 +63,6 @@ typedef struct
     SDL_Point last_raw_mouse_position;
     SDL_bool mouse_tracked;
     WCHAR *ICMFileName;
-    struct WIN_VideoData *videodata;
 #ifdef SDL_VIDEO_OPENGL_EGL
     EGLSurface egl_surface;
 #endif
