@@ -33,7 +33,7 @@
 /* #define DEBUG_MODES */
 /* #define HIGHDPI_DEBUG_VERBOSE */
 
-static void WIN_UpdateDisplayMode(_THIS, LPCWSTR deviceName, DWORD index, SDL_DisplayMode *mode)
+static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMode *mode)
 {
     SDL_DisplayModeData *data = (SDL_DisplayModeData *)mode->driverdata;
     HDC hdc;
@@ -159,7 +159,7 @@ static SDL_DisplayOrientation WIN_GetDisplayOrientation(DEVMODE *mode)
     }
 }
 
-static SDL_bool WIN_GetDisplayMode(_THIS, LPCWSTR deviceName, DWORD index, SDL_DisplayMode *mode, SDL_DisplayOrientation *orientation)
+static SDL_bool WIN_GetDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMode *mode, SDL_DisplayOrientation *orientation)
 {
     SDL_DisplayModeData *data;
     DEVMODE devmode;
@@ -184,7 +184,7 @@ static SDL_bool WIN_GetDisplayMode(_THIS, LPCWSTR deviceName, DWORD index, SDL_D
     mode->refresh_rate = data->DeviceMode.dmDisplayFrequency;
 
     /* Fill in the mode information */
-    WIN_UpdateDisplayMode(_this, deviceName, index, mode);
+    WIN_UpdateDisplayMode(deviceName, index, mode);
 
     if (orientation) {
         *orientation = WIN_GetDisplayOrientation(&devmode);
@@ -306,7 +306,7 @@ static void WIN_AddDisplay(_THIS, HMONITOR hMonitor, const MONITORINFOEXW *info,
     SDL_Log("Display: %s\n", WIN_StringToUTF8W(info->szDevice));
 #endif
 
-    if (!WIN_GetDisplayMode(_this, info->szDevice, ENUM_CURRENT_SETTINGS, &mode, &orientation)) {
+    if (!WIN_GetDisplayMode(info->szDevice, ENUM_CURRENT_SETTINGS, &mode, &orientation)) {
         return;
     }
 
@@ -700,7 +700,7 @@ void WIN_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
     SDL_DisplayMode mode;
 
     for (i = 0;; ++i) {
-        if (!WIN_GetDisplayMode(_this, data->DeviceName, i, &mode, NULL)) {
+        if (!WIN_GetDisplayMode(data->DeviceName, i, &mode, NULL)) {
             break;
         }
         if (SDL_ISPIXELFORMAT_INDEXED(mode.format)) {
@@ -719,7 +719,7 @@ void WIN_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
 }
 
 #ifdef DEBUG_MODES
-static void WIN_LogMonitor(_THIS, HMONITOR mon)
+static void WIN_LogMonitor(HMONITOR mon)
 {
     const WIN_VideoData *vid_data = &winVideoData;
     MONITORINFOEX minfo;
@@ -756,7 +756,7 @@ int WIN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
 #ifdef DEBUG_MODES
     SDL_Log("WIN_SetDisplayMode: monitor state before mode change:");
-    WIN_LogMonitor(_this, displaydata->MonitorHandle);
+    WIN_LogMonitor(displaydata->MonitorHandle);
 #endif
 
     /* High-DPI notes:
@@ -801,11 +801,11 @@ int WIN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
 #ifdef DEBUG_MODES
     SDL_Log("WIN_SetDisplayMode: monitor state after mode change:");
-    WIN_LogMonitor(_this, displaydata->MonitorHandle);
+    WIN_LogMonitor(displaydata->MonitorHandle);
 #endif
 
     EnumDisplaySettingsW(displaydata->DeviceName, ENUM_CURRENT_SETTINGS, &data->DeviceMode);
-    WIN_UpdateDisplayMode(_this, displaydata->DeviceName, ENUM_CURRENT_SETTINGS, mode);
+    WIN_UpdateDisplayMode(displaydata->DeviceName, ENUM_CURRENT_SETTINGS, mode);
     return 0;
 }
 
@@ -834,7 +834,7 @@ void WIN_RefreshDisplays(_THIS)
     }
 }
 
-void WIN_QuitModes(_THIS)
+void WIN_QuitModes()
 {
     /* All fullscreen windows should have restored modes by now */
 }

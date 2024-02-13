@@ -442,7 +442,7 @@ int WIN_VideoInit(_THIS)
     WIN_InitModes(_this);
 
     WIN_InitKeyboard(_this);
-    WIN_InitMouse(_this);
+    WIN_InitMouse();
 #endif
 
     SDL_AddHintCallback(SDL_HINT_WINDOWS_ENABLE_MESSAGELOOP, UpdateWindowsEnableMessageLoop, NULL);
@@ -459,9 +459,9 @@ int WIN_VideoInit(_THIS)
 void WIN_VideoQuit(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_QuitModes(_this);
+    WIN_QuitModes();
     WIN_QuitKeyboard(_this);
-    WIN_QuitMouse(_this);
+    WIN_QuitMouse();
 #endif
 }
 
