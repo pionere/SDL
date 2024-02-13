@@ -623,7 +623,7 @@ LRESULT CALLBACK
 WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     KBDLLHOOKSTRUCT *hookData = (KBDLLHOOKSTRUCT *)lParam;
-    SDL_VideoData *data = SDL_GetVideoDevice()->driverdata;
+    WIN_VideoData *data = SDL_GetVideoDevice()->driverdata;
     SDL_Scancode scanCode;
 
     if (nCode < 0 || nCode != HC_ACTION) {

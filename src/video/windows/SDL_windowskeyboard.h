@@ -35,7 +35,7 @@ extern void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect);
 extern void WIN_ClearComposition(_THIS);
 extern SDL_bool WIN_IsTextInputShown(_THIS);
 
-extern SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam, struct SDL_VideoData *videodata);
+extern SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam, struct WIN_VideoData *videodata);
 
 #endif /* SDL_windowskeyboard_h_ */
 

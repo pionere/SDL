@@ -81,7 +81,7 @@ extern void D3D12_XBOX_GetResolution(Uint32 *width, Uint32 *height);
 
 static void WIN_DeleteDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoData *data = (SDL_VideoData *)device->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)device->driverdata;
 
     SDL_UnregisterApp();
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -102,14 +102,14 @@ static void WIN_DeleteDevice(SDL_VideoDevice *device)
 static SDL_VideoDevice *WIN_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    WIN_VideoData *data;
 
     SDL_RegisterApp(NULL, 0, NULL);
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (device) {
-        data = (struct SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
+        data = (struct WIN_VideoData *)SDL_calloc(1, sizeof(WIN_VideoData));
     } else {
         data = NULL;
     }
@@ -269,7 +269,7 @@ VideoBootStrap WINDOWS_bootstrap = {
 static BOOL WIN_DeclareDPIAwareUnaware(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (data->SetProcessDpiAwarenessContext) {
         return data->SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_UNAWARE);
@@ -284,7 +284,7 @@ static BOOL WIN_DeclareDPIAwareUnaware(_THIS)
 static BOOL WIN_DeclareDPIAwareSystem(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (data->SetProcessDpiAwarenessContext) {
         /* Windows 10, version 1607 */
@@ -303,7 +303,7 @@ static BOOL WIN_DeclareDPIAwareSystem(_THIS)
 static BOOL WIN_DeclareDPIAwarePerMonitor(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (data->SetProcessDpiAwarenessContext) {
         /* Windows 10, version 1607 */
@@ -324,7 +324,7 @@ static BOOL WIN_DeclareDPIAwarePerMonitorV2(_THIS)
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return FALSE;
 #else
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     /* Declare DPI aware (may have been done in external code or a manifest, as well) */
     if (data->SetProcessDpiAwarenessContext) {
@@ -360,7 +360,7 @@ static BOOL WIN_DeclareDPIAwarePerMonitorV2(_THIS)
 #ifdef HIGHDPI_DEBUG
 static const char *WIN_GetDPIAwareness(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (data->GetThreadDpiAwarenessContext && data->AreDpiAwarenessContextsEqual) {
         DPI_AWARENESS_CONTEXT context = data->GetThreadDpiAwarenessContext();
@@ -401,7 +401,7 @@ static void WIN_InitDPIAwareness(_THIS)
 
 static void WIN_InitDPIScaling(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (SDL_GetHintBoolean(SDL_HINT_WINDOWS_DPI_SCALING, SDL_FALSE)) {
         WIN_DeclareDPIAwarePerMonitorV2(_this);
@@ -412,7 +412,7 @@ static void WIN_InitDPIScaling(_THIS)
 
 int WIN_VideoInit(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     WIN_InitDPIAwareness(_this);
     WIN_InitDPIScaling(_this);
@@ -682,7 +682,7 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
 SDL_bool WIN_IsPerMonitorV2DPIAware(_THIS)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *data = (WIN_VideoData *)_this->driverdata;
 
     if (data->AreDpiAwarenessContextsEqual && data->GetThreadDpiAwarenessContext) {
         /* Windows 10, version 1607 */

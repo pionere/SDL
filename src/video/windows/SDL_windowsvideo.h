@@ -366,7 +366,7 @@ typedef struct tagINPUTCONTEXT2
 
 /* Private display data */
 
-typedef struct SDL_VideoData
+typedef struct WIN_VideoData
 {
     int render;
 
@@ -459,7 +459,7 @@ typedef struct SDL_VideoData
 
     BYTE pre_hook_key_state[256];
     UINT _SDL_WAKEUP;
-} SDL_VideoData;
+} WIN_VideoData;
 
 extern SDL_bool g_WindowsEnableMessageLoop;
 extern SDL_bool g_WindowsEnableMenuMnemonics;

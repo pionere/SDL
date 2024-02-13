@@ -123,7 +123,7 @@ static DWORD GetWindowStyle(SDL_Window *window)
  */
 static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL menu, int *x, int *y, int *width, int *height, SDL_bool use_current)
 {
-    SDL_VideoData *videodata = SDL_GetVideoDevice() ? SDL_GetVideoDevice()->driverdata : NULL;
+    WIN_VideoData *videodata = SDL_GetVideoDevice() ? (WIN_VideoData *)SDL_GetVideoDevice()->driverdata : NULL;
     RECT rect;
     int dpi = 96;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -253,7 +253,7 @@ static void SDLCALL WIN_MouseRelativeModeCenterChanged(void *userdata, const cha
     data->mouse_relative_mode_center = SDL_GetStringBoolean(hint, SDL_TRUE);
 }
 
-static int WIN_GetScalingDPIForHWND(const SDL_VideoData *videodata, HWND hwnd)
+static int WIN_GetScalingDPIForHWND(const WIN_VideoData *videodata, HWND hwnd)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return 96;
@@ -295,7 +295,7 @@ static int WIN_GetScalingDPIForHWND(const SDL_VideoData *videodata, HWND hwnd)
 
 static int SetupWindowData(_THIS, SDL_Window *window, HWND hwnd, HWND parent, SDL_bool created)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    WIN_VideoData *videodata = (WIN_VideoData *)_this->driverdata;
     SDL_WindowData *data;
 
     /* Allocate the window data */
@@ -1427,7 +1427,7 @@ int WIN_SetWindowOpacity(_THIS, SDL_Window *window, float opacity)
 void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 {
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
-    const SDL_VideoData *videodata = data->videodata;
+    const WIN_VideoData *videodata = data->videodata;
 
     if (!videodata->dpi_scaling_enabled) {
         return;
@@ -1445,7 +1445,7 @@ void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y)
 {
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
-    const SDL_VideoData *videodata = data->videodata;
+    const WIN_VideoData *videodata = data->videodata;
 
     if (!videodata->dpi_scaling_enabled) {
         return;
