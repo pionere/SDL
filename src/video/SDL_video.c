@@ -458,7 +458,8 @@ int SDL_VideoInit(const char *driver_name)
     SDL_bool init_keyboard = SDL_FALSE;
     SDL_bool init_mouse = SDL_FALSE;
     SDL_bool init_touch = SDL_FALSE;
-    int i = 0;
+    int i;
+    SDL_bool tried_to_init = SDL_FALSE;
 
     /* Check to make sure we don't overwrite '_this' */
     if (_this) {
@@ -524,6 +525,7 @@ int SDL_VideoInit(const char *driver_name)
             for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
                 if ((driver_attempt_len == SDL_strlen(bootstrap[i]->name)) &&
                     (SDL_strncasecmp(bootstrap[i]->name, driver_attempt, driver_attempt_len) == 0)) {
+                    tried_to_init = SDL_TRUE;
                     video = bootstrap[i]->create();
                     break;
                 }
@@ -532,20 +534,42 @@ int SDL_VideoInit(const char *driver_name)
                 break;
             }
             if (!driver_attempt_end) {
-                SDL_SetError("%s not available", driver_name);
+                /* specific drivers will set the error message if they fail... */
+                if (!tried_to_init) {
+                    SDL_SetError("%s not available", driver_name);
+                }
                 goto pre_driver_error;
             }
             driver_attempt = driver_attempt_end + 1;
         }
     } else {
         for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
+#ifdef SDL_VIDEO_DRIVER_DUMMY
+            if (bootstrap[i] == &DUMMY_bootstrap) {
+                continue;
+            }
+#ifdef SDL_INPUT_LINUXEV
+            if (bootstrap[i] == &DUMMY_evdev_bootstrap) {
+                continue;
+            }
+#endif
+#endif
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
+            if (bootstrap[i] == &OFFSCREEN_bootstrap) {
+                continue;
+            }
+#endif
+            tried_to_init = SDL_TRUE;
             video = bootstrap[i]->create();
             if (video) {
                 break;
             }
         }
         if (!video) {
-            SDL_SetError("No available video device");
+            /* specific drivers will set the error message if they fail... */
+            if (!tried_to_init) {
+                SDL_SetError("No available video device");
+            }
             goto pre_driver_error;
         }
     }

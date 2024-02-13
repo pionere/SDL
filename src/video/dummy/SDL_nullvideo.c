@@ -50,36 +50,15 @@
 #include "SDL_nullwindow.h"
 #include "SDL_hints.h"
 
-#define DUMMYVID_DRIVER_NAME       "dummy"
-#define DUMMYVID_DRIVER_EVDEV_NAME "evdev"
-
 /* Initialization/Query functions */
 static int DUMMY_VideoInit(_THIS);
 static void DUMMY_VideoQuit(_THIS);
 
 #ifdef SDL_INPUT_LINUXEV
-static int evdev = 0;
 static void DUMMY_EVDEV_Poll(_THIS);
 #endif
 
 /* DUMMY driver bootstrap functions */
-
-static int DUMMY_Available(void)
-{
-    const char *envr = SDL_GetHint(SDL_HINT_VIDEODRIVER);
-    if (envr) {
-        if (SDL_strcmp(envr, DUMMYVID_DRIVER_NAME) == 0) {
-            return 1;
-        }
-#ifdef SDL_INPUT_LINUXEV
-        if (SDL_strcmp(envr, DUMMYVID_DRIVER_EVDEV_NAME) == 0) {
-            evdev = 1;
-            return 1;
-        }
-#endif
-    }
-    return 0;
-}
 
 static void DUMMY_DeleteDevice(SDL_VideoDevice *device)
 {
@@ -89,10 +68,6 @@ static void DUMMY_DeleteDevice(SDL_VideoDevice *device)
 static SDL_VideoDevice *DUMMY_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-
-    if (!DUMMY_Available()) {
-        return 0;
-    }
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -106,11 +81,6 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     device->VideoInit = DUMMY_VideoInit;
     device->VideoQuit = DUMMY_VideoQuit;
     device->PumpEvents = DUMMY_PumpEvents;
-#ifdef SDL_INPUT_LINUXEV
-    if (evdev) {
-        device->PumpEvents = DUMMY_EVDEV_Poll;
-    }
-#endif
     device->ShowWindow = DUMMY_ShowWindow;
     device->HideWindow = DUMMY_HideWindow;
     device->SetWindowFullscreen = DUMMY_SetWindowFullscreen;
@@ -124,12 +94,23 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
 }
 /* "SDL dummy video driver" */
 VideoBootStrap DUMMY_bootstrap = {
-    DUMMYVID_DRIVER_NAME, DUMMY_CreateDevice
+    "dummy", DUMMY_CreateDevice
 };
 
 #ifdef SDL_INPUT_LINUXEV
+static SDL_VideoDevice *DUMMY_CreateDeviceEvdev(void)
+{
+    SDL_VideoDevice *device = DUMMY_CreateDevice();
+
+    if (device) {
+        device->PumpEvents = DUMMY_EVDEV_Poll;
+    }
+
+    return device;
+}
+
 VideoBootStrap DUMMY_evdev_bootstrap = {
-    DUMMYVID_DRIVER_EVDEV_NAME, DUMMY_CreateDevice
+    "evdev", DUMMY_CreateDeviceEvdev
 };
 void SDL_EVDEV_Init(void);
 void SDL_EVDEV_Poll();
