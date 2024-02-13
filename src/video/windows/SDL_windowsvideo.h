@@ -368,37 +368,27 @@ typedef struct tagINPUTCONTEXT2
 
 typedef struct WIN_VideoData
 {
-    int render;
-
     DWORD clipboard_count;
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__) /* Xbox doesn't support user32/shcore*/
     /* Touch input functions */
     void *userDLL;
-    /* *INDENT-OFF* */ /* clang-format off */
     BOOL (WINAPI *CloseTouchInputHandle)( HTOUCHINPUT );
     BOOL (WINAPI *GetTouchInputInfo)( HTOUCHINPUT, UINT, PTOUCHINPUT, int );
     BOOL (WINAPI *RegisterTouchWindow)( HWND, ULONG );
     BOOL (WINAPI *SetProcessDPIAware)( void );
     BOOL (WINAPI *SetProcessDpiAwarenessContext)( DPI_AWARENESS_CONTEXT );
-    DPI_AWARENESS_CONTEXT (WINAPI *SetThreadDpiAwarenessContext)( DPI_AWARENESS_CONTEXT );
     DPI_AWARENESS_CONTEXT (WINAPI *GetThreadDpiAwarenessContext)( void );
-    DPI_AWARENESS (WINAPI *GetAwarenessFromDpiAwarenessContext)( DPI_AWARENESS_CONTEXT );
-    BOOL (WINAPI *EnableNonClientDpiScaling)( HWND );
     BOOL (WINAPI *AdjustWindowRectExForDpi)( LPRECT, DWORD, BOOL, DWORD, UINT );
     UINT (WINAPI *GetDpiForWindow)( HWND );
     BOOL (WINAPI *AreDpiAwarenessContextsEqual)(DPI_AWARENESS_CONTEXT, DPI_AWARENESS_CONTEXT);
-    BOOL (WINAPI *IsValidDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
-    /* *INDENT-ON* */ /* clang-format on */
 
     void *shcoreDLL;
-    /* *INDENT-OFF* */ /* clang-format off */
     HRESULT (WINAPI *GetDpiForMonitor)( HMONITOR         hmonitor,
                                         MONITOR_DPI_TYPE dpiType,
                                         UINT             *dpiX,
                                         UINT             *dpiY );
     HRESULT (WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness);
-    /* *INDENT-ON* */ /* clang-format on */
 #endif                /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
     SDL_bool dpi_scaling_enabled;
@@ -437,14 +427,12 @@ typedef struct WIN_VideoData
 
     HKL ime_hkl;
     void *ime_himm32;
-    /* *INDENT-OFF* */ /* clang-format off */
     UINT (WINAPI *GetReadingString)(HIMC himc, UINT uReadingBufLen, LPWSTR lpwReadingBuf, PINT pnErrorIndex, BOOL *pfIsVertical, PUINT puMaxReadingLen);
     BOOL (WINAPI *ShowReadingWindow)(HIMC himc, BOOL bShow);
     LPINPUTCONTEXT2 (WINAPI *ImmLockIMC)(HIMC himc);
     BOOL (WINAPI *ImmUnlockIMC)(HIMC himc);
     LPVOID (WINAPI *ImmLockIMCC)(HIMCC himcc);
     BOOL (WINAPI *ImmUnlockIMCC)(HIMCC himcc);
-    /* *INDENT-ON* */ /* clang-format on */
 
     SDL_bool ime_uiless;
     struct ITfThreadMgrEx *ime_threadmgrex;
