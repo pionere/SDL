@@ -296,7 +296,7 @@ static SDL_bool SDL_FS_Init(SDL_AudioDriverImpl * impl)
 
 /* "FusionSound" */
 AudioBootStrap FUSIONSOUND_bootstrap = {
-    "fusionsound", SDL_FS_Init, SDL_FALSE
+    "fusionsound", SDL_FS_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_FUSIONSOUND */

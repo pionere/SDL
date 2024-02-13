@@ -986,10 +986,16 @@ int SDL_AudioInit(const char *driver_name)
         }
     } else {
         for (i = 0; i < SDL_arraysize(bootstrap); ++i) {
-            if (bootstrap[i]->demand_only) {
+#ifdef SDL_AUDIO_DRIVER_DUMMY
+            if (bootstrap[i] == &DUMMYAUDIO_bootstrap) {
                 continue;
             }
-
+#endif
+#ifdef SDL_AUDIO_DRIVER_DISK
+            if (bootstrap[i] == &DISKAUDIO_bootstrap) {
+                continue;
+            }
+#endif
             tried_to_init = SDL_TRUE;
             init_current_audio(bootstrap[i]->name);
             if (bootstrap[i]->init(&current_audio.impl)) {

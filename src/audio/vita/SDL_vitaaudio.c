@@ -218,7 +218,7 @@ static SDL_bool VITAAUD_Init(SDL_AudioDriverImpl *impl)
 }
 /* "VITA audio driver"*/
 AudioBootStrap VITAAUD_bootstrap = {
-    "vita", VITAAUD_Init, SDL_FALSE
+    "vita", VITAAUD_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_VITA */

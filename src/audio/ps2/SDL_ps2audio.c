@@ -165,7 +165,7 @@ static SDL_bool PS2AUDIO_Init(SDL_AudioDriverImpl *impl)
 }
 // "PS2 audio driver"
 AudioBootStrap PS2AUDIO_bootstrap = {
-    "ps2", PS2AUDIO_Init, SDL_FALSE
+    "ps2", PS2AUDIO_Init
 };
 
 /* vi: set ts=4 sw=4 expandtab: */

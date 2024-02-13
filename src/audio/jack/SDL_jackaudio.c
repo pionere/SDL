@@ -422,7 +422,7 @@ static SDL_bool JACK_Init(SDL_AudioDriverImpl *impl)
 }
 /* "JACK Audio Connection Kit" */
 AudioBootStrap JACK_bootstrap = {
-    "jack", JACK_Init, SDL_FALSE
+    "jack", JACK_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_JACK */

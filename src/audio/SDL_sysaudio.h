@@ -168,7 +168,6 @@ typedef struct AudioBootStrap
 {
     const char *name;
     SDL_bool (*init)(SDL_AudioDriverImpl *impl);
-    SDL_bool demand_only; /* 1==request explicitly, or it won't be available. */
 } AudioBootStrap;
 
 /* Not all of these are available in a given build. Use #ifdefs, etc. */

@@ -36,9 +36,6 @@
 #include "ppapi_simple/ps_interface.h"
 #include "ppapi_simple/ps_event.h"
 
-/* The tag name used by NACL audio */
-#define NACLAUDIO_DRIVER_NAME         "nacl"
-
 #define SAMPLE_FRAME_COUNT 4096
 
 /* Audio driver functions */
@@ -152,7 +149,7 @@ static SDL_bool NACLAUDIO_Init(SDL_AudioDriverImpl * impl)
 }
 /* "SDL NaCl Audio Driver" */
 AudioBootStrap NACLAUDIO_bootstrap = {
-    NACLAUDIO_DRIVER_NAME, NACLAUDIO_Init, SDL_FALSE
+    "nacl", NACLAUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_NACL */

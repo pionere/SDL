@@ -427,7 +427,7 @@ static SDL_bool NAS_Init(SDL_AudioDriverImpl * impl)
 }
 /* "Network Audio System" */
 AudioBootStrap NAS_bootstrap = {
-    "nas", NAS_Init, SDL_FALSE
+    "nas", NAS_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_NAS */

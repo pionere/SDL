@@ -426,7 +426,7 @@ failure:
 }
 /* "AAudio audio driver" */
 AudioBootStrap aaudio_bootstrap = {
-    "AAudio", aaudio_Init, SDL_FALSE
+    "AAudio", aaudio_Init
 };
 
 /* Pause (block) all non already paused audio devices by taking their mixer lock */

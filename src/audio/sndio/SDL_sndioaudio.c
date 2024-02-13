@@ -353,7 +353,7 @@ static SDL_bool SNDIO_Init(SDL_AudioDriverImpl *impl)
 }
 /* "OpenBSD sndio"*/
 AudioBootStrap SNDIO_bootstrap = {
-    "sndio", SNDIO_Init, SDL_FALSE
+    "sndio", SNDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_SNDIO */

@@ -983,7 +983,7 @@ static SDL_bool ALSA_Init(SDL_AudioDriverImpl *impl)
 
 /* "ALSA PCM audio" */
 AudioBootStrap ALSA_bootstrap = {
-    "alsa", ALSA_Init, SDL_FALSE
+    "alsa", ALSA_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_ALSA */

@@ -1378,7 +1378,7 @@ static SDL_bool COREAUDIO_Init(SDL_AudioDriverImpl *impl)
 }
 /* "CoreAudio" */
 AudioBootStrap COREAUDIO_bootstrap = {
-    "coreaudio", COREAUDIO_Init, SDL_FALSE
+    "coreaudio", COREAUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_COREAUDIO */

@@ -401,7 +401,7 @@ static SDL_bool SUNAUDIO_Init(SDL_AudioDriverImpl * impl)
 }
 /* "UNIX /dev/audio interface"*/
 AudioBootStrap SUNAUDIO_bootstrap = {
-    "audio", SUNAUDIO_Init, SDL_FALSE
+    "audio", SUNAUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_SUNAUDIO */

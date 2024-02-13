@@ -437,7 +437,7 @@ static SDL_bool WINMM_Init(SDL_AudioDriverImpl * impl)
 }
 /* "Windows Waveform Audio" */
 AudioBootStrap WINMM_bootstrap = {
-    "winmm", WINMM_Init, SDL_FALSE
+    "winmm", WINMM_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_WINMM */

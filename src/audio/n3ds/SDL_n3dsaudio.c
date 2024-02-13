@@ -30,8 +30,6 @@
 #include "SDL_n3dsaudio.h"
 #include "SDL_timer.h"
 
-#define N3DSAUDIO_DRIVER_NAME "n3ds"
-
 static dspHookCookie dsp_hook;
 static SDL_AudioDevice *audio_device;
 
@@ -273,9 +271,7 @@ static SDL_bool N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
 }
 // "SDL N3DS audio driver"
 AudioBootStrap N3DSAUDIO_bootstrap = {
-    N3DSAUDIO_DRIVER_NAME,
-    N3DSAUDIO_Init,
-    0
+    "n3ds", N3DSAUDIO_Init
 };
 
 /**
