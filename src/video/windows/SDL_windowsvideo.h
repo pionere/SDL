@@ -329,13 +329,6 @@ DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
 typedef BOOL (*PFNSHFullScreen)(HWND, DWORD);
 typedef void (*PFCoordTransform)(SDL_Window *, POINT *);
 
-typedef struct
-{
-    void **lpVtbl;
-    int refcount;
-    void *data;
-} TSFSink;
-
 /* Private display data */
 
 typedef struct WIN_VideoData
