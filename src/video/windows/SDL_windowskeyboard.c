@@ -32,11 +32,91 @@
 #include <oleauto.h>
 
 #ifndef SDL_DISABLE_WINDOWS_IME
+/* Definition from Win98DDK version of IMM.H */
+typedef struct tagINPUTCONTEXT2
+{
+    HWND hWnd;
+    BOOL fOpen;
+    POINT ptStatusWndPos;
+    POINT ptSoftKbdPos;
+    DWORD fdwConversion;
+    DWORD fdwSentence;
+    union
+    {
+        LOGFONTA A;
+        LOGFONTW W;
+    } lfFont;
+    COMPOSITIONFORM cfCompForm;
+    CANDIDATEFORM cfCandForm[4];
+    HIMCC hCompStr;
+    HIMCC hCandInfo;
+    HIMCC hGuideLine;
+    HIMCC hPrivate;
+    DWORD dwNumMsgBuf;
+    HIMCC hMsgBuf;
+    DWORD fdwInit;
+    DWORD dwReserve[3];
+} INPUTCONTEXT2, *PINPUTCONTEXT2, NEAR *NPINPUTCONTEXT2, FAR *LPINPUTCONTEXT2;
+
+typedef struct WIN_ImeData
+{
+    SDL_bool ime_com_initialized;
+    struct ITfThreadMgr *ime_threadmgr;
+    SDL_bool ime_initialized;
+    SDL_bool ime_enabled;
+    SDL_bool ime_available;
+    HWND ime_hwnd_main;
+    HWND ime_hwnd_current;
+    SDL_bool ime_suppress_endcomposition_event;
+    HIMC ime_himc;
+
+    WCHAR *ime_composition;
+    int ime_composition_length;
+    WCHAR ime_readingstring[16];
+    int ime_cursor;
+
+    SDL_bool ime_candlist;
+    WCHAR *ime_candidates;
+    DWORD ime_candcount;
+    DWORD ime_candref;
+    DWORD ime_candsel;
+    UINT ime_candpgsize;
+    int ime_candlistindexbase;
+    SDL_bool ime_candvertical;
+
+    SDL_bool ime_dirty;
+    SDL_Rect ime_rect;
+    SDL_Rect ime_candlistrect;
+    int ime_winwidth;
+    int ime_winheight;
+
+    HKL ime_hkl;
+    void *ime_himm32;
+    UINT (WINAPI *GetReadingString)(HIMC himc, UINT uReadingBufLen, LPWSTR lpwReadingBuf, PINT pnErrorIndex, BOOL *pfIsVertical, PUINT puMaxReadingLen);
+    BOOL (WINAPI *ShowReadingWindow)(HIMC himc, BOOL bShow);
+    LPINPUTCONTEXT2 (WINAPI *ImmLockIMC)(HIMC himc);
+    BOOL (WINAPI *ImmUnlockIMC)(HIMC himc);
+    LPVOID (WINAPI *ImmLockIMCC)(HIMCC himcc);
+    BOOL (WINAPI *ImmUnlockIMCC)(HIMCC himcc);
+
+    SDL_bool ime_uiless;
+    struct ITfThreadMgrEx *ime_threadmgrex;
+    DWORD ime_uielemsinkcookie;
+    DWORD ime_alpnsinkcookie;
+    DWORD ime_openmodesinkcookie;
+    DWORD ime_convmodesinkcookie;
+    TSFSink *ime_uielemsink;
+    TSFSink *ime_ippasink;
+    LONG ime_uicontext;
+} WIN_ImeData;
+
 static void IME_Init(HWND hwnd);
 static void IME_Enable(HWND hwnd);
 static void IME_Disable(HWND hwnd);
 static void IME_Quit();
 static SDL_bool IME_IsTextInputShown();
+
+static WIN_ImeData winImeData;
 #endif /* !SDL_DISABLE_WINDOWS_IME */
 
 #ifndef MAPVK_VK_TO_VSC
@@ -53,8 +133,10 @@ static SDL_bool IME_IsTextInputShown();
 void WIN_InitKeyboard()
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
-    WIN_VideoData *data = &winVideoData;
+    WIN_ImeData *data = &winImeData;
 
+    SDL_zero(*data);
+#if 0
     data->ime_com_initialized = SDL_FALSE;
     data->ime_threadmgr = 0;
     data->ime_initialized = SDL_FALSE;
@@ -63,8 +145,10 @@ void WIN_InitKeyboard()
     data->ime_hwnd_main = 0;
     data->ime_hwnd_current = 0;
     data->ime_himc = 0;
+#endif
     data->ime_composition_length = 32 * sizeof(WCHAR);
     data->ime_composition = (WCHAR *)SDL_malloc(data->ime_composition_length + sizeof(WCHAR));
+#if 0
     data->ime_composition[0] = 0;
     data->ime_readingstring[0] = 0;
     data->ime_cursor = 0;
@@ -76,8 +160,9 @@ void WIN_InitKeyboard()
     data->ime_candsel = 0;
     data->ime_candpgsize = 0;
     data->ime_candlistindexbase = 0;
+#endif
     data->ime_candvertical = SDL_TRUE;
-
+#if 0
     data->ime_dirty = SDL_FALSE;
     SDL_memset(&data->ime_rect, 0, sizeof(data->ime_rect));
     SDL_memset(&data->ime_candlistrect, 0, sizeof(data->ime_candlistrect));
@@ -94,12 +179,15 @@ void WIN_InitKeyboard()
     data->ImmUnlockIMCC = 0;
     data->ime_uiless = SDL_FALSE;
     data->ime_threadmgrex = 0;
+#endif
     data->ime_uielemsinkcookie = TF_INVALID_COOKIE;
     data->ime_alpnsinkcookie = TF_INVALID_COOKIE;
     data->ime_openmodesinkcookie = TF_INVALID_COOKIE;
     data->ime_convmodesinkcookie = TF_INVALID_COOKIE;
+#if 0
     data->ime_uielemsink = 0;
     data->ime_ippasink = 0;
+#endif
 #endif /* !SDL_DISABLE_WINDOWS_IME */
 
     WIN_UpdateKeymap(SDL_FALSE);
@@ -154,9 +242,9 @@ void WIN_UpdateKeymap(SDL_bool send_event)
 
 void WIN_QuitKeyboard()
 {
-    WIN_VideoData *data = &winVideoData;
-
 #ifndef SDL_DISABLE_WINDOWS_IME
+    WIN_ImeData *data = &winImeData;
+
     IME_Quit();
 
     if (data->ime_composition) {
@@ -207,7 +295,7 @@ void WIN_StartTextInput(_THIS)
     window = SDL_GetKeyboardFocus();
     if (window) {
         HWND hwnd = ((SDL_WindowData *)window->driverdata)->hwnd;
-        WIN_VideoData *videodata = &winVideoData;
+        WIN_ImeData *videodata = &winImeData;
         SDL_GetWindowSize(window, &videodata->ime_winwidth, &videodata->ime_winheight);
         IME_Init(hwnd);
         IME_Enable(hwnd);
@@ -235,7 +323,8 @@ void WIN_StopTextInput(_THIS)
 
 void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect)
 {
-    WIN_VideoData *videodata = &winVideoData;
+#ifndef SDL_DISABLE_WINDOWS_IME
+    WIN_ImeData *videodata = &winImeData;
     HIMC himc = 0;
 
     if (!rect) {
@@ -243,7 +332,6 @@ void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect)
         return;
     }
 
-#ifndef SDL_DISABLE_WINDOWS_IME
     videodata->ime_rect = *rect;
 
     himc = ImmGetContext(videodata->ime_hwnd_current);
@@ -374,7 +462,7 @@ static SDL_bool WIN_ShouldShowNativeUI()
 static void IME_Init(HWND hwnd)
 {
     HRESULT hResult = S_OK;
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     if (videodata->ime_initialized) {
         return;
@@ -426,7 +514,7 @@ static void IME_Init(HWND hwnd)
 
 static void IME_Enable(HWND hwnd)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     if (!videodata->ime_initialized || !videodata->ime_hwnd_current) {
         return;
@@ -447,7 +535,7 @@ static void IME_Enable(HWND hwnd)
 
 static void IME_Disable(HWND hwnd)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     if (!videodata->ime_initialized || !videodata->ime_hwnd_current) {
         return;
@@ -464,7 +552,7 @@ static void IME_Disable(HWND hwnd)
 
 static void IME_Quit()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     if (!videodata->ime_initialized) {
         return;
@@ -495,7 +583,7 @@ static void IME_Quit()
 
 static void IME_GetReadingString(HWND hwnd)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     DWORD id = 0;
     HIMC himc = 0;
     WCHAR buffer[16];
@@ -590,7 +678,7 @@ static void IME_GetReadingString(HWND hwnd)
 
 static void IME_InputLangChanged()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     UINT lang = PRIMLANG();
     IME_UpdateInputLocale();
     if (!videodata->ime_uiless) {
@@ -605,7 +693,7 @@ static void IME_InputLangChanged()
 
 static DWORD IME_GetId(UINT uIndex)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     static HKL hklprev = 0;
     static DWORD dwRet[2] = { 0 };
     DWORD dwVerSize = 0;
@@ -684,7 +772,7 @@ static DWORD IME_GetId(UINT uIndex)
 
 static void IME_SetupAPI()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     char ime_file[MAX_PATH + 1];
     void *hime = 0;
     HKL hkl = 0;
@@ -722,7 +810,7 @@ static void IME_SetupAPI()
 
 static void IME_SetWindow(HWND hwnd)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     videodata->ime_hwnd_current = hwnd;
     if (videodata->ime_threadmgr) {
@@ -737,7 +825,7 @@ static void IME_SetWindow(HWND hwnd)
 
 static void IME_UpdateInputLocale()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     HKL hklnext = GetKeyboardLayout(0);
 
     if (hklnext == videodata->ime_hkl) {
@@ -750,7 +838,7 @@ static void IME_UpdateInputLocale()
 
 static void IME_ClearComposition()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     HIMC himc = 0;
     if (!videodata->ime_initialized) {
         return;
@@ -773,7 +861,7 @@ static void IME_ClearComposition()
 
 static SDL_bool IME_IsTextInputShown()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     if (!videodata->ime_initialized || !videodata->ime_available || !videodata->ime_enabled) {
         return SDL_FALSE;
@@ -784,7 +872,7 @@ static SDL_bool IME_IsTextInputShown()
 
 static void IME_GetCompositionString(HIMC himc, DWORD string)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     LONG length;
     DWORD dwLang = ((DWORD_PTR)videodata->ime_hkl & 0xffff);
 
@@ -862,7 +950,7 @@ static void IME_GetCompositionString(HIMC himc, DWORD string)
 
 static void IME_SendInputEvent()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     char *s = 0;
     s = WIN_StringToUTF8W(videodata->ime_composition);
     SDL_SendKeyboardText(s);
@@ -875,7 +963,7 @@ static void IME_SendInputEvent()
 
 static void IME_SendEditingEvent()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     char *s = NULL;
     WCHAR *buffer = NULL;
     size_t rssize;
@@ -913,7 +1001,7 @@ static void IME_SendEditingEvent()
 
 static void IME_AddCandidate(UINT i, LPCWSTR candidate)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     LPWSTR dst = &videodata->ime_candidates[i * MAX_CANDLENGTH];
     LPWSTR end = &dst[MAX_CANDLENGTH - 1];
     SDL_COMPILE_TIME_ASSERT(IME_CANDIDATE_INDEXING_REQUIRES, MAX_CANDLIST == 10);
@@ -931,7 +1019,7 @@ static void IME_AddCandidate(UINT i, LPCWSTR candidate)
 
 static void IME_GetCandidateList(HWND hwnd)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     HIMC himc;
     DWORD size;
     LPCANDIDATELIST cand_list;
@@ -992,7 +1080,7 @@ static void IME_GetCandidateList(HWND hwnd)
 
 static int IME_ShowCandidateList()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     void *candidates;
 
     videodata->ime_candcount = 0;
@@ -1016,7 +1104,7 @@ static int IME_ShowCandidateList()
 
 static void IME_HideCandidateList()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     videodata->ime_dirty = SDL_FALSE;
     videodata->ime_candlist = SDL_FALSE;
     IME_DestroyTextures();
@@ -1025,7 +1113,7 @@ static void IME_HideCandidateList()
 
 SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     SDL_bool trap = SDL_FALSE;
     HIMC himc = 0;
     if (!videodata->ime_initialized || !videodata->ime_available || !videodata->ime_enabled) {
@@ -1140,7 +1228,7 @@ SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam)
 
 static void IME_CloseCandidateList()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     IME_HideCandidateList();
     videodata->ime_candcount = 0;
     SDL_free(videodata->ime_candidates);
@@ -1149,7 +1237,7 @@ static void IME_CloseCandidateList()
 
 static void UILess_GetCandidateList(ITfCandidateListUIElement *pcandlist)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     UINT selection = 0;
     UINT count = 0;
     UINT page = 0;
@@ -1239,7 +1327,7 @@ STDMETHODIMP UIElementSink_QueryInterface(TSFSink *sink, REFIID riid, PVOID *ppv
 
 ITfUIElement *UILess_GetUIElement(DWORD dwUIElementId)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     ITfUIElementMgr *puiem = 0;
     ITfUIElement *pelem = 0;
     ITfThreadMgrEx *threadmgrex = videodata->ime_threadmgrex;
@@ -1256,7 +1344,7 @@ STDMETHODIMP UIElementSink_BeginUIElement(TSFSink *sink, DWORD dwUIElementId, BO
     ITfUIElement *element = UILess_GetUIElement(dwUIElementId);
     ITfReadingInformationUIElement *preading = 0;
     ITfCandidateListUIElement *pcandlist = 0;
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     if (!element) {
         return E_INVALIDARG;
     }
@@ -1281,7 +1369,7 @@ STDMETHODIMP UIElementSink_UpdateUIElement(TSFSink *sink, DWORD dwUIElementId)
     ITfUIElement *element = UILess_GetUIElement(dwUIElementId);
     ITfReadingInformationUIElement *preading = 0;
     ITfCandidateListUIElement *pcandlist = 0;
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     if (!element) {
         return E_INVALIDARG;
     }
@@ -1307,7 +1395,7 @@ STDMETHODIMP UIElementSink_EndUIElement(TSFSink *sink, DWORD dwUIElementId)
     ITfUIElement *element = UILess_GetUIElement(dwUIElementId);
     ITfReadingInformationUIElement *preading = 0;
     ITfCandidateListUIElement *pcandlist = 0;
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     if (!element) {
         return E_INVALIDARG;
     }
@@ -1351,7 +1439,7 @@ STDMETHODIMP IPPASink_QueryInterface(TSFSink *sink, REFIID riid, PVOID *ppv)
 STDMETHODIMP IPPASink_OnActivated(TSFSink *sink, DWORD dwProfileType, LANGID langid, REFCLSID clsid, REFGUID catid, REFGUID guidProfile, HKL hkl, DWORD dwFlags)
 {
     static const GUID TF_PROFILE_DAYI = { 0x037B2C25, 0x480C, 0x4D7F, { 0xB0, 0x27, 0xD6, 0xCA, 0x6B, 0x69, 0x78, 0x8A } };
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     videodata->ime_candlistindexbase = WIN_IsEqualGUID(&TF_PROFILE_DAYI, guidProfile) ? 0 : 1;
     if (WIN_IsEqualIID(catid, &GUID_TFCAT_TIP_KEYBOARD) && (dwFlags & TF_IPSINK_FLAG_ACTIVE)) {
         IME_InputLangChanged();
@@ -1379,7 +1467,7 @@ static void *vtIPPASink[] = {
 
 static void UILess_EnableUIUpdates()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     ITfSource *source = 0;
     if (!videodata->ime_threadmgrex || videodata->ime_uielemsinkcookie != TF_INVALID_COOKIE) {
         return;
@@ -1393,7 +1481,7 @@ static void UILess_EnableUIUpdates()
 
 static void UILess_DisableUIUpdates()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     ITfSource *source = 0;
     if (!videodata->ime_threadmgrex || videodata->ime_uielemsinkcookie == TF_INVALID_COOKIE) {
         return;
@@ -1408,7 +1496,7 @@ static void UILess_DisableUIUpdates()
 
 static SDL_bool UILess_SetupSinks()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     TfClientId clientid = 0;
     SDL_bool result = SDL_FALSE;
     ITfSource *source = 0;
@@ -1452,7 +1540,7 @@ static SDL_bool UILess_SetupSinks()
 
 static void UILess_ReleaseSinks()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
 
     ITfSource *source = 0;
     if (videodata->ime_threadmgrex && SUCCEEDED(videodata->ime_threadmgrex->lpVtbl->QueryInterface(videodata->ime_threadmgrex, &IID_ITfSource, (LPVOID *)&source))) {
@@ -1522,7 +1610,7 @@ static void IME_DestroyTextures()
 
 static void IME_PositionCandidateList(SIZE size)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     int left, top, right, bottom;
     SDL_bool ok = SDL_FALSE;
     int winw = videodata->ime_winwidth;
@@ -1594,7 +1682,7 @@ static void IME_PositionCandidateList(SIZE size)
 
 static void IME_RenderCandidateList(HDC hdc)
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     int i, j;
     SIZE size = { 0 };
     SIZE candsizes[MAX_CANDLIST];
@@ -1738,7 +1826,7 @@ static void IME_RenderCandidateList(HDC hdc)
 
 static void IME_Render()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     HDC hdc = CreateCompatibleDC(NULL);
 
     if (videodata->ime_candlist) {
@@ -1752,7 +1840,7 @@ static void IME_Render()
 
 void IME_Present()
 {
-    WIN_VideoData *videodata = &winVideoData;
+    WIN_ImeData *videodata = &winImeData;
     if (videodata->ime_dirty) {
         IME_Render();
     }

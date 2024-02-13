@@ -336,34 +336,6 @@ typedef struct
     void *data;
 } TSFSink;
 
-#ifndef SDL_DISABLE_WINDOWS_IME
-/* Definition from Win98DDK version of IMM.H */
-typedef struct tagINPUTCONTEXT2
-{
-    HWND hWnd;
-    BOOL fOpen;
-    POINT ptStatusWndPos;
-    POINT ptSoftKbdPos;
-    DWORD fdwConversion;
-    DWORD fdwSentence;
-    union
-    {
-        LOGFONTA A;
-        LOGFONTW W;
-    } lfFont;
-    COMPOSITIONFORM cfCompForm;
-    CANDIDATEFORM cfCandForm[4];
-    HIMCC hCompStr;
-    HIMCC hCandInfo;
-    HIMCC hGuideLine;
-    HIMCC hPrivate;
-    DWORD dwNumMsgBuf;
-    HIMCC hMsgBuf;
-    DWORD fdwInit;
-    DWORD dwReserve[3];
-} INPUTCONTEXT2, *PINPUTCONTEXT2, NEAR *NPINPUTCONTEXT2, FAR *LPINPUTCONTEXT2;
-#endif /* !SDL_DISABLE_WINDOWS_IME */
-
 /* Private display data */
 
 typedef struct WIN_VideoData
@@ -393,57 +365,6 @@ typedef struct WIN_VideoData
 
     SDL_bool dpi_scaling_enabled;
     SDL_bool cleared;
-
-#ifndef SDL_DISABLE_WINDOWS_IME
-    SDL_bool ime_com_initialized;
-    struct ITfThreadMgr *ime_threadmgr;
-    SDL_bool ime_initialized;
-    SDL_bool ime_enabled;
-    SDL_bool ime_available;
-    HWND ime_hwnd_main;
-    HWND ime_hwnd_current;
-    SDL_bool ime_suppress_endcomposition_event;
-    HIMC ime_himc;
-
-    WCHAR *ime_composition;
-    int ime_composition_length;
-    WCHAR ime_readingstring[16];
-    int ime_cursor;
-
-    SDL_bool ime_candlist;
-    WCHAR *ime_candidates;
-    DWORD ime_candcount;
-    DWORD ime_candref;
-    DWORD ime_candsel;
-    UINT ime_candpgsize;
-    int ime_candlistindexbase;
-    SDL_bool ime_candvertical;
-
-    SDL_bool ime_dirty;
-    SDL_Rect ime_rect;
-    SDL_Rect ime_candlistrect;
-    int ime_winwidth;
-    int ime_winheight;
-
-    HKL ime_hkl;
-    void *ime_himm32;
-    UINT (WINAPI *GetReadingString)(HIMC himc, UINT uReadingBufLen, LPWSTR lpwReadingBuf, PINT pnErrorIndex, BOOL *pfIsVertical, PUINT puMaxReadingLen);
-    BOOL (WINAPI *ShowReadingWindow)(HIMC himc, BOOL bShow);
-    LPINPUTCONTEXT2 (WINAPI *ImmLockIMC)(HIMC himc);
-    BOOL (WINAPI *ImmUnlockIMC)(HIMC himc);
-    LPVOID (WINAPI *ImmLockIMCC)(HIMCC himcc);
-    BOOL (WINAPI *ImmUnlockIMCC)(HIMCC himcc);
-
-    SDL_bool ime_uiless;
-    struct ITfThreadMgrEx *ime_threadmgrex;
-    DWORD ime_uielemsinkcookie;
-    DWORD ime_alpnsinkcookie;
-    DWORD ime_openmodesinkcookie;
-    DWORD ime_convmodesinkcookie;
-    TSFSink *ime_uielemsink;
-    TSFSink *ime_ippasink;
-    LONG ime_uicontext;
-#endif /* !SDL_DISABLE_WINDOWS_IME */
 
     BYTE pre_hook_key_state[256];
     UINT _SDL_WAKEUP;
