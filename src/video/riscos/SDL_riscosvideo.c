@@ -35,8 +35,6 @@
 #include "SDL_riscosmodes.h"
 #include "SDL_riscoswindow.h"
 
-#define RISCOSVID_DRIVER_NAME "riscos"
-
 /* Initialization/Query functions */
 static int RISCOS_VideoInit(_THIS);
 static void RISCOS_VideoQuit(_THIS);
@@ -93,7 +91,7 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
 }
 /* "SDL RISC OS video driver" */
 VideoBootStrap RISCOS_bootstrap = {
-    RISCOSVID_DRIVER_NAME, RISCOS_CreateDevice
+    "riscos", RISCOS_CreateDevice
 };
 
 static int RISCOS_VideoInit(_THIS)

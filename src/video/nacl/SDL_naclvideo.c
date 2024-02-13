@@ -37,8 +37,6 @@
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_events_c.h"
 
-#define NACLVID_DRIVER_NAME "nacl"
-
 /* Static init required because NACL_SetScreenResolution
  * may appear even before SDL starts and we want to remember
  * the window width and height
@@ -133,7 +131,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
 }
 /* "SDL Native Client Video Driver" */
 VideoBootStrap NACL_bootstrap = {
-    NACLVID_DRIVER_NAME, NACL_CreateDevice
+    "nacl", NACL_CreateDevice
 };
 
 int NACL_VideoInit(_THIS) {

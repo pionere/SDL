@@ -62,8 +62,6 @@
 #include <libdecor.h>
 #endif
 
-#define WAYLANDVID_DRIVER_NAME "wayland"
-
 static void display_handle_done(void *data, struct wl_output *output);
 
 /* Initialization/Query functions */
@@ -306,7 +304,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
 }
 /* "SDL Wayland video driver" */
 VideoBootStrap Wayland_bootstrap = {
-    WAYLANDVID_DRIVER_NAME, Wayland_CreateDevice
+    "wayland", Wayland_CreateDevice
 };
 
 static void xdg_output_handle_logical_position(void *data, struct zxdg_output_v1 *xdg_output,

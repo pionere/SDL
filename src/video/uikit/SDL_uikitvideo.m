@@ -40,8 +40,6 @@
 #include "SDL_uikitvulkan.h"
 #include "SDL_uikitmetalview.h"
 
-#define UIKITVID_DRIVER_NAME "uikit"
-
 @implementation SDL_VideoData
 
 @end
@@ -146,7 +144,7 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
 }
 /* "SDL UIKit video driver" */
 VideoBootStrap UIKIT_bootstrap = {
-    UIKITVID_DRIVER_NAME, UIKit_CreateDevice
+    "uikit", UIKit_CreateDevice
 };
 
 

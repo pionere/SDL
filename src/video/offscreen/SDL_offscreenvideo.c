@@ -38,8 +38,6 @@
 #include "SDL_offscreenopengles.h"
 #include "SDL_offscreenwindow.h"
 
-#define OFFSCREENVID_DRIVER_NAME "offscreen"
-
 /* Initialization/Query functions */
 static int OFFSCREEN_VideoInit(_THIS);
 static int OFFSCREEN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
@@ -94,7 +92,7 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
 }
 /* "SDL offscreen video driver" */
 VideoBootStrap OFFSCREEN_bootstrap = {
-    OFFSCREENVID_DRIVER_NAME, OFFSCREEN_CreateDevice
+    "offscreen", OFFSCREEN_CreateDevice
 };
 
 int OFFSCREEN_VideoInit(_THIS)

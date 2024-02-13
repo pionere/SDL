@@ -36,8 +36,6 @@
 #include "SDL_emscriptenevents.h"
 #include "SDL_emscriptenmouse.h"
 
-#define EMSCRIPTENVID_DRIVER_NAME "emscripten"
-
 /* Initialization/Query functions */
 static int Emscripten_VideoInit(_THIS);
 static int Emscripten_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
@@ -124,7 +122,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
 }
 /* "SDL emscripten video driver" */
 VideoBootStrap Emscripten_bootstrap = {
-    EMSCRIPTENVID_DRIVER_NAME, Emscripten_CreateDevice
+    "emscripten", Emscripten_CreateDevice
 };
 
 int Emscripten_VideoInit(_THIS)

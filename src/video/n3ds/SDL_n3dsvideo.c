@@ -29,8 +29,6 @@
 #include "SDL_n3dstouch.h"
 #include "SDL_n3dsvideo.h"
 
-#define N3DSVID_DRIVER_NAME "n3ds"
-
 SDL_FORCE_INLINE void AddN3DSDisplay(gfxScreen_t screen);
 
 static int N3DS_VideoInit(_THIS);
@@ -86,7 +84,7 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     return device;
 }
 // "N3DS Video Driver"
-VideoBootStrap N3DS_bootstrap = { N3DSVID_DRIVER_NAME, N3DS_CreateDevice };
+VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };
 
 static int N3DS_VideoInit(_THIS)
 {

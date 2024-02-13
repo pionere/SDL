@@ -42,8 +42,6 @@
 #include "SDL_androidwindow.h"
 #include "SDL_androidvulkan.h"
 
-#define ANDROID_VID_DRIVER_NAME "Android"
-
 /* Initialization/Query functions */
 static int Android_VideoInit(_THIS);
 static void Android_VideoQuit(_THIS);
@@ -165,7 +163,7 @@ static SDL_VideoDevice *Android_CreateDevice(void)
 }
 /* "SDL Android video driver" */
 VideoBootStrap Android_bootstrap = {
-    ANDROID_VID_DRIVER_NAME, Android_CreateDevice
+    "Android", Android_CreateDevice
 };
 
 int Android_VideoInit(_THIS)

@@ -45,8 +45,6 @@ extern "C" {
 #include "SDL_ngageevents_c.h"
 #include "SDL_ngageframebuffer_c.h"
 
-#define NGAGEVID_DRIVER_NAME "ngage"
-
 /* Initialization/Query functions */
 static int NGAGE_VideoInit(_THIS);
 static int NGAGE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
@@ -140,7 +138,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
 }
 
 VideoBootStrap NGAGE_bootstrap = {
-    NGAGEVID_DRIVER_NAME, NGAGE_CreateDevice
+    "ngage", NGAGE_CreateDevice
 };
 
 int NGAGE_VideoInit(_THIS)
