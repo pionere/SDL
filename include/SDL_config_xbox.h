@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_config_wingdk_h_
-#define SDL_config_wingdk_h_
+#ifndef SDL_config_xbox_h_
+#define SDL_config_xbox_h_
 #define SDL_config_h_
 
 #include "SDL_platform.h"
@@ -233,6 +233,6 @@
 /* #define SDL_FILESYSTEM_WINDOWS 1*/
 #define SDL_FILESYSTEM_XBOX 1
 
-#endif /* SDL_config_wingdk_h_ */
+#endif /* SDL_config_xbox_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
