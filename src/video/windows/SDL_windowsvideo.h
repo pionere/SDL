@@ -27,18 +27,6 @@
 
 #include "../SDL_sysvideo.h"
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1500) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-#include <msctf.h>
-#else
-#include "SDL_msctf.h"
-#endif
-
-#include <imm.h>
-
-#define MAX_CANDLIST   10
-#define MAX_CANDLENGTH 256
-#define MAX_CANDSIZE   (sizeof(WCHAR) * MAX_CANDLIST * MAX_CANDLENGTH)
-
 #include "SDL_windowsclipboard.h"
 #include "SDL_windowsevents.h"
 #include "SDL_windowsopengl.h"
