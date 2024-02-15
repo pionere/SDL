@@ -164,7 +164,7 @@ static SDL_bool PS2AUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 // "PS2 audio driver"
-AudioBootStrap PS2AUDIO_bootstrap = {
+const AudioBootStrap PS2AUDIO_bootstrap = {
     "ps2", PS2AUDIO_Init
 };
 

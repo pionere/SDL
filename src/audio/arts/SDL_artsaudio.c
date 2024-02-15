@@ -334,7 +334,7 @@ static SDL_bool ARTS_Init(SDL_AudioDriverImpl *impl)
 }
 
 /* "Analog RealTime Synthesizer" */
-AudioBootStrap ARTS_bootstrap = {
+const AudioBootStrap ARTS_bootstrap = {
     "arts", ARTS_Init
 };
 

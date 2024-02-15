@@ -592,7 +592,7 @@ static SDL_bool OS2_Init(SDL_AudioDriverImpl * impl)
 }
 
 /* "OS/2 DART" */
-AudioBootStrap OS2AUDIO_bootstrap = {
+const AudioBootStrap OS2AUDIO_bootstrap = {
     "DART", OS2_Init
 };
 

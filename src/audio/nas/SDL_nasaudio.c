@@ -426,7 +426,7 @@ static SDL_bool NAS_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 /* "Network Audio System" */
-AudioBootStrap NAS_bootstrap = {
+const AudioBootStrap NAS_bootstrap = {
     "nas", NAS_Init
 };
 

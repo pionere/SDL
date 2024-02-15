@@ -352,7 +352,7 @@ static SDL_bool SNDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "OpenBSD sndio"*/
-AudioBootStrap SNDIO_bootstrap = {
+const AudioBootStrap SNDIO_bootstrap = {
     "sndio", SNDIO_Init
 };
 

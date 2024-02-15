@@ -425,7 +425,7 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
     return available;
 }
 /* "SDL emscripten audio driver" */
-AudioBootStrap EMSCRIPTENAUDIO_bootstrap = {
+const AudioBootStrap EMSCRIPTENAUDIO_bootstrap = {
     "emscripten", EMSCRIPTENAUDIO_Init
 };
 

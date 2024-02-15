@@ -1380,7 +1380,7 @@ static SDL_bool PIPEWIRE_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE;
 }
 /* "Pipewire" */
-AudioBootStrap PIPEWIRE_bootstrap = { "pipewire", PIPEWIRE_Init };
+const AudioBootStrap PIPEWIRE_bootstrap = { "pipewire", PIPEWIRE_Init };
 
 #endif /* SDL_AUDIO_DRIVER_PIPEWIRE */
 

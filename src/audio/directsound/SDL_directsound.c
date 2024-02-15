@@ -649,7 +649,7 @@ static SDL_bool DSOUND_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "DirectSound" */
-AudioBootStrap DSOUND_bootstrap = {
+const AudioBootStrap DSOUND_bootstrap = {
     "directsound", DSOUND_Init
 };
 

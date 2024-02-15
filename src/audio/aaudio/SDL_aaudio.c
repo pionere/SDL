@@ -425,7 +425,7 @@ failure:
     return SDL_FALSE;
 }
 /* "AAudio audio driver" */
-AudioBootStrap aaudio_bootstrap = {
+const AudioBootStrap aaudio_bootstrap = {
     "AAudio", aaudio_Init
 };
 

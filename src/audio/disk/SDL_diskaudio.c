@@ -180,7 +180,7 @@ static SDL_bool DISKAUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "direct-to-disk audio" */
-AudioBootStrap DISKAUDIO_bootstrap = {
+const AudioBootStrap DISKAUDIO_bootstrap = {
     "disk", DISKAUDIO_Init
 };
 

@@ -475,7 +475,7 @@ static SDL_bool PAUDIO_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 /* "AIX Paudio" */
-AudioBootStrap PAUDIO_bootstrap = {
+const AudioBootStrap PAUDIO_bootstrap = {
     "paud", PAUDIO_Init
 };
 

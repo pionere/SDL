@@ -1377,7 +1377,7 @@ static SDL_bool COREAUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "CoreAudio" */
-AudioBootStrap COREAUDIO_bootstrap = {
+const AudioBootStrap COREAUDIO_bootstrap = {
     "coreaudio", COREAUDIO_Init
 };
 

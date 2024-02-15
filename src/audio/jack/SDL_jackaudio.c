@@ -421,7 +421,7 @@ static SDL_bool JACK_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "JACK Audio Connection Kit" */
-AudioBootStrap JACK_bootstrap = {
+const AudioBootStrap JACK_bootstrap = {
     "jack", JACK_Init
 };
 

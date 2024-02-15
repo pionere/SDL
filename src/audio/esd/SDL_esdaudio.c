@@ -312,7 +312,7 @@ static SDL_bool ESD_Init(SDL_AudioDriverImpl * impl)
 }
 
 /* "Enlightened Sound Daemon" */
-AudioBootStrap ESD_bootstrap = {
+const AudioBootStrap ESD_bootstrap = {
     "esd", ESD_Init
 };
 

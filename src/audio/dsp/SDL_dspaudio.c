@@ -309,7 +309,7 @@ static SDL_bool DSP_Init(SDL_AudioDriverImpl *impl)
 }
 
 /* "OSS /dev/dsp standard audio" */
-AudioBootStrap DSP_bootstrap = {
+const AudioBootStrap DSP_bootstrap = {
     "dsp", DSP_Init
 };
 

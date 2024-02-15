@@ -400,7 +400,7 @@ static SDL_bool SUNAUDIO_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "UNIX /dev/audio interface"*/
-AudioBootStrap SUNAUDIO_bootstrap = {
+const AudioBootStrap SUNAUDIO_bootstrap = {
     "audio", SUNAUDIO_Init
 };
 

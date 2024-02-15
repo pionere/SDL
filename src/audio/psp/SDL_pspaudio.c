@@ -187,7 +187,7 @@ static SDL_bool PSPAUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "PSP audio driver" */
-AudioBootStrap PSPAUDIO_bootstrap = {
+const AudioBootStrap PSPAUDIO_bootstrap = {
     "psp", PSPAUDIO_Init
 };
 

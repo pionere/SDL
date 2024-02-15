@@ -225,12 +225,8 @@ static SDL_bool HAIKUAUDIO_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 
-extern "C"
-{
-    extern AudioBootStrap HAIKUAUDIO_bootstrap;
-}
 /* "Haiku BSoundPlayer" */
-AudioBootStrap HAIKUAUDIO_bootstrap = {
+const AudioBootStrap HAIKUAUDIO_bootstrap = {
     "haiku", HAIKUAUDIO_Init
 };
 

@@ -139,7 +139,7 @@ static SDL_bool ANDROIDAUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 /* "SDL Android audio driver" */
-AudioBootStrap ANDROIDAUDIO_bootstrap = {
+const AudioBootStrap ANDROIDAUDIO_bootstrap = {
     "android", ANDROIDAUDIO_Init
 };
 

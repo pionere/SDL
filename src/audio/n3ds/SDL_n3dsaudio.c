@@ -270,7 +270,7 @@ static SDL_bool N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE; /* this audio target is available. */
 }
 // "SDL N3DS audio driver"
-AudioBootStrap N3DSAUDIO_bootstrap = {
+const AudioBootStrap N3DSAUDIO_bootstrap = {
     "n3ds", N3DSAUDIO_Init
 };
 

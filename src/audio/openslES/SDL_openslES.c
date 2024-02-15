@@ -743,7 +743,7 @@ static SDL_bool openslES_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE;
 }
 /* "opensl ES audio driver" */
-AudioBootStrap openslES_bootstrap = {
+const AudioBootStrap openslES_bootstrap = {
     "openslES", openslES_Init
 };
 

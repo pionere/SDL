@@ -609,7 +609,7 @@ static SDL_bool QSA_Init(SDL_AudioDriverImpl * impl)
     return SDL_TRUE;   /* this audio target is available. */
 }
 /* "QNX QSA Audio" */
-AudioBootStrap QSAAUDIO_bootstrap = {
+const AudioBootStrap QSAAUDIO_bootstrap = {
     "qsa", QSA_Init
 };
 
