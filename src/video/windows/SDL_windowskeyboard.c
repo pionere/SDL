@@ -22,6 +22,11 @@
 
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 
+// disable IME if locale is disabled (not necessary, but reasonable)
+#if !defined(SDL_DISABLE_WINDOWS_IME) && defined(SDL_LOCALE_DISABLED)
+#define SDL_DISABLE_WINDOWS_IME 1
+#endif
+
 #include "SDL_windowsvideo.h"
 #include "SDL_hints.h"
 
