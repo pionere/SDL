@@ -137,6 +137,7 @@ SDL_bool Wayland_Vulkan_CreateSurface(_THIS,
                                       VkInstance instance,
                                       VkSurfaceKHR *surface)
 {
+    Wayland_VideoData *videodata = &waylandVideoData;
     SDL_WindowData *windowData = (SDL_WindowData *)window->driverdata;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
         (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;
@@ -161,7 +162,7 @@ SDL_bool Wayland_Vulkan_CreateSurface(_THIS,
     createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = NULL;
     createInfo.flags = 0;
-    createInfo.display = windowData->waylandData->display;
+    createInfo.display = videodata->display;
     createInfo.surface = windowData->surface;
     result = vkCreateWaylandSurfaceKHR(instance, &createInfo,
                                        NULL, surface);

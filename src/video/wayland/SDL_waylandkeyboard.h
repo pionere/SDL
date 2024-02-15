@@ -31,8 +31,8 @@ typedef struct SDL_WaylandTextInput
     SDL_bool is_enabled;
 } SDL_WaylandTextInput;
 
-extern int Wayland_InitKeyboard(_THIS);
-extern void Wayland_QuitKeyboard(_THIS);
+extern int Wayland_InitKeyboard();
+extern void Wayland_QuitKeyboard();
 extern void Wayland_StartTextInput(_THIS);
 extern void Wayland_StopTextInput(_THIS);
 extern void Wayland_SetTextInputRect(_THIS, const SDL_Rect *rect);

@@ -250,15 +250,16 @@ static SDL_bool keyboard_repeat_key_is_set(SDL_WaylandKeyboardRepeat *repeat_inf
 
 void Wayland_SendWakeupEvent(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *d = _this->driverdata;
+    Wayland_VideoData *d = &waylandVideoData;
 
     /* TODO: Maybe use a pipe to avoid the compositor roundtrip? */
     wl_display_sync(d->display);
     WAYLAND_wl_display_flush(d->display);
 }
 
-static int dispatch_queued_events(SDL_VideoData *viddata)
+static int dispatch_queued_events()
 {
+    Wayland_VideoData *viddata = &waylandVideoData;
     int ret;
 
     /*
@@ -277,7 +278,7 @@ static int dispatch_queued_events(SDL_VideoData *viddata)
 
 int Wayland_WaitEventTimeout(_THIS, int timeout)
 {
-    SDL_VideoData *d = _this->driverdata;
+    Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
     SDL_bool key_repeat_active = SDL_FALSE;
 
@@ -314,7 +315,7 @@ int Wayland_WaitEventTimeout(_THIS, int timeout)
         if (err > 0) {
             /* There are new events available to read */
             WAYLAND_wl_display_read_events(d->display);
-            return dispatch_queued_events(d);
+            return dispatch_queued_events();
         } else if (err == 0) {
             /* No events available within the timeout */
             WAYLAND_wl_display_cancel_read(d->display);
@@ -342,13 +343,13 @@ int Wayland_WaitEventTimeout(_THIS, int timeout)
         }
     } else {
         /* We already had pending events */
-        return dispatch_queued_events(d);
+        return dispatch_queued_events();
     }
 }
 
 void Wayland_PumpEvents(_THIS)
 {
-    SDL_VideoData *d = _this->driverdata;
+    Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
     int err;
 
@@ -562,7 +563,7 @@ static void pointer_handle_button_common(struct SDL_WaylandInput *input, uint32_
     uint32_t sdl_button;
 
     if (window) {
-        SDL_VideoData *viddata = window->waylandData;
+        Wayland_VideoData *viddata = &waylandVideoData;
         switch (button) {
         case BTN_LEFT:
             sdl_button = SDL_BUTTON_LEFT;
@@ -974,6 +975,7 @@ static void Wayland_keymap_iter(struct xkb_keymap *keymap, xkb_keycode_t key, vo
 static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
                                    uint32_t format, int fd, uint32_t size)
 {
+    Wayland_VideoData *driver_data = &waylandVideoData;
     struct SDL_WaylandInput *input = data;
     char *map_str;
     const char *locale;
@@ -1001,7 +1003,7 @@ static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
         WAYLAND_xkb_keymap_unref(input->xkb.keymap);
         input->xkb.keymap = NULL;
     }
-    input->xkb.keymap = WAYLAND_xkb_keymap_new_from_string(input->display->xkb_context,
+    input->xkb.keymap = WAYLAND_xkb_keymap_new_from_string(driver_data->xkb_context,
                                                            map_str,
                                                            XKB_KEYMAP_FORMAT_TEXT_V1,
                                                            0);
@@ -1079,7 +1081,7 @@ static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
         WAYLAND_xkb_compose_table_unref(input->xkb.compose_table);
         input->xkb.compose_table = NULL;
     }
-    input->xkb.compose_table = WAYLAND_xkb_compose_table_new_from_locale(input->display->xkb_context,
+    input->xkb.compose_table = WAYLAND_xkb_compose_table_new_from_locale(driver_data->xkb_context,
                                                                          locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
     if (input->xkb.compose_table) {
         /* Set up XKB compose state */
@@ -1388,19 +1390,20 @@ static const struct wl_keyboard_listener keyboard_listener = {
 static void seat_handle_capabilities(void *data, struct wl_seat *seat,
                                      enum wl_seat_capability caps)
 {
+    Wayland_VideoData *driver_data = &waylandVideoData;
     struct SDL_WaylandInput *input = data;
 
     if ((caps & WL_SEAT_CAPABILITY_POINTER) && !input->pointer) {
         input->pointer = wl_seat_get_pointer(seat);
         SDL_memset(&input->pointer_curr_axis_info, 0, sizeof(input->pointer_curr_axis_info));
-        input->display->pointer = input->pointer;
+        driver_data->pointer = input->pointer;
         wl_pointer_set_user_data(input->pointer, input);
         wl_pointer_add_listener(input->pointer, &pointer_listener,
                                 input);
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && input->pointer) {
         wl_pointer_destroy(input->pointer);
         input->pointer = NULL;
-        input->display->pointer = NULL;
+        driver_data->pointer = NULL;
     }
 
     if ((caps & WL_SEAT_CAPABILITY_TOUCH) && !input->touch) {
@@ -1491,16 +1494,11 @@ static const struct zwp_primary_selection_source_v1_listener primary_selection_s
     primary_selection_source_cancelled,
 };
 
-SDL_WaylandDataSource *Wayland_data_source_create(_THIS)
+SDL_WaylandDataSource *Wayland_data_source_create()
 {
     SDL_WaylandDataSource *data_source = NULL;
-    SDL_VideoData *driver_data = NULL;
+    Wayland_VideoData *driver_data = &waylandVideoData;
     struct wl_data_source *id = NULL;
-
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        driver_data = _this->driverdata;
 
         if (driver_data->data_device_manager) {
             id = wl_data_device_manager_create_data_source(
@@ -1522,20 +1520,14 @@ SDL_WaylandDataSource *Wayland_data_source_create(_THIS)
                                             data_source);
             }
         }
-    }
     return data_source;
 }
 
-SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create(_THIS)
+SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create()
 {
     SDL_WaylandPrimarySelectionSource *primary_selection_source = NULL;
-    SDL_VideoData *driver_data = NULL;
+    Wayland_VideoData *driver_data = &waylandVideoData;
     struct zwp_primary_selection_source_v1 *id = NULL;
-
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        driver_data = _this->driverdata;
 
         if (driver_data->primary_selection_device_manager) {
             id = zwp_primary_selection_device_manager_v1_create_source(
@@ -1556,7 +1548,6 @@ SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create(_THIS
                                                              primary_selection_source);
             }
         }
-    }
     return primary_selection_source;
 }
 
@@ -2028,8 +2019,9 @@ static const struct zwp_text_input_v3_listener text_input_listener = {
     text_input_done
 };
 
-static void Wayland_create_data_device(SDL_VideoData *d)
+static void Wayland_create_data_device()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
 
     if (!d->input->seat) {
@@ -2044,7 +2036,6 @@ static void Wayland_create_data_device(SDL_VideoData *d)
 
     data_device->data_device = wl_data_device_manager_get_data_device(
         d->data_device_manager, d->input->seat);
-    data_device->video_data = d;
 
     if (!data_device->data_device) {
         SDL_free(data_device);
@@ -2056,8 +2047,9 @@ static void Wayland_create_data_device(SDL_VideoData *d)
     }
 }
 
-static void Wayland_create_primary_selection_device(SDL_VideoData *d)
+static void Wayland_create_primary_selection_device()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
 
     if (!d->input->seat) {
@@ -2072,7 +2064,6 @@ static void Wayland_create_primary_selection_device(SDL_VideoData *d)
 
     primary_selection_device->primary_selection_device = zwp_primary_selection_device_manager_v1_get_device(
         d->primary_selection_device_manager, d->input->seat);
-    primary_selection_device->video_data = d;
 
     if (!primary_selection_device->primary_selection_device) {
         SDL_free(primary_selection_device);
@@ -2085,8 +2076,9 @@ static void Wayland_create_primary_selection_device(SDL_VideoData *d)
     }
 }
 
-static void Wayland_create_text_input(SDL_VideoData *d)
+static void Wayland_create_text_input()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandTextInput *text_input = NULL;
 
     if (!d->input->seat) {
@@ -2112,30 +2104,33 @@ static void Wayland_create_text_input(SDL_VideoData *d)
     }
 }
 
-void Wayland_add_data_device_manager(SDL_VideoData *d, uint32_t id, uint32_t version)
+void Wayland_add_data_device_manager(uint32_t id, uint32_t version)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     d->data_device_manager = wl_registry_bind(d->registry, id, &wl_data_device_manager_interface, SDL_min(3, version));
 
     if (d->input) {
-        Wayland_create_data_device(d);
+        Wayland_create_data_device();
     }
 }
 
-void Wayland_add_primary_selection_device_manager(SDL_VideoData *d, uint32_t id, uint32_t version)
+void Wayland_add_primary_selection_device_manager(uint32_t id, uint32_t version)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     d->primary_selection_device_manager = wl_registry_bind(d->registry, id, &zwp_primary_selection_device_manager_v1_interface, 1);
 
     if (d->input) {
-        Wayland_create_primary_selection_device(d);
+        Wayland_create_primary_selection_device();
     }
 }
 
-void Wayland_add_text_input_manager(SDL_VideoData *d, uint32_t id, uint32_t version)
+void Wayland_add_text_input_manager(uint32_t id, uint32_t version)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     d->text_input_manager = wl_registry_bind(d->registry, id, &zwp_text_input_manager_v3_interface, 1);
 
     if (d->input) {
-        Wayland_create_text_input(d);
+        Wayland_create_text_input();
     }
 }
 
@@ -2431,8 +2426,11 @@ static const struct zwp_tablet_seat_v2_listener tablet_seat_listener = {
     tablet_seat_handle_pad_added
 };
 
-void Wayland_input_add_tablet(struct SDL_WaylandInput *input, struct SDL_WaylandTabletManager *tablet_manager)
+void Wayland_input_add_tablet()
 {
+    Wayland_VideoData *d = &waylandVideoData;
+    struct SDL_WaylandInput *input = d->input;
+    struct SDL_WaylandTabletManager *tablet_manager = d->tablet_manager;
     struct SDL_WaylandTabletInput *tablet_input;
 
     if (!tablet_manager || !input->seat) {
@@ -2456,46 +2454,48 @@ void Wayland_input_add_tablet(struct SDL_WaylandInput *input, struct SDL_Wayland
 }
 
 #define TABLET_OBJECT_LIST_DELETER(fun) (void (*)(void *)) fun
-void Wayland_input_destroy_tablet(struct SDL_WaylandInput *input)
+static void Wayland_input_destroy_tablet(struct SDL_WaylandInput *input)
 {
-    tablet_object_list_destroy(input->tablet->pads, TABLET_OBJECT_LIST_DELETER(zwp_tablet_pad_v2_destroy));
-    tablet_object_list_destroy(input->tablet->tools, TABLET_OBJECT_LIST_DELETER(zwp_tablet_tool_v2_destroy));
-    tablet_object_list_destroy(input->tablet->tablets, TABLET_OBJECT_LIST_DELETER(zwp_tablet_v2_destroy));
+    struct SDL_WaylandTabletInput *tablet = input->tablet;
+    if (tablet) {
+        tablet_object_list_destroy(tablet->pads, TABLET_OBJECT_LIST_DELETER(zwp_tablet_pad_v2_destroy));
+        tablet_object_list_destroy(tablet->tools, TABLET_OBJECT_LIST_DELETER(zwp_tablet_tool_v2_destroy));
+        tablet_object_list_destroy(tablet->tablets, TABLET_OBJECT_LIST_DELETER(zwp_tablet_v2_destroy));
 
-    zwp_tablet_seat_v2_destroy((struct zwp_tablet_seat_v2 *)input->tablet->seat);
+        zwp_tablet_seat_v2_destroy((struct zwp_tablet_seat_v2 *)tablet->seat);
 
-    SDL_free(input->tablet);
-    input->tablet = NULL;
+        SDL_free(tablet);
+    }
 }
 
-void Wayland_display_add_input(SDL_VideoData *d, uint32_t id, uint32_t version)
+void Wayland_display_add_input(uint32_t id, uint32_t version)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
 
     input->seat = wl_registry_bind(d->registry, id, &wl_seat_interface, SDL_min(SDL_WL_SEAT_VERSION, version));
 
     if (d->data_device_manager) {
-        Wayland_create_data_device(d);
+        Wayland_create_data_device();
     }
     if (d->primary_selection_device_manager) {
-        Wayland_create_primary_selection_device(d);
+        Wayland_create_primary_selection_device();
     }
     if (d->text_input_manager) {
-        Wayland_create_text_input(d);
+        Wayland_create_text_input();
     }
 
     wl_seat_add_listener(input->seat, &seat_listener, input);
     wl_seat_set_user_data(input->seat, input);
 
-    if (d->tablet_manager) {
-        Wayland_input_add_tablet(input, d->tablet_manager);
-    }
+    Wayland_input_add_tablet();
 
     WAYLAND_wl_display_flush(d->display);
 }
 
-void Wayland_display_destroy_input(SDL_VideoData *d)
+void Wayland_display_destroy_input()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
 
     if (!input) {
@@ -2541,9 +2541,7 @@ void Wayland_display_destroy_input(SDL_VideoData *d)
         wl_touch_destroy(input->touch);
     }
 
-    if (input->tablet) {
-        Wayland_input_destroy_tablet(input);
-    }
+    Wayland_input_destroy_tablet(input);
 
     if (input->seat) {
         wl_seat_destroy(input->seat);
@@ -2570,29 +2568,33 @@ void Wayland_display_destroy_input(SDL_VideoData *d)
 }
 
 /* !!! FIXME: just merge these into display_handle_global(). */
-void Wayland_display_add_relative_pointer_manager(SDL_VideoData *d, uint32_t id)
+void Wayland_display_add_relative_pointer_manager(uint32_t id)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     d->relative_pointer_manager =
         wl_registry_bind(d->registry, id,
                          &zwp_relative_pointer_manager_v1_interface, 1);
 }
 
-void Wayland_display_destroy_relative_pointer_manager(SDL_VideoData *d)
+void Wayland_display_destroy_relative_pointer_manager()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     if (d->relative_pointer_manager) {
         zwp_relative_pointer_manager_v1_destroy(d->relative_pointer_manager);
     }
 }
 
-void Wayland_display_add_pointer_constraints(SDL_VideoData *d, uint32_t id)
+void Wayland_display_add_pointer_constraints(uint32_t id)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     d->pointer_constraints =
         wl_registry_bind(d->registry, id,
                          &zwp_pointer_constraints_v1_interface, 1);
 }
 
-void Wayland_display_destroy_pointer_constraints(SDL_VideoData *d)
+void Wayland_display_destroy_pointer_constraints()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     if (d->pointer_constraints) {
         zwp_pointer_constraints_v1_destroy(d->pointer_constraints);
     }
@@ -2608,7 +2610,7 @@ static void relative_pointer_handle_relative_motion(void *data,
                                                     wl_fixed_t dy_unaccel_w)
 {
     struct SDL_WaylandInput *input = data;
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WindowData *window = input->pointer_focus;
     double dx_unaccel;
     double dy_unaccel;
@@ -2653,7 +2655,7 @@ static void lock_pointer_to_window(SDL_Window *window,
                                    struct SDL_WaylandInput *input)
 {
     SDL_WindowData *w = window->driverdata;
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
     struct zwp_locked_pointer_v1 *locked_pointer;
 
     if (!d->pointer_constraints || !input->pointer) {
@@ -2689,7 +2691,7 @@ static void pointer_confine_destroy(SDL_Window *window)
 int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
 {
     SDL_VideoDevice *vd = SDL_GetVideoDevice();
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_Window *window;
     struct zwp_relative_pointer_v1 *relative_pointer;
 
@@ -2735,7 +2737,7 @@ int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
 int Wayland_input_unlock_pointer(struct SDL_WaylandInput *input)
 {
     SDL_VideoDevice *vd = SDL_GetVideoDevice();
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_Window *window;
     SDL_WindowData *w;
 
@@ -2779,7 +2781,7 @@ static const struct zwp_confined_pointer_v1_listener confined_pointer_listener =
 int Wayland_input_confine_pointer(struct SDL_WaylandInput *input, SDL_Window *window)
 {
     SDL_WindowData *w = window->driverdata;
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
     struct zwp_confined_pointer_v1 *confined_pointer;
     struct wl_region *confine_rect;
 
@@ -2853,7 +2855,7 @@ int Wayland_input_unconfine_pointer(struct SDL_WaylandInput *input, SDL_Window *
 int Wayland_input_grab_keyboard(SDL_Window *window, struct SDL_WaylandInput *input)
 {
     SDL_WindowData *w = window->driverdata;
-    SDL_VideoData *d = input->display;
+    Wayland_VideoData *d = &waylandVideoData;
 
     if (!d->key_inhibitor_manager) {
         return -1;

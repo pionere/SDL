@@ -250,12 +250,13 @@ const struct wl_interface qt_extended_surface_interface = {
 
 /* wayland-qt-surface-extension.c ENDS */
 
-void Wayland_touch_create(SDL_VideoData *data, uint32_t id)
+void Wayland_touch_create(uint32_t id)
 {
+    Wayland_VideoData *data = &waylandVideoData;
     struct SDL_WaylandTouch *touch;
 
     if (data->touch) {
-        Wayland_touch_destroy(data);
+        Wayland_touch_destroy();
     }
 
     /* !!! FIXME: check for failure, call SDL_OutOfMemory() */
@@ -266,10 +267,11 @@ void Wayland_touch_create(SDL_VideoData *data, uint32_t id)
     qt_touch_extension_add_listener(touch->touch_extension, &touch_listener, data);
 }
 
-void Wayland_touch_destroy(SDL_VideoData *data)
+void Wayland_touch_destroy()
 {
-    if (data->touch) {
-        struct SDL_WaylandTouch *touch = data->touch;
+    Wayland_VideoData *data = &waylandVideoData;
+    struct SDL_WaylandTouch *touch = data->touch;
+    if (touch) {
         if (touch->touch_extension) {
             qt_touch_extension_destroy(touch->touch_extension);
         }

@@ -62,6 +62,9 @@
 #include <libdecor.h>
 #endif
 
+/* Instance */
+Wayland_VideoData waylandVideoData;
+
 static void display_handle_done(void *data, struct wl_output *output);
 
 /* Initialization/Query functions */
@@ -152,15 +155,14 @@ SDL_bool SDL_WAYLAND_own_output(struct wl_output *output)
 
 static void Wayland_DeleteDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoData *data = (SDL_VideoData *)device->driverdata;
-    if (data->display) {
-        WAYLAND_wl_display_flush(data->display);
-        WAYLAND_wl_display_disconnect(data->display);
+    if (waylandVideoData.display) {
+        WAYLAND_wl_display_flush(waylandVideoData.display);
+        WAYLAND_wl_display_disconnect(waylandVideoData.display);
     }
     if (device->wakeup_lock) {
         SDL_DestroyMutex(device->wakeup_lock);
     }
-    SDL_free(data);
+    SDL_zero(waylandVideoData);
     SDL_free(device);
     SDL_WAYLAND_UnloadSymbols();
 }
@@ -168,7 +170,7 @@ static void Wayland_DeleteDevice(SDL_VideoDevice *device)
 static SDL_VideoDevice *Wayland_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    Wayland_VideoData *data = &waylandVideoData;
     struct SDL_WaylandInput *input;
     struct wl_display *display;
 
@@ -190,24 +192,14 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
         return NULL;
     }
 
-    data = SDL_calloc(1, sizeof(*data));
-    if (!data) {
-        WAYLAND_wl_display_disconnect(display);
-        SDL_WAYLAND_UnloadSymbols();
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     input = SDL_calloc(1, sizeof(*input));
     if (!input) {
-        SDL_free(data);
         WAYLAND_wl_display_disconnect(display);
         SDL_WAYLAND_UnloadSymbols();
         SDL_OutOfMemory();
         return NULL;
     }
 
-    input->display = data;
     input->sx_w = wl_fixed_from_int(0);
     input->sy_w = wl_fixed_from_int(0);
     input->xkb.current_group = XKB_GROUP_INVALID;
@@ -219,7 +211,6 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     /* Initialize all variables that we clean on shutdown */
     device = SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
-        SDL_free(data);
         SDL_free(input);
         WAYLAND_wl_display_disconnect(display);
         SDL_WAYLAND_UnloadSymbols();
@@ -564,7 +555,7 @@ static void display_handle_done(void *data,
                                 struct wl_output *output)
 {
     SDL_WaylandOutputData *driverdata = data;
-    SDL_VideoData *video = driverdata->videodata;
+    Wayland_VideoData *video = &waylandVideoData;
     SDL_DisplayMode native_mode, desktop_mode;
     SDL_VideoDisplay *dpy;
     const SDL_bool mode_emulation_enabled = SDL_GetHintBoolean(SDL_HINT_VIDEO_WAYLAND_MODE_EMULATION, SDL_TRUE);
@@ -667,7 +658,7 @@ static void display_handle_done(void *data,
 
     if (driverdata->index == -1) {
         /* First time getting display info, create the VideoDisplay */
-        SDL_bool send_event = driverdata->videodata->initializing ? SDL_FALSE : SDL_TRUE;
+        SDL_bool send_event = video->initializing ? SDL_FALSE : SDL_TRUE;
         driverdata->placeholder.orientation = driverdata->orientation;
         driverdata->placeholder.driverdata = driverdata;
         driverdata->index = SDL_AddVideoDisplay(&driverdata->placeholder, send_event);
@@ -693,9 +684,10 @@ static const struct wl_output_listener output_listener = {
     display_handle_scale
 };
 
-static void Wayland_add_display(SDL_VideoData *d, uint32_t id)
+static void Wayland_add_display(uint32_t id)
 {
     struct wl_output *output;
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandOutputData *data;
 
     output = wl_registry_bind(d->registry, id, &wl_output_interface, 2);
@@ -704,7 +696,6 @@ static void Wayland_add_display(SDL_VideoData *d, uint32_t id)
         return;
     }
     data = (SDL_WaylandOutputData *)SDL_calloc(1, sizeof(*data));
-    data->videodata = d;
     data->output = output;
     data->registry_id = id;
     data->scale_factor = 1.0f;
@@ -726,14 +717,15 @@ static void Wayland_add_display(SDL_VideoData *d, uint32_t id)
         d->output_list = (struct SDL_WaylandOutputData *)data;
     }
 
-    if (data->videodata->xdg_output_manager) {
-        data->xdg_output = zxdg_output_manager_v1_get_xdg_output(data->videodata->xdg_output_manager, output);
+    if (d->xdg_output_manager) {
+        data->xdg_output = zxdg_output_manager_v1_get_xdg_output(d->xdg_output_manager, output);
         zxdg_output_v1_add_listener(data->xdg_output, &xdg_output_listener, data);
     }
 }
 
-static void Wayland_free_display(SDL_VideoData *d, uint32_t id)
+static void Wayland_free_display(uint32_t id)
 {
+    Wayland_VideoData *d = &waylandVideoData;
     int num_displays = SDL_GetNumVideoDisplays();
     SDL_VideoDisplay *display;
     SDL_WaylandOutputData *data;
@@ -776,11 +768,12 @@ static void Wayland_free_display(SDL_VideoData *d, uint32_t id)
     }
 }
 
-static void Wayland_init_xdg_output(SDL_VideoData *d)
+static void Wayland_init_xdg_output()
 {
+    Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandOutputData *node;
     for (node = d->output_list; node; node = node->next) {
-        node->xdg_output = zxdg_output_manager_v1_get_xdg_output(node->videodata->xdg_output_manager, node->output);
+        node->xdg_output = zxdg_output_manager_v1_get_xdg_output(d->xdg_output_manager, node->output);
         zxdg_output_v1_add_listener(node->xdg_output, &xdg_output_listener, node);
     }
 }
@@ -827,25 +820,26 @@ static struct libdecor_interface libdecor_interface = {
 static void display_handle_global(void *data, struct wl_registry *registry, uint32_t id,
                                   const char *interface, uint32_t version)
 {
-    SDL_VideoData *d = data;
+    Wayland_VideoData *d = &waylandVideoData;
+    SDL_assert(data == d);
 
     /*printf("WAYLAND INTERFACE: %s\n", interface);*/
 
     if (SDL_strcmp(interface, "wl_compositor") == 0) {
         d->compositor = wl_registry_bind(d->registry, id, &wl_compositor_interface, SDL_min(4, version));
     } else if (SDL_strcmp(interface, "wl_output") == 0) {
-        Wayland_add_display(d, id);
+        Wayland_add_display(id);
     } else if (SDL_strcmp(interface, "wl_seat") == 0) {
-        Wayland_display_add_input(d, id, version);
+        Wayland_display_add_input(id, version);
     } else if (SDL_strcmp(interface, "xdg_wm_base") == 0) {
         d->shell.xdg = wl_registry_bind(d->registry, id, &xdg_wm_base_interface, SDL_min(version, 3));
         xdg_wm_base_add_listener(d->shell.xdg, &shell_listener_xdg, NULL);
     } else if (SDL_strcmp(interface, "wl_shm") == 0) {
         d->shm = wl_registry_bind(registry, id, &wl_shm_interface, 1);
     } else if (SDL_strcmp(interface, "zwp_relative_pointer_manager_v1") == 0) {
-        Wayland_display_add_relative_pointer_manager(d, id);
+        Wayland_display_add_relative_pointer_manager(id);
     } else if (SDL_strcmp(interface, "zwp_pointer_constraints_v1") == 0) {
-        Wayland_display_add_pointer_constraints(d, id);
+        Wayland_display_add_pointer_constraints(id);
     } else if (SDL_strcmp(interface, "zwp_keyboard_shortcuts_inhibit_manager_v1") == 0) {
         d->key_inhibitor_manager = wl_registry_bind(d->registry, id, &zwp_keyboard_shortcuts_inhibit_manager_v1_interface, 1);
     } else if (SDL_strcmp(interface, "zwp_idle_inhibit_manager_v1") == 0) {
@@ -853,27 +847,27 @@ static void display_handle_global(void *data, struct wl_registry *registry, uint
     } else if (SDL_strcmp(interface, "xdg_activation_v1") == 0) {
         d->activation_manager = wl_registry_bind(d->registry, id, &xdg_activation_v1_interface, 1);
     } else if (SDL_strcmp(interface, "zwp_text_input_manager_v3") == 0) {
-        Wayland_add_text_input_manager(d, id, version);
+        Wayland_add_text_input_manager(id, version);
     } else if (SDL_strcmp(interface, "wl_data_device_manager") == 0) {
-        Wayland_add_data_device_manager(d, id, version);
+        Wayland_add_data_device_manager(id, version);
     } else if (SDL_strcmp(interface, "zwp_primary_selection_device_manager_v1") == 0) {
-        Wayland_add_primary_selection_device_manager(d, id, version);
+        Wayland_add_primary_selection_device_manager(id, version);
     } else if (SDL_strcmp(interface, "zxdg_decoration_manager_v1") == 0) {
         d->decoration_manager = wl_registry_bind(d->registry, id, &zxdg_decoration_manager_v1_interface, 1);
     } else if (SDL_strcmp(interface, "zwp_tablet_manager_v2") == 0) {
         d->tablet_manager = wl_registry_bind(d->registry, id, &zwp_tablet_manager_v2_interface, 1);
-        Wayland_input_add_tablet(d->input, d->tablet_manager);
+        Wayland_input_add_tablet();
     } else if (SDL_strcmp(interface, "zxdg_output_manager_v1") == 0) {
         version = SDL_min(version, 3); /* Versions 1 through 3 are supported. */
         d->xdg_output_manager = wl_registry_bind(d->registry, id, &zxdg_output_manager_v1_interface, version);
-        Wayland_init_xdg_output(d);
+        Wayland_init_xdg_output();
     } else if (SDL_strcmp(interface, "wp_viewporter") == 0) {
         d->viewporter = wl_registry_bind(d->registry, id, &wp_viewporter_interface, 1);
     } else if (SDL_strcmp(interface, "wp_fractional_scale_manager_v1") == 0) {
         d->fractional_scale_manager = wl_registry_bind(d->registry, id, &wp_fractional_scale_manager_v1_interface, 1);
 #ifdef SDL_VIDEO_DRIVER_WAYLAND_QT_TOUCH
     } else if (SDL_strcmp(interface, "qt_touch_extension") == 0) {
-        Wayland_touch_create(d, id);
+        Wayland_touch_create(id);
     } else if (SDL_strcmp(interface, "qt_surface_extension") == 0) {
         d->surface_extension = wl_registry_bind(registry, id,
                                                 &qt_surface_extension_interface, 1);
@@ -887,9 +881,8 @@ static void display_handle_global(void *data, struct wl_registry *registry, uint
 
 static void display_remove_global(void *data, struct wl_registry *registry, uint32_t id)
 {
-    SDL_VideoData *d = data;
     /* We don't get an interface, just an ID, so assume it's a wl_output :shrug: */
-    Wayland_free_display(d, id);
+    Wayland_free_display(id);
 }
 
 static const struct wl_registry_listener registry_listener = {
@@ -898,8 +891,9 @@ static const struct wl_registry_listener registry_listener = {
 };
 
 #ifdef HAVE_LIBDECOR_H
-static SDL_bool should_use_libdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
+static SDL_bool should_use_libdecor(SDL_bool ignore_xdg)
 {
+    Wayland_VideoData *data = &waylandVideoData;
     if (!SDL_WAYLAND_HAVE_WAYLAND_LIBDECOR) {
         return SDL_FALSE;
     }
@@ -924,13 +918,14 @@ static SDL_bool should_use_libdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
 }
 #endif
 
-SDL_bool Wayland_LoadLibdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
+SDL_bool Wayland_LoadLibdecor(SDL_bool ignore_xdg)
 {
 #ifdef HAVE_LIBDECOR_H
+    Wayland_VideoData *data = &waylandVideoData;
     if (data->shell.libdecor != NULL) {
         return SDL_TRUE; /* Already loaded! */
     }
-    if (should_use_libdecor(data, ignore_xdg)) {
+    if (should_use_libdecor(ignore_xdg)) {
         data->shell.libdecor = libdecor_new(data->display, &libdecor_interface);
         return data->shell.libdecor != NULL;
     }
@@ -940,7 +935,7 @@ SDL_bool Wayland_LoadLibdecor(SDL_VideoData *data, SDL_bool ignore_xdg)
 
 int Wayland_VideoInit(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
 
     data->xkb_context = WAYLAND_xkb_context_new(0);
     if (!data->xkb_context) {
@@ -952,13 +947,13 @@ int Wayland_VideoInit(_THIS)
         return SDL_SetError("Failed to get the Wayland registry");
     }
 
-    wl_registry_add_listener(data->registry, &registry_listener, data);
+    wl_registry_add_listener(data->registry, &registry_listener, &waylandVideoData);
 
     // First roundtrip to receive all registry objects.
     WAYLAND_wl_display_roundtrip(data->display);
 
     /* Now that we have all the protocols, load libdecor if applicable */
-    Wayland_LoadLibdecor(data, SDL_FALSE);
+    Wayland_LoadLibdecor(SDL_FALSE);
 
     // Second roundtrip to receive all output events.
     WAYLAND_wl_display_roundtrip(data->display);
@@ -970,8 +965,8 @@ int Wayland_VideoInit(_THIS)
 
     WAYLAND_wl_display_flush(data->display);
 
-    Wayland_InitKeyboard(_this);
-    Wayland_InitWin(data);
+    Wayland_InitKeyboard();
+    Wayland_InitWin();
 
     data->initializing = SDL_FALSE;
 
@@ -1007,11 +1002,11 @@ static int Wayland_GetDisplayDPI(_THIS, SDL_VideoDisplay *sdl_display, float *dd
 
 static void Wayland_VideoCleanup(_THIS)
 {
-    SDL_VideoData *data = _this->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
     int i, j;
 
-    Wayland_QuitWin(data);
-    Wayland_FiniMouse(data);
+    Wayland_QuitWin();
+    Wayland_FiniMouse();
 
     for (i = _this->num_displays - 1; i >= 0; --i) {
         SDL_VideoDisplay *display = &_this->displays[i];
@@ -1032,9 +1027,9 @@ static void Wayland_VideoCleanup(_THIS)
     }
     data->output_list = NULL;
 
-    Wayland_display_destroy_input(data);
-    Wayland_display_destroy_pointer_constraints(data);
-    Wayland_display_destroy_relative_pointer_manager(data);
+    Wayland_display_destroy_input();
+    Wayland_display_destroy_pointer_constraints();
+    Wayland_display_destroy_relative_pointer_manager();
 
     if (data->activation_manager) {
         xdg_activation_v1_destroy(data->activation_manager);
@@ -1051,7 +1046,7 @@ static void Wayland_VideoCleanup(_THIS)
         data->key_inhibitor_manager = NULL;
     }
 
-    Wayland_QuitKeyboard(_this);
+    Wayland_QuitKeyboard();
 
     if (data->text_input_manager) {
         zwp_text_input_manager_v3_destroy(data->text_input_manager);
@@ -1073,7 +1068,7 @@ static void Wayland_VideoCleanup(_THIS)
         data->surface_extension = NULL;
     }
 
-    Wayland_touch_destroy(data);
+    Wayland_touch_destroy();
 #endif /* SDL_VIDEO_DRIVER_WAYLAND_QT_TOUCH */
 
     if (data->tablet_manager) {
@@ -1135,7 +1130,7 @@ static void Wayland_VideoCleanup(_THIS)
 SDL_bool Wayland_VideoReconnect(_THIS)
 {
 #if 0 /* TODO RECONNECT: Uncomment all when https://invent.kde.org/plasma/kwin/-/wikis/Restarting is completed */
-    SDL_VideoData *data = _this->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
 
     SDL_Window *window = NULL;
 
@@ -1181,7 +1176,7 @@ SDL_bool Wayland_VideoReconnect(_THIS)
 
 void Wayland_VideoQuit(_THIS)
 {
-    SDL_VideoData *data = _this->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
 
     Wayland_VideoCleanup(_this);
 

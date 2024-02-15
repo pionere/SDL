@@ -28,10 +28,10 @@
 #include "../../events/SDL_keyboard_c.h"
 #include "text-input-unstable-v3-client-protocol.h"
 
-int Wayland_InitKeyboard(_THIS)
+int Wayland_InitKeyboard()
 {
 #ifdef SDL_USE_IME
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
     if (!driverdata->text_input_manager) {
         SDL_IME_Init();
     }
@@ -41,10 +41,10 @@ int Wayland_InitKeyboard(_THIS)
     return 0;
 }
 
-void Wayland_QuitKeyboard(_THIS)
+void Wayland_QuitKeyboard()
 {
 #ifdef SDL_USE_IME
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
     if (!driverdata->text_input_manager) {
         SDL_IME_Quit();
     }
@@ -53,7 +53,7 @@ void Wayland_QuitKeyboard(_THIS)
 
 void Wayland_StartTextInput(_THIS)
 {
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
 
     if (driverdata->text_input_manager) {
         struct SDL_WaylandInput *input = driverdata->input;
@@ -94,7 +94,7 @@ void Wayland_StartTextInput(_THIS)
 
 void Wayland_StopTextInput(_THIS)
 {
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
 
     if (driverdata->text_input_manager) {
         struct SDL_WaylandInput *input = driverdata->input;
@@ -114,7 +114,7 @@ void Wayland_StopTextInput(_THIS)
 
 void Wayland_SetTextInputRect(_THIS, const SDL_Rect *rect)
 {
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
 
     if (!rect) {
         SDL_InvalidParamError("rect");
@@ -149,7 +149,7 @@ SDL_bool Wayland_HasScreenKeyboardSupport(_THIS)
      * _only_ way to get text input. So, in addition to checking for the text
      * input protocol, make sure we don't have any physical keyboards either.
      */
-    SDL_VideoData *driverdata = _this->driverdata;
+    Wayland_VideoData *driverdata = &waylandVideoData;
     SDL_bool haskeyboard = (driverdata->input != NULL) && (driverdata->input->keyboard != NULL);
     SDL_bool hastextmanager = (driverdata->text_input_manager != NULL);
     return !haskeyboard && hastextmanager;

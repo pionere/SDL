@@ -70,7 +70,6 @@ typedef struct
 typedef struct
 {
     struct wl_data_device *data_device;
-    SDL_VideoData *video_data;
 
     /* Drag and Drop */
     uint32_t drag_serial;
@@ -86,7 +85,6 @@ typedef struct
 typedef struct
 {
     struct zwp_primary_selection_device_v1 *primary_selection_device;
-    SDL_VideoData *video_data;
 
     uint32_t selection_serial;
     SDL_WaylandPrimarySelectionSource *selection_source;
@@ -96,8 +94,8 @@ typedef struct
 extern const char *Wayland_convert_mime_type(const char *mime_type);
 
 /* Wayland Data Source / Primary Selection Source - (Sending) */
-extern SDL_WaylandDataSource *Wayland_data_source_create(_THIS);
-extern SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create(_THIS);
+extern SDL_WaylandDataSource *Wayland_data_source_create();
+extern SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create();
 extern ssize_t Wayland_data_source_send(SDL_WaylandDataSource *source,
                                         const char *mime_type, int fd);
 extern ssize_t Wayland_primary_selection_source_send(SDL_WaylandPrimarySelectionSource *source,

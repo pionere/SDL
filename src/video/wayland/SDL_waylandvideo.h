@@ -100,11 +100,10 @@ typedef struct
 
     int relative_mouse_mode;
     SDL_bool egl_transparency_enabled;
-} SDL_VideoData;
+} Wayland_VideoData;
 
 struct SDL_WaylandOutputData
 {
-    SDL_VideoData *videodata;
     struct wl_output *output;
     struct zxdg_output_v1 *xdg_output;
     uint32_t registry_id;
@@ -124,12 +123,14 @@ struct SDL_WaylandOutputData
 /* Needed here to get wl_surface declaration, fixes GitHub#4594 */
 #include "SDL_waylanddyn.h"
 
+extern Wayland_VideoData waylandVideoData;
+
 extern void SDL_WAYLAND_register_surface(struct wl_surface *surface);
 extern void SDL_WAYLAND_register_output(struct wl_output *output);
 extern SDL_bool SDL_WAYLAND_own_surface(struct wl_surface *surface);
 extern SDL_bool SDL_WAYLAND_own_output(struct wl_output *output);
 
-extern SDL_bool Wayland_LoadLibdecor(SDL_VideoData *data, SDL_bool ignore_xdg);
+extern SDL_bool Wayland_LoadLibdecor(SDL_bool ignore_xdg);
 
 extern SDL_bool Wayland_VideoReconnect(_THIS);
 

@@ -31,8 +31,8 @@
 #include <stddef.h>
 #include "wayland-util.h"
 
-void Wayland_touch_create(SDL_VideoData *data, uint32_t id);
-void Wayland_touch_destroy(SDL_VideoData *data);
+void Wayland_touch_create(uint32_t id);
+void Wayland_touch_destroy();
 
 struct qt_touch_extension;
 

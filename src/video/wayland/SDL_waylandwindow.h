@@ -35,7 +35,6 @@ struct SDL_WaylandInput;
 typedef struct
 {
     SDL_Window *sdlwindow;
-    SDL_VideoData *waylandData;
     struct wl_surface *surface;
     struct wl_callback *gles_swap_frame_callback;
     struct wl_event_queue *gles_swap_frame_event_queue;
@@ -147,8 +146,8 @@ Wayland_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info);
 extern int Wayland_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern int Wayland_FlashWindow(_THIS, SDL_Window *window, SDL_FlashOperation operation);
 
-extern void Wayland_InitWin(SDL_VideoData *data);
-extern void Wayland_QuitWin(SDL_VideoData *data);
+extern void Wayland_InitWin();
+extern void Wayland_QuitWin();
 
 #endif /* SDL_waylandwindow_h_ */
 

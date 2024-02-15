@@ -38,7 +38,7 @@
 int Wayland_GLES_LoadLibrary(_THIS, const char *path)
 {
     int ret;
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
 
     ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
 
@@ -50,9 +50,10 @@ int Wayland_GLES_LoadLibrary(_THIS, const char *path)
 
 SDL_GLContext Wayland_GLES_CreateContext(_THIS, SDL_Window *window)
 {
+    Wayland_VideoData *data = &waylandVideoData;
     SDL_GLContext context;
     context = SDL_EGL_CreateContext(_this, ((SDL_WindowData *)window->driverdata)->egl_surface);
-    WAYLAND_wl_display_flush(((SDL_VideoData *)_this->driverdata)->display);
+    WAYLAND_wl_display_flush(data->display);
 
     return context;
 }
@@ -105,6 +106,7 @@ int Wayland_GLES_GetSwapInterval(_THIS)
 
 int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
+    Wayland_VideoData *videodata = &waylandVideoData;
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     const int swap_interval = _this->egl_data->egl_swapinterval;
 
@@ -122,7 +124,6 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 
     /* Control swap interval ourselves. See comments on Wayland_GLES_SetSwapInterval */
     if (swap_interval != 0) {
-        SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
         struct wl_display *display = videodata->display;
         SDL_VideoDisplay *sdldisplay = SDL_GetDisplayForWindow(window);
         /* 1/3 speed (or 20hz), so we'll progress even if throttled to zero. */
@@ -167,7 +168,7 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
         return SDL_EGL_SetError("unable to show color buffer in an OS-native window", "eglSwapBuffers");
     }
 
-    WAYLAND_wl_display_flush(data->waylandData->display);
+    WAYLAND_wl_display_flush(videodata->display);
 
     return 0;
 }
@@ -175,6 +176,7 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
     int ret;
+    Wayland_VideoData *videodata = &waylandVideoData;
 
     if (window && context) {
         ret = SDL_EGL_MakeCurrent(_this, ((SDL_WindowData *)window->driverdata)->egl_surface, context);
@@ -182,7 +184,7 @@ int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
         ret = SDL_EGL_MakeCurrent(_this, NULL, NULL);
     }
 
-    WAYLAND_wl_display_flush(((SDL_VideoData *)_this->driverdata)->display);
+    WAYLAND_wl_display_flush(videodata->display);
 
     _this->egl_data->eglSwapInterval(_this->egl_data->egl_display, 0); /* see comments on Wayland_GLES_SetSwapInterval. */
 
@@ -191,8 +193,9 @@ int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 
 void Wayland_GLES_DeleteContext(_THIS, SDL_GLContext context)
 {
+    Wayland_VideoData *videodata = &waylandVideoData;
     SDL_EGL_DeleteContext(_this, context);
-    WAYLAND_wl_display_flush(((SDL_VideoData *)_this->driverdata)->display);
+    WAYLAND_wl_display_flush(videodata->display);
 }
 
 #endif /* SDL_VIDEO_DRIVER_WAYLAND && SDL_VIDEO_OPENGL_EGL */

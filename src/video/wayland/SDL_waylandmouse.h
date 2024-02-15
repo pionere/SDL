@@ -26,7 +26,7 @@
 #ifdef SDL_VIDEO_DRIVER_WAYLAND
 
 extern void Wayland_InitMouse(void);
-extern void Wayland_FiniMouse(SDL_VideoData *data);
+extern void Wayland_FiniMouse(void);
 #if 0  /* TODO RECONNECT: See waylandvideo.c for more information! */
 extern void Wayland_RecreateCursors(void);
 #endif /* 0 */

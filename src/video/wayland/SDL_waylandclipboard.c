@@ -28,19 +28,15 @@
 
 int Wayland_SetClipboardText(_THIS, const char *text)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
 
     int status = 0;
 
-    if (!_this || !_this->driverdata) {
-        status = SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->data_device) {
             data_device = video_data->input->data_device;
             if (text[0] != '\0') {
-                SDL_WaylandDataSource *source = Wayland_data_source_create(_this);
+                SDL_WaylandDataSource *source = Wayland_data_source_create();
                 Wayland_data_source_add_data(source, TEXT_MIME, text,
                                              SDL_strlen(text));
 
@@ -52,26 +48,21 @@ int Wayland_SetClipboardText(_THIS, const char *text)
                 status = Wayland_data_device_clear_selection(data_device);
             }
         }
-    }
 
     return status;
 }
 
 int Wayland_SetPrimarySelectionText(_THIS, const char *text)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
 
     int status = 0;
 
-    if (!_this || !_this->driverdata) {
-        status = SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->primary_selection_device) {
             primary_selection_device = video_data->input->primary_selection_device;
             if (text[0] != '\0') {
-                SDL_WaylandPrimarySelectionSource *source = Wayland_primary_selection_source_create(_this);
+                SDL_WaylandPrimarySelectionSource *source = Wayland_primary_selection_source_create();
                 Wayland_primary_selection_source_add_data(source, TEXT_MIME, text,
                                                           SDL_strlen(text));
 
@@ -84,23 +75,18 @@ int Wayland_SetPrimarySelectionText(_THIS, const char *text)
                 status = Wayland_primary_selection_device_clear_selection(primary_selection_device);
             }
         }
-    }
 
     return status;
 }
 
 char *Wayland_GetClipboardText(_THIS)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
 
     char *text = NULL;
     size_t length = 0;
 
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->data_device) {
             data_device = video_data->input->data_device;
             /* Prefer own selection, if not canceled */
@@ -114,7 +100,6 @@ char *Wayland_GetClipboardText(_THIS)
                                                   &length, TEXT_MIME, SDL_TRUE);
             }
         }
-    }
 
     if (!text) {
         text = SDL_strdup("");
@@ -125,16 +110,12 @@ char *Wayland_GetClipboardText(_THIS)
 
 char *Wayland_GetPrimarySelectionText(_THIS)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
 
     char *text = NULL;
     size_t length = 0;
 
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->primary_selection_device) {
             primary_selection_device = video_data->input->primary_selection_device;
             /* Prefer own selection, if not canceled */
@@ -148,7 +129,6 @@ char *Wayland_GetPrimarySelectionText(_THIS)
                                                                &length, TEXT_MIME, SDL_TRUE);
             }
         }
-    }
 
     if (!text) {
         text = SDL_strdup("");
@@ -159,34 +139,25 @@ char *Wayland_GetPrimarySelectionText(_THIS)
 
 SDL_bool Wayland_HasClipboardText(_THIS)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
 
     SDL_bool result = SDL_FALSE;
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->data_device) {
             data_device = video_data->input->data_device;
             result = result ||
                      Wayland_data_source_has_mime(data_device->selection_source, TEXT_MIME) ||
                      Wayland_data_offer_has_mime(data_device->selection_offer, TEXT_MIME);
         }
-    }
     return result;
 }
 
 SDL_bool Wayland_HasPrimarySelectionText(_THIS)
 {
-    SDL_VideoData *video_data = NULL;
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
 
     SDL_bool result = SDL_FALSE;
-    if (!_this || !_this->driverdata) {
-        SDL_SetError("Video driver uninitialized");
-    } else {
-        video_data = _this->driverdata;
         if (video_data->input && video_data->input->primary_selection_device) {
             primary_selection_device = video_data->input->primary_selection_device;
             result = result ||
@@ -195,7 +166,6 @@ SDL_bool Wayland_HasPrimarySelectionText(_THIS)
                      Wayland_primary_selection_offer_has_mime(
                          primary_selection_device->selection_offer, TEXT_MIME);
         }
-    }
     return result;
 }
 

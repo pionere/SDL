@@ -416,6 +416,7 @@ void *Wayland_data_offer_receive(SDL_WaylandDataOffer *offer,
                                  size_t *length, const char *mime_type,
                                  SDL_bool null_terminate)
 {
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
 
     int pipefd[2];
@@ -435,7 +436,7 @@ void *Wayland_data_offer_receive(SDL_WaylandDataOffer *offer,
         wl_data_offer_receive(offer->offer, mime_type, pipefd[1]);
 
         /* TODO: Needs pump and flush? */
-        WAYLAND_wl_display_flush(data_device->video_data->display);
+        WAYLAND_wl_display_flush(video_data->display);
 
         close(pipefd[1]);
 
@@ -450,6 +451,7 @@ void *Wayland_primary_selection_offer_receive(SDL_WaylandPrimarySelectionOffer *
                                               size_t *length, const char *mime_type,
                                               SDL_bool null_terminate)
 {
+    Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
 
     int pipefd[2];
@@ -469,7 +471,7 @@ void *Wayland_primary_selection_offer_receive(SDL_WaylandPrimarySelectionOffer *
         zwp_primary_selection_offer_v1_receive(offer->offer, mime_type, pipefd[1]);
 
         /* TODO: Needs pump and flush? */
-        WAYLAND_wl_display_flush(primary_selection_device->video_data->display);
+        WAYLAND_wl_display_flush(video_data->display);
 
         close(pipefd[1]);
 
