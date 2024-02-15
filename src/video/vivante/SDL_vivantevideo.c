@@ -110,7 +110,7 @@ static SDL_VideoDevice *VIVANTE_Create()
     return device;
 }
 /* "Vivante EGL Video Driver" */
-VideoBootStrap VIVANTE_bootstrap = {
+const VideoBootStrap VIVANTE_bootstrap = {
     "vivante", VIVANTE_Create
 };
 

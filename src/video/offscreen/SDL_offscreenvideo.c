@@ -91,7 +91,7 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
     return device;
 }
 /* "SDL offscreen video driver" */
-VideoBootStrap OFFSCREEN_bootstrap = {
+const VideoBootStrap OFFSCREEN_bootstrap = {
     "offscreen", OFFSCREEN_CreateDevice
 };
 

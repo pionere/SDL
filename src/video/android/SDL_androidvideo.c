@@ -162,7 +162,7 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     return device;
 }
 /* "SDL Android video driver" */
-VideoBootStrap Android_bootstrap = {
+const VideoBootStrap Android_bootstrap = {
     "Android", Android_CreateDevice
 };
 

@@ -114,7 +114,7 @@ static SDL_VideoDevice *PND_create(void)
     return device;
 }
 /* "SDL Wiz Video Driver" / "SDL Pandora Video Driver" */
-VideoBootStrap PND_bootstrap = {
+const VideoBootStrap PND_bootstrap = {
 #ifdef WIZ_GLES_LITE
     "wiz",
 #else

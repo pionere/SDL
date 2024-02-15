@@ -143,7 +143,7 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
     }
 }
 /* "SDL UIKit video driver" */
-VideoBootStrap UIKIT_bootstrap = {
+const VideoBootStrap UIKIT_bootstrap = {
     "uikit", UIKit_CreateDevice
 };
 

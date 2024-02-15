@@ -123,7 +123,7 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
     return device;
 }
 // "PS2 Video Driver"
-VideoBootStrap PS2_bootstrap = {
+const VideoBootStrap PS2_bootstrap = {
     "PS2",
     PS2_CreateDevice
 };

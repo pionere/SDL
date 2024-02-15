@@ -340,6 +340,6 @@ static SDL_VideoDevice *createDevice(int devindex)
     return device;
 }
 /* "QNX Screen" */
-VideoBootStrap QNX_bootstrap = {
+const VideoBootStrap QNX_bootstrap = {
     "qnx", createDevice
 };

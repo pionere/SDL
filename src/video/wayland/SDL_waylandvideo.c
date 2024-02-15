@@ -303,7 +303,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     return device;
 }
 /* "SDL Wayland video driver" */
-VideoBootStrap Wayland_bootstrap = {
+const VideoBootStrap Wayland_bootstrap = {
     "wayland", Wayland_CreateDevice
 };
 

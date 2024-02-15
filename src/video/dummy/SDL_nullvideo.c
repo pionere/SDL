@@ -93,7 +93,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     return device;
 }
 /* "SDL dummy video driver" */
-VideoBootStrap DUMMY_bootstrap = {
+const VideoBootStrap DUMMY_bootstrap = {
     "dummy", DUMMY_CreateDevice
 };
 
@@ -109,7 +109,7 @@ static SDL_VideoDevice *DUMMY_CreateDeviceEvdev(void)
     return device;
 }
 
-VideoBootStrap DUMMY_evdev_bootstrap = {
+const VideoBootStrap DUMMY_evdev_bootstrap = {
     "evdev", DUMMY_CreateDeviceEvdev
 };
 void SDL_EVDEV_Init(void);

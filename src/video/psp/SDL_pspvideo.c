@@ -128,7 +128,7 @@ static SDL_VideoDevice *PSP_Create()
     return device;
 }
 /* "PSP Video Driver" */
-VideoBootStrap PSP_bootstrap = {
+const VideoBootStrap PSP_bootstrap = {
     "PSP", PSP_Create
 };
 

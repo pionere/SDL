@@ -132,7 +132,7 @@ static SDL_VideoDevice *RPI_Create()
     return device;
 }
 /* "RPI Video Driver"*/
-VideoBootStrap RPI_bootstrap = {
+const VideoBootStrap RPI_bootstrap = {
     "RPI", RPI_Create
 };
 

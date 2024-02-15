@@ -249,7 +249,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 }
 
 /* "SDL Windows video driver"*/
-VideoBootStrap WINDOWS_bootstrap = {
+const VideoBootStrap WINDOWS_bootstrap = {
     "windows", WIN_CreateDevice
 };
 

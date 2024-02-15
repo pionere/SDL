@@ -84,7 +84,7 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     return device;
 }
 // "N3DS Video Driver"
-VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };
+const VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };
 
 static int N3DS_VideoInit(_THIS)
 {

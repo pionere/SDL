@@ -121,7 +121,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     return device;
 }
 /* "SDL emscripten video driver" */
-VideoBootStrap Emscripten_bootstrap = {
+const VideoBootStrap Emscripten_bootstrap = {
     "emscripten", Emscripten_CreateDevice
 };
 

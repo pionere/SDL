@@ -324,7 +324,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     return device;
 }
 /* "SDL X11 video driver" */
-VideoBootStrap X11_bootstrap = {
+const VideoBootStrap X11_bootstrap = {
     "x11", X11_CreateDevice
 };
 

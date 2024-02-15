@@ -137,7 +137,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     return device;
 }
 
-VideoBootStrap NGAGE_bootstrap = {
+const VideoBootStrap NGAGE_bootstrap = {
     "ngage", NGAGE_CreateDevice
 };
 

@@ -177,7 +177,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     return device;
 }}
 /* "SDL Cocoa video driver" */
-VideoBootStrap COCOA_bootstrap = {
+const VideoBootStrap COCOA_bootstrap = {
     "cocoa", Cocoa_CreateDevice
 };
 

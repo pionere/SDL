@@ -169,7 +169,7 @@ static SDL_VideoDevice *VITA_Create()
     return device;
 }
 /* "VITA Video Driver" */
-VideoBootStrap VITA_bootstrap = {
+const VideoBootStrap VITA_bootstrap = {
     "VITA", VITA_Create
 };
 

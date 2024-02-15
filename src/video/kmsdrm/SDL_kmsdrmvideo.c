@@ -312,7 +312,7 @@ cleanup:
     return NULL;
 }
 /* "KMS/DRM Video Driver" */
-VideoBootStrap KMSDRM_bootstrap = {
+const VideoBootStrap KMSDRM_bootstrap = {
     "KMSDRM", KMSDRM_CreateDevice
 };
 

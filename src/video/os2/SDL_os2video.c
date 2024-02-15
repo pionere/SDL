@@ -1682,11 +1682,11 @@ static SDL_VideoDevice *OS2VMAN_CreateDevice(void)
  * DIVE and VMAN bootstraps both call the same OS2_CreateDevice() function.
  * Video output system will be selected in OS2_VideoInit() by driver name.
  */
-VideoBootStrap OS2DIVE_bootstrap =
+const VideoBootStrap OS2DIVE_bootstrap =
 {
     OS2DRIVER_NAME_DIVE, OS2DIVE_CreateDevice
 };
-VideoBootStrap OS2VMAN_bootstrap =
+const VideoBootStrap OS2VMAN_bootstrap =
 {
     OS2DRIVER_NAME_VMAN, OS2VMAN_CreateDevice
 };

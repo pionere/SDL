@@ -63,7 +63,7 @@ static void DirectFB_VideoQuit(_THIS);
 
 static SDL_VideoDevice *DirectFB_CreateDevice(void);
 /* "DirectFB" */
-VideoBootStrap DirectFB_bootstrap = {
+const VideoBootStrap DirectFB_bootstrap = {
     "directfb", DirectFB_CreateDevice
 };
 

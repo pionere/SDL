@@ -129,7 +129,7 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     return device;
 }
 /* "Haiku graphics" */
-VideoBootStrap HAIKU_bootstrap = {
+const VideoBootStrap HAIKU_bootstrap = {
     "haiku", HAIKU_CreateDevice
 };
 

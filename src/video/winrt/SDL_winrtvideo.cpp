@@ -164,7 +164,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     return device;
 }
 /* "SDL WinRT video driver" */
-VideoBootStrap WINRT_bootstrap = {
+const VideoBootStrap WINRT_bootstrap = {
     "winrt", WINRT_CreateDevice
 };
 
