@@ -321,9 +321,12 @@ typedef void (*PFCoordTransform)(SDL_Window *, POINT *);
 
 typedef struct WIN_VideoData
 {
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     DWORD clipboard_count;
+    BYTE pre_hook_key_state[256];
+    UINT _SDL_WAKEUP;
 
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__) /* Xbox doesn't support user32/shcore*/
+    /* Xbox doesn't support user32/shcore*/
     /* Touch input functions */
     void *userDLL;
     BOOL (WINAPI *CloseTouchInputHandle)( HTOUCHINPUT );
@@ -346,9 +349,6 @@ typedef struct WIN_VideoData
 
     SDL_bool dpi_scaling_enabled;
     SDL_bool cleared;
-
-    BYTE pre_hook_key_state[256];
-    UINT _SDL_WAKEUP;
 } WIN_VideoData;
 
 extern SDL_bool g_WindowsEnableMessageLoop;

@@ -1817,14 +1817,14 @@ int WIN_WaitEventTimeout(_THIS, int timeout)
         return -1;
     }
 }
-
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 void WIN_SendWakeupEvent(_THIS, SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     WIN_VideoData *videodata = &winVideoData;
     PostMessage(data->hwnd, videodata->_SDL_WAKEUP, 0, 0);
 }
-
+#endif
 void WIN_PumpEvents(_THIS)
 {
     MSG msg;
@@ -1912,7 +1912,6 @@ void WIN_PumpEvents(_THIS)
 
 static int app_registered = 0;
 LPTSTR SDL_Appname = NULL;
-Uint32 SDL_Appstyle = 0;
 HINSTANCE SDL_Instance = NULL;
 
 static void WIN_CleanRegisterApp(WNDCLASSEX wcex)
@@ -1951,7 +1950,6 @@ int SDL_RegisterApp(const char *name, Uint32 style, void *hInst)
 #endif
     }
     SDL_Appname = WIN_UTF8ToString(name);
-    SDL_Appstyle = style;
     SDL_Instance = hInst ? hInst : GetModuleHandle(NULL);
 
     /* Register the application class */
@@ -1961,7 +1959,7 @@ int SDL_RegisterApp(const char *name, Uint32 style, void *hInst)
     wcex.hIconSm = NULL;
     wcex.lpszMenuName = NULL;
     wcex.lpszClassName = SDL_Appname;
-    wcex.style = SDL_Appstyle;
+    wcex.style = style;
     wcex.hbrBackground = NULL;
     wcex.lpfnWndProc = WIN_WindowProc;
     wcex.hInstance = SDL_Instance;
