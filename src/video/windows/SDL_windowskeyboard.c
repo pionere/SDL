@@ -280,6 +280,7 @@ void WIN_QuitKeyboard()
 
 void WIN_ResetDeadKeys()
 {
+#if 0 // commented out till someone proves this does anything useful...
     /*
     if a deadkey has been typed, but not the next character (which the deadkey might modify),
     this tries to undo the effect pressing the deadkey.
@@ -305,6 +306,7 @@ void WIN_ResetDeadKeys()
             return;
         }
     }
+#endif
 }
 
 void WIN_StartTextInput(_THIS)
