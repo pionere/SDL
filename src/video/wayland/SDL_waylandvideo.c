@@ -1188,6 +1188,7 @@ void Wayland_VideoQuit(_THIS)
 #endif
 
     SDL_free(data->classname);
+    data->classname = NULL;
 }
 
 #endif /* SDL_VIDEO_DRIVER_WAYLAND */

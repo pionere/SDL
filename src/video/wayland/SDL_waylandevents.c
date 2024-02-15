@@ -2497,35 +2497,36 @@ void Wayland_display_destroy_input()
 {
     Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
+    SDL_WaylandDataDevice *data_device;
+    SDL_WaylandPrimarySelectionDevice *primary_selection_device;
+    SDL_WaylandTextInput *text_input;
 
     if (!input) {
         return;
     }
 
-    if (input->data_device) {
-        Wayland_data_device_clear_selection(input->data_device);
-        if (input->data_device->selection_offer) {
-            Wayland_data_offer_destroy(input->data_device->selection_offer);
+    data_device = input->data_device;
+    if (data_device) {
+        Wayland_data_device_clear_selection(data_device);
+        Wayland_data_offer_destroy(data_device->selection_offer);
+        Wayland_data_offer_destroy(data_device->drag_offer);
+
+        if (data_device->data_device) {
+            wl_data_device_release(data_device->data_device);
         }
-        if (input->data_device->drag_offer) {
-            Wayland_data_offer_destroy(input->data_device->drag_offer);
-        }
-        if (input->data_device->data_device) {
-            wl_data_device_release(input->data_device->data_device);
-        }
-        SDL_free(input->data_device);
+        SDL_free(data_device);
     }
 
-    if (input->primary_selection_device) {
-        if (input->primary_selection_device->selection_offer) {
-            Wayland_primary_selection_offer_destroy(input->primary_selection_device->selection_offer);
-        }
-        SDL_free(input->primary_selection_device);
+    primary_selection_device = input->primary_selection_device;
+    if (primary_selection_device) {
+        Wayland_primary_selection_offer_destroy(primary_selection_device->selection_offer);
+        SDL_free(primary_selection_device);
     }
 
-    if (input->text_input) {
-        zwp_text_input_v3_destroy(input->text_input->text_input);
-        SDL_free(input->text_input);
+    text_input = input->text_input;
+    if (text_input) {
+        zwp_text_input_v3_destroy(text_input->text_input);
+        SDL_free(text_input);
     }
 
     if (input->keyboard) {
