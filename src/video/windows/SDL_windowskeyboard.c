@@ -703,54 +703,6 @@ static void IME_InputLangChanged()
     }
 }
 
-static void IME_GetId()
-{
-    WIN_ImeData *videodata = &winImeData;
-    DWORD dwVerSize;
-    DWORD dwVerHandle = 0;
-    LPVOID lpVerBuffer;
-    LPVOID lpVerData = 0;
-    UINT cbVerData = 0;
-    char szTemp[MAX_PATH];
-    HKL hkl;
-    DWORD dwLang;
-
-    hkl = videodata->ime_hkl;
-
-    dwLang = ((DWORD_PTR)hkl & 0xffff);
-    if (!ImmGetIMEFileNameA(hkl, szTemp, sizeof(szTemp))) {
-        videodata->ime_ids[0] = 0;
-        return;
-    }
-#define LCID_INVARIANT MAKELCID(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), SORT_DEFAULT)
-    if (CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, szTemp, -1, CHT_IMEFILENAME1, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, szTemp, -1, CHT_IMEFILENAME2, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, szTemp, -1, CHT_IMEFILENAME3, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, szTemp, -1, CHS_IMEFILENAME1, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, szTemp, -1, CHS_IMEFILENAME2, -1) != 2) {
-        videodata->ime_ids[0] = 0;
-        return;
-    }
-#undef LCID_INVARIANT
-    dwVerSize = GetFileVersionInfoSizeA(szTemp, &dwVerHandle);
-    if (dwVerSize) {
-        lpVerBuffer = SDL_malloc(dwVerSize);
-        if (lpVerBuffer) {
-            if (GetFileVersionInfoA(szTemp, dwVerHandle, dwVerSize, lpVerBuffer)) {
-                if (VerQueryValueA(lpVerBuffer, "\\", &lpVerData, &cbVerData)) {
-#define pVerFixedInfo ((VS_FIXEDFILEINFO FAR *)lpVerData)
-                    DWORD dwVer = pVerFixedInfo->dwFileVersionMS;
-                    dwVer = (dwVer & 0x00ff0000) << 8 | (dwVer & 0x000000ff) << 16;
-                    videodata->ime_ids[0] = dwVer | dwLang;
-                    videodata->ime_ids[1] = pVerFixedInfo->dwFileVersionLS;
-                    SDL_free(lpVerBuffer);
-                    return;
-#undef pVerFixedInfo
-                }
-            }
-            SDL_free(lpVerBuffer);
-        }
-    }
-    videodata->ime_ids[0] = 0;
-    return;
-}
-
 static void IME_SetupAPI()
 {
     WIN_ImeData *videodata = &winImeData;
@@ -758,33 +710,64 @@ static void IME_SetupAPI()
     void *hime;
     HKL hkl;
     BOOL (WINAPI *ShowReadingWindow)(HIMC himc, BOOL bShow);
+    DWORD dwVerSize;
+    DWORD dwVerHandle = 0;
+    LPVOID lpVerBuffer;
+    LPVOID lpVerData = 0;
+    UINT cbVerData = 0;
+    DWORD dwLang;
+    // reset previous values
     if (videodata->ime_hime) {
         SDL_UnloadObject(videodata->ime_hime);
         videodata->ime_hime = NULL;
         videodata->GetReadingString = NULL;
     }
+    videodata->ime_ids[0] = 0;
 
     hkl = videodata->ime_hkl;
     if (!ImmGetIMEFileNameA(hkl, ime_file, sizeof(ime_file))) {
         return;
     }
-
+    // load api functions
     hime = SDL_LoadObject(ime_file);
-    if (!hime) {
+    if (hime) {
+        videodata->GetReadingString = (UINT (WINAPI *)(HIMC, UINT, LPWSTR, PINT, BOOL*, PUINT))
+            SDL_LoadFunction(hime, "GetReadingString");
+        ShowReadingWindow = (BOOL (WINAPI *)(HIMC, BOOL))
+            SDL_LoadFunction(hime, "ShowReadingWindow");
+        videodata->ime_hime = hime;
+
+        if (ShowReadingWindow) {
+            HWND hwnd = videodata->ime_hwnd_current;
+            HIMC himc = ImmGetContext(hwnd);
+            if (himc) {
+                ShowReadingWindow(himc, FALSE);
+                ImmReleaseContext(hwnd, himc);
+            }
+        }
+    }
+    // set ime-ids
+    dwLang = ((DWORD_PTR)hkl & 0xffff);
+#define LCID_INVARIANT MAKELCID(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), SORT_DEFAULT)
+    if (CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, ime_file, -1, CHT_IMEFILENAME1, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, ime_file, -1, CHT_IMEFILENAME2, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, ime_file, -1, CHT_IMEFILENAME3, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, ime_file, -1, CHS_IMEFILENAME1, -1) != 2 && CompareStringA(LCID_INVARIANT, NORM_IGNORECASE, ime_file, -1, CHS_IMEFILENAME2, -1) != 2) {
         return;
     }
-
-    videodata->GetReadingString = (UINT (WINAPI *)(HIMC, UINT, LPWSTR, PINT, BOOL*, PUINT))
-        SDL_LoadFunction(hime, "GetReadingString");
-    ShowReadingWindow = (BOOL (WINAPI *)(HIMC, BOOL))
-        SDL_LoadFunction(hime, "ShowReadingWindow");
-    videodata->ime_hime = hime;
-
-    if (ShowReadingWindow) {
-        HIMC himc = ImmGetContext(videodata->ime_hwnd_current);
-        if (himc) {
-            ShowReadingWindow(himc, FALSE);
-            ImmReleaseContext(videodata->ime_hwnd_current, himc);
+#undef LCID_INVARIANT
+    dwVerSize = GetFileVersionInfoSizeA(ime_file, &dwVerHandle);
+    if (dwVerSize) {
+        lpVerBuffer = SDL_malloc(dwVerSize);
+        if (lpVerBuffer) {
+            if (GetFileVersionInfoA(ime_file, dwVerHandle, dwVerSize, lpVerBuffer)) {
+                if (VerQueryValueA(lpVerBuffer, "\\", &lpVerData, &cbVerData)) {
+#define pVerFixedInfo ((VS_FIXEDFILEINFO FAR *)lpVerData)
+                    DWORD dwVer = pVerFixedInfo->dwFileVersionMS;
+                    dwVer = (dwVer & 0x00ff0000) << 8 | (dwVer & 0x000000ff) << 16;
+                    videodata->ime_ids[0] = dwVer | dwLang;
+                    videodata->ime_ids[1] = pVerFixedInfo->dwFileVersionLS;
+#undef pVerFixedInfo
+                }
+            }
+            SDL_free(lpVerBuffer);
         }
     }
 }
@@ -820,7 +803,6 @@ static SDL_bool IME_UpdateInputLocale()
 #endif
     IME_SetupAPI();
 
-    IME_GetId();
     return SDL_TRUE;
 }
 
