@@ -45,7 +45,7 @@ static SDL_bool xfixes_version_atleast(const int version, const int wantmajor, c
 
 void X11_InitXfixes(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
 
     int version = 0;
     int event, error;
@@ -108,7 +108,7 @@ int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, 
      * edges exactly match, a rectangle the cursor 'slips' out of the barrier.
      * To prevent that the lines for the barriers will span the whole screen.
      */
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     SDL_WindowData *wdata;
 
     if (!X11_XfixesIsInitialized()) {
@@ -194,7 +194,7 @@ int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, 
 void X11_DestroyPointerBarrier(_THIS, SDL_Window *window)
 {
     int i;
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     if (window) {
         SDL_WindowData *wdata = (SDL_WindowData *)window->driverdata;
 

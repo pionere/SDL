@@ -33,7 +33,7 @@ static Cursor x11_empty_cursor = None;
 
 static Display *GetDisplay(void)
 {
-    return ((SDL_VideoData *)SDL_GetVideoDevice()->driverdata)->display;
+    return x11VideoData.display;
 }
 
 static Cursor X11_CreateEmptyCursor()
@@ -326,7 +326,7 @@ static int X11_ShowCursor(SDL_Cursor *cursor)
 
 static void WarpMouseInternal(Window xwindow, const int x, const int y)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)SDL_GetVideoDevice()->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display = videodata->display;
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
     int deviceid = 0;
@@ -403,7 +403,7 @@ static int X11_CaptureMouse(SDL_Window *window)
 
 static Uint32 X11_GetGlobalMouseState(int *x, int *y)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)SDL_GetVideoDevice()->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display = GetDisplay();
     const int num_screens = SDL_GetNumVideoDisplays();
     int i;
@@ -472,7 +472,7 @@ void X11_InitMouse(_THIS)
 
 void X11_QuitMouse(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     SDL_XInput2DeviceInfo *i;
     SDL_XInput2DeviceInfo *next;
 

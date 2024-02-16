@@ -325,8 +325,9 @@ static char *X11_URIToLocal(char *uri)
 }
 
 #ifdef SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS
-static void X11_HandleGenericEvent(SDL_VideoData *videodata, XEvent *xev)
+static void X11_HandleGenericEvent(XEvent *xev)
 {
+    X11_VideoData *videodata = &x11VideoData;
     /* event is a union, so cookie == &event, but this is type safe. */
     XGenericEventCookie *cookie = &xev->xcookie;
     if (X11_XGetEventData(videodata->display, cookie)) {
@@ -352,7 +353,7 @@ static void X11_HandleGenericEvent(SDL_VideoData *videodata, XEvent *xev)
 
 static unsigned X11_GetNumLockModifierMask(_THIS)
 {
-    SDL_VideoData *viddata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;
     unsigned num_mask = 0;
     int i, j;
@@ -377,7 +378,7 @@ static unsigned X11_GetNumLockModifierMask(_THIS)
 
 static unsigned X11_GetScrollLockModifierMask(_THIS)
 {
-    SDL_VideoData *viddata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;
     unsigned num_mask = 0;
     int i, j;
@@ -402,7 +403,7 @@ static unsigned X11_GetScrollLockModifierMask(_THIS)
 
 void X11_ReconcileKeyboardState(_THIS)
 {
-    SDL_VideoData *viddata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;
     char keys[32];
     int keycode;
@@ -509,7 +510,7 @@ static void X11_DispatchUnmapNotify(SDL_WindowData *data)
 
 static void InitiateWindowMove(_THIS, const SDL_WindowData *data, const SDL_Point *point)
 {
-    SDL_VideoData *viddata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *viddata = &x11VideoData;
     SDL_Window *window = data->window;
     Display *display = viddata->display;
     XEvent evt;
@@ -534,7 +535,7 @@ static void InitiateWindowMove(_THIS, const SDL_WindowData *data, const SDL_Poin
 
 static void InitiateWindowResize(_THIS, const SDL_WindowData *data, const SDL_Point *point, int direction)
 {
-    SDL_VideoData *viddata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *viddata = &x11VideoData;
     SDL_Window *window = data->window;
     Display *display = viddata->display;
     XEvent evt;
@@ -602,7 +603,7 @@ static SDL_bool ProcessHitTest(_THIS, const SDL_WindowData *data, const XEvent *
 static void X11_UpdateUserTime(SDL_WindowData *data, const unsigned long latest)
 {
     if (latest && (latest != data->user_time)) {
-        SDL_VideoData *videodata = data->videodata;
+        X11_VideoData *videodata = &x11VideoData;
         Display *display = videodata->display;
         X11_XChangeProperty(display, data->xwindow, videodata->_NET_WM_USER_TIME,
                             XA_CARDINAL, 32, PropModeReplace,
@@ -617,7 +618,7 @@ static void X11_UpdateUserTime(SDL_WindowData *data, const unsigned long latest)
 static void X11_HandleClipboardEvent(_THIS, const XEvent *xevent)
 {
     int i;
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display = videodata->display;
 
     SDL_assert(videodata->clipboard_window != None);
@@ -771,7 +772,7 @@ static int XLookupStringAsUTF8(XKeyEvent *event_struct, char *buffer_return, int
 void X11_GetBorderValues(void /* SDL_WindowData */ *data_)
 {
     SDL_WindowData *data = (SDL_WindowData *)data_;
-    SDL_VideoData *videodata = data->videodata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display = videodata->display;
 
     Atom type;
@@ -795,7 +796,7 @@ void X11_GetBorderValues(void /* SDL_WindowData */ *data_)
 
 static void X11_DispatchEvent(_THIS, XEvent *xevent)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display;
     SDL_WindowData *data;
     int orig_event_type;
@@ -843,7 +844,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
 
 #ifdef SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS
     if (xevent->type == GenericEvent) {
-        X11_HandleGenericEvent(videodata, xevent);
+        X11_HandleGenericEvent(xevent);
         return;
     }
 #endif
@@ -1218,7 +1219,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
             Window ChildReturn, Root, Parent;
             Window *Children;
             /* Translate these coodinates back to relative to root */
-            X11_XQueryTree(data->videodata->display, xevent->xconfigure.window, &Root, &Parent, &Children, &NumChildren);
+            X11_XQueryTree(x11VideoData.display, xevent->xconfigure.window, &Root, &Parent, &Children, &NumChildren);
             X11_XTranslateCoordinates(xevent->xconfigure.display,
                                       Parent, DefaultRootWindow(xevent->xconfigure.display),
                                       xevent->xconfigure.x, xevent->xconfigure.y,
@@ -1516,7 +1517,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
             data->user_time = xevent->xproperty.time;
         }
 
-        if (xevent->xproperty.atom == data->videodata->_NET_WM_STATE) {
+        if (xevent->xproperty.atom == x11VideoData._NET_WM_STATE) {
             /* Get the new state from the window manager.
                Compositing window managers can alter visibility of windows
                without ever mapping / unmapping them, so we handle that here,
@@ -1614,7 +1615,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
 
 static void X11_HandleFocusChanges(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     int i;
 
     if (videodata && videodata->windowlist) {
@@ -1651,7 +1652,7 @@ static SDL_bool X11_PollEvent(Display *display, XEvent *event)
 
 void X11_SendWakeupEvent(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     Display *req_display = data->request_display;
     Window xwindow = ((SDL_WindowData *)window->driverdata)->xwindow;
     XClientMessageEvent event;
@@ -1671,7 +1672,7 @@ void X11_SendWakeupEvent(_THIS, SDL_Window *window)
 
 int X11_WaitEventTimeout(_THIS, int timeout)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display;
     XEvent xevent;
     display = videodata->display;
@@ -1721,7 +1722,7 @@ int X11_WaitEventTimeout(_THIS, int timeout)
 
 void X11_PumpEvents(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     XEvent xevent;
     int i;
 
@@ -1775,7 +1776,7 @@ void X11_PumpEvents(_THIS)
 void X11_SuspendScreenSaver(_THIS)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XSCRNSAVER
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     int dummy;
     int major_version, minor_version;
 #endif /* SDL_VIDEO_DRIVER_X11_XSCRNSAVER */

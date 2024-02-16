@@ -31,7 +31,7 @@
 
 int X11_GLES_LoadLibrary(_THIS, const char *path)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
 
     /* If the profile requested is not GL ES, switch over to X11_GL functions  */
     if ((_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) &&
@@ -92,7 +92,7 @@ SDL_GLContext X11_GLES_CreateContext(_THIS, SDL_Window *window)
 {
     SDL_GLContext context;
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    Display *display = data->videodata->display;
+    Display *display = x11VideoData.display;
 
     X11_XSync(display, False);
     context = SDL_EGL_CreateContext(_this, data->egl_surface);

@@ -64,7 +64,6 @@ typedef struct
     PendingFocusEnum pending_focus;
     Uint32 pending_focus_time;
     XConfigureEvent last_xconfigure;
-    struct SDL_VideoData *videodata;
     unsigned long user_time;
     Atom xdnd_req;
     Window xdnd_source;

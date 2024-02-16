@@ -32,7 +32,7 @@
 /* Get any application owned window handle for clipboard association */
 static Window GetWindow(_THIS)
 {
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
 
     /* We create an unmapped window that exists just to manage the clipboard,
        since X11 selection data is tied to a specific window and dies with it.
@@ -117,7 +117,7 @@ Atom X11_GetSDLCutBufferClipboardInternalFormat(Display *display, enum ESDLX11Cl
 
 static int SetSelectionText(_THIS, const char *text, Atom selection_type)
 {
-    Display *display = ((SDL_VideoData *)_this->driverdata)->display;
+    Display *display = x11VideoData.display;
     Window window;
 
     /* Get the SDL window that will own the selection */
@@ -138,7 +138,7 @@ static int SetSelectionText(_THIS, const char *text, Atom selection_type)
 
 static char *GetSlectionText(_THIS, Atom selection_type)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Display *display = videodata->display;
     Atom format;
     Window window;
@@ -215,7 +215,7 @@ static char *GetSlectionText(_THIS, Atom selection_type)
 
 int X11_SetClipboardText(_THIS, const char *text)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Atom XA_CLIPBOARD = X11_XInternAtom(videodata->display, "CLIPBOARD", 0);
     if (XA_CLIPBOARD == None) {
         return SDL_SetError("Couldn't access X clipboard");
@@ -230,7 +230,7 @@ int X11_SetPrimarySelectionText(_THIS, const char *text)
 
 char *X11_GetClipboardText(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videodata = &x11VideoData;
     Atom XA_CLIPBOARD = X11_XInternAtom(videodata->display, "CLIPBOARD", 0);
     if (XA_CLIPBOARD == None) {
         SDL_SetError("Couldn't access X clipboard");

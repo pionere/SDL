@@ -43,7 +43,7 @@ typedef uint32_t xcb_visualid_t;
 
 int X11_Vulkan_LoadLibrary(_THIS, const char *path)
 {
-    SDL_VideoData *videoData = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videoData = &x11VideoData;
     VkExtensionProperties *extensions = NULL;
     Uint32 extensionCount = 0;
     SDL_bool hasSurfaceExtension = SDL_FALSE;
@@ -131,7 +131,7 @@ fail:
 
 void X11_Vulkan_UnloadLibrary(_THIS)
 {
-    SDL_VideoData *videoData = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videoData = &x11VideoData;
     if (_this->vulkan_config.loader_handle) {
         if (videoData->vulkan_xlib_xcb_library) {
             SDL_UnloadObject(videoData->vulkan_xlib_xcb_library);
@@ -146,7 +146,7 @@ SDL_bool X11_Vulkan_GetInstanceExtensions(_THIS,
                                           unsigned *count,
                                           const char **names)
 {
-    SDL_VideoData *videoData = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videoData = &x11VideoData;
     if (!_this->vulkan_config.loader_handle) {
         SDL_SetError("Vulkan is not loaded");
         return SDL_FALSE;
@@ -173,7 +173,7 @@ SDL_bool X11_Vulkan_CreateSurface(_THIS,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
 {
-    SDL_VideoData *videoData = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *videoData = &x11VideoData;
     SDL_WindowData *windowData = (SDL_WindowData *)window->driverdata;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
     if (!_this->vulkan_config.loader_handle) {

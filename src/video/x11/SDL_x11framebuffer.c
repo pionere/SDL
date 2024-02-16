@@ -51,7 +51,7 @@ int X11_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
                                 void **pixels, int *pitch)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    Display *display = data->videodata->display;
+    Display *display = x11VideoData.display;
     XGCValues gcv;
     XVisualInfo vinfo;
     int w, h;
@@ -146,7 +146,7 @@ int X11_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects
                                 int numrects)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    Display *display = data->videodata->display;
+    Display *display = x11VideoData.display;
     int i;
     int x, y, w, h;
     int window_w, window_h;
@@ -231,7 +231,7 @@ void X11_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
         return;
     }
 
-    display = data->videodata->display;
+    display = x11VideoData.display;
 
     if (data->ximage) {
         XDestroyImage(data->ximage);

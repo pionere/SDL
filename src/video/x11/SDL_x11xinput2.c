@@ -75,8 +75,9 @@ static SDL_bool xinput2_version_atleast(const int version, const int wantmajor, 
 }
 
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
-static SDL_Window *xinput2_get_sdlwindow(SDL_VideoData *videodata, Window window)
+static SDL_Window *xinput2_get_sdlwindow(Window window)
 {
+    X11_VideoData *videodata = &x11VideoData;
     int i;
     for (i = 0; i < videodata->numwindows; i++) {
         SDL_WindowData *d = videodata->windowlist[i];
@@ -113,7 +114,7 @@ static void xinput2_normalize_touch_coordinates(SDL_Window *window, double in_x,
 void X11_InitXinput2(_THIS)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
 
     int version = 0;
     XIEventMask eventmask;
@@ -183,7 +184,7 @@ void X11_InitXinput2(_THIS)
 
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
 /* xi2 device went away? take it out of the list. */
-static void xinput2_remove_device_info(SDL_VideoData *videodata, const int device_id)
+static void xinput2_remove_device_info(X11_VideoData *videodata, const int device_id)
 {
     SDL_XInput2DeviceInfo *prev = NULL;
     SDL_XInput2DeviceInfo *devinfo;
@@ -203,7 +204,7 @@ static void xinput2_remove_device_info(SDL_VideoData *videodata, const int devic
     }
 }
 
-static SDL_XInput2DeviceInfo *xinput2_get_device_info(SDL_VideoData *videodata, const int device_id)
+static SDL_XInput2DeviceInfo *xinput2_get_device_info(X11_VideoData *videodata, const int device_id)
 {
     /* cache device info as we see new devices. */
     SDL_XInput2DeviceInfo *prev = NULL;
@@ -264,7 +265,7 @@ static SDL_XInput2DeviceInfo *xinput2_get_device_info(SDL_VideoData *videodata, 
 }
 #endif
 
-int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie)
+int X11_HandleXinput2Event(X11_VideoData *videodata, XGenericEventCookie *cookie)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
     if (cookie->extension != xinput2_opcode) {
@@ -342,7 +343,7 @@ int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie
         if (!pointer_emulated) {
             SDL_Mouse *mouse = SDL_GetMouse();
             if (!mouse->relative_mode || mouse->relative_mode_warp) {
-                SDL_Window *window = xinput2_get_sdlwindow(videodata, xev->event);
+                SDL_Window *window = xinput2_get_sdlwindow(xev->event);
                 if (window) {
                     SDL_SendMouseMotion(window, 0, 0, xev->event_x, xev->event_y);
                 }
@@ -355,7 +356,7 @@ int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie
     {
         const XIDeviceEvent *xev = (const XIDeviceEvent *)cookie->data;
         float x, y;
-        SDL_Window *window = xinput2_get_sdlwindow(videodata, xev->event);
+        SDL_Window *window = xinput2_get_sdlwindow(xev->event);
         xinput2_normalize_touch_coordinates(window, xev->event_x, xev->event_y, &x, &y);
         SDL_SendTouch(xev->sourceid, xev->detail, window, SDL_TRUE, x, y, 1.0);
         return 1;
@@ -364,7 +365,7 @@ int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie
     {
         const XIDeviceEvent *xev = (const XIDeviceEvent *)cookie->data;
         float x, y;
-        SDL_Window *window = xinput2_get_sdlwindow(videodata, xev->event);
+        SDL_Window *window = xinput2_get_sdlwindow(xev->event);
         xinput2_normalize_touch_coordinates(window, xev->event_x, xev->event_y, &x, &y);
         SDL_SendTouch(xev->sourceid, xev->detail, window, SDL_FALSE, x, y, 1.0);
         return 1;
@@ -373,7 +374,7 @@ int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie
     {
         const XIDeviceEvent *xev = (const XIDeviceEvent *)cookie->data;
         float x, y;
-        SDL_Window *window = xinput2_get_sdlwindow(videodata, xev->event);
+        SDL_Window *window = xinput2_get_sdlwindow(xev->event);
         xinput2_normalize_touch_coordinates(window, xev->event_x, xev->event_y, &x, &y);
         SDL_SendTouchMotion(xev->sourceid, xev->detail, window, x, y, 1.0);
         return 1;
@@ -388,7 +389,7 @@ int X11_HandleXinput2Event(SDL_VideoData *videodata, XGenericEventCookie *cookie
 void X11_InitXinput2Multitouch(_THIS)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
-    SDL_VideoData *data = (SDL_VideoData *)_this->driverdata;
+    X11_VideoData *data = &x11VideoData;
     XIDeviceInfo *info;
     int ndevices, i, j;
 
@@ -428,7 +429,7 @@ void X11_InitXinput2Multitouch(_THIS)
 void X11_Xinput2SelectTouch(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
-    SDL_VideoData *data = NULL;
+    X11_VideoData *data = &x11VideoData;
     XIEventMask eventmask;
     unsigned char mask[4] = { 0, 0, 0, 0 };
     SDL_WindowData *window_data = NULL;
@@ -437,7 +438,6 @@ void X11_Xinput2SelectTouch(_THIS, SDL_Window *window)
         return;
     }
 
-    data = (SDL_VideoData *)_this->driverdata;
     window_data = (SDL_WindowData *)window->driverdata;
 
     eventmask.deviceid = XIAllMasterDevices;
@@ -475,7 +475,7 @@ void X11_Xinput2GrabTouch(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    Display *display = data->videodata->display;
+    Display *display = x11VideoData.display;
 
     unsigned char mask[4] = { 0, 0, 0, 0 };
     XIGrabModifiers mods;
@@ -505,7 +505,7 @@ void X11_Xinput2UngrabTouch(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    Display *display = data->videodata->display;
+    Display *display = x11VideoData.display;
 
     XIGrabModifiers mods;
 
