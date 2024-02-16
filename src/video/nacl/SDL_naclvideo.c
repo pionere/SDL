@@ -41,20 +41,20 @@
  * may appear even before SDL starts and we want to remember
  * the window width and height
  */
-static SDL_VideoData nacl = {0};
+NACL_VideoData naclVideoData;
 
 void NACL_SetScreenResolution(int width, int height, Uint32 format)
 {
     PP_Resource context;
 
-    nacl.w = width;
-    nacl.h = height;
-    nacl.format = format;
+    naclVideoData.w = width;
+    naclVideoData.h = height;
+    naclVideoData.format = format;
 
-    if (nacl.window) {
-        nacl.window->w = width;
-        nacl.window->h = height;
-        SDL_SendWindowEvent(nacl.window, SDL_WINDOWEVENT_RESIZED, width, height);
+    if (naclVideoData.window) {
+        naclVideoData.window->w = width;
+        naclVideoData.window->h = height;
+        SDL_SendWindowEvent(naclVideoData.window, SDL_WINDOWEVENT_RESIZED, width, height);
     }
 
     /* FIXME: Check threading issues...otherwise use a hardcoded _this->context across all threads */
@@ -76,9 +76,9 @@ static int NACL_Available(void) {
 }
 
 static void NACL_DeleteDevice(SDL_VideoDevice *device) {
-    SDL_VideoData *driverdata = (SDL_VideoData*) device->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     driverdata->ppb_core->ReleaseResource((PP_Resource) driverdata->ppb_message_loop);
-    /* device->driverdata is not freed because it points to static memory */
+    // SDL_zero(naclVideoData); -- do not clear, to remember the window width and height
     SDL_free(device);
 }
 
@@ -100,7 +100,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
         SDL_OutOfMemory();
         return NULL;
     }
-    device->driverdata = &nacl;
+    device->driverdata = &naclVideoData;
 
     /* Set the function pointers */
     device->VideoInit = NACL_VideoInit;
@@ -135,7 +135,7 @@ const VideoBootStrap NACL_bootstrap = {
 };
 
 int NACL_VideoInit(_THIS) {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     SDL_DisplayMode mode;
 
     SDL_zero(mode);

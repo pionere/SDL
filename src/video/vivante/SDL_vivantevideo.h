@@ -33,7 +33,7 @@
 #include <EGL/egl.h>
 #endif
 
-typedef struct SDL_VideoData
+typedef struct Vivante_VideoData
 {
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     vdkPrivate vdk_private;
@@ -49,7 +49,7 @@ typedef struct SDL_VideoData
     void(EGLAPIENTRY *fbGetWindowInfo)(EGLNativeWindowType Window, int *X, int *Y, int *Width, int *Height, int *BitsPerPixel, unsigned int *Offset);
     void(EGLAPIENTRY *fbDestroyWindow)(EGLNativeWindowType Window);
 #endif
-} SDL_VideoData;
+} Vivante_VideoData;
 
 typedef struct SDL_DisplayData
 {

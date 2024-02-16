@@ -41,19 +41,19 @@
 static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create. */
 #endif
 
+/* Instance */
+Pandora_VideoData pandoraVideoData;
+
 static void PND_destroy(SDL_VideoDevice * device)
 {
-    if (device->driverdata) {
-        SDL_free(device->driverdata);
-        device->driverdata = NULL;
-    }
+    SDL_zero(pandoraVideoData);
     SDL_free(device);
 }
 
 static SDL_VideoDevice *PND_create(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
 
     /* Initialize SDL_VideoDevice structure */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -63,16 +63,7 @@ static SDL_VideoDevice *PND_create(void)
     }
 
     /* Initialize internal Pandora specific data */
-    phdata = (SDL_VideoData *) SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
-    }
-
     device->driverdata = phdata;
-
-    phdata->egl_initialized = SDL_TRUE;
 
     /* Set device free function */
     device->free = PND_destroy;
@@ -170,8 +161,7 @@ int PND_setdisplaymode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode
 
 int PND_createwindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
-
+    Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata;
 
     /* Allocate window internal data */
@@ -203,8 +193,6 @@ int PND_createwindow(_THIS, SDL_Window * window)
                 return SDL_SetError("PND: Can't init OpenGL ES library");
             }
         }
-
-        phdata->egl_refcount++;
     }
 
     /* Window has been successfully created */
@@ -248,7 +236,7 @@ void PND_restorewindow(_THIS, SDL_Window * window)
 }
 void PND_destroywindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     eglTerminate(phdata->egl_display);
 }
 
@@ -336,34 +324,24 @@ void *PND_gl_getprocaddres(_THIS, const char *proc)
 
 void PND_gl_unloadlibrary(_THIS)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
 
-    if (phdata->egl_initialized == SDL_TRUE) {
         /* Unload OpenGL ES library */
         if (_this->gl_config.dll_handle) {
             SDL_UnloadObject(_this->gl_config.dll_handle);
             _this->gl_config.dll_handle = NULL;
         }
-    } else {
-        SDL_SetError("PND: GF initialization failed, no OpenGL ES support");
-    }
 }
 
 SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata = (SDL_WindowData *) window->driverdata;
     EGLBoolean status;
     EGLint configs;
     uint32_t attr_pos;
     EGLint attr_value;
     EGLint cit;
-
-    /* Check if EGL was initialized */
-    if (phdata->egl_initialized != SDL_TRUE) {
-        SDL_SetError("PND: EGL initialization failed, no OpenGL ES support");
-        return NULL;
-    }
 
     /* Prepare attributes list to pass them to OpenGL ES */
     attr_pos = 0;
@@ -655,13 +633,9 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
 
 int PND_gl_makecurrent(_THIS, SDL_Window * window, SDL_GLContext context)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata;
     EGLBoolean status;
-
-    if (phdata->egl_initialized != SDL_TRUE) {
-        return SDL_SetError("PND: GF initialization failed, no OpenGL ES support");
-    }
 
     if ((!window) && (!context)) {
         status =
@@ -698,12 +672,8 @@ int PND_gl_makecurrent(_THIS, SDL_Window * window, SDL_GLContext context)
 
 int PND_gl_setswapinterval(_THIS, int interval)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     EGLBoolean status;
-
-    if (phdata->egl_initialized != SDL_TRUE) {
-        return SDL_SetError("PND: EGL initialization failed, no OpenGL ES support");
-    }
 
     /* Check if OpenGL ES connection has been initialized */
     if (phdata->egl_display != EGL_NO_DISPLAY) {
@@ -722,17 +692,13 @@ int PND_gl_setswapinterval(_THIS, int interval)
 
 int PND_gl_getswapinterval(_THIS)
 {
-    return ((SDL_VideoData *) _this->driverdata)->swapinterval;
+    return pandoraVideoData.swapinterval;
 }
 
 int PND_gl_swapwindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata = (SDL_WindowData *) window->driverdata;
-
-    if (phdata->egl_initialized != SDL_TRUE) {
-        return SDL_SetError("PND: GLES initialization failed, no OpenGL ES support");
-    }
 
     /* Many applications do not uses glFinish(), so we call it for them */
     glFinish();
@@ -746,13 +712,8 @@ int PND_gl_swapwindow(_THIS, SDL_Window * window)
 
 void PND_gl_deletecontext(_THIS, SDL_GLContext context)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *) _this->driverdata;
+    Pandora_VideoData *phdata = &pandoraVideoData;
     EGLBoolean status;
-
-    if (phdata->egl_initialized != SDL_TRUE) {
-        SDL_SetError("PND: GLES initialization failed, no OpenGL ES support");
-        return;
-    }
 
     /* Check if OpenGL ES connection has been initialized */
     if (phdata->egl_display != EGL_NO_DISPLAY) {

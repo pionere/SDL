@@ -27,21 +27,12 @@
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
 
-typedef struct SDL_VideoData
+typedef struct Pandora_VideoData
 {
-    SDL_bool egl_initialized;   /* OpenGL ES device initialization status */
     EGLDisplay egl_display;     /* OpenGL ES display connection           */
-    uint32_t egl_refcount;      /* OpenGL ES reference count              */
     uint32_t swapinterval;      /* OpenGL ES default swap interval        */
 
-} SDL_VideoData;
-
-
-typedef struct SDL_DisplayData
-{
-
-} SDL_DisplayData;
-
+} Pandora_VideoData;
 
 typedef struct SDL_WindowData
 {

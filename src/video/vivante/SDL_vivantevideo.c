@@ -39,18 +39,19 @@
 #include "SDL_vivanteopengles.h"
 #include "SDL_vivantevulkan.h"
 
+/* Instance */
+Vivante_VideoData vivanteVideoData;
+
 static void VIVANTE_Destroy(SDL_VideoDevice *device)
 {
-    if (device->driverdata) {
-        SDL_free(device->driverdata);
-        device->driverdata = NULL;
-    }
+    SDL_zero(vivanteVideoData);
+    SDL_free(device);
 }
 
 static SDL_VideoDevice *VIVANTE_Create()
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    Vivante_VideoData *data = &vivanteVideoData;
 
     /* Initialize SDL_VideoDevice structure */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -60,13 +61,6 @@ static SDL_VideoDevice *VIVANTE_Create()
     }
 
     /* Initialize internal data */
-    data = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!data) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
-    }
-
     device->driverdata = data;
 
     /* Set device free function */
@@ -120,7 +114,7 @@ const VideoBootStrap VIVANTE_bootstrap = {
 
 static int VIVANTE_AddVideoDisplays(_THIS)
 {
-    SDL_VideoData *videodata = _this->driverdata;
+    Vivante_VideoData *videodata = &vivanteVideoData;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
     SDL_DisplayData *data;
@@ -166,7 +160,7 @@ static int VIVANTE_AddVideoDisplays(_THIS)
 
 int VIVANTE_VideoInit(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vivante_VideoData *videodata = &vivanteVideoData;
 
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     videodata->vdk_private = vdkInitialize();
@@ -218,7 +212,7 @@ int VIVANTE_VideoInit(_THIS)
 
 void VIVANTE_VideoQuit(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vivante_VideoData *videodata = &vivanteVideoData;
 
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Quit();
@@ -252,7 +246,7 @@ int VIVANTE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mo
 
 int VIVANTE_CreateWindow(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vivante_VideoData *videodata = &vivanteVideoData;
     SDL_DisplayData *displaydata;
     SDL_WindowData *data;
 
@@ -293,7 +287,7 @@ int VIVANTE_CreateWindow(_THIS, SDL_Window *window)
 
 void VIVANTE_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vivante_VideoData *videodata = &vivanteVideoData;
     SDL_WindowData *data;
 
     data = window->driverdata;

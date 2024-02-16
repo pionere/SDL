@@ -109,7 +109,7 @@ static void android_egl_context_backup(SDL_Window *window)
 
 void Android_PumpEvents_Blocking(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Android_VideoData *videodata = &androidVideoData;
 
     if (videodata->isPaused) {
         SDL_bool isContextExternal = SDL_IsVideoContextExternal();
@@ -185,7 +185,7 @@ void Android_PumpEvents_Blocking(_THIS)
 
 void Android_PumpEvents_NonBlocking(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Android_VideoData *videodata = &androidVideoData;
     static int backup_context = 0;
 
     if (videodata->isPaused) {

@@ -38,11 +38,11 @@
 #include "SDL_os2mouse.h"
 #include "SDL_os2output.h"
 
-typedef struct SDL_VideoData {
+typedef struct OS2_VideoData {
     HAB             hab;
     HMQ             hmq;
     OS2VIDEOOUTPUT *pOutput; /* Video output routines */
-} SDL_VideoData;
+} OS2_VideoData;
 
 typedef struct _WINDATA {
     SDL_Window     *window;

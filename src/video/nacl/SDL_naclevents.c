@@ -332,7 +332,7 @@ void NACL_PumpEvents(_THIS) {
   const char *str;
   char text[SDL_TEXTINPUTEVENT_TEXT_SIZE];
   Uint32 str_len;
-  SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+  NACL_VideoData *driverdata = &naclVideoData;
   SDL_Mouse *mouse = SDL_GetMouse();
 
   if (driverdata->window) {

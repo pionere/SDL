@@ -145,7 +145,7 @@ static void WINRT_HandleGameBarIsInputRedirected_NonMainThread(Platform::Object 
 
 void WINRT_InitGameBar(_THIS)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *)_this->driverdata;
+    WinRT_VideoData *driverdata = &winrtVideoData;
     IGameBarStatics_ *gameBar = WINRT_GetGameBar();
     if (gameBar) {
         /* GameBar.IsInputRedirected events can come in via something other than
@@ -165,16 +165,11 @@ void WINRT_InitGameBar(_THIS)
 
 void WINRT_QuitGameBar(_THIS)
 {
-    SDL_VideoData *driverdata;
-    IGameBarStatics_ *gameBar;
-    if (!_this || !_this->driverdata) {
-        return;
-    }
-    gameBar = WINRT_GetGameBar();
+    WinRT_VideoData *driverdata = &winrtVideoData;
+    IGameBarStatics_ *gameBar = WINRT_GetGameBar();
     if (!gameBar) {
         return;
     }
-    driverdata = (SDL_VideoData *)_this->driverdata;
     if (driverdata->gameBarIsInputRedirectedToken.Value) {
         gameBar->remove_IsInputRedirectedChanged(driverdata->gameBarIsInputRedirectedToken);
         driverdata->gameBarIsInputRedirectedToken.Value = 0;

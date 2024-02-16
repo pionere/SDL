@@ -27,12 +27,6 @@
 
 #include <UIKit/UIKit.h>
 
-@interface SDL_VideoData : NSObject
-
-@property (nonatomic, assign) id pasteboardObserver;
-
-@end
-
 CGRect UIKit_ComputeViewFrame(SDL_Window *window, UIScreen *screen);
 
 #endif /* __OBJC__ */

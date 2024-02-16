@@ -27,18 +27,6 @@
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
 
-typedef struct SDL_VideoData
-{
-    SDL_bool egl_initialized; /* OpenGL ES device initialization status */
-    uint32_t egl_refcount;    /* OpenGL ES reference count              */
-
-} SDL_VideoData;
-
-typedef struct SDL_DisplayData
-{
-
-} SDL_DisplayData;
-
 typedef struct SDL_WindowData
 {
     SDL_bool uses_gles; /* if true window must support OpenGL ES */

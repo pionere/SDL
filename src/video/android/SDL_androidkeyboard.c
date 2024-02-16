@@ -343,7 +343,7 @@ SDL_bool Android_HasScreenKeyboardSupport(_THIS)
 
 void Android_ShowScreenKeyboard(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *videodata = _this->driverdata;
+    Android_VideoData *videodata = &androidVideoData;
     Android_JNI_ShowScreenKeyboard(&videodata->textRect);
 }
 
@@ -359,7 +359,7 @@ SDL_bool Android_IsScreenKeyboardShown(_THIS, SDL_Window *window)
 
 void Android_SetTextInputRect(_THIS, const SDL_Rect *rect)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Android_VideoData *videodata = &androidVideoData;
 
     if (!rect) {
         SDL_InvalidParamError("rect");

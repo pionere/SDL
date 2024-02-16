@@ -55,7 +55,7 @@ static const int ANGLE_D3D_FEATURE_LEVEL_ANY = 0;
 extern "C" int
 WINRT_GLES_LoadLibrary(_THIS, const char *path)
 {
-    SDL_VideoData *video_data = (SDL_VideoData *)_this->driverdata;
+    WinRT_VideoData *video_data = &winrtVideoData;
 
     if (SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0) != 0) {
         return -1;
@@ -187,7 +187,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
 extern "C" void
 WINRT_GLES_UnloadLibrary(_THIS)
 {
-    SDL_VideoData *video_data = (SDL_VideoData *)_this->driverdata;
+    WinRT_VideoData *video_data = &winrtVideoData;
 
     /* Release SDL's own COM reference to the ANGLE/WinRT IWinrtEglWindow */
     if (video_data->winrtEglWindow) {

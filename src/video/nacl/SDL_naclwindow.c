@@ -31,7 +31,7 @@
 
 int NACL_CreateWindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
 
     if (driverdata->window) {
         return SDL_SetError("NaCl only supports one window");
@@ -64,7 +64,7 @@ void NACL_SetWindowTitle(_THIS, SDL_Window * window)
 
 void NACL_DestroyWindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     if (window == driverdata->window) {
         driverdata->window = NULL;
     }

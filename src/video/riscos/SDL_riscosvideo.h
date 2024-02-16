@@ -27,11 +27,13 @@
 
 #define RISCOS_MAX_KEYS_PRESSED 6
 
-typedef struct SDL_VideoData
+typedef struct RiscOS_VideoData
 {
     int last_mouse_buttons;
     Uint8 key_pressed[RISCOS_MAX_KEYS_PRESSED];
-} SDL_VideoData;
+} RiscOS_VideoData;
+
+extern RiscOS_VideoData riscosVideoData;
 
 #endif /* SDL_riscosvideo_h_ */
 

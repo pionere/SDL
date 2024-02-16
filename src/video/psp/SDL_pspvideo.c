@@ -38,23 +38,14 @@
 #include "SDL_pspevents_c.h"
 #include "SDL_pspgl_c.h"
 
-/* unused
-static SDL_bool PSP_initialized = SDL_FALSE;
-*/
-
 static void PSP_Destroy(SDL_VideoDevice *device)
 {
-    /*    SDL_VideoData *phdata = (SDL_VideoData *) device->driverdata; */
-
-    if (device->driverdata) {
-        device->driverdata = NULL;
-    }
+    SDL_free(device);
 }
 
 static SDL_VideoDevice *PSP_Create()
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
     SDL_GLDriverData *gldata;
 
     /* Initialize SDL_VideoDevice structure */
@@ -65,25 +56,15 @@ static SDL_VideoDevice *PSP_Create()
     }
 
     /* Initialize internal PSP specific data */
-    phdata = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
-    }
-
     gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
     if (!gldata) {
         SDL_OutOfMemory();
         SDL_free(device);
-        SDL_free(phdata);
         return NULL;
     }
     device->gl_data = gldata;
 
-    device->driverdata = phdata;
-
-    phdata->egl_initialized = SDL_TRUE;
+    // device->driverdata = NULL;
 
     /* Set device free function */
     device->free = PSP_Destroy;

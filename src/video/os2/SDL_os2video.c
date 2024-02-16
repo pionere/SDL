@@ -44,6 +44,8 @@
 #define OS2DRIVER_NAME_DIVE     "DIVE"
 #define OS2DRIVER_NAME_VMAN     "VMAN"
 
+/* Instance */
+OS2_VideoData os2VideoData;
 
 static const SDL_Scancode aSDLScancode[] = {
          /*   0                       1                           2                           3                           4                        5                                                       6                           7 */
@@ -702,7 +704,7 @@ static MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 
 static void OS2_PumpEvents(_THIS)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     QMSG  qmsg;
 
     if (WinPeekMsg(pVData->hab, &qmsg, NULLHANDLE, 0, 0, PM_REMOVE))
@@ -712,7 +714,7 @@ static void OS2_PumpEvents(_THIS)
 static WINDATA *_setupWindow(_THIS, SDL_Window *window, HWND hwndFrame,
                              HWND hwnd)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     WINDATA       *pWinData = SDL_calloc(1, sizeof(WINDATA));
 
     if (!pWinData) {
@@ -796,7 +798,7 @@ static int OS2_CreateWindow(_THIS, SDL_Window *window)
 
 static int OS2_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
-    SDL_VideoData   *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData   *pVData = &os2VideoData;
     CHAR             acBuf[256];
     CLASSINFO        stCI;
     HWND             hwndUser = (HWND)data;
@@ -907,7 +909,7 @@ static int OS2_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 
 static void OS2_DestroyWindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     WINDATA       *pWinData = (WINDATA *)window->driverdata;
 
     debug_os2("Enter");
@@ -1351,7 +1353,7 @@ static int OS2_UpdateWindowFramebuffer(_THIS, SDL_Window * window,
  */
 static int OS2_SetClipboardText(_THIS, const char *text)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     PSZ   pszClipboard;
     PSZ   pszText = (!text)? NULL : OS2_UTF8ToSys(text);
     ULONG cbText;
@@ -1396,7 +1398,7 @@ static int OS2_SetClipboardText(_THIS, const char *text)
 
 static char *OS2_GetClipboardText(_THIS)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     PSZ pszClipboard = NULL;
 
     if (!WinOpenClipbrd(pVData->hab)) {
@@ -1413,7 +1415,7 @@ static char *OS2_GetClipboardText(_THIS)
 
 static SDL_bool OS2_HasClipboardText(_THIS)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
     PSZ pszClipboard;
     SDL_bool  result;
 
@@ -1432,14 +1434,9 @@ static SDL_bool OS2_HasClipboardText(_THIS)
 
 static int OS2_VideoInit(_THIS)
 {
-    SDL_VideoData *pVData;
+    OS2_VideoData *pVData = &os2VideoData;
     PTIB  tib;
     PPIB  pib;
-
-    /* Create SDL video driver private data */
-    pVData = SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!pVData)
-        return SDL_OutOfMemory();
 
     /* Change process type code for use Win* API from VIO session */
     DosGetInfoBlocks(&tib, &pib);
@@ -1452,14 +1449,12 @@ static int OS2_VideoInit(_THIS)
     pVData->hab = WinInitialize(0);
     pVData->hmq = WinCreateMsgQueue(pVData->hab, 0);
     if (pVData->hmq == NULLHANDLE) {
-        SDL_free(pVData);
         return SDL_SetError("Message queue cannot be created.");
     }
 
     if (!WinRegisterClass(pVData->hab, WIN_CLIENT_CLASS, wndProc,
                           CS_SIZEREDRAW | CS_MOVENOTIFY | CS_SYNCPAINT,
-                          sizeof(SDL_VideoData*))) {
-        SDL_free(pVData);
+                          sizeof(OS2_VideoData*))) {
         return SDL_SetError("Window class not successfully registered.");
     }
 
@@ -1479,7 +1474,6 @@ static int OS2_VideoInit(_THIS)
         VIDEOOUTPUTINFO     stVOInfo;
 
         if (!pVData->pOutput->QueryInfo(&stVOInfo)) {
-            SDL_free(pVData);
             return SDL_SetError("Video mode query failed.");
         }
 
@@ -1537,7 +1531,7 @@ static int OS2_VideoInit(_THIS)
 
 static void OS2_VideoQuit(_THIS)
 {
-    SDL_VideoData *pVData = (SDL_VideoData *)_this->driverdata;
+    OS2_VideoData *pVData = &os2VideoData;
 
     OS2_QuitMouse(_this);
 
@@ -1601,6 +1595,7 @@ static int OS2_SetDisplayMode(_THIS, SDL_VideoDisplay *display,
 
 static void OS2_DeleteDevice(SDL_VideoDevice *device)
 {
+    SDL_zero(os2VideoData);
     SDL_free(device);
 }
 

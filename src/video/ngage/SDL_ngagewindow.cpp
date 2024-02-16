@@ -29,8 +29,8 @@
 
 const TUint32 WindowClientHandle = 9210;
 
-void DisableKeyBlocking(_THIS);
-void ConstructWindowL(_THIS);
+void DisableKeyBlocking();
+static void ConstructWindowL();
 
 int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 {
@@ -52,7 +52,7 @@ int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 
     ngage_window->sdl_window = window;
 
-    ConstructWindowL(_this);
+    ConstructWindowL();
 
     return 0;
 }
@@ -72,18 +72,18 @@ void NGAGE_DestroyWindow(_THIS, SDL_Window *window)
 /* Internal                                                                  */
 /*****************************************************************************/
 
-void DisableKeyBlocking(_THIS)
+void DisableKeyBlocking()
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)_this->driverdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
     TRawEvent event;
 
     event.Set((TRawEvent::TType) /*EDisableKeyBlock*/ 51);
     phdata->NGAGE_WsSession.SimulateRawEvent(event);
 }
 
-void ConstructWindowL(_THIS)
+static void ConstructWindowL()
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)_this->driverdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
     TInt error;
 
     error = phdata->NGAGE_WsSession.Connect();
@@ -119,7 +119,7 @@ void ConstructWindowL(_THIS)
     phdata->NGAGE_WsWindowGroupID = phdata->NGAGE_WsWindowGroup.Identifier();
     phdata->NGAGE_IsWindowFocused = EFalse;
 
-    DisableKeyBlocking(_this);
+    DisableKeyBlocking();
 }
 
 #endif /* SDL_VIDEO_DRIVER_NGAGE */

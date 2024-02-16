@@ -30,11 +30,6 @@
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 
-typedef struct SDL_VideoData
-{
-    uint32_t egl_refcount; /* OpenGL ES reference count              */
-} SDL_VideoData;
-
 typedef struct SDL_DisplayData
 {
     DISPMANX_DISPLAY_HANDLE_T dispman_display;

@@ -42,6 +42,9 @@
 #include "SDL_androidwindow.h"
 #include "SDL_androidvulkan.h"
 
+/* Instance */
+Android_VideoData androidVideoData;
+
 /* Initialization/Query functions */
 static int Android_VideoInit(_THIS);
 static void Android_VideoQuit(_THIS);
@@ -74,27 +77,20 @@ static void Android_SuspendScreenSaver(_THIS)
 
 static void Android_DeleteDevice(SDL_VideoDevice *device)
 {
-    SDL_free(device->driverdata);
+    SDL_zero(androidVideoData);
     SDL_free(device);
 }
 
 static SDL_VideoDevice *Android_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    Android_VideoData *data = &androidVideoData;
     SDL_bool block_on_pause;
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
         SDL_OutOfMemory();
-        return NULL;
-    }
-
-    data = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!data) {
-        SDL_OutOfMemory();
-        SDL_free(device);
         return NULL;
     }
 
@@ -168,7 +164,7 @@ const VideoBootStrap Android_bootstrap = {
 
 int Android_VideoInit(_THIS)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Android_VideoData *videodata = &androidVideoData;
     int display_index;
     SDL_VideoDisplay *display;
     SDL_DisplayMode mode;

@@ -89,42 +89,33 @@ static SDL_bool WINRT_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo 
 static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest(_THIS);
 extern void WINRT_SuspendScreenSaver(_THIS);
 
-/* SDL-internal globals: */
+/* Instance */
+WinRT_VideoData winrtVideoData;
 SDL_Window *WINRT_GlobalSDLWindow = NULL;
 
 /* WinRT driver bootstrap functions */
 
 static void WINRT_DeleteDevice(SDL_VideoDevice *device)
 {
-    if (device->driverdata) {
-        SDL_VideoData *video_data = (SDL_VideoData *)device->driverdata;
-        if (video_data->winrtEglWindow) {
-            video_data->winrtEglWindow->Release();
-        }
-        SDL_free(video_data);
+    if (winrtVideoData.winrtEglWindow) {
+        winrtVideoData.winrtEglWindow->Release();
     }
-
+    SDL_zero(winrtVideoData);
     SDL_free(device);
 }
 
 static SDL_VideoDevice *WINRT_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    WinRT_VideoData *data = &winrtVideoData;
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
         SDL_OutOfMemory();
-        return 0;
+        return NULL;
     }
 
-    data = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!data) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return 0;
-    }
     device->driverdata = data;
 
     /* Set the function pointers */
@@ -230,7 +221,7 @@ static void SDLCALL WINRT_SetDisplayOrientationsPreference(void *userdata, const
 
 int WINRT_VideoInit(_THIS)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *)_this->driverdata;
+    WinRT_VideoData *driverdata = &winrtVideoData;
     if (WINRT_InitModes(_this) < 0) {
         return -1;
     }
@@ -478,8 +469,8 @@ static int WINRT_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMod
 
 void WINRT_VideoQuit(_THIS)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *)_this->driverdata;
-    if (driverdata && driverdata->displayRequest) {
+    WinRT_VideoData *driverdata = &winrtVideoData;
+    if (driverdata->displayRequest) {
         driverdata->displayRequest->Release();
         driverdata->displayRequest = NULL;
     }
@@ -633,7 +624,7 @@ int WINRT_CreateWindow(_THIS, SDL_Window *window)
         data->egl_surface = EGL_NO_SURFACE;
     } else {
         /* OpenGL ES 2 was reuqested.  Set up an EGL surface. */
-        SDL_VideoData *video_data = (SDL_VideoData *)_this->driverdata;
+        WinRT_VideoData *video_data = &winrtVideoData;
 
         /* Call SDL_EGL_ChooseConfig and eglCreateWindowSurface directly,
          * rather than via SDL_EGL_CreateSurface, as older versions of
@@ -853,8 +844,8 @@ done:
 
 void WINRT_SuspendScreenSaver(_THIS)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *)_this->driverdata;
-    if (driverdata && driverdata->displayRequest) {
+    WinRT_VideoData *driverdata = &winrtVideoData;
+    if (driverdata->displayRequest) {
         ABI::Windows::System::Display::IDisplayRequest *displayRequest = (ABI::Windows::System::Display::IDisplayRequest *)driverdata->displayRequest;
         if (_this->suspend_screensaver) {
             displayRequest->RequestActive();

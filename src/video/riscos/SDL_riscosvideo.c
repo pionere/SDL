@@ -35,6 +35,9 @@
 #include "SDL_riscosmodes.h"
 #include "SDL_riscoswindow.h"
 
+/* Instance */
+RiscOS_VideoData riscosVideoData;
+
 /* Initialization/Query functions */
 static int RISCOS_VideoInit(_THIS);
 static void RISCOS_VideoQuit(_THIS);
@@ -43,30 +46,23 @@ static void RISCOS_VideoQuit(_THIS);
 
 static void RISCOS_DeleteDevice(SDL_VideoDevice *device)
 {
-    SDL_free(device->driverdata);
+    SDL_zero(riscosVideoData);
     SDL_free(device);
 }
 
 static SDL_VideoDevice *RISCOS_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
+    RiscOS_VideoData *phdata = &riscosVideoData;
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
         SDL_OutOfMemory();
-        return 0;
-    }
-
-    /* Initialize internal data */
-    phdata = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
         return NULL;
     }
 
+    /* Initialize internal data */
     device->driverdata = phdata;
 
     /* Set the function pointers */
@@ -96,7 +92,7 @@ const VideoBootStrap RISCOS_bootstrap = {
 
 static int RISCOS_VideoInit(_THIS)
 {
-    if (RISCOS_InitEvents(_this) < 0) {
+    if (RISCOS_InitEvents() < 0) {
         return -1;
     }
 
@@ -114,7 +110,7 @@ static int RISCOS_VideoInit(_THIS)
 
 static void RISCOS_VideoQuit(_THIS)
 {
-    RISCOS_QuitEvents(_this);
+    RISCOS_QuitEvents();
 }
 
 #endif /* SDL_VIDEO_DRIVER_RISCOS */

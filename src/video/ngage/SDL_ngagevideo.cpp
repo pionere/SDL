@@ -45,6 +45,9 @@ extern "C" {
 #include "SDL_ngageevents_c.h"
 #include "SDL_ngageframebuffer_c.h"
 
+/* Instance */
+Ngage_VideoData ngageVideoData;
+
 /* Initialization/Query functions */
 static int NGAGE_VideoInit(_THIS);
 static int NGAGE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
@@ -54,9 +57,8 @@ static void NGAGE_VideoQuit(_THIS);
 
 static void NGAGE_DeleteDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)device->driverdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
 
-    if (phdata) {
         /* Free Epoc resources */
 
         /* Disable events for me */
@@ -87,20 +89,15 @@ static void NGAGE_DeleteDevice(SDL_VideoDevice *device)
             phdata->NGAGE_WsSession.Close();
         }
 
-        SDL_free(phdata);
-        phdata = NULL;
-    }
+        SDL_zero(ngageVideoData);
 
-    if (device) {
-        SDL_free(device);
-        device = NULL;
-    }
+    SDL_free(device);
 }
 
 static SDL_VideoDevice *NGAGE_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -110,12 +107,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     }
 
     /* Initialize internal N-Gage specific data */
-    phdata = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return 0;
-    }
+    device->driverdata = phdata;
 
     /* General video */
     device->VideoInit = NGAGE_VideoInit;
@@ -130,9 +122,6 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     /* "Window" */
     device->CreateSDLWindow = NGAGE_CreateWindow;
     device->DestroyWindow = NGAGE_DestroyWindow;
-
-    /* N-Gage specific data */
-    device->driverdata = phdata;
 
     return device;
 }

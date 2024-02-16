@@ -167,13 +167,7 @@ int PSP_GL_SwapWindow(_THIS, SDL_Window *window)
 
 void PSP_GL_DeleteContext(_THIS, SDL_GLContext context)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)_this->driverdata;
     EGLBoolean status;
-
-    if (phdata->egl_initialized != SDL_TRUE) {
-        SDL_SetError("PSP: GLES initialization failed, no OpenGL ES support");
-        return;
-    }
 
     /* Check if OpenGL ES connection has been initialized */
     if (_this->gl_data->display != EGL_NO_DISPLAY) {

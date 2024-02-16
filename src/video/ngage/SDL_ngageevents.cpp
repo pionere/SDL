@@ -44,7 +44,7 @@ int HandleWsEvent(_THIS, const TWsEvent &aWsEvent);
 
 void NGAGE_PumpEvents(_THIS)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)_this->driverdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
 
     while (phdata->NGAGE_WsEventStatus != KRequestPending) {
         phdata->NGAGE_WsSession.GetEvent(phdata->NGAGE_WsEvent);
@@ -63,12 +63,12 @@ void NGAGE_PumpEvents(_THIS)
 #include <bautils.h>
 #include <hal.h>
 
-extern void DisableKeyBlocking(_THIS);
+extern void DisableKeyBlocking();
 extern void RedrawWindowL(_THIS);
 
 TBool isCursorVisible = EFalse;
 
-static SDL_Scancode ConvertScancode(_THIS, int key)
+static SDL_Scancode ConvertScancode(int key)
 {
     SDL_Keycode keycode;
 
@@ -149,20 +149,20 @@ static SDL_Scancode ConvertScancode(_THIS, int key)
 
 int HandleWsEvent(_THIS, const TWsEvent &aWsEvent)
 {
-    SDL_VideoData *phdata = (SDL_VideoData *)_this->driverdata;
+    Ngage_VideoData *phdata = &ngageVideoData;
     int posted = 0;
 
     switch (aWsEvent.Type()) {
     case EEventKeyDown: /* Key events */
-        SDL_SendKeyboardKey(SDL_PRESSED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
+        SDL_SendKeyboardKey(SDL_PRESSED, ConvertScancode(aWsEvent.Key()->iScanCode));
         break;
     case EEventKeyUp: /* Key events */
-        SDL_SendKeyboardKey(SDL_RELEASED, ConvertScancode(_this, aWsEvent.Key()->iScanCode));
+        SDL_SendKeyboardKey(SDL_RELEASED, ConvertScancode(aWsEvent.Key()->iScanCode));
         break;
     case EEventFocusGained: /* SDL window got focus */
         phdata->NGAGE_IsWindowFocused = ETrue;
         /* Draw window background and screen buffer */
-        DisableKeyBlocking(_this);
+        DisableKeyBlocking();
         RedrawWindowL(_this);
         break;
     case EEventFocusLost: /* SDL window lost focus */

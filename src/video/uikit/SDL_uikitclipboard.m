@@ -27,6 +27,10 @@
 
 #import <UIKit/UIPasteboard.h>
 
+#if !TARGET_OS_TV
+static id clipboard_observer = nil;
+#endif
+
 int UIKit_SetClipboardText(_THIS, const char *text)
 {
 #if TARGET_OS_TV
@@ -73,32 +77,29 @@ void UIKit_InitClipboard(_THIS)
 {
 #if !TARGET_OS_TV
     @autoreleasepool {
-        SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
         NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
 
-        id observer = [center addObserverForName:UIPasteboardChangedNotification
+        clipboard_observer = [center addObserverForName:UIPasteboardChangedNotification
                                          object:nil
                                           queue:nil
                                      usingBlock:^(NSNotification *note) {
                                          SDL_SendClipboardUpdate();
                                      }];
 
-        data.pasteboardObserver = observer;
     }
 #endif
 }
 
 void UIKit_QuitClipboard(_THIS)
 {
+#if !TARGET_OS_TV
     @autoreleasepool {
-        SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
-
-        if (data.pasteboardObserver != nil) {
-            [[NSNotificationCenter defaultCenter] removeObserver:data.pasteboardObserver];
+        if (clipboard_observer != nil) {
+            [[NSNotificationCenter defaultCenter] removeObserver:clipboard_observer];
+            clipboard_observer = nil;
         }
-
-        data.pasteboardObserver = nil;
     }
+#endif
 }
 
 #endif /* SDL_VIDEO_DRIVER_UIKIT */

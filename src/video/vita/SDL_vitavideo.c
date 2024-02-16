@@ -54,23 +54,21 @@
   #define VITA_GLES_DeleteContext SDL_EGL_DeleteContext
 #endif
 
+/* Instance */
+Vita_VideoData vitaVideoData;
 SDL_Window *Vita_Window;
 
 static void VITA_Destroy(SDL_VideoDevice *device)
 {
-    /*    SDL_VideoData *phdata = (SDL_VideoData *) device->driverdata; */
-
-    SDL_free(device->driverdata);
+    SDL_zero(vitaVideoData);
+    SDL_free(device->gl_data);
     SDL_free(device);
-    //    if (device->driverdata != NULL) {
-    //        device->driverdata = NULL;
-    //    }
 }
 
 static SDL_VideoDevice *VITA_Create()
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
+    Vita_VideoData *phdata = &vitaVideoData;
 #ifdef SDL_VIDEO_VITA_PIB
     SDL_GLDriverData *gldata;
 #endif
@@ -82,25 +80,17 @@ static SDL_VideoDevice *VITA_Create()
     }
 
     /* Initialize internal VITA specific data */
-    phdata = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
-    }
 #ifdef SDL_VIDEO_VITA_PIB
 
     gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
     if (!gldata) {
         SDL_OutOfMemory();
         SDL_free(device);
-        SDL_free(phdata);
         return NULL;
     }
     device->gl_data = gldata;
-    phdata->egl_initialized = SDL_TRUE;
 #endif
-    phdata->ime_active = SDL_FALSE;
+    // phdata->ime_active = SDL_FALSE;
 
     device->driverdata = phdata;
 
@@ -356,7 +346,6 @@ void VITA_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed)
 
 void VITA_DestroyWindow(_THIS, SDL_Window *window)
 {
-    //    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
     SDL_WindowData *data;
 
     data = window->driverdata;
@@ -427,9 +416,10 @@ SceImeCaret caret_rev;
 
 void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)arg;
+    Vita_VideoData *videodata = &vitaVideoData;
     SDL_Scancode scancode;
     uint8_t utf8_buffer[SCE_IME_MAX_TEXT_LENGTH];
+    SDL_assert(videodata == arg);
     switch (e->id) {
     case SCE_IME_EVENT_UPDATE_TEXT:
         if (e->param.text.caretIndex == 0) {
@@ -462,7 +452,7 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
 
 void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vita_VideoData *videodata = &vitaVideoData;
     SceInt32 res;
 
 #if defined(SDL_VIDEO_VITA_PVR)
@@ -524,7 +514,7 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
 void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
 {
 #if !defined(SDL_VIDEO_VITA_PVR)
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vita_VideoData *videodata = &vitaVideoData;
 
     SceCommonDialogStatus dialogStatus = sceImeDialogGetStatus();
 
@@ -545,7 +535,7 @@ void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
 SDL_bool VITA_IsScreenKeyboardShown(_THIS, SDL_Window *window)
 {
 #if defined(SDL_VIDEO_VITA_PVR)
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vita_VideoData *videodata = &vitaVideoData;
     return videodata->ime_active;
 #else
     SceCommonDialogStatus dialogStatus = sceImeDialogGetStatus();
@@ -556,7 +546,7 @@ SDL_bool VITA_IsScreenKeyboardShown(_THIS, SDL_Window *window)
 void VITA_PumpEvents(_THIS)
 {
 #if !defined(SDL_VIDEO_VITA_PVR)
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vita_VideoData *videodata = &vitaVideoData;
 #endif
 
     if (_this->suspend_screensaver) {

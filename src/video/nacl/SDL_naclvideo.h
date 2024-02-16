@@ -34,7 +34,7 @@
 
 /* Private display data */
 
-typedef struct SDL_VideoData {
+typedef struct NACL_VideoData {
   Uint32 format;
   int w, h;
   SDL_Window *window;
@@ -59,7 +59,9 @@ typedef struct SDL_VideoData {
   /* FIXME: Check threading issues...otherwise use a hardcoded _this->context across all threads */
   /* PP_Resource context; */
 
-} SDL_VideoData;
+} NACL_VideoData;
+
+extern NACL_VideoData naclVideoData;
 
 extern void NACL_SetScreenResolution(int width, int height, Uint32 format);
 

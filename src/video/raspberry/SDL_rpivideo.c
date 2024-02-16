@@ -52,7 +52,6 @@
 
 static void RPI_Destroy(SDL_VideoDevice *device)
 {
-    SDL_free(device->driverdata);
     SDL_free(device);
 }
 
@@ -73,7 +72,6 @@ static int RPI_GetRefreshRate()
 static SDL_VideoDevice *RPI_Create()
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *phdata;
 
     /* Initialize SDL_VideoDevice structure */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -83,14 +81,7 @@ static SDL_VideoDevice *RPI_Create()
     }
 
     /* Initialize internal data */
-    phdata = (SDL_VideoData *)SDL_calloc(1, sizeof(SDL_VideoData));
-    if (!phdata) {
-        SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
-    }
-
-    device->driverdata = phdata;
+    // device->driverdata = NULL;
 
     /* Set device free function */
     device->free = RPI_Destroy;

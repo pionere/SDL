@@ -85,7 +85,7 @@ int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 
 int VITA_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
-    SDL_VideoData *videodata = (SDL_VideoData *)_this->driverdata;
+    Vita_VideoData *videodata = &vitaVideoData;
     if (videodata->ime_active) {
         sceImeUpdate();
     }

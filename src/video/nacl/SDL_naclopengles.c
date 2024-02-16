@@ -58,7 +58,7 @@ void NACL_GLES_UnloadLibrary(_THIS)
 
 int NACL_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext sdl_context)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     /* FIXME: Check threading issues...otherwise use a hardcoded _this->context across all threads */
     driverdata->ppb_instance->BindGraphics(driverdata->instance, (PP_Resource) sdl_context);
     glSetCurrentContextPPAPI((PP_Resource) sdl_context);
@@ -67,7 +67,7 @@ int NACL_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext sdl_context)
 
 SDL_GLContext NACL_GLES_CreateContext(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     PP_Resource context, share_context = 0;
     /* 64 seems nice. */
     Sint32 attribs[64];
@@ -146,7 +146,7 @@ int NACL_GLES_GetSwapInterval(_THIS)
 
 int NACL_GLES_SwapWindow(_THIS, SDL_Window * window)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     struct PP_CompletionCallback callback = { NULL, 0, PP_COMPLETIONCALLBACK_FLAG_NONE };
     if (driverdata->ppb_graphics->SwapBuffers((PP_Resource) SDL_GL_GetCurrentContext(), callback ) != 0) {
         return SDL_SetError("SwapBuffers failed");
@@ -156,7 +156,7 @@ int NACL_GLES_SwapWindow(_THIS, SDL_Window * window)
 
 void NACL_GLES_DeleteContext(_THIS, SDL_GLContext context)
 {
-    SDL_VideoData *driverdata = (SDL_VideoData *) _this->driverdata;
+    NACL_VideoData *driverdata = &naclVideoData;
     driverdata->ppb_core->ReleaseResource((PP_Resource) context);
 }
 

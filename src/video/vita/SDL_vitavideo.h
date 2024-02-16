@@ -31,19 +31,11 @@
 #include <psp2/ime_dialog.h>
 #include <psp2/sysmodule.h>
 
-typedef struct SDL_VideoData
+typedef struct Vita_VideoData
 {
-    SDL_bool egl_initialized; /* OpenGL device initialization status */
-    uint32_t egl_refcount;    /* OpenGL reference count              */
-
     SceWChar16 ime_buffer[SCE_IME_DIALOG_MAX_TEXT_LENGTH];
     SDL_bool ime_active;
-} SDL_VideoData;
-
-typedef struct SDL_DisplayData
-{
-
-} SDL_DisplayData;
+} Vita_VideoData;
 
 typedef struct SDL_WindowData
 {
@@ -56,6 +48,7 @@ typedef struct SDL_WindowData
 #endif
 } SDL_WindowData;
 
+extern Vita_VideoData vitaVideoData;
 extern SDL_Window *Vita_Window;
 
 /****************************************************************************/

@@ -40,20 +40,15 @@
 #include "SDL_uikitvulkan.h"
 #include "SDL_uikitmetalview.h"
 
-@implementation SDL_VideoData
-
-@end
-
 /* Initialization/Query functions */
 static int UIKit_VideoInit(_THIS);
 static void UIKit_VideoQuit(_THIS);
 
-/* DUMMY driver bootstrap functions */
+/* UIKit driver bootstrap functions */
 
 static void UIKit_DeleteDevice(SDL_VideoDevice * device)
 {
     @autoreleasepool {
-        CFRelease(device->driverdata);
         SDL_free(device);
     }
 }
@@ -62,19 +57,15 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
 {
     @autoreleasepool {
         SDL_VideoDevice *device;
-        SDL_VideoData *data;
 
         /* Initialize all variables that we clean on shutdown */
         device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-        if (device) {
-            data = [SDL_VideoData new];
-        } else {
-            SDL_free(device);
+        if (!device) {
             SDL_OutOfMemory();
             return (0);
         }
 
-        device->driverdata = (void *) CFBridgingRetain(data);
+        // device->driverdata = nil;
 
         /* Set the function pointers */
         device->VideoInit = UIKit_VideoInit;

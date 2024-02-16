@@ -57,12 +57,11 @@ static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
 static SDL_VideoDevice * HAIKU_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    /*SDL_VideoData *data;*/
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
 
-    device->driverdata = NULL; /* FIXME: Is this the cause of some of the
+    // device->driverdata = NULL; /* FIXME: Is this the cause of some of the
                                   SDL_Quit() errors? */
 
 /* TODO: Figure out if any initialization needs to go here */
@@ -135,7 +134,6 @@ const VideoBootStrap HAIKU_bootstrap = {
 
 void HAIKU_DeleteDevice(SDL_VideoDevice * device)
 {
-    SDL_free(device->driverdata);
     SDL_free(device);
 }
 
