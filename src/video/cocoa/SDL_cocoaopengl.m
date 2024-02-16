@@ -475,7 +475,7 @@ int Cocoa_GL_SwapWindow(_THIS, SDL_Window * window)
 { @autoreleasepool
 {
     SDLOpenGLContext* nscontext = (__bridge SDLOpenGLContext*)SDL_GL_GetCurrentContext();
-    SDL_VideoData *videodata = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *videodata = cocoaVideoData;
     const int setting = SDL_AtomicGet(&nscontext->swapIntervalSetting);
 
     if (setting == 0) {

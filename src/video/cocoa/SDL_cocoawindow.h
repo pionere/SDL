@@ -119,7 +119,6 @@ typedef enum
 /* *INDENT-ON* */
 
 @class SDLOpenGLContext;
-@class SDL_VideoData;
 
 @interface SDL_WindowData : NSObject
     @property (nonatomic) SDL_Window *window;
@@ -131,7 +130,6 @@ typedef enum
     @property (nonatomic) NSInteger window_number;
     @property (nonatomic) NSInteger flash_request;
     @property (nonatomic) Cocoa_WindowListener *listener;
-    @property (nonatomic) SDL_VideoData *videodata;
 #ifdef SDL_VIDEO_OPENGL_EGL
     @property (nonatomic) EGLSurface egl_surface;
 #endif

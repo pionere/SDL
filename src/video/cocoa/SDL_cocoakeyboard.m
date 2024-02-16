@@ -197,7 +197,7 @@ static bool IsModifierKeyPressed(unsigned int flags,
     return target_pressed;
 }
 
-static void HandleModifiers(_THIS, SDL_Scancode code, unsigned int modifierFlags)
+static void HandleModifiers(SDL_Scancode code, unsigned int modifierFlags)
 {
     bool pressed = false;
 
@@ -236,7 +236,7 @@ static void HandleModifiers(_THIS, SDL_Scancode code, unsigned int modifierFlags
     }
 }
 
-static void UpdateKeymap(SDL_VideoData *data, SDL_bool send_event)
+static void UpdateKeymap(Cocoa_VideoData *data, SDL_bool send_event)
 {
     TISInputSourceRef key_layout;
     const void *chr_data;
@@ -313,7 +313,7 @@ cleanup:
 
 void Cocoa_InitKeyboard(_THIS)
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
 
     UpdateKeymap(data, SDL_FALSE);
 
@@ -333,7 +333,7 @@ void Cocoa_StartTextInput(_THIS)
 { @autoreleasepool
 {
     NSView *parentView;
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
     SDL_Window *window = SDL_GetKeyboardFocus();
     NSWindow *nswindow = nil;
     if (window) {
@@ -363,7 +363,7 @@ void Cocoa_StartTextInput(_THIS)
 void Cocoa_StopTextInput(_THIS)
 { @autoreleasepool
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
 
     if (data && data.fieldEdit) {
         [data.fieldEdit removeFromSuperview];
@@ -373,7 +373,7 @@ void Cocoa_StopTextInput(_THIS)
 
 void Cocoa_SetTextInputRect(_THIS, const SDL_Rect *rect)
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
 
     if (!rect) {
         SDL_InvalidParamError("rect");
@@ -387,7 +387,7 @@ void Cocoa_HandleKeyEvent(_THIS, NSEvent *event)
 {
     unsigned short scancode;
     SDL_Scancode code;
-    SDL_VideoData *data = _this ? ((__bridge SDL_VideoData *) _this->driverdata) : nil;
+    Cocoa_VideoData *data = _this ? cocoaVideoData : nil;
     if (!data) {
         return;  /* can happen when returning from fullscreen Space on shutdown */
     }
@@ -429,7 +429,7 @@ void Cocoa_HandleKeyEvent(_THIS, NSEvent *event)
             text = [[event characters] UTF8String];
             if(text && *text) {
                 SDL_SendKeyboardText(text);
-                [data->fieldEdit setString:@""];
+                [data.fieldEdit setString:@""];
             }
 #endif
         }
@@ -440,14 +440,14 @@ void Cocoa_HandleKeyEvent(_THIS, NSEvent *event)
     case NSEventTypeFlagsChanged: {
         // see if the new modifierFlags mean any existing keys should be pressed/released...
         const unsigned int modflags = (unsigned int)[event modifierFlags];
-        HandleModifiers(_this, SDL_SCANCODE_LSHIFT, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_LCTRL, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_LALT, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_LGUI, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_RSHIFT, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_RCTRL, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_RALT, modflags);
-        HandleModifiers(_this, SDL_SCANCODE_RGUI, modflags);
+        HandleModifiers(SDL_SCANCODE_LSHIFT, modflags);
+        HandleModifiers(SDL_SCANCODE_LCTRL, modflags);
+        HandleModifiers(SDL_SCANCODE_LALT, modflags);
+        HandleModifiers(SDL_SCANCODE_LGUI, modflags);
+        HandleModifiers(SDL_SCANCODE_RSHIFT, modflags);
+        HandleModifiers(SDL_SCANCODE_RCTRL, modflags);
+        HandleModifiers(SDL_SCANCODE_RALT, modflags);
+        HandleModifiers(SDL_SCANCODE_RGUI, modflags);
         break;
     }
     default: /* just to avoid compiler warnings */

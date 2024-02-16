@@ -565,7 +565,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 {
     SDL_Window *window = _data.window;
     NSWindow *nswindow = _data.nswindow;
-    SDL_VideoData *videodata = ((__bridge SDL_WindowData *) window->driverdata).videodata;
+    Cocoa_VideoData *videodata = cocoaVideoData;
 
     if (!videodata.allow_spaces) {
         return NO;  /* Spaces are forcibly disabled. */
@@ -839,6 +839,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
 {
+    Cocoa_VideoData *videodata = cocoaVideoData;
     SDL_Window *window = _data.window;
     SDL_Mouse *mouse = SDL_GetMouse();
 
@@ -865,14 +866,14 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
     }
 
     /* Check to see if someone updated the clipboard */
-    Cocoa_CheckClipboardUpdate(_data.videodata);
+    Cocoa_CheckClipboardUpdate();
 
     if ((isFullscreenSpace) && ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP)) {
         [NSMenu setMenuBarVisible:NO];
     }
     {
         const unsigned int newflags = [NSEvent modifierFlags] & NSEventModifierFlagCapsLock;
-        _data.videodata.modifierFlags = (_data.videodata.modifierFlags & ~NSEventModifierFlagCapsLock) | newflags;
+        videodata.modifierFlags = (videodata.modifierFlags & ~NSEventModifierFlagCapsLock) | newflags;
         SDL_ToggleModState(KMOD_CAPS, newflags ? SDL_TRUE : SDL_FALSE);
     }
 }
@@ -1383,8 +1384,7 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
 
 - (BOOL)isTouchFromTrackpad:(NSEvent *)theEvent
 {
-    SDL_Window *window = _data.window;
-    SDL_VideoData *videodata = ((__bridge SDL_WindowData *) window->driverdata).videodata;
+    Cocoa_VideoData *videodata = cocoaVideoData;
 
     /* if this a MacBook trackpad, we'll make input look like a synthesized
        event. This is backwards from reality, but better matches user
@@ -1618,7 +1618,6 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
 static int SetupWindowData(_THIS, SDL_Window * window, NSWindow *nswindow, NSView *nsview, SDL_bool created)
 { @autoreleasepool
 {
-    SDL_VideoData *videodata = (__bridge SDL_VideoData *) _this->driverdata;
     SDL_WindowData *data;
 
     /* Allocate the window data */
@@ -1629,7 +1628,6 @@ static int SetupWindowData(_THIS, SDL_Window * window, NSWindow *nswindow, NSVie
     data.window = window;
     data.nswindow = nswindow;
     data.created = created;
-    data.videodata = videodata;
     data.window_number = nswindow.windowNumber;
     data.nscontexts = [[NSMutableArray alloc] init];
     data.sdlContentView = nsview;
@@ -1711,7 +1709,7 @@ static int SetupWindowData(_THIS, SDL_Window * window, NSWindow *nswindow, NSVie
 int Cocoa_CreateWindow(_THIS, SDL_Window * window)
 { @autoreleasepool
 {
-    SDL_VideoData *videodata = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *videodata = cocoaVideoData;
     NSWindow *nswindow;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     NSRect rect;
@@ -2066,7 +2064,7 @@ void Cocoa_SetWindowResizable(_THIS, SDL_Window * window, SDL_bool resizable)
     SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
     Cocoa_WindowListener *listener = data.listener;
     NSWindow *nswindow = data.nswindow;
-    SDL_VideoData *videodata = data.videodata;
+    Cocoa_VideoData *videodata = cocoaVideoData;
     if (![listener isInFullscreenSpace]) {
         SetWindowStyle(window, GetWindowStyle(window));
     }

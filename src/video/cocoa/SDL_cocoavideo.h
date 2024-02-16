@@ -97,7 +97,7 @@ DECLARE_ALERT_STYLE(Critical);
 
 @class SDLTranslatorResponder;
 
-@interface SDL_VideoData : NSObject
+@interface Cocoa_VideoData : NSObject
     @property (nonatomic) int allow_spaces;
     @property (nonatomic) int trackpad_is_touch_only;
     @property (nonatomic) unsigned int modifierFlags;
@@ -107,6 +107,8 @@ DECLARE_ALERT_STYLE(Critical);
     @property (nonatomic) IOPMAssertionID screensaver_assertion;
     @property (nonatomic) SDL_mutex *swaplock;
 @end
+
+extern Cocoa_VideoData *cocoaVideoData;
 
 /* Utility functions */
 extern NSImage * Cocoa_CreateImage(SDL_Surface * surface);

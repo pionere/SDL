@@ -28,7 +28,7 @@
 int Cocoa_SetClipboardText(_THIS, const char *text)
 { @autoreleasepool
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
     NSPasteboard *pasteboard;
     NSString *format = NSPasteboardTypeString;
     NSString *nsstr = [NSString stringWithUTF8String:text];
@@ -82,9 +82,10 @@ SDL_bool Cocoa_HasClipboardText(_THIS)
     return result;
 }
 
-void Cocoa_CheckClipboardUpdate(SDL_VideoData * data)
+void Cocoa_CheckClipboardUpdate()
 { @autoreleasepool
 {
+    Cocoa_VideoData *data = cocoaVideoData;
     NSPasteboard *pasteboard;
     NSInteger count;
 

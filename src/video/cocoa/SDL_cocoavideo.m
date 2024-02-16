@@ -34,9 +34,11 @@
 #include "SDL_cocoametalview.h"
 #include "SDL_cocoaopengles.h"
 
-@implementation SDL_VideoData
+@implementation Cocoa_VideoData
 
 @end
+/* Instance */
+Cocoa_VideoData *cocoaVideoData = nil;
 
 /* Initialization/Query functions */
 static int Cocoa_VideoInit(_THIS);
@@ -50,7 +52,9 @@ static void Cocoa_DeleteDevice(SDL_VideoDevice * device)
     if (device->wakeup_lock) {
         SDL_DestroyMutex(device->wakeup_lock);
     }
-    CFBridgingRelease(device->driverdata);
+    CFBridgingRelease((__bridge void *)cocoaVideoData);
+    // CFRelease((__bridge CFTypeRef)cocoaVideoData);
+    cocoaVideoData = nil;
     SDL_free(device);
 }}
 
@@ -58,14 +62,14 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
 { @autoreleasepool
 {
     SDL_VideoDevice *device;
-    SDL_VideoData *data;
+    Cocoa_VideoData *data;
 
     Cocoa_RegisterApp();
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (device) {
-        data = [[SDL_VideoData alloc] init];
+        data = [[Cocoa_VideoData alloc] init];
     } else {
         data = nil;
     }
@@ -75,6 +79,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
         return NULL;
     }
     device->driverdata = (void *)CFBridgingRetain(data);
+    cocoaVideoData = (__bridge Cocoa_VideoData *)device->driverdata;
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
@@ -185,7 +190,7 @@ const VideoBootStrap COCOA_bootstrap = {
 int Cocoa_VideoInit(_THIS)
 { @autoreleasepool
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
 
     Cocoa_InitModes(_this);
     Cocoa_InitKeyboard(_this);
@@ -207,7 +212,7 @@ int Cocoa_VideoInit(_THIS)
 void Cocoa_VideoQuit(_THIS)
 { @autoreleasepool
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *) _this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
     Cocoa_QuitModes(_this);
     Cocoa_QuitKeyboard(_this);
     Cocoa_QuitMouse(_this);

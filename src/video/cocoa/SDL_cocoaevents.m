@@ -581,7 +581,7 @@ void Cocoa_SendWakeupEvent(_THIS, SDL_Window *window)
 void Cocoa_SuspendScreenSaver(_THIS)
 { @autoreleasepool
 {
-    SDL_VideoData *data = (__bridge SDL_VideoData *)_this->driverdata;
+    Cocoa_VideoData *data = cocoaVideoData;
 
     if (data.screensaver_assertion) {
         IOPMAssertionRelease(data.screensaver_assertion);
