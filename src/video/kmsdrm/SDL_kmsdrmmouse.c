@@ -80,9 +80,7 @@ void KMSDRM_DestroyCursorBO(_THIS, SDL_VideoDisplay *display)
    build a window and assign a display to it. */
 void KMSDRM_CreateCursorBO(SDL_VideoDisplay *display)
 {
-
-    SDL_VideoDevice *dev = SDL_GetVideoDevice();
-    SDL_VideoData *viddata = ((SDL_VideoData *)dev->driverdata);
+    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
 
     if (!KMSDRM_gbm_device_is_format_supported(viddata->gbm_dev,
@@ -122,8 +120,7 @@ static int KMSDRM_RemoveCursorFromBO(SDL_VideoDisplay *display)
 {
     int ret = 0;
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
-    SDL_VideoDevice *video_device = SDL_GetVideoDevice();
-    SDL_VideoData *viddata = ((SDL_VideoData *)video_device->driverdata);
+    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
 
     ret = KMSDRM_drmModeSetCursor(viddata->drm_fd,
                                   dispdata->crtc->crtc_id, 0, 0, 0);
@@ -140,8 +137,7 @@ static int KMSDRM_DumpCursorToBO(SDL_VideoDisplay *display, SDL_Cursor *cursor)
 {
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     KMSDRM_CursorData *curdata = (KMSDRM_CursorData *)cursor->driverdata;
-    SDL_VideoDevice *video_device = SDL_GetVideoDevice();
-    SDL_VideoData *viddata = ((SDL_VideoData *)video_device->driverdata);
+    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
 
     uint32_t bo_handle;
     size_t bo_stride;

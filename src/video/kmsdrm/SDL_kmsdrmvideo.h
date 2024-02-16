@@ -33,7 +33,7 @@
 #include <gbm.h>
 #include <EGL/egl.h>
 
-typedef struct SDL_VideoData
+typedef struct KMSDRM_VideoData
 {
     int devindex;     /* device index that was passed on creation */
     int drm_fd;       /* DRM file desc */
@@ -53,7 +53,7 @@ typedef struct SDL_VideoData
        open 1 FD and create 1 gbm device. */
     SDL_bool gbm_init;
 
-} SDL_VideoData;
+} KMSDRM_VideoData;
 
 typedef struct SDL_DisplayModeData
 {
@@ -84,7 +84,6 @@ typedef struct SDL_DisplayData
 
 typedef struct SDL_WindowData
 {
-    SDL_VideoData *viddata;
     /* SDL internals expect EGL surface to be here, and in KMSDRM the GBM surface is
        what supports the EGL surface on the driver side, so all these surfaces and buffers
        are expected to be here, in the struct pointed by SDL_Window driverdata pointer:
@@ -106,10 +105,11 @@ typedef struct KMSDRM_FBInfo
     uint32_t fb_id; /* DRM framebuffer ID */
 } KMSDRM_FBInfo;
 
+extern KMSDRM_VideoData kmsdrmVideoData;
+
 /* Helper functions */
 int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window);
 KMSDRM_FBInfo *KMSDRM_FBFromBO(_THIS, struct gbm_bo *bo);
-KMSDRM_FBInfo *KMSDRM_FBFromBO2(_THIS, struct gbm_bo *bo, int w, int h);
 SDL_bool KMSDRM_WaitPageflip(_THIS, SDL_WindowData *windata);
 
 /****************************************************************************/
