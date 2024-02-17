@@ -294,6 +294,12 @@ static void PS5_JoystickDetect(void)
     }
 }
 
+static SDL_bool PS5_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
+}
+
 static int PS5_JoystickGetCount(void)
 {
     int n = 0;
@@ -470,6 +476,7 @@ SDL_JoystickDriver SDL_PS5_JoystickDriver = {
     PS5_JoystickInit,
     PS5_JoystickGetCount,
     PS5_JoystickDetect,
+    PS5_JoystickIsDevicePresent,
     PS5_JoystickGetDeviceName,
     PS5_JoystickGetDevicePath,
     PS5_JoystickGetDeviceSteamVirtualGamepadSlot,

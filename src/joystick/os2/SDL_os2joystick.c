@@ -397,6 +397,12 @@ static void OS2_JoystickDetect(void)
 {
 }
 
+static SDL_bool OS2_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
+}
+
 static const char *OS2_JoystickGetDeviceName(int device_index)
 {
     /* No need to verify if device exists, already done in upper layer */
@@ -817,6 +823,7 @@ SDL_JoystickDriver SDL_OS2_JoystickDriver = {
     OS2_JoystickInit,
     OS2_NumJoysticks,
     OS2_JoystickDetect,
+    OS2_JoystickIsDevicePresent,
     OS2_JoystickGetDeviceName,
     OS2_JoystickGetDevicePath,
     OS2_JoystickGetDeviceSteamVirtualGamepadSlot,

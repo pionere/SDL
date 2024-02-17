@@ -187,6 +187,12 @@ static void SWITCH_JoystickDetect(void)
 {
 }
 
+static SDL_bool SWITCH_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
+}
+
 /* Function to get the device-dependent name of a joystick */
 static const char *SWITCH_JoystickGetDeviceName(int device_index)
 {
@@ -366,6 +372,7 @@ SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
         SWITCH_JoystickInit,
         SWITCH_JoystickGetCount,
         SWITCH_JoystickDetect,
+        SWITCH_JoystickIsDevicePresent,
         SWITCH_JoystickGetDeviceName,
         SWITCH_JoystickGetDevicePath,
         SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot,

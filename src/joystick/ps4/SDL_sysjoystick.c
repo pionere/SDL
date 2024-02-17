@@ -102,7 +102,7 @@ static int calc_bezier_y(float t)
     return dest.y;
 }
 
-void PS4_JoystickDetect()
+static void PS4_JoystickDetect()
 {
     uint32_t ret, i;
     int pad_handle;
@@ -140,11 +140,17 @@ void PS4_JoystickDetect()
     }
 }
 
+static SDL_bool PS4_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
+}
+
 /* Function to scan the system for joysticks.
  * Joystick 0 should be the system default joystick.
  * It should return number of joysticks, or -1 on an unrecoverable fatal error.
  */
-int PS4_JoystickInit(void)
+static int PS4_JoystickInit(void)
 {
     int i;
     uint32_t ret;
@@ -170,25 +176,25 @@ int PS4_JoystickInit(void)
     return SDL_numjoysticks;
 }
 
-int PS4_JoystickGetCount()
+static int PS4_JoystickGetCount()
 {
     return SDL_numjoysticks;
 }
 
 /* Function to perform the mapping from device index to the instance id for this index */
-SDL_JoystickID PS4_JoystickGetDeviceInstanceID(int device_index)
+static SDL_JoystickID PS4_JoystickGetDeviceInstanceID(int device_index)
 {
     return device_index;
 }
 
 /* Function to get the device-dependent name of a joystick */
-const char *PS4_JoystickGetDeviceName(int device_index)
+static const char *PS4_JoystickGetDeviceName(int device_index)
 {
     SDL_assert(device_index >= 0 && device_index < SDL_numjoysticks);
     return "Sony DualShock 4 V2";
 }
 
-const char *PS4_JoystickGetDevicePath(int device_index)
+static const char *PS4_JoystickGetDevicePath(int device_index)
 {
     return NULL;
 }
@@ -212,7 +218,7 @@ static void PS4_JoystickSetDevicePlayerIndex(int device_index, int player_index)
    This should fill the nbuttons and naxes fields of the joystick structure.
    It returns 0, or -1 if there is an error.
  */
-int PS4_JoystickOpen(SDL_Joystick *joystick, int device_index)
+static int PS4_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
     joystick->nbuttons = SDL_arraysize(button_map);
     joystick->naxes = 6;
@@ -316,7 +322,7 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick)
 }
 
 /* Function to close a joystick after use */
-void PS4_JoystickClose(SDL_Joystick *joystick)
+static void PS4_JoystickClose(SDL_Joystick *joystick)
 {
     int index = joystick->instance_id;
     SDL_assert(index >= 0 && index < ORBIS_USER_SERVICE_MAX_LOGIN_USERS);
@@ -330,11 +336,11 @@ void PS4_JoystickClose(SDL_Joystick *joystick)
 }
 
 /* Function to perform any system-specific joystick related cleanup */
-void PS4_JoystickQuit(void)
+static void PS4_JoystickQuit(void)
 {
 }
 
-SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
+static SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
     SDL_JoystickGUID guid;
     /* the GUID is just the first 16 chars of the name for now */
     const char *name = PS4_JoystickGetDeviceName(device_index);
@@ -437,6 +443,7 @@ SDL_JoystickDriver SDL_PS4_JoystickDriver = {
         PS4_JoystickInit,
         PS4_JoystickGetCount,
         PS4_JoystickDetect,
+        PS4_JoystickIsDevicePresent,
         PS4_JoystickGetDeviceName,
         PS4_JoystickGetDevicePath,
         PS4_JoystickGetDeviceSteamVirtualGamepadSlot,

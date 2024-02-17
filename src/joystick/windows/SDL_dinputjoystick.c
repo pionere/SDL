@@ -508,13 +508,7 @@ static BOOL CALLBACK EnumJoystickDetectCallback(LPCDIDEVICEINSTANCE pDeviceInsta
 
     CHECK(!SDL_ShouldIgnoreJoystick(vendor, product, version, pNewJoystick->joystickname));
 
-#ifdef SDL_JOYSTICK_HIDAPI
-    CHECK(!HIDAPI_IsDevicePresent(vendor, product, version, pNewJoystick->joystickname));
-#endif
-
-#ifdef SDL_JOYSTICK_RAWINPUT
-    CHECK(!RAWINPUT_IsDevicePresent(vendor, product, version, pNewJoystick->joystickname));
-#endif
+    CHECK(!SDL_JoystickHandledByAnotherDriver(&SDL_WINDOWS_JoystickDriver, vendor, product, version, pNewJoystick->joystickname));
 
     bus = (vendor && product) ? SDL_HARDWARE_BUS_USB : SDL_HARDWARE_BUS_BLUETOOTH;
     pNewJoystick->guid = SDL_CreateJoystickGUID(bus, vendor, product, version, NULL, name, 0, 0);

@@ -231,6 +231,12 @@ static void SDL_XBOX_JoystickDetect() {
     usbh_pooling_hubs();
 }
 
+static SDL_bool SDL_XBOX_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
+}
+
 static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
 {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
@@ -557,6 +563,7 @@ SDL_JoystickDriver SDL_XBOX_JoystickDriver = {
     SDL_XBOX_JoystickInit,
     SDL_XBOX_JoystickGetCount,
     SDL_XBOX_JoystickDetect,
+    SDL_XBOX_JoystickIsDevicePresent,
     SDL_XBOX_JoystickGetDeviceName,
     SDL_XBOX_JoystickGetDevicePath,
     SDL_XBOX_JoystickGetDeviceSteamVirtualGamepadSlot,

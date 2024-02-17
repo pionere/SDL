@@ -317,14 +317,11 @@ static int IsJoystick(const char *path, int *fd, char **name_return, Uint16 *ven
         return 0;
     }
 
-#ifdef SDL_JOYSTICK_HIDAPI
     if (!IsVirtualJoystick(inpid.vendor, inpid.product, inpid.version, name) &&
-        HIDAPI_IsDevicePresent(inpid.vendor, inpid.product, inpid.version, name)) {
-        /* The HIDAPI driver is taking care of this device */
+        SDL_JoystickHandledByAnotherDriver(&SDL_LINUX_JoystickDriver, inpid.vendor, inpid.product, inpid.version, name)) {
         SDL_free(name);
         return 0;
     }
-#endif
     if (SDL_ShouldIgnoreJoystick(inpid.vendor, inpid.product, inpid.version, name)) {
         SDL_free(name);
         return 0;
@@ -1021,6 +1018,12 @@ static void LINUX_JoystickDetect(void)
     HandlePendingRemovals();
 
     SDL_UpdateSteamControllers();
+}
+
+static SDL_bool LINUX_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    /* We don't override any other drivers */
+    return SDL_FALSE;
 }
 
 static int LINUX_JoystickInit(void)
@@ -2778,6 +2781,7 @@ SDL_JoystickDriver SDL_LINUX_JoystickDriver = {
     LINUX_JoystickInit,
     LINUX_JoystickGetCount,
     LINUX_JoystickDetect,
+    LINUX_JoystickIsDevicePresent,
     LINUX_JoystickGetDeviceName,
     LINUX_JoystickGetDevicePath,
     LINUX_JoystickGetDeviceSteamVirtualGamepadSlot,
