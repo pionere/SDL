@@ -124,7 +124,7 @@ SDL_bool DirectFB_Vulkan_CreateSurface(_THIS,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(window);
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
         (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;

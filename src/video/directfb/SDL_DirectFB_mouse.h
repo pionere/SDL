@@ -36,8 +36,8 @@ struct _DFB_CursorData
 
 #define SDL_DFB_CURSORDATA(curs)  DFB_CursorData *curdata = (DFB_CursorData *) ((curs) ? (curs)->driverdata : NULL)
 
-extern void DirectFB_InitMouse(_THIS);
-extern void DirectFB_QuitMouse(_THIS);
+extern void DirectFB_InitMouse();
+extern void DirectFB_QuitMouse();
 
 #endif /* SDL_DirectFB_mouse_h_ */
 

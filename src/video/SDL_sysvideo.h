@@ -430,7 +430,6 @@ struct SDL_VideoDevice
 
     /* * * */
     /* Data private to this driver */
-    void *driverdata;
     struct SDL_GLDriverData *gl_data;
 
 #ifdef SDL_VIDEO_OPENGL_EGL

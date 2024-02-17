@@ -62,12 +62,11 @@ struct _cb_data
 static SDL_Scancode oskeymap[256];
 
 
-static SDL_Keysym *DirectFB_TranslateKey(_THIS, DFBWindowEvent * evt,
+static SDL_Keysym *DirectFB_TranslateKey(DFBWindowEvent * evt,
                                          SDL_Keysym * keysym, Uint32 *unicode);
-static SDL_Keysym *DirectFB_TranslateKeyInputEvent(_THIS, DFBInputEvent * evt,
+static SDL_Keysym *DirectFB_TranslateKeyInputEvent(DFBInputEvent * evt,
                                                    SDL_Keysym * keysym, Uint32 *unicode);
 
-static void DirectFB_InitOSKeymap(_THIS, SDL_Scancode * keypmap, int numkeys);
 static int DirectFB_TranslateButton(DFBInputDeviceButtonIdentifier button);
 
 static void UnicodeToUtf8( Uint16 w , char *utf8buf)
@@ -91,10 +90,10 @@ static void UnicodeToUtf8( Uint16 w , char *utf8buf)
     }
 }
 
-static void FocusAllMice(_THIS, SDL_Window *window)
+static void FocusAllMice(SDL_Window *window)
 {
 #if USE_MULTI_API
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     int index;
 
     for (index = 0; index < devdata->num_mice; index++)
@@ -105,10 +104,10 @@ static void FocusAllMice(_THIS, SDL_Window *window)
 }
 
 
-static void FocusAllKeyboards(_THIS, SDL_Window *window)
+static void FocusAllKeyboards(SDL_Window *window)
 {
 #if USE_MULTI_API
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     int index;
 
     for (index = 0; index < devdata->num_keyboard; index++)
@@ -118,10 +117,10 @@ static void FocusAllKeyboards(_THIS, SDL_Window *window)
 #endif
 }
 
-static void MotionAllMice(_THIS, int x, int y)
+static void MotionAllMice(int x, int y)
 {
 #if USE_MULTI_API
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     int index;
 
     for (index = 0; index < devdata->num_mice; index++) {
@@ -133,9 +132,9 @@ static void MotionAllMice(_THIS, int x, int y)
 #endif
 }
 
-static int KbdIndex(_THIS, int id)
+static int KbdIndex(int id)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     int index;
 
     for (index = 0; index < devdata->num_keyboard; index++) {
@@ -166,7 +165,7 @@ static int ClientXY(DFB_WindowData * p, int *x, int *y)
 
 static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(sdlwin);
     SDL_Keysym keysym;
     Uint32 unicode;
@@ -184,7 +183,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
                                         DirectFB_TranslateButton
                                         (evt->button));
                 } else {
-                    MotionAllMice(_this, evt->x, evt->y);
+                    MotionAllMice(evt->x, evt->y);
                 }
             }
             break;
@@ -198,7 +197,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
                                         DirectFB_TranslateButton
                                         (evt->button));
                 } else {
-                    MotionAllMice(_this, evt->x, evt->y);
+                    MotionAllMice(evt->x, evt->y);
                 }
             }
             break;
@@ -214,7 +213,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
                      * However it kills MAME axis recognition ... */
                     static int cnt = 0;
                     if (1 && ++cnt > 20) {
-                        MotionAllMice(_this, evt->x, evt->y);
+                        MotionAllMice(evt->x, evt->y);
                         cnt = 0;
                     }
                 }
@@ -225,7 +224,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
             break;
         case DWET_KEYDOWN:
             if (!devdata->use_linux_input) {
-                DirectFB_TranslateKey(_this, evt, &keysym, &unicode);
+                DirectFB_TranslateKey(evt, &keysym, &unicode);
                 /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
                 SDL_SendKeyboardKey_ex(0, SDL_PRESSED, keysym.scancode);
                 if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
@@ -239,7 +238,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
             break;
         case DWET_KEYUP:
             if (!devdata->use_linux_input) {
-                DirectFB_TranslateKey(_this, evt, &keysym, &unicode);
+                DirectFB_TranslateKey(evt, &keysym, &unicode);
                 SDL_SendKeyboardKey_ex(0, SDL_RELEASED, keysym.scancode);
             }
             break;
@@ -269,25 +268,25 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
             break;
         case DWET_GOTFOCUS:
             DirectFB_SetContext(_this, sdlwin);
-            FocusAllKeyboards(_this, sdlwin);
+            FocusAllKeyboards(sdlwin);
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_FOCUS_GAINED,
                                 0, 0);
             break;
         case DWET_LOSTFOCUS:
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_FOCUS_LOST, 0, 0);
-            FocusAllKeyboards(_this, 0);
+            FocusAllKeyboards(0);
             break;
         case DWET_ENTER:
             /* SDL_DirectFB_ReshowCursor(_this, 0); */
-            FocusAllMice(_this, sdlwin);
+            FocusAllMice(sdlwin);
             /* FIXME: when do we really enter ? */
             if (ClientXY(windata, &evt->x, &evt->y))
-                MotionAllMice(_this, evt->x, evt->y);
+                MotionAllMice(evt->x, evt->y);
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_ENTER, 0, 0);
             break;
         case DWET_LEAVE:
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_LEAVE, 0, 0);
-            FocusAllMice(_this, 0);
+            FocusAllMice(0);
             /* SDL_DirectFB_ReshowCursor(_this, 1); */
             break;
         default:
@@ -299,7 +298,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
 
 static void ProcessInputEvent(_THIS, DFBInputEvent * ievt)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_Keysym keysym;
     int kbd_idx;
     Uint32 unicode;
@@ -360,8 +359,8 @@ static void ProcessInputEvent(_THIS, DFBInputEvent * ievt)
             }
             break;
         case DIET_KEYPRESS:
-            kbd_idx = KbdIndex(_this, ievt->device_id);
-            DirectFB_TranslateKeyInputEvent(_this, ievt, &keysym, &unicode);
+            kbd_idx = KbdIndex(ievt->device_id);
+            DirectFB_TranslateKeyInputEvent(ievt, &keysym, &unicode);
             /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
             SDL_SendKeyboardKey_ex(kbd_idx, SDL_PRESSED, keysym.scancode);
             if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
@@ -373,8 +372,8 @@ static void ProcessInputEvent(_THIS, DFBInputEvent * ievt)
             }
             break;
         case DIET_KEYRELEASE:
-            kbd_idx = KbdIndex(_this, ievt->device_id);
-            DirectFB_TranslateKeyInputEvent(_this, ievt, &keysym, &unicode);
+            kbd_idx = KbdIndex(ievt->device_id);
+            DirectFB_TranslateKeyInputEvent(ievt, &keysym, &unicode);
             SDL_SendKeyboardKey_ex(kbd_idx, SDL_RELEASED, keysym.scancode);
             break;
         case DIET_BUTTONPRESS:
@@ -401,7 +400,7 @@ static void ProcessInputEvent(_THIS, DFBInputEvent * ievt)
 
 void DirectFB_PumpEventsWindow(_THIS)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     DFBInputEvent ievt;
     SDL_Window *w;
 
@@ -440,7 +439,7 @@ void DirectFB_PumpEventsWindow(_THIS)
     }
 }
 
-void DirectFB_InitOSKeymap(_THIS, SDL_Scancode * keymap, int numkeys)
+static void DirectFB_InitOSKeymap(SDL_Scancode * keymap, int numkeys)
 {
     int i;
 
@@ -567,10 +566,10 @@ void DirectFB_InitOSKeymap(_THIS, SDL_Scancode * keymap, int numkeys)
 
 }
 
-static SDL_Keysym *DirectFB_TranslateKey(_THIS, DFBWindowEvent * evt, SDL_Keysym * keysym, Uint32 *unicode)
+static SDL_Keysym *DirectFB_TranslateKey(DFBWindowEvent * evt, SDL_Keysym * keysym, Uint32 *unicode)
 {
-    SDL_DFB_DEVICEDATA(_this);
-    int kbd_idx = 0; /* Window events lag the device source KbdIndex(_this, evt->device_id); */
+    DFB_VideoData *devdata = &dfbVideoData;
+    int kbd_idx = 0; /* Window events lag the device source KbdIndex(evt->device_id); */
     DFB_KeyboardData *kbd = &devdata->keyboard[kbd_idx];
 
     keysym->scancode = SDL_SCANCODE_UNKNOWN;
@@ -596,11 +595,11 @@ static SDL_Keysym *DirectFB_TranslateKey(_THIS, DFBWindowEvent * evt, SDL_Keysym
     return keysym;
 }
 
-static SDL_Keysym *DirectFB_TranslateKeyInputEvent(_THIS, DFBInputEvent * evt,
+static SDL_Keysym *DirectFB_TranslateKeyInputEvent(DFBInputEvent * evt,
                                 SDL_Keysym * keysym, Uint32 *unicode)
 {
-    SDL_DFB_DEVICEDATA(_this);
-    int kbd_idx = KbdIndex(_this, evt->device_id);
+    DFB_VideoData *devdata = &dfbVideoData;
+    int kbd_idx = KbdIndex(evt->device_id);
     DFB_KeyboardData *kbd = &devdata->keyboard[kbd_idx];
 
     keysym->scancode = SDL_SCANCODE_UNKNOWN;
@@ -642,7 +641,7 @@ static int DirectFB_TranslateButton(DFBInputDeviceButtonIdentifier button)
 static DFBEnumerationResult EnumKeyboards(DFBInputDeviceID device_id, DFBInputDeviceDescription desc, void *callbackdata)
 {
     cb_data *cb = callbackdata;
-    DFB_DeviceData *devdata = cb->devdata;
+    DFB_VideoData *devdata = &dfbVideoData;
 #if USE_MULTI_API
     SDL_Keyboard keyboard;
 #endif
@@ -686,12 +685,12 @@ static DFBEnumerationResult EnumKeyboards(DFBInputDeviceID device_id, DFBInputDe
     return DFENUM_OK;
 }
 
-void DirectFB_InitKeyboard(_THIS)
+void DirectFB_InitKeyboard()
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     cb_data cb;
 
-    DirectFB_InitOSKeymap(_this, &oskeymap[0], SDL_arraysize(oskeymap));
+    DirectFB_InitOSKeymap(&oskeymap[0], SDL_arraysize(oskeymap));
 
     devdata->num_keyboard = 0;
     cb.devdata = devdata;
@@ -715,9 +714,9 @@ void DirectFB_InitKeyboard(_THIS)
     }
 }
 
-void DirectFB_QuitKeyboard(_THIS)
+void DirectFB_QuitKeyboard()
 {
-    /* SDL_DFB_DEVICEDATA(_this); */
+    /* DFB_VideoData *devdata = &dfbVideoData; */
 }
 
 #endif /* SDL_VIDEO_DRIVER_DIRECTFB */

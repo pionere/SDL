@@ -100,7 +100,6 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
         SDL_OutOfMemory();
         return NULL;
     }
-    device->driverdata = &naclVideoData;
 
     /* Set the function pointers */
     device->VideoInit = NACL_VideoInit;

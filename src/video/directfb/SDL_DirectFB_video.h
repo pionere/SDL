@@ -122,8 +122,6 @@ static SDL_INLINE DFBResult sdl_dfb_check(DFBResult ret, const char *src_file, i
 
 /* Private display data */
 
-#define SDL_DFB_DEVICEDATA(dev)  DFB_DeviceData *devdata = (dev ? (DFB_DeviceData *) ((dev)->driverdata) : NULL)
-
 #define DFB_MAX_SCREENS 10
 
 typedef struct _DFB_KeyboardData DFB_KeyboardData;
@@ -136,8 +134,7 @@ struct _DFB_KeyboardData
     int id;
 };
 
-typedef struct _DFB_DeviceData DFB_DeviceData;
-struct _DFB_DeviceData
+typedef struct DFB_VideoData
 {
     int initialized;
 
@@ -155,7 +152,9 @@ struct _DFB_DeviceData
 
     /* global events */
     IDirectFBEventBuffer *events;
-};
+} DFB_VideoData;
+
+extern DFB_VideoData dfbVideoData;
 
 Uint32 DirectFB_DFBToSDLPixelFormat(DFBSurfacePixelFormat pixelformat);
 DFBSurfacePixelFormat DirectFB_SDLToDFBPixelFormat(Uint32 format);

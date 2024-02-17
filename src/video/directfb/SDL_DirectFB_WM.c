@@ -74,9 +74,9 @@ static void DrawTriangle(IDirectFBSurface * s, int down, int x, int y, int w)
     s->FillTriangle(s, x1, y1, x2, y2, x3, y3);
 }
 
-static void LoadFont(_THIS, SDL_Window * window)
+static void LoadFont(SDL_Window * window)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(window);
 
     if (windata->font) {
@@ -126,7 +126,7 @@ void DirectFB_WM_RedrawLayout(_THIS, SDL_Window * window)
     SDL_DFB_CHECK(s->SetDrawingFlags(s, DSDRAW_NOFX));
     SDL_DFB_CHECK(s->SetBlittingFlags(s, DSBLIT_NOFX));
 
-    LoadFont(_this, window);
+    LoadFont(window);
     /* s->SetDrawingFlags(s, DSDRAW_BLEND); */
     s->SetColor(s, COLOR_EXPAND(t->frame_color));
     /* top */

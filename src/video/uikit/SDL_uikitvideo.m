@@ -65,8 +65,6 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
             return (0);
         }
 
-        // device->driverdata = nil;
-
         /* Set the function pointers */
         device->VideoInit = UIKit_VideoInit;
         device->VideoQuit = UIKit_VideoQuit;

@@ -84,7 +84,6 @@ static void Android_DeleteDevice(SDL_VideoDevice *device)
 static SDL_VideoDevice *Android_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    Android_VideoData *data = &androidVideoData;
     SDL_bool block_on_pause;
 
     /* Initialize all variables that we clean on shutdown */
@@ -93,8 +92,6 @@ static SDL_VideoDevice *Android_CreateDevice(void)
         SDL_OutOfMemory();
         return NULL;
     }
-
-    device->driverdata = data;
 
     /* Set the function pointers */
     device->VideoInit = Android_VideoInit;

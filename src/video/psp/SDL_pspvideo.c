@@ -64,8 +64,6 @@ static SDL_VideoDevice *PSP_Create()
     }
     device->gl_data = gldata;
 
-    // device->driverdata = NULL;
-
     /* Set device free function */
     device->free = PSP_Destroy;
 

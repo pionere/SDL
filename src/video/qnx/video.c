@@ -315,7 +315,6 @@ static SDL_VideoDevice *createDevice(int devindex)
         return NULL;
     }
 
-    device->driverdata = NULL;
     device->VideoInit = videoInit;
     device->VideoQuit = videoQuit;
     device->CreateSDLWindow = createWindow;

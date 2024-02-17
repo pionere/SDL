@@ -57,6 +57,9 @@
 
 #include "SDL_DirectFB_dyn.h"
 
+/* Instance */
+DFB_VideoData dfbVideoData;
+
 /* Initialization/Query functions */
 static int DirectFB_VideoInit(_THIS);
 static void DirectFB_VideoQuit(_THIS);
@@ -76,7 +79,7 @@ static const DirectFBAccelerationMaskNames(acceleration_mask);
 static void DirectFB_DeleteDevice(SDL_VideoDevice * device)
 {
     SDL_DirectFB_UnLoadLibrary();
-    SDL_DFB_FREE(device->driverdata);
+    SDL_zero(dfbVideoData);
     SDL_DFB_FREE(device);
 }
 
@@ -89,7 +92,11 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     }
 
     /* Initialize all variables that we clean on shutdown */
-    SDL_DFB_ALLOC_CLEAR(device, sizeof(SDL_VideoDevice));
+    device = SDL_calloc(1, sizeof(SDL_VideoDevice));
+    if (!device) {
+        SDL_DirectFB_UnLoadLibrary();
+        return NULL;
+    }
 
     /* Set the function pointers */
     device->VideoInit = DirectFB_VideoInit;
@@ -145,10 +152,6 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     device->free = DirectFB_DeleteDevice;
 
     return device;
-  error:
-    if (device)
-        SDL_free(device);
-    return (0);
 }
 
 static void DirectFB_DeviceInformation(IDirectFB * dfb)
@@ -205,10 +208,8 @@ static int readBoolEnv(const char *env_name, int def_val)
 static int DirectFB_VideoInit(_THIS)
 {
     IDirectFB *dfb = NULL;
-    DFB_DeviceData *devdata = NULL;
+    DFB_VideoData *devdata = &dfbVideoData;
     DFBResult ret;
-
-    SDL_DFB_ALLOC_CLEAR(devdata, sizeof(*devdata));
 
     SDL_DFB_CHECKERR(DirectFBInit(NULL, NULL));
 
@@ -257,33 +258,30 @@ static int DirectFB_VideoInit(_THIS)
     devdata->dfb = dfb;
     devdata->firstwin = NULL;
 
-    _this->driverdata = devdata;
-
     DirectFB_InitModes(_this);
 
 #ifdef SDL_DIRECTFB_OPENGL
     DirectFB_GL_Initialize(_this);
 #endif
 
-    DirectFB_InitMouse(_this);
-    DirectFB_InitKeyboard(_this);
+    DirectFB_InitMouse();
+    DirectFB_InitKeyboard();
 
     return 0;
 
 
   error:
-    SDL_DFB_FREE(devdata);
     SDL_DFB_RELEASE(dfb);
     return -1;
 }
 
 static void DirectFB_VideoQuit(_THIS)
 {
-    DFB_DeviceData *devdata = (DFB_DeviceData *) _this->driverdata;
+    DFB_VideoData *devdata = &dfbVideoData;
 
     DirectFB_QuitModes(_this);
-    DirectFB_QuitKeyboard(_this);
-    DirectFB_QuitMouse(_this);
+    DirectFB_QuitKeyboard();
+    DirectFB_QuitMouse();
 
     devdata->events->Reset(devdata->events);
     SDL_DFB_RELEASE(devdata->events);

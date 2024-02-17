@@ -62,9 +62,6 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
         return NULL;
     }
 
-    /* Initialize internal data */
-    device->driverdata = phdata;
-
     /* Set the function pointers */
     device->VideoInit = RISCOS_VideoInit;
     device->VideoQuit = RISCOS_VideoQuit;

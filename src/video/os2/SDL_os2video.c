@@ -1463,8 +1463,6 @@ static int OS2_VideoInit(_THIS)
     else
         pVData->pOutput = &voDive;
 
-    _this->driverdata = pVData;
-
     /* Add display */
     {
         SDL_VideoDisplay    stSDLDisplay;

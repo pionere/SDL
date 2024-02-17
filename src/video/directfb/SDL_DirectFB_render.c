@@ -265,7 +265,7 @@ static int DirectFB_AcquireVidLayer(SDL_Renderer * renderer, SDL_Texture * textu
 {
     SDL_Window *window = renderer->window;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DFB_DEVICEDATA(display->device);
+    DFB_VideoData *devdata = &dfbVideoData;
     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
     DirectFB_TextureData *data = texture->driverdata;
     DFBDisplayLayerConfig layconf;
@@ -335,8 +335,7 @@ void DirectFB_SetTexturePalette(SDL_Renderer *renderer, SDL_Texture *texture, SD
 static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 {
     SDL_Window *window = renderer->window;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DFB_DEVICEDATA(display->device);
+    DFB_VideoData *devdata = &dfbVideoData;
     DirectFB_TextureData *data;
     DFBSurfaceDescription dsc;
     DFBSurfacePixelFormat pixelformat;

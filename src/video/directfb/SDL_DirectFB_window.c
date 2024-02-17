@@ -37,7 +37,7 @@
 
 int DirectFB_CreateWindow(_THIS, SDL_Window * window)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_DISPLAYDATA(window);
     DFB_WindowData *windata = NULL;
     DFBWindowOptions wopts;
@@ -191,7 +191,7 @@ void DirectFB_SetWindowTitle(_THIS, SDL_Window * window)
 
 void DirectFB_SetWindowIcon(_THIS, SDL_Window * window, SDL_Surface * icon)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(window);
     SDL_Surface *surface = NULL;
 
@@ -392,7 +392,7 @@ void DirectFB_SetWindowKeyboardGrab(_THIS, SDL_Window * window, SDL_bool grabbed
 
 void DirectFB_DestroyWindow(_THIS, SDL_Window * window)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(window);
     DFB_WindowData *p;
 
@@ -445,7 +445,7 @@ SDL_bool DirectFB_GetWindowWMInfo(_THIS, SDL_Window * window,
                             (((Uint32) info->version.minor) * 10000) +
                             (((Uint32) info->version.patch)));
 
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_WINDOWDATA(window);
 
     /* Before 2.0.6, it was possible to build an SDL with DirectFB support

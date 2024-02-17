@@ -61,9 +61,6 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
 
-    // device->driverdata = NULL; /* FIXME: Is this the cause of some of the
-                                  SDL_Quit() errors? */
-
 /* TODO: Figure out if any initialization needs to go here */
 
     /* Set the function pointers */

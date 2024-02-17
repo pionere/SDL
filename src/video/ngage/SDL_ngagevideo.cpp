@@ -106,9 +106,6 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
         return 0;
     }
 
-    /* Initialize internal N-Gage specific data */
-    device->driverdata = phdata;
-
     /* General video */
     device->VideoInit = NGAGE_VideoInit;
     device->VideoQuit = NGAGE_VideoQuit;

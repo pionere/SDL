@@ -84,8 +84,7 @@ int DirectFB_SetWindowShape(SDL_WindowShaper *shaper,SDL_Surface *shape,SDL_Wind
         return -3;
 
     {
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(shaper->window);
-        SDL_DFB_DEVICEDATA(display->device);
+        DFB_VideoData *devdata = &dfbVideoData;
         Uint32 *pixels;
         Sint32 pitch;
         Uint32 h,w;

@@ -113,7 +113,6 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
         SDL_OutOfMemory();
         return NULL;
     }
-    device->driverdata = data;
     device->wakeup_lock = SDL_CreateMutex();
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)

@@ -86,7 +86,7 @@ static DFBEnumerationResult EnumLayersCallback(DFBDisplayLayerID layer_id, DFBDi
 
 static void CheckSetDisplayMode(_THIS, SDL_VideoDisplay * display, DFB_DisplayData * data, SDL_DisplayMode * mode)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     DFBDisplayLayerConfig config;
     DFBDisplayLayerConfigFlags failed;
 
@@ -139,7 +139,7 @@ void DirectFB_SetContext(_THIS, SDL_Window *window)
 
 void DirectFB_InitModes(_THIS)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     IDirectFBDisplayLayer *layer = NULL;
     SDL_VideoDisplay display;
     DFB_DisplayData *dispdata = NULL;
@@ -263,7 +263,7 @@ void DirectFB_InitModes(_THIS)
 
 void DirectFB_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
     SDL_DisplayMode mode;
     struct modes_callback_t data;
@@ -302,7 +302,7 @@ int DirectFB_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode *
      *
      */
 
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
     DFB_DisplayData *data = (DFB_DisplayData *) display->driverdata;
     DFBDisplayLayerConfig config, rconfig;
     DFBDisplayLayerConfigFlags fail = 0;

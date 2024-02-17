@@ -116,8 +116,6 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
         return NULL;
     }
 
-    device->driverdata = data;
-
     /* Set the function pointers */
     device->VideoInit = WINRT_VideoInit;
     device->VideoQuit = WINRT_VideoQuit;

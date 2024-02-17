@@ -78,8 +78,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
         SDL_free(device);
         return NULL;
     }
-    device->driverdata = (void *)CFBridgingRetain(data);
-    cocoaVideoData = (__bridge Cocoa_VideoData *)device->driverdata;
+    cocoaVideoData = (__bridge Cocoa_VideoData *)CFBridgingRetain(data);
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */

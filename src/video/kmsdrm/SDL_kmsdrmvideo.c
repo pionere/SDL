@@ -213,7 +213,7 @@ static int KMSDRM_Available(void)
 
 static void KMSDRM_DeleteDevice(SDL_VideoDevice *device)
 {
-	SDL_zero(kmsdrmVideoData);
+    SDL_zero(kmsdrmVideoData);
     SDL_free(device);
 
     SDL_KMSDRM_UnloadSymbols();
@@ -247,8 +247,6 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
 
     viddata->devindex = devindex;
     viddata->drm_fd = -1;
-
-    device->driverdata = viddata;
 
     /* Setup all functions which we can handle */
     device->VideoInit = KMSDRM_VideoInit;

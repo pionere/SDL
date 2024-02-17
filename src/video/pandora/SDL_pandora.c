@@ -62,9 +62,6 @@ static SDL_VideoDevice *PND_create(void)
         return NULL;
     }
 
-    /* Initialize internal Pandora specific data */
-    device->driverdata = phdata;
-
     /* Set device free function */
     device->free = PND_destroy;
 

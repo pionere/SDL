@@ -48,7 +48,6 @@ typedef struct
 static void N3DS_DeleteDevice(SDL_VideoDevice *device)
 {
     SDL_free(device->displays);
-    SDL_free(device->driverdata);
     SDL_free(device);
 }
 

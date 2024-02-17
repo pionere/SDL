@@ -80,9 +80,6 @@ static SDL_VideoDevice *RPI_Create()
         return NULL;
     }
 
-    /* Initialize internal data */
-    // device->driverdata = NULL;
-
     /* Set device free function */
     device->free = RPI_Destroy;
 

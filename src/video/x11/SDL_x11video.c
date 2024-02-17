@@ -176,7 +176,6 @@ static SDL_VideoDevice *X11_CreateDevice(void)
         SDL_OutOfMemory();
         return NULL;
     }
-    device->driverdata = data;
 
     data->global_mouse_changed = SDL_TRUE;
 

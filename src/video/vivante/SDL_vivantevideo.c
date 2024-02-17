@@ -60,9 +60,6 @@ static SDL_VideoDevice *VIVANTE_Create()
         return NULL;
     }
 
-    /* Initialize internal data */
-    device->driverdata = data;
-
     /* Set device free function */
     device->free = VIVANTE_Destroy;
 

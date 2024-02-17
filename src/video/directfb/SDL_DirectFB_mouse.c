@@ -76,9 +76,8 @@ static const char *arrow[] = {
 
 static SDL_Cursor *DirectFB_CreateDefaultCursor(void)
 {
-    SDL_VideoDevice *dev = SDL_GetVideoDevice();
+    DFB_VideoData *devdata = &dfbVideoData;
 
-    SDL_DFB_DEVICEDATA(dev);
     DFB_CursorData *curdata;
     DFBSurfaceDescription dsc;
     SDL_Cursor *cursor;
@@ -128,9 +127,8 @@ static SDL_Cursor *DirectFB_CreateDefaultCursor(void)
 /* Create a cursor from a surface */
 static SDL_Cursor *DirectFB_CreateCursor(SDL_Surface * surface, int hot_x, int hot_y)
 {
-    SDL_VideoDevice *dev = SDL_GetVideoDevice();
+    DFB_VideoData *devdata = &dfbVideoData;
 
-    SDL_DFB_DEVICEDATA(dev);
     DFB_CursorData *curdata;
     DFBSurfaceDescription dsc;
     SDL_Cursor *cursor;
@@ -249,7 +247,7 @@ static int id_mask;
 
 static DFBEnumerationResult EnumMice(DFBInputDeviceID device_id, DFBInputDeviceDescription desc, void *callbackdata)
 {
-    DFB_DeviceData *devdata = callbackdata;
+    DFB_VideoData *devdata = &dfbVideoData;
 
     if ((desc.type & DIDTF_MOUSE) && (device_id & id_mask)) {
         SDL_Mouse mouse;
@@ -270,9 +268,9 @@ static DFBEnumerationResult EnumMice(DFBInputDeviceID device_id, DFBInputDeviceD
     return DFENUM_OK;
 }
 
-void DirectFB_InitMouse(_THIS)
+void DirectFB_InitMouse()
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
 
     devdata->num_mice = 0;
     if (devdata->use_linux_input) {
@@ -302,9 +300,9 @@ void DirectFB_InitMouse(_THIS)
     }
 }
 
-void DirectFB_QuitMouse(_THIS)
+void DirectFB_QuitMouse()
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
 
     if (devdata->use_linux_input) {
         SDL_MouseQuit();
@@ -348,7 +346,7 @@ static void DirectFB_FreeMouse(SDL_Mouse * mouse)
 
 void DirectFB_InitMouse(_THIS)
 {
-    SDL_DFB_DEVICEDATA(_this);
+    DFB_VideoData *devdata = &dfbVideoData;
 
     SDL_Mouse *mouse = SDL_GetMouse();
 

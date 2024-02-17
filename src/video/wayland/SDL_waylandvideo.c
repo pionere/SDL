@@ -218,7 +218,6 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
         return NULL;
     }
 
-    device->driverdata = data;
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */

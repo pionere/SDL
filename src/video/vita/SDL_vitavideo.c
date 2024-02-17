@@ -68,7 +68,7 @@ static void VITA_Destroy(SDL_VideoDevice *device)
 static SDL_VideoDevice *VITA_Create()
 {
     SDL_VideoDevice *device;
-    Vita_VideoData *phdata = &vitaVideoData;
+    // Vita_VideoData *phdata = &vitaVideoData;
 #ifdef SDL_VIDEO_VITA_PIB
     SDL_GLDriverData *gldata;
 #endif
@@ -91,8 +91,6 @@ static SDL_VideoDevice *VITA_Create()
     device->gl_data = gldata;
 #endif
     // phdata->ime_active = SDL_FALSE;
-
-    device->driverdata = phdata;
 
     /* Set device free function */
     device->free = VITA_Destroy;
