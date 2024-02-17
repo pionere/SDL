@@ -30,7 +30,7 @@
 
 #include "SDL_nullwindow.h"
 
-void DUMMY_ShowWindow(_THIS, SDL_Window *window)
+void DUMMY_ShowWindow(SDL_Window *window)
 {
     SDL_SetMouseFocus(window);
     SDL_SetKeyboardFocus(window);
@@ -42,7 +42,7 @@ void DUMMY_HideWindow(_THIS, SDL_Window *window)
     SDL_SetKeyboardFocus(NULL);
 }
 
-void DUMMY_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen)
+void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen)
 {
     SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED,
                         window->windowed.w, window->windowed.h);

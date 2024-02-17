@@ -40,7 +40,7 @@
 
 /* Initialization/Query functions */
 static int OFFSCREEN_VideoInit(_THIS);
-static int OFFSCREEN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+static int OFFSCREEN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 static void OFFSCREEN_VideoQuit(_THIS);
 
 /* OFFSCREEN driver bootstrap functions */
@@ -116,7 +116,7 @@ int OFFSCREEN_VideoInit(_THIS)
     return 0;
 }
 
-static int OFFSCREEN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int OFFSCREEN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }

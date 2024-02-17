@@ -30,7 +30,7 @@
 #include "SDL_x11clipboard.h"
 
 /* Get any application owned window handle for clipboard association */
-static Window GetWindow(_THIS)
+static Window GetWindow()
 {
     X11_VideoData *data = &x11VideoData;
 
@@ -115,13 +115,13 @@ Atom X11_GetSDLCutBufferClipboardInternalFormat(Display *display, enum ESDLX11Cl
     }
 }
 
-static int SetSelectionText(_THIS, const char *text, Atom selection_type)
+static int SetSelectionText(const char *text, Atom selection_type)
 {
     Display *display = x11VideoData.display;
     Window window;
 
     /* Get the SDL window that will own the selection */
-    window = GetWindow(_this);
+    window = GetWindow();
     if (window == None) {
         return SDL_SetError("Couldn't find a window to own the selection");
     }
@@ -136,7 +136,7 @@ static int SetSelectionText(_THIS, const char *text, Atom selection_type)
     return 0;
 }
 
-static char *GetSlectionText(_THIS, Atom selection_type)
+static char *GetSlectionText(Atom selection_type)
 {
     X11_VideoData *videodata = &x11VideoData;
     Display *display = videodata->display;
@@ -156,7 +156,7 @@ static char *GetSlectionText(_THIS, Atom selection_type)
     text = NULL;
 
     /* Get the window that holds the selection */
-    window = GetWindow(_this);
+    window = GetWindow();
     format = X11_GetSDLCutBufferClipboardInternalFormat(display, SDL_X11_CLIPBOARD_MIME_TYPE_STRING);
     owner = X11_XGetSelectionOwner(display, selection_type);
     if (owner == None) {
@@ -188,7 +188,7 @@ static char *GetSlectionText(_THIS, Atom selection_type)
                 SDL_SetError("Selection timeout");
                 /* We need to set the selection text so that next time we won't
                    timeout, otherwise we will hang on every call to this function. */
-                SetSelectionText(_this, "", selection_type);
+                SetSelectionText("", selection_type);
                 return SDL_strdup("");
             }
         }
@@ -220,12 +220,12 @@ int X11_SetClipboardText(_THIS, const char *text)
     if (XA_CLIPBOARD == None) {
         return SDL_SetError("Couldn't access X clipboard");
     }
-    return SetSelectionText(_this, text, XA_CLIPBOARD);
+    return SetSelectionText(text, XA_CLIPBOARD);
 }
 
-int X11_SetPrimarySelectionText(_THIS, const char *text)
+int X11_SetPrimarySelectionText(const char *text)
 {
-    return SetSelectionText(_this, text, XA_PRIMARY);
+    return SetSelectionText(text, XA_PRIMARY);
 }
 
 char *X11_GetClipboardText(_THIS)
@@ -236,12 +236,12 @@ char *X11_GetClipboardText(_THIS)
         SDL_SetError("Couldn't access X clipboard");
         return SDL_strdup("");
     }
-    return GetSlectionText(_this, XA_CLIPBOARD);
+    return GetSlectionText(XA_CLIPBOARD);
 }
 
-char *X11_GetPrimarySelectionText(_THIS)
+char *X11_GetPrimarySelectionText()
 {
-    return GetSlectionText(_this, XA_PRIMARY);
+    return GetSlectionText(XA_PRIMARY);
 }
 
 SDL_bool X11_HasClipboardText(_THIS)
@@ -255,10 +255,10 @@ SDL_bool X11_HasClipboardText(_THIS)
     return result;
 }
 
-SDL_bool X11_HasPrimarySelectionText(_THIS)
+SDL_bool X11_HasPrimarySelectionText()
 {
     SDL_bool result = SDL_FALSE;
-    char *text = X11_GetPrimarySelectionText(_this);
+    char *text = X11_GetPrimarySelectionText();
     if (text) {
         result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
         SDL_free(text);

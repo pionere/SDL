@@ -1274,7 +1274,7 @@ void KMSDRM_VideoQuit(_THIS)
 }
 
 /* Read modes from the connector modes, and store them in display->display_modes. */
-void KMSDRM_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void KMSDRM_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayData *dispdata = display->driverdata;
     drmModeConnector *conn = dispdata->connector;
@@ -1300,7 +1300,7 @@ void KMSDRM_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
     }
 }
 
-int KMSDRM_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     /* Set the dispdata->mode to the new mode and leave actual modesetting
        pending to be done on SwapWindow() via drmModeSetCrtc() */
@@ -1541,7 +1541,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
     return ret;
 }
 
-int KMSDRM_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
+int KMSDRM_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_VideoDisplay *disp = SDL_GetDisplayForWindow(window);
@@ -1553,7 +1553,7 @@ int KMSDRM_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp)
     return 0;
 }
 
-int KMSDRM_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp)
+int KMSDRM_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_VideoDisplay *disp = SDL_GetDisplayForWindow(window);
@@ -1578,30 +1578,30 @@ int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
     return -1;
 }
 
-void KMSDRM_SetWindowTitle(_THIS, SDL_Window *window)
+void KMSDRM_SetWindowTitle(SDL_Window *window)
 {
 }
-void KMSDRM_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
+void KMSDRM_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
 }
-void KMSDRM_SetWindowPosition(_THIS, SDL_Window *window)
+void KMSDRM_SetWindowPosition(SDL_Window *window)
 {
 }
-void KMSDRM_SetWindowSize(_THIS, SDL_Window *window)
-{
-    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    if (!viddata->vulkan_mode) {
-        KMSDRM_DirtySurfaces(window);
-    }
-}
-void KMSDRM_SetWindowFullscreen(_THIS, SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
+void KMSDRM_SetWindowSize(SDL_Window *window)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     if (!viddata->vulkan_mode) {
         KMSDRM_DirtySurfaces(window);
     }
 }
-void KMSDRM_ShowWindow(_THIS, SDL_Window *window)
+void KMSDRM_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
+{
+    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
+    if (!viddata->vulkan_mode) {
+        KMSDRM_DirtySurfaces(window);
+    }
+}
+void KMSDRM_ShowWindow(SDL_Window *window)
 {
 }
 void KMSDRM_HideWindow(_THIS, SDL_Window *window)
@@ -1610,20 +1610,20 @@ void KMSDRM_HideWindow(_THIS, SDL_Window *window)
 void KMSDRM_RaiseWindow(_THIS, SDL_Window *window)
 {
 }
-void KMSDRM_MaximizeWindow(_THIS, SDL_Window *window)
+void KMSDRM_MaximizeWindow(SDL_Window *window)
 {
 }
-void KMSDRM_MinimizeWindow(_THIS, SDL_Window *window)
+void KMSDRM_MinimizeWindow(SDL_Window *window)
 {
 }
-void KMSDRM_RestoreWindow(_THIS, SDL_Window *window)
+void KMSDRM_RestoreWindow(SDL_Window *window)
 {
 }
 
 /*****************************************************************************/
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
-SDL_bool KMSDRM_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
+SDL_bool KMSDRM_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     const Uint32 version = SDL_VERSIONNUM((Uint32)info->version.major,

@@ -140,7 +140,7 @@ static Uint32 GetDisplayModePixelFormat(CGDisplayModeRef vidmode)
     return pixelformat;
 }
 
-static SDL_bool GetDisplayMode(_THIS, CGDisplayModeRef vidmode, SDL_bool vidmodeCurrent, CFArrayRef modelist, CVDisplayLinkRef link, SDL_DisplayMode *mode)
+static SDL_bool GetDisplayMode(CGDisplayModeRef vidmode, SDL_bool vidmodeCurrent, CFArrayRef modelist, CVDisplayLinkRef link, SDL_DisplayMode *mode)
 {
     SDL_DisplayModeData *data;
     bool usableForGUI = CGDisplayModeIsUsableForDesktopGUI(vidmode);
@@ -356,7 +356,7 @@ void Cocoa_InitModes(_THIS)
             SDL_zero(display);
             /* this returns a stddup'ed string */
             display.name = (char *)Cocoa_GetDisplayName(displays[i]);
-            if (!GetDisplayMode(_this, moderef, SDL_TRUE, NULL, link, &mode)) {
+            if (!GetDisplayMode(moderef, SDL_TRUE, NULL, link, &mode)) {
                 CVDisplayLinkRelease(link);
                 CGDisplayModeRelease(moderef);
                 SDL_free(display.name);
@@ -377,7 +377,7 @@ void Cocoa_InitModes(_THIS)
     SDL_small_free(displays, isstack);
 }}
 
-int Cocoa_GetDisplayBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * rect)
+int Cocoa_GetDisplayBounds(SDL_VideoDisplay * display, SDL_Rect * rect)
 {
     SDL_DisplayData *displaydata = (SDL_DisplayData *) display->driverdata;
     CGRect cgrect;
@@ -422,7 +422,7 @@ int Cocoa_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * r
     return 0;
 }
 
-int Cocoa_GetDisplayDPI(_THIS, SDL_VideoDisplay * display, float * ddpi, float * hdpi, float * vdpi)
+int Cocoa_GetDisplayDPI(SDL_VideoDisplay * display, float * ddpi, float * hdpi, float * vdpi)
 { @autoreleasepool
 {
     const float MM_IN_INCH = 25.4f;
@@ -500,7 +500,7 @@ int Cocoa_GetDisplayDPI(_THIS, SDL_VideoDisplay * display, float * ddpi, float *
     return 0;
 }}
 
-void Cocoa_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
+void Cocoa_GetDisplayModes(SDL_VideoDisplay * display)
 {
     SDL_DisplayData *data = (SDL_DisplayData *) display->driverdata;
     CVDisplayLinkRef link = NULL;
@@ -519,7 +519,7 @@ void Cocoa_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
      * sure there are no duplicates so it's safe to always add the desktop mode
      * even in cases where it is in the CopyAllDisplayModes list.
      */
-    if (desktopmoderef && GetDisplayMode(_this, desktopmoderef, SDL_TRUE, NULL, link, &desktopmode)) {
+    if (desktopmoderef && GetDisplayMode(desktopmoderef, SDL_TRUE, NULL, link, &desktopmode)) {
         if (!SDL_AddDisplayMode(display, &desktopmode)) {
             CFRelease(((SDL_DisplayModeData*)desktopmode.driverdata)->modes);
             SDL_free(desktopmode.driverdata);
@@ -566,7 +566,7 @@ void Cocoa_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
             CGDisplayModeRef moderef = (CGDisplayModeRef) CFArrayGetValueAtIndex(modes, i);
             SDL_DisplayMode mode;
 
-            if (GetDisplayMode(_this, moderef, SDL_FALSE, modes, link, &mode)) {
+            if (GetDisplayMode(moderef, SDL_FALSE, modes, link, &mode)) {
                 if (!SDL_AddDisplayMode(display, &mode)) {
                     CFRelease(((SDL_DisplayModeData*)mode.driverdata)->modes);
                     SDL_free(mode.driverdata);
@@ -598,7 +598,7 @@ static CGError SetDisplayModeForDisplay(CGDirectDisplayID display, SDL_DisplayMo
     return result;
 }
 
-int Cocoa_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+int Cocoa_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     SDL_DisplayData *displaydata = (SDL_DisplayData *) display->driverdata;
     SDL_DisplayModeData *data = (SDL_DisplayModeData *) mode->driverdata;
@@ -672,7 +672,7 @@ void Cocoa_QuitModes(_THIS)
         SDL_DisplayModeData *mode;
 
         if (display->current_mode.driverdata != display->desktop_mode.driverdata) {
-            Cocoa_SetDisplayMode(_this, display, &display->desktop_mode);
+            Cocoa_SetDisplayMode(display, &display->desktop_mode);
         }
 
         mode = (SDL_DisplayModeData *) display->desktop_mode.driverdata;

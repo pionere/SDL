@@ -86,9 +86,10 @@ SDL_Touch *SDL_GetTouch(SDL_TouchID id)
 {
     int index = SDL_GetTouchIndex(id);
     if (index < 0 || index >= SDL_num_touch) {
-        if (SDL_GetVideoDevice()->ResetTouch != NULL) {
+        SDL_VideoDevice *_this = SDL_GetVideoDevice();
+        if (_this->ResetTouch != NULL) {
             SDL_SetError("Unknown touch id %d, resetting", (int)id);
-            (SDL_GetVideoDevice()->ResetTouch)(SDL_GetVideoDevice());
+            _this->ResetTouch();
         } else {
             SDL_SetError("Unknown touch device id %d, cannot reset", (int)id);
         }

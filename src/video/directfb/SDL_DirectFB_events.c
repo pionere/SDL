@@ -267,7 +267,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_CLOSE, 0, 0);
             break;
         case DWET_GOTFOCUS:
-            DirectFB_SetContext(_this, sdlwin);
+            DirectFB_SetContext(sdlwin);
             FocusAllKeyboards(sdlwin);
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_FOCUS_GAINED,
                                 0, 0);

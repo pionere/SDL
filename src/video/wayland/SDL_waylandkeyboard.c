@@ -51,7 +51,7 @@ void Wayland_QuitKeyboard()
 #endif
 }
 
-void Wayland_StartTextInput(_THIS)
+void Wayland_StartTextInput()
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
@@ -92,7 +92,7 @@ void Wayland_StartTextInput(_THIS)
     }
 }
 
-void Wayland_StopTextInput(_THIS)
+void Wayland_StopTextInput()
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
@@ -112,7 +112,7 @@ void Wayland_StopTextInput(_THIS)
 #endif
 }
 
-void Wayland_SetTextInputRect(_THIS, const SDL_Rect *rect)
+void Wayland_SetTextInputRect(const SDL_Rect *rect)
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
@@ -143,7 +143,7 @@ void Wayland_SetTextInputRect(_THIS, const SDL_Rect *rect)
 #endif
 }
 
-SDL_bool Wayland_HasScreenKeyboardSupport(_THIS)
+SDL_bool Wayland_HasScreenKeyboardSupport()
 {
     /* In reality we just want to return true when the screen keyboard is the
      * _only_ way to get text input. So, in addition to checking for the text

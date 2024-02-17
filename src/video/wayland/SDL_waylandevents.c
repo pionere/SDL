@@ -248,7 +248,7 @@ static SDL_bool keyboard_repeat_key_is_set(SDL_WaylandKeyboardRepeat *repeat_inf
     return repeat_info->is_initialized && repeat_info->is_key_down && key == repeat_info->key;
 }
 
-void Wayland_SendWakeupEvent(_THIS, SDL_Window *window)
+void Wayland_SendWakeupEvent(SDL_Window *window)
 {
     Wayland_VideoData *d = &waylandVideoData;
 

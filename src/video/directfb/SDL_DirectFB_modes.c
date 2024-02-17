@@ -84,7 +84,7 @@ static DFBEnumerationResult EnumLayersCallback(DFBDisplayLayerID layer_id, DFBDi
     return DFENUM_OK;
 }
 
-static void CheckSetDisplayMode(_THIS, SDL_VideoDisplay * display, DFB_DisplayData * data, SDL_DisplayMode * mode)
+static void CheckSetDisplayMode(SDL_VideoDisplay * display, DFB_DisplayData * data, SDL_DisplayMode * mode)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFBDisplayLayerConfig config;
@@ -119,7 +119,7 @@ static void CheckSetDisplayMode(_THIS, SDL_VideoDisplay * display, DFB_DisplayDa
 }
 
 
-void DirectFB_SetContext(_THIS, SDL_Window *window)
+void DirectFB_SetContext(SDL_Window *window)
 {
 #if (DFB_VERSION_ATLEAST(1,0,0))
     /* FIXME: does not work on 1.0/1.2 with radeon driver
@@ -261,7 +261,7 @@ void DirectFB_InitModes(_THIS)
     return;
 }
 
-void DirectFB_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
+void DirectFB_GetDisplayModes(SDL_VideoDisplay * display)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
@@ -279,15 +279,15 @@ void DirectFB_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
         mode = data.modelist[i];
 
         mode.format = SDL_PIXELFORMAT_ARGB8888;
-        CheckSetDisplayMode(_this, display, dispdata, &mode);
+        CheckSetDisplayMode(display, dispdata, &mode);
         mode.format = SDL_PIXELFORMAT_RGB888;
-        CheckSetDisplayMode(_this, display, dispdata, &mode);
+        CheckSetDisplayMode(display, dispdata, &mode);
         mode.format = SDL_PIXELFORMAT_RGB24;
-        CheckSetDisplayMode(_this, display, dispdata, &mode);
+        CheckSetDisplayMode(display, dispdata, &mode);
         mode.format = SDL_PIXELFORMAT_RGB565;
-        CheckSetDisplayMode(_this, display, dispdata, &mode);
+        CheckSetDisplayMode(display, dispdata, &mode);
         mode.format = SDL_PIXELFORMAT_INDEX8;
-        CheckSetDisplayMode(_this, display, dispdata, &mode);
+        CheckSetDisplayMode(display, dispdata, &mode);
     }
 
     SDL_DFB_FREE(data.modelist);
@@ -295,7 +295,7 @@ error:
     return;
 }
 
-int DirectFB_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+int DirectFB_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     /*
      * FIXME: video mode switch is currently broken for 1.2.0
@@ -376,10 +376,10 @@ void DirectFB_QuitModes(_THIS)
 
         SDL_GetDesktopDisplayMode(i, &tmode);
         tmode.format = SDL_PIXELFORMAT_UNKNOWN;
-        DirectFB_SetDisplayMode(_this, display, &tmode);
+        DirectFB_SetDisplayMode(display, &tmode);
 
         SDL_GetDesktopDisplayMode(i, &tmode);
-        DirectFB_SetDisplayMode(_this, display, &tmode);
+        DirectFB_SetDisplayMode(display, &tmode);
 
         if (dispdata->layer) {
             SDL_DFB_CHECK(dispdata->

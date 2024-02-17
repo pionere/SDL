@@ -58,25 +58,25 @@ extern SDL_Window *Vita_Window;
 /* Display and window functions */
 int VITA_VideoInit(_THIS);
 void VITA_VideoQuit(_THIS);
-void VITA_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-int VITA_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+void VITA_GetDisplayModes(SDL_VideoDisplay *display);
+int VITA_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int VITA_CreateWindow(_THIS, SDL_Window *window);
 int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
-void VITA_SetWindowTitle(_THIS, SDL_Window *window);
-void VITA_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon);
-void VITA_SetWindowPosition(_THIS, SDL_Window *window);
-void VITA_SetWindowSize(_THIS, SDL_Window *window);
-void VITA_ShowWindow(_THIS, SDL_Window *window);
+void VITA_SetWindowTitle(SDL_Window *window);
+void VITA_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+void VITA_SetWindowPosition(SDL_Window *window);
+void VITA_SetWindowSize(SDL_Window *window);
+void VITA_ShowWindow(SDL_Window *window);
 void VITA_HideWindow(_THIS, SDL_Window *window);
 void VITA_RaiseWindow(_THIS, SDL_Window *window);
-void VITA_MaximizeWindow(_THIS, SDL_Window *window);
-void VITA_MinimizeWindow(_THIS, SDL_Window *window);
-void VITA_RestoreWindow(_THIS, SDL_Window *window);
-void VITA_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed);
+void VITA_MaximizeWindow(SDL_Window *window);
+void VITA_MinimizeWindow(SDL_Window *window);
+void VITA_RestoreWindow(SDL_Window *window);
+void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed);
 void VITA_DestroyWindow(_THIS, SDL_Window *window);
 
 /* Window manager function */
-SDL_bool VITA_GetWindowWMInfo(_THIS, SDL_Window * window,
+SDL_bool VITA_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
 #ifdef SDL_VIDEO_DRIVER_VITA
@@ -100,10 +100,10 @@ void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context);
 #endif
 
 /* VITA on screen keyboard */
-SDL_bool VITA_HasScreenKeyboardSupport(_THIS);
-void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window);
-void VITA_HideScreenKeyboard(_THIS, SDL_Window *window);
-SDL_bool VITA_IsScreenKeyboardShown(_THIS, SDL_Window *window);
+SDL_bool VITA_HasScreenKeyboardSupport();
+void VITA_ShowScreenKeyboard(SDL_Window *window);
+void VITA_HideScreenKeyboard(SDL_Window *window);
+SDL_bool VITA_IsScreenKeyboardShown(SDL_Window *window);
 
 void VITA_PumpEvents(_THIS);
 

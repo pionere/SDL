@@ -329,7 +329,7 @@ void Cocoa_InitKeyboard(_THIS)
     SDL_ToggleModState(KMOD_CAPS, (data.modifierFlags & NSEventModifierFlagCapsLock) ? SDL_TRUE : SDL_FALSE);
 }
 
-void Cocoa_StartTextInput(_THIS)
+void Cocoa_StartTextInput()
 { @autoreleasepool
 {
     NSView *parentView;
@@ -360,7 +360,7 @@ void Cocoa_StartTextInput(_THIS)
     }
 }}
 
-void Cocoa_StopTextInput(_THIS)
+void Cocoa_StopTextInput()
 { @autoreleasepool
 {
     Cocoa_VideoData *data = cocoaVideoData;
@@ -371,7 +371,7 @@ void Cocoa_StopTextInput(_THIS)
     }
 }}
 
-void Cocoa_SetTextInputRect(_THIS, const SDL_Rect *rect)
+void Cocoa_SetTextInputRect(const SDL_Rect *rect)
 {
     Cocoa_VideoData *data = cocoaVideoData;
 
@@ -468,7 +468,7 @@ typedef enum {
 extern CGSConnection _CGSDefaultConnection(void);
 extern CGError CGSSetGlobalHotKeyOperatingMode(CGSConnection connection, CGSGlobalHotKeyOperatingMode mode);
 
-void Cocoa_SetWindowKeyboardGrab(_THIS, SDL_Window * window, SDL_bool grabbed)
+void Cocoa_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed)
 {
 #ifdef SDL_MAC_NO_SANDBOX
     CGSSetGlobalHotKeyOperatingMode(_CGSDefaultConnection(), grabbed ? CGSGlobalHotKeyDisable : CGSGlobalHotKeyEnable);

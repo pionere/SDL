@@ -70,9 +70,9 @@ static void display_handle_done(void *data, struct wl_output *output);
 /* Initialization/Query functions */
 static int Wayland_VideoInit(_THIS);
 
-static int Wayland_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
+static int Wayland_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 
-static int Wayland_GetDisplayDPI(_THIS, SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi);
+static int Wayland_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi);
 
 static void Wayland_VideoQuit(_THIS);
 
@@ -972,7 +972,7 @@ int Wayland_VideoInit(_THIS)
     return 0;
 }
 
-static int Wayland_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
+static int Wayland_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     SDL_WaylandOutputData *driverdata = (SDL_WaylandOutputData *)display->driverdata;
     rect->x = driverdata->x;
@@ -982,7 +982,7 @@ static int Wayland_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *
     return 0;
 }
 
-static int Wayland_GetDisplayDPI(_THIS, SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi)
+static int Wayland_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi)
 {
     SDL_WaylandOutputData *driverdata = (SDL_WaylandOutputData *)sdl_display->driverdata;
 

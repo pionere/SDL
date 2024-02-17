@@ -399,13 +399,13 @@ static void SDL_StartTextInputPrivate(SDL_bool default_value)
         if (_this->ShowScreenKeyboard && SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, default_value)) {
             window = SDL_GetFocusWindow();
             if (window) {
-                _this->ShowScreenKeyboard(_this, window);
+                _this->ShowScreenKeyboard(window);
             }
         }
 
         /* Finally start the text input system */
         if (_this->StartTextInput) {
-            _this->StartTextInput(_this);
+            _this->StartTextInput();
         }
     }
 }
@@ -773,7 +773,7 @@ int SDL_GetDisplayBounds(int displayIndex, SDL_Rect *rect)
     display = &_this->displays[displayIndex];
 
     if (_this->GetDisplayBounds) {
-        if (_this->GetDisplayBounds(_this, display, rect) == 0) {
+        if (_this->GetDisplayBounds(display, rect) == 0) {
             return 0;
         }
     }
@@ -832,7 +832,7 @@ int SDL_GetDisplayDPI(int displayIndex, float *ddpi, float *hdpi, float *vdpi)
     display = &_this->displays[displayIndex];
 
     if (_this->GetDisplayDPI) {
-        if (_this->GetDisplayDPI(_this, display, ddpi, hdpi, vdpi) == 0) {
+        if (_this->GetDisplayDPI(display, ddpi, hdpi, vdpi) == 0) {
             return 0;
         }
     } else {
@@ -903,7 +903,7 @@ void SDL_SetDesktopDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode 
 static int SDL_GetNumDisplayModesForDisplay(SDL_VideoDisplay *display)
 {
     if (!display->num_display_modes && _this->GetDisplayModes) {
-        _this->GetDisplayModes(_this, display);
+        _this->GetDisplayModes(display);
         SDL_qsort(display->display_modes, display->num_display_modes,
                   sizeof(SDL_DisplayMode), cmpmodes);
     }
@@ -1142,7 +1142,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
         return SDL_SetError("SDL video driver doesn't support changing display mode");
     }
     _this->setting_display_mode = SDL_TRUE;
-    result = _this->SetDisplayMode(_this, display, &display_mode);
+    result = _this->SetDisplayMode(display, &display_mode);
     _this->setting_display_mode = SDL_FALSE;
     if (result < 0) {
         return -1;
@@ -1375,7 +1375,7 @@ void *SDL_GetWindowICCProfile(SDL_Window *window, size_t *size)
         SDL_Unsupported();
         return NULL;
     }
-    return _this->GetWindowICCProfile(_this, window, size);
+    return _this->GetWindowICCProfile(window, size);
 }
 
 Uint32 SDL_GetWindowPixelFormat(SDL_Window *window)
@@ -1433,7 +1433,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
             display = SDL_GetDisplayForWindow(window);
             SDL_SetDisplayModeForDisplay(display, NULL);
             if (_this->SetWindowFullscreen) {
-                _this->SetWindowFullscreen(_this, window, display, SDL_FALSE);
+                _this->SetWindowFullscreen(window, display, SDL_FALSE);
             }
         }
 
@@ -1491,7 +1491,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
         }
         if (!fullscreen) {
             if (_this->SetWindowFullscreen) {
-                _this->SetWindowFullscreen(_this, window, display, SDL_FALSE);
+                _this->SetWindowFullscreen(window, display, SDL_FALSE);
             }
             window->last_fullscreen_flags = window->flags;
             return 0;
@@ -1533,7 +1533,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
                 }
 
                 if (_this->SetWindowFullscreen) {
-                    _this->SetWindowFullscreen(_this, other, display, SDL_TRUE);
+                    _this->SetWindowFullscreen(other, display, SDL_TRUE);
                 }
                 display->fullscreen_window = other;
 
@@ -1569,7 +1569,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
     SDL_SetDisplayModeForDisplay(display, NULL);
 
     if (_this->SetWindowFullscreen) {
-        _this->SetWindowFullscreen(_this, window, display, SDL_FALSE);
+        _this->SetWindowFullscreen(window, display, SDL_FALSE);
     }
     display->fullscreen_window = NULL;
 
@@ -2048,19 +2048,19 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     }
 
     if (_this->SetWindowTitle && window->title) {
-        _this->SetWindowTitle(_this, window);
+        _this->SetWindowTitle(window);
     }
 
     if (_this->SetWindowIcon && window->icon) {
-        _this->SetWindowIcon(_this, window, window->icon);
+        _this->SetWindowIcon(window, window->icon);
     }
 
     if (_this->SetWindowMinimumSize && (window->min_w || window->min_h)) {
-        _this->SetWindowMinimumSize(_this, window);
+        _this->SetWindowMinimumSize(window);
     }
 
     if (_this->SetWindowMaximumSize && (window->max_w || window->max_h)) {
-        _this->SetWindowMaximumSize(_this, window);
+        _this->SetWindowMaximumSize(window);
     }
 
     if (window->hit_test) {
@@ -2118,7 +2118,7 @@ void SDL_SetWindowTitle(SDL_Window *window, const char *title)
     window->title = SDL_strdup(title ? title : "");
 
     if (_this->SetWindowTitle) {
-        _this->SetWindowTitle(_this, window);
+        _this->SetWindowTitle(window);
     }
 }
 
@@ -2146,7 +2146,7 @@ void SDL_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
     }
 
     if (_this->SetWindowIcon) {
-        _this->SetWindowIcon(_this, window, window->icon);
+        _this->SetWindowIcon(window, window->icon);
     }
 }
 
@@ -2254,7 +2254,7 @@ void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
         }
 
         if (_this->SetWindowPosition) {
-            _this->SetWindowPosition(_this, window);
+            _this->SetWindowPosition(window);
         }
     }
 }
@@ -2312,7 +2312,7 @@ void SDL_SetWindowBordered(SDL_Window *window, SDL_bool bordered)
             } else {
                 window->flags |= SDL_WINDOW_BORDERLESS;
             }
-            _this->SetWindowBordered(_this, window, (SDL_bool)want);
+            _this->SetWindowBordered(window, (SDL_bool)want);
         }
     }
 }
@@ -2329,7 +2329,7 @@ void SDL_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
             } else {
                 window->flags &= ~SDL_WINDOW_RESIZABLE;
             }
-            _this->SetWindowResizable(_this, window, (SDL_bool)want);
+            _this->SetWindowResizable(window, (SDL_bool)want);
         }
     }
 }
@@ -2347,7 +2347,7 @@ void SDL_SetWindowAlwaysOnTop(SDL_Window *window, SDL_bool on_top)
                 window->flags &= ~SDL_WINDOW_ALWAYS_ON_TOP;
             }
 
-            _this->SetWindowAlwaysOnTop(_this, window, (SDL_bool)want);
+            _this->SetWindowAlwaysOnTop(window, (SDL_bool)want);
         }
     }
 }
@@ -2392,7 +2392,7 @@ void SDL_SetWindowSize(SDL_Window *window, int w, int h)
         window->w = w;
         window->h = h;
         if (_this->SetWindowSize) {
-            _this->SetWindowSize(_this, window);
+            _this->SetWindowSize(window);
         }
         if (window->w != old_w || window->h != old_h) {
             /* We didn't get a SDL_WINDOWEVENT_RESIZED event (by design) */
@@ -2438,7 +2438,7 @@ int SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *botto
         return SDL_Unsupported();
     }
 
-    return _this->GetWindowBordersSize(_this, window, top, left, bottom, right);
+    return _this->GetWindowBordersSize(window, top, left, bottom, right);
 }
 
 void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
@@ -2456,7 +2456,7 @@ void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
     }
 
     if (_this->GetWindowSizeInPixels) {
-        _this->GetWindowSizeInPixels(_this, window, w, h);
+        _this->GetWindowSizeInPixels(window, w, h);
     } else {
         SDL_GetWindowSize(window, w, h);
     }
@@ -2485,7 +2485,7 @@ void SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h)
 
     if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
         if (_this->SetWindowMinimumSize) {
-            _this->SetWindowMinimumSize(_this, window);
+            _this->SetWindowMinimumSize(window);
         }
         /* Ensure that window is not smaller than minimal size */
         SDL_SetWindowSize(window, SDL_max(window->w, window->min_w), SDL_max(window->h, window->min_h));
@@ -2525,7 +2525,7 @@ void SDL_SetWindowMaximumSize(SDL_Window *window, int max_w, int max_h)
 
     if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
         if (_this->SetWindowMaximumSize) {
-            _this->SetWindowMaximumSize(_this, window);
+            _this->SetWindowMaximumSize(window);
         }
         /* Ensure that window is not larger than maximal size */
         SDL_SetWindowSize(window, SDL_min(window->w, window->max_w), SDL_min(window->h, window->max_h));
@@ -2552,7 +2552,7 @@ void SDL_ShowWindow(SDL_Window *window)
     }
 
     if (_this->ShowWindow) {
-        _this->ShowWindow(_this, window);
+        _this->ShowWindow(window);
     }
     SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SHOWN, 0, 0);
 }
@@ -2598,16 +2598,8 @@ void SDL_MaximizeWindow(SDL_Window *window)
     /* !!! FIXME: should this check if the window is resizable? */
 
     if (_this->MaximizeWindow) {
-        _this->MaximizeWindow(_this, window);
+        _this->MaximizeWindow(window);
     }
-}
-
-static SDL_bool CanMinimizeWindow(SDL_Window *window)
-{
-    if (!_this->MinimizeWindow) {
-        return SDL_FALSE;
-    }
-    return SDL_TRUE;
 }
 
 void SDL_MinimizeWindow(SDL_Window *window)
@@ -2618,7 +2610,7 @@ void SDL_MinimizeWindow(SDL_Window *window)
         return;
     }
 
-    if (!CanMinimizeWindow(window)) {
+    if (!_this->MinimizeWindow) {
         return;
     }
 
@@ -2626,9 +2618,7 @@ void SDL_MinimizeWindow(SDL_Window *window)
         SDL_UpdateFullscreenMode(window, SDL_FALSE);
     }
 
-    if (_this->MinimizeWindow) {
-        _this->MinimizeWindow(_this, window);
-    }
+    _this->MinimizeWindow(window);
 }
 
 void SDL_RestoreWindow(SDL_Window *window)
@@ -2640,7 +2630,7 @@ void SDL_RestoreWindow(SDL_Window *window)
     }
 
     if (_this->RestoreWindow) {
-        _this->RestoreWindow(_this, window);
+        _this->RestoreWindow(window);
     }
 }
 
@@ -2847,7 +2837,7 @@ int SDL_SetWindowOpacity(SDL_Window * window, float opacity)
         opacity = 1.0f;
     }
 
-    retval = _this->SetWindowOpacity(_this, window, opacity);
+    retval = _this->SetWindowOpacity(window, opacity);
     if (retval == 0) {
         window->opacity = opacity;
     }
@@ -2888,7 +2878,7 @@ int SDL_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window)
         return SDL_Unsupported();
     }
 
-    return _this->SetWindowModalFor(_this, modal_window, parent_window);
+    return _this->SetWindowModalFor(modal_window, parent_window);
 }
 
 int SDL_SetWindowInputFocus(SDL_Window *window)
@@ -2899,7 +2889,7 @@ int SDL_SetWindowInputFocus(SDL_Window *window)
         return SDL_Unsupported();
     }
 
-    return _this->SetWindowInputFocus(_this, window);
+    return _this->SetWindowInputFocus(window);
 }
 
 
@@ -2930,7 +2920,7 @@ int SDL_SetWindowGammaRamp(SDL_Window * window, const Uint16 * red,
         SDL_memcpy(&window->gamma[2*256], blue, 256*sizeof(Uint16));
     }
     if (window->flags & SDL_WINDOW_INPUT_FOCUS) {
-        return _this->SetWindowGammaRamp(_this, window, window->gamma);
+        return _this->SetWindowGammaRamp(window, window->gamma);
     } else {
         return 0;
     }
@@ -2952,7 +2942,7 @@ int SDL_GetWindowGammaRamp(SDL_Window * window, Uint16 * red,
         window->saved_gamma = window->gamma + 3*256;
 
         if (_this->GetWindowGammaRamp) {
-            if (_this->GetWindowGammaRamp(_this, window, window->gamma) < 0) {
+            if (_this->GetWindowGammaRamp(window, window->gamma) < 0) {
                 return -1;
             }
         } else {
@@ -3006,10 +2996,10 @@ void SDL_UpdateWindowGrab(SDL_Window * window)
             /* stealing a grab from another window! */
             _this->grabbed_window->flags &= ~(SDL_WINDOW_MOUSE_GRABBED | SDL_WINDOW_KEYBOARD_GRABBED);
             if (_this->SetWindowMouseGrab) {
-                _this->SetWindowMouseGrab(_this, _this->grabbed_window, SDL_FALSE);
+                _this->SetWindowMouseGrab(_this->grabbed_window, SDL_FALSE);
             }
             if (_this->SetWindowKeyboardGrab) {
-                _this->SetWindowKeyboardGrab(_this, _this->grabbed_window, SDL_FALSE);
+                _this->SetWindowKeyboardGrab(_this->grabbed_window, SDL_FALSE);
             }
         }
         _this->grabbed_window = window;
@@ -3018,10 +3008,10 @@ void SDL_UpdateWindowGrab(SDL_Window * window)
     }
 
     if (_this->SetWindowMouseGrab) {
-        _this->SetWindowMouseGrab(_this, window, mouse_grabbed);
+        _this->SetWindowMouseGrab(window, mouse_grabbed);
     }
     if (_this->SetWindowKeyboardGrab) {
-        _this->SetWindowKeyboardGrab(_this, window, keyboard_grabbed);
+        _this->SetWindowKeyboardGrab(window, keyboard_grabbed);
     }
 }
 
@@ -3104,7 +3094,7 @@ int SDL_SetWindowMouseRect(SDL_Window *window, const SDL_Rect *rect)
     }
 
     if (_this->SetWindowMouseRect) {
-        _this->SetWindowMouseRect(_this, window);
+        _this->SetWindowMouseRect(window);
     }
     return 0;
 }
@@ -3125,7 +3115,7 @@ int SDL_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
     CHECK_WINDOW_MAGIC(window, -1);
 
     if (_this->FlashWindow) {
-        return _this->FlashWindow(_this, window, operation);
+        return _this->FlashWindow(window, operation);
     }
 
     return SDL_Unsupported();
@@ -3191,7 +3181,7 @@ void SDL_OnWindowRestored(SDL_Window *window)
 void SDL_OnWindowEnter(SDL_Window *window)
 {
     if (_this->OnWindowEnter) {
-        _this->OnWindowEnter(_this, window);
+        _this->OnWindowEnter(window);
     }
 }
 
@@ -3204,7 +3194,7 @@ void SDL_OnWindowFocusGained(SDL_Window *window)
     SDL_Mouse *mouse = SDL_GetMouse();
 
     if (window->gamma && _this->SetWindowGammaRamp) {
-        _this->SetWindowGammaRamp(_this, window, window->gamma);
+        _this->SetWindowGammaRamp(window, window->gamma);
     }
 
     if (mouse && mouse->relative_mode) {
@@ -3258,7 +3248,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
 void SDL_OnWindowFocusLost(SDL_Window *window)
 {
     if (window->gamma && _this->SetWindowGammaRamp) {
-        _this->SetWindowGammaRamp(_this, window, window->saved_gamma);
+        _this->SetWindowGammaRamp(window, window->saved_gamma);
     }
 
     SDL_UpdateWindowGrab(window);
@@ -4337,7 +4327,7 @@ SDL_bool SDL_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
         SDL_Unsupported();
         return SDL_FALSE;
     }
-    return (_this->GetWindowWMInfo(_this, window, info));
+    return (_this->GetWindowWMInfo(window, info));
 }
 
 void SDL_StartTextInput(void)
@@ -4348,14 +4338,14 @@ void SDL_StartTextInput(void)
 void SDL_ClearComposition(void)
 {
     if (_this && _this->ClearComposition) {
-        _this->ClearComposition(_this);
+        _this->ClearComposition();
     }
 }
 
 SDL_bool SDL_IsTextInputShown(void)
 {
     if (_this && _this->IsTextInputShown) {
-        return _this->IsTextInputShown(_this);
+        return _this->IsTextInputShown();
     }
 
     return SDL_FALSE;
@@ -4372,14 +4362,14 @@ void SDL_StopTextInput(void)
 
     /* Stop the text input system */
     if (_this && _this->StopTextInput) {
-        _this->StopTextInput(_this);
+        _this->StopTextInput();
     }
 
     /* Hide the on-screen keyboard, if any */
     if (SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
         window = SDL_GetFocusWindow();
         if (window && _this && _this->HideScreenKeyboard) {
-            _this->HideScreenKeyboard(_this, window);
+            _this->HideScreenKeyboard(window);
         }
     }
 
@@ -4391,14 +4381,14 @@ void SDL_StopTextInput(void)
 void SDL_SetTextInputRect(const SDL_Rect *rect)
 {
     if (_this && _this->SetTextInputRect) {
-        _this->SetTextInputRect(_this, rect);
+        _this->SetTextInputRect(rect);
     }
 }
 
 SDL_bool SDL_HasScreenKeyboardSupport(void)
 {
     if (_this && _this->HasScreenKeyboardSupport) {
-        return _this->HasScreenKeyboardSupport(_this);
+        return _this->HasScreenKeyboardSupport();
     }
     return SDL_FALSE;
 }
@@ -4406,7 +4396,7 @@ SDL_bool SDL_HasScreenKeyboardSupport(void)
 SDL_bool SDL_IsScreenKeyboardShown(SDL_Window *window)
 {
     if (window && _this && _this->IsScreenKeyboardShown) {
-        return _this->IsScreenKeyboardShown(_this, window);
+        return _this->IsScreenKeyboardShown(window);
     }
     return SDL_FALSE;
 }

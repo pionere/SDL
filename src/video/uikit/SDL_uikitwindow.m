@@ -170,7 +170,7 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
         const CGSize origsize = data.uiscreen.currentMode.size;
         if ((origsize.width == 0.0f) && (origsize.height == 0.0f)) {
             if (display->num_display_modes == 0) {
-                _this->GetDisplayModes(_this, display);
+                _this->GetDisplayModes(display);
             }
 
             int i;
@@ -219,7 +219,7 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
     return 1;
 }
 
-void UIKit_SetWindowTitle(_THIS, SDL_Window * window)
+void UIKit_SetWindowTitle(SDL_Window * window)
 {
     @autoreleasepool {
         SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
@@ -227,7 +227,7 @@ void UIKit_SetWindowTitle(_THIS, SDL_Window * window)
     }
 }
 
-void UIKit_ShowWindow(_THIS, SDL_Window * window)
+void UIKit_ShowWindow(SDL_Window * window)
 {
     @autoreleasepool {
         SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
@@ -260,7 +260,7 @@ void UIKit_RaiseWindow(_THIS, SDL_Window * window)
     _this->GL_MakeCurrent(_this, _this->current_glwin, _this->current_glctx);
 }
 
-static void UIKit_UpdateWindowBorder(_THIS, SDL_Window * window)
+static void UIKit_UpdateWindowBorder(SDL_Window * window)
 {
     SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
     SDL_uikitviewcontroller *viewcontroller = data.viewcontroller;
@@ -289,21 +289,21 @@ static void UIKit_UpdateWindowBorder(_THIS, SDL_Window * window)
     [viewcontroller.view layoutIfNeeded];
 }
 
-void UIKit_SetWindowBordered(_THIS, SDL_Window * window, SDL_bool bordered)
+void UIKit_SetWindowBordered(SDL_Window * window, SDL_bool bordered)
 {
     @autoreleasepool {
-        UIKit_UpdateWindowBorder(_this, window);
+        UIKit_UpdateWindowBorder(window);
     }
 }
 
-void UIKit_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen)
+void UIKit_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen)
 {
     @autoreleasepool {
-        UIKit_UpdateWindowBorder(_this, window);
+        UIKit_UpdateWindowBorder(window);
     }
 }
 
-void UIKit_SetWindowMouseGrab(_THIS, SDL_Window * window, SDL_bool grabbed)
+void UIKit_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed)
 {
     /* There really isn't a concept of window grab or cursor confinement on iOS */
 }
@@ -353,7 +353,7 @@ void UIKit_DestroyWindow(_THIS, SDL_Window * window)
     }
 }
 
-void UIKit_GetWindowSizeInPixels(_THIS, SDL_Window * window, int *w, int *h)
+void UIKit_GetWindowSizeInPixels(SDL_Window * window, int *w, int *h)
 { @autoreleasepool
 {
     SDL_WindowData *windata = (__bridge SDL_WindowData *) window->driverdata;
@@ -371,7 +371,7 @@ void UIKit_GetWindowSizeInPixels(_THIS, SDL_Window * window, int *w, int *h)
     *h = size.height * scale;
 }}
 
-SDL_bool UIKit_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
+SDL_bool UIKit_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)
 {
     @autoreleasepool {
         SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;

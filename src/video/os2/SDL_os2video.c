@@ -711,7 +711,7 @@ static void OS2_PumpEvents(_THIS)
         WinDispatchMsg(pVData->hab, &qmsg);
 }
 
-static WINDATA *_setupWindow(_THIS, SDL_Window *window, HWND hwndFrame,
+static WINDATA *_setupWindow(SDL_Window *window, HWND hwndFrame,
                              HWND hwnd)
 {
     OS2_VideoData *pVData = &os2VideoData;
@@ -767,7 +767,7 @@ static int OS2_CreateWindow(_THIS, SDL_Window *window)
         return SDL_SetError("Couldn't create window");
 
     /* Setup window data and frame window procedure */
-    pWinData = _setupWindow(_this, window, hwndFrame, hwnd);
+    pWinData = _setupWindow(window, hwndFrame, hwnd);
     if (!pWinData) {
         WinDestroyWindow(hwndFrame);
         return -1;
@@ -893,7 +893,7 @@ static int OS2_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
     window->h = swp.cy;
 
     /* Setup window data and frame window procedure */
-    pWinData = _setupWindow(_this, window, hwndFrame, hwnd);
+    pWinData = _setupWindow(window, hwndFrame, hwnd);
     if (!pWinData) {
         SDL_free(window->title);
         window->title = NULL;
@@ -949,7 +949,7 @@ static void OS2_DestroyWindow(_THIS, SDL_Window * window)
     window->driverdata = NULL;
 }
 
-static void OS2_SetWindowTitle(_THIS, SDL_Window *window)
+static void OS2_SetWindowTitle(SDL_Window *window)
 {
     PSZ pszTitle = (!window->title)? NULL : OS2_UTF8ToSys(window->title);
 
@@ -957,7 +957,7 @@ static void OS2_SetWindowTitle(_THIS, SDL_Window *window)
     SDL_free(pszTitle);
 }
 
-static void OS2_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
+static void OS2_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
     WINDATA  *pWinData = (WINDATA *)window->driverdata;
     HPOINTER  hptr = utilCreatePointer(icon, 0, 0);
@@ -976,7 +976,7 @@ static void OS2_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
     }
 }
 
-static void OS2_SetWindowPosition(_THIS, SDL_Window *window)
+static void OS2_SetWindowPosition(SDL_Window *window)
 {
     WINDATA         *pWinData = (WINDATA *)window->driverdata;
     RECTL            rectl;
@@ -1009,13 +1009,13 @@ static void OS2_SetWindowPosition(_THIS, SDL_Window *window)
                     ulFlags);
 }
 
-static void OS2_SetWindowSize(_THIS, SDL_Window *window)
+static void OS2_SetWindowSize(SDL_Window *window)
 {
     debug_os2("Enter");
-    OS2_SetWindowPosition(_this, window);
+    OS2_SetWindowPosition(window);
 }
 
-static void OS2_ShowWindow(_THIS, SDL_Window *window)
+static void OS2_ShowWindow(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1034,10 +1034,10 @@ static void OS2_HideWindow(_THIS, SDL_Window *window)
 static void OS2_RaiseWindow(_THIS, SDL_Window *window)
 {
     debug_os2("Enter");
-    OS2_SetWindowPosition(_this, window);
+    OS2_SetWindowPosition(window);
 }
 
-static void OS2_MaximizeWindow(_THIS, SDL_Window *window)
+static void OS2_MaximizeWindow(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1045,7 +1045,7 @@ static void OS2_MaximizeWindow(_THIS, SDL_Window *window)
     WinSetWindowPos(pWinData->hwndFrame, HWND_TOP, 0, 0, 0, 0, SWP_MAXIMIZE);
 }
 
-static void OS2_MinimizeWindow(_THIS, SDL_Window *window)
+static void OS2_MinimizeWindow(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1053,7 +1053,7 @@ static void OS2_MinimizeWindow(_THIS, SDL_Window *window)
     WinSetWindowPos(pWinData->hwndFrame, HWND_TOP, 0, 0, 0, 0, SWP_MINIMIZE | SWP_DEACTIVATE);
 }
 
-static void OS2_RestoreWindow(_THIS, SDL_Window *window)
+static void OS2_RestoreWindow(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1061,7 +1061,7 @@ static void OS2_RestoreWindow(_THIS, SDL_Window *window)
     WinSetWindowPos(pWinData->hwndFrame, HWND_TOP, 0, 0, 0, 0, SWP_RESTORE);
 }
 
-static void OS2_SetWindowBordered(_THIS, SDL_Window * window,
+static void OS2_SetWindowBordered(SDL_Window * window,
                                   SDL_bool bordered)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
@@ -1093,7 +1093,7 @@ static void OS2_SetWindowBordered(_THIS, SDL_Window * window,
                     SWP_SIZE | SWP_MOVE | SWP_NOADJUST);
 }
 
-static void OS2_SetWindowFullscreen(_THIS, SDL_Window *window,
+static void OS2_SetWindowFullscreen(SDL_Window *window,
                                     SDL_VideoDisplay *display,
                                     SDL_bool fullscreen)
 {
@@ -1139,7 +1139,7 @@ static void OS2_SetWindowFullscreen(_THIS, SDL_Window *window,
     }
 }
 
-static SDL_bool OS2_GetWindowWMInfo(_THIS, SDL_Window * window,
+static SDL_bool OS2_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
@@ -1156,7 +1156,7 @@ static SDL_bool OS2_GetWindowWMInfo(_THIS, SDL_Window * window,
     return SDL_FALSE;
 }
 
-static void OS2_OnWindowEnter(_THIS, SDL_Window * window)
+static void OS2_OnWindowEnter(SDL_Window * window)
 {
 }
 
@@ -1166,7 +1166,7 @@ static int OS2_SetWindowHitTest(SDL_Window *window, SDL_bool enabled)
   return 0;
 }
 
-static void OS2_SetWindowMouseGrab(_THIS, SDL_Window *window, SDL_bool grabbed)
+static void OS2_SetWindowMouseGrab(SDL_Window *window, SDL_bool grabbed)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1539,7 +1539,7 @@ static void OS2_VideoQuit(_THIS)
     /* our caller SDL_VideoQuit() already frees display_modes, driverdata, etc. */
 }
 
-static int OS2_GetDisplayBounds(_THIS, SDL_VideoDisplay *display,
+static int OS2_GetDisplayBounds(SDL_VideoDisplay *display,
                                 SDL_Rect *rect)
 {
     debug_os2("Enter");
@@ -1552,7 +1552,7 @@ static int OS2_GetDisplayBounds(_THIS, SDL_VideoDisplay *display,
     return 0;
 }
 
-static int OS2_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi,
+static int OS2_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi,
                              float *hdpi, float *vdpi)
 {
     DISPLAYDATA *pDisplayData = (DISPLAYDATA *)display->driverdata;
@@ -1571,7 +1571,7 @@ static int OS2_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi,
     return 0;
 }
 
-static void OS2_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+static void OS2_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayMode mode;
 
@@ -1583,7 +1583,7 @@ static void OS2_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
     SDL_AddDisplayMode(display, &mode);
 }
 
-static int OS2_SetDisplayMode(_THIS, SDL_VideoDisplay *display,
+static int OS2_SetDisplayMode(SDL_VideoDisplay *display,
                               SDL_DisplayMode *mode)
 {
     debug_os2("Enter");

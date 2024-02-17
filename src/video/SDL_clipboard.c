@@ -55,7 +55,7 @@ int SDL_SetPrimarySelectionText(const char *text)
         text = "";
     }
     if (_this->SetPrimarySelectionText) {
-        return _this->SetPrimarySelectionText(_this, text);
+        return _this->SetPrimarySelectionText(text);
     } else {
         SDL_free(_this->primary_selection_text);
         _this->primary_selection_text = SDL_strdup(text);
@@ -93,7 +93,7 @@ char *SDL_GetPrimarySelectionText(void)
     }
 
     if (_this->GetPrimarySelectionText) {
-        return _this->GetPrimarySelectionText(_this);
+        return _this->GetPrimarySelectionText();
     } else {
         const char *text = _this->primary_selection_text;
         if (!text) {
@@ -133,7 +133,7 @@ SDL_bool SDL_HasPrimarySelectionText(void)
     }
 
     if (_this->HasPrimarySelectionText) {
-        return _this->HasPrimarySelectionText(_this);
+        return _this->HasPrimarySelectionText();
     }
 
     if (_this->primary_selection_text && _this->primary_selection_text[0] != '\0') {

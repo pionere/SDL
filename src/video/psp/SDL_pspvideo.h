@@ -40,24 +40,24 @@ typedef struct SDL_WindowData
 /* Display and window functions */
 int PSP_VideoInit(_THIS);
 void PSP_VideoQuit(_THIS);
-void PSP_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-int PSP_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+void PSP_GetDisplayModes(SDL_VideoDisplay *display);
+int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int PSP_CreateWindow(_THIS, SDL_Window *window);
 int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
-void PSP_SetWindowTitle(_THIS, SDL_Window *window);
-void PSP_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon);
-void PSP_SetWindowPosition(_THIS, SDL_Window *window);
-void PSP_SetWindowSize(_THIS, SDL_Window *window);
-void PSP_ShowWindow(_THIS, SDL_Window *window);
+void PSP_SetWindowTitle(SDL_Window *window);
+void PSP_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+void PSP_SetWindowPosition(SDL_Window *window);
+void PSP_SetWindowSize(SDL_Window *window);
+void PSP_ShowWindow(SDL_Window *window);
 void PSP_HideWindow(_THIS, SDL_Window *window);
 void PSP_RaiseWindow(_THIS, SDL_Window *window);
-void PSP_MaximizeWindow(_THIS, SDL_Window *window);
-void PSP_MinimizeWindow(_THIS, SDL_Window *window);
-void PSP_RestoreWindow(_THIS, SDL_Window *window);
+void PSP_MaximizeWindow(SDL_Window *window);
+void PSP_MinimizeWindow(SDL_Window *window);
+void PSP_RestoreWindow(SDL_Window *window);
 void PSP_DestroyWindow(_THIS, SDL_Window *window);
 
 /* Window manager function */
-SDL_bool PSP_GetWindowWMInfo(_THIS, SDL_Window * window,
+SDL_bool PSP_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
 /* OpenGL/OpenGL ES functions */
@@ -72,10 +72,10 @@ int PSP_GL_SwapWindow(_THIS, SDL_Window *window);
 void PSP_GL_DeleteContext(_THIS, SDL_GLContext context);
 
 /* PSP on screen keyboard */
-SDL_bool PSP_HasScreenKeyboardSupport(_THIS);
-void PSP_ShowScreenKeyboard(_THIS, SDL_Window *window);
-void PSP_HideScreenKeyboard(_THIS, SDL_Window *window);
-SDL_bool PSP_IsScreenKeyboardShown(_THIS, SDL_Window *window);
+SDL_bool PSP_HasScreenKeyboardSupport();
+void PSP_ShowScreenKeyboard(SDL_Window *window);
+void PSP_HideScreenKeyboard(SDL_Window *window);
+SDL_bool PSP_IsScreenKeyboardShown(SDL_Window *window);
 
 #endif /* SDL_pspvideo_h_ */
 

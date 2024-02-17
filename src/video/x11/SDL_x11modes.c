@@ -654,7 +654,7 @@ int X11_InitModes(_THIS)
     return X11_InitModes_StdXlib(_this);
 }
 
-void X11_GetDisplayModes(_THIS, SDL_VideoDisplay *sdl_display)
+void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display)
 {
     SDL_DisplayData *data = (SDL_DisplayData *)sdl_display->driverdata;
     SDL_DisplayMode mode;
@@ -732,7 +732,7 @@ static int SDL_XRRSetScreenSizeErrHandler(Display *d, XErrorEvent *e)
 }
 #endif
 
-int X11_SetDisplayMode(_THIS, SDL_VideoDisplay *sdl_display, SDL_DisplayMode *mode)
+int X11_SetDisplayMode(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *mode)
 {
     X11_VideoData *viddata = &x11VideoData;
     SDL_DisplayData *data = (SDL_DisplayData *)sdl_display->driverdata;
@@ -825,7 +825,7 @@ void X11_QuitModes(_THIS)
 {
 }
 
-int X11_GetDisplayBounds(_THIS, SDL_VideoDisplay *sdl_display, SDL_Rect *rect)
+int X11_GetDisplayBounds(SDL_VideoDisplay *sdl_display, SDL_Rect *rect)
 {
     SDL_DisplayData *data = (SDL_DisplayData *)sdl_display->driverdata;
 
@@ -837,7 +837,7 @@ int X11_GetDisplayBounds(_THIS, SDL_VideoDisplay *sdl_display, SDL_Rect *rect)
     return 0;
 }
 
-int X11_GetDisplayDPI(_THIS, SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi)
+int X11_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi)
 {
     SDL_DisplayData *data = (SDL_DisplayData *)sdl_display->driverdata;
 
@@ -865,7 +865,7 @@ int X11_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *sdl_display, SDL_Rect *r
     unsigned long items_read = 0, items_left = 0;
     unsigned char *propdata = NULL;
 
-    if (X11_GetDisplayBounds(_this, sdl_display, rect) < 0) {
+    if (X11_GetDisplayBounds(sdl_display, rect) < 0) {
         return -1;
     }
 

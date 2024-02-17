@@ -219,12 +219,12 @@ void VITA_VideoQuit(_THIS)
     VITA_QuitTouch();
 }
 
-void VITA_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void VITA_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_AddDisplayMode(display, &display->current_mode);
 }
 
-int VITA_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int VITA_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }
@@ -308,19 +308,19 @@ int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
     return -1;
 }
 
-void VITA_SetWindowTitle(_THIS, SDL_Window *window)
+void VITA_SetWindowTitle(SDL_Window *window)
 {
 }
-void VITA_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
+void VITA_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
 }
-void VITA_SetWindowPosition(_THIS, SDL_Window *window)
+void VITA_SetWindowPosition(SDL_Window *window)
 {
 }
-void VITA_SetWindowSize(_THIS, SDL_Window *window)
+void VITA_SetWindowSize(SDL_Window *window)
 {
 }
-void VITA_ShowWindow(_THIS, SDL_Window *window)
+void VITA_ShowWindow(SDL_Window *window)
 {
 }
 void VITA_HideWindow(_THIS, SDL_Window *window)
@@ -329,16 +329,16 @@ void VITA_HideWindow(_THIS, SDL_Window *window)
 void VITA_RaiseWindow(_THIS, SDL_Window *window)
 {
 }
-void VITA_MaximizeWindow(_THIS, SDL_Window *window)
+void VITA_MaximizeWindow(SDL_Window *window)
 {
 }
-void VITA_MinimizeWindow(_THIS, SDL_Window *window)
+void VITA_MinimizeWindow(SDL_Window *window)
 {
 }
-void VITA_RestoreWindow(_THIS, SDL_Window *window)
+void VITA_RestoreWindow(SDL_Window *window)
 {
 }
-void VITA_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed)
+void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 {
 }
 
@@ -359,7 +359,7 @@ void VITA_DestroyWindow(_THIS, SDL_Window *window)
 /*****************************************************************************/
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
-SDL_bool VITA_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
+SDL_bool VITA_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 {
     if (info->version.major <= SDL_MAJOR_VERSION) {
         return SDL_TRUE;
@@ -373,7 +373,7 @@ SDL_bool VITA_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *
     return SDL_FALSE;
 }
 
-SDL_bool VITA_HasScreenKeyboardSupport(_THIS)
+SDL_bool VITA_HasScreenKeyboardSupport()
 {
     return SDL_TRUE;
 }
@@ -448,7 +448,7 @@ void VITA_ImeEventHandler(void *arg, const SceImeEventData *e)
 }
 #endif
 
-void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
+void VITA_ShowScreenKeyboard(SDL_Window *window)
 {
     Vita_VideoData *videodata = &vitaVideoData;
     SceInt32 res;
@@ -509,7 +509,7 @@ void VITA_ShowScreenKeyboard(_THIS, SDL_Window *window)
     videodata->ime_active = SDL_TRUE;
 }
 
-void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
+void VITA_HideScreenKeyboard(SDL_Window *window)
 {
 #if !defined(SDL_VIDEO_VITA_PVR)
     Vita_VideoData *videodata = &vitaVideoData;
@@ -530,7 +530,7 @@ void VITA_HideScreenKeyboard(_THIS, SDL_Window *window)
 #endif
 }
 
-SDL_bool VITA_IsScreenKeyboardShown(_THIS, SDL_Window *window)
+SDL_bool VITA_IsScreenKeyboardShown(SDL_Window *window)
 {
 #if defined(SDL_VIDEO_VITA_PVR)
     Vita_VideoData *videodata = &vitaVideoData;

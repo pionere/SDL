@@ -200,13 +200,13 @@ void RPI_VideoQuit(_THIS)
 #endif
 }
 
-void RPI_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void RPI_GetDisplayModes(SDL_VideoDisplay *display)
 {
     /* Only one display mode available, the current one */
     SDL_AddDisplayMode(display, &display->current_mode);
 }
 
-int RPI_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int RPI_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }
@@ -348,19 +348,19 @@ int RPI_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
     return -1;
 }
 
-void RPI_SetWindowTitle(_THIS, SDL_Window *window)
+void RPI_SetWindowTitle(SDL_Window *window)
 {
 }
-void RPI_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
+void RPI_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
 }
-void RPI_SetWindowPosition(_THIS, SDL_Window *window)
+void RPI_SetWindowPosition(SDL_Window *window)
 {
 }
-void RPI_SetWindowSize(_THIS, SDL_Window *window)
+void RPI_SetWindowSize(SDL_Window *window)
 {
 }
-void RPI_ShowWindow(_THIS, SDL_Window *window)
+void RPI_ShowWindow(SDL_Window *window)
 {
 }
 void RPI_HideWindow(_THIS, SDL_Window *window)
@@ -369,13 +369,13 @@ void RPI_HideWindow(_THIS, SDL_Window *window)
 void RPI_RaiseWindow(_THIS, SDL_Window *window)
 {
 }
-void RPI_MaximizeWindow(_THIS, SDL_Window *window)
+void RPI_MaximizeWindow(SDL_Window *window)
 {
 }
-void RPI_MinimizeWindow(_THIS, SDL_Window *window)
+void RPI_MinimizeWindow(SDL_Window *window)
 {
 }
-void RPI_RestoreWindow(_THIS, SDL_Window *window)
+void RPI_RestoreWindow(SDL_Window *window)
 {
 }
 
@@ -383,7 +383,7 @@ void RPI_RestoreWindow(_THIS, SDL_Window *window)
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
 #if 0
-SDL_bool RPI_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
+SDL_bool RPI_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 {
     if (info->version.major <= SDL_MAJOR_VERSION) {
         return SDL_TRUE;

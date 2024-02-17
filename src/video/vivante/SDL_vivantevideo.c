@@ -230,13 +230,13 @@ void VIVANTE_VideoQuit(_THIS)
 #endif
 }
 
-void VIVANTE_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void VIVANTE_GetDisplayModes(SDL_VideoDisplay *display)
 {
     /* Only one display mode available, the current one */
     SDL_AddDisplayMode(display, &display->current_mode);
 }
 
-int VIVANTE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int VIVANTE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }
@@ -308,7 +308,7 @@ void VIVANTE_DestroyWindow(_THIS, SDL_Window *window)
     window->driverdata = NULL;
 }
 
-void VIVANTE_SetWindowTitle(_THIS, SDL_Window *window)
+void VIVANTE_SetWindowTitle(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     SDL_WindowData *data = window->driverdata;
@@ -316,17 +316,17 @@ void VIVANTE_SetWindowTitle(_THIS, SDL_Window *window)
 #endif
 }
 
-void VIVANTE_SetWindowPosition(_THIS, SDL_Window *window)
+void VIVANTE_SetWindowPosition(SDL_Window *window)
 {
     /* FIXME */
 }
 
-void VIVANTE_SetWindowSize(_THIS, SDL_Window *window)
+void VIVANTE_SetWindowSize(SDL_Window *window)
 {
     /* FIXME */
 }
 
-void VIVANTE_ShowWindow(_THIS, SDL_Window *window)
+void VIVANTE_ShowWindow(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     SDL_WindowData *data = window->driverdata;
@@ -349,7 +349,7 @@ void VIVANTE_HideWindow(_THIS, SDL_Window *window)
 /*****************************************************************************/
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
-SDL_bool VIVANTE_GetWindowWMInfo(_THIS, SDL_Window *window, struct SDL_SysWMinfo *info)
+SDL_bool VIVANTE_GetWindowWMInfo(SDL_Window *window, struct SDL_SysWMinfo *info)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SDL_DisplayData *displaydata = SDL_GetDisplayDriverData(0);

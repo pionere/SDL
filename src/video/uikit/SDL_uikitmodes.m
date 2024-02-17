@@ -377,7 +377,7 @@ int UIKit_InitModes(_THIS)
     return 0;
 }
 
-void UIKit_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
+void UIKit_GetDisplayModes(SDL_VideoDisplay * display)
 {
     @autoreleasepool {
         SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;
@@ -421,7 +421,7 @@ void UIKit_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
     }
 }
 
-int UIKit_GetDisplayDPI(_THIS, SDL_VideoDisplay * display, float * ddpi, float * hdpi, float * vdpi)
+int UIKit_GetDisplayDPI(SDL_VideoDisplay * display, float * ddpi, float * hdpi, float * vdpi)
 {
     @autoreleasepool {
         SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;
@@ -441,7 +441,7 @@ int UIKit_GetDisplayDPI(_THIS, SDL_VideoDisplay * display, float * ddpi, float *
     return 0;
 }
 
-int UIKit_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+int UIKit_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     @autoreleasepool {
         SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;

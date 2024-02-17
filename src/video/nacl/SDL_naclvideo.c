@@ -82,7 +82,7 @@ static void NACL_DeleteDevice(SDL_VideoDevice *device) {
     SDL_free(device);
 }
 
-static int NACL_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+static int NACL_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     return 0;
 }

@@ -36,11 +36,11 @@ typedef struct
     DEVMODE DeviceMode;
 } SDL_DisplayModeData;
 
-extern int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
+extern int WIN_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 extern int WIN_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
-extern int WIN_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
-extern void WIN_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-extern int WIN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+extern int WIN_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
+extern void WIN_GetDisplayModes(SDL_VideoDisplay *display);
+extern int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 extern void WIN_RefreshDisplays(_THIS);
 
 extern void WIN_InitModes(_THIS);

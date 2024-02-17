@@ -520,7 +520,7 @@ void Cocoa_RegisterApp(void)
     }
 }}
 
-int Cocoa_PumpEventsUntilDate(_THIS, NSDate *expiration, bool accumulate)
+static int Cocoa_PumpEventsUntilDate(NSDate *expiration, bool accumulate)
 {
     for ( ; ; ) {
         NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:expiration inMode:NSDefaultRunLoopMode dequeue:YES ];
@@ -546,11 +546,11 @@ int Cocoa_WaitEventTimeout(_THIS, int timeout)
 {
     if (timeout > 0) {
         NSDate *limitDate = [NSDate dateWithTimeIntervalSinceNow: (double) timeout / 1000.0];
-        return Cocoa_PumpEventsUntilDate(_this, limitDate, false);
+        return Cocoa_PumpEventsUntilDate(limitDate, false);
     } else if (timeout == 0) {
-        return Cocoa_PumpEventsUntilDate(_this, [NSDate distantPast], false);
+        return Cocoa_PumpEventsUntilDate([NSDate distantPast], false);
     } else {
-        while (Cocoa_PumpEventsUntilDate(_this, [NSDate distantFuture], false) == 0) {
+        while (Cocoa_PumpEventsUntilDate([NSDate distantFuture], false) == 0) {
         }
     }
     return 1;
@@ -559,10 +559,10 @@ int Cocoa_WaitEventTimeout(_THIS, int timeout)
 void Cocoa_PumpEvents(_THIS)
 { @autoreleasepool
 {
-    Cocoa_PumpEventsUntilDate(_this, [NSDate distantPast], true);
+    Cocoa_PumpEventsUntilDate([NSDate distantPast], true);
 }}
 
-void Cocoa_SendWakeupEvent(_THIS, SDL_Window *window)
+void Cocoa_SendWakeupEvent(SDL_Window *window)
 { @autoreleasepool
 {
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined

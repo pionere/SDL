@@ -57,7 +57,7 @@ int NACL_CreateWindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-void NACL_SetWindowTitle(_THIS, SDL_Window * window)
+void NACL_SetWindowTitle(SDL_Window * window)
 {
     /* TODO */
 }

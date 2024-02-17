@@ -138,35 +138,35 @@ typedef enum
 extern int Cocoa_CreateWindow(_THIS, SDL_Window * window);
 extern int Cocoa_CreateWindowFrom(_THIS, SDL_Window * window,
                                   const void *data);
-extern void Cocoa_SetWindowTitle(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowIcon(_THIS, SDL_Window * window, SDL_Surface * icon);
-extern void Cocoa_SetWindowPosition(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowSize(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowMinimumSize(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowMaximumSize(_THIS, SDL_Window * window);
-extern void Cocoa_GetWindowSizeInPixels(_THIS, SDL_Window * window, int *w, int *h);
-extern int Cocoa_SetWindowOpacity(_THIS, SDL_Window * window, float opacity);
-extern void Cocoa_ShowWindow(_THIS, SDL_Window * window);
+extern void Cocoa_SetWindowTitle(SDL_Window * window);
+extern void Cocoa_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);
+extern void Cocoa_SetWindowPosition(SDL_Window * window);
+extern void Cocoa_SetWindowSize(SDL_Window * window);
+extern void Cocoa_SetWindowMinimumSize(SDL_Window * window);
+extern void Cocoa_SetWindowMaximumSize(SDL_Window * window);
+extern void Cocoa_GetWindowSizeInPixels(SDL_Window * window, int *w, int *h);
+extern int Cocoa_SetWindowOpacity(SDL_Window * window, float opacity);
+extern void Cocoa_ShowWindow(SDL_Window * window);
 extern void Cocoa_HideWindow(_THIS, SDL_Window * window);
 extern void Cocoa_RaiseWindow(_THIS, SDL_Window * window);
-extern void Cocoa_MaximizeWindow(_THIS, SDL_Window * window);
-extern void Cocoa_MinimizeWindow(_THIS, SDL_Window * window);
-extern void Cocoa_RestoreWindow(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowBordered(_THIS, SDL_Window * window, SDL_bool bordered);
-extern void Cocoa_SetWindowResizable(_THIS, SDL_Window * window, SDL_bool resizable);
-extern void Cocoa_SetWindowAlwaysOnTop(_THIS, SDL_Window * window, SDL_bool on_top);
-extern void Cocoa_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
-extern int Cocoa_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp);
-extern void* Cocoa_GetWindowICCProfile(_THIS, SDL_Window * window, size_t * size);
+extern void Cocoa_MaximizeWindow(SDL_Window * window);
+extern void Cocoa_MinimizeWindow(SDL_Window * window);
+extern void Cocoa_RestoreWindow(SDL_Window * window);
+extern void Cocoa_SetWindowBordered(SDL_Window * window, SDL_bool bordered);
+extern void Cocoa_SetWindowResizable(SDL_Window * window, SDL_bool resizable);
+extern void Cocoa_SetWindowAlwaysOnTop(SDL_Window * window, SDL_bool on_top);
+extern void Cocoa_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
+extern int Cocoa_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp);
+extern void* Cocoa_GetWindowICCProfile(SDL_Window * window, size_t * size);
 extern int Cocoa_GetWindowDisplayIndex(_THIS, SDL_Window * window);
-extern int Cocoa_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp);
-extern void Cocoa_SetWindowMouseRect(_THIS, SDL_Window * window);
-extern void Cocoa_SetWindowMouseGrab(_THIS, SDL_Window * window, SDL_bool grabbed);
+extern int Cocoa_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
+extern void Cocoa_SetWindowMouseRect(SDL_Window * window);
+extern void Cocoa_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
 extern void Cocoa_DestroyWindow(_THIS, SDL_Window * window);
-extern SDL_bool Cocoa_GetWindowWMInfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info);
+extern SDL_bool Cocoa_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info);
 extern int Cocoa_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern void Cocoa_AcceptDragAndDrop(SDL_Window * window, SDL_bool accept);
-extern int Cocoa_FlashWindow(_THIS, SDL_Window * window, SDL_FlashOperation operation);
+extern int Cocoa_FlashWindow(SDL_Window * window, SDL_FlashOperation operation);
 
 #endif /* SDL_cocoawindow_h_ */
 

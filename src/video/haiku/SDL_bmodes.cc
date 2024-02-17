@@ -223,7 +223,7 @@ int HAIKU_QuitModes(_THIS) {
 }
 
 
-int HAIKU_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect) {
+int HAIKU_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect) {
     BScreen bscreen;
     BRect rc = bscreen.Frame();
     rect->x = (int)rc.left;
@@ -233,7 +233,7 @@ int HAIKU_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect) {
     return 0;
 }
 
-void HAIKU_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
+void HAIKU_GetDisplayModes(SDL_VideoDisplay *display) {
     /* Get the current screen */
     BScreen bscreen;
 
@@ -258,7 +258,7 @@ void HAIKU_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
 }
 
 
-int HAIKU_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
+int HAIKU_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
     /* Get the current screen */
     BScreen bscreen;
     if (!bscreen.IsValid()) {

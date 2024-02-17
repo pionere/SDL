@@ -48,7 +48,7 @@
 
 /* PS2 driver bootstrap functions */
 
-static int PS2_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int PS2_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }

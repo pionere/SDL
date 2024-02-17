@@ -340,7 +340,7 @@ static void WIN_AddDisplay(_THIS, HMONITOR hMonitor, const MONITORINFOEXW *info,
                 SDL_ResetDisplayModes(i);
                 SDL_SetCurrentDisplayMode(&_this->displays[i], &mode);
                 SDL_SetDesktopDisplayMode(&_this->displays[i], &mode);
-                if (WIN_GetDisplayBounds(_this, &_this->displays[i], &bounds) == 0) {
+                if (WIN_GetDisplayBounds(&_this->displays[i], &bounds) == 0) {
                     if (SDL_memcmp(&driverdata->bounds, &bounds, sizeof(bounds)) != 0 || moved) {
                         SDL_SendDisplayEvent(&_this->displays[i], SDL_DISPLAYEVENT_MOVED, 0);
                     }
@@ -375,7 +375,7 @@ static void WIN_AddDisplay(_THIS, HMONITOR hMonitor, const MONITORINFOEXW *info,
     display.orientation = orientation;
     display.device = _this;
     display.driverdata = displaydata;
-    WIN_GetDisplayBounds(_this, &display, &displaydata->bounds);
+    WIN_GetDisplayBounds(&display, &displaydata->bounds);
     index = SDL_AddVideoDisplay(&display, send_event);
     SDL_assert(index == *display_index);
     SDL_free(display.name);
@@ -469,7 +469,7 @@ static void WIN_MonitorInfoToSDL(HMONITOR monitor, MONITORINFO *info)
     info->rcWork.bottom = info->rcMonitor.top + MulDiv(info->rcWork.bottom - info->rcMonitor.top, 96, ydpi);
 }
 
-int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
+int WIN_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
     MONITORINFO minfo;
@@ -492,7 +492,7 @@ int WIN_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
     return 0;
 }
 
-int WIN_GetDisplayDPI(_THIS, SDL_VideoDisplay *display, float *ddpi_out, float *hdpi_out, float *vdpi_out)
+int WIN_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi_out, float *hdpi_out, float *vdpi_out)
 {
     const SDL_DisplayData *displaydata = (SDL_DisplayData *)display->driverdata;
     const WIN_VideoData *videodata = &winVideoData;
@@ -681,7 +681,7 @@ void WIN_ScreenPointToSDL(int *x, int *y)
 #endif
 }
 
-void WIN_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void WIN_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayData *data = (SDL_DisplayData *)display->driverdata;
     DWORD i;
@@ -736,7 +736,7 @@ static void WIN_LogMonitor(HMONITOR mon)
 }
 #endif
 
-int WIN_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     SDL_DisplayData *displaydata = (SDL_DisplayData *)display->driverdata;
     SDL_DisplayModeData *data = (SDL_DisplayModeData *)mode->driverdata;

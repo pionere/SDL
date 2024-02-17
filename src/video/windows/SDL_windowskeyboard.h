@@ -29,11 +29,11 @@ extern void WIN_QuitKeyboard();
 
 extern void WIN_ResetDeadKeys(void);
 
-extern void WIN_StartTextInput(_THIS);
-extern void WIN_StopTextInput(_THIS);
-extern void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect);
-extern void WIN_ClearComposition(_THIS);
-extern SDL_bool WIN_IsTextInputShown(_THIS);
+extern void WIN_StartTextInput();
+extern void WIN_StopTextInput();
+extern void WIN_SetTextInputRect(const SDL_Rect *rect);
+extern void WIN_ClearComposition();
+extern SDL_bool WIN_IsTextInputShown();
 
 extern SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam);
 

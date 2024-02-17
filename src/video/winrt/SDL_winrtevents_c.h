@@ -32,7 +32,7 @@ extern "C" {
 extern "C" {
 #endif
 
-extern void WINRT_InitTouch(_THIS);
+extern void WINRT_InitTouch();
 extern void WINRT_PumpEvents(_THIS);
 
 #ifdef __cplusplus
@@ -69,10 +69,10 @@ extern void WINRT_ProcessCharacterReceivedEvent(Windows::UI::Core::CharacterRece
 
 #if NTDDI_VERSION >= NTDDI_WIN10
 extern void WINTRT_InitialiseInputPaneEvents(_THIS);
-extern SDL_bool WINRT_HasScreenKeyboardSupport(_THIS);
-extern void WINRT_ShowScreenKeyboard(_THIS, SDL_Window *window);
-extern void WINRT_HideScreenKeyboard(_THIS, SDL_Window *window);
-extern SDL_bool WINRT_IsScreenKeyboardShown(_THIS, SDL_Window *window);
+extern SDL_bool WINRT_HasScreenKeyboardSupport();
+extern void WINRT_ShowScreenKeyboard(SDL_Window *window);
+extern void WINRT_HideScreenKeyboard(SDL_Window *window);
+extern SDL_bool WINRT_IsScreenKeyboardShown(SDL_Window *window);
 #endif // NTDDI_VERSION >= ...
 
 /* XAML Thread Management */

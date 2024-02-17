@@ -225,7 +225,7 @@ int RISCOS_InitModes(_THIS)
     return SDL_AddBasicVideoDisplay(&mode);
 }
 
-void RISCOS_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+void RISCOS_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayMode mode;
     _kernel_swi_regs regs;
@@ -280,7 +280,7 @@ void RISCOS_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
     SDL_free(block);
 }
 
-int RISCOS_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+int RISCOS_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     const char disable_cursor[] = { 23, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     _kernel_swi_regs regs;

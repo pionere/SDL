@@ -43,7 +43,7 @@ static SDL_bool xfixes_version_atleast(const int version, const int wantmajor, c
     return version >= ((wantmajor * 1000) + wantminor);
 }
 
-void X11_InitXfixes(_THIS)
+void X11_InitXfixes()
 {
     X11_VideoData *data = &x11VideoData;
 
@@ -84,13 +84,13 @@ int X11_GetXFixesSelectionNotifyEvent()
     return xfixes_selection_notify_event;
 }
 
-void X11_SetWindowMouseRect(_THIS, SDL_Window *window)
+void X11_SetWindowMouseRect(SDL_Window *window)
 {
     if (SDL_RectEmpty(&window->mouse_rect)) {
-        X11_ConfineCursorWithFlags(_this, window, NULL, 0);
+        X11_ConfineCursorWithFlags(window, NULL, 0);
     } else {
         if (window->flags & SDL_WINDOW_INPUT_FOCUS) {
-            X11_ConfineCursorWithFlags(_this, window, &window->mouse_rect, 0);
+            X11_ConfineCursorWithFlags(window, &window->mouse_rect, 0);
         } else {
             /* Save the state for when we get focus again */
             SDL_WindowData *wdata = (SDL_WindowData *)window->driverdata;
@@ -102,7 +102,7 @@ void X11_SetWindowMouseRect(_THIS, SDL_Window *window)
     }
 }
 
-int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, int flags)
+int X11_ConfineCursorWithFlags(SDL_Window *window, const SDL_Rect *rect, int flags)
 {
     /* Yaakuro: For some reason Xfixes when confining inside a rect where the
      * edges exactly match, a rectangle the cursor 'slips' out of the barrier.
@@ -117,7 +117,7 @@ int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, 
 
     /* If there is already a set of barriers active, disable them. */
     if (data->active_cursor_confined_window) {
-        X11_DestroyPointerBarrier(_this, data->active_cursor_confined_window);
+        X11_DestroyPointerBarrier(data->active_cursor_confined_window);
     }
 
     SDL_assert(window != NULL);
@@ -181,7 +181,7 @@ int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, 
          * the confinement if it got deactivated by FocusOut or UnmapNotify */
         wdata->pointer_barrier_active = SDL_TRUE;
     } else {
-        X11_DestroyPointerBarrier(_this, window);
+        X11_DestroyPointerBarrier(window);
 
         /* Only set barrier inactive when user specified NULL and not handled by focus out. */
         if (flags != X11_BARRIER_HANDLED_BY_EVENT) {
@@ -191,7 +191,7 @@ int X11_ConfineCursorWithFlags(_THIS, SDL_Window *window, const SDL_Rect *rect, 
     return 0;
 }
 
-void X11_DestroyPointerBarrier(_THIS, SDL_Window *window)
+void X11_DestroyPointerBarrier(SDL_Window *window)
 {
     int i;
     X11_VideoData *data = &x11VideoData;

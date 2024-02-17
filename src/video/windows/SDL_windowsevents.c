@@ -1818,7 +1818,7 @@ int WIN_WaitEventTimeout(_THIS, int timeout)
     }
 }
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-void WIN_SendWakeupEvent(_THIS, SDL_Window *window)
+void WIN_SendWakeupEvent(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     WIN_VideoData *videodata = &winVideoData;

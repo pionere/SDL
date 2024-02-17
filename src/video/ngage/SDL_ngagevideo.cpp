@@ -50,7 +50,7 @@ Ngage_VideoData ngageVideoData;
 
 /* Initialization/Query functions */
 static int NGAGE_VideoInit(_THIS);
-static int NGAGE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+static int NGAGE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 static void NGAGE_VideoQuit(_THIS);
 
 /* NGAGE driver bootstrap functions */
@@ -148,7 +148,7 @@ int NGAGE_VideoInit(_THIS)
     return 0;
 }
 
-static int NGAGE_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int NGAGE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }

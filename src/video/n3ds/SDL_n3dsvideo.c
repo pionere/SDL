@@ -33,8 +33,8 @@ SDL_FORCE_INLINE void AddN3DSDisplay(gfxScreen_t screen);
 
 static int N3DS_VideoInit(_THIS);
 static void N3DS_VideoQuit(_THIS);
-static void N3DS_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-static int N3DS_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
+static void N3DS_GetDisplayModes(SDL_VideoDisplay *display);
+static int N3DS_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 static int N3DS_CreateWindow(_THIS, SDL_Window *window);
 static void N3DS_DestroyWindow(_THIS, SDL_Window *window);
 
@@ -138,13 +138,13 @@ static void N3DS_VideoQuit(_THIS)
     gfxExit();
 }
 
-static void N3DS_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+static void N3DS_GetDisplayModes(SDL_VideoDisplay *display)
 {
     /* Each display only has a single mode */
     SDL_AddDisplayMode(display, &display->current_mode);
 }
 
-static int N3DS_GetDisplayBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
+static int N3DS_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     DisplayDriverData *driver_data = (DisplayDriverData *)display->driverdata;
     if (!driver_data) {

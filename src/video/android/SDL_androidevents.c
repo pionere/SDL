@@ -152,7 +152,7 @@ void Android_PumpEvents_Blocking(_THIS)
             /* Make sure SW Keyboard is restored when an app becomes foreground */
             if (SDL_IsTextInputActive() &&
                 SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
-                Android_ShowScreenKeyboard(_this, Android_Window); /* Only showTextInput */
+                Android_ShowScreenKeyboard(Android_Window); /* Only showTextInput */
             }
         }
     } else {
@@ -237,7 +237,7 @@ void Android_PumpEvents_NonBlocking(_THIS)
             /* Make sure SW Keyboard is restored when an app becomes foreground */
             if (SDL_IsTextInputActive() &&
                 SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
-                Android_ShowScreenKeyboard(_this, Android_Window); /* Only showTextInput */
+                Android_ShowScreenKeyboard(Android_Window); /* Only showTextInput */
             }
         }
     } else {

@@ -314,7 +314,7 @@ void WIN_ResetDeadKeys()
 #endif
 }
 
-void WIN_StartTextInput(_THIS)
+void WIN_StartTextInput()
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     SDL_Window *window;
@@ -336,7 +336,7 @@ void WIN_StartTextInput(_THIS)
 #endif /* !SDL_DISABLE_WINDOWS_IME */
 }
 
-void WIN_StopTextInput(_THIS)
+void WIN_StopTextInput()
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     SDL_Window *window;
@@ -354,7 +354,7 @@ void WIN_StopTextInput(_THIS)
 #endif /* !SDL_DISABLE_WINDOWS_IME */
 }
 
-void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect)
+void WIN_SetTextInputRect(const SDL_Rect *rect)
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     WIN_ImeData *videodata = &winImeData;
@@ -398,11 +398,11 @@ void WIN_SetTextInputRect(_THIS, const SDL_Rect *rect)
 
 #ifdef SDL_DISABLE_WINDOWS_IME
 
-void WIN_ClearComposition(_THIS)
+void WIN_ClearComposition()
 {
 }
 
-SDL_bool WIN_IsTextInputShown(_THIS)
+SDL_bool WIN_IsTextInputShown()
 {
     return SDL_FALSE;
 }
@@ -1831,12 +1831,12 @@ void IME_Present()
     /* FIXME: Need to show the IME bitmap */
 }
 #endif // IME_DRAW_UI
-SDL_bool WIN_IsTextInputShown(_THIS)
+SDL_bool WIN_IsTextInputShown()
 {
     return IME_IsTextInputShown();
 }
 
-void WIN_ClearComposition(_THIS)
+void WIN_ClearComposition()
 {
     IME_ClearComposition();
 }

@@ -27,20 +27,20 @@
 #include "SDL_x11xinput2.h"
 #include "../../events/SDL_touch_c.h"
 
-void X11_InitTouch(_THIS)
+void X11_InitTouch()
 {
-    X11_InitXinput2Multitouch(_this);
+    X11_InitXinput2Multitouch();
 }
 
-void X11_QuitTouch(_THIS)
+void X11_QuitTouch()
 {
     SDL_TouchQuit();
 }
 
-void X11_ResetTouch(_THIS)
+void X11_ResetTouch()
 {
-    X11_QuitTouch(_this);
-    X11_InitTouch(_this);
+    X11_QuitTouch();
+    X11_InitTouch();
 }
 
 #endif /* SDL_VIDEO_DRIVER_X11 */

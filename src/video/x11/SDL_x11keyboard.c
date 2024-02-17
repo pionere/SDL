@@ -332,7 +332,7 @@ int X11_InitKeyboard(_THIS)
     SDL_IME_Init();
 #endif
 
-    X11_ReconcileKeyboardState(_this);
+    X11_ReconcileKeyboardState();
 
     return 0;
 }
@@ -436,12 +436,12 @@ static void X11_ResetXIM()
 #endif
 }
 
-void X11_StartTextInput(_THIS)
+void X11_StartTextInput()
 {
     X11_ResetXIM();
 }
 
-void X11_StopTextInput(_THIS)
+void X11_StopTextInput()
 {
     X11_ResetXIM();
 #ifdef SDL_USE_IME
@@ -449,7 +449,7 @@ void X11_StopTextInput(_THIS)
 #endif
 }
 
-void X11_SetTextInputRect(_THIS, const SDL_Rect *rect)
+void X11_SetTextInputRect(const SDL_Rect *rect)
 {
     if (!rect) {
         SDL_InvalidParamError("rect");
@@ -461,13 +461,13 @@ void X11_SetTextInputRect(_THIS, const SDL_Rect *rect)
 #endif
 }
 
-SDL_bool X11_HasScreenKeyboardSupport(_THIS)
+SDL_bool X11_HasScreenKeyboardSupport()
 {
     X11_VideoData *videodata = &x11VideoData;
     return videodata->is_steam_deck;
 }
 
-void X11_ShowScreenKeyboard(_THIS, SDL_Window *window)
+void X11_ShowScreenKeyboard(SDL_Window *window)
 {
     X11_VideoData *videodata = &x11VideoData;
 
@@ -484,7 +484,7 @@ void X11_ShowScreenKeyboard(_THIS, SDL_Window *window)
     }
 }
 
-void X11_HideScreenKeyboard(_THIS, SDL_Window *window)
+void X11_HideScreenKeyboard(SDL_Window *window)
 {
     X11_VideoData *videodata = &x11VideoData;
 
@@ -494,7 +494,7 @@ void X11_HideScreenKeyboard(_THIS, SDL_Window *window)
     }
 }
 
-SDL_bool X11_IsScreenKeyboardShown(_THIS, SDL_Window *window)
+SDL_bool X11_IsScreenKeyboardShown(SDL_Window *window)
 {
     X11_VideoData *videodata = &x11VideoData;
 

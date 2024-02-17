@@ -75,40 +75,40 @@ typedef struct
 
 extern int WIN_CreateWindow(_THIS, SDL_Window * window);
 extern int WIN_CreateWindowFrom(_THIS, SDL_Window * window, const void *data);
-extern void WIN_SetWindowTitle(_THIS, SDL_Window * window);
-extern void WIN_SetWindowIcon(_THIS, SDL_Window * window, SDL_Surface * icon);
-extern void WIN_SetWindowPosition(_THIS, SDL_Window * window);
-extern void WIN_SetWindowSize(_THIS, SDL_Window * window);
-extern int WIN_GetWindowBordersSize(_THIS, SDL_Window * window, int *top, int *left, int *bottom, int *right);
-extern void WIN_GetWindowSizeInPixels(_THIS, SDL_Window * window, int *width, int *height);
-extern int WIN_SetWindowOpacity(_THIS, SDL_Window * window, float opacity);
-extern void WIN_ShowWindow(_THIS, SDL_Window * window);
+extern void WIN_SetWindowTitle(SDL_Window * window);
+extern void WIN_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);
+extern void WIN_SetWindowPosition(SDL_Window * window);
+extern void WIN_SetWindowSize(SDL_Window * window);
+extern int WIN_GetWindowBordersSize(SDL_Window * window, int *top, int *left, int *bottom, int *right);
+extern void WIN_GetWindowSizeInPixels(SDL_Window * window, int *width, int *height);
+extern int WIN_SetWindowOpacity(SDL_Window * window, float opacity);
+extern void WIN_ShowWindow(SDL_Window * window);
 extern void WIN_HideWindow(_THIS, SDL_Window * window);
 extern void WIN_RaiseWindow(_THIS, SDL_Window * window);
-extern void WIN_MaximizeWindow(_THIS, SDL_Window * window);
-extern void WIN_MinimizeWindow(_THIS, SDL_Window * window);
-extern void WIN_RestoreWindow(_THIS, SDL_Window * window);
-extern void WIN_SetWindowBordered(_THIS, SDL_Window * window, SDL_bool bordered);
-extern void WIN_SetWindowResizable(_THIS, SDL_Window * window, SDL_bool resizable);
-extern void WIN_SetWindowAlwaysOnTop(_THIS, SDL_Window * window, SDL_bool on_top);
-extern void WIN_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
-extern int WIN_SetWindowGammaRamp(_THIS, SDL_Window * window, const Uint16 * ramp);
+extern void WIN_MaximizeWindow(SDL_Window * window);
+extern void WIN_MinimizeWindow(SDL_Window * window);
+extern void WIN_RestoreWindow(SDL_Window * window);
+extern void WIN_SetWindowBordered(SDL_Window * window, SDL_bool bordered);
+extern void WIN_SetWindowResizable(SDL_Window * window, SDL_bool resizable);
+extern void WIN_SetWindowAlwaysOnTop(SDL_Window * window, SDL_bool on_top);
+extern void WIN_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
+extern int WIN_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp);
 extern void WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event);
-extern void* WIN_GetWindowICCProfile(_THIS, SDL_Window * window, size_t * size);
-extern int WIN_GetWindowGammaRamp(_THIS, SDL_Window * window, Uint16 * ramp);
-extern void WIN_SetWindowMouseRect(_THIS, SDL_Window * window);
-extern void WIN_SetWindowMouseGrab(_THIS, SDL_Window * window, SDL_bool grabbed);
-extern void WIN_SetWindowKeyboardGrab(_THIS, SDL_Window * window, SDL_bool grabbed);
+extern void* WIN_GetWindowICCProfile(SDL_Window * window, size_t * size);
+extern int WIN_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
+extern void WIN_SetWindowMouseRect(SDL_Window * window);
+extern void WIN_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
+extern void WIN_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed);
 extern void WIN_DestroyWindow(_THIS, SDL_Window * window);
-extern SDL_bool WIN_GetWindowWMInfo(_THIS, SDL_Window * window,
+extern SDL_bool WIN_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info);
-extern void WIN_OnWindowEnter(_THIS, SDL_Window * window);
+extern void WIN_OnWindowEnter(SDL_Window * window);
 extern void WIN_UpdateClipCursor(SDL_Window *window);
 extern int WIN_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y);
 extern void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y);
 extern void WIN_AcceptDragAndDrop(SDL_Window *window, SDL_bool accept);
-extern int WIN_FlashWindow(_THIS, SDL_Window *window, SDL_FlashOperation operation);
+extern int WIN_FlashWindow(SDL_Window *window, SDL_FlashOperation operation);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

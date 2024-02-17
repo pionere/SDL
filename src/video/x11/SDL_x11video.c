@@ -134,7 +134,7 @@ static int X11_SafetyNetErrHandler(Display *d, XErrorEvent *e)
                 SDL_VideoDisplay *display = &device->displays[i];
                 if (SDL_memcmp(&display->current_mode, &display->desktop_mode,
                                sizeof(SDL_DisplayMode)) != 0) {
-                    X11_SetDisplayMode(device, display, &display->desktop_mode);
+                    X11_SetDisplayMode(display, &display->desktop_mode);
                 }
             }
         }
@@ -331,7 +331,7 @@ static int X11_CheckWindowManagerErrorHandler(Display *d, XErrorEvent *e)
     }
 }
 
-static void X11_CheckWindowManager(_THIS)
+static void X11_CheckWindowManager()
 {
     X11_VideoData *data = &x11VideoData;
     Display *display = data->display;
@@ -385,7 +385,7 @@ static void X11_CheckWindowManager(_THIS)
     data->net_wm = SDL_TRUE;
 
 #ifdef DEBUG_WINDOW_MANAGER
-    wm_name = X11_GetWindowTitle(_this, wm_window);
+    wm_name = X11_GetWindowTitle(wm_window);
     printf("Window manager: %s\n", wm_name);
     SDL_free(wm_name);
 #endif
@@ -443,7 +443,7 @@ int X11_VideoInit(_THIS)
     GET_ATOM(XKLAVIER_STATE);
 
     /* Detect the window manager */
-    X11_CheckWindowManager(_this);
+    X11_CheckWindowManager();
 
     if (X11_InitModes(_this) < 0) {
         return -1;
@@ -452,7 +452,7 @@ int X11_VideoInit(_THIS)
     X11_InitXinput2(_this);
 
 #ifdef SDL_VIDEO_DRIVER_X11_XFIXES
-    X11_InitXfixes(_this);
+    X11_InitXfixes();
 #endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
 
 #ifndef X_HAVE_UTF8_STRING
@@ -464,7 +464,7 @@ int X11_VideoInit(_THIS)
     }
     X11_InitMouse(_this);
 
-    X11_InitTouch(_this);
+    X11_InitTouch();
 
     return 0;
 }
@@ -487,7 +487,7 @@ void X11_VideoQuit(_THIS)
     X11_QuitModes(_this);
     X11_QuitKeyboard(_this);
     X11_QuitMouse(_this);
-    X11_QuitTouch(_this);
+    X11_QuitTouch();
 }
 
 SDL_bool X11_UseDirectColorVisuals(void)

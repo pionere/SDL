@@ -73,20 +73,20 @@ extern "C" {
 
 /* Initialization/Query functions */
 static int WINRT_VideoInit(_THIS);
-static int WINRT_InitModes(_THIS);
-static int WINRT_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+static int WINRT_InitModes();
+static int WINRT_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 static void WINRT_VideoQuit(_THIS);
 
 /* Window functions */
 static int WINRT_CreateWindow(_THIS, SDL_Window * window);
-static void WINRT_SetWindowSize(_THIS, SDL_Window * window);
-static void WINRT_SetWindowFullscreen(_THIS, SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
+static void WINRT_SetWindowSize(SDL_Window * window);
+static void WINRT_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 static void WINRT_DestroyWindow(_THIS, SDL_Window * window);
-static SDL_bool WINRT_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info);
+static SDL_bool WINRT_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info);
 
 
 /* Misc functions */
-static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest(_THIS);
+static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest();
 extern void WINRT_SuspendScreenSaver(_THIS);
 
 /* Instance */
@@ -220,7 +220,7 @@ static void SDLCALL WINRT_SetDisplayOrientationsPreference(void *userdata, const
 int WINRT_VideoInit(_THIS)
 {
     WinRT_VideoData *driverdata = &winrtVideoData;
-    if (WINRT_InitModes(_this) < 0) {
+    if (WINRT_InitModes() < 0) {
         return -1;
     }
 
@@ -229,11 +229,11 @@ int WINRT_VideoInit(_THIS)
     SDL_AddHintCallback(SDL_HINT_ORIENTATIONS, WINRT_SetDisplayOrientationsPreference, NULL);
 
     WINRT_InitMouse(_this);
-    WINRT_InitTouch(_this);
+    WINRT_InitTouch();
     WINRT_InitGameBar(_this);
     if (driverdata) {
         /* Initialize screensaver-disabling support */
-        driverdata->displayRequest = WINRT_CreateDisplayRequest(_this);
+        driverdata->displayRequest = WINRT_CreateDisplayRequest();
     }
     return 0;
 }
@@ -249,7 +249,7 @@ static void WINRT_DXGIModeToSDLDisplayMode(const DXGI_MODE_DESC *dxgiMode, SDL_D
     sdlMode->format = D3D11_DXGIFormatToSDLPixelFormat(dxgiMode->Format);
 }
 
-static int WINRT_AddDisplaysForOutput(_THIS, IDXGIAdapter1 *dxgiAdapter1, int outputIndex)
+static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputIndex)
 {
     HRESULT hr;
     IDXGIOutput *dxgiOutput = NULL;
@@ -358,7 +358,7 @@ done:
     return functionResult;
 }
 
-static int WINRT_AddDisplaysForAdapter(_THIS, IDXGIFactory2 *dxgiFactory2, int adapterIndex)
+static int WINRT_AddDisplaysForAdapter(IDXGIFactory2 *dxgiFactory2, int adapterIndex)
 {
     HRESULT hr;
     IDXGIAdapter1 *dxgiAdapter1;
@@ -372,7 +372,7 @@ static int WINRT_AddDisplaysForAdapter(_THIS, IDXGIFactory2 *dxgiFactory2, int a
     }
 
     for (int outputIndex = 0;; ++outputIndex) {
-        if (WINRT_AddDisplaysForOutput(_this, dxgiAdapter1, outputIndex) < 0) {
+        if (WINRT_AddDisplaysForOutput(dxgiAdapter1, outputIndex) < 0) {
             /* HACK: The Windows App Certification Kit 10.0 can fail, when
                running the Store Apps' test, "Direct3D Feature Test".  The
                certification kit's error is:
@@ -435,7 +435,7 @@ static int WINRT_AddDisplaysForAdapter(_THIS, IDXGIFactory2 *dxgiFactory2, int a
     return 0;
 }
 
-int WINRT_InitModes(_THIS)
+static int WINRT_InitModes()
 {
     /* HACK: Initialize a single display, for whatever screen the app's
          CoreApplicationView is on.
@@ -452,7 +452,7 @@ int WINRT_InitModes(_THIS)
     }
 
     for (int adapterIndex = 0;; ++adapterIndex) {
-        if (WINRT_AddDisplaysForAdapter(_this, dxgiFactory2, adapterIndex) < 0) {
+        if (WINRT_AddDisplaysForAdapter(dxgiFactory2, adapterIndex) < 0) {
             break;
         }
     }
@@ -460,7 +460,7 @@ int WINRT_InitModes(_THIS)
     return 0;
 }
 
-static int WINRT_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int WINRT_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     return 0;
 }
@@ -735,7 +735,7 @@ int WINRT_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void WINRT_SetWindowSize(_THIS, SDL_Window *window)
+void WINRT_SetWindowSize(SDL_Window *window)
 {
 #if NTDDI_VERSION >= NTDDI_WIN10
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -745,7 +745,7 @@ void WINRT_SetWindowSize(_THIS, SDL_Window *window)
 #endif
 }
 
-void WINRT_SetWindowFullscreen(_THIS, SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
+void WINRT_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
 {
 #if NTDDI_VERSION >= NTDDI_WIN10
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -780,7 +780,7 @@ void WINRT_DestroyWindow(_THIS, SDL_Window *window)
     }
 }
 
-SDL_bool WINRT_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
+SDL_bool WINRT_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)
 {
     SDL_WindowData * data = (SDL_WindowData *) window->driverdata;
 
@@ -796,7 +796,7 @@ SDL_bool WINRT_GetWindowWMInfo(_THIS, SDL_Window * window, SDL_SysWMinfo * info)
     return SDL_FALSE;
 }
 
-static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest(_THIS)
+static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest()
 {
     /* Setup a WinRT DisplayRequest object, usable for enabling/disabling screensaver requests */
     wchar_t *wClassName = L"Windows.System.Display.DisplayRequest";

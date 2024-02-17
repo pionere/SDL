@@ -146,12 +146,12 @@ void PND_videoquit(_THIS)
 
 }
 
-void PND_getdisplaymodes(_THIS, SDL_VideoDisplay * display)
+void PND_getdisplaymodes(SDL_VideoDisplay * display)
 {
 
 }
 
-int PND_setdisplaymode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+int PND_setdisplaymode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     return 0;
 }
@@ -201,19 +201,19 @@ int PND_createwindowfrom(_THIS, SDL_Window * window, const void *data)
     return -1;
 }
 
-void PND_setwindowtitle(_THIS, SDL_Window * window)
+void PND_setwindowtitle(SDL_Window * window)
 {
 }
-void PND_setwindowicon(_THIS, SDL_Window * window, SDL_Surface * icon)
+void PND_setwindowicon(SDL_Window * window, SDL_Surface * icon)
 {
 }
-void PND_setwindowposition(_THIS, SDL_Window * window)
+void PND_setwindowposition(SDL_Window * window)
 {
 }
-void PND_setwindowsize(_THIS, SDL_Window * window)
+void PND_setwindowsize(SDL_Window * window)
 {
 }
-void PND_showwindow(_THIS, SDL_Window * window)
+void PND_showwindow(SDL_Window * window)
 {
 }
 void PND_hidewindow(_THIS, SDL_Window * window)
@@ -222,13 +222,13 @@ void PND_hidewindow(_THIS, SDL_Window * window)
 void PND_raisewindow(_THIS, SDL_Window * window)
 {
 }
-void PND_maximizewindow(_THIS, SDL_Window * window)
+void PND_maximizewindow(SDL_Window * window)
 {
 }
-void PND_minimizewindow(_THIS, SDL_Window * window)
+void PND_minimizewindow(SDL_Window * window)
 {
 }
-void PND_restorewindow(_THIS, SDL_Window * window)
+void PND_restorewindow(SDL_Window * window)
 {
 }
 void PND_destroywindow(_THIS, SDL_Window * window)
@@ -241,7 +241,7 @@ void PND_destroywindow(_THIS, SDL_Window * window)
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
 #if 0
-SDL_bool PND_getwindowwminfo(_THIS, SDL_Window * window, struct SDL_SysWMinfo *info)
+SDL_bool PND_getwindowwminfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 {
     if (info->version.major <= SDL_MAJOR_VERSION) {
         return SDL_TRUE;
