@@ -301,10 +301,10 @@ struct SDL_VideoDevice
     /*
      * Metal support
      */
-    SDL_MetalView (*Metal_CreateView)(_THIS, SDL_Window *window);
-    void (*Metal_DestroyView)(_THIS, SDL_MetalView view);
-    void *(*Metal_GetLayer)(_THIS, SDL_MetalView view);
-    void (*Metal_GetDrawableSize)(_THIS, SDL_Window *window, int *w, int *h);
+    SDL_MetalView (*Metal_CreateView)(SDL_Window *window);
+    void (*Metal_DestroyView)(SDL_MetalView view);
+    void *(*Metal_GetLayer)(SDL_MetalView view);
+    void (*Metal_GetDrawableSize)(SDL_Window *window, int *w, int *h);
 
     /* * * */
     /*

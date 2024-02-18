@@ -213,7 +213,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
         return SDL_FALSE;
     }
 
-    metalview = Cocoa_Metal_CreateView(_this, window);
+    metalview = Cocoa_Metal_CreateView(window);
     if (metalview == NULL) {
         return SDL_FALSE;
     }
@@ -224,10 +224,10 @@ SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
         createInfo.pNext = NULL;
         createInfo.flags = 0;
         createInfo.pLayer = (__bridge const CAMetalLayer *)
-                            Cocoa_Metal_GetLayer(_this, metalview);
+                            Cocoa_Metal_GetLayer(metalview);
         result = vkCreateMetalSurfaceEXT(instance, &createInfo, NULL, surface);
         if (result != VK_SUCCESS) {
-            Cocoa_Metal_DestroyView(_this, metalview);
+            Cocoa_Metal_DestroyView(metalview);
             SDL_SetError("vkCreateMetalSurfaceEXT failed: %s",
                          SDL_Vulkan_GetResultString(result));
             return SDL_FALSE;
@@ -241,7 +241,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
         result = vkCreateMacOSSurfaceMVK(instance, &createInfo,
                                            NULL, surface);
         if (result != VK_SUCCESS) {
-            Cocoa_Metal_DestroyView(_this, metalview);
+            Cocoa_Metal_DestroyView(metalview);
             SDL_SetError("vkCreateMacOSSurfaceMVK failed: %s",
                          SDL_Vulkan_GetResultString(result));
             return SDL_FALSE;
@@ -260,7 +260,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
 
 void Cocoa_Vulkan_GetDrawableSize(_THIS, SDL_Window *window, int *w, int *h)
 {
-    Cocoa_Metal_GetDrawableSize(_this, window, w, h);
+    Cocoa_Metal_GetDrawableSize(window, w, h);
 }
 
 #endif

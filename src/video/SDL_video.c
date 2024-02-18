@@ -4839,13 +4839,13 @@ SDL_MetalView SDL_Metal_CreateView(SDL_Window *window)
         window->flags |= SDL_WINDOW_METAL;
     }
 
-    return _this->Metal_CreateView(_this, window);
+    return _this->Metal_CreateView(window);
 }
 
 void SDL_Metal_DestroyView(SDL_MetalView view)
 {
     if (_this && view && _this->Metal_DestroyView) {
-        _this->Metal_DestroyView(_this, view);
+        _this->Metal_DestroyView(view);
     }
 }
 
@@ -4853,7 +4853,7 @@ void *SDL_Metal_GetLayer(SDL_MetalView view)
 {
     if (_this && _this->Metal_GetLayer) {
         if (view) {
-            return _this->Metal_GetLayer(_this, view);
+            return _this->Metal_GetLayer(view);
         } else {
             SDL_InvalidParamError("view");
             return NULL;
@@ -4869,7 +4869,7 @@ void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
     CHECK_WINDOW_MAGIC(window, );
 
     if (_this->Metal_GetDrawableSize) {
-        _this->Metal_GetDrawableSize(_this, window, w, h);
+        _this->Metal_GetDrawableSize(window, w, h);
     } else {
         SDL_GetWindowSizeInPixels(window, w, h);
     }
