@@ -1795,14 +1795,13 @@ void X11_DestroyWindow(_THIS, SDL_Window *window)
             X11_XDestroyWindow(display, data->xwindow);
             X11_XFlush(display);
         }
-        SDL_free(data);
-
 #ifdef SDL_VIDEO_DRIVER_X11_XFIXES
         /* If the pointer barriers are active for this, deactivate it.*/
         if (videodata->active_cursor_confined_window == window) {
             X11_DestroyPointerBarrier(window);
         }
 #endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
+        SDL_free(data);
     }
     window->driverdata = NULL;
 }

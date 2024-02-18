@@ -174,10 +174,8 @@ static int N3DS_CreateWindow(_THIS, SDL_Window *window)
 
 static void N3DS_DestroyWindow(_THIS, SDL_Window *window)
 {
-    if (!window) {
-        return;
-    }
     SDL_free(window->driverdata);
+    window->driverdata = NULL;
 }
 
 #endif /* SDL_VIDEO_DRIVER_N3DS */

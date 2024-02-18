@@ -275,10 +275,9 @@ static int Emscripten_CreateWindow(_THIS, SDL_Window *window)
 
 static void Emscripten_SetWindowSize(SDL_Window *window)
 {
-    SDL_WindowData *data;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 
-    if (window->driverdata) {
-        data = (SDL_WindowData *)window->driverdata;
+    if (data) {
         /* update pixel ratio */
         if (window->flags & SDL_WINDOW_ALLOW_HIGHDPI) {
             data->pixel_ratio = emscripten_get_device_pixel_ratio();
@@ -294,9 +293,8 @@ static void Emscripten_SetWindowSize(SDL_Window *window)
 
 void Emscripten_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 {
-    SDL_WindowData *data;
-    if (window->driverdata) {
-        data = (SDL_WindowData *)window->driverdata;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    if (data) {
         *w = window->w * data->pixel_ratio;
         *h = window->h * data->pixel_ratio;
     }
@@ -304,11 +302,9 @@ void Emscripten_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 
 static void Emscripten_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_WindowData *data;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 
-    if (window->driverdata) {
-        data = (SDL_WindowData *)window->driverdata;
-
+    if (data) {
         Emscripten_UnregisterEventHandlers(data);
 #ifdef SDL_VIDEO_OPENGL_EGL
         if (data->egl_surface != EGL_NO_SURFACE) {
@@ -321,17 +317,15 @@ static void Emscripten_DestroyWindow(_THIS, SDL_Window *window)
         emscripten_set_canvas_element_size(data->canvas_id, 0, 0);
         SDL_free(data->canvas_id);
 
-        SDL_free(window->driverdata);
+        SDL_free(data);
         window->driverdata = NULL;
     }
 }
 
 static void Emscripten_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
 {
-    SDL_WindowData *data;
-    if (window->driverdata) {
-        data = (SDL_WindowData *)window->driverdata;
-
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    if (data) {
         if (fullscreen) {
             EmscriptenFullscreenStrategy strategy;
             SDL_bool is_desktop_fullscreen = (window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP;

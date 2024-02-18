@@ -177,9 +177,8 @@ void Android_DestroyWindow(_THIS, SDL_Window *window)
     if (window == Android_Window) {
         Android_Window = NULL;
 
-        if (window->driverdata) {
-            SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-
+        SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+        if (data) {
 #ifdef SDL_VIDEO_OPENGL_EGL
             if (data->egl_surface != EGL_NO_SURFACE) {
                 SDL_EGL_DestroySurface(_this, data->egl_surface);
@@ -189,7 +188,7 @@ void Android_DestroyWindow(_THIS, SDL_Window *window)
             if (data->native_window) {
                 ANativeWindow_release(data->native_window);
             }
-            SDL_free(window->driverdata);
+            SDL_free(data);
             window->driverdata = NULL;
         }
     }

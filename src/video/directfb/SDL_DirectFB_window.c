@@ -45,9 +45,12 @@ int DirectFB_CreateWindow(_THIS, SDL_Window * window)
     int x, y;
     int bshaped = 0;
 
-    SDL_DFB_ALLOC_CLEAR(window->driverdata, sizeof(DFB_WindowData));
+    windata = SDL_calloc(1, sizeof(DFB_WindowData));
+    if (windata == NULL) {
+        return SDL_OutOfMemory();
+    }
     SDL_memset(&desc, 0, sizeof(DFBWindowDescription));
-    windata = (DFB_WindowData *) window->driverdata;
+    window->driverdata = (DFB_WindowData *)windata;
 
     windata->is_managed = devdata->has_own_wm;
 #if 1
@@ -179,7 +182,7 @@ int DirectFB_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
 
 void DirectFB_SetWindowTitle(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if (windata->is_managed) {
         windata->wm_needs_redraw = 1;
@@ -192,7 +195,7 @@ void DirectFB_SetWindowTitle(SDL_Window * window)
 void DirectFB_SetWindowIcon(SDL_Window * window, SDL_Surface * icon)
 {
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_Surface *surface = NULL;
 
     if (icon) {
@@ -238,7 +241,7 @@ void DirectFB_SetWindowIcon(SDL_Window * window, SDL_Surface * icon)
 
 void DirectFB_SetWindowPosition(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     int x, y;
 
     x = window->x;
@@ -250,7 +253,7 @@ void DirectFB_SetWindowPosition(SDL_Window * window)
 
 void DirectFB_SetWindowSize(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if(SDL_IsShapedWindow(window))
         DirectFB_ResizeWindowShape(window);
@@ -288,7 +291,7 @@ void DirectFB_SetWindowSize(SDL_Window * window)
 
 void DirectFB_ShowWindow(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     SDL_DFB_CHECK(windata->dfbwin->SetOpacity(windata->dfbwin, windata->opacity));
 
@@ -296,7 +299,7 @@ void DirectFB_ShowWindow(SDL_Window * window)
 
 void DirectFB_HideWindow(_THIS, SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     SDL_DFB_CHECK(windata->dfbwin->GetOpacity(windata->dfbwin, &windata->opacity));
     SDL_DFB_CHECK(windata->dfbwin->SetOpacity(windata->dfbwin, 0));
@@ -304,7 +307,7 @@ void DirectFB_HideWindow(_THIS, SDL_Window * window)
 
 void DirectFB_RaiseWindow(_THIS, SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     SDL_DFB_CHECK(windata->dfbwin->RaiseToTop(windata->dfbwin));
     SDL_DFB_CHECK(windata->dfbwin->RequestFocus(windata->dfbwin));
@@ -312,7 +315,7 @@ void DirectFB_RaiseWindow(_THIS, SDL_Window * window)
 
 void DirectFB_MaximizeWindow(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     DFBWindowOptions wopts;
 
@@ -342,7 +345,7 @@ void DirectFB_MinimizeWindow(SDL_Window * window)
 
 void DirectFB_RestoreWindow(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DFBWindowOptions wopts;
 
     /* Set Options */
@@ -370,7 +373,7 @@ void DirectFB_RestoreWindow(SDL_Window * window)
 
 void DirectFB_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if (grabbed) {
         SDL_DFB_CHECK(windata->dfbwin->GrabPointer(windata->dfbwin));
@@ -381,7 +384,7 @@ void DirectFB_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed)
 
 void DirectFB_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if (grabbed) {
         SDL_DFB_CHECK(windata->dfbwin->GrabKeyboard(windata->dfbwin));
@@ -393,9 +396,9 @@ void DirectFB_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed)
 void DirectFB_DestroyWindow(_THIS, SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DFB_WindowData *p;
-
+    if (windata) {
     /* Some cleanups */
     SDL_DFB_CHECK(windata->dfbwin->UngrabPointer(windata->dfbwin));
     SDL_DFB_CHECK(windata->dfbwin->UngrabKeyboard(windata->dfbwin));
@@ -435,7 +438,8 @@ void DirectFB_DestroyWindow(_THIS, SDL_Window * window)
     else
         devdata->firstwin = windata->next;
     SDL_free(windata);
-    return;
+    window->driverdata = NULL;
+    }
 }
 
 SDL_bool DirectFB_GetWindowWMInfo(SDL_Window * window,
@@ -446,7 +450,7 @@ SDL_bool DirectFB_GetWindowWMInfo(SDL_Window * window,
                             (((Uint32) info->version.patch)));
 
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     /* Before 2.0.6, it was possible to build an SDL with DirectFB support
        (SDL_SysWMinfo will be large enough to hold DirectFB info), but build
@@ -479,7 +483,7 @@ SDL_bool DirectFB_GetWindowWMInfo(SDL_Window * window,
 
 void DirectFB_AdjustWindowSurface(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     int adjust = windata->wm_needs_redraw;
     int cw, ch;
 
@@ -533,7 +537,7 @@ void DirectFB_AdjustWindowSurface(SDL_Window * window)
 int DirectFB_SetWindowOpacity(SDL_Window * window, float opacity)
 {
     const Uint8 alpha = (Uint8) ((unsigned int) (opacity * 255.0f));
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_DFB_CHECKERR(windata->dfbwin->SetOpacity(windata->dfbwin, alpha));
     windata->opacity = alpha;
     return 0;

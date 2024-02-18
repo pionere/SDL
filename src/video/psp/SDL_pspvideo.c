@@ -232,6 +232,8 @@ void PSP_RestoreWindow(SDL_Window *window)
 }
 void PSP_DestroyWindow(_THIS, SDL_Window *window)
 {
+    SDL_free(window->driverdata);
+    window->driverdata = NULL;
 }
 
 /*****************************************************************************/

@@ -59,12 +59,7 @@ int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 
 void NGAGE_DestroyWindow(_THIS, SDL_Window *window)
 {
-    NGAGE_Window *ngage_window = (NGAGE_Window *)window->driverdata;
-
-    if (ngage_window) {
-        SDL_free(ngage_window);
-    }
-
+    SDL_free(window->driverdata);
     window->driverdata = NULL;
 }
 

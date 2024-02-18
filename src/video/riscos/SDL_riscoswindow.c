@@ -52,13 +52,7 @@ int RISCOS_CreateWindow(_THIS, SDL_Window *window)
 
 void RISCOS_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_WindowData *driverdata = (SDL_WindowData *)window->driverdata;
-
-    if (!driverdata) {
-        return;
-    }
-
-    SDL_free(driverdata);
+    SDL_free(window->driverdata);
     window->driverdata = NULL;
 }
 

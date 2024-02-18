@@ -77,7 +77,7 @@ static void DrawTriangle(IDirectFBSurface * s, int down, int x, int y, int w)
 static void LoadFont(SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if (windata->font) {
         SDL_DFB_RELEASE(windata->font);
@@ -110,7 +110,7 @@ static void DrawCraption(IDirectFBSurface * s, int x, int y, char *text)
 
 void DirectFB_WM_RedrawLayout(SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     IDirectFBSurface *s = windata->window_surface;
     DFB_Theme *t = &windata->theme;
     int i;
@@ -178,7 +178,7 @@ void DirectFB_WM_RedrawLayout(SDL_Window * window)
 
 DFBResult DirectFB_WM_GetClientSize(SDL_Window * window, int *cw, int *ch)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     IDirectFBWindow *dfbwin = windata->dfbwin;
 
     SDL_DFB_CHECK(dfbwin->GetSize(dfbwin, cw, ch));
@@ -192,7 +192,7 @@ DFBResult DirectFB_WM_GetClientSize(SDL_Window * window, int *cw, int *ch)
 
 void DirectFB_WM_AdjustWindowLayout(SDL_Window * window, int flags, int w, int h)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
 
     if (!windata->is_managed)
         windata->theme = theme_none;
@@ -278,7 +278,7 @@ static int WMPos(DFB_WindowData * p, int x, int y)
 
 int DirectFB_WM_ProcessEvent(_THIS, SDL_Window * window, DFBWindowEvent * evt)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_Window *grabbed_window = SDL_GetGrabbedWindow();
     IDirectFBWindow *dfbwin = windata->dfbwin;
     DFBWindowOptions wopts;

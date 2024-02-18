@@ -25,8 +25,6 @@
 #include "SDL_DirectFB_video.h"
 #include "SDL_DirectFB_WM.h"
 
-#define SDL_DFB_WINDOWDATA(win)  DFB_WindowData *windata = ((win) ? (DFB_WindowData *) ((win)->driverdata) : NULL)
-
 typedef struct _DFB_WindowData DFB_WindowData;
 struct _DFB_WindowData
 {

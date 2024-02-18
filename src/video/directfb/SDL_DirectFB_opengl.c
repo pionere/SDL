@@ -166,7 +166,7 @@ void *DirectFB_GL_GetProcAddress(_THIS, const char *proc)
 
 SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DirectFB_GLContext *context;
 
     SDL_DFB_ALLOC_CLEAR(context, sizeof(DirectFB_GLContext));
@@ -232,7 +232,7 @@ int DirectFB_GL_GetSwapInterval(_THIS)
 
 int DirectFB_GL_SwapWindow(_THIS, SDL_Window * window)
 {
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DirectFB_GLContext *p;
 
 #if 0
@@ -294,7 +294,7 @@ void DirectFB_GL_ReAllocWindowContexts(_THIS, SDL_Window * window)
     for (p = _this->gl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window)
         {
-            SDL_DFB_WINDOWDATA(window);
+            DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
             SDL_DFB_CHECK(windata->surface->GetGL(windata->surface,
                                              &p->context));
             if (p->is_locked)

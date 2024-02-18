@@ -125,7 +125,7 @@ SDL_bool DirectFB_Vulkan_CreateSurface(_THIS,
                                   VkSurfaceKHR *surface)
 {
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
         (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;
     PFN_vkCreateDirectFBSurfaceEXT vkCreateDirectFBSurfaceEXT =
@@ -147,6 +147,7 @@ SDL_bool DirectFB_Vulkan_CreateSurface(_THIS,
                      " extension is not enabled in the Vulkan instance.");
         return SDL_FALSE;
     }
+    windata = (DFB_WindowData *)window->driverdata;
     SDL_zero(createInfo);
     createInfo.sType = VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT;
     createInfo.pNext = NULL;

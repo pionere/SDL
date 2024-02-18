@@ -219,23 +219,26 @@ void HAIKU_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed) {
 }
 
 void HAIKU_DestroyWindow(_THIS, SDL_Window * window) {
-    _ToBeWin(window)->LockLooper();    /* This MUST be locked */
-    _GetBeLooper()->ClearID(_ToBeWin(window));
-    _ToBeWin(window)->Quit();
-    window->driverdata = NULL;
+    SDL_BWin *data = _ToBeWin(window);
+    if (data) {
+        data->LockLooper();    /* This MUST be locked */
+        _GetBeLooper()->ClearID(data);
+        data->Quit();
+        window->driverdata = NULL;
+    }
 }
 
 SDL_bool HAIKU_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info) {
     /* FIXME: What is the point of this? What information should be included? */
-	if (info->version.major == SDL_MAJOR_VERSION) {
-	    info->subsystem = SDL_SYSWM_HAIKU;
-	    return SDL_TRUE;
-	} else {
-	    SDL_SetError("Application not compiled with SDL %d",
-	                 SDL_MAJOR_VERSION);
-	    return SDL_FALSE;
-	}
+    if (info->version.major == SDL_MAJOR_VERSION) {
+        info->subsystem = SDL_SYSWM_HAIKU;
+        return SDL_TRUE;
+    } else {
+        SDL_SetError("Application not compiled with SDL %d",
+                     SDL_MAJOR_VERSION);
+        return SDL_FALSE;
+    }
 }
 
 

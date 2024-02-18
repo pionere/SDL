@@ -807,7 +807,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                     int px, py;
                     SDL_Window *window = renderer->window;
                     IDirectFBWindow *dfbwin = get_dfb_window(window);
-                    SDL_DFB_WINDOWDATA(window);
+                    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
                     SDL_VideoDisplay *display = texturedata->display;
                     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
 
@@ -1007,7 +1007,7 @@ static int DirectFB_RenderPresent(SDL_Renderer * renderer)
 {
     DirectFB_RenderData *data = (DirectFB_RenderData *) renderer->driverdata;
     SDL_Window *window = renderer->window;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_ShapeData *shape_data = (window->shaper ? window->shaper->driverdata : NULL);
 
     DirectFB_ActivateRenderer(renderer);
@@ -1106,7 +1106,7 @@ static int DirectFB_RenderWritePixels(SDL_Renderer * renderer, const SDL_Rect * 
                       Uint32 format, const void * pixels, int pitch)
 {
     SDL_Window *window = renderer->window;
-    SDL_DFB_WINDOWDATA(window);
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     Uint32 sdl_format;
     unsigned char* laypixels;
     int laypitch;

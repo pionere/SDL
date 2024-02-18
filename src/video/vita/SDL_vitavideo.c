@@ -344,16 +344,18 @@ void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 
 void VITA_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_WindowData *data;
-
-    data = window->driverdata;
-    if (data) {
+    SDL_WindowData *data = window->driverdata;
+    if (window == Vita_Window) {
+        Vita_Window = NULL;
+#if defined(SDL_VIDEO_VITA_PVR)
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_EGL_DestroySurface(_this, data->egl_surface);
+        }
+#endif
         // TODO: should we destroy egl context? No one sane should recreate ogl window as non-ogl
         SDL_free(data);
+        window->driverdata = NULL;
     }
-
-    window->driverdata = NULL;
-    Vita_Window = NULL;
 }
 
 /*****************************************************************************/

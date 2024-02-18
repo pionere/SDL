@@ -166,7 +166,7 @@ static int ClientXY(DFB_WindowData * p, int *x, int *y)
 static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
 {
     DFB_VideoData *devdata = &dfbVideoData;
-    SDL_DFB_WINDOWDATA(sdlwin);
+    DFB_WindowData *windata = (DFB_WindowData *)sdlwin->driverdata;
     SDL_Keysym keysym;
     Uint32 unicode;
     char text[SDL_TEXTINPUTEVENT_TEXT_SIZE];
@@ -405,7 +405,7 @@ void DirectFB_PumpEventsWindow(_THIS)
     SDL_Window *w;
 
     for (w = devdata->firstwin; w; w = w->next) {
-        SDL_DFB_WINDOWDATA(w);
+        DFB_WindowData *windata = (DFB_WindowData *)w->driverdata;
         DFBWindowEvent evt;
 
         while (windata->eventbuffer->GetEvent(windata->eventbuffer,

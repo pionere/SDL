@@ -2256,6 +2256,7 @@ void Wayland_DestroyWindow(_THIS, SDL_Window *window)
     Wayland_VideoData *data = &waylandVideoData;
     SDL_WindowData *wind = window->driverdata;
 
+    if (wind) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         if (wind->egl_surface) {
             SDL_EGL_DestroySurface(_this, wind->egl_surface);
@@ -2303,9 +2304,9 @@ void Wayland_DestroyWindow(_THIS, SDL_Window *window)
         wl_surface_destroy(wind->surface);
 
         SDL_free(wind);
-        WAYLAND_wl_display_flush(data->display);
-
-    window->driverdata = NULL;
+        window->driverdata = NULL;
+    }
+    WAYLAND_wl_display_flush(data->display);
 }
 
 static void EGLTransparencyChangedCallback(void *userdata, const char *name, const char *oldValue, const char *newValue)
