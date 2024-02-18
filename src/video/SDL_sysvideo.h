@@ -255,9 +255,9 @@ struct SDL_VideoDevice
     void (*SetWindowMouseGrab) (SDL_Window * window, SDL_bool grabbed);
     void (*SetWindowKeyboardGrab) (SDL_Window * window, SDL_bool grabbed);
     void (*DestroyWindow) (_THIS, SDL_Window * window);
-    int (*CreateWindowFramebuffer) (_THIS, SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
-    int (*UpdateWindowFramebuffer) (_THIS, SDL_Window * window, const SDL_Rect * rects, int numrects);
-    void (*DestroyWindowFramebuffer) (_THIS, SDL_Window * window);
+    int (*CreateWindowFramebuffer) (SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
+    int (*UpdateWindowFramebuffer) (SDL_Window * window, const SDL_Rect * rects, int numrects);
+    void (*DestroyWindowFramebuffer) (SDL_Window * window);
     void (*OnWindowEnter) (SDL_Window * window);
     int (*FlashWindow) (SDL_Window * window, SDL_FlashOperation operation);
 

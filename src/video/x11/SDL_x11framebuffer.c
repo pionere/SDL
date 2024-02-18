@@ -47,7 +47,7 @@ static SDL_bool have_mitshm(Display *dpy)
 
 #endif /* !NO_SHARED_MEMORY */
 
-int X11_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
+int X11_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
                                 void **pixels, int *pitch)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -59,7 +59,7 @@ int X11_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
     SDL_GetWindowSizeInPixels(window, &w, &h);
 
     /* Free the old framebuffer surface */
-    X11_DestroyWindowFramebuffer(_this, window);
+    X11_DestroyWindowFramebuffer(window);
 
     /* Create the graphics context for drawing */
     gcv.graphics_exposures = False;
@@ -142,7 +142,7 @@ int X11_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
     return 0;
 }
 
-int X11_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects,
+int X11_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
                                 int numrects)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -221,7 +221,7 @@ int X11_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects
     return 0;
 }
 
-void X11_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+void X11_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     Display *display;

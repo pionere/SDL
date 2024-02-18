@@ -63,12 +63,12 @@ void vita_gpu_free(SceUID uid)
     sceKernelFreeMemBlock(uid);
 }
 
-int VITA_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int VITA_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SceDisplayFrameBuf framebuf;
 
-    // VITA_DestroyWindowFramebuffer(_this, window); -- SCE_DISPLAY_SETBUF_NEXTFRAME vs SCE_DISPLAY_SETBUF_IMMEDIATE ?
+    // VITA_DestroyWindowFramebuffer(window); -- SCE_DISPLAY_SETBUF_NEXTFRAME vs SCE_DISPLAY_SETBUF_IMMEDIATE ?
 
     *format = SDL_PIXELFORMAT_ABGR8888;
     *pitch = SCREEN_W * 4;
@@ -99,13 +99,13 @@ int VITA_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void
     return 0;
 }
 
-int VITA_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects, int numrects)
+int VITA_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
     // do nothing
     return 0;
 }
 
-void VITA_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+void VITA_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 

@@ -215,7 +215,7 @@ static Uint32 SDL_DefaultGraphicsBackends(SDL_VideoDevice *_this)
     return 0;
 }
 
-static int SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_RendererInfo info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
@@ -336,7 +336,7 @@ static int SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window *window, U
 static SDL_VideoDevice *_this = NULL;
 static SDL_atomic_t SDL_messagebox_count;
 
-static int SDL_UpdateWindowTexture(SDL_VideoDevice *unused, SDL_Window *window, const SDL_Rect *rects, int numrects)
+static int SDL_UpdateWindowTexture(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
     SDL_WindowTextureData *data;
     SDL_Rect rect;
@@ -368,7 +368,7 @@ static int SDL_UpdateWindowTexture(SDL_VideoDevice *unused, SDL_Window *window, 
     return 0;
 }
 
-static void SDL_DestroyWindowTexture(SDL_VideoDevice *unused, SDL_Window *window)
+static void SDL_DestroyWindowTexture(SDL_Window *window)
 {
     SDL_WindowTextureData *data;
 
@@ -1973,7 +1973,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 
     if (_this->checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (_this->DestroyWindowFramebuffer) {
-            _this->DestroyWindowFramebuffer(_this, window);
+            _this->DestroyWindowFramebuffer(window);
         }
     }
 
@@ -2710,7 +2710,7 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
 #endif
 
         if (attempt_texture_framebuffer) {
-            if (SDL_CreateWindowTexture(_this, window, &format, &pixels, &pitch) == -1) {
+            if (SDL_CreateWindowTexture(window, &format, &pixels, &pitch) == -1) {
                 /* !!! FIXME: if this failed halfway (made renderer, failed to make texture, etc),
                    !!! FIXME:  we probably need to clean this up so it doesn't interfere with
                    !!! FIXME:  a software fallback at the system level (can we blit to an
@@ -2735,7 +2735,7 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
             return NULL;
         }
 
-        if (_this->CreateWindowFramebuffer(_this, window, &format, &pixels, &pitch) < 0) {
+        if (_this->CreateWindowFramebuffer(window, &format, &pixels, &pitch) < 0) {
             return NULL;
         }
     }
@@ -2797,7 +2797,7 @@ int SDL_UpdateWindowSurfaceRects(SDL_Window *window, const SDL_Rect *rects,
 
     SDL_assert(_this->checked_texture_framebuffer); /* we should have done this before we had a valid surface. */
 
-    return _this->UpdateWindowFramebuffer(_this, window, rects, numrects);
+    return _this->UpdateWindowFramebuffer(window, rects, numrects);
 }
 
 int SDL_SetWindowBrightness(SDL_Window * window, float brightness)
@@ -3306,7 +3306,7 @@ void SDL_DestroyWindow(SDL_Window *window)
     SDL_DestroyWindowSurface(window);
     if (_this->checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (_this->DestroyWindowFramebuffer) {
-            _this->DestroyWindowFramebuffer(_this, window);
+            _this->DestroyWindowFramebuffer(window);
         }
     }
     if (_this->DestroyWindow) {

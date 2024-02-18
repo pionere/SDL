@@ -140,14 +140,13 @@ fail:
 /**
  * Gets a pointer to the Screen buffer associated with the given window. Note
  * that the buffer is actually created in createWindow().
- * @param       _THIS
  * @param       window  SDL window to get the buffer for
- * @param[out]  pixles  Holds a pointer to the window's buffer
  * @param[out]  format  Holds the pixel format for the buffer
+ * @param[out]  pixels  Holds a pointer to the window's buffer
  * @param[out]  pitch   Holds the number of bytes per line
  * @return  0 if successful, -1 on error
  */
-static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
+static int createWindowFramebuffer(SDL_Window * window, Uint32 * format,
                         void ** pixels, int *pitch)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -176,13 +175,12 @@ static int createWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format,
 
 /**
  * Informs the window manager that the window needs to be updated.
- * @param   _THIS
  * @param   window      The window to update
  * @param   rects       An array of reectangular areas to update
  * @param   numrects    Rect array length
  * @return  0 if successful, -1 on error
  */
-static int updateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects,
+static int updateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
                         int numrects)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;

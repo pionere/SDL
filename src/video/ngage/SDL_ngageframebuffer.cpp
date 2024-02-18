@@ -40,10 +40,9 @@ static TUint32 NGAGE_HWPalette_256_to_Screen[256];
 
 static int GetBpp(TDisplayMode displaymode);
 static void DirectUpdate(SDL_Surface *surface, int numrects, SDL_Rect *rects);
-static void DrawBackground(_THIS);
-void RedrawWindowL(_THIS);
+static void DrawBackground();
 
-int SDL_NGAGE_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int SDL_NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     SDL_Surface *surface;
@@ -51,7 +50,7 @@ int SDL_NGAGE_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
     int w, h;
 
     /* Free the old framebuffer surface */
-    SDL_NGAGE_DestroyWindowFramebuffer(_this, window);
+    SDL_NGAGE_DestroyWindowFramebuffer(window);
 
     /* Create a new one */
     SDL_GetWindowSizeInPixels(window, &w, &h);
@@ -137,12 +136,12 @@ int SDL_NGAGE_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format,
     phdata->NGAGE_ScreenOffset = TPoint(0, 0);
 
     SDL_Log("SDL:DrawBackground");
-    DrawBackground(_this); // Clear screen
+    DrawBackground(); // Clear screen
 
     return 0;
 }
 
-int SDL_NGAGE_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects, int numrects)
+int SDL_NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
 #if 0
     static int frame_number;
@@ -167,7 +166,7 @@ int SDL_NGAGE_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect 
     return 0;
 }
 
-void SDL_NGAGE_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+void SDL_NGAGE_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
@@ -198,7 +197,7 @@ static int GetBpp(TDisplayMode displaymode)
     return TDisplayModeUtils::NumDisplayModeBitsPerPixel(displaymode);
 }
 
-static void DrawBackground(_THIS)
+static void DrawBackground()
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     /* Draw background */
@@ -378,7 +377,7 @@ void RedrawWindowL(_THIS)
         h = screen->w;
     }
     if ((w < phdata->NGAGE_ScreenSize.iWidth) || (h < phdata->NGAGE_ScreenSize.iHeight)) {
-        DrawBackground(_this);
+        DrawBackground();
     }
 
     /* Tell the system that something has been drawn */

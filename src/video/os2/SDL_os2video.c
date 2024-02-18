@@ -1292,7 +1292,7 @@ static int OS2_ResizeWindowShape(SDL_Window *window)
 
 /* Frame buffer
  */
-static void OS2_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+static void OS2_DestroyWindowFramebuffer(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 
@@ -1301,7 +1301,7 @@ static void OS2_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
         pWinData->pOutput->VideoBufFree(pWinData->pVOData);
 }
 
-static int OS2_CreateWindowFramebuffer(_THIS, SDL_Window *window,
+static int OS2_CreateWindowFramebuffer(SDL_Window *window,
                                        Uint32 *format, void **pixels,
                                        int *pitch)
 {
@@ -1338,7 +1338,7 @@ static int OS2_CreateWindowFramebuffer(_THIS, SDL_Window *window,
     return 0;
 }
 
-static int OS2_UpdateWindowFramebuffer(_THIS, SDL_Window * window,
+static int OS2_UpdateWindowFramebuffer(SDL_Window * window,
                                        const SDL_Rect *rects, int numrects)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
