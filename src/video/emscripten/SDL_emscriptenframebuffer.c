@@ -40,15 +40,15 @@ int Emscripten_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format
     SDL_FreeSurface(surface);
 
     /* Create a new one */
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    Emscripten_GetWindowSizeInPixels(window, &w, &h);
 
     surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
+    data->surface = surface;
     if (!surface) {
         return -1;
     }
 
     /* Save the info and return! */
-    data->surface = surface;
     *format = surface_format;
     *pixels = surface->pixels;
     *pitch = surface->pitch;
@@ -166,6 +166,11 @@ int Emscripten_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect
 void Emscripten_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+
+    if (!data) {
+        /* The window wasn't fully initialized */
+        return;
+    }
 
     SDL_FreeSurface(data->surface);
     data->surface = NULL;

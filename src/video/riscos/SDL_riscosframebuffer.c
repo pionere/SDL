@@ -35,6 +35,7 @@ int RISCOS_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, vo
     SDL_WindowData *driverdata = (SDL_WindowData *)window->driverdata;
     const char *sprite_name = "display";
     unsigned int sprite_mode;
+    sprite_area *fb_area;
     _kernel_oserror *error;
     _kernel_swi_regs regs;
     SDL_DisplayMode mode;
@@ -61,19 +62,19 @@ int RISCOS_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, vo
 
     /* Allocate the sprite area */
     size = sizeof(sprite_area) + sizeof(sprite_header) + ((*pitch) * h);
-    driverdata->fb_area = SDL_malloc(size);
-    if (!driverdata->fb_area) {
+    fb_area = SDL_malloc(size);
+    if (!fb_area) {
         return SDL_OutOfMemory();
     }
 
-    driverdata->fb_area->size = size;
-    driverdata->fb_area->count = 0;
-    driverdata->fb_area->start = 16;
-    driverdata->fb_area->end = 16;
+    fb_area->size = size;
+    fb_area->count = 0;
+    fb_area->start = 16;
+    fb_area->end = 16;
 
     /* Create the actual image */
     regs.r[0] = 256 + 15;
-    regs.r[1] = (int)driverdata->fb_area;
+    regs.r[1] = (int)fb_area;
     regs.r[2] = (int)sprite_name;
     regs.r[3] = 0;
     regs.r[4] = w;
@@ -81,11 +82,12 @@ int RISCOS_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, vo
     regs.r[6] = sprite_mode;
     error = _kernel_swi(OS_SpriteOp, &regs, &regs);
     if (error) {
-        SDL_free(driverdata->fb_area);
+        SDL_free(fb_area);
         return SDL_SetError("Unable to create sprite: %s (%i)", error->errmess, error->errnum);
     }
 
-    driverdata->fb_sprite = (sprite_header *)(((Uint8 *)driverdata->fb_area) + driverdata->fb_area->start);
+    driverdata->fb_area = fb_area;
+    driverdata->fb_sprite = (sprite_header *)(((Uint8 *)fb_area) + fb_area->start);
     *pixels = ((Uint8 *)driverdata->fb_sprite) + driverdata->fb_sprite->image_offset;
 
     return 0;
@@ -116,6 +118,11 @@ int RISCOS_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *re
 void RISCOS_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
 {
     SDL_WindowData *driverdata = (SDL_WindowData *)window->driverdata;
+
+    if (!driverdata) {
+        /* The window wasn't fully initialized */
+        return;
+    }
 
     if (driverdata->fb_area) {
         SDL_free(driverdata->fb_area);

@@ -74,6 +74,7 @@ int HAIKU_CreateWindowFramebuffer(_THIS, SDL_Window * window,
 
     if (bitmap->InitCheck() != B_OK) {
         delete bitmap;
+        bwin->SetBitmap(NULL);
         return SDL_SetError("Could not initialize back buffer!");
     }
 
@@ -107,6 +108,11 @@ int HAIKU_UpdateWindowFramebuffer(_THIS, SDL_Window * window,
 
 void HAIKU_DestroyWindowFramebuffer(_THIS, SDL_Window * window) {
     SDL_BWin *bwin = _ToBeWin(window);
+
+    if (!bwin) {
+        /* The window wasn't fully initialized */
+        return;
+    }
 
     bwin->LockBuffer();
 

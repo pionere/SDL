@@ -47,11 +47,11 @@ int SDL_N3DS_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, 
     FreePreviousWindowFramebuffer(window);
     framebuffer = CreateNewWindowFramebuffer(window);
 
+    SDL_SetWindowData(window, N3DS_SURFACE, framebuffer);
     if (!framebuffer) {
         return SDL_OutOfMemory();
     }
 
-    SDL_SetWindowData(window, N3DS_SURFACE, framebuffer);
     *format = FRAMEBUFFER_FORMAT;
     *pixels = framebuffer->pixels;
     *pitch = framebuffer->pitch;

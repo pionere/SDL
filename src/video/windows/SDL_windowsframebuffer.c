@@ -23,6 +23,7 @@
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 
 #include "SDL_windowsvideo.h"
+#include "SDL_windowsframebuffer.h"
 
 int WIN_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
@@ -32,16 +33,12 @@ int WIN_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void 
     LPBITMAPINFO info;
     HBITMAP hbm;
     int w, h;
-
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    Uint32 surface_format;
 
     /* Free the old framebuffer surface */
-    if (data->mdc) {
-        DeleteDC(data->mdc);
-    }
-    if (data->hbm) {
-        DeleteObject(data->hbm);
-    }
+    WIN_DestroyWindowFramebuffer(_this, window);
+
+    WIN_GetWindowSizeInPixels(window, &w, &h);
 
     /* Find out the format of the screen */
     size = sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD);
@@ -59,18 +56,18 @@ int WIN_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void 
     GetDIBits(data->hdc, hbm, 0, 0, NULL, info, DIB_RGB_COLORS);
     DeleteObject(hbm);
 
-    *format = SDL_PIXELFORMAT_UNKNOWN;
+    surface_format = SDL_PIXELFORMAT_UNKNOWN;
     if (info->bmiHeader.biCompression == BI_BITFIELDS) {
         int bpp;
         Uint32 *masks;
 
         bpp = info->bmiHeader.biPlanes * info->bmiHeader.biBitCount;
         masks = (Uint32 *)((Uint8 *)info + info->bmiHeader.biSize);
-        *format = SDL_MasksToPixelFormatEnum(bpp, masks[0], masks[1], masks[2], 0);
+        surface_format = SDL_MasksToPixelFormatEnum(bpp, masks[0], masks[1], masks[2], 0);
     }
-    if (*format == SDL_PIXELFORMAT_UNKNOWN) {
+    if (surface_format == SDL_PIXELFORMAT_UNKNOWN) {
         /* We'll use RGB format for now */
-        *format = SDL_PIXELFORMAT_RGB888;
+        surface_format = SDL_PIXELFORMAT_RGB888;
 
         /* Create a new one */
         SDL_memset(info, 0, size);
@@ -79,9 +76,10 @@ int WIN_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void 
         info->bmiHeader.biBitCount = 32;
         info->bmiHeader.biCompression = BI_RGB;
     }
+    *format = surface_format;
 
     /* Fill in the size information */
-    *pitch = (((w * SDL_BYTESPERPIXEL(*format)) + 3) & ~3);
+    *pitch = (((w * SDL_BYTESPERPIXEL(surface_format)) + 3) & ~3);
     info->bmiHeader.biWidth = w;
     info->bmiHeader.biHeight = -h; /* negative for topdown bitmap */
     info->bmiHeader.biSizeImage = (DWORD)h * (*pitch);

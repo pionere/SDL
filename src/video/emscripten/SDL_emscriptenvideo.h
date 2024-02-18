@@ -52,6 +52,8 @@ typedef struct SDL_WindowData
     SDL_bool has_pointer_lock;
 } SDL_WindowData;
 
+extern void Emscripten_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h);
+
 #endif /* SDL_emscriptenvideo_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

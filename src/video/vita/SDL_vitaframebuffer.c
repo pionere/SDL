@@ -68,6 +68,8 @@ int VITA_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SceDisplayFrameBuf framebuf;
 
+    // VITA_DestroyWindowFramebuffer(_this, window); -- SCE_DISPLAY_SETBUF_NEXTFRAME vs SCE_DISPLAY_SETBUF_IMMEDIATE ?
+
     *format = SDL_PIXELFORMAT_ABGR8888;
     *pitch = SCREEN_W * 4;
 
@@ -76,6 +78,10 @@ int VITA_CreateWindowFramebuffer(_THIS, SDL_Window *window, Uint32 *format, void
         4 * SCREEN_W * SCREEN_H,
         &data->buffer_uid);
 
+    // if (data->buffer == NULL) {
+    //    sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_NEXTFRAME);
+    //    return SDL_OutOfMemory();
+    // }
     // SDL_memset the buffer to black
     SDL_memset(data->buffer, 0x0, SCREEN_W * SCREEN_H * 4);
 
@@ -108,9 +114,11 @@ void VITA_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
         return;
     }
 
-    vita_gpu_free(data->buffer_uid);
-    data->buffer = NULL;
-    return;
+    if (data->buffer_uid) {
+        vita_gpu_free(data->buffer_uid);
+        data->buffer_uid = 0;
+        // data->buffer = NULL;
+    }
 }
 
 #endif /* SDL_VIDEO_DRIVER_VITA */
