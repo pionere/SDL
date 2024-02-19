@@ -41,7 +41,7 @@ typedef uint32_t xcb_window_t;
 typedef uint32_t xcb_visualid_t;
 */
 
-int X11_Vulkan_LoadLibrary(_THIS, const char *path)
+int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
     X11_VideoData *videoData = &x11VideoData;
     VkExtensionProperties *extensions = NULL;
@@ -51,9 +51,8 @@ int X11_Vulkan_LoadLibrary(_THIS, const char *path)
     SDL_bool hasXCBSurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
     Uint32 i;
-    if (_this->vulkan_config.loader_handle) {
-        return SDL_SetError("Vulkan already loaded");
-    }
+
+    SDL_assert(vulkan_config->loader_handle == NULL);
 
     /* Load the Vulkan loader library */
     if (!path) {
@@ -62,26 +61,26 @@ int X11_Vulkan_LoadLibrary(_THIS, const char *path)
     if (!path) {
         path = DEFAULT_VULKAN;
     }
-    _this->vulkan_config.loader_handle = SDL_LoadObject(path);
-    if (!_this->vulkan_config.loader_handle) {
+    vulkan_config->loader_handle = SDL_LoadObject(path);
+    if (!vulkan_config->loader_handle) {
         return -1;
     }
-    SDL_strlcpy(_this->vulkan_config.loader_path, path, SDL_arraysize(_this->vulkan_config.loader_path));
+    SDL_strlcpy(vulkan_config->loader_path, path, SDL_arraysize(vulkan_config->loader_path));
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
-        _this->vulkan_config.loader_handle, "vkGetInstanceProcAddr");
+        vulkan_config->loader_handle, "vkGetInstanceProcAddr");
     if (!vkGetInstanceProcAddr) {
         goto fail;
     }
-    _this->vulkan_config.vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    _this->vulkan_config.vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
+    vulkan_config->vkEnumerateInstanceExtensionProperties =
+        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!_this->vulkan_config.vkEnumerateInstanceExtensionProperties) {
+    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
         (PFN_vkEnumerateInstanceExtensionProperties)
-            _this->vulkan_config.vkEnumerateInstanceExtensionProperties,
+            vulkan_config->vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions) {
         goto fail;
@@ -124,20 +123,20 @@ int X11_Vulkan_LoadLibrary(_THIS, const char *path)
     return 0;
 
 fail:
-    SDL_UnloadObject(_this->vulkan_config.loader_handle);
-    _this->vulkan_config.loader_handle = NULL;
+    SDL_UnloadObject(vulkan_config->loader_handle);
+    vulkan_config->loader_handle = NULL;
     return -1;
 }
 
-void X11_Vulkan_UnloadLibrary(_THIS)
+void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
     X11_VideoData *videoData = &x11VideoData;
-    if (_this->vulkan_config.loader_handle) {
+    if (vulkan_config->loader_handle) {
         if (videoData->vulkan_xlib_xcb_library) {
             SDL_UnloadObject(videoData->vulkan_xlib_xcb_library);
         }
-        SDL_UnloadObject(_this->vulkan_config.loader_handle);
-        _this->vulkan_config.loader_handle = NULL;
+        SDL_UnloadObject(vulkan_config->loader_handle);
+        vulkan_config->loader_handle = NULL;
     }
 }
 
@@ -163,7 +162,7 @@ SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,
     }
 }
 
-SDL_bool X11_Vulkan_CreateSurface(_THIS,
+SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
@@ -171,11 +170,10 @@ SDL_bool X11_Vulkan_CreateSurface(_THIS,
     X11_VideoData *videoData = &x11VideoData;
     SDL_WindowData *windowData = (SDL_WindowData *)window->driverdata;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        return SDL_FALSE;
-    }
-    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;
+
+    SDL_assert(vulkan_config->loader_handle != NULL);
+
+    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
     if (videoData->vulkan_xlib_xcb_library) {
         PFN_vkCreateXcbSurfaceKHR vkCreateXcbSurfaceKHR =
             (PFN_vkCreateXcbSurfaceKHR)vkGetInstanceProcAddr(instance,

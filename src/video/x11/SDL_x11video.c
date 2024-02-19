@@ -99,9 +99,6 @@ static int (*orig_x11_errhandler)(Display *, XErrorEvent *) = NULL;
 static void X11_DeleteDevice(SDL_VideoDevice *device)
 {
     X11_VideoData *data = &x11VideoData;
-    if (device->vulkan_config.loader_handle) {
-        device->Vulkan_UnloadLibrary(device);
-    }
     if (data->display) {
         X11_XSetErrorHandler(orig_x11_errhandler);
         X11_XCloseDisplay(data->display);

@@ -46,7 +46,7 @@ const char* defaultPaths[] = {
  * proofing. */
 #define DEFAULT_HANDLE RTLD_DEFAULT
 
-int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
+int UIKit_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
     VkExtensionProperties *extensions = NULL;
     Uint32 extensionCount = 0;
@@ -55,9 +55,7 @@ int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
     SDL_bool hasIOSSurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
 
-    if (_this->vulkan_config.loader_handle) {
-        return SDL_SetError("Vulkan Portability library is already loaded.");
-    }
+    SDL_assert(vulkan_config->loader_handle == NULL);
 
     /* Load the Vulkan loader library */
     if (!path) {
@@ -72,7 +70,7 @@ int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
     }
 
     if (vkGetInstanceProcAddr) {
-        _this->vulkan_config.loader_handle = DEFAULT_HANDLE;
+        vulkan_config->loader_handle = DEFAULT_HANDLE;
     } else {
         const char** paths;
         const char *foundPath = NULL;
@@ -88,20 +86,20 @@ int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
             numPaths = SDL_arraysize(defaultPaths);
         }
 
-        for (i = 0; i < numPaths && _this->vulkan_config.loader_handle == NULL; i++) {
+        for (i = 0; i < numPaths && vulkan_config->loader_handle == NULL; i++) {
             foundPath = paths[i];
-            _this->vulkan_config.loader_handle = SDL_LoadObject(foundPath);
+            vulkan_config->loader_handle = SDL_LoadObject(foundPath);
         }
 
-        if (_this->vulkan_config.loader_handle == NULL) {
+        if (!vulkan_config->loader_handle) {
             return SDL_SetError("Failed to load Vulkan Portability library");
         }
 
-        SDL_strlcpy(_this->vulkan_config.loader_path, path,
-                    SDL_arraysize(_this->vulkan_config.loader_path));
+        SDL_strlcpy(vulkan_config->loader_path, path,
+                    SDL_arraysize(vulkan_config->loader_path));
         vkGetInstanceProcAddr =
             (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
-                                    _this->vulkan_config.loader_handle,
+                                    vulkan_config->loader_handle,
                                     "vkGetInstanceProcAddr");
     }
 
@@ -113,19 +111,19 @@ int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
         goto fail;
     }
 
-    _this->vulkan_config.vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    _this->vulkan_config.vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
+    vulkan_config->vkEnumerateInstanceExtensionProperties =
+        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
 
-    if (!_this->vulkan_config.vkEnumerateInstanceExtensionProperties) {
+    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
         SDL_SetError("No vkEnumerateInstanceExtensionProperties found.");
         goto fail;
     }
 
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
         (PFN_vkEnumerateInstanceExtensionProperties)
-            _this->vulkan_config.vkEnumerateInstanceExtensionProperties,
+            vulkan_config->vkEnumerateInstanceExtensionProperties,
         &extensionCount);
 
     if (!extensions) {
@@ -158,17 +156,17 @@ int UIKit_Vulkan_LoadLibrary(_THIS, const char *path)
     return 0;
 
 fail:
-    _this->vulkan_config.loader_handle = NULL;
+    vulkan_config->loader_handle = NULL;
     return -1;
 }
 
-void UIKit_Vulkan_UnloadLibrary(_THIS)
+void UIKit_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
-    if (_this->vulkan_config.loader_handle) {
-        if (_this->vulkan_config.loader_handle != DEFAULT_HANDLE) {
-            SDL_UnloadObject(_this->vulkan_config.loader_handle);
+    if (vulkan_config->loader_handle) {
+        if (vulkan_config->loader_handle != DEFAULT_HANDLE) {
+            SDL_UnloadObject(vulkan_config->loader_handle);
         }
-        _this->vulkan_config.loader_handle = NULL;
+        vulkan_config->loader_handle = NULL;
     }
 }
 
@@ -184,13 +182,13 @@ SDL_bool UIKit_Vulkan_GetInstanceExtensions(SDL_Window *window,
             extensionsForUIKit);
 }
 
-SDL_bool UIKit_Vulkan_CreateSurface(_THIS,
+SDL_bool UIKit_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
 {
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
-        (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;
+        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
     PFN_vkCreateMetalSurfaceEXT vkCreateMetalSurfaceEXT =
         (PFN_vkCreateMetalSurfaceEXT)vkGetInstanceProcAddr(
                                             (VkInstance)instance,
@@ -202,10 +200,7 @@ SDL_bool UIKit_Vulkan_CreateSurface(_THIS,
     VkResult result;
     SDL_MetalView metalview;
 
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        return SDL_FALSE;
-    }
+    SDL_assert(vulkan_config->loader_handle != NULL);
 
     if (!vkCreateMetalSurfaceEXT && !vkCreateIOSSurfaceMVK) {
         SDL_SetError(VK_EXT_METAL_SURFACE_EXTENSION_NAME " or "

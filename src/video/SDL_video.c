@@ -4732,7 +4732,7 @@ int SDL_Vulkan_LoadLibrary(const char *path)
         if (!_this->Vulkan_LoadLibrary) {
             return SDL_DllNotSupported("Vulkan");
         }
-        retval = _this->Vulkan_LoadLibrary(_this, path);
+        retval = _this->Vulkan_LoadLibrary(&_this->vulkan_config, path);
     }
     if (retval == 0) {
         _this->vulkan_config.loader_loaded++;
@@ -4764,7 +4764,7 @@ void SDL_Vulkan_UnloadLibrary(void)
             return;
         }
         if (_this->Vulkan_UnloadLibrary) {
-            _this->Vulkan_UnloadLibrary(_this);
+            _this->Vulkan_UnloadLibrary(&_this->vulkan_config);
         }
     }
 }
@@ -4809,7 +4809,12 @@ SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
         return SDL_FALSE;
     }
 
-    return _this->Vulkan_CreateSurface(_this, window, instance, surface);
+    if (!_this->vulkan_config.loader_loaded) {
+        SDL_SetError("No Vulkan loader has been loaded");
+        return SDL_FALSE;
+    }
+
+    return _this->Vulkan_CreateSurface(&_this->vulkan_config, window, instance, surface);
 }
 
 void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)

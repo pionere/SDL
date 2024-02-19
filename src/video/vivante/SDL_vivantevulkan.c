@@ -35,16 +35,15 @@
 #include "SDL_vivantevulkan.h"
 #include "SDL_syswm.h"
 
-int VIVANTE_Vulkan_LoadLibrary(_THIS, const char *path)
+int VIVANTE_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
     VkExtensionProperties *extensions = NULL;
     Uint32 i, extensionCount = 0;
     SDL_bool hasSurfaceExtension = SDL_FALSE;
     SDL_bool hasDisplayExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
-    if (_this->vulkan_config.loader_handle) {
-        return SDL_SetError("Vulkan already loaded");
-    }
+
+    SDL_assert(vulkan_config->loader_handle == NULL);
 
     /* Load the Vulkan loader library */
     if (!path) {
@@ -53,36 +52,36 @@ int VIVANTE_Vulkan_LoadLibrary(_THIS, const char *path)
     if (!path) {
         /* If no path set, try Vivante fb vulkan driver explicitly */
         path = "libvulkan-fb.so";
-        _this->vulkan_config.loader_handle = SDL_LoadObject(path);
-        if (!_this->vulkan_config.loader_handle) {
+        vulkan_config->loader_handle = SDL_LoadObject(path);
+        if (!vulkan_config->loader_handle) {
             /* If that couldn't be loaded, fall back to default name */
             path = "libvulkan.so";
-            _this->vulkan_config.loader_handle = SDL_LoadObject(path);
+            vulkan_config->loader_handle = SDL_LoadObject(path);
         }
     } else {
-        _this->vulkan_config.loader_handle = SDL_LoadObject(path);
+        vulkan_config->loader_handle = SDL_LoadObject(path);
     }
-    if (!_this->vulkan_config.loader_handle) {
+    if (!vulkan_config->loader_handle) {
         return -1;
     }
-    SDL_strlcpy(_this->vulkan_config.loader_path, path,
-                SDL_arraysize(_this->vulkan_config.loader_path));
+    SDL_strlcpy(vulkan_config->loader_path, path,
+                SDL_arraysize(vulkan_config->loader_path));
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "vivante: Loaded vulkan driver %s", path);
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
-        _this->vulkan_config.loader_handle, "vkGetInstanceProcAddr");
+        vulkan_config->loader_handle, "vkGetInstanceProcAddr");
     if (!vkGetInstanceProcAddr) {
         goto fail;
     }
-    _this->vulkan_config.vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    _this->vulkan_config.vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
+    vulkan_config->vkEnumerateInstanceExtensionProperties =
+        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!_this->vulkan_config.vkEnumerateInstanceExtensionProperties) {
+    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
         (PFN_vkEnumerateInstanceExtensionProperties)
-            _this->vulkan_config.vkEnumerateInstanceExtensionProperties,
+            vulkan_config->vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions) {
         goto fail;
@@ -105,16 +104,16 @@ int VIVANTE_Vulkan_LoadLibrary(_THIS, const char *path)
     return 0;
 
 fail:
-    SDL_UnloadObject(_this->vulkan_config.loader_handle);
-    _this->vulkan_config.loader_handle = NULL;
+    SDL_UnloadObject(vulkan_config->loader_handle);
+    vulkan_config->loader_handle = NULL;
     return -1;
 }
 
-void VIVANTE_Vulkan_UnloadLibrary(_THIS)
+void VIVANTE_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
-    if (_this->vulkan_config.loader_handle) {
-        SDL_UnloadObject(_this->vulkan_config.loader_handle);
-        _this->vulkan_config.loader_handle = NULL;
+    if (vulkan_config->loader_handle) {
+        SDL_UnloadObject(vulkan_config->loader_handle);
+        vulkan_config->loader_handle = NULL;
     }
 }
 
@@ -130,16 +129,14 @@ SDL_bool VIVANTE_Vulkan_GetInstanceExtensions(SDL_Window *window,
         extensionsForVivante);
 }
 
-SDL_bool VIVANTE_Vulkan_CreateSurface(_THIS,
+SDL_bool VIVANTE_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                       SDL_Window *window,
                                       VkInstance instance,
                                       VkSurfaceKHR *surface)
 {
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        return SDL_FALSE;
-    }
-    return SDL_Vulkan_Display_CreateSurface(_this->vulkan_config.vkGetInstanceProcAddr, instance, surface);
+    SDL_assert(vulkan_config->loader_handle != NULL);
+
+    return SDL_Vulkan_Display_CreateSurface(vulkan_config->vkGetInstanceProcAddr, instance, surface);
 }
 
 #endif

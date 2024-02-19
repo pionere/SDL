@@ -146,6 +146,17 @@ struct SDL_VideoDisplay
 /* Forward declaration */
 struct SDL_SysWMinfo;
 
+/* * * */
+/* Data used by the Vulkan drivers */
+typedef struct SDL_VulkanVideo
+{
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
+    int loader_loaded;
+    char loader_path[256];
+    void *loader_handle;
+} SDL_VulkanVideo;
+
 /* Define the SDL video driver structure */
 #define _THIS SDL_VideoDevice *_this
 
@@ -291,10 +302,10 @@ struct SDL_VideoDevice
     /*
      * Vulkan support
      */
-    int (*Vulkan_LoadLibrary)(_THIS, const char *path);
-    void (*Vulkan_UnloadLibrary)(_THIS);
+    int (*Vulkan_LoadLibrary)(SDL_VulkanVideo *vulkan_config, const char *path);
+    void (*Vulkan_UnloadLibrary)(SDL_VulkanVideo *vulkan_config);
     SDL_bool (*Vulkan_GetInstanceExtensions)(SDL_Window *window, unsigned *count, const char **names);
-    SDL_bool (*Vulkan_CreateSurface)(_THIS, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
+    SDL_bool (*Vulkan_CreateSurface)(SDL_VulkanVideo *vulkan_config, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
     void (*Vulkan_GetDrawableSize)(SDL_Window *window, int *w, int *h);
 
     /* * * */
@@ -419,14 +430,7 @@ struct SDL_VideoDevice
 
     /* * * */
     /* Data used by the Vulkan drivers */
-    struct
-    {
-        PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
-        PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
-        int loader_loaded;
-        char loader_path[256];
-        void *loader_handle;
-    } vulkan_config;
+    SDL_VulkanVideo vulkan_config;
 
     /* * * */
     /* Data private to this driver */

@@ -43,7 +43,7 @@
 #define DEFAULT_VULKAN "libvulkan.so.1"
 #endif
 
-int KMSDRM_Vulkan_LoadLibrary(_THIS, const char *path)
+int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
     VkExtensionProperties *extensions = NULL;
     Uint32 i, extensionCount = 0;
@@ -51,9 +51,7 @@ int KMSDRM_Vulkan_LoadLibrary(_THIS, const char *path)
     SDL_bool hasDisplayExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
 
-    if (_this->vulkan_config.loader_handle) {
-        return SDL_SetError("Vulkan already loaded");
-    }
+    SDL_assert(vulkan_config->loader_handle == NULL);
 
     /* Load the Vulkan library */
     if (!path) {
@@ -63,34 +61,34 @@ int KMSDRM_Vulkan_LoadLibrary(_THIS, const char *path)
         path = DEFAULT_VULKAN;
     }
 
-    _this->vulkan_config.loader_handle = SDL_LoadObject(path);
+    vulkan_config->loader_handle = SDL_LoadObject(path);
 
-    if (!_this->vulkan_config.loader_handle) {
+    if (!vulkan_config->loader_handle) {
         return -1;
     }
 
-    SDL_strlcpy(_this->vulkan_config.loader_path, path,
-                SDL_arraysize(_this->vulkan_config.loader_path));
+    SDL_strlcpy(vulkan_config->loader_path, path,
+                SDL_arraysize(vulkan_config->loader_path));
 
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
-        _this->vulkan_config.loader_handle, "vkGetInstanceProcAddr");
+        vulkan_config->loader_handle, "vkGetInstanceProcAddr");
 
     if (!vkGetInstanceProcAddr) {
         goto fail;
     }
 
-    _this->vulkan_config.vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    _this->vulkan_config.vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
+    vulkan_config->vkEnumerateInstanceExtensionProperties =
+        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
 
-    if (!_this->vulkan_config.vkEnumerateInstanceExtensionProperties) {
+    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
 
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
         (PFN_vkEnumerateInstanceExtensionProperties)
-            _this->vulkan_config.vkEnumerateInstanceExtensionProperties,
+            vulkan_config->vkEnumerateInstanceExtensionProperties,
         &extensionCount);
 
     if (!extensions) {
@@ -118,16 +116,16 @@ int KMSDRM_Vulkan_LoadLibrary(_THIS, const char *path)
     return 0;
 
 fail:
-    SDL_UnloadObject(_this->vulkan_config.loader_handle);
-    _this->vulkan_config.loader_handle = NULL;
+    SDL_UnloadObject(vulkan_config->loader_handle);
+    vulkan_config->loader_handle = NULL;
     return -1;
 }
 
-void KMSDRM_Vulkan_UnloadLibrary(_THIS)
+void KMSDRM_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
-    if (_this->vulkan_config.loader_handle) {
-        SDL_UnloadObject(_this->vulkan_config.loader_handle);
-        _this->vulkan_config.loader_handle = NULL;
+    if (vulkan_config->loader_handle) {
+        SDL_UnloadObject(vulkan_config->loader_handle);
+        vulkan_config->loader_handle = NULL;
     }
 }
 
@@ -172,7 +170,7 @@ void KMSDRM_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 /* KMSDRM_Vulkan_GetInstanceExtensions(), like we do with              */
 /* VK_KHR_DISPLAY_EXTENSION_NAME, which is what we need for x-less VK. */
 /***********************************************************************/
-SDL_bool KMSDRM_Vulkan_CreateSurface(_THIS,
+SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                      SDL_Window *window,
                                      VkInstance instance,
                                      VkSurfaceKHR *surface)
@@ -214,7 +212,7 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(_THIS,
 
     /* Get the function pointers for the functions we will use. */
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
-        (PFN_vkGetInstanceProcAddr)_this->vulkan_config.vkGetInstanceProcAddr;
+        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
 
     PFN_vkCreateDisplayPlaneSurfaceKHR vkCreateDisplayPlaneSurfaceKHR =
         (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(
@@ -252,10 +250,7 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(_THIS,
         (PFN_vkCreateDisplayModeKHR)vkGetInstanceProcAddr(
             instance, "vkCreateDisplayModeKHR");
 
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        goto clean;
-    }
+    SDL_assert(vulkan_config->loader_handle != NULL);
 
     /*************************************/
     /* Block for vulkan surface creation */

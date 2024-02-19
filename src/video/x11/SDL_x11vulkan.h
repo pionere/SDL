@@ -24,18 +24,19 @@
 #define SDL_x11vulkan_h_
 
 #include "../SDL_vulkan_internal.h"
+#include "../SDL_sysvideo.h"
 
 #if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_X11)
 
 /*typedef struct xcb_connection_t xcb_connection_t;*/
 typedef xcb_connection_t *(*PFN_XGetXCBConnection)(Display *dpy);
 
-int X11_Vulkan_LoadLibrary(_THIS, const char *path);
-void X11_Vulkan_UnloadLibrary(_THIS);
+int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
+void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
 SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                           unsigned *count,
                                           const char **names);
-SDL_bool X11_Vulkan_CreateSurface(_THIS,
+SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface);

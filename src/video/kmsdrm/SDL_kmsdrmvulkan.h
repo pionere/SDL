@@ -34,13 +34,13 @@
 
 #if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_KMSDRM)
 
-int KMSDRM_Vulkan_LoadLibrary(_THIS, const char *path);
-void KMSDRM_Vulkan_UnloadLibrary(_THIS);
+int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
+void KMSDRM_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
 SDL_bool KMSDRM_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                              unsigned *count,
                                              const char **names);
 void KMSDRM_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h);
-SDL_bool KMSDRM_Vulkan_CreateSurface(_THIS,
+SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                      SDL_Window *window,
                                      VkInstance instance,
                                      VkSurfaceKHR *surface);
