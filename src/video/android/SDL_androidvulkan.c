@@ -109,18 +109,13 @@ void Android_Vulkan_UnloadLibrary(_THIS)
     }
 }
 
-SDL_bool Android_Vulkan_GetInstanceExtensions(_THIS,
-                                              SDL_Window *window,
+SDL_bool Android_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                               unsigned *count,
                                               const char **names)
 {
     static const char *const extensionsForAndroid[] = {
         VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
     };
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        return SDL_FALSE;
-    }
     return SDL_Vulkan_GetInstanceExtensions_Helper(
         count, names, SDL_arraysize(extensionsForAndroid),
         extensionsForAndroid);

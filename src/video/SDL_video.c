@@ -4783,7 +4783,7 @@ SDL_bool SDL_Vulkan_GetInstanceExtensions(SDL_Window *window, unsigned *count, c
         return SDL_FALSE;
     }
 
-    return _this->Vulkan_GetInstanceExtensions(_this, window, count, names);
+    return _this->Vulkan_GetInstanceExtensions(window, count, names);
 }
 
 SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,

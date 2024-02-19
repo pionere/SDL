@@ -141,16 +141,11 @@ void X11_Vulkan_UnloadLibrary(_THIS)
     }
 }
 
-SDL_bool X11_Vulkan_GetInstanceExtensions(_THIS,
-                                          SDL_Window *window,
+SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                           unsigned *count,
                                           const char **names)
 {
     X11_VideoData *videoData = &x11VideoData;
-    if (!_this->vulkan_config.loader_handle) {
-        SDL_SetError("Vulkan is not loaded");
-        return SDL_FALSE;
-    }
     if (videoData->vulkan_xlib_xcb_library) {
         static const char *const extensionsForXCB[] = {
             VK_KHR_SURFACE_EXTENSION_NAME,

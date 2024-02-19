@@ -31,8 +31,7 @@
 
 int DirectFB_Vulkan_LoadLibrary(_THIS, const char *path);
 void DirectFB_Vulkan_UnloadLibrary(_THIS);
-SDL_bool DirectFB_Vulkan_GetInstanceExtensions(_THIS,
-                                          SDL_Window *window,
+SDL_bool DirectFB_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                           unsigned *count,
                                           const char **names);
 SDL_bool DirectFB_Vulkan_CreateSurface(_THIS,

@@ -37,8 +37,7 @@
 
 int Cocoa_Vulkan_LoadLibrary(_THIS, const char *path);
 void Cocoa_Vulkan_UnloadLibrary(_THIS);
-SDL_bool Cocoa_Vulkan_GetInstanceExtensions(_THIS,
-                                          SDL_Window *window,
+SDL_bool Cocoa_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                           unsigned *count,
                                           const char **names);
 SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
