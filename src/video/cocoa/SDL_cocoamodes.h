@@ -35,7 +35,7 @@ typedef struct
 
 extern void Cocoa_InitModes(_THIS);
 extern int Cocoa_GetDisplayBounds(SDL_VideoDisplay * display, SDL_Rect * rect);
-extern int Cocoa_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * rect);
+extern int Cocoa_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect);
 extern void Cocoa_GetDisplayModes(SDL_VideoDisplay * display);
 extern int Cocoa_GetDisplayDPI(SDL_VideoDisplay * display, float * ddpi, float * hpdi, float * vdpi);
 extern int Cocoa_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);

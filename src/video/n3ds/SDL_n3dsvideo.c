@@ -147,9 +147,7 @@ static void N3DS_GetDisplayModes(SDL_VideoDisplay *display)
 static int N3DS_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     DisplayDriverData *driver_data = (DisplayDriverData *)display->driverdata;
-    if (!driver_data) {
-        return -1;
-    }
+
     rect->x = 0;
     rect->y = (driver_data->screen == GFX_TOP) ? 0 : GSP_SCREEN_WIDTH;
     rect->w = display->current_mode.w;

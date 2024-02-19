@@ -771,24 +771,30 @@ int SDL_GetDisplayBounds(int displayIndex, SDL_Rect *rect)
     }
 
     display = &_this->displays[displayIndex];
+    SDL_PrivateGetDisplayBounds(display, rect);
+    return 0;
+}
+
+void SDL_PrivateGetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
+{
+    SDL_assert(display >= &_this->displays[0] && display < &_this->displays[_this->num_displays]);
+    SDL_assert(rect != NULL);
 
     if (_this->GetDisplayBounds) {
         if (_this->GetDisplayBounds(display, rect) == 0) {
-            return 0;
+            return;
         }
     }
 
     /* Assume that the displays are left to right */
-    if (displayIndex == 0) {
-        rect->x = 0;
-        rect->y = 0;
-    } else {
-        SDL_GetDisplayBounds(displayIndex - 1, rect);
-        rect->x += rect->w;
-    }
+    rect->x = 0;
+    rect->y = 0;
     rect->w = display->current_mode.w;
     rect->h = display->current_mode.h;
-    return 0;
+    while (display > &_this->displays[0]) {
+        display--;
+        rect->x += display->current_mode.w;
+    }
 }
 
 static int ParseDisplayUsableBoundsHint(SDL_Rect *rect)
@@ -814,13 +820,14 @@ int SDL_GetDisplayUsableBounds(int displayIndex, SDL_Rect *rect)
     }
 
     if (_this->GetDisplayUsableBounds) {
-        if (_this->GetDisplayUsableBounds(_this, display, rect) == 0) {
+        if (_this->GetDisplayUsableBounds(display, rect) == 0) {
             return 0;
         }
     }
 
     /* Oh well, just give the entire display bounds. */
-    return SDL_GetDisplayBounds(displayIndex, rect);
+    SDL_PrivateGetDisplayBounds(display, rect);
+    return 0;
 }
 
 int SDL_GetDisplayDPI(int displayIndex, float *ddpi, float *hdpi, float *vdpi)
@@ -1266,7 +1273,7 @@ int SDL_GetWindowDisplayIndex(SDL_Window *window)
             return displayIndex;
         }
 
-        displayIndex =  GetRectDisplayIndex(window->x, window->y, window->w, window->h);
+        displayIndex = GetRectDisplayIndex(window->x, window->y, window->w, window->h);
 
         /* Find the display containing the window if fullscreen */
         for (i = 0; i < _this->num_displays; ++i) {
@@ -1765,11 +1772,9 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
         SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
         SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-        int displayIndex;
         SDL_Rect bounds;
 
-        displayIndex = SDL_GetIndexOfDisplay(display);
-        SDL_GetDisplayBounds(displayIndex, &bounds);
+        SDL_PrivateGetDisplayBounds(display, &bounds);
         if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
             window->x = bounds.x + (bounds.w - w) / 2;
         }
@@ -1784,11 +1789,9 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
 
     if (flags & SDL_WINDOW_FULLSCREEN) {
         SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-        int displayIndex;
         SDL_Rect bounds;
 
-        displayIndex = SDL_GetIndexOfDisplay(display);
-        SDL_GetDisplayBounds(displayIndex, &bounds);
+        SDL_PrivateGetDisplayBounds(display, &bounds);
 
         /* for real fullscreen we might switch the resolution, so get width and height
          * from closest supported mode and use that instead of current resolution
@@ -2227,8 +2230,6 @@ void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
             displayIndex = 0;
         }
 
-        SDL_zero(bounds);
-
         SDL_GetDisplayBounds(displayIndex, &bounds);
         if (SDL_WINDOWPOS_ISCENTERED(x)) {
             x = bounds.x + (bounds.w - window->windowed.w) / 2;
@@ -2279,8 +2280,6 @@ void SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
         displayIndex = SDL_GetWindowDisplayIndex(window);
         if (displayIndex >= 0) {
             SDL_Rect bounds;
-
-            SDL_zero(bounds);
 
             SDL_GetDisplayBounds(displayIndex, &bounds);
             if (x) {

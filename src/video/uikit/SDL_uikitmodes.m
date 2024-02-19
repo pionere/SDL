@@ -470,18 +470,15 @@ int UIKit_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
     return 0;
 }
 
-int UIKit_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * rect)
+int UIKit_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect)
 {
     @autoreleasepool {
-        int displayIndex = (int) (display - _this->displays);
         SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;
         CGRect frame = data.uiscreen.bounds;
 
         /* the default function iterates displays to make a fake offset,
          as if all the displays were side-by-side, which is fine for iOS. */
-        if (SDL_GetDisplayBounds(displayIndex, rect) < 0) {
-            return -1;
-        }
+        SDL_PrivateGetDisplayBounds(display, rect);
 
         rect->x += frame.origin.x;
         rect->y += frame.origin.y;

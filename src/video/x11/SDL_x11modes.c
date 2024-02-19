@@ -854,7 +854,7 @@ int X11_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, f
     return data->ddpi != 0.0f ? 0 : SDL_SetError("Couldn't get DPI");
 }
 
-int X11_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *sdl_display, SDL_Rect *rect)
+int X11_GetDisplayUsableBounds(SDL_VideoDisplay *sdl_display, SDL_Rect *rect)
 {
     X11_VideoData *data = &x11VideoData;
     Display *display = data->display;

@@ -200,7 +200,7 @@ struct SDL_VideoDevice
     /*
      * Get the usable bounds of a display (bounds minus menubar or whatever)
      */
-    int (*GetDisplayUsableBounds)(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
+    int (*GetDisplayUsableBounds)(SDL_VideoDisplay *display, SDL_Rect *rect);
 
     /*
      * Get the dots/pixels-per-inch of a display
@@ -486,6 +486,7 @@ extern SDL_bool SDL_OnVideoThread(void);
 extern SDL_VideoDevice *SDL_GetVideoDevice(void);
 extern int SDL_AddBasicVideoDisplay(const SDL_DisplayMode *desktop_mode);
 extern int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event);
+extern void SDL_PrivateGetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 extern void SDL_DelVideoDisplay(int index);
 extern SDL_bool SDL_AddDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode);
 extern void SDL_SetCurrentDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode);

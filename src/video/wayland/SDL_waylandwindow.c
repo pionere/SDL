@@ -1082,7 +1082,7 @@ static void Wayland_move_window(SDL_Window *window,
              *
              * -flibit
              */
-            SDL_GetDisplayBounds(i, &bounds);
+            SDL_PrivateGetDisplayBounds(display, &bounds);
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, bounds.x, bounds.y);
 
             /*

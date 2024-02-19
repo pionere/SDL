@@ -62,7 +62,7 @@ extern int X11_GetVisualInfoFromVisual(Display *display, Visual *visual,
 extern Uint32 X11_GetPixelFormatFromVisualInfo(Display *display,
                                                XVisualInfo *vinfo);
 extern int X11_GetDisplayBounds(SDL_VideoDisplay *sdl_display, SDL_Rect *rect);
-extern int X11_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *sdl_display, SDL_Rect *rect);
+extern int X11_GetDisplayUsableBounds(SDL_VideoDisplay *sdl_display, SDL_Rect *rect);
 extern int X11_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi);
 
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR

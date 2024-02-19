@@ -390,7 +390,7 @@ int Cocoa_GetDisplayBounds(SDL_VideoDisplay * display, SDL_Rect * rect)
     return 0;
 }
 
-int Cocoa_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * rect)
+int Cocoa_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect)
 {
     SDL_DisplayData *displaydata = (SDL_DisplayData *) display->driverdata;
     const CGDirectDisplayID cgdisplay = displaydata->display;

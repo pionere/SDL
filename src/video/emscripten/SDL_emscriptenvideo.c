@@ -40,7 +40,7 @@
 static int Emscripten_VideoInit(_THIS);
 static int Emscripten_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 static void Emscripten_VideoQuit(_THIS);
-static int Emscripten_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect);
+static int Emscripten_GetDisplayUsableBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 static int Emscripten_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
 
 static int Emscripten_CreateWindow(_THIS, SDL_Window *window);
@@ -157,7 +157,7 @@ static void Emscripten_VideoQuit(_THIS)
     Emscripten_FiniMouse();
 }
 
-static int Emscripten_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay *display, SDL_Rect *rect)
+static int Emscripten_GetDisplayUsableBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
     if (rect) {
         rect->x = 0;

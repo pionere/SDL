@@ -49,7 +49,7 @@ extern void UIKit_GetDisplayModes(SDL_VideoDisplay * display);
 extern int UIKit_GetDisplayDPI(SDL_VideoDisplay * display, float * ddpi, float * hdpi, float * vdpi);
 extern int UIKit_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
 extern void UIKit_QuitModes(_THIS);
-extern int UIKit_GetDisplayUsableBounds(_THIS, SDL_VideoDisplay * display, SDL_Rect * rect);
+extern int UIKit_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect);
 
 #endif /* SDL_uikitmodes_h_ */
 
