@@ -747,12 +747,11 @@ static void Wayland_free_display(uint32_t id)
                     }
                 }
             }
-            SDL_DelVideoDisplay(i);
             if (data->xdg_output) {
                 zxdg_output_v1_destroy(data->xdg_output);
             }
             wl_output_destroy(data->output);
-            SDL_free(data);
+            SDL_DelVideoDisplay(i);
 
             /* Update the index for all remaining displays */
             num_displays -= 1;
