@@ -153,7 +153,7 @@ SDL_bool KMSDRM_Vulkan_GetInstanceExtensions(SDL_Window *window,
         extensionsForKMSDRM);
 }
 
-void KMSDRM_Vulkan_GetDrawableSize(_THIS, SDL_Window *window, int *w, int *h)
+void KMSDRM_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
     if (w) {
         *w = window->w;

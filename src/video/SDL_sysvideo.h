@@ -280,7 +280,7 @@ struct SDL_VideoDevice
     void (*GL_UnloadLibrary) (_THIS);
       SDL_GLContext(*GL_CreateContext) (_THIS, SDL_Window * window);
     int (*GL_MakeCurrent) (_THIS, SDL_Window * window, SDL_GLContext context);
-    void (*GL_GetDrawableSize) (_THIS, SDL_Window * window, int *w, int *h);
+    void (*GL_GetDrawableSize) (SDL_Window * window, int *w, int *h);
     int (*GL_SetSwapInterval) (_THIS, int interval);
     int (*GL_GetSwapInterval) (_THIS);
     int (*GL_SwapWindow) (_THIS, SDL_Window * window);
@@ -295,7 +295,7 @@ struct SDL_VideoDevice
     void (*Vulkan_UnloadLibrary)(_THIS);
     SDL_bool (*Vulkan_GetInstanceExtensions)(SDL_Window *window, unsigned *count, const char **names);
     SDL_bool (*Vulkan_CreateSurface)(_THIS, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
-    void (*Vulkan_GetDrawableSize)(_THIS, SDL_Window *window, int *w, int *h);
+    void (*Vulkan_GetDrawableSize)(SDL_Window *window, int *w, int *h);
 
     /* * * */
     /*

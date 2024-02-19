@@ -4150,7 +4150,7 @@ void SDL_GL_GetDrawableSize(SDL_Window * window, int *w, int *h)
     CHECK_WINDOW_MAGIC(window, );
 
     if (_this->GL_GetDrawableSize) {
-        _this->GL_GetDrawableSize(_this, window, w, h);
+        _this->GL_GetDrawableSize(window, w, h);
     } else {
         SDL_GetWindowSizeInPixels(window, w, h);
     }
@@ -4815,7 +4815,7 @@ void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
     CHECK_WINDOW_MAGIC(window, );
 
     if (_this->Vulkan_GetDrawableSize) {
-        _this->Vulkan_GetDrawableSize(_this, window, w, h);
+        _this->Vulkan_GetDrawableSize(window, w, h);
     } else {
         SDL_GetWindowSizeInPixels(window, w, h);
     }

@@ -253,7 +253,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(_THIS,
     return SDL_TRUE;
 }
 
-void Cocoa_Vulkan_GetDrawableSize(_THIS, SDL_Window *window, int *w, int *h)
+void Cocoa_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
     Cocoa_Metal_GetDrawableSize(window, w, h);
 }
