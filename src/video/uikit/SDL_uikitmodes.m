@@ -333,15 +333,16 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
 
 void UIKit_DelDisplay(UIScreen *uiscreen)
 {
-    int i;
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
 
-    for (i = 0; i < SDL_GetNumVideoDisplays(); ++i) {
-        SDL_DisplayData *data = (__bridge SDL_DisplayData *)SDL_GetDisplayDriverData(i);
+    for (i = 0; i < num_displays; ++i) {
+        SDL_DisplayData *data = (__bridge SDL_DisplayData *)displays[i].driverdata;
 
         if (data && data.uiscreen == uiscreen) {
-            CFRelease(SDL_GetDisplayDriverData(i));
+            CFRelease(displays[i].driverdata);
             SDL_DelVideoDisplay(i);
-            return;
+            break;
         }
     }
 }

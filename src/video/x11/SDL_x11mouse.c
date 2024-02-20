@@ -405,8 +405,8 @@ static Uint32 X11_GetGlobalMouseState(int *x, int *y)
 {
     X11_VideoData *videodata = &x11VideoData;
     Display *display = GetDisplay();
-    const int num_screens = SDL_GetNumVideoDisplays();
-    int i;
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
 
     /* !!! FIXME: should we XSync() here first? */
 
@@ -417,8 +417,8 @@ static Uint32 X11_GetGlobalMouseState(int *x, int *y)
     /* check if we have this cached since XInput last saw the mouse move. */
     /* !!! FIXME: can we just calculate this from XInput's events? */
     if (videodata->global_mouse_changed) {
-        for (i = 0; i < num_screens; i++) {
-            SDL_DisplayData *data = (SDL_DisplayData *)SDL_GetDisplayDriverData(i);
+        for (i = 0; i < num_displays; i++) {
+            SDL_DisplayData *data = (SDL_DisplayData *)displays[i].driverdata;
             if (data) {
                 Window root, child;
                 int rootx, rooty, winx, winy;

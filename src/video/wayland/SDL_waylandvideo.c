@@ -725,14 +725,12 @@ static void Wayland_add_display(uint32_t id)
 static void Wayland_free_display(uint32_t id)
 {
     Wayland_VideoData *d = &waylandVideoData;
-    int num_displays = SDL_GetNumVideoDisplays();
-    SDL_VideoDisplay *display;
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
     SDL_WaylandOutputData *data;
-    int i;
 
     for (i = 0; i < num_displays; i += 1) {
-        display = SDL_GetDisplay(i);
-        data = (SDL_WaylandOutputData *)display->driverdata;
+        data = (SDL_WaylandOutputData *)displays[i].driverdata;
         if (data->registry_id == id) {
             if (d->output_list) {
                 SDL_WaylandOutputData *node = d->output_list;
@@ -756,12 +754,11 @@ static void Wayland_free_display(uint32_t id)
             /* Update the index for all remaining displays */
             num_displays -= 1;
             for (; i < num_displays; i += 1) {
-                display = SDL_GetDisplay(i);
-                data = (SDL_WaylandOutputData *)display->driverdata;
+                data = (SDL_WaylandOutputData *)displays[i].driverdata;
                 data->index -= 1;
             }
 
-            return;
+            break;
         }
     }
 }

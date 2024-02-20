@@ -1036,10 +1036,11 @@ static void Wayland_move_window(SDL_Window *window,
     SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
     SDL_VideoDisplay *display;
     SDL_bool fs_display_changed = SDL_FALSE;
-    int i, j;
-    const int numdisplays = SDL_GetNumVideoDisplays();
-    for (i = 0; i < numdisplays; i += 1) {
-        display = SDL_GetDisplay(i);
+    int num_displays, i, j;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+
+    for (i = 0; i < num_displays; i += 1) {
+        display = &displays[i];
         if (display->driverdata == driverdata) {
             SDL_Rect bounds;
 
@@ -1051,8 +1052,8 @@ static void Wayland_move_window(SDL_Window *window,
                 }
 
                 /* Find the window and move it to the target display. */
-                for (j = 0; j < numdisplays; ++j) {
-                    SDL_VideoDisplay *v = SDL_GetDisplay(j);
+                for (j = 0; j < num_displays; ++j) {
+                    SDL_VideoDisplay *v = &displays[j];
 
                     if (v->fullscreen_window == window) {
                         v->fullscreen_window = NULL;

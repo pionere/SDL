@@ -147,7 +147,7 @@ typedef struct X11_VideoData
     Time filter_time;
 
 #ifdef SDL_VIDEO_VULKAN
-    /* Vulkan variables only valid if _this->vulkan_data.loader_handle is not NULL */
+    /* Vulkan variables only valid if _this->vulkan_config.loader_handle is not NULL */
     void *vulkan_xlib_xcb_library;
     PFN_XGetXCBConnection vulkan_XGetXCBConnection;
 #endif

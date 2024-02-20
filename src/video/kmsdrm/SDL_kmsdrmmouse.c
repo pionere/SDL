@@ -296,7 +296,7 @@ cleanup:
 /* Show the specified cursor, or hide if cursor is NULL or has no focus. */
 static int KMSDRM_ShowCursor(SDL_Cursor *cursor)
 {
-    SDL_VideoDisplay *display;
+    SDL_VideoDisplay *displays, *display;
     SDL_Window *window;
     SDL_Mouse *mouse;
 
@@ -321,11 +321,11 @@ static int KMSDRM_ShowCursor(SDL_Cursor *cursor)
            the mouse focus has been unset, yet SDL wants to
            restore the system default cursor (makes no sense here). */
 
-        num_displays = SDL_GetNumVideoDisplays();
+        displays = SDL_GetDisplays(&num_displays);
 
         /* Iterate on the displays hidding the cursor. */
         for (i = 0; i < num_displays; i++) {
-            display = SDL_GetDisplay(i);
+            display = &displays[i];
             ret = KMSDRM_RemoveCursorFromBO(display);
         }
 

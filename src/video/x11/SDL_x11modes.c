@@ -391,17 +391,17 @@ static int X11_AddXRandRDisplay(_THIS, Display *dpy, int screen, RROutput output
 
 static void X11_HandleXRandROutputChange(_THIS, const XRROutputChangeNotifyEvent *ev)
 {
-    const int num_displays = SDL_GetNumVideoDisplays();
     SDL_VideoDisplay *display = NULL;
     int displayidx = -1;
-    int i;
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
 
 #if 0
     printf("XRROutputChangeNotifyEvent! [output=%u, crtc=%u, mode=%u, rotation=%u, connection=%u]", (unsigned int) ev->output, (unsigned int) ev->crtc, (unsigned int) ev->mode, (unsigned int) ev->rotation, (unsigned int) ev->connection);
 #endif
 
     for (i = 0; i < num_displays; i++) {
-        SDL_VideoDisplay *thisdisplay = SDL_GetDisplay(i);
+        SDL_VideoDisplay *thisdisplay = &displays[i];
         const SDL_DisplayData *displaydata = (const SDL_DisplayData *)thisdisplay->driverdata;
         if (displaydata->xrandr_output == ev->output) {
             display = thisdisplay;

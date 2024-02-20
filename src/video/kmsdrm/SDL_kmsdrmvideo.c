@@ -486,14 +486,13 @@ static void KMSDRM_DeinitDisplays(_THIS)
 
     SDL_DisplayData *dispdata;
     int num_displays, i;
-
-    num_displays = SDL_GetNumVideoDisplays();
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
 
     /* Iterate on the SDL Display list. */
     for (i = 0; i < num_displays; i++) {
 
         /* Get the driverdata for this display */
-        dispdata = (SDL_DisplayData *)SDL_GetDisplayDriverData(i);
+        dispdata = (SDL_DisplayData *)displays[i].driverdata;
 
         /* Free connector */
         if (dispdata && dispdata->connector) {

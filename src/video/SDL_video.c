@@ -727,6 +727,14 @@ int SDL_GetNumVideoDisplays(void)
     return _this->num_displays;
 }
 
+SDL_VideoDisplay *SDL_GetDisplays(int *num_displays)
+{
+    SDL_assert(_this != NULL);
+    SDL_assert(num_displays != NULL);
+    *num_displays = _this->num_displays;
+    return &_this->displays[0];
+}
+
 int SDL_GetIndexOfDisplay(SDL_VideoDisplay *display)
 {
     int displayIndex;
