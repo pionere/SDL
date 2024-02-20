@@ -1050,7 +1050,7 @@ static int RAWINPUT_JoystickGetCount(void)
     return SDL_RAWINPUT_numjoysticks;
 }
 
-SDL_bool RAWINPUT_IsEnabled()
+SDL_bool RAWINPUT_IsEnabled(void)
 {
     return SDL_RAWINPUT_inited && !SDL_RAWINPUT_remote_desktop;
 }
@@ -2087,7 +2087,7 @@ int RAWINPUT_RegisterNotifications(HWND hWnd)
     return 0;
 }
 
-int RAWINPUT_UnregisterNotifications()
+int RAWINPUT_UnregisterNotifications(void)
 {
     int i;
     RAWINPUTDEVICE rid[SDL_arraysize(subscribed_devices)];

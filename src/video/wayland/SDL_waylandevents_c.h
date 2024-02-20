@@ -154,10 +154,10 @@ extern void Wayland_add_primary_selection_device_manager(uint32_t id, uint32_t v
 extern void Wayland_add_text_input_manager(uint32_t id, uint32_t version);
 
 extern void Wayland_display_add_input(uint32_t id, uint32_t version);
-extern void Wayland_display_destroy_input();
+extern void Wayland_display_destroy_input(void);
 
 extern void Wayland_display_add_pointer_constraints(uint32_t id);
-extern void Wayland_display_destroy_pointer_constraints();
+extern void Wayland_display_destroy_pointer_constraints(void);
 
 extern int Wayland_input_lock_pointer(struct SDL_WaylandInput *input);
 extern int Wayland_input_unlock_pointer(struct SDL_WaylandInput *input);
@@ -166,12 +166,12 @@ extern int Wayland_input_confine_pointer(struct SDL_WaylandInput *input, SDL_Win
 extern int Wayland_input_unconfine_pointer(struct SDL_WaylandInput *input, SDL_Window *window);
 
 extern void Wayland_display_add_relative_pointer_manager(uint32_t id);
-extern void Wayland_display_destroy_relative_pointer_manager();
+extern void Wayland_display_destroy_relative_pointer_manager(void);
 
 extern int Wayland_input_grab_keyboard(SDL_Window *window, struct SDL_WaylandInput *input);
 extern int Wayland_input_ungrab_keyboard(SDL_Window *window);
 
-extern void Wayland_input_add_tablet();
+extern void Wayland_input_add_tablet(void);
 
 #endif /* SDL_waylandevents_h_ */
 

@@ -26,10 +26,10 @@
 extern int X11_InitKeyboard(_THIS);
 extern void X11_UpdateKeymap(_THIS, SDL_bool send_event);
 extern void X11_QuitKeyboard(_THIS);
-extern void X11_StartTextInput();
-extern void X11_StopTextInput();
+extern void X11_StartTextInput(void);
+extern void X11_StopTextInput(void);
 extern void X11_SetTextInputRect(const SDL_Rect *rect);
-extern SDL_bool X11_HasScreenKeyboardSupport();
+extern SDL_bool X11_HasScreenKeyboardSupport(void);
 extern void X11_ShowScreenKeyboard(SDL_Window *window);
 extern void X11_HideScreenKeyboard(SDL_Window *window);
 extern SDL_bool X11_IsScreenKeyboardShown(SDL_Window *window);

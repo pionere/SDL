@@ -63,7 +63,7 @@ void NGAGE_PumpEvents(_THIS)
 #include <bautils.h>
 #include <hal.h>
 
-extern void DisableKeyBlocking();
+extern void DisableKeyBlocking(void);
 extern void RedrawWindowL(_THIS);
 
 TBool isCursorVisible = EFalse;

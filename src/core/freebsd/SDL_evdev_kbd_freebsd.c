@@ -226,7 +226,6 @@ SDL_EVDEV_keyboard_state *SDL_EVDEV_kbd_init(void)
     SDL_EVDEV_keyboard_state *kbd;
     struct mouse_info mData;
     char flag_state;
-    char *devicePath;
 
     SDL_zero(mData);
     mData.operation = MOUSE_HIDE;

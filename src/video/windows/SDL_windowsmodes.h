@@ -46,7 +46,7 @@ extern void WIN_RefreshDisplays(_THIS);
 extern void WIN_InitModes(_THIS);
 extern void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut);
 extern void WIN_ScreenPointToSDL(int *x, int *y);
-extern void WIN_QuitModes();
+extern void WIN_QuitModes(void);
 
 #endif /* SDL_windowsmodes_h_ */
 

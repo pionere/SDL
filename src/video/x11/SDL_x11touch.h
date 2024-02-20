@@ -23,9 +23,9 @@
 #ifndef SDL_x11touch_h_
 #define SDL_x11touch_h_
 
-extern void X11_InitTouch();
-extern void X11_QuitTouch();
-extern void X11_ResetTouch();
+extern void X11_InitTouch(void);
+extern void X11_QuitTouch(void);
+extern void X11_ResetTouch(void);
 
 #endif /* SDL_x11touch_h_ */
 

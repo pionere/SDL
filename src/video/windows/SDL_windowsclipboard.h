@@ -27,7 +27,7 @@ extern int WIN_SetClipboardText(_THIS, const char *text);
 extern char *WIN_GetClipboardText(_THIS);
 extern SDL_bool WIN_HasClipboardText(_THIS);
 
-extern void WIN_CheckClipboardUpdate();
+extern void WIN_CheckClipboardUpdate(void);
 
 #endif /* SDL_windowsclipboard_h_ */
 

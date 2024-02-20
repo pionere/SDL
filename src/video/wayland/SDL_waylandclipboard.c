@@ -108,7 +108,7 @@ char *Wayland_GetClipboardText(_THIS)
     return text;
 }
 
-char *Wayland_GetPrimarySelectionText()
+char *Wayland_GetPrimarySelectionText(void)
 {
     Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
@@ -152,7 +152,7 @@ SDL_bool Wayland_HasClipboardText(_THIS)
     return result;
 }
 
-SDL_bool Wayland_HasPrimarySelectionText()
+SDL_bool Wayland_HasPrimarySelectionText(void)
 {
     Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;

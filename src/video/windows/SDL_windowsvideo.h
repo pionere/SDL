@@ -359,7 +359,7 @@ extern WIN_VideoData winVideoData;
 typedef struct IDirect3D9 IDirect3D9;
 extern SDL_bool D3D_LoadDLL(void **pD3DDLL, IDirect3D9 **pDirect3D9Interface);
 
-extern SDL_bool WIN_IsPerMonitorV2DPIAware();
+extern SDL_bool WIN_IsPerMonitorV2DPIAware(void);
 
 #endif /* SDL_windowsvideo_h_ */
 

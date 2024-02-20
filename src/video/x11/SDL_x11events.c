@@ -351,7 +351,7 @@ static void X11_HandleGenericEvent(XEvent *xev)
 }
 #endif /* SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS */
 
-static unsigned X11_GetNumLockModifierMask()
+static unsigned X11_GetNumLockModifierMask(void)
 {
     X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;
@@ -376,7 +376,7 @@ static unsigned X11_GetNumLockModifierMask()
     return num_mask;
 }
 
-static unsigned X11_GetScrollLockModifierMask()
+static unsigned X11_GetScrollLockModifierMask(void)
 {
     X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;
@@ -401,7 +401,7 @@ static unsigned X11_GetScrollLockModifierMask()
     return num_mask;
 }
 
-void X11_ReconcileKeyboardState()
+void X11_ReconcileKeyboardState(void)
 {
     X11_VideoData *viddata = &x11VideoData;
     Display *display = viddata->display;

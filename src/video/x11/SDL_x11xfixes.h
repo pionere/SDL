@@ -28,7 +28,7 @@
 
 #define X11_BARRIER_HANDLED_BY_EVENT 1
 
-extern void X11_InitXfixes();
+extern void X11_InitXfixes(void);
 extern int X11_XfixesIsInitialized(void);
 extern void X11_SetWindowMouseRect(SDL_Window *window);
 extern int X11_ConfineCursorWithFlags(SDL_Window *window, const SDL_Rect *rect, int flags);

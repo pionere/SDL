@@ -2338,14 +2338,14 @@ static void EGLTransparencyChangedCallback(void *userdata, const char *name, con
     }
 }
 
-void Wayland_InitWin()
+void Wayland_InitWin(void)
 {
     Wayland_VideoData *data = &waylandVideoData;
     data->egl_transparency_enabled = SDL_GetHintBoolean(SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, SDL_FALSE);
     SDL_AddHintCallback(SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, EGLTransparencyChangedCallback, data);
 }
 
-void Wayland_QuitWin()
+void Wayland_QuitWin(void)
 {
     Wayland_VideoData *data = &waylandVideoData;
     SDL_DelHintCallback(SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, EGLTransparencyChangedCallback, data);

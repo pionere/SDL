@@ -45,7 +45,7 @@ extern "C" {
 }
 
 /* Forward declarations */
-static void WINRT_YieldXAMLThread();
+static void WINRT_YieldXAMLThread(void);
 
 /* Global event management */
 
@@ -72,7 +72,7 @@ static SDL_Thread *_XAMLThread = nullptr;
 static SDL_mutex *_mutex = nullptr;
 static SDL_cond *_cond = nullptr;
 
-static void WINRT_YieldXAMLThread()
+static void WINRT_YieldXAMLThread(void)
 {
     SDL_LockMutex(_mutex);
     SDL_assert(_threadState == ThreadState_Running);

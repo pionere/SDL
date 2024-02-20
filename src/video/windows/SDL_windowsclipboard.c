@@ -137,7 +137,7 @@ SDL_bool WIN_HasClipboardText(_THIS)
     return result;
 }
 
-void WIN_CheckClipboardUpdate()
+void WIN_CheckClipboardUpdate(void)
 {
     WIN_VideoData *data = &winVideoData;
     const DWORD count = GetClipboardSequenceNumber();

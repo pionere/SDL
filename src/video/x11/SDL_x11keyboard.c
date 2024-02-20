@@ -415,7 +415,7 @@ void X11_QuitKeyboard(_THIS)
 #endif
 }
 
-static void X11_ResetXIM()
+static void X11_ResetXIM(void)
 {
 #ifdef X_HAVE_UTF8_STRING
     X11_VideoData *videodata = &x11VideoData;
@@ -436,12 +436,12 @@ static void X11_ResetXIM()
 #endif
 }
 
-void X11_StartTextInput()
+void X11_StartTextInput(void)
 {
     X11_ResetXIM();
 }
 
-void X11_StopTextInput()
+void X11_StopTextInput(void)
 {
     X11_ResetXIM();
 #ifdef SDL_USE_IME
@@ -461,7 +461,7 @@ void X11_SetTextInputRect(const SDL_Rect *rect)
 #endif
 }
 
-SDL_bool X11_HasScreenKeyboardSupport()
+SDL_bool X11_HasScreenKeyboardSupport(void)
 {
     X11_VideoData *videodata = &x11VideoData;
     return videodata->is_steam_deck;

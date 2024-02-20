@@ -252,7 +252,7 @@ const VideoBootStrap WINDOWS_bootstrap = {
     "windows", WIN_CreateDevice
 };
 
-static BOOL WIN_DeclareDPIAwareUnaware()
+static BOOL WIN_DeclareDPIAwareUnaware(void)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;
@@ -286,7 +286,7 @@ static BOOL WIN_DeclareDPIAwareSystem()
     return FALSE;
 }
 
-static BOOL WIN_DeclareDPIAwarePerMonitor()
+static BOOL WIN_DeclareDPIAwarePerMonitor(void)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;
@@ -305,7 +305,7 @@ static BOOL WIN_DeclareDPIAwarePerMonitor()
     return FALSE;
 }
 
-static BOOL WIN_DeclareDPIAwarePerMonitorV2()
+static BOOL WIN_DeclareDPIAwarePerMonitorV2(void)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return FALSE;
@@ -344,7 +344,7 @@ static BOOL WIN_DeclareDPIAwarePerMonitorV2()
 }
 
 #ifdef HIGHDPI_DEBUG
-static const char *WIN_GetDPIAwareness()
+static const char *WIN_GetDPIAwareness(void)
 {
     WIN_VideoData *data = &winVideoData;
 
@@ -368,7 +368,7 @@ static const char *WIN_GetDPIAwareness()
 }
 #endif
 
-static void WIN_InitDPIAwareness()
+static void WIN_InitDPIAwareness(void)
 {
     const char *hint = SDL_GetHint(SDL_HINT_WINDOWS_DPI_AWARENESS);
 
@@ -385,7 +385,7 @@ static void WIN_InitDPIAwareness()
     }
 }
 
-static void WIN_InitDPIScaling()
+static void WIN_InitDPIScaling(void)
 {
     WIN_VideoData *data = &winVideoData;
 
@@ -665,7 +665,7 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
 #endif
 }
 
-SDL_bool WIN_IsPerMonitorV2DPIAware()
+SDL_bool WIN_IsPerMonitorV2DPIAware(void)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;

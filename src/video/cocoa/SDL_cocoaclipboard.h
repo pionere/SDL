@@ -26,7 +26,7 @@
 extern int Cocoa_SetClipboardText(_THIS, const char *text);
 extern char *Cocoa_GetClipboardText(_THIS);
 extern SDL_bool Cocoa_HasClipboardText(_THIS);
-extern void Cocoa_CheckClipboardUpdate();
+extern void Cocoa_CheckClipboardUpdate(void);
 
 #endif /* SDL_cocoaclipboard_h_ */
 

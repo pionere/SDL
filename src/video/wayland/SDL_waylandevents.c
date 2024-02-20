@@ -257,7 +257,7 @@ void Wayland_SendWakeupEvent(SDL_Window *window)
     WAYLAND_wl_display_flush(d->display);
 }
 
-static int dispatch_queued_events()
+static int dispatch_queued_events(void)
 {
     Wayland_VideoData *viddata = &waylandVideoData;
     int ret;
@@ -1494,7 +1494,7 @@ static const struct zwp_primary_selection_source_v1_listener primary_selection_s
     primary_selection_source_cancelled,
 };
 
-SDL_WaylandDataSource *Wayland_data_source_create()
+SDL_WaylandDataSource *Wayland_data_source_create(void)
 {
     SDL_WaylandDataSource *data_source = NULL;
     Wayland_VideoData *driver_data = &waylandVideoData;
@@ -1523,7 +1523,7 @@ SDL_WaylandDataSource *Wayland_data_source_create()
     return data_source;
 }
 
-SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create()
+SDL_WaylandPrimarySelectionSource *Wayland_primary_selection_source_create(void)
 {
     SDL_WaylandPrimarySelectionSource *primary_selection_source = NULL;
     Wayland_VideoData *driver_data = &waylandVideoData;
@@ -2019,7 +2019,7 @@ static const struct zwp_text_input_v3_listener text_input_listener = {
     text_input_done
 };
 
-static void Wayland_create_data_device()
+static void Wayland_create_data_device(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
@@ -2047,7 +2047,7 @@ static void Wayland_create_data_device()
     }
 }
 
-static void Wayland_create_primary_selection_device()
+static void Wayland_create_primary_selection_device(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
@@ -2076,7 +2076,7 @@ static void Wayland_create_primary_selection_device()
     }
 }
 
-static void Wayland_create_text_input()
+static void Wayland_create_text_input(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     SDL_WaylandTextInput *text_input = NULL;
@@ -2426,7 +2426,7 @@ static const struct zwp_tablet_seat_v2_listener tablet_seat_listener = {
     tablet_seat_handle_pad_added
 };
 
-void Wayland_input_add_tablet()
+void Wayland_input_add_tablet(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
@@ -2493,7 +2493,7 @@ void Wayland_display_add_input(uint32_t id, uint32_t version)
     WAYLAND_wl_display_flush(d->display);
 }
 
-void Wayland_display_destroy_input()
+void Wayland_display_destroy_input(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
@@ -2577,7 +2577,7 @@ void Wayland_display_add_relative_pointer_manager(uint32_t id)
                          &zwp_relative_pointer_manager_v1_interface, 1);
 }
 
-void Wayland_display_destroy_relative_pointer_manager()
+void Wayland_display_destroy_relative_pointer_manager(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     if (d->relative_pointer_manager) {
@@ -2593,7 +2593,7 @@ void Wayland_display_add_pointer_constraints(uint32_t id)
                          &zwp_pointer_constraints_v1_interface, 1);
 }
 
-void Wayland_display_destroy_pointer_constraints()
+void Wayland_display_destroy_pointer_constraints(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     if (d->pointer_constraints) {

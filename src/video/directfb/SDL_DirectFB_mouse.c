@@ -268,7 +268,7 @@ static DFBEnumerationResult EnumMice(DFBInputDeviceID device_id, DFBInputDeviceD
     return DFENUM_OK;
 }
 
-void DirectFB_InitMouse()
+void DirectFB_InitMouse(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
 
@@ -300,7 +300,7 @@ void DirectFB_InitMouse()
     }
 }
 
-void DirectFB_QuitMouse()
+void DirectFB_QuitMouse(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
 

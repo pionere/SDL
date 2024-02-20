@@ -31,12 +31,12 @@ typedef struct SDL_WaylandTextInput
     SDL_bool is_enabled;
 } SDL_WaylandTextInput;
 
-extern int Wayland_InitKeyboard();
-extern void Wayland_QuitKeyboard();
-extern void Wayland_StartTextInput();
-extern void Wayland_StopTextInput();
+extern int Wayland_InitKeyboard(void);
+extern void Wayland_QuitKeyboard(void);
+extern void Wayland_StartTextInput(void);
+extern void Wayland_StopTextInput(void);
 extern void Wayland_SetTextInputRect(const SDL_Rect *rect);
-extern SDL_bool Wayland_HasScreenKeyboardSupport();
+extern SDL_bool Wayland_HasScreenKeyboardSupport(void);
 
 #endif /* SDL_waylandkeyboard_h_ */
 

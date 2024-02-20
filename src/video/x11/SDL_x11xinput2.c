@@ -386,7 +386,7 @@ int X11_HandleXinput2Event(X11_VideoData *videodata, XGenericEventCookie *cookie
     return 0;
 }
 
-void X11_InitXinput2Multitouch()
+void X11_InitXinput2Multitouch(void)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
     X11_VideoData *data = &x11VideoData;
@@ -453,7 +453,7 @@ void X11_Xinput2SelectTouch(SDL_Window *window)
 #endif
 }
 
-int X11_Xinput2IsInitialized()
+int X11_Xinput2IsInitialized(void)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
     return xinput2_initialized;
@@ -462,7 +462,7 @@ int X11_Xinput2IsInitialized()
 #endif
 }
 
-int X11_Xinput2IsMultitouchSupported()
+int X11_Xinput2IsMultitouchSupported(void)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH
     return xinput2_initialized && xinput2_multitouch_supported;

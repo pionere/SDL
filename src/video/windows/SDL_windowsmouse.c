@@ -70,7 +70,7 @@ static int ToggleRawInput(SDL_bool enabled)
     return 0;
 }
 
-static SDL_Cursor *WIN_CreateDefaultCursor()
+static SDL_Cursor *WIN_CreateDefaultCursor(void)
 {
     SDL_Cursor *cursor;
 
@@ -167,7 +167,7 @@ static SDL_Cursor *WIN_CreateCursor(SDL_Surface *surface, int hot_x, int hot_y)
     return cursor;
 }
 
-static SDL_Cursor *WIN_CreateBlankCursor()
+static SDL_Cursor *WIN_CreateBlankCursor(void)
 {
     SDL_Cursor *cursor = NULL;
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, 32, 32, 32, SDL_PIXELFORMAT_ARGB8888);
@@ -356,7 +356,7 @@ static Uint32 WIN_GetGlobalMouseState(int *x, int *y)
     return retval;
 }
 
-void WIN_InitMouse()
+void WIN_InitMouse(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
 
@@ -377,7 +377,7 @@ void WIN_InitMouse()
     WIN_UpdateMouseSystemScale();
 }
 
-void WIN_QuitMouse()
+void WIN_QuitMouse(void)
 {
     if (rawInputEnableCount) { /* force RAWINPUT off here. */
         rawInputEnableCount = 1;
@@ -474,7 +474,7 @@ static void WIN_SetLinearMouseScale(int mouse_speed)
     }
 }
 
-void WIN_UpdateMouseSystemScale()
+void WIN_UpdateMouseSystemScale(void)
 {
     int mouse_speed;
     int params[3] = { 0, 0, 0 };

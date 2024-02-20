@@ -29,8 +29,8 @@
 
 const TUint32 WindowClientHandle = 9210;
 
-void DisableKeyBlocking();
-static void ConstructWindowL();
+void DisableKeyBlocking(void);
+static void ConstructWindowL(void);
 
 int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 {
@@ -67,7 +67,7 @@ void NGAGE_DestroyWindow(_THIS, SDL_Window *window)
 /* Internal                                                                  */
 /*****************************************************************************/
 
-void DisableKeyBlocking()
+void DisableKeyBlocking(void)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     TRawEvent event;
@@ -76,7 +76,7 @@ void DisableKeyBlocking()
     phdata->NGAGE_WsSession.SimulateRawEvent(event);
 }
 
-static void ConstructWindowL()
+static void ConstructWindowL(void)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     TInt error;

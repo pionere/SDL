@@ -28,7 +28,7 @@
 #include "../../events/SDL_keyboard_c.h"
 #include "text-input-unstable-v3-client-protocol.h"
 
-int Wayland_InitKeyboard()
+int Wayland_InitKeyboard(void)
 {
 #ifdef SDL_USE_IME
     Wayland_VideoData *driverdata = &waylandVideoData;
@@ -41,7 +41,7 @@ int Wayland_InitKeyboard()
     return 0;
 }
 
-void Wayland_QuitKeyboard()
+void Wayland_QuitKeyboard(void)
 {
 #ifdef SDL_USE_IME
     Wayland_VideoData *driverdata = &waylandVideoData;
@@ -51,7 +51,7 @@ void Wayland_QuitKeyboard()
 #endif
 }
 
-void Wayland_StartTextInput()
+void Wayland_StartTextInput(void)
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
@@ -92,7 +92,7 @@ void Wayland_StartTextInput()
     }
 }
 
-void Wayland_StopTextInput()
+void Wayland_StopTextInput(void)
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
@@ -143,7 +143,7 @@ void Wayland_SetTextInputRect(const SDL_Rect *rect)
 #endif
 }
 
-SDL_bool Wayland_HasScreenKeyboardSupport()
+SDL_bool Wayland_HasScreenKeyboardSupport(void)
 {
     /* In reality we just want to return true when the screen keyboard is the
      * _only_ way to get text input. So, in addition to checking for the text

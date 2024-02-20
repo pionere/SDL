@@ -223,7 +223,7 @@ void Android_OnFocusChanged(SDL_bool hasFocus)
     }
 }
 
-void Android_OnSurfaceChanged()
+void Android_OnSurfaceChanged(void)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     if (Android_Window) {

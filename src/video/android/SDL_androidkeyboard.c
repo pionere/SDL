@@ -336,7 +336,7 @@ int Android_OnKeyUp(int keycode)
     return SDL_SendKeyboardKey(SDL_RELEASED, TranslateKeycode(keycode));
 }
 
-SDL_bool Android_HasScreenKeyboardSupport()
+SDL_bool Android_HasScreenKeyboardSupport(void)
 {
     return SDL_TRUE;
 }

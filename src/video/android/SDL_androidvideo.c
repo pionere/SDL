@@ -254,7 +254,7 @@ void Android_SetFormat(int format_wanted, int format_got)
             SDL_GetPixelFormatName(pf_got), format_got);
 }
 
-void Android_OnResize()
+void Android_OnResize(void)
 {
     /*
       Update the resolution of the desktop mode, so that the window

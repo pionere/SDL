@@ -26,10 +26,10 @@
 extern DWORD SDL_last_warp_time;
 extern HCURSOR SDL_cursor;
 
-extern void WIN_InitMouse();
-extern void WIN_QuitMouse();
+extern void WIN_InitMouse(void);
+extern void WIN_QuitMouse(void);
 extern void WIN_SetCursorPos(int x, int y);
-extern void WIN_UpdateMouseSystemScale();
+extern void WIN_UpdateMouseSystemScale(void);
 
 #endif /* SDL_windowsmouse_h_ */
 

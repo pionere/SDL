@@ -49,7 +49,7 @@ static SDL_Scancode SDL_RISCOS_translate_keycode(int keycode)
     return scancode;
 }
 
-static void RISCOS_PollKeyboard()
+static void RISCOS_PollKeyboard(void)
 {
     RiscOS_VideoData *driverdata = &riscosVideoData;
     Uint8 key = 2;
@@ -109,7 +109,7 @@ static const Uint8 mouse_button_map[] = {
     SDL_BUTTON_X2 + 3
 };
 
-static void RISCOS_PollMouse()
+static void RISCOS_PollMouse(void)
 {
     RiscOS_VideoData *driverdata = &riscosVideoData;
     SDL_Mouse *mouse = SDL_GetMouse();
@@ -138,7 +138,7 @@ static void RISCOS_PollMouse()
     }
 }
 
-int RISCOS_InitEvents()
+int RISCOS_InitEvents(void)
 {
     RiscOS_VideoData *driverdata = &riscosVideoData;
     _kernel_swi_regs regs;
@@ -168,7 +168,7 @@ void RISCOS_PumpEvents(_THIS)
     RISCOS_PollKeyboard();
 }
 
-void RISCOS_QuitEvents()
+void RISCOS_QuitEvents(void)
 {
     /* Re-enable escape. */
     _kernel_osbyte(229, 0, 0);

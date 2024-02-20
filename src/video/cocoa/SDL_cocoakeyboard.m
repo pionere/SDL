@@ -329,7 +329,7 @@ void Cocoa_InitKeyboard(_THIS)
     SDL_ToggleModState(KMOD_CAPS, (data.modifierFlags & NSEventModifierFlagCapsLock) ? SDL_TRUE : SDL_FALSE);
 }
 
-void Cocoa_StartTextInput()
+void Cocoa_StartTextInput(void)
 { @autoreleasepool
 {
     NSView *parentView;
@@ -360,7 +360,7 @@ void Cocoa_StartTextInput()
     }
 }}
 
-void Cocoa_StopTextInput()
+void Cocoa_StopTextInput(void)
 { @autoreleasepool
 {
     Cocoa_VideoData *data = cocoaVideoData;

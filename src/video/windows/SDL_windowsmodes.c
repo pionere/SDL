@@ -818,7 +818,7 @@ void WIN_RefreshDisplays(_THIS)
     }
 }
 
-void WIN_QuitModes()
+void WIN_QuitModes(void)
 {
     /* All fullscreen windows should have restored modes by now */
 }

@@ -38,7 +38,7 @@ extern "C" {
 /* File-specific globals: */
 static SDL_TouchID WINRT_TouchID = 1;
 
-void WINRT_InitTouch()
+void WINRT_InitTouch(void)
 {
     SDL_AddTouch(WINRT_TouchID, SDL_TOUCH_DEVICE_DIRECT, "");
 }

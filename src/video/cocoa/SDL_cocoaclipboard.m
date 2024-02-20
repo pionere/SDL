@@ -82,7 +82,7 @@ SDL_bool Cocoa_HasClipboardText(_THIS)
     return result;
 }
 
-void Cocoa_CheckClipboardUpdate()
+void Cocoa_CheckClipboardUpdate(void)
 { @autoreleasepool
 {
     Cocoa_VideoData *data = cocoaVideoData;

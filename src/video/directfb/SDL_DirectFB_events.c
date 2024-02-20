@@ -714,7 +714,7 @@ void DirectFB_InitKeyboard()
     }
 }
 
-void DirectFB_QuitKeyboard()
+void DirectFB_QuitKeyboard(void)
 {
     /* DFB_VideoData *devdata = &dfbVideoData; */
 }

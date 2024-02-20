@@ -23,17 +23,17 @@
 #ifndef SDL_windowskeyboard_h_
 #define SDL_windowskeyboard_h_
 
-extern void WIN_InitKeyboard();
+extern void WIN_InitKeyboard(void);
 extern void WIN_UpdateKeymap(SDL_bool send_event);
-extern void WIN_QuitKeyboard();
+extern void WIN_QuitKeyboard(void);
 
 extern void WIN_ResetDeadKeys(void);
 
-extern void WIN_StartTextInput();
-extern void WIN_StopTextInput();
+extern void WIN_StartTextInput(void);
+extern void WIN_StopTextInput(void);
 extern void WIN_SetTextInputRect(const SDL_Rect *rect);
-extern void WIN_ClearComposition();
-extern SDL_bool WIN_IsTextInputShown();
+extern void WIN_ClearComposition(void);
+extern SDL_bool WIN_IsTextInputShown(void);
 
 extern SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam);
 

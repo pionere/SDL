@@ -423,7 +423,7 @@ void WINTRT_InitialiseInputPaneEvents(_THIS)
     }
 }
 
-SDL_bool WINRT_HasScreenKeyboardSupport()
+SDL_bool WINRT_HasScreenKeyboardSupport(void)
 {
     return SDL_TRUE;
 }

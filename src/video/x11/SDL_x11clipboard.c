@@ -30,7 +30,7 @@
 #include "SDL_x11clipboard.h"
 
 /* Get any application owned window handle for clipboard association */
-static Window GetWindow()
+static Window GetWindow(void)
 {
     X11_VideoData *data = &x11VideoData;
 
@@ -239,7 +239,7 @@ char *X11_GetClipboardText(_THIS)
     return GetSlectionText(XA_CLIPBOARD);
 }
 
-char *X11_GetPrimarySelectionText()
+char *X11_GetPrimarySelectionText(void)
 {
     return GetSlectionText(XA_PRIMARY);
 }
@@ -255,7 +255,7 @@ SDL_bool X11_HasClipboardText(_THIS)
     return result;
 }
 
-SDL_bool X11_HasPrimarySelectionText()
+SDL_bool X11_HasPrimarySelectionText(void)
 {
     SDL_bool result = SDL_FALSE;
     char *text = X11_GetPrimarySelectionText();

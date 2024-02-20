@@ -329,14 +329,14 @@ struct SDL_VideoDevice
     void (*SuspendScreenSaver)(_THIS);
 
     /* Text input */
-    void (*StartTextInput)();
-    void (*StopTextInput)();
+    void (*StartTextInput)(void);
+    void (*StopTextInput)(void);
     void (*SetTextInputRect)(const SDL_Rect *rect);
-    void (*ClearComposition)();
-    SDL_bool (*IsTextInputShown)();
+    void (*ClearComposition)(void);
+    SDL_bool (*IsTextInputShown)(void);
 
     /* Screen keyboard */
-    SDL_bool (*HasScreenKeyboardSupport)();
+    SDL_bool (*HasScreenKeyboardSupport)(void);
     void (*ShowScreenKeyboard)(SDL_Window *window);
     void (*HideScreenKeyboard)(SDL_Window *window);
     SDL_bool (*IsScreenKeyboardShown)(SDL_Window *window);
@@ -346,8 +346,8 @@ struct SDL_VideoDevice
     char *(*GetClipboardText)(_THIS);
     SDL_bool (*HasClipboardText)(_THIS);
     int (*SetPrimarySelectionText)(const char *text);
-    char *(*GetPrimarySelectionText)();
-    SDL_bool (*HasPrimarySelectionText)();
+    char *(*GetPrimarySelectionText)(void);
+    SDL_bool (*HasPrimarySelectionText)(void);
 
     /* MessageBox */
     int (*ShowMessageBox)(_THIS, const SDL_MessageBoxData *messageboxdata, int *buttonid);

@@ -22,14 +22,14 @@
 #include "../../core/windows/SDL_windows.h"
 
 /* Return true if the RawInput driver is enabled */
-extern SDL_bool RAWINPUT_IsEnabled();
+extern SDL_bool RAWINPUT_IsEnabled(void);
 
 /* Return true if a RawInput device is present and supported as a joystick */
 extern SDL_bool RAWINPUT_IsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name);
 
 /* Registers for input events */
 extern int RAWINPUT_RegisterNotifications(HWND hWnd);
-extern int RAWINPUT_UnregisterNotifications();
+extern int RAWINPUT_UnregisterNotifications(void);
 
 /* Returns 0 if message was handled */
 extern LRESULT CALLBACK RAWINPUT_WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

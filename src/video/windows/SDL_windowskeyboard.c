@@ -136,10 +136,10 @@ typedef struct WIN_ImeData
 
 void WIN_UpdateKeymap(SDL_bool send_event);
 static void IME_Init(HWND hwnd);
-static void IME_Enable();
-static void IME_Disable();
-static void IME_Quit();
-static SDL_bool IME_IsTextInputShown();
+static void IME_Enable(void);
+static void IME_Disable(void);
+static void IME_Quit(void);
+static SDL_bool IME_IsTextInputShown(void);
 
 static WIN_ImeData winImeData;
 #endif /* !SDL_DISABLE_WINDOWS_IME */
@@ -155,7 +155,7 @@ static WIN_ImeData winImeData;
 #endif
 
 /* Alphabetic scancodes for PC keyboards */
-void WIN_InitKeyboard()
+void WIN_InitKeyboard(void)
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     WIN_ImeData *data = &winImeData;
@@ -271,7 +271,7 @@ void WIN_UpdateKeymap(SDL_bool send_event)
     SDL_SetKeymap(0, keymap, SDL_NUM_SCANCODES, send_event);
 }
 
-void WIN_QuitKeyboard()
+void WIN_QuitKeyboard(void)
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     WIN_ImeData *data = &winImeData;
@@ -283,7 +283,7 @@ void WIN_QuitKeyboard()
 #endif
 }
 
-void WIN_ResetDeadKeys()
+void WIN_ResetDeadKeys(void)
 {
 #if 0 // commented out till someone proves this does anything useful...
     /*
@@ -314,7 +314,7 @@ void WIN_ResetDeadKeys()
 #endif
 }
 
-void WIN_StartTextInput()
+void WIN_StartTextInput(void)
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     SDL_Window *window;
@@ -336,7 +336,7 @@ void WIN_StartTextInput()
 #endif /* !SDL_DISABLE_WINDOWS_IME */
 }
 
-void WIN_StopTextInput()
+void WIN_StopTextInput(void)
 {
 #ifndef SDL_DISABLE_WINDOWS_IME
     SDL_Window *window;
@@ -398,11 +398,11 @@ void WIN_SetTextInputRect(const SDL_Rect *rect)
 
 #ifdef SDL_DISABLE_WINDOWS_IME
 
-void WIN_ClearComposition()
+void WIN_ClearComposition(void)
 {
 }
 
-SDL_bool WIN_IsTextInputShown()
+SDL_bool WIN_IsTextInputShown(void)
 {
     return SDL_FALSE;
 }
@@ -412,7 +412,7 @@ SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam)
     return SDL_FALSE;
 }
 
-void IME_Present()
+void IME_Present(void)
 {
 }
 
@@ -475,19 +475,19 @@ DEFINE_GUID(IID_ITfReadingInformationUIElement, 0xEA1EA139, 0x19DF, 0x11D7, 0xA6
 #define PRIMLANG()     ((WORD)PRIMARYLANGID(LANG()))
 #define SUBLANG()      SUBLANGID(LANG())
 
-static SDL_bool IME_UpdateInputLocale();
-static void IME_ClearComposition();
+static SDL_bool IME_UpdateInputLocale(void);
+static void IME_ClearComposition(void);
 static void IME_SetWindow(HWND hwnd);
-static void IME_SendEditingEvent();
+static void IME_SendEditingEvent(void);
 #ifdef IME_DRAW_UI
-static int IME_InitCandidateList();
-static void IME_DestroyTextures();
+static int IME_InitCandidateList(void);
+static void IME_DestroyTextures(void);
 #endif
 #ifdef IME_USE_TF_API
-static SDL_bool UILess_SetupSinks();
-static void UILess_ReleaseSinks();
-static void UILess_EnableUIUpdates();
-static void UILess_DisableUIUpdates();
+static SDL_bool UILess_SetupSinks(void);
+static void UILess_ReleaseSinks(void);
+static void UILess_EnableUIUpdates(void);
+static void UILess_DisableUIUpdates(void);
 #endif
 static void IME_Init(HWND hwnd)
 {
@@ -539,7 +539,7 @@ static void IME_Init(HWND hwnd)
     IME_Disable();
 }
 
-static void IME_Enable()
+static void IME_Enable(void)
 {
     WIN_ImeData *videodata = &winImeData;
     HWND hwnd = videodata->ime_hwnd_current;
@@ -563,7 +563,7 @@ static void IME_Enable()
 #endif
 }
 
-static void IME_Disable()
+static void IME_Disable(void)
 {
     WIN_ImeData *videodata = &winImeData;
     HWND hwnd = videodata->ime_hwnd_current;
@@ -583,7 +583,7 @@ static void IME_Disable()
 #endif
 }
 
-static void IME_Quit()
+static void IME_Quit(void)
 {
     WIN_ImeData *videodata = &winImeData;
 
@@ -703,14 +703,14 @@ static void IME_GetReadingString(HWND hwnd)
     IME_SendEditingEvent();
 }
 
-static void IME_InputLangChanged()
+static void IME_InputLangChanged(void)
 {
     if (IME_UpdateInputLocale()) {
         IME_ClearComposition();
     }
 }
 
-static void IME_SetupAPI()
+static void IME_SetupAPI(void)
 {
     WIN_ImeData *videodata = &winImeData;
     char ime_file[MAX_PATH];
@@ -794,7 +794,7 @@ static void IME_SetWindow(HWND hwnd)
     }
 }
 
-static SDL_bool IME_UpdateInputLocale()
+static SDL_bool IME_UpdateInputLocale(void)
 {
     WIN_ImeData *videodata = &winImeData;
     HKL hklnext = GetKeyboardLayout(0);
@@ -813,7 +813,7 @@ static SDL_bool IME_UpdateInputLocale()
     return SDL_TRUE;
 }
 
-static void IME_ClearComposition()
+static void IME_ClearComposition(void)
 {
     WIN_ImeData *videodata = &winImeData;
     HIMC himc;
@@ -836,7 +836,7 @@ static void IME_ClearComposition()
     SDL_SendEditingText("", 0, 0);
 }
 
-static SDL_bool IME_IsTextInputShown()
+static SDL_bool IME_IsTextInputShown(void)
 {
     WIN_ImeData *videodata = &winImeData;
 
@@ -921,7 +921,7 @@ static void IME_GetCompositionString(HIMC himc, DWORD string)
     }
 }
 
-static void IME_SendInputEvent()
+static void IME_SendInputEvent(void)
 {
     WIN_ImeData *videodata = &winImeData;
     char *s = WIN_StringToUTF8W(videodata->ime_composition);
@@ -933,7 +933,7 @@ static void IME_SendInputEvent()
     videodata->ime_cursor = 0;
 }
 
-static void IME_SendEditingEvent()
+static void IME_SendEditingEvent(void)
 {
     WIN_ImeData *videodata = &winImeData;
     char *s = NULL;
@@ -1050,7 +1050,7 @@ static void IME_GetCandidateList(HWND hwnd)
     ImmReleaseContext(hwnd, himc);
 }
 
-static int IME_InitCandidateList()
+static int IME_InitCandidateList(void)
 {
     WIN_ImeData *videodata = &winImeData;
     WCHAR *candidates = videodata->ime_candidates;
@@ -1072,7 +1072,7 @@ static int IME_InitCandidateList()
     return 0;
 }
 
-static void IME_HideCandidateList()
+static void IME_HideCandidateList(void)
 {
     WIN_ImeData *videodata = &winImeData;
     videodata->ime_dirty = SDL_FALSE;
@@ -1202,7 +1202,7 @@ SDL_bool IME_HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM *lParam)
 }
 #ifdef IME_USE_TF_API
 #ifdef IME_DRAW_UI
-static void IME_CloseCandidateList()
+static void IME_CloseCandidateList(void)
 {
     WIN_ImeData *videodata = &winImeData;
     IME_HideCandidateList();
@@ -1455,7 +1455,7 @@ static void *vtIPPASink[] = {
     (void *)(IPPASink_OnActivated)
 };
 
-static void UILess_EnableUIUpdates()
+static void UILess_EnableUIUpdates(void)
 {
     WIN_ImeData *videodata = &winImeData;
     ITfSource *source = NULL;
@@ -1470,7 +1470,7 @@ static void UILess_EnableUIUpdates()
     }
 }
 
-static void UILess_DisableUIUpdates()
+static void UILess_DisableUIUpdates(void)
 {
     WIN_ImeData *videodata = &winImeData;
     ITfSource *source = NULL;
@@ -1486,7 +1486,7 @@ static void UILess_DisableUIUpdates()
     }
 }
 
-static SDL_bool UILess_SetupSinks()
+static SDL_bool UILess_SetupSinks(void)
 {
     WIN_ImeData *videodata = &winImeData;
     TfClientId clientid = 0;
@@ -1524,7 +1524,7 @@ static SDL_bool UILess_SetupSinks()
     return result;
 }
 
-static void UILess_ReleaseSinks()
+static void UILess_ReleaseSinks(void)
 {
     WIN_ImeData *videodata = &winImeData;
     ITfSource *source = NULL;
@@ -1591,7 +1591,7 @@ static void DrawRect(HDC hdc, int left, int top, int right, int bottom, int pens
     Rectangle(hdc, left, top, right, bottom);
 }
 
-static void IME_DestroyTextures()
+static void IME_DestroyTextures(void)
 {
 }
 
@@ -1811,7 +1811,7 @@ static void IME_RenderCandidateList(HDC hdc)
     IME_PositionCandidateList(size);
 }
 
-static void IME_Render()
+static void IME_Render(void)
 {
     HDC hdc = CreateCompatibleDC(NULL);
 
@@ -1820,7 +1820,7 @@ static void IME_Render()
     DeleteDC(hdc);
 }
 
-void IME_Present()
+void IME_Present(void)
 {
     WIN_ImeData *videodata = &winImeData;
     if (videodata->ime_dirty) {
@@ -1831,12 +1831,12 @@ void IME_Present()
     /* FIXME: Need to show the IME bitmap */
 }
 #endif // IME_DRAW_UI
-SDL_bool WIN_IsTextInputShown()
+SDL_bool WIN_IsTextInputShown(void)
 {
     return IME_IsTextInputShown();
 }
 
-void WIN_ClearComposition()
+void WIN_ClearComposition(void)
 {
     IME_ClearComposition();
 }

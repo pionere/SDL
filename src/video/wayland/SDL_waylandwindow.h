@@ -146,8 +146,8 @@ Wayland_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info);
 extern int Wayland_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern int Wayland_FlashWindow(SDL_Window *window, SDL_FlashOperation operation);
 
-extern void Wayland_InitWin();
-extern void Wayland_QuitWin();
+extern void Wayland_InitWin(void);
+extern void Wayland_QuitWin(void);
 
 #endif /* SDL_waylandwindow_h_ */
 
