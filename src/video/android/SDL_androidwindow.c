@@ -216,6 +216,69 @@ SDL_bool Android_GetWindowWMInfo(SDL_Window *window, SDL_SysWMinfo *info)
     }
 }
 
+void Android_OnFocusChanged(SDL_bool hasFocus)
+{
+    if (Android_Window) {
+        SDL_SendWindowEvent(Android_Window, (hasFocus ? SDL_WINDOWEVENT_FOCUS_GAINED : SDL_WINDOWEVENT_FOCUS_LOST), 0, 0);
+    }
+}
+
+void Android_OnSurfaceChanged()
+{
+#ifdef SDL_VIDEO_OPENGL_EGL
+    if (Android_Window) {
+        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
+
+        /* If the surface has been previously destroyed by onNativeSurfaceDestroyed, recreate it here */
+        if (data->egl_surface == EGL_NO_SURFACE) {
+            SDL_VideoDevice *_this = SDL_GetVideoDevice();
+            data->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)data->native_window);
+        }
+
+        /* GL Context handling is done in the event loop because this function is run from the Java thread */
+    }
+#endif
+}
+
+void Android_OnSurfaceCreated(ANativeWindow *native_window)
+{
+    if (Android_Window) {
+        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
+        data->native_window = native_window;
+    }
+}
+
+int Android_OnSurfaceDestroyed(SDL_bool force)
+{
+    if (Android_Window) {
+        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
+
+        /* Wait for Main thread being paused and context un-activated to release 'egl_surface' */
+        if (!data->backup_done) {
+            if (!force) {
+                return -1;
+            }
+            SDL_SetError("Try to release egl_surface with context probably still active");
+        }
+
+#ifdef SDL_VIDEO_OPENGL_EGL
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_VideoDevice *_this = SDL_GetVideoDevice();
+            SDL_EGL_DestroySurface(_this, data->egl_surface);
+            data->egl_surface = EGL_NO_SURFACE;
+        }
+#endif
+
+        if (data->native_window) {
+            ANativeWindow_release(data->native_window);
+            data->native_window = NULL;
+        }
+
+        /* GL Context handling is done in the event loop because this function is run from the Java thread */
+    }
+    return 0;
+}
+
 #endif /* SDL_VIDEO_DRIVER_ANDROID */
 
 /* vi: set ts=4 sw=4 expandtab: */

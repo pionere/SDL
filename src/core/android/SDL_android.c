@@ -891,9 +891,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeResize)(
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-    if (Android_Window) {
-        Android_SendResize(Android_Window);
-    }
+    Android_OnResize();
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -906,10 +904,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(
 
     displayOrientation = (SDL_DisplayOrientation)orientation;
 
-    if (Android_Window) {
-        SDL_VideoDisplay *display = SDL_GetDisplay(0);
-        SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
-    }
+    Android_OnOrientationChanged(displayOrientation);
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -1039,14 +1034,12 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceCreated)(JNIEnv *env, j
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-    if (Android_Window) {
-        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
-
-        data->native_window = Android_JNI_GetNativeWindow();
-        if (data->native_window == NULL) {
-            SDL_SetError("Could not fetch native window from UI thread");
-        }
+    ANativeWindow *wnd = Android_JNI_GetNativeWindow();
+    if (wnd == NULL) {
+        SDL_SetError("Could not fetch native window from UI thread");
     }
+
+    Android_OnSurfaceCreated(wnd);
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -1056,19 +1049,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceChanged)(JNIEnv *env, j
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (Android_Window) {
-        SDL_VideoDevice *_this = SDL_GetVideoDevice();
-        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
-
-        /* If the surface has been previously destroyed by onNativeSurfaceDestroyed, recreate it here */
-        if (data->egl_surface == EGL_NO_SURFACE) {
-            data->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)data->native_window);
-        }
-
-        /* GL Context handling is done in the event loop because this function is run from the Java thread */
-    }
-#endif
+    Android_OnSurfaceChanged();
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -1082,35 +1063,11 @@ retry:
 
     SDL_LockMutex(Android_ActivityMutex);
 
-    if (Android_Window) {
-        SDL_VideoDevice *_this = SDL_GetVideoDevice();
-        SDL_WindowData *data = (SDL_WindowData *)Android_Window->driverdata;
-
-        /* Wait for Main thread being paused and context un-activated to release 'egl_surface' */
-        if (!data->backup_done) {
-            nb_attempt -= 1;
-            if (nb_attempt == 0) {
-                SDL_SetError("Try to release egl_surface with context probably still active");
-            } else {
-                SDL_UnlockMutex(Android_ActivityMutex);
-                SDL_Delay(10);
-                goto retry;
-            }
-        }
-
-#ifdef SDL_VIDEO_OPENGL_EGL
-        if (data->egl_surface != EGL_NO_SURFACE) {
-            SDL_EGL_DestroySurface(_this, data->egl_surface);
-            data->egl_surface = EGL_NO_SURFACE;
-        }
-#endif
-
-        if (data->native_window) {
-            ANativeWindow_release(data->native_window);
-            data->native_window = NULL;
-        }
-
-        /* GL Context handling is done in the event loop because this function is run from the Java thread */
+    if (Android_OnSurfaceDestroyed(nb_attempt == 0) < 0) {
+        nb_attempt -= 1;
+        SDL_UnlockMutex(Android_ActivityMutex);
+        SDL_Delay(10);
+        goto retry;
     }
 
     SDL_UnlockMutex(Android_ActivityMutex);
@@ -1159,7 +1116,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeTouch)(
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-    Android_OnTouch(Android_Window, touch_device_id_in, pointer_finger_id_in, action, x, y, p);
+    Android_OnTouch(touch_device_id_in, pointer_finger_id_in, action, x, y, p);
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -1171,7 +1128,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-    Android_OnMouse(Android_Window, button, action, x, y, relative);
+    Android_OnMouse(button, action, x, y, relative);
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }
@@ -1280,10 +1237,9 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeFocusChanged)(
 {
     SDL_LockMutex(Android_ActivityMutex);
 
-    if (Android_Window) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "nativeFocusChanged()");
-        SDL_SendWindowEvent(Android_Window, (hasFocus ? SDL_WINDOWEVENT_FOCUS_GAINED : SDL_WINDOWEVENT_FOCUS_LOST), 0, 0);
-    }
+    __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "nativeFocusChanged()");
+
+    Android_OnFocusChanged(hasFocus);
 
     SDL_UnlockMutex(Android_ActivityMutex);
 }

@@ -30,6 +30,8 @@
 
 #include "../../core/android/SDL_android.h"
 
+#include "SDL_androidwindow.h"
+
 /* See Android's MotionEvent class for constants */
 #define ACTION_DOWN       0
 #define ACTION_UP         1
@@ -211,8 +213,9 @@ static Uint8 TranslateButton(int state)
     }
 }
 
-void Android_OnMouse(SDL_Window *window, int state, int action, float x, float y, SDL_bool relative)
+void Android_OnMouse(int state, int action, float x, float y, SDL_bool relative)
 {
+    SDL_Window *window = Android_Window;
     int changes;
     Uint8 button;
 

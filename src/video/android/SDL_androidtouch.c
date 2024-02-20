@@ -31,6 +31,8 @@
 #include "../../events/SDL_touch_c.h"
 #include "../../core/android/SDL_android.h"
 
+#include "SDL_androidwindow.h"
+
 #define ACTION_DOWN 0
 #define ACTION_UP   1
 #define ACTION_MOVE 2
@@ -49,8 +51,9 @@ void Android_QuitTouch(void)
 {
 }
 
-void Android_OnTouch(SDL_Window *window, int touch_device_id_in, int pointer_finger_id_in, int action, float x, float y, float p)
+void Android_OnTouch(int touch_device_id_in, int pointer_finger_id_in, int action, float x, float y, float p)
 {
+    SDL_Window *window = Android_Window;
     SDL_TouchID touchDeviceId = 0;
     SDL_FingerID fingerId = 0;
 

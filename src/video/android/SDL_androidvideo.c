@@ -254,7 +254,7 @@ void Android_SetFormat(int format_wanted, int format_got)
             SDL_GetPixelFormatName(pf_got), format_got);
 }
 
-void Android_SendResize(SDL_Window *window)
+void Android_OnResize()
 {
     /*
       Update the resolution of the desktop mode, so that the window
@@ -262,6 +262,10 @@ void Android_SendResize(SDL_Window *window)
       example happen when the Activity enters or exits immersive mode,
       which can happen after VideoInit().
     */
+    SDL_Window *window = Android_Window;
+    if (!window) {
+        return;
+    }
     SDL_VideoDevice *device = SDL_GetVideoDevice();
     if (device && device->num_displays > 0) {
         SDL_VideoDisplay *display = &device->displays[0];
@@ -282,6 +286,14 @@ void Android_SendResize(SDL_Window *window)
         display->current_mode = display->display_modes[0];
 
         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, Android_SurfaceWidth, Android_SurfaceHeight);
+    }
+}
+
+void Android_OnOrientationChanged(SDL_DisplayOrientation orientation)
+{
+    if (Android_Window) {
+        SDL_VideoDisplay *display = SDL_GetDisplay(0);
+        SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
     }
 }
 
