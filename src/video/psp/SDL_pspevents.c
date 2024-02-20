@@ -126,7 +126,7 @@ void PSP_PumpEvents(_THIS)
     return;
 }
 
-void PSP_InitOSKeymap(_THIS)
+void PSP_InitOSKeymap(void)
 {
 #ifdef PSPIRKEYB
     int i;
@@ -237,7 +237,7 @@ void PSP_InitOSKeymap(_THIS)
 #endif
 }
 
-int PSP_EventInit(_THIS)
+int PSP_EventInit(void)
 {
 #ifdef PSPIRKEYB
     int outputmode = PSP_IRKBD_OUTPUT_MODE_SCANCODE;
@@ -260,7 +260,7 @@ int PSP_EventInit(_THIS)
     return 0;
 }
 
-void PSP_EventQuit(_THIS)
+void PSP_EventQuit(void)
 {
     running = 0;
     SDL_WaitThread(thread, NULL);

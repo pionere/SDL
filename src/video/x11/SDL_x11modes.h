@@ -54,7 +54,7 @@ typedef struct
 extern int X11_InitModes(_THIS);
 extern void X11_GetDisplayModes(SDL_VideoDisplay *display);
 extern int X11_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-extern void X11_QuitModes(_THIS);
+extern void X11_QuitModes(void);
 
 /* Some utility functions for working with visuals */
 extern int X11_GetVisualInfoFromVisual(Display *display, Visual *visual,
@@ -66,7 +66,7 @@ extern int X11_GetDisplayUsableBounds(SDL_VideoDisplay *sdl_display, SDL_Rect *r
 extern int X11_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, float *hdpi, float *vdpi);
 
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR
-extern void X11_HandleXRandREvent(_THIS, const XEvent *xevent);
+extern void X11_HandleXRandREvent(const XEvent *xevent);
 #endif
 
 #endif /* SDL_x11modes_h_ */

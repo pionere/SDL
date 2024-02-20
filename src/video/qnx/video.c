@@ -249,10 +249,9 @@ static void setWindowSize(SDL_Window *window)
 
 /**
  * Makes the native window associated with the given SDL window visible.
- * @param   _THIS
  * @param   window  SDL window to update
  */
-static void showWindow(_THIS, SDL_Window *window)
+static void showWindow(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     const int       visible = 1;

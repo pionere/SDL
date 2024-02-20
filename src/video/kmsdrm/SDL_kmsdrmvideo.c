@@ -312,7 +312,7 @@ static void KMSDRM_FBDestroyCallback(struct gbm_bo *bo, void *data)
     SDL_free(fb_info);
 }
 
-KMSDRM_FBInfo *KMSDRM_FBFromBO(_THIS, struct gbm_bo *bo)
+KMSDRM_FBInfo *KMSDRM_FBFromBO(struct gbm_bo *bo)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     unsigned w, h;
@@ -363,7 +363,7 @@ static void KMSDRM_FlipHandler(int fd, unsigned int frame, unsigned int sec, uns
     *((SDL_bool *)data) = SDL_FALSE;
 }
 
-SDL_bool KMSDRM_WaitPageflip(_THIS, SDL_WindowData *windata)
+SDL_bool KMSDRM_WaitPageflip(SDL_WindowData *windata)
 {
 
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
@@ -481,7 +481,7 @@ static drmModeModeInfo *KMSDRM_GetClosestDisplayMode(SDL_VideoDisplay *display,
 /*****************************************************************************/
 
 /* Deinitializes the driverdata of the SDL Displays in the SDL display list. */
-static void KMSDRM_DeinitDisplays(_THIS)
+static void KMSDRM_DeinitDisplays(void)
 {
 
     SDL_DisplayData *dispdata;
@@ -644,7 +644,7 @@ static SDL_bool KMSDRM_CrtcGetVrr(uint32_t drm_fd, uint32_t crtc_id)
 
 /* Gets a DRM connector, builds an SDL_Display with it, and adds it to the
    list of SDL Displays in _this->displays[]  */
-static void KMSDRM_AddDisplay(_THIS, drmModeConnector *connector, drmModeRes *resources)
+static void KMSDRM_AddDisplay(drmModeConnector *connector, drmModeRes *resources)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_DisplayData *dispdata = NULL;
@@ -865,7 +865,7 @@ cleanup:
    closed when we get to the end of this function.
    This is to be called early, in VideoInit(), because it gets us
    the videomode information, which SDL needs immediately after VideoInit(). */
-static int KMSDRM_InitDisplays(_THIS)
+static int KMSDRM_InitDisplays(void)
 {
 
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
@@ -911,7 +911,7 @@ static int KMSDRM_InitDisplays(_THIS)
                an SDL Display representing it. KMSDRM_AddDisplay() is purposely void,
                so if it fails (no encoder for connector, no valid video mode for
                connector etc...) we can keep looking for connected connectors. */
-            KMSDRM_AddDisplay(_this, connector, resources);
+            KMSDRM_AddDisplay(connector, resources);
         } else {
             /* If it's not, free it now. */
             KMSDRM_drmModeFreeConnector(connector);
@@ -1233,7 +1233,7 @@ int KMSDRM_VideoInit(_THIS)
        this info isn't a problem for VK compatibility.
        For VK-incompatible initializations we have KMSDRM_GBMInit(), which is
        called on window creation, and only when we know it's not a VK window. */
-    if (KMSDRM_InitDisplays(_this)) {
+    if (KMSDRM_InitDisplays()) {
         ret = SDL_SetError("error getting KMSDRM displays information");
     }
 
@@ -1255,7 +1255,7 @@ void KMSDRM_VideoQuit(_THIS)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
 
-    KMSDRM_DeinitDisplays(_this);
+    KMSDRM_DeinitDisplays();
 
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_SetVTSwitchCallbacks(NULL, NULL, NULL, NULL);
@@ -1348,7 +1348,7 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
     if (!is_vulkan && viddata->gbm_init) {
 
         /* Destroy cursor GBM BO of the display of this window. */
-        KMSDRM_DestroyCursorBO(_this, SDL_GetDisplayForWindow(window));
+        KMSDRM_DestroyCursorBO(SDL_GetDisplayForWindow(window));
 
         /* Destroy GBM surface and buffers. */
         KMSDRM_DestroySurfaces(_this, window);
@@ -1483,7 +1483,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
 
         /* Create and set the default cursor for the display
            of this window, now that we know this is not a VK window. */
-        KMSDRM_InitMouse(_this, display);
+        KMSDRM_InitMouse(display);
 
         /* The FULLSCREEN flags are cut out from window->flags at this point,
            so we can't know if a window is fullscreen or not, hence all windows

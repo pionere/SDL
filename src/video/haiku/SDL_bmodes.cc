@@ -208,7 +208,7 @@ static void _AddDisplay(BScreen *screen) {
  * Functions called by SDL
  */
 
-int HAIKU_InitModes(_THIS) {
+int HAIKU_InitModes(void) {
     BScreen screen;
 
     /* TODO: When Haiku supports multiple display screens, call
@@ -217,7 +217,7 @@ int HAIKU_InitModes(_THIS) {
     return 0;
 }
 
-int HAIKU_QuitModes(_THIS) {
+int HAIKU_QuitModes(void) {
     /* FIXME: Nothing really needs to be done here at the moment? */
     return 0;
 }

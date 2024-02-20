@@ -33,7 +33,7 @@ typedef struct
     CFMutableArrayRef modes;
 } SDL_DisplayModeData;
 
-extern void Cocoa_InitModes(_THIS);
+extern void Cocoa_InitModes(void);
 extern int Cocoa_GetDisplayBounds(SDL_VideoDisplay * display, SDL_Rect * rect);
 extern int Cocoa_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect);
 extern void Cocoa_GetDisplayModes(SDL_VideoDisplay * display);

@@ -454,7 +454,7 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     return 0;
 }
 
-static void CleanupWindowData(_THIS, SDL_Window *window)
+static void CleanupWindowData(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 
@@ -1171,7 +1171,7 @@ void WIN_DestroyWindow(_THIS, SDL_Window *window)
         window->shaper = NULL;
     }
 
-    CleanupWindowData(_this, window);
+    CleanupWindowData(window);
 }
 
 SDL_bool WIN_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)

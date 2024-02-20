@@ -453,7 +453,7 @@ static Uint32 X11_GetGlobalMouseState(int *x, int *y)
     return videodata->global_mouse_buttons;
 }
 
-void X11_InitMouse(_THIS)
+void X11_InitMouse(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
 
@@ -470,7 +470,7 @@ void X11_InitMouse(_THIS)
     SDL_SetDefaultCursor(X11_CreateDefaultCursor());
 }
 
-void X11_QuitMouse(_THIS)
+void X11_QuitMouse(void)
 {
     X11_VideoData *data = &x11VideoData;
     SDL_XInput2DeviceInfo *i;

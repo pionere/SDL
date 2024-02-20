@@ -293,7 +293,7 @@ static const char *Cocoa_GetDisplayName(CGDirectDisplayID displayID)
     return displayName;
 }
 
-void Cocoa_InitModes(_THIS)
+void Cocoa_InitModes(void)
 { @autoreleasepool
 {
     CGDisplayErr result;

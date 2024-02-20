@@ -109,8 +109,8 @@ extern KMSDRM_VideoData kmsdrmVideoData;
 
 /* Helper functions */
 int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window);
-KMSDRM_FBInfo *KMSDRM_FBFromBO(_THIS, struct gbm_bo *bo);
-SDL_bool KMSDRM_WaitPageflip(_THIS, SDL_WindowData *windata);
+KMSDRM_FBInfo *KMSDRM_FBFromBO(struct gbm_bo *bo);
+SDL_bool KMSDRM_WaitPageflip(SDL_WindowData *windata);
 
 /****************************************************************************/
 /* SDL_VideoDevice functions declaration                                    */

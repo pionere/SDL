@@ -111,7 +111,7 @@ static void xinput2_normalize_touch_coordinates(SDL_Window *window, double in_x,
 
 #endif /* SDL_VIDEO_DRIVER_X11_XINPUT2 */
 
-void X11_InitXinput2(_THIS)
+void X11_InitXinput2(void)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XINPUT2
     X11_VideoData *data = &x11VideoData;

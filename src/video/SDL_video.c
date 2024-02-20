@@ -176,17 +176,6 @@ extern SDL_bool Cocoa_IsWindowInFullscreenSpace(SDL_Window * window);
 extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window * window, SDL_bool state);
 #endif
 
-/* Convenience functions for reading driver flags */
-static SDL_bool DisableDisplayModeSwitching(_THIS)
-{
-    return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING);
-}
-
-static SDL_bool DisableUnsetFullscreenOnMinimize(_THIS)
-{
-    return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE);
-}
-
 /* Support for framebuffer emulation using an accelerated renderer */
 
 #define SDL_WINDOWTEXTUREDATA "_SDL_WindowTextureData"
@@ -335,6 +324,17 @@ static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pi
 
 static SDL_VideoDevice *_this = NULL;
 static SDL_atomic_t SDL_messagebox_count;
+
+/* Convenience functions for reading driver flags */
+static SDL_bool DisableDisplayModeSwitching()
+{
+    return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING);
+}
+
+static SDL_bool DisableUnsetFullscreenOnMinimize()
+{
+    return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE);
+}
 
 static int SDL_UpdateWindowTexture(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
@@ -1117,7 +1117,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
     int result;
 
     /* Mode switching disabled via driver quirk flag, nothing to do and cannot fail. */
-    if (DisableDisplayModeSwitching(_this)) {
+    if (DisableDisplayModeSwitching()) {
         return 0;
     }
 
@@ -2621,7 +2621,7 @@ void SDL_MinimizeWindow(SDL_Window *window)
         return;
     }
 
-    if (!DisableUnsetFullscreenOnMinimize(_this)) {
+    if (!DisableUnsetFullscreenOnMinimize()) {
         SDL_UpdateFullscreenMode(window, SDL_FALSE);
     }
 
@@ -3165,7 +3165,7 @@ void SDL_OnWindowMoved(SDL_Window *window)
 
 void SDL_OnWindowMinimized(SDL_Window *window)
 {
-    if (!DisableUnsetFullscreenOnMinimize(_this)) {
+    if (!DisableUnsetFullscreenOnMinimize()) {
         SDL_UpdateFullscreenMode(window, SDL_FALSE);
     }
 }
@@ -3243,7 +3243,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
     hint = SDL_GetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS);
     if (!hint || !*hint || SDL_strcasecmp(hint, "auto") == 0) {
         if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP ||
-            DisableDisplayModeSwitching(_this) == SDL_TRUE) {
+            DisableDisplayModeSwitching() == SDL_TRUE) {
             return SDL_FALSE;
         } else {
             return SDL_TRUE;

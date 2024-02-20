@@ -23,7 +23,7 @@
 #ifndef SDL_nullmouse_h_
 #define SDL_nullmouse_h_
 
-extern void DUMMY_InitMouse(_THIS);
+extern void DUMMY_InitMouse(void);
 
 #endif /* SDL_nullmouse_h_ */
 

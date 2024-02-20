@@ -197,7 +197,7 @@ static void *copy_memory(const void *src, size_t size, size_t alloc)
     return dst;
 }
 
-int RISCOS_InitModes(_THIS)
+int RISCOS_InitModes(void)
 {
     SDL_DisplayMode mode;
     int *current_mode;

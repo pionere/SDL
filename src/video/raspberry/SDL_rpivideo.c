@@ -188,7 +188,7 @@ int RPI_VideoInit(_THIS)
     }
 #endif
 
-    RPI_InitMouse(_this);
+    RPI_InitMouse();
 
     return 0;
 }
@@ -198,6 +198,7 @@ void RPI_VideoQuit(_THIS)
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Quit();
 #endif
+    RPI_QuitMouse();
 }
 
 void RPI_GetDisplayModes(SDL_VideoDisplay *display)

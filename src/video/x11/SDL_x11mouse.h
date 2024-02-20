@@ -33,8 +33,8 @@ typedef struct SDL_XInput2DeviceInfo
     struct SDL_XInput2DeviceInfo *next;
 } SDL_XInput2DeviceInfo;
 
-extern void X11_InitMouse(_THIS);
-extern void X11_QuitMouse(_THIS);
+extern void X11_InitMouse(void);
+extern void X11_QuitMouse(void);
 
 #endif /* SDL_x11mouse_h_ */
 

@@ -450,7 +450,7 @@ void X11_ReconcileKeyboardState(void)
     }
 }
 
-static void X11_DispatchFocusIn(_THIS, SDL_WindowData *data)
+static void X11_DispatchFocusIn(SDL_WindowData *data)
 {
 #ifdef DEBUG_XEVENTS
     printf("window %p: Dispatching FocusIn\n", data);
@@ -470,7 +470,7 @@ static void X11_DispatchFocusIn(_THIS, SDL_WindowData *data)
     }
 }
 
-static void X11_DispatchFocusOut(_THIS, SDL_WindowData *data)
+static void X11_DispatchFocusOut(SDL_WindowData *data)
 {
 #ifdef DEBUG_XEVENTS
     printf("window %p: Dispatching FocusOut\n", data);
@@ -508,7 +508,7 @@ static void X11_DispatchUnmapNotify(SDL_WindowData *data)
     SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
 }
 
-static void InitiateWindowMove(_THIS, const SDL_WindowData *data, const SDL_Point *point)
+static void InitiateWindowMove(const SDL_WindowData *data, const SDL_Point *point)
 {
     X11_VideoData *viddata = &x11VideoData;
     SDL_Window *window = data->window;
@@ -533,7 +533,7 @@ static void InitiateWindowMove(_THIS, const SDL_WindowData *data, const SDL_Poin
     X11_XSync(display, 0);
 }
 
-static void InitiateWindowResize(_THIS, const SDL_WindowData *data, const SDL_Point *point, int direction)
+static void InitiateWindowResize(const SDL_WindowData *data, const SDL_Point *point, int direction)
 {
     X11_VideoData *viddata = &x11VideoData;
     SDL_Window *window = data->window;
@@ -562,7 +562,7 @@ static void InitiateWindowResize(_THIS, const SDL_WindowData *data, const SDL_Po
     X11_XSync(display, 0);
 }
 
-static SDL_bool ProcessHitTest(_THIS, const SDL_WindowData *data, const XEvent *xev)
+static SDL_bool ProcessHitTest(const SDL_WindowData *data, const XEvent *xev)
 {
     SDL_Window *window = data->window;
 
@@ -578,7 +578,7 @@ static SDL_bool ProcessHitTest(_THIS, const SDL_WindowData *data, const XEvent *
 
         switch (rc) {
         case SDL_HITTEST_DRAGGABLE:
-            InitiateWindowMove(_this, data, &point);
+            InitiateWindowMove(data, &point);
             return SDL_TRUE;
 
         case SDL_HITTEST_RESIZE_TOPLEFT:
@@ -589,7 +589,7 @@ static SDL_bool ProcessHitTest(_THIS, const SDL_WindowData *data, const XEvent *
         case SDL_HITTEST_RESIZE_BOTTOM:
         case SDL_HITTEST_RESIZE_BOTTOMLEFT:
         case SDL_HITTEST_RESIZE_LEFT:
-            InitiateWindowResize(_this, data, &point, directions[rc - SDL_HITTEST_RESIZE_TOPLEFT]);
+            InitiateWindowResize(data, &point, directions[rc - SDL_HITTEST_RESIZE_TOPLEFT]);
             return SDL_TRUE;
 
         default:
@@ -615,7 +615,7 @@ static void X11_UpdateUserTime(SDL_WindowData *data, const unsigned long latest)
     }
 }
 
-static void X11_HandleClipboardEvent(_THIS, const XEvent *xevent)
+static void X11_HandleClipboardEvent(const XEvent *xevent)
 {
     int i;
     X11_VideoData *videodata = &x11VideoData;
@@ -794,7 +794,7 @@ void X11_GetBorderValues(void /* SDL_WindowData */ *data_)
     }
 }
 
-static void X11_DispatchEvent(_THIS, XEvent *xevent)
+static void X11_DispatchEvent(XEvent *xevent)
 {
     X11_VideoData *videodata = &x11VideoData;
     Display *display;
@@ -851,7 +851,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
 
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR
     if (videodata->xrandr_event_base && (xevent->type == (videodata->xrandr_event_base + RRNotify))) {
-        X11_HandleXRandREvent(_this, xevent);
+        X11_HandleXRandREvent(xevent);
     }
 #endif
 
@@ -893,7 +893,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
 
     if ((videodata->clipboard_window != None) &&
         (videodata->clipboard_window == xevent->xany.window)) {
-        X11_HandleClipboardEvent(_this, xevent);
+        X11_HandleClipboardEvent(xevent);
         return;
     }
 
@@ -927,7 +927,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
                 X11_XRefreshKeyboardMapping(&xevent->xmapping);
             }
 
-            X11_UpdateKeymap(_this, SDL_TRUE);
+            X11_UpdateKeymap(SDL_TRUE);
         } else if (xevent->type == PropertyNotify && videodata && videodata->windowlist) {
             char *name_of_atom = X11_XGetAtomName(display, xevent->xproperty.atom);
 
@@ -1055,7 +1055,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
         if (!videodata->last_mode_change_deadline) /* no recent mode changes */ {
             data->pending_focus = PENDING_FOCUS_NONE;
             data->pending_focus_time = 0;
-            X11_DispatchFocusIn(_this, data);
+            X11_DispatchFocusIn(data);
         } else {
             data->pending_focus = PENDING_FOCUS_IN;
             data->pending_focus_time = SDL_GetTicks() + PENDING_FOCUS_TIME;
@@ -1088,7 +1088,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
         if (!videodata->last_mode_change_deadline) /* no recent mode changes */ {
             data->pending_focus = PENDING_FOCUS_NONE;
             data->pending_focus_time = 0;
-            X11_DispatchFocusOut(_this, data);
+            X11_DispatchFocusOut(data);
         } else {
             data->pending_focus = PENDING_FOCUS_OUT;
             data->pending_focus_time = SDL_GetTicks() + PENDING_FOCUS_TIME;
@@ -1119,7 +1119,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
         if (videodata->key_layout[keycode] == SDL_SCANCODE_UNKNOWN && keycode) {
             int min_keycode, max_keycode;
             X11_XDisplayKeycodes(display, &min_keycode, &max_keycode);
-            keysym = X11_KeyCodeToSym(_this, keycode, xevent->xkey.state >> 13);
+            keysym = X11_KeyCodeToSym(keycode, xevent->xkey.state >> 13);
             SDL_Log("The key you just pressed is not recognized by SDL. To help get this fixed, please report this to the SDL forums/mailing list <https://discourse.libsdl.org/> X11 KeyCode %d (%d), X11 KeySym 0x%lX (%s).\n",
                     keycode, keycode - min_keycode, keysym,
                     X11_XKeysymToString(keysym));
@@ -1388,7 +1388,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
             SDL_bool ignore_click = SDL_FALSE;
             int button = xevent->xbutton.button;
             if (button == Button1) {
-                if (ProcessHitTest(_this, data, xevent)) {
+                if (ProcessHitTest(data, xevent)) {
                     SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
                     break; /* don't pass this event on to app. */
                 }
@@ -1548,7 +1548,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
                icon). Since it changes the XKLAVIER_STATE property, we
                notice and reinit our keymap here. This might not be the
                right approach, but it seems to work. */
-            X11_UpdateKeymap(_this, SDL_TRUE);
+            X11_UpdateKeymap(SDL_TRUE);
         } else if (xevent->xproperty.atom == videodata->_NET_FRAME_EXTENTS) {
             X11_GetBorderValues(data);
         }
@@ -1613,7 +1613,7 @@ static void X11_DispatchEvent(_THIS, XEvent *xevent)
     }
 }
 
-static void X11_HandleFocusChanges(_THIS)
+static void X11_HandleFocusChanges(void)
 {
     X11_VideoData *videodata = &x11VideoData;
     int i;
@@ -1625,9 +1625,9 @@ static void X11_HandleFocusChanges(_THIS)
                 Uint32 now = SDL_GetTicks();
                 if (SDL_TICKS_PASSED(now, data->pending_focus_time)) {
                     if (data->pending_focus == PENDING_FOCUS_IN) {
-                        X11_DispatchFocusIn(_this, data);
+                        X11_DispatchFocusIn(data);
                     } else {
-                        X11_DispatchFocusOut(_this, data);
+                        X11_DispatchFocusOut(data);
                     }
                     data->pending_focus = PENDING_FOCUS_NONE;
                 }
@@ -1710,7 +1710,7 @@ int X11_WaitEventTimeout(_THIS, int timeout)
         }
     }
 
-    X11_DispatchEvent(_this, &xevent);
+    X11_DispatchEvent(&xevent);
 
 #ifdef SDL_USE_IME
     if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
@@ -1751,7 +1751,7 @@ void X11_PumpEvents(_THIS)
 
     /* Keep processing pending events */
     while (X11_PollEvent(data->display, &xevent)) {
-        X11_DispatchEvent(_this, &xevent);
+        X11_DispatchEvent(&xevent);
     }
 
 #ifdef SDL_USE_IME
@@ -1761,7 +1761,7 @@ void X11_PumpEvents(_THIS)
 #endif
 
     /* FIXME: Only need to do this when there are pending focus changes */
-    X11_HandleFocusChanges(_this);
+    X11_HandleFocusChanges();
 
     /* FIXME: Only need to do this when there are flashing windows */
     for (i = 0; i < data->numwindows; ++i) {

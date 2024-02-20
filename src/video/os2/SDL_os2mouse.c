@@ -160,7 +160,7 @@ static Uint32 OS2_GetGlobalMouseState(int *x, int *y)
 }
 
 
-void OS2_InitMouse(_THIS, ULONG hab)
+void OS2_InitMouse(ULONG hab)
 {
     SDL_Mouse   *pSDLMouse = SDL_GetMouse();
 
@@ -178,7 +178,7 @@ void OS2_InitMouse(_THIS, ULONG hab)
         hptrCursor = WinQuerySysPointer(HWND_DESKTOP, SPTR_ARROW, TRUE);
 }
 
-void OS2_QuitMouse(_THIS)
+void OS2_QuitMouse(void)
 {
     SDL_Mouse   *pSDLMouse = SDL_GetMouse();
 

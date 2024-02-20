@@ -25,7 +25,7 @@
 #include "../SDL_sysvideo.h"
 
 /* Functions to be exported */
-extern void DirectFB_InitKeyboard(_THIS);
+extern void DirectFB_InitKeyboard(void);
 extern void DirectFB_QuitKeyboard(void);
 extern void DirectFB_PumpEventsWindow(_THIS);
 

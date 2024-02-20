@@ -228,9 +228,9 @@ int WINRT_VideoInit(_THIS)
     // TODO, WinRT: see if an app's default orientation can be found out via WinRT API(s), then set the initial value of SDL_HINT_ORIENTATIONS accordingly.
     SDL_AddHintCallback(SDL_HINT_ORIENTATIONS, WINRT_SetDisplayOrientationsPreference, NULL);
 
-    WINRT_InitMouse(_this);
+    WINRT_InitMouse();
     WINRT_InitTouch();
-    WINRT_InitGameBar(_this);
+    WINRT_InitGameBar();
     if (driverdata) {
         /* Initialize screensaver-disabling support */
         driverdata->displayRequest = WINRT_CreateDisplayRequest();
@@ -472,8 +472,8 @@ void WINRT_VideoQuit(_THIS)
         driverdata->displayRequest->Release();
         driverdata->displayRequest = NULL;
     }
-    WINRT_QuitGameBar(_this);
-    WINRT_QuitMouse(_this);
+    WINRT_QuitGameBar();
+    WINRT_QuitMouse();
 }
 
 static const Uint32 WINRT_DetectableFlags = SDL_WINDOW_MAXIMIZED | SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_SHOWN | SDL_WINDOW_HIDDEN | SDL_WINDOW_MOUSE_FOCUS;

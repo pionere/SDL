@@ -361,7 +361,7 @@ static Uint32 Cocoa_GetGlobalMouseState(int *x, int *y)
     return retval;
 }
 
-int Cocoa_InitMouse(_THIS)
+int Cocoa_InitMouse(void)
 {
     NSPoint location;
     SDL_Mouse *mouse = SDL_GetMouse();
@@ -556,14 +556,12 @@ void Cocoa_HandleMouseWarp(CGFloat x, CGFloat y)
     DLog("(%g, %g)", x, y);
 }
 
-void Cocoa_QuitMouse(_THIS)
+void Cocoa_QuitMouse(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
     if (mouse) {
-        if (mouse->driverdata) {
-            SDL_free(mouse->driverdata);
-            mouse->driverdata = NULL;
-        }
+        SDL_free(mouse->driverdata);
+        mouse->driverdata = NULL;
     }
 }
 

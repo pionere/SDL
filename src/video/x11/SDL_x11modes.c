@@ -281,7 +281,7 @@ static void SetXRandRDisplayName(Display *dpy, Atom EDID, char *name, const size
 #endif
 }
 
-static int X11_AddXRandRDisplay(_THIS, Display *dpy, int screen, RROutput outputid, XRRScreenResources *res, SDL_bool send_event)
+static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRRScreenResources *res, SDL_bool send_event)
 {
     Atom EDID = X11_XInternAtom(dpy, "EDID", False);
     XRROutputInfo *output_info;
@@ -389,7 +389,7 @@ static int X11_AddXRandRDisplay(_THIS, Display *dpy, int screen, RROutput output
     return SDL_AddVideoDisplay(&display, send_event);
 }
 
-static void X11_HandleXRandROutputChange(_THIS, const XRROutputChangeNotifyEvent *ev)
+static void X11_HandleXRandROutputChange(const XRROutputChangeNotifyEvent *ev)
 {
     SDL_VideoDisplay *display = NULL;
     int displayidx = -1;
@@ -433,7 +433,7 @@ static void X11_HandleXRandROutputChange(_THIS, const XRROutputChangeNotifyEvent
                 }
 
                 if (res) {
-                    X11_AddXRandRDisplay(_this, dpy, screen, ev->output, res, SDL_TRUE);
+                    X11_AddXRandRDisplay(dpy, screen, ev->output, res, SDL_TRUE);
                     X11_XRRFreeScreenResources(res);
                 }
             }
@@ -441,14 +441,14 @@ static void X11_HandleXRandROutputChange(_THIS, const XRROutputChangeNotifyEvent
     }
 }
 
-void X11_HandleXRandREvent(_THIS, const XEvent *xevent)
+void X11_HandleXRandREvent(const XEvent *xevent)
 {
     X11_VideoData *videodata = &x11VideoData;
     SDL_assert(xevent->type == (videodata->xrandr_event_base + RRNotify));
 
     switch (((const XRRNotifyEvent *)xevent)->subtype) {
     case RRNotify_OutputChange:
-        X11_HandleXRandROutputChange(_this, (const XRROutputChangeNotifyEvent *)xevent);
+        X11_HandleXRandROutputChange((const XRROutputChangeNotifyEvent *)xevent);
         break;
     default:
         break;
@@ -498,7 +498,7 @@ static int X11_InitModes_XRandR(_THIS)
                     (!looking_for_primary && (screen == default_screen) && (res->outputs[output] == primary))) {
                     continue;
                 }
-                if (X11_AddXRandRDisplay(_this, dpy, screen, res->outputs[output], res, SDL_FALSE) == -1) {
+                if (X11_AddXRandRDisplay(dpy, screen, res->outputs[output], res, SDL_FALSE) == -1) {
                     break;
                 }
             }
@@ -544,7 +544,7 @@ static int GetXftDPI(Display *dpy)
 /* This is used if there's no better functionality--like XRandR--to use.
    It won't attempt to supply different display modes at all, but it can
    enumerate the current displays and their current sizes. */
-static int X11_InitModes_StdXlib(_THIS)
+static int X11_InitModes_StdXlib(void)
 {
     /* !!! FIXME: a lot of copy/paste from X11_InitModes_XRandR in this function. */
     X11_VideoData *data = &x11VideoData;
@@ -651,7 +651,7 @@ int X11_InitModes(_THIS)
 #endif /* SDL_VIDEO_DRIVER_X11_XRANDR */
 
     /* still here? Just set up an extremely basic display. */
-    return X11_InitModes_StdXlib(_this);
+    return X11_InitModes_StdXlib();
 }
 
 void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display)
@@ -821,7 +821,7 @@ int X11_SetDisplayMode(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *mode)
     return 0;
 }
 
-void X11_QuitModes(_THIS)
+void X11_QuitModes(void)
 {
 }
 

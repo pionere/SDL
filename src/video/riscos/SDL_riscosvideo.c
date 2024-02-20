@@ -93,11 +93,11 @@ static int RISCOS_VideoInit(_THIS)
         return -1;
     }
 
-    if (RISCOS_InitMouse(_this) < 0) {
+    if (RISCOS_InitMouse() < 0) {
         return -1;
     }
 
-    if (RISCOS_InitModes(_this) < 0) {
+    if (RISCOS_InitModes() < 0) {
         return -1;
     }
 

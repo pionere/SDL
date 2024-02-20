@@ -72,9 +72,9 @@ static SDL_bool X11_ScancodeIsRemappable(SDL_Scancode scancode)
 }
 
 /* This function only correctly maps letters and numbers for keyboards in US QWERTY layout */
-static SDL_Scancode X11_KeyCodeToSDLScancode(_THIS, KeyCode keycode)
+static SDL_Scancode X11_KeyCodeToSDLScancode(KeyCode keycode)
 {
-    const KeySym keysym = X11_KeyCodeToSym(_this, keycode, 0);
+    const KeySym keysym = X11_KeyCodeToSym(keycode, 0);
 
     if (keysym == NoSymbol) {
         return SDL_SCANCODE_UNKNOWN;
@@ -83,9 +83,9 @@ static SDL_Scancode X11_KeyCodeToSDLScancode(_THIS, KeyCode keycode)
     return SDL_GetScancodeFromKeySym(keysym, keycode);
 }
 
-static Uint32 X11_KeyCodeToUcs4(_THIS, KeyCode keycode, unsigned char group)
+static Uint32 X11_KeyCodeToUcs4(KeyCode keycode, unsigned char group)
 {
-    KeySym keysym = X11_KeyCodeToSym(_this, keycode, group);
+    KeySym keysym = X11_KeyCodeToSym(keycode, group);
 
     if (keysym == NoSymbol) {
         return 0;
@@ -95,7 +95,7 @@ static Uint32 X11_KeyCodeToUcs4(_THIS, KeyCode keycode, unsigned char group)
 }
 
 KeySym
-X11_KeyCodeToSym(_THIS, KeyCode keycode, unsigned char group)
+X11_KeyCodeToSym(KeyCode keycode, unsigned char group)
 {
     X11_VideoData *data = &x11VideoData;
     KeySym keysym;
@@ -131,7 +131,7 @@ X11_KeyCodeToSym(_THIS, KeyCode keycode, unsigned char group)
     return keysym;
 }
 
-int X11_InitKeyboard(_THIS)
+int X11_InitKeyboard(void)
 {
     X11_VideoData *data = &x11VideoData;
     int i = 0;
@@ -279,11 +279,11 @@ int X11_InitKeyboard(_THIS)
         SDL_GetDefaultKeymap(default_keymap);
 
         for (i = min_keycode; i <= max_keycode; ++i) {
-            SDL_Scancode scancode = X11_KeyCodeToSDLScancode(_this, i);
+            SDL_Scancode scancode = X11_KeyCodeToSDLScancode(i);
 #ifdef DEBUG_KEYBOARD
             {
                 KeySym sym;
-                sym = X11_KeyCodeToSym(_this, (KeyCode)i, 0);
+                sym = X11_KeyCodeToSym((KeyCode)i, 0);
                 SDL_Log("code = %d, sym = 0x%X (%s) ", i - min_keycode,
                         (unsigned int)sym, sym == NoSymbol ? "NoSymbol" : X11_XKeysymToString(sym));
             }
@@ -306,11 +306,11 @@ int X11_InitKeyboard(_THIS)
 
         /* Determine key_layout - only works on US QWERTY layout */
         for (i = min_keycode; i <= max_keycode; ++i) {
-            SDL_Scancode scancode = X11_KeyCodeToSDLScancode(_this, i);
+            SDL_Scancode scancode = X11_KeyCodeToSDLScancode(i);
 #ifdef DEBUG_SCANCODES
             {
                 KeySym sym;
-                sym = X11_KeyCodeToSym(_this, (KeyCode)i, 0);
+                sym = X11_KeyCodeToSym((KeyCode)i, 0);
                 SDL_Log("code = %d, sym = 0x%X (%s) ", i - min_keycode,
                         (unsigned int)sym, sym == NoSymbol ? "NoSymbol" : X11_XKeysymToString(sym));
             }
@@ -324,7 +324,7 @@ int X11_InitKeyboard(_THIS)
         }
     }
 
-    X11_UpdateKeymap(_this, SDL_FALSE);
+    X11_UpdateKeymap(SDL_FALSE);
 
     SDL_SetScancodeName(SDL_SCANCODE_APPLICATION, "Menu");
 
@@ -337,7 +337,7 @@ int X11_InitKeyboard(_THIS)
     return 0;
 }
 
-void X11_UpdateKeymap(_THIS, SDL_bool send_event)
+void X11_UpdateKeymap(SDL_bool send_event)
 {
     X11_VideoData *data = &x11VideoData;
     int i;
@@ -368,11 +368,11 @@ void X11_UpdateKeymap(_THIS, SDL_bool send_event)
         }
 
         /* See if there is a UCS keycode for this scancode */
-        key = X11_KeyCodeToUcs4(_this, (KeyCode)i, group);
+        key = X11_KeyCodeToUcs4((KeyCode)i, group);
         if (key) {
             keymap[scancode] = key;
         } else {
-            SDL_Scancode keyScancode = X11_KeyCodeToSDLScancode(_this, (KeyCode)i);
+            SDL_Scancode keyScancode = X11_KeyCodeToSDLScancode((KeyCode)i);
 
             switch (keyScancode) {
             case SDL_SCANCODE_RETURN:
@@ -399,7 +399,7 @@ void X11_UpdateKeymap(_THIS, SDL_bool send_event)
     SDL_SetKeymap(0, keymap, SDL_NUM_SCANCODES, send_event);
 }
 
-void X11_QuitKeyboard(_THIS)
+void X11_QuitKeyboard(void)
 {
     X11_VideoData *data = &x11VideoData;
 

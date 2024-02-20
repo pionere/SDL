@@ -143,8 +143,8 @@ int DUMMY_VideoInit(_THIS)
     SDL_EVDEV_Init();
 #endif
 
-    // DUMMY_InitKeyboard(_this);
-    DUMMY_InitMouse(_this);
+    // DUMMY_InitKeyboard();
+    DUMMY_InitMouse();
 
     /* We're done! */
     return 0;
@@ -156,8 +156,8 @@ void DUMMY_VideoQuit(_THIS)
     SDL_EVDEV_Quit();
 #endif
 
-    // DUMMY_QuitKeyboard(_this);
-    // DUMMY_QuitMouse(_this);
+    // DUMMY_QuitKeyboard();
+    // DUMMY_QuitMouse();
 }
 
 #endif /* SDL_VIDEO_DRIVER_DUMMY */

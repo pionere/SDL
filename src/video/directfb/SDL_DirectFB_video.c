@@ -258,7 +258,7 @@ static int DirectFB_VideoInit(_THIS)
     devdata->dfb = dfb;
     devdata->firstwin = NULL;
 
-    DirectFB_InitModes(_this);
+    DirectFB_InitModes();
 
 #ifdef SDL_DIRECTFB_OPENGL
     DirectFB_GL_Initialize(_this);

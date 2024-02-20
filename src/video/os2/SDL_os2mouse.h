@@ -25,8 +25,8 @@
 
 extern HPOINTER hptrCursor;
 
-extern void OS2_InitMouse(_THIS, ULONG hab);
-extern void OS2_QuitMouse(_THIS);
+extern void OS2_InitMouse(ULONG hab);
+extern void OS2_QuitMouse(void);
 
 #endif /* SDL_os2mouse_h_ */
 

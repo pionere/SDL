@@ -23,7 +23,7 @@
 #ifndef SDL_riscosmodes_h_
 #define SDL_riscosmodes_h_
 
-extern int RISCOS_InitModes(_THIS);
+extern int RISCOS_InitModes(void);
 extern void RISCOS_GetDisplayModes(SDL_VideoDisplay *display);
 extern int RISCOS_SetDisplayMode(SDL_VideoDisplay *display,
                                  SDL_DisplayMode *mode);

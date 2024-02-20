@@ -1522,7 +1522,7 @@ static int OS2_VideoInit(_THIS)
         SDL_AddVideoDisplay(&stSDLDisplay, SDL_FALSE);
     }
 
-    OS2_InitMouse(_this, pVData->hab);
+    OS2_InitMouse(pVData->hab);
 
     return 0;
 }
@@ -1531,7 +1531,7 @@ static void OS2_VideoQuit(_THIS)
 {
     OS2_VideoData *pVData = &os2VideoData;
 
-    OS2_QuitMouse(_this);
+    OS2_QuitMouse();
 
     WinDestroyMsgQueue(pVData->hmq);
     WinTerminate(pVData->hab);

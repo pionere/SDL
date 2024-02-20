@@ -25,11 +25,11 @@
 
 #include "SDL_cocoavideo.h"
 
-extern int Cocoa_InitMouse(_THIS);
+extern int Cocoa_InitMouse(void);
 extern void Cocoa_HandleMouseEvent(_THIS, NSEvent * event);
 extern void Cocoa_HandleMouseWheel(SDL_Window *window, NSEvent * event);
 extern void Cocoa_HandleMouseWarp(CGFloat x, CGFloat y);
-extern void Cocoa_QuitMouse(_THIS);
+extern void Cocoa_QuitMouse(void);
 
 typedef struct {
     /* Whether we've seen a cursor warp since the last move event. */

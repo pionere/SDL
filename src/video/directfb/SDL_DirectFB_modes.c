@@ -137,7 +137,7 @@ void DirectFB_SetContext(SDL_Window *window)
 #endif
 }
 
-void DirectFB_InitModes(_THIS)
+void DirectFB_InitModes(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     IDirectFBDisplayLayer *layer = NULL;

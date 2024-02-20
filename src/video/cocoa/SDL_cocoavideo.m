@@ -191,9 +191,9 @@ int Cocoa_VideoInit(_THIS)
 {
     Cocoa_VideoData *data = cocoaVideoData;
 
-    Cocoa_InitModes(_this);
-    Cocoa_InitKeyboard(_this);
-    if (Cocoa_InitMouse(_this) < 0) {
+    Cocoa_InitModes();
+    Cocoa_InitKeyboard();
+    if (Cocoa_InitMouse() < 0) {
         return -1;
     }
 
@@ -213,8 +213,8 @@ void Cocoa_VideoQuit(_THIS)
 {
     Cocoa_VideoData *data = cocoaVideoData;
     Cocoa_QuitModes(_this);
-    Cocoa_QuitKeyboard(_this);
-    Cocoa_QuitMouse(_this);
+    Cocoa_QuitKeyboard();
+    Cocoa_QuitMouse();
     SDL_DestroyMutex(data.swaplock);
     data.swaplock = NULL;
 }}

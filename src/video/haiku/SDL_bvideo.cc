@@ -245,7 +245,7 @@ static int HAIKU_SetRelativeMouseMode(SDL_bool enabled)
     return 0;
 }
 
-static void HAIKU_MouseInit(_THIS)
+static void HAIKU_MouseInit(void)
 {
 	SDL_Mouse *mouse = SDL_GetMouse();
 	if (!mouse) {
@@ -268,12 +268,12 @@ int HAIKU_VideoInit(_THIS)
     }
     
     /* Initialize video modes */
-    HAIKU_InitModes(_this);
+    HAIKU_InitModes();
 
     /* Init the keymap */
     HAIKU_InitOSKeymap();
 
-    HAIKU_MouseInit(_this);
+    HAIKU_MouseInit();
 
 #ifdef SDL_VIDEO_OPENGL
         /* testgl application doesn't load library, just tries to load symbols */
@@ -288,7 +288,7 @@ int HAIKU_VideoInit(_THIS)
 void HAIKU_VideoQuit(_THIS)
 {
 
-    HAIKU_QuitModes(_this);
+    HAIKU_QuitModes();
 
     SDL_QuitBeApp();
 }

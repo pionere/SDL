@@ -23,9 +23,9 @@
 #ifndef SDL_x11keyboard_h_
 #define SDL_x11keyboard_h_
 
-extern int X11_InitKeyboard(_THIS);
-extern void X11_UpdateKeymap(_THIS, SDL_bool send_event);
-extern void X11_QuitKeyboard(_THIS);
+extern int X11_InitKeyboard(void);
+extern void X11_UpdateKeymap(SDL_bool send_event);
+extern void X11_QuitKeyboard(void);
 extern void X11_StartTextInput(void);
 extern void X11_StopTextInput(void);
 extern void X11_SetTextInputRect(const SDL_Rect *rect);
@@ -33,7 +33,7 @@ extern SDL_bool X11_HasScreenKeyboardSupport(void);
 extern void X11_ShowScreenKeyboard(SDL_Window *window);
 extern void X11_HideScreenKeyboard(SDL_Window *window);
 extern SDL_bool X11_IsScreenKeyboardShown(SDL_Window *window);
-extern KeySym X11_KeyCodeToSym(_THIS, KeyCode, unsigned char group);
+extern KeySym X11_KeyCodeToSym(KeyCode, unsigned char group);
 
 #endif /* SDL_x11keyboard_h_ */
 

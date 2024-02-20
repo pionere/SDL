@@ -119,7 +119,7 @@ int PSP_VideoInit(_THIS)
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
-    if (PSP_EventInit(_this) < 0) {
+    if (PSP_EventInit() < 0) {
         return -1;  /* error string would already be set */
     }
 
@@ -153,7 +153,7 @@ int PSP_VideoInit(_THIS)
 
 void PSP_VideoQuit(_THIS)
 {
-    PSP_EventQuit(_this);
+    PSP_EventQuit();
 }
 
 void PSP_GetDisplayModes(SDL_VideoDisplay *display)

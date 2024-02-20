@@ -446,7 +446,7 @@ int X11_VideoInit(_THIS)
         return -1;
     }
 
-    X11_InitXinput2(_this);
+    X11_InitXinput2();
 
 #ifdef SDL_VIDEO_DRIVER_X11_XFIXES
     X11_InitXfixes();
@@ -456,10 +456,10 @@ int X11_VideoInit(_THIS)
 #warning X server does not support UTF8_STRING, a feature introduced in 2000! This is likely to become a hard error in a future libSDL2.
 #endif
 
-    if (X11_InitKeyboard(_this) != 0) {
+    if (X11_InitKeyboard() != 0) {
         return -1;
     }
-    X11_InitMouse(_this);
+    X11_InitMouse();
 
     X11_InitTouch();
 
@@ -481,9 +481,9 @@ void X11_VideoQuit(_THIS)
     }
 #endif
 
-    X11_QuitModes(_this);
-    X11_QuitKeyboard(_this);
-    X11_QuitMouse(_this);
+    X11_QuitModes();
+    X11_QuitKeyboard();
+    X11_QuitMouse();
     X11_QuitTouch();
 }
 

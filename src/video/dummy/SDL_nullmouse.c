@@ -57,7 +57,7 @@ static void DUMMY_FreeCursor(SDL_Cursor *cursor)
     SDL_free(cursor);
 }
 
-void DUMMY_InitMouse(_THIS)
+void DUMMY_InitMouse(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
 

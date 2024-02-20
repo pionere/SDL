@@ -344,7 +344,7 @@ static void DirectFB_FreeMouse(SDL_Mouse * mouse)
 
 #else /* USE_MULTI_API */
 
-void DirectFB_InitMouse(_THIS)
+void DirectFB_InitMouse(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
 
@@ -360,7 +360,7 @@ void DirectFB_InitMouse(_THIS)
     devdata->num_mice = 1;
 }
 
-void DirectFB_QuitMouse(_THIS)
+void DirectFB_QuitMouse(void)
 {
 }
 

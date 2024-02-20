@@ -112,7 +112,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
 
     /* Wait for confirmation that the next front buffer has been flipped, at which
        point the previous front buffer can be released */
-    if (!KMSDRM_WaitPageflip(_this, windata)) {
+    if (!KMSDRM_WaitPageflip(windata)) {
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Wait for previous pageflip failed");
         return 0;
     }
@@ -143,7 +143,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
     }
 
     /* Get an actual usable fb for the next front buffer. */
-    fb_info = KMSDRM_FBFromBO(_this, windata->next_bo);
+    fb_info = KMSDRM_FBFromBO(windata->next_bo);
     if (!fb_info) {
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Could not get a framebuffer");
         return 0;
@@ -197,7 +197,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
            Run your SDL2 program with "SDL_KMSDRM_DOUBLE_BUFFER=1 <program_name>"
            to enable this. */
         if (windata->double_buffer) {
-            if (!KMSDRM_WaitPageflip(_this, windata)) {
+            if (!KMSDRM_WaitPageflip(windata)) {
                 SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Immediate wait for previous pageflip failed");
                 return 0;
             }

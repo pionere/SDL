@@ -311,7 +311,7 @@ cleanup:
     CFRelease(key_layout);
 }
 
-void Cocoa_InitKeyboard(_THIS)
+void Cocoa_InitKeyboard(void)
 {
     Cocoa_VideoData *data = cocoaVideoData;
 
@@ -455,7 +455,7 @@ void Cocoa_HandleKeyEvent(_THIS, NSEvent *event)
     }
 }
 
-void Cocoa_QuitKeyboard(_THIS)
+void Cocoa_QuitKeyboard(void)
 {
 }
 

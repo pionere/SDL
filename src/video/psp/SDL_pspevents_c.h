@@ -21,9 +21,9 @@
 
 #include "SDL_pspvideo.h"
 
-extern void PSP_InitOSKeymap(_THIS);
+extern void PSP_InitOSKeymap(void);
 extern void PSP_PumpEvents(_THIS);
-extern int PSP_EventInit(_THIS);
-extern void PSP_EventQuit(_THIS);
+extern int PSP_EventInit(void);
+extern void PSP_EventQuit(void);
 
 /* end of SDL_pspevents_c.h ... */

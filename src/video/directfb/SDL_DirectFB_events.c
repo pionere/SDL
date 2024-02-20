@@ -163,7 +163,7 @@ static int ClientXY(DFB_WindowData * p, int *x, int *y)
     return 1;
 }
 
-static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
+static void ProcessWindowEvent(SDL_Window *sdlwin, DFBWindowEvent * evt)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFB_WindowData *windata = (DFB_WindowData *)sdlwin->driverdata;
@@ -277,7 +277,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
             FocusAllKeyboards(0);
             break;
         case DWET_ENTER:
-            /* SDL_DirectFB_ReshowCursor(_this, 0); */
+            /* SDL_DirectFB_ReshowCursor(0); */
             FocusAllMice(sdlwin);
             /* FIXME: when do we really enter ? */
             if (ClientXY(windata, &evt->x, &evt->y))
@@ -287,7 +287,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
         case DWET_LEAVE:
             SDL_SendWindowEvent(sdlwin, SDL_WINDOWEVENT_LEAVE, 0, 0);
             FocusAllMice(0);
-            /* SDL_DirectFB_ReshowCursor(_this, 1); */
+            /* SDL_DirectFB_ReshowCursor(1); */
             break;
         default:
             ;
@@ -296,7 +296,7 @@ static void ProcessWindowEvent(_THIS, SDL_Window *sdlwin, DFBWindowEvent * evt)
         printf("Event Clazz %d\n", evt->clazz);
 }
 
-static void ProcessInputEvent(_THIS, DFBInputEvent * ievt)
+static void ProcessInputEvent(DFBInputEvent * ievt)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     SDL_Keysym keysym;
@@ -419,7 +419,7 @@ void DirectFB_PumpEventsWindow(_THIS)
                     wmmsg.msg.dfb.event.window = evt;
                     SDL_SendSysWMEvent(&wmmsg);
                 }
-                ProcessWindowEvent(_this, w, &evt);
+                ProcessWindowEvent(w, &evt);
             }
         }
     }
@@ -435,7 +435,7 @@ void DirectFB_PumpEventsWindow(_THIS)
             wmmsg.msg.dfb.event.input = ievt;
             SDL_SendSysWMEvent(&wmmsg);
         }
-        ProcessInputEvent(_this, &ievt);
+        ProcessInputEvent(&ievt);
     }
 }
 
@@ -685,7 +685,7 @@ static DFBEnumerationResult EnumKeyboards(DFBInputDeviceID device_id, DFBInputDe
     return DFENUM_OK;
 }
 
-void DirectFB_InitKeyboard()
+void DirectFB_InitKeyboard(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     cb_data cb;
