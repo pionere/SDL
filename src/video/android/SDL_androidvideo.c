@@ -262,10 +262,7 @@ void Android_OnResize()
       example happen when the Activity enters or exits immersive mode,
       which can happen after VideoInit().
     */
-    SDL_Window *window = Android_Window;
-    if (!window) {
-        return;
-    }
+    SDL_Window *window;
     SDL_VideoDevice *device = SDL_GetVideoDevice();
     if (device && device->num_displays > 0) {
         SDL_VideoDisplay *display = &device->displays[0];
@@ -275,6 +272,7 @@ void Android_OnResize()
         display->desktop_mode.refresh_rate = Android_ScreenRate;
     }
 
+    window = Android_Window;
     if (window) {
         /* Force the current mode to match the resize otherwise the SDL_WINDOWEVENT_RESTORED event
          * will fall back to the old mode */
@@ -291,8 +289,9 @@ void Android_OnResize()
 
 void Android_OnOrientationChanged(SDL_DisplayOrientation orientation)
 {
-    if (Android_Window) {
-        SDL_VideoDisplay *display = SDL_GetDisplay(0);
+    SDL_VideoDevice *device = SDL_GetVideoDevice();
+    if (device && device->num_displays > 0) {
+        SDL_VideoDisplay *display = &device->displays[0];
         SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
     }
 }
