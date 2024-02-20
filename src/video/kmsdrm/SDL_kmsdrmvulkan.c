@@ -116,17 +116,14 @@ int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     return 0;
 
 fail:
-    SDL_UnloadObject(vulkan_config->loader_handle);
-    vulkan_config->loader_handle = NULL;
+    KMSDRM_Vulkan_UnloadLibrary(vulkan_config);
     return -1;
 }
 
 void KMSDRM_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
-    if (vulkan_config->loader_handle) {
-        SDL_UnloadObject(vulkan_config->loader_handle);
-        vulkan_config->loader_handle = NULL;
-    }
+    SDL_UnloadObject(vulkan_config->loader_handle);
+    vulkan_config->loader_handle = NULL;
 }
 
 /*********************************************************************/

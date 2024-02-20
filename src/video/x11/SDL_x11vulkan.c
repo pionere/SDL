@@ -116,28 +116,23 @@ int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         videoData->vulkan_XGetXCBConnection =
             SDL_LoadFunction(videoData->vulkan_xlib_xcb_library, "XGetXCBConnection");
         if (!videoData->vulkan_XGetXCBConnection) {
-            SDL_UnloadObject(videoData->vulkan_xlib_xcb_library);
             goto fail;
         }
     }
     return 0;
 
 fail:
-    SDL_UnloadObject(vulkan_config->loader_handle);
-    vulkan_config->loader_handle = NULL;
+    X11_Vulkan_UnloadLibrary(vulkan_config);
     return -1;
 }
 
 void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
     X11_VideoData *videoData = &x11VideoData;
-    if (vulkan_config->loader_handle) {
-        if (videoData->vulkan_xlib_xcb_library) {
-            SDL_UnloadObject(videoData->vulkan_xlib_xcb_library);
-        }
-        SDL_UnloadObject(vulkan_config->loader_handle);
-        vulkan_config->loader_handle = NULL;
-    }
+    SDL_UnloadObject(videoData->vulkan_xlib_xcb_library);
+    videoData->vulkan_xlib_xcb_library = NULL;
+    SDL_UnloadObject(vulkan_config->loader_handle);
+    vulkan_config->loader_handle = NULL;
 }
 
 SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,

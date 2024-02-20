@@ -95,7 +95,7 @@ int Cocoa_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         }
 
         if (!vulkan_config->loader_handle) {
-            return SDL_SetError("Failed to load Vulkan Portability library");
+            return -1;
         }
 
         SDL_strlcpy(vulkan_config->loader_path, foundPath,
@@ -149,19 +149,16 @@ int Cocoa_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     return 0;
 
 fail:
-    SDL_UnloadObject(vulkan_config->loader_handle);
-    vulkan_config->loader_handle = NULL;
+    Cocoa_Vulkan_UnloadLibrary(vulkan_config);
     return -1;
 }
 
 void Cocoa_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
-    if (vulkan_config->loader_handle) {
-        if (vulkan_config->loader_handle != DEFAULT_HANDLE) {
-            SDL_UnloadObject(vulkan_config->loader_handle);
-        }
-        vulkan_config->loader_handle = NULL;
+    if (vulkan_config->loader_handle != DEFAULT_HANDLE) {
+        SDL_UnloadObject(vulkan_config->loader_handle);
     }
+    vulkan_config->loader_handle = NULL;
 }
 
 SDL_bool Cocoa_Vulkan_GetInstanceExtensions(SDL_Window *window,
