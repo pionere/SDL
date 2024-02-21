@@ -275,6 +275,12 @@ int stdlib_getsetenv(void *arg)
     overwrite = 0;
     expected = value1;
     result = SDL_setenv(name, value1, overwrite);
+#if defined(__WIN32__) || defined(__WINGDK__)
+    if (result < 0) {
+        SDLTest_AssertPass("Skipping setenv parts of the stdlib_getsetenv-test because SDL_setenv is not available");
+        return TEST_SKIPPED;
+    }
+#endif
     SDLTest_AssertPass("Call to SDL_setenv('%s','%s', %i)", name, value1, overwrite);
     SDLTest_AssertCheck(result == 0, "Check result, expected: 0, got: %i", result);
 

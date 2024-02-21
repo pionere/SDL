@@ -98,11 +98,9 @@ static void SDLCALL hints_testHintChanged(void *userdata, const char *name, cons
  */
 int hints_setHint(void *arg)
 {
-    const char *testHint = "SDL_AUTOMATED_TEST_HINT";
     const char *originalValue;
     char *value;
     const char *testValue;
-    char *callbackValue;
     SDL_bool result;
     int i, j;
 
@@ -146,8 +144,29 @@ int hints_setHint(void *arg)
 
     SDL_free(value);
 
+    return TEST_COMPLETED;
+}
+
+int hints_setHintEnv(void *arg)
+{
+    const char *testHint = "SDL_AUTOMATED_TEST_HINT";
+    const char *testEnvValue = "original";
+    const char *originalValue;
+    char *value;
+    const char *testValue;
+    char *callbackValue;
+    int result;
+
     /* Set default value in environment */
-    SDL_setenv(testHint, "original", 1);
+    SDLTest_AssertPass("Call to SDL_setenv() after saving and restoring hint");
+    result = SDL_setenv(testHint, testEnvValue, 1);
+#if defined(__WIN32__) || defined(__WINGDK__)
+    if (result < 0) {
+        SDLTest_AssertPass("Skipping hints test with env variable because SDL_setenv is not available");
+        return TEST_SKIPPED;
+    }
+#endif
+    SDLTest_AssertCheck(result == 0, "Verify return value of SDL_setenv(hint, value, overwrite); expected: 0, got: %d", result);
 
     SDLTest_AssertPass("Call to SDL_GetHint() after saving and restoring hint");
     originalValue = SDL_GetHint(testHint);
@@ -157,17 +176,17 @@ int hints_setHint(void *arg)
     SDL_free(value);
     testValue = SDL_GetHint(testHint);
     SDLTest_AssertCheck(
-        testValue && SDL_strcmp(testValue, "original") == 0,
-        "testValue = %s, expected \"original\"",
-        testValue);
+        testValue && SDL_strcmp(testValue, testEnvValue) == 0,
+        "testValue = %s, expected \"%s\"",
+        testValue, testEnvValue);
 
     SDLTest_AssertPass("Call to SDL_SetHintWithPriority(NULL, SDL_HINT_DEFAULT)");
     SDL_SetHintWithPriority(testHint, NULL, SDL_HINT_DEFAULT);
     testValue = SDL_GetHint(testHint);
     SDLTest_AssertCheck(
-        testValue && SDL_strcmp(testValue, "original") == 0,
-        "testValue = %s, expected \"original\"",
-        testValue);
+        testValue && SDL_strcmp(testValue, testEnvValue) == 0,
+        "testValue = %s, expected \"%s\"",
+        testValue, testEnvValue);
 
     SDLTest_AssertPass("Call to SDL_SetHintWithPriority(\"temp\", SDL_HINT_OVERRIDE)");
     SDL_SetHintWithPriority(testHint, "temp", SDL_HINT_OVERRIDE);
@@ -189,18 +208,18 @@ int hints_setHint(void *arg)
     SDL_ResetHint(testHint);
     testValue = SDL_GetHint(testHint);
     SDLTest_AssertCheck(
-        testValue && SDL_strcmp(testValue, "original") == 0,
-        "testValue = %s, expected \"original\"",
-        testValue);
+        testValue && SDL_strcmp(testValue, testEnvValue) == 0,
+        "testValue = %s, expected \"%s\"",
+        testValue, testEnvValue);
 
     /* Make sure callback functionality works past a reset */
     SDLTest_AssertPass("Call to SDL_AddHintCallback()");
     callbackValue = NULL;
     SDL_AddHintCallback(testHint, hints_testHintChanged, &callbackValue);
     SDLTest_AssertCheck(
-        callbackValue && SDL_strcmp(callbackValue, "original") == 0,
-        "callbackValue = %s, expected \"original\"",
-        callbackValue);
+        callbackValue && SDL_strcmp(callbackValue, testEnvValue) == 0,
+        "callbackValue = %s, expected \"%s\"",
+        callbackValue, testEnvValue);
     SDL_free(callbackValue);
 
     SDLTest_AssertPass("Call to SDL_SetHintWithPriority(\"temp\", SDL_HINT_OVERRIDE), using callback");
@@ -216,9 +235,9 @@ int hints_setHint(void *arg)
     callbackValue = NULL;
     SDL_ResetHint(testHint);
     SDLTest_AssertCheck(
-        callbackValue && SDL_strcmp(callbackValue, "original") == 0,
-        "callbackValue = %s, expected \"original\"",
-        callbackValue);
+        callbackValue && SDL_strcmp(callbackValue, testEnvValue) == 0,
+        "callbackValue = %s, expected \"%s\"",
+        callbackValue, testEnvValue);
 
     SDLTest_AssertPass("Call to SDL_SetHintWithPriority(\"temp\", SDL_HINT_OVERRIDE), using callback after reset");
     callbackValue = NULL;
@@ -252,9 +271,13 @@ static const SDLTest_TestCaseReference hintsTest2 = {
     (SDLTest_TestCaseFp)hints_setHint, "hints_setHint", "Call to SDL_SetHint", TEST_ENABLED
 };
 
+static const SDLTest_TestCaseReference hintsTest3 = {
+    (SDLTest_TestCaseFp)hints_setHintEnv, "hints_setHintEnv", "Call to SDL_SetHint with env", TEST_ENABLED
+};
+
 /* Sequence of Hints test cases */
 static const SDLTest_TestCaseReference *hintsTests[] = {
-    &hintsTest1, &hintsTest2, NULL
+    &hintsTest1, &hintsTest2, &hintsTest3, NULL
 };
 
 /* Hints test suite (global) */
