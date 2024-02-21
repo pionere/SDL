@@ -4506,11 +4506,6 @@ int SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     }
     messageboxdata = &mbdata;
 
-    if (_this && _this->ShowMessageBox) {
-        has_driver = SDL_TRUE;
-        retval = _this->ShowMessageBox(_this, messageboxdata, buttonid);
-    }
-
     /* It's completely fine to call this function before video is initialized */
 #ifdef SDL_VIDEO_DRIVER_ANDROID
     if (retval == -1) {

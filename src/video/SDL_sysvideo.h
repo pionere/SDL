@@ -349,9 +349,6 @@ struct SDL_VideoDevice
     char *(*GetPrimarySelectionText)(void);
     SDL_bool (*HasPrimarySelectionText)(void);
 
-    /* MessageBox */
-    int (*ShowMessageBox)(_THIS, const SDL_MessageBoxData *messageboxdata, int *buttonid);
-
     /* Hit-testing */
     int (*SetWindowHitTest)(SDL_Window *window, SDL_bool enabled);
 
