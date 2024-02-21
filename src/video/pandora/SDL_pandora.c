@@ -116,10 +116,11 @@ const VideoBootStrap PND_bootstrap = {
 /*****************************************************************************/
 int PND_videoinit(_THIS)
 {
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
-    SDL_zero(current_mode);
+    current_mode.format = SDL_PIXELFORMAT_RGB565;
 #ifdef WIZ_GLES_LITE
     current_mode.w = 320;
     current_mode.h = 240;
@@ -128,17 +129,21 @@ int PND_videoinit(_THIS)
     current_mode.h = 480;
 #endif
     current_mode.refresh_rate = 60;
-    current_mode.format = SDL_PIXELFORMAT_RGB565;
     current_mode.driverdata = NULL;
 
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
-    display.driverdata = NULL;
+    // display.driverdata = NULL;
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
-    return 0;
+    return result;
 }
 
 void PND_videoquit(_THIS)

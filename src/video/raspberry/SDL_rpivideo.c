@@ -86,7 +86,6 @@ static SDL_VideoDevice *RPI_Create()
     /* Setup all functions which we can handle */
     device->VideoInit = RPI_VideoInit;
     device->VideoQuit = RPI_VideoQuit;
-    device->GetDisplayModes = RPI_GetDisplayModes;
     device->SetDisplayMode = RPI_SetDisplayMode;
     device->CreateSDLWindow = RPI_CreateWindow;
     device->CreateSDLWindowFrom = RPI_CreateWindowFrom;
@@ -128,10 +127,11 @@ const VideoBootStrap RPI_bootstrap = {
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
 
-static void AddDispManXDisplay(const int display_id)
+static int AddDispManXDisplay(const int display_id)
 {
     DISPMANX_MODEINFO_T modeinfo;
     DISPMANX_DISPLAY_HANDLE_T handle;
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
     SDL_DisplayData *data;
@@ -147,18 +147,17 @@ static void AddDispManXDisplay(const int display_id)
     }
 
     /* RPI_GetRefreshRate() doesn't distinguish between displays. I'm not sure the hardware distinguishes either */
-    SDL_zero(current_mode);
+    /* 32 bpp for default */
+    current_mode.format = SDL_PIXELFORMAT_ABGR8888;
     current_mode.w = modeinfo.width;
     current_mode.h = modeinfo.height;
     current_mode.refresh_rate = RPI_GetRefreshRate();
-    /* 32 bpp for default */
-    current_mode.format = SDL_PIXELFORMAT_ABGR8888;
-
     current_mode.driverdata = NULL;
 
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
+    // display.driverdata = NULL;
 
     /* Allocate display internal data */
     data = (SDL_DisplayData *)SDL_calloc(1, sizeof(SDL_DisplayData));
@@ -171,16 +170,25 @@ static void AddDispManXDisplay(const int display_id)
 
     display.driverdata = data;
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+    return result;
 }
 
 int RPI_VideoInit(_THIS)
 {
+    int result;
     /* Initialize BCM Host */
     bcm_host_init();
 
-    AddDispManXDisplay(DISPMANX_ID_MAIN_LCD);    /* your default display */
-    AddDispManXDisplay(DISPMANX_ID_FORCE_OTHER); /* an "other" display...maybe DSI-connected screen while HDMI is your main */
+    result = AddDispManXDisplay(DISPMANX_ID_MAIN_LCD);    /* your default display */
+    if (result == 0) {
+        AddDispManXDisplay(DISPMANX_ID_FORCE_OTHER); /* an "other" display...maybe DSI-connected screen while HDMI is your main */
+    }
 
 #ifdef SDL_INPUT_LINUXEV
     if (SDL_EVDEV_Init() < 0) {
@@ -190,7 +198,7 @@ int RPI_VideoInit(_THIS)
 
     RPI_InitMouse();
 
-    return 0;
+    return result;
 }
 
 void RPI_VideoQuit(_THIS)
@@ -199,12 +207,6 @@ void RPI_VideoQuit(_THIS)
     SDL_EVDEV_Quit();
 #endif
     RPI_QuitMouse();
-}
-
-void RPI_GetDisplayModes(SDL_VideoDisplay *display)
-{
-    /* Only one display mode available, the current one */
-    SDL_AddDisplayMode(display, &display->current_mode);
 }
 
 int RPI_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

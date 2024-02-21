@@ -29,11 +29,10 @@
 #include "SDL_n3dstouch.h"
 #include "SDL_n3dsvideo.h"
 
-SDL_FORCE_INLINE void AddN3DSDisplay(gfxScreen_t screen);
+SDL_FORCE_INLINE int AddN3DSDisplay(gfxScreen_t screen);
 
 static int N3DS_VideoInit(_THIS);
 static void N3DS_VideoQuit(_THIS);
-static void N3DS_GetDisplayModes(SDL_VideoDisplay *display);
 static int N3DS_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 static int N3DS_CreateWindow(_THIS, SDL_Window *window);
 static void N3DS_DestroyWindow(_THIS, SDL_Window *window);
@@ -62,7 +61,6 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     device->VideoInit = N3DS_VideoInit;
     device->VideoQuit = N3DS_VideoQuit;
 
-    device->GetDisplayModes = N3DS_GetDisplayModes;
     device->GetDisplayBounds = N3DS_GetDisplayBounds;
 
     device->CreateSDLWindow = N3DS_CreateWindow;
@@ -87,46 +85,54 @@ const VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };
 
 static int N3DS_VideoInit(_THIS)
 {
+    int result;
     gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, false);
     hidInit();
 
-    AddN3DSDisplay(GFX_TOP);
-    AddN3DSDisplay(GFX_BOTTOM);
+    result = AddN3DSDisplay(GFX_TOP);
+    if (result == 0) {
+        result = AddN3DSDisplay(GFX_BOTTOM);
+    }
 
     N3DS_InitTouch();
     N3DS_SwkbInit();
 
-    return 0;
+    return result;
 }
 
-SDL_FORCE_INLINE void
+SDL_FORCE_INLINE int
 AddN3DSDisplay(gfxScreen_t screen)
 {
-    SDL_DisplayMode mode;
+    int result;
     SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
     DisplayDriverData *display_driver_data = SDL_calloc(1, sizeof(DisplayDriverData));
     if (!display_driver_data) {
-        SDL_OutOfMemory();
-        return;
+        return SDL_OutOfMemory();
     }
-
-    SDL_zero(mode);
-    SDL_zero(display);
 
     display_driver_data->screen = screen;
 
-    mode.w = (screen == GFX_TOP) ? GSP_SCREEN_HEIGHT_TOP : GSP_SCREEN_HEIGHT_BOTTOM;
-    mode.h = GSP_SCREEN_WIDTH;
-    mode.refresh_rate = 60;
-    mode.format = FRAMEBUFFER_FORMAT;
-    mode.driverdata = NULL;
+    current_mode.format = FRAMEBUFFER_FORMAT;
+    current_mode.w = (screen == GFX_TOP) ? GSP_SCREEN_HEIGHT_TOP : GSP_SCREEN_HEIGHT_BOTTOM;
+    current_mode.h = GSP_SCREEN_WIDTH;
+    current_mode.refresh_rate = 60;
+    current_mode.driverdata = NULL;
 
+    SDL_zero(display);
     display.name = (screen == GFX_TOP) ? "N3DS top screen" : "N3DS bottom screen";
-    display.desktop_mode = mode;
-    display.current_mode = mode;
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
     display.driverdata = display_driver_data;
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+
+    return result;
 }
 
 static void N3DS_VideoQuit(_THIS)
@@ -136,12 +142,6 @@ static void N3DS_VideoQuit(_THIS)
 
     hidExit();
     gfxExit();
-}
-
-static void N3DS_GetDisplayModes(SDL_VideoDisplay *display)
-{
-    /* Each display only has a single mode */
-    SDL_AddDisplayMode(display, &display->current_mode);
 }
 
 static int N3DS_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)

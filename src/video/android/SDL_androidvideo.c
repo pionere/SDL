@@ -162,35 +162,38 @@ const VideoBootStrap Android_bootstrap = {
 int Android_VideoInit(_THIS)
 {
     Android_VideoData *videodata = &androidVideoData;
-    int display_index;
-    SDL_VideoDisplay *display;
-    SDL_DisplayMode mode;
+    int result;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
 
     videodata->isPaused = SDL_FALSE;
     videodata->isPausing = SDL_FALSE;
     videodata->pauseAudio = SDL_GetHintBoolean(SDL_HINT_ANDROID_BLOCK_ON_PAUSE_PAUSEAUDIO, SDL_TRUE);
 
-    mode.format = Android_ScreenFormat;
-    mode.w = Android_DeviceWidth;
-    mode.h = Android_DeviceHeight;
-    mode.refresh_rate = Android_ScreenRate;
-    mode.driverdata = NULL;
+    current_mode.format = Android_ScreenFormat;
+    current_mode.w = Android_DeviceWidth;
+    current_mode.h = Android_DeviceHeight;
+    current_mode.refresh_rate = Android_ScreenRate;
+    current_mode.driverdata = NULL;
 
-    display_index = SDL_AddBasicVideoDisplay(&mode);
-    if (display_index < 0) {
-        return -1;
-    }
-    display = SDL_GetDisplay(display_index);
-    display->orientation = Android_JNI_GetDisplayOrientation();
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
+    display.orientation = Android_JNI_GetDisplayOrientation();
 
-    SDL_AddDisplayMode(&_this->displays[0], &mode);
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
     Android_InitTouch();
 
     Android_InitMouse();
 
-    /* We're done! */
-    return 0;
+    return result;
 }
 
 void Android_VideoQuit(_THIS)

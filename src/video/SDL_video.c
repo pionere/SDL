@@ -657,19 +657,6 @@ SDL_bool SDL_OnVideoThread(void)
     return (_this && SDL_ThreadID() == _this->thread) ? SDL_TRUE : SDL_FALSE;
 }
 
-int SDL_AddBasicVideoDisplay(const SDL_DisplayMode *desktop_mode)
-{
-    SDL_VideoDisplay display;
-
-    SDL_zero(display);
-    if (desktop_mode) {
-        display.desktop_mode = *desktop_mode;
-    }
-    display.current_mode = display.desktop_mode;
-
-    return SDL_AddVideoDisplay(&display, SDL_FALSE);
-}
-
 int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
 {
     SDL_VideoDisplay *displays;

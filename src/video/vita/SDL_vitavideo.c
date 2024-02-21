@@ -98,7 +98,6 @@ static SDL_VideoDevice *VITA_Create()
     /* Setup all functions which we can handle */
     device->VideoInit = VITA_VideoInit;
     device->VideoQuit = VITA_VideoQuit;
-    device->GetDisplayModes = VITA_GetDisplayModes;
     device->SetDisplayMode = VITA_SetDisplayMode;
     device->CreateSDLWindow = VITA_CreateWindow;
     device->CreateSDLWindowFrom = VITA_CreateWindowFrom;
@@ -166,12 +165,12 @@ const VideoBootStrap VITA_bootstrap = {
 /*****************************************************************************/
 int VITA_VideoInit(_THIS)
 {
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 #if defined(SDL_VIDEO_VITA_PVR)
     char *res = SDL_getenv("VITA_RESOLUTION");
 #endif
-    SDL_zero(current_mode);
 
 #if defined(SDL_VIDEO_VITA_PVR)
     if (res) {
@@ -204,24 +203,26 @@ int VITA_VideoInit(_THIS)
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
-    display.driverdata = NULL;
+    // display.driverdata = NULL;
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    SDL_AddDisplayMode(&display, &current_mode);
+
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+
     VITA_InitTouch();
     VITA_InitKeyboard();
     VITA_InitMouse();
 
-    return 0;
+    return result;
 }
 
 void VITA_VideoQuit(_THIS)
 {
     VITA_QuitTouch();
-}
-
-void VITA_GetDisplayModes(SDL_VideoDisplay *display)
-{
-    SDL_AddDisplayMode(display, &display->current_mode);
 }
 
 int VITA_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

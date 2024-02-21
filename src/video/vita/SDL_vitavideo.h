@@ -58,7 +58,6 @@ extern SDL_Window *Vita_Window;
 /* Display and window functions */
 int VITA_VideoInit(_THIS);
 void VITA_VideoQuit(_THIS);
-void VITA_GetDisplayModes(SDL_VideoDisplay *display);
 int VITA_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int VITA_CreateWindow(_THIS, SDL_Window *window);
 int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);

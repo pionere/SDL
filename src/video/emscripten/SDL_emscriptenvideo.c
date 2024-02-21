@@ -126,24 +126,34 @@ const VideoBootStrap Emscripten_bootstrap = {
 
 int Emscripten_VideoInit(_THIS)
 {
-    SDL_DisplayMode mode;
+    int result, w, h;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
 
     /* Use a fake 32-bpp desktop mode */
-    mode.format = SDL_PIXELFORMAT_RGB888;
-    emscripten_get_screen_size(&mode.w, &mode.h);
+    emscripten_get_screen_size(&w, &h);
 
-    mode.refresh_rate = 0;
-    mode.driverdata = NULL;
-    if (SDL_AddBasicVideoDisplay(&mode) < 0) {
-        return -1;
-    }
+    current_mode.format = SDL_PIXELFORMAT_RGB888;
+    current_mode.w = w;
+    current_mode.h = h;
+    current_mode.refresh_rate = 0;
+    current_mode.driverdata = NULL;
 
-    SDL_AddDisplayMode(&_this->displays[0], &mode);
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
     Emscripten_InitMouse();
 
-    /* We're done! */
-    return 0;
+    return result;
 }
 
 static int Emscripten_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

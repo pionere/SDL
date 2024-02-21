@@ -199,11 +199,13 @@ static void *copy_memory(const void *src, size_t size, size_t alloc)
 
 int RISCOS_InitModes(void)
 {
-    SDL_DisplayMode mode;
-    int *current_mode;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
+    int *mode;
     _kernel_swi_regs regs;
     _kernel_oserror *error;
     size_t size;
+    int result;
 
     regs.r[0] = 1;
     error = _kernel_swi(OS_ScreenMode, &regs, &regs);
@@ -211,18 +213,31 @@ int RISCOS_InitModes(void)
         return SDL_SetError("Unable to retrieve the current screen mode: %s (%i)", error->errmess, error->errnum);
     }
 
-    current_mode = (int *)regs.r[1];
-    if (!read_mode_block(current_mode, &mode, SDL_TRUE)) {
-        return SDL_SetError("Unsupported mode block format %d", current_mode[0]);
+    mode = (int *)regs.r[1];
+    if (!read_mode_block(mode, &current_mode, SDL_TRUE)) {
+        return SDL_SetError("Unsupported mode block format %d", mode[0]);
     }
 
-    size = measure_mode_block(current_mode);
-    mode.driverdata = copy_memory(current_mode, size, size);
-    if (!mode.driverdata) {
+    size = measure_mode_block(mode);
+    current_mode.driverdata = copy_memory(mode, size, size);
+    if (!current_mode.driverdata) {
         return SDL_OutOfMemory();
     }
 
-    return SDL_AddBasicVideoDisplay(&mode);
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+
+    return result;
 }
 
 void RISCOS_GetDisplayModes(SDL_VideoDisplay *display)

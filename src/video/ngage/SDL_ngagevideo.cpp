@@ -129,23 +129,30 @@ const VideoBootStrap NGAGE_bootstrap = {
 
 int NGAGE_VideoInit(_THIS)
 {
-    SDL_DisplayMode mode;
+    int result;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
 
     /* Use 12-bpp desktop mode */
-    mode.format = SDL_PIXELFORMAT_RGB444;
-    mode.w = 176;
-    mode.h = 208;
-    mode.refresh_rate = 0;
-    mode.driverdata = NULL;
-    if (SDL_AddBasicVideoDisplay(&mode) < 0) {
-        return -1;
-    }
+    current_mode.format = SDL_PIXELFORMAT_RGB444;
+    current_mode.w = 176;
+    current_mode.h = 208;
+    current_mode.refresh_rate = 0;
+    current_mode.driverdata = NULL;
 
-    SDL_zero(mode);
-    SDL_AddDisplayMode(&_this->displays[0], &mode);
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
 
-    /* We're done! */
-    return 0;
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+
+    return result;
 }
 
 static int NGAGE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

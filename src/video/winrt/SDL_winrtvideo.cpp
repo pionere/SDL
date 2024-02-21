@@ -242,11 +242,11 @@ extern "C" Uint32 D3D11_DXGIFormatToSDLPixelFormat(DXGI_FORMAT dxgiFormat);
 
 static void WINRT_DXGIModeToSDLDisplayMode(const DXGI_MODE_DESC *dxgiMode, SDL_DisplayMode *sdlMode)
 {
-    SDL_zerop(sdlMode);
+    sdlMode->format = D3D11_DXGIFormatToSDLPixelFormat(dxgiMode->Format);
+    sdlMode->refresh_rate = dxgiMode->RefreshRate.Numerator / dxgiMode->RefreshRate.Denominator;
     sdlMode->w = dxgiMode->Width;
     sdlMode->h = dxgiMode->Height;
-    sdlMode->refresh_rate = dxgiMode->RefreshRate.Numerator / dxgiMode->RefreshRate.Denominator;
-    sdlMode->format = D3D11_DXGIFormatToSDLPixelFormat(dxgiMode->Format);
+    sdlMode->driverdata = NULL;
 }
 
 static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputIndex)
@@ -292,12 +292,12 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
            In this case, just add an SDL display mode, with approximated values.
         */
         SDL_DisplayMode mode;
-        SDL_zero(mode);
         display.name = "Windows Simulator / Terminal Services Display";
+        mode.format = DXGI_FORMAT_B8G8R8A8_UNORM;
         mode.w = (dxgiOutputDesc.DesktopCoordinates.right - dxgiOutputDesc.DesktopCoordinates.left);
         mode.h = (dxgiOutputDesc.DesktopCoordinates.bottom - dxgiOutputDesc.DesktopCoordinates.top);
-        mode.format = DXGI_FORMAT_B8G8R8A8_UNORM;
         mode.refresh_rate = 0; /* Display mode is unknown, so just fill in zero, as specified by SDL's header files */
+        mode.driverdata = NULL;
         display.desktop_mode = mode;
         display.current_mode = mode;
         SDL_AddDisplayMode(&display, &mode);
@@ -394,7 +394,6 @@ static int WINRT_AddDisplaysForAdapter(IDXGIFactory2 *dxgiFactory2, int adapterI
 #endif
                 CoreWindow ^ coreWin = CoreWindow::GetForCurrentThread();
                 SDL_zero(display);
-                SDL_zero(mode);
                 display.name = "DXGI Display-detection Workaround";
 
                 /* HACK: ApplicationView's VisibleBounds property, appeared, via testing, to
@@ -417,6 +416,7 @@ static int WINRT_AddDisplaysForAdapter(IDXGIFactory2 *dxgiFactory2, int adapterI
 
                 mode.format = DXGI_FORMAT_B8G8R8A8_UNORM;
                 mode.refresh_rate = 0; /* Display mode is unknown, so just fill in zero, as specified by SDL's header files */
+                mode.driverdata = NULL;
                 display.desktop_mode = mode;
                 display.current_mode = mode;
                 SDL_AddDisplayMode(&display, &mode);

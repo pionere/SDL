@@ -133,21 +133,30 @@ const VideoBootStrap NACL_bootstrap = {
     "nacl", NACL_CreateDevice
 };
 
-int NACL_VideoInit(_THIS) {
+int NACL_VideoInit(_THIS)
+{
     NACL_VideoData *driverdata = &naclVideoData;
-    SDL_DisplayMode mode;
+    int result;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
 
-    SDL_zero(mode);
-    mode.format = driverdata->format;
-    mode.w = driverdata->w;
-    mode.h = driverdata->h;
-    mode.refresh_rate = 0;
-    mode.driverdata = NULL;
-    if (SDL_AddBasicVideoDisplay(&mode) < 0) {
-        return -1;
-    }
+    current_mode.format = driverdata->format;
+    current_mode.w = driverdata->w;
+    current_mode.h = driverdata->h;
+    current_mode.refresh_rate = 0;
+    current_mode.driverdata = NULL;
 
-    SDL_AddDisplayMode(&_this->displays[0], &mode);
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
     PSInterfaceInit();
     driverdata->instance = PSGetInstanceId();
@@ -170,8 +179,7 @@ int NACL_VideoInit(_THIS) {
 
     PSEventSetFilter(PSE_ALL);
 
-    /* We're done! */
-    return 0;
+    return result;
 }
 
 void NACL_VideoQuit(_THIS) {

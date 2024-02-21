@@ -124,20 +124,28 @@ static void DUMMY_EVDEV_Poll(_THIS)
 
 int DUMMY_VideoInit(_THIS)
 {
-    SDL_DisplayMode mode;
+    int result;
+    SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
 
     /* Use a fake 32-bpp desktop mode */
-    SDL_zero(mode);
-    mode.format = SDL_PIXELFORMAT_RGB888;
-    mode.w = 1024;
-    mode.h = 768;
-    mode.refresh_rate = 60;
-    mode.driverdata = NULL;
-    if (SDL_AddBasicVideoDisplay(&mode) < 0) {
-        return -1;
-    }
+    current_mode.format = SDL_PIXELFORMAT_RGB888;
+    current_mode.w = 1024;
+    current_mode.h = 768;
+    current_mode.refresh_rate = 60;
+    current_mode.driverdata = NULL;
 
-    SDL_AddDisplayMode(&_this->displays[0], &mode);
+    SDL_zero(display);
+    display.desktop_mode = current_mode;
+    display.current_mode = current_mode;
+    // display.driverdata = NULL;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Init();
@@ -146,8 +154,7 @@ int DUMMY_VideoInit(_THIS)
     // DUMMY_InitKeyboard();
     DUMMY_InitMouse();
 
-    /* We're done! */
-    return 0;
+    return result;
 }
 
 void DUMMY_VideoQuit(_THIS)

@@ -485,7 +485,6 @@ extern const VideoBootStrap OS2VMAN_bootstrap;
 /* Use SDL_OnVideoThread() sparingly, to avoid regressions in use cases that currently happen to work */
 extern SDL_bool SDL_OnVideoThread(void);
 extern SDL_VideoDevice *SDL_GetVideoDevice(void);
-extern int SDL_AddBasicVideoDisplay(const SDL_DisplayMode *desktop_mode);
 extern SDL_VideoDisplay *SDL_GetDisplays(int *num_displays);
 extern int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event);
 extern void SDL_PrivateGetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);

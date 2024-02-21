@@ -66,7 +66,6 @@ static SDL_VideoDevice *VIVANTE_Create()
     /* Setup all functions which we can handle */
     device->VideoInit = VIVANTE_VideoInit;
     device->VideoQuit = VIVANTE_VideoQuit;
-    device->GetDisplayModes = VIVANTE_GetDisplayModes;
     device->SetDisplayMode = VIVANTE_SetDisplayMode;
     device->CreateSDLWindow = VIVANTE_CreateWindow;
     device->SetWindowTitle = VIVANTE_SetWindowTitle;
@@ -112,9 +111,11 @@ const VideoBootStrap VIVANTE_bootstrap = {
 static int VIVANTE_AddVideoDisplays(_THIS)
 {
     Vivante_VideoData *videodata = &vivanteVideoData;
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
     SDL_DisplayData *data;
+    int w, h;
     int pitch = 0, bpp = 0;
     unsigned long pixels = 0;
 
@@ -123,15 +124,14 @@ static int VIVANTE_AddVideoDisplays(_THIS)
         return SDL_OutOfMemory();
     }
 
-    SDL_zero(current_mode);
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     data->native_display = vdkGetDisplay(videodata->vdk_private);
 
-    vdkGetDisplayInfo(data->native_display, &current_mode.w, &current_mode.h, &pixels, &pitch, &bpp);
+    vdkGetDisplayInfo(data->native_display, &w, &h, &pixels, &pitch, &bpp);
 #else
     data->native_display = videodata->fbGetDisplayByIndex(0);
 
-    videodata->fbGetDisplayInfo(data->native_display, &current_mode.w, &current_mode.h, &pixels, &pitch, &bpp);
+    videodata->fbGetDisplayInfo(data->native_display, &w, &h, &pixels, &pitch, &bpp);
 #endif /* SDL_VIDEO_DRIVER_VIVANTE_VDK */
 
     switch (bpp) {
@@ -143,16 +143,25 @@ static int VIVANTE_AddVideoDisplays(_THIS)
         current_mode.format = SDL_PIXELFORMAT_RGB565;
         break;
     }
+    current_mode.w = w;
+    current_mode.h = h;
     /* FIXME: How do we query refresh rate? */
     current_mode.refresh_rate = 60;
+    current_mode.driverdata = NULL;
 
     SDL_zero(display);
     display.name = VIVANTE_GetDisplayName(_this);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
     display.driverdata = data;
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
-    return 0;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
+    return result;
 }
 
 int VIVANTE_VideoInit(_THIS)
@@ -228,12 +237,6 @@ void VIVANTE_VideoQuit(_THIS)
         videodata->egl_handle = NULL;
     }
 #endif
-}
-
-void VIVANTE_GetDisplayModes(SDL_VideoDisplay *display)
-{
-    /* Only one display mode available, the current one */
-    SDL_AddDisplayMode(display, &display->current_mode);
 }
 
 int VIVANTE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

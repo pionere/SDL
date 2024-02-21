@@ -252,24 +252,31 @@ static NSUInteger UIKit_GetDisplayModeRefreshRate(UIScreen *uiscreen)
     return 0;
 }
 
-static int UIKit_AddSingleDisplayMode(SDL_VideoDisplay * display, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode)
+static int UIKit_InitDisplayMode(SDL_DisplayMode * mode, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode)
 {
-    SDL_DisplayMode mode;
-    SDL_zero(mode);
-
     if (UIKit_AllocateDisplayModeData(&mode, uiscreenmode) < 0) {
         return -1;
     }
 
-    mode.format = SDL_PIXELFORMAT_ABGR8888;
-    mode.refresh_rate = (int) UIKit_GetDisplayModeRefreshRate(uiscreen);
-    mode.w = w;
-    mode.h = h;
+    mode->format = SDL_PIXELFORMAT_ABGR8888;
+    mode->refresh_rate = (int) UIKit_GetDisplayModeRefreshRate(uiscreen);
+    mode->w = w;
+    mode->h = h;
 
-    if (!SDL_AddDisplayMode(display, &mode)) {
+    return 0;
+}
+
+static int UIKit_AddSingleDisplayMode(SDL_VideoDisplay * display, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode)
+{
+    int result;
+    SDL_DisplayMode mode;
+
+    result = UIKit_InitDisplayMode(&mode, w, h, uiscreen, uiscreenmode);
+    if (result == 0 && !SDL_AddDisplayMode(&display, &mode)) {
         UIKit_FreeDisplayModeData(&mode);
     }
-    return 0;
+
+    return result;
 }
 
 static int UIKit_AddDisplayMode(SDL_VideoDisplay * display, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode, SDL_bool addRotation)
@@ -292,9 +299,9 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
 {
     UIScreenMode *uiscreenmode = uiscreen.currentMode;
     CGSize size = uiscreen.bounds.size;
+    int result;
     SDL_VideoDisplay display;
-    SDL_DisplayMode mode;
-    SDL_zero(mode);
+    SDL_DisplayMode current_mode;
 
     /* Make sure the width/height are oriented correctly */
     if (UIKit_IsDisplayLandscape(uiscreen) != (size.width > size.height)) {
@@ -303,30 +310,31 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
         size.height = height;
     }
 
-    mode.format = SDL_PIXELFORMAT_ABGR8888;
-    mode.refresh_rate = (int) UIKit_GetDisplayModeRefreshRate(uiscreen);
-    mode.w = (int) size.width;
-    mode.h = (int) size.height;
+    result = UIKit_InitDisplayMode(&current_mode, size.width, size.height, uiscreen, uiscreenmode);
+    if (result == 0) {
+        SDL_zero(display);
+        display.desktop_mode = current_mode;
+        display.current_mode = current_mode;
 
-    if (UIKit_AllocateDisplayModeData(&mode, uiscreenmode) < 0) {
-        return -1;
+        SDL_AddDisplayMode(&display, &current_mode);
+
+        /* Allocate the display data */
+        SDL_DisplayData *data = [[SDL_DisplayData alloc] initWithScreen:uiscreen];
+        if (data) {
+            display.driverdata = (void *) CFBridgingRetain(data);
+            result = SDL_AddVideoDisplay(&display, send_event);
+            // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+            // if (result < 0) {
+            //    UIKit_FreeDisplayModeData(&current_mode);
+            //    CFRelease(display.driverdata);
+            // }
+        } else {
+            result = SDL_OutOfMemory();
+            UIKit_FreeDisplayModeData(&current_mode);
+        }
     }
 
-    SDL_zero(display);
-    display.desktop_mode = mode;
-    display.current_mode = mode;
-
-    /* Allocate the display data */
-    SDL_DisplayData *data = [[SDL_DisplayData alloc] initWithScreen:uiscreen];
-    if (!data) {
-        UIKit_FreeDisplayModeData(&display.desktop_mode);
-        return SDL_OutOfMemory();
-    }
-
-    display.driverdata = (void *) CFBridgingRetain(data);
-    SDL_AddVideoDisplay(&display, send_event);
-
-    return 0;
+    return result;
 }
 
 void UIKit_DelDisplay(UIScreen *uiscreen)

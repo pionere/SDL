@@ -40,7 +40,6 @@ typedef struct SDL_WindowData
 /* Display and window functions */
 int PSP_VideoInit(_THIS);
 void PSP_VideoQuit(_THIS);
-void PSP_GetDisplayModes(SDL_VideoDisplay *display);
 int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int PSP_CreateWindow(_THIS, SDL_Window *window);
 int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);

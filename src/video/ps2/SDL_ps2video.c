@@ -68,28 +68,29 @@ static int PS2_CreateWindow(_THIS, SDL_Window *window)
 
 static int PS2_VideoInit(_THIS)
 {
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
-    SDL_zero(current_mode);
-
+    /* 32 bpp for default */
+    current_mode.format = SDL_PIXELFORMAT_ABGR8888;
     current_mode.w = 640;
     current_mode.h = 480;
     current_mode.refresh_rate = 60;
-
-    /* 32 bpp for default */
-    current_mode.format = SDL_PIXELFORMAT_ABGR8888;
     current_mode.driverdata = NULL;
 
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
-    display.driverdata = NULL;
+    // display.driverdata = NULL;
     SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
-
-    return 1;
+    return result;
 }
 
 static void PS2_VideoQuit(_THIS)

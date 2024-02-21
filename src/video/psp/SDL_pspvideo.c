@@ -70,7 +70,6 @@ static SDL_VideoDevice *PSP_Create()
     /* Setup all functions which we can handle */
     device->VideoInit = PSP_VideoInit;
     device->VideoQuit = PSP_VideoQuit;
-    device->GetDisplayModes = PSP_GetDisplayModes;
     device->SetDisplayMode = PSP_SetDisplayMode;
     device->CreateSDLWindow = PSP_CreateWindow;
     device->CreateSDLWindowFrom = PSP_CreateWindowFrom;
@@ -116,6 +115,7 @@ const VideoBootStrap PSP_bootstrap = {
 /*****************************************************************************/
 int PSP_VideoInit(_THIS)
 {
+    int result;
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
@@ -123,41 +123,36 @@ int PSP_VideoInit(_THIS)
         return -1;  /* error string would already be set */
     }
 
-    SDL_zero(current_mode);
-
-    current_mode.w = 480;
-    current_mode.h = 272;
-
-    current_mode.refresh_rate = 60;
     /* 32 bpp for default */
     current_mode.format = SDL_PIXELFORMAT_ABGR8888;
+    current_mode.w = 480;
+    current_mode.h = 272;
+    current_mode.refresh_rate = 60;
     current_mode.driverdata = NULL;
 
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
-    display.driverdata = NULL;
+    // display.driverdata = NULL;
 
     SDL_AddDisplayMode(&display, &current_mode);
-
     /* 16 bpp secondary mode */
     current_mode.format = SDL_PIXELFORMAT_BGR565;
-    display.desktop_mode = current_mode;
-    display.current_mode = current_mode;
+    // display.desktop_mode = current_mode;
+    // display.current_mode = current_mode;
     SDL_AddDisplayMode(&display, &current_mode);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
+    // if (result < 0) {
+    //    SDL_free(display.display_modes);
+    // }
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
-
-    return 0;
+    return result;
 }
 
 void PSP_VideoQuit(_THIS)
 {
     PSP_EventQuit();
-}
-
-void PSP_GetDisplayModes(SDL_VideoDisplay *display)
-{
 }
 
 int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

@@ -59,7 +59,6 @@ typedef struct SDL_WindowData
 /* Display and window functions */
 int RPI_VideoInit(_THIS);
 void RPI_VideoQuit(_THIS);
-void RPI_GetDisplayModes(SDL_VideoDisplay *display);
 int RPI_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int RPI_CreateWindow(_THIS, SDL_Window *window);
 int RPI_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
