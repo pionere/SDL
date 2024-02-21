@@ -266,12 +266,10 @@ static int UIKit_AddSingleDisplayMode(SDL_VideoDisplay * display, int w, int h, 
     mode.w = w;
     mode.h = h;
 
-    if (SDL_AddDisplayMode(display, &mode)) {
-        return 0;
-    } else {
+    if (!SDL_AddDisplayMode(display, &mode)) {
         UIKit_FreeDisplayModeData(&mode);
-        return -1;
     }
+    return 0;
 }
 
 static int UIKit_AddDisplayMode(SDL_VideoDisplay * display, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode, SDL_bool addRotation)

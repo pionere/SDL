@@ -300,9 +300,7 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
         mode.refresh_rate = 0; /* Display mode is unknown, so just fill in zero, as specified by SDL's header files */
         display.desktop_mode = mode;
         display.current_mode = mode;
-        if (!SDL_AddDisplayMode(&display, &mode)) {
-            goto done;
-        }
+        SDL_AddDisplayMode(&display, &mode);
     } else if (FAILED(hr)) {
         WIN_SetErrorFromHRESULT(__FUNCTION__ ", IDXGIOutput::FindClosestMatchingMode failed", hr);
         goto done;
@@ -421,8 +419,8 @@ static int WINRT_AddDisplaysForAdapter(IDXGIFactory2 *dxgiFactory2, int adapterI
                 mode.refresh_rate = 0; /* Display mode is unknown, so just fill in zero, as specified by SDL's header files */
                 display.desktop_mode = mode;
                 display.current_mode = mode;
-                if ((SDL_AddDisplayMode(&display, &mode) < 0) ||
-                    (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0)) {
+                SDL_AddDisplayMode(&display, &mode);
+                if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
                     return SDL_SetError("Failed to apply DXGI Display-detection workaround");
                 }
             }
