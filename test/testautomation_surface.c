@@ -350,6 +350,7 @@ int surface_testCompleteSurfaceConversion(void *arg)
         SDL_PIXELFORMAT_ARGB2101010,
 #endif
     };
+    Uint32 fmt;
     SDL_Surface *face = NULL, *cvt1, *cvt2, *final;
     SDL_PixelFormat *fmt1, *fmt2;
     int i, j, ret = 0;
@@ -367,25 +368,27 @@ int surface_testCompleteSurfaceConversion(void *arg)
         SDLTest_AssertPass("Call to SDL_SetColorKey()");
         SDLTest_AssertCheck(ret == 0, "Verify result from SDL_SetColorKey, expected: 0, got: %i", ret);
     }
-
+    fmt = face->format->format;
+    SDLTest_AssertCheck(face != NULL, "Conversion tests from format %u (type:%u, order:%u, layout:%u, bpp:%u, Bpp:%u), palette: %i", (unsigned)fmt, (unsigned)SDL_PIXELTYPE(fmt), (unsigned)SDL_PIXELORDER(fmt), (unsigned)SDL_PIXELLAYOUT(fmt), (unsigned)SDL_BITSPERPIXEL(fmt), (unsigned)SDL_BYTESPERPIXEL(fmt), face->format->palette != NULL);
     for (i = 0; i < SDL_arraysize(pixel_formats); ++i) {
         for (j = 0; j < SDL_arraysize(pixel_formats); ++j) {
             fmt1 = SDL_AllocFormat(pixel_formats[i]);
-            SDL_assert(fmt1 != NULL);
+            SDLTest_AssertCheck(fmt1 != NULL, "Verify fmt1 is not NULL (index %i)", i);
             cvt1 = SDL_ConvertSurface(face, fmt1, 0);
-            SDL_assert(cvt1 != NULL);
+            SDLTest_AssertCheck(cvt1 != NULL, "Verify the result of SDL_ConvertSurface (cvt1) is not NULL when formatting the base surface to index %i (palette: %i).", i, fmt1->palette != NULL);
 
             fmt2 = SDL_AllocFormat(pixel_formats[j]);
-            SDL_assert(fmt1 != NULL);
+            SDLTest_AssertCheck(fmt2 != NULL, "Verify fmt2 is not NULL (index %i)", j);
             cvt2 = SDL_ConvertSurface(cvt1, fmt2, 0);
-            SDL_assert(cvt2 != NULL);
+            SDLTest_AssertCheck(cvt1 != NULL, "Verify the result of SDL_ConvertSurface (cvt2) is not NULL when formatting cvt1 to index %i (palette: %i).", j, fmt2->palette != NULL);
 
             if ( fmt1->BytesPerPixel == face->format->BytesPerPixel &&
                  fmt2->BytesPerPixel == face->format->BytesPerPixel &&
                  (fmt1->Amask != 0) == (face->format->Amask != 0) &&
                  (fmt2->Amask != 0) == (face->format->Amask != 0) ) {
+                SDLTest_AssertPass("Calling SDL_ConvertSurface()");
                 final = SDL_ConvertSurface( cvt2, face->format, 0 );
-                SDL_assert(final != NULL);
+                SDLTest_AssertCheck(final != NULL, "Verify final result from SDL_ConvertSurface is not NULL");
 
                 /* Compare surface. */
                 ret = SDLTest_CompareSurfaces(face, final, 0);

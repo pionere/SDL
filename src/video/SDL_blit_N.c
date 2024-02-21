@@ -3364,14 +3364,14 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
     srcfmt = map->info.src_fmt;
     dstfmt = map->info.dst_fmt;
 
-    /* We don't support blitting with palette */
+    /* We don't support blitting from palette */
     SDL_assert(srcfmt->palette == NULL);
-    if (dstfmt->palette == NULL) {
-        SDL_assert(dstfmt->BitsPerPixel >= 8);
+
+    /* We don't support destinations less than 8-bits*/
+    if (dstfmt->BitsPerPixel >= 8) {
         switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
         case 0:
             if (dstfmt->BytesPerPixel == 1) {
-                SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
                 if ((srcfmt->BytesPerPixel == 4) &&
                     (srcfmt->Rmask == 0x00FF0000) &&
                     (srcfmt->Gmask == 0x0000FF00) &&
@@ -3385,7 +3385,7 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
                 } else {
                     result = BlitNto1;
                 }
-            } else {
+            } else { // if (dstfmt->palette == NULL) {
                 /* Now the meat, choose the blitter we want */
                 Uint32 a_need = NO_ALPHA;
                 if (dstfmt->Amask) {
@@ -3440,11 +3440,11 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
                If a particular case turns out to be useful we'll add it. */
 
             if (srcfmt->BytesPerPixel == 2 && map->identity != 0) {
+                SDL_assert(dstfmt->palette == NULL);
                 result = Blit2to2Key;
             } else if (dstfmt->BytesPerPixel == 1) {
-                SDL_assert(dstfmt->format == SDL_PIXELFORMAT_RGB332);
                 result = BlitNto1Key;
-            } else {
+            } else if (dstfmt->palette == NULL) {
 #ifdef SDL_ALTIVEC_BLITTERS
                 if ((srcfmt->BytesPerPixel == 4) && (dstfmt->BytesPerPixel == 4) && SDL_HasAltiVec()) {
                     result = Blit32to32KeyAltivec;
