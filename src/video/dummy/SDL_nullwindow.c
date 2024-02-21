@@ -44,8 +44,19 @@ void DUMMY_HideWindow(_THIS, SDL_Window *window)
 
 void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen)
 {
-    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED,
-                        window->windowed.w, window->windowed.h);
+    int w, h;
+
+    if (fullscreen) {
+        w = display->display_modes[0].w;
+        h = display->display_modes[0].h;
+    } else {
+        w = window->windowed.w;
+        h = window->windowed.h;
+    }
+
+    if (window->w != w || window->h != h) {
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
+    }
 }
 
 #endif /* SDL_VIDEO_DRIVER_DUMMY */
