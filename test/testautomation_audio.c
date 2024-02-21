@@ -204,8 +204,11 @@ int audio_initOpenCloseQuitAudio()
     const char *hint = SDL_GetHint(SDL_HINT_AUDIODRIVER);
 
     /* Stop SDL audio subsystem */
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    SDLTest_AssertPass("Call to SDL_QuitSubSystem(SDL_INIT_AUDIO)");
+    // The legacy solution is not supported any more -> quit audio, but not the subsystem
+    // SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    // SDLTest_AssertPass("Call to SDL_QuitSubSystem(SDL_INIT_AUDIO)");
+    SDL_AudioQuit();
+    SDLTest_AssertPass("Call to SDL_AudioQuit()");
 
     /* Was a specific driver requested? */
     audioDriver = SDL_GetHint(SDL_HINT_AUDIODRIVER);
@@ -308,7 +311,10 @@ int audio_initOpenCloseQuitAudio()
     } /* driver loop */
 
     /* Restart audio again */
-    _audioSetUp(NULL);
+    // _audioSetUp(NULL);
+    result = SDL_AudioInit(NULL);
+    SDLTest_AssertPass("Call to SDL_AudioInit(NULL)");
+    SDLTest_AssertCheck(result == 0, "Validate result value; expected: 0 got: %d", result);
 
     return TEST_COMPLETED;
 }
@@ -330,8 +336,11 @@ int audio_pauseUnpauseAudio()
     const char *hint = SDL_GetHint(SDL_HINT_AUDIODRIVER);
 
     /* Stop SDL audio subsystem */
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    SDLTest_AssertPass("Call to SDL_QuitSubSystem(SDL_INIT_AUDIO)");
+    // The legacy solution is not supported any more -> quit audio, but not the subsystem
+    // SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    // SDLTest_AssertPass("Call to SDL_QuitSubSystem(SDL_INIT_AUDIO)");
+    SDL_AudioQuit();
+    SDLTest_AssertPass("Call to SDL_AudioQuit()");
 
     /* Was a specific driver requested? */
     audioDriver = SDL_GetHint(SDL_HINT_AUDIODRIVER);
@@ -463,7 +472,10 @@ int audio_pauseUnpauseAudio()
     } /* driver loop */
 
     /* Restart audio again */
-    _audioSetUp(NULL);
+    // _audioSetUp(NULL);
+    result = SDL_AudioInit(NULL);
+    SDLTest_AssertPass("Call to SDL_AudioInit(NULL)");
+    SDLTest_AssertCheck(result == 0, "Validate result value; expected: 0 got: %d", result);
 
     return TEST_COMPLETED;
 }
