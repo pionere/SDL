@@ -43,7 +43,7 @@ extern void WIN_GetDisplayModes(SDL_VideoDisplay *display);
 extern int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 extern void WIN_RefreshDisplays(_THIS);
 
-extern void WIN_InitModes(_THIS);
+extern void WIN_InitModes(void);
 extern void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut);
 extern void WIN_ScreenPointToSDL(int *x, int *y);
 extern void WIN_QuitModes(void);

@@ -369,7 +369,6 @@ struct SDL_VideoDevice
     Uint32 next_object_id;
     char *clipboard_text;
     char *primary_selection_text;
-    SDL_bool setting_display_mode;
     Uint32 quirk_flags;
 
     /* * * */

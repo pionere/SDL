@@ -1142,9 +1142,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
     if (!_this->SetDisplayMode) {
         return SDL_SetError("SDL video driver doesn't support changing display mode");
     }
-    _this->setting_display_mode = SDL_TRUE;
     result = _this->SetDisplayMode(display, &display_mode);
-    _this->setting_display_mode = SDL_FALSE;
     if (result < 0) {
         return -1;
     }
