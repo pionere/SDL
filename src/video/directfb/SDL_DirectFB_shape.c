@@ -126,7 +126,7 @@ int DirectFB_SetWindowShape(SDL_WindowShaper *shaper,SDL_Surface *shape,SDL_Wind
         SDL_DFB_FREE(bitmap);
 
         /* FIXME: Need to call this here - Big ?? */
-        DirectFB_WM_RedrawLayout(SDL_GetDisplayForWindow(shaper->window)->device, shaper->window);
+        DirectFB_WM_RedrawLayout(shaper->window);
     }
 
     return 0;

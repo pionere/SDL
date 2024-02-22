@@ -373,7 +373,6 @@ static void WIN_AddDisplay(_THIS, HMONITOR hMonitor, const MONITORINFOEXW *info,
     display.desktop_mode = mode;
     display.current_mode = mode;
     display.orientation = orientation;
-    display.device = _this;
     display.driverdata = displaydata;
     WIN_GetDisplayBounds(&display, &displaydata->bounds);
     index = SDL_AddVideoDisplay(&display, send_event);

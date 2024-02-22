@@ -138,8 +138,6 @@ struct SDL_VideoDisplay
 
     SDL_Window *fullscreen_window;
 
-    SDL_VideoDevice *device;
-
     void *driverdata;
 };
 

@@ -668,7 +668,6 @@ int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
     if (displays) {
         index = _this->num_displays++;
         displays[index] = *display;
-        displays[index].device = _this;
         _this->displays = displays;
 
         if (display->name) {
