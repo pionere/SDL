@@ -84,7 +84,7 @@
 @end
 
 
-static int SetupWindowData(_THIS, SDL_Window *window, UIWindow *uiwindow, SDL_bool created)
+static int SetupWindowData(SDL_Window *window, UIWindow *uiwindow, SDL_bool created)
 {
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData *displaydata = (__bridge SDL_DisplayData *) display->driverdata;
@@ -211,7 +211,7 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
             [uiwindow setScreen:data.uiscreen];
         }
 
-        if (SetupWindowData(_this, window, uiwindow, SDL_TRUE) < 0) {
+        if (SetupWindowData(window, uiwindow, SDL_TRUE) < 0) {
             return -1;
         }
     }
@@ -308,7 +308,7 @@ void UIKit_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed)
     /* There really isn't a concept of window grab or cursor confinement on iOS */
 }
 
-void UIKit_UpdatePointerLock(_THIS, SDL_Window * window)
+void UIKit_UpdatePointerLock(SDL_Window * window)
 {
 #if !TARGET_OS_TV
 #if defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_14_0

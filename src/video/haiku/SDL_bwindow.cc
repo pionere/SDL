@@ -41,7 +41,7 @@ static SDL_INLINE SDL_BLooper *_GetBeLooper() {
     return SDL_Looper;
 }
 
-static int _InitWindow(_THIS, SDL_Window *window) {
+static int _InitWindow(SDL_Window *window) {
     uint32 flags = 0;
     window_look look = B_TITLED_WINDOW_LOOK;
 
@@ -79,7 +79,7 @@ static int _InitWindow(_THIS, SDL_Window *window) {
 }
 
 int HAIKU_CreateWindow(_THIS, SDL_Window *window) {
-    if (_InitWindow(_this, window) < 0) {
+    if (_InitWindow(window) < 0) {
         return -1;
     }
     
@@ -107,7 +107,7 @@ int HAIKU_CreateWindowFrom(_THIS, SDL_Window * window, const void *data) {
     }
     
     /* If we are out of memory, return the error code */
-    if (_InitWindow(_this, window) < 0) {
+    if (_InitWindow(window) < 0) {
         return -1;
     }
     

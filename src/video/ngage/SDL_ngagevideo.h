@@ -32,8 +32,6 @@
 #include <w32std.h>
 #include "bitdraw.h" // CFbsDrawDevice
 
-#define _THIS SDL_VideoDevice *_this
-
 typedef struct Ngage_VideoData
 {
     /* Epoc window server info */

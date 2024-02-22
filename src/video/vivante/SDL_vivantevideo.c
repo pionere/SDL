@@ -108,7 +108,7 @@ const VideoBootStrap VIVANTE_bootstrap = {
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
 
-static int VIVANTE_AddVideoDisplays(_THIS)
+static int VIVANTE_AddVideoDisplays()
 {
     Vivante_VideoData *videodata = &vivanteVideoData;
     int result;
@@ -150,7 +150,7 @@ static int VIVANTE_AddVideoDisplays(_THIS)
     current_mode.driverdata = NULL;
 
     SDL_zero(display);
-    display.name = VIVANTE_GetDisplayName(_this);
+    display.name = VIVANTE_GetDisplayName();
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
     display.driverdata = data;
@@ -197,15 +197,15 @@ int VIVANTE_VideoInit(_THIS)
     LOAD_FUNC(fbDestroyWindow);
 #endif
 
-    if (VIVANTE_SetupPlatform(_this) < 0) {
+    if (VIVANTE_SetupPlatform() < 0) {
         return -1;
     }
 
-    if (VIVANTE_AddVideoDisplays(_this) < 0) {
+    if (VIVANTE_AddVideoDisplays() < 0) {
         return -1;
     }
 
-    VIVANTE_UpdateDisplayScale(_this);
+    VIVANTE_UpdateDisplayScale();
 
 #ifdef SDL_INPUT_LINUXEV
     if (SDL_EVDEV_Init() < 0) {
@@ -224,7 +224,7 @@ void VIVANTE_VideoQuit(_THIS)
     SDL_EVDEV_Quit();
 #endif
 
-    VIVANTE_CleanupPlatform(_this);
+    VIVANTE_CleanupPlatform();
 
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
     if (videodata->vdk_private) {

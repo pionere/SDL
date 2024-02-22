@@ -610,7 +610,7 @@ SDL_bool UIKit_IsScreenKeyboardShown(SDL_Window *window)
     }
 }
 
-void UIKit_SetTextInputRect(_THIS, const SDL_Rect *rect)
+void UIKit_SetTextInputRect(const SDL_Rect *rect)
 {
     if (!rect) {
         SDL_InvalidParamError("rect");

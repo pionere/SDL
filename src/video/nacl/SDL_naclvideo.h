@@ -27,11 +27,6 @@
 #include "ppapi_simple/ps_interface.h"
 #include "ppapi/c/pp_input_event.h"
 
-
-/* Hidden "this" pointer for the video functions */
-#define _THIS  SDL_VideoDevice *_this
-
-
 /* Private display data */
 
 typedef struct NACL_VideoData {

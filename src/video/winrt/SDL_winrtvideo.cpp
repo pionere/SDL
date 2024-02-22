@@ -134,7 +134,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     device->HideScreenKeyboard = WINRT_HideScreenKeyboard;
     device->IsScreenKeyboardShown = WINRT_IsScreenKeyboardShown;
 
-    WINTRT_InitialiseInputPaneEvents(device);
+    WINTRT_InitialiseInputPaneEvents();
 #endif
 
 #ifdef SDL_VIDEO_OPENGL_EGL

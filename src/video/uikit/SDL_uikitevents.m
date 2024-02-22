@@ -289,7 +289,7 @@ static void UpdatePointerLock(void)
     SDL_Window *window;
 
     for (window = _this->windows; window != NULL; window = window->next) {
-        UIKit_UpdatePointerLock(_this, window);
+        UIKit_UpdatePointerLock(window);
     }
 }
 

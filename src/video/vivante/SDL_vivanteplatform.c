@@ -26,21 +26,21 @@
 
 #ifdef VIVANTE_PLATFORM_GENERIC
 
-int VIVANTE_SetupPlatform(_THIS)
+int VIVANTE_SetupPlatform()
 {
     return 0;
 }
 
-char *VIVANTE_GetDisplayName(_THIS)
+char *VIVANTE_GetDisplayName()
 {
     return NULL;
 }
 
-void VIVANTE_UpdateDisplayScale(_THIS)
+void VIVANTE_UpdateDisplayScale()
 {
 }
 
-void VIVANTE_CleanupPlatform(_THIS)
+void VIVANTE_CleanupPlatform()
 {
 }
 

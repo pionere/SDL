@@ -961,7 +961,7 @@ cleanup:
    These things are incompatible with Vulkan, which accesses the same resources
    internally so they must be free when trying to build a Vulkan surface.
 */
-static int KMSDRM_GBMInit(_THIS, SDL_DisplayData *dispdata)
+static int KMSDRM_GBMInit(SDL_DisplayData *dispdata)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     int ret = 0;
@@ -984,7 +984,7 @@ static int KMSDRM_GBMInit(_THIS, SDL_DisplayData *dispdata)
 }
 
 /* Deinit the Vulkan-incompatible KMSDRM stuff. */
-static void KMSDRM_GBMDeinit(_THIS, SDL_DisplayData *dispdata)
+static void KMSDRM_GBMDeinit(SDL_DisplayData *dispdata)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
 
@@ -1014,7 +1014,7 @@ static void KMSDRM_DestroySurfaces(_THIS, SDL_Window *window)
     /**********************************************/
     /* Wait for last issued pageflip to complete. */
     /**********************************************/
-    /*KMSDRM_WaitPageflip(_this, windata);*/
+    /*KMSDRM_WaitPageflip(windata);*/
 
     /***********************************************************************/
     /* Restore the original CRTC configuration: configue the crtc with the */
@@ -1367,7 +1367,7 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
             }
 
             /* Free display plane, and destroy GBM device. */
-            KMSDRM_GBMDeinit(_this, dispdata);
+            KMSDRM_GBMDeinit(dispdata);
         }
 
     } else {
@@ -1451,7 +1451,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
             /* Reopen FD, create gbm dev, setup display plane, etc,.
                but only when we come here for the first time,
                and only if it's not a VK window. */
-            ret = KMSDRM_GBMInit(_this, dispdata);
+            ret = KMSDRM_GBMInit(dispdata);
             if (ret != 0) {
                 return SDL_SetError("Can't init GBM on window creation.");
             }

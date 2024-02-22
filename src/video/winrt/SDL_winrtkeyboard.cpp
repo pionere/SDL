@@ -411,7 +411,7 @@ void WINTRT_OnInputPaneHiding(Windows::UI::ViewManagement::InputPane ^ sender, W
     WINRT_InputPaneVisible = false;
 }
 
-void WINTRT_InitialiseInputPaneEvents(_THIS)
+void WINTRT_InitialiseInputPaneEvents(void)
 {
     using namespace Windows::UI::ViewManagement;
     InputPane ^ inputPane = InputPane::GetForCurrentView();

@@ -24,14 +24,14 @@
 
 #include "../../events/SDL_events_c.h"
 
-void N3DS_SwkbInit();
-void N3DS_SwkbPoll();
-void N3DS_SwkbQuit();
+void N3DS_SwkbInit(void);
+void N3DS_SwkbPoll(void);
+void N3DS_SwkbQuit(void);
 
-SDL_bool N3DS_HasScreenKeyboardSupport();
+SDL_bool N3DS_HasScreenKeyboardSupport(void);
 
-void N3DS_StartTextInput();
-void N3DS_StopTextInput();
+void N3DS_StartTextInput(void);
+void N3DS_StopTextInput(void);
 
 #endif /* SDL_n3dskeyboard_h_ */
 

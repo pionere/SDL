@@ -87,9 +87,9 @@
 @end
 
 #ifdef SDL_IPHONE_KEYBOARD
-SDL_bool UIKit_HasScreenKeyboardSupport();
+SDL_bool UIKit_HasScreenKeyboardSupport(void);
 void UIKit_ShowScreenKeyboard(SDL_Window *window);
 void UIKit_HideScreenKeyboard(SDL_Window *window);
 SDL_bool UIKit_IsScreenKeyboardShown(SDL_Window *window);
-void UIKit_SetTextInputRect(_THIS, const SDL_Rect *rect);
+void UIKit_SetTextInputRect(const SDL_Rect *rect);
 #endif

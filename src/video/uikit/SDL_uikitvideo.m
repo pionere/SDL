@@ -141,7 +141,7 @@ int UIKit_VideoInit(_THIS)
 {
     _this->gl_config.driver_loaded = 1;
 
-    if (UIKit_InitModes(_this) < 0) {
+    if (UIKit_InitModes() < 0) {
         return -1;
     }
 

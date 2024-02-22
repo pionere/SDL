@@ -366,7 +366,7 @@ SDL_bool UIKit_IsDisplayLandscape(UIScreen *uiscreen)
     }
 }
 
-int UIKit_InitModes(_THIS)
+int UIKit_InitModes(void)
 {
     @autoreleasepool {
         for (UIScreen *uiscreen in [UIScreen screens]) {

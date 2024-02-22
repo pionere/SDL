@@ -68,7 +68,7 @@ extern void WINRT_ProcessKeyUpEvent(Windows::UI::Core::KeyEventArgs ^ args);
 extern void WINRT_ProcessCharacterReceivedEvent(Windows::UI::Core::CharacterReceivedEventArgs ^ args);
 
 #if NTDDI_VERSION >= NTDDI_WIN10
-extern void WINTRT_InitialiseInputPaneEvents(_THIS);
+extern void WINTRT_InitialiseInputPaneEvents(void);
 extern SDL_bool WINRT_HasScreenKeyboardSupport(void);
 extern void WINRT_ShowScreenKeyboard(SDL_Window *window);
 extern void WINRT_HideScreenKeyboard(SDL_Window *window);

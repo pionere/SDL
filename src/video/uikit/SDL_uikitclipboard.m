@@ -73,7 +73,7 @@ SDL_bool UIKit_HasClipboardText(_THIS)
     }
 }
 
-void UIKit_InitClipboard(_THIS)
+void UIKit_InitClipboard(void)
 {
 #if !TARGET_OS_TV
     @autoreleasepool {
@@ -90,7 +90,7 @@ void UIKit_InitClipboard(_THIS)
 #endif
 }
 
-void UIKit_QuitClipboard(_THIS)
+void UIKit_QuitClipboard(void)
 {
 #if !TARGET_OS_TV
     @autoreleasepool {

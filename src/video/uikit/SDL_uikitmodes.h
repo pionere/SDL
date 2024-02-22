@@ -42,7 +42,7 @@
 
 extern SDL_bool UIKit_IsDisplayLandscape(UIScreen *uiscreen);
 
-extern int UIKit_InitModes(_THIS);
+extern int UIKit_InitModes(void);
 extern int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event);
 extern void UIKit_DelDisplay(UIScreen *uiscreen);
 extern void UIKit_GetDisplayModes(SDL_VideoDisplay * display);
