@@ -984,30 +984,26 @@ static SDL_DisplayMode *SDL_GetClosestDisplayModeForDisplay(SDL_VideoDisplay *di
 {
     Uint32 target_format;
     int target_refresh_rate;
-    int i;
+    int i, num_display_modes;
     SDL_DisplayMode *current, *match;
 
-    if (!mode || !closest) {
-        SDL_InvalidParamError("mode/closest");
-        return NULL;
-    }
+    SDL_assert(mode != NULL && closest != NULL);
 
     /* Default to the desktop format */
-    if (mode->format) {
-        target_format = mode->format;
-    } else {
+    target_format = mode->format;
+    if (target_format == SDL_PIXELFORMAT_UNKNOWN) {
         target_format = display->desktop_mode.format;
     }
 
     /* Default to the desktop refresh rate */
-    if (mode->refresh_rate) {
-        target_refresh_rate = mode->refresh_rate;
-    } else {
+    target_refresh_rate = mode->refresh_rate;
+    if (!target_refresh_rate) {
         target_refresh_rate = display->desktop_mode.refresh_rate;
     }
 
+    num_display_modes = SDL_GetNumDisplayModesForDisplay(display);
     match = NULL;
-    for (i = 0; i < SDL_GetNumDisplayModesForDisplay(display); ++i) {
+    for (i = 0; i < num_display_modes; ++i) {
         current = &display->display_modes[i];
 
         if (current->w && (current->w < mode->w)) {
@@ -1047,23 +1043,26 @@ static SDL_DisplayMode *SDL_GetClosestDisplayModeForDisplay(SDL_VideoDisplay *di
         }
     }
     if (match) {
-        if (match->format) {
-            closest->format = match->format;
-        } else {
-            closest->format = mode->format;
+        target_format = match->format;
+        if (target_format == SDL_PIXELFORMAT_UNKNOWN) {
+            target_format = mode->format;
         }
-        if (match->w && match->h) {
-            closest->w = match->w;
-            closest->h = match->h;
-        } else {
-            closest->w = mode->w;
-            closest->h = mode->h;
+        closest->format = target_format;
+        i = match->w;
+        if (!i) {
+            i = mode->w;
         }
-        if (match->refresh_rate) {
-            closest->refresh_rate = match->refresh_rate;
-        } else {
-            closest->refresh_rate = mode->refresh_rate;
+        closest->w = i;
+        i = match->h;
+        if (!i) {
+            i = mode->h;
         }
+        closest->h = i;
+        target_refresh_rate = match->refresh_rate;
+        if (!target_refresh_rate) {
+            target_refresh_rate = mode->refresh_rate;
+        }
+        closest->refresh_rate = target_refresh_rate;
         closest->driverdata = match->driverdata;
 
         /*
@@ -1079,9 +1078,9 @@ static SDL_DisplayMode *SDL_GetClosestDisplayModeForDisplay(SDL_VideoDisplay *di
         if (!closest->h) {
             closest->h = 480;
         }
-        return closest;
+        match = closest;
     }
-    return NULL;
+    return match;
 }
 
 SDL_DisplayMode *SDL_GetClosestDisplayMode(int displayIndex,
@@ -1093,6 +1092,12 @@ SDL_DisplayMode *SDL_GetClosestDisplayMode(int displayIndex,
     CHECK_DISPLAY_INDEX(displayIndex, NULL);
 
     display = &_this->displays[displayIndex];
+
+    if (!mode || !closest) {
+        SDL_InvalidParamError("mode/closest");
+        return NULL;
+    }
+
     return SDL_GetClosestDisplayModeForDisplay(display, mode, closest);
 }
 
@@ -1111,7 +1116,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
         display_mode = *mode;
 
         /* Default to the current mode */
-        if (!display_mode.format) {
+        if (display_mode.format == SDL_PIXELFORMAT_UNKNOWN) {
             display_mode.format = display->current_mode.format;
         }
         if (!display_mode.w) {
@@ -1144,7 +1149,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
     }
     result = _this->SetDisplayMode(display, &display_mode);
     if (result < 0) {
-        return -1;
+        return result;
     }
     SDL_SetCurrentDisplayMode(display, &display_mode);
     return 0;
