@@ -47,8 +47,8 @@ void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, 
     int w, h;
 
     if (fullscreen) {
-        w = display->display_modes[0].w;
-        h = display->display_modes[0].h;
+        w = display->current_mode.w;
+        h = display->current_mode.h;
     } else {
         w = window->windowed.w;
         h = window->windowed.h;

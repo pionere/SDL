@@ -113,6 +113,7 @@ int OFFSCREEN_VideoInit(_THIS)
     display.current_mode = current_mode;
     // display.driverdata = NULL;
 
+    SDL_zero(current_mode); // add empty mode to let the user set it freely
     SDL_AddDisplayMode(&display, &current_mode);
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
     // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
