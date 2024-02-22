@@ -931,6 +931,11 @@ void SDL_MouseQuit(void)
     SDL_DelHintCallback(SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE,
                         SDL_MouseRelativeSystemScaleChanged, mouse);
 
+#if defined(__vita__)
+    SDL_DelHintCallback(SDL_HINT_VITA_TOUCH_MOUSE_DEVICE,
+                        SDL_VitaTouchMouseDeviceChanged, mouse);
+#endif
+
     SDL_DelHintCallback(SDL_HINT_TOUCH_MOUSE_EVENTS,
                         SDL_TouchMouseEventsChanged, mouse);
 
