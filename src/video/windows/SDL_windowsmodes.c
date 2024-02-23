@@ -350,7 +350,9 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
                         SDL_SendDisplayEvent(&displays[i], SDL_DISPLAYEVENT_MOVED, 0);
                     }
                 }
-                SDL_SendDisplayEvent(&displays[i], SDL_DISPLAYEVENT_ORIENTATION, orientation);
+                if (displays[i].orientation != orientation) {
+                    SDL_SendDisplayEvent(&displays[i], SDL_DISPLAYEVENT_ORIENTATION, orientation);
+                }
             }
             goto done;
         }
