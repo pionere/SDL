@@ -358,11 +358,9 @@ static void xdg_output_handle_description(void *data, struct zxdg_output_v1 *xdg
 {
     SDL_WaylandOutputData *driverdata = data;
 
-    if (driverdata->index == -1) {
+    if (driverdata->index < 0) {
         /* xdg-output descriptions, if available, supersede wl-output model names. */
-        if (driverdata->placeholder.name) {
-            SDL_free(driverdata->placeholder.name);
-        }
+        SDL_free(driverdata->placeholder.name);
 
         driverdata->placeholder.name = SDL_strdup(description);
     }
@@ -489,7 +487,7 @@ static void display_handle_geometry(void *data,
     driverdata->physical_height = physical_height;
 
     /* The output name is only set if xdg-output hasn't provided a description. */
-    if (driverdata->index == -1 && !driverdata->placeholder.name) {
+    if (driverdata->index < 0 && !driverdata->placeholder.name) {
         driverdata->placeholder.name = SDL_strdup(model);
     }
 
@@ -574,7 +572,6 @@ static void display_handle_done(void *data,
     }
 
     /* The native display resolution */
-    SDL_zero(native_mode);
     native_mode.format = SDL_PIXELFORMAT_RGB888;
 
     if (driverdata->transform & WL_OUTPUT_TRANSFORM_90) {
@@ -588,7 +585,6 @@ static void display_handle_done(void *data,
     native_mode.driverdata = driverdata->output;
 
     /* The scaled desktop mode */
-    SDL_zero(desktop_mode);
     desktop_mode.format = SDL_PIXELFORMAT_RGB888;
 
     if (driverdata->has_logical_size) { /* If xdg-output is present, calculate the true scale of the desktop */
@@ -609,18 +605,6 @@ static void display_handle_done(void *data,
     desktop_mode.refresh_rate = (int)SDL_round(driverdata->refresh / 1000.0); /* mHz to Hz */
     desktop_mode.driverdata = driverdata->output;
 
-    /*
-     * The native display mode is only exposed separately from the desktop size if the
-     * desktop is scaled and the wp_viewporter protocol is supported.
-     */
-    if (driverdata->scale_factor > 1.0f && video->viewporter) {
-        if (driverdata->index > -1) {
-            SDL_AddDisplayMode(SDL_GetDisplay(driverdata->index), &native_mode);
-        } else {
-            SDL_AddDisplayMode(&driverdata->placeholder, &native_mode);
-        }
-    }
-
     /* Calculate the display DPI */
     if (driverdata->transform & WL_OUTPUT_TRANSFORM_90) {
         driverdata->hdpi = driverdata->physical_height ? (((float)driverdata->native_height) * 25.4f / driverdata->physical_height) : 0.0f;
@@ -638,12 +622,19 @@ static void display_handle_done(void *data,
                                                   ((float)driverdata->physical_height) / 25.4f);
     }
 
-    if (driverdata->index > -1) {
+    if (driverdata->index >= 0) {
         dpy = SDL_GetDisplay(driverdata->index);
     } else {
         dpy = &driverdata->placeholder;
     }
 
+    /*
+     * The native display mode is only exposed separately from the desktop size if the
+     * desktop is scaled and the wp_viewporter protocol is supported.
+     */
+    if (driverdata->scale_factor > 1.0f && video->viewporter) {
+        SDL_AddDisplayMode(dpy, &native_mode);
+    }
     SDL_AddDisplayMode(dpy, &desktop_mode);
     dpy->desktop_mode = desktop_mode;
     dpy->current_mode = desktop_mode;
@@ -655,14 +646,14 @@ static void display_handle_done(void *data,
         AddEmulatedModes(dpy, rot_90);
     }
 
-    if (driverdata->index == -1) {
+    if (driverdata->index < 0) {
         /* First time getting display info, create the VideoDisplay */
         SDL_bool send_event = video->initializing ? SDL_FALSE : SDL_TRUE;
-        driverdata->placeholder.orientation = driverdata->orientation;
-        driverdata->placeholder.driverdata = driverdata;
-        driverdata->index = SDL_AddVideoDisplay(&driverdata->placeholder, send_event);
-        SDL_free(driverdata->placeholder.name);
-        SDL_zero(driverdata->placeholder);
+        dpy->orientation = driverdata->orientation;
+        dpy->driverdata = driverdata;
+        driverdata->index = SDL_AddVideoDisplay(dpy, send_event);
+        SDL_free(dpy->name);
+        SDL_zero(*dpy);
     } else {
         SDL_SendDisplayEvent(dpy, SDL_DISPLAYEVENT_ORIENTATION, driverdata->orientation);
     }
@@ -995,26 +986,27 @@ static int Wayland_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, flo
     return driverdata->ddpi != 0.0f ? 0 : SDL_SetError("Couldn't get DPI");
 }
 
-static void Wayland_VideoCleanup(_THIS)
+static void Wayland_VideoCleanup()
 {
     Wayland_VideoData *data = &waylandVideoData;
-    int i, j;
+    int num_displays, i, j;
+    SDL_VideoDisplay *displays;
 
     Wayland_QuitWin();
     Wayland_FiniMouse();
 
-    for (i = _this->num_displays - 1; i >= 0; --i) {
-        SDL_VideoDisplay *display = &_this->displays[i];
+    displays = SDL_GetDisplays(&num_displays);
+    for (i = num_displays; i--;) {
+        SDL_VideoDisplay *display = &displays[i];
 
         if (((SDL_WaylandOutputData *)display->driverdata)->xdg_output) {
             zxdg_output_v1_destroy(((SDL_WaylandOutputData *)display->driverdata)->xdg_output);
         }
 
         wl_output_destroy(((SDL_WaylandOutputData *)display->driverdata)->output);
-        SDL_free(display->driverdata);
-        display->driverdata = NULL;
 
-        for (j = display->num_display_modes; j--;) {
+        /* Clear the wl_output ref so Reset doesn't free it */
+        for (j = 0; j < display->num_display_modes; j += 1) {
             display->display_modes[j].driverdata = NULL;
         }
         display->desktop_mode.driverdata = NULL;
@@ -1133,7 +1125,7 @@ SDL_bool Wayland_VideoReconnect(_THIS)
     SDL_Window *current_window = SDL_GL_GetCurrentWindow();
 
     SDL_GL_MakeCurrent(NULL, NULL);
-    Wayland_VideoCleanup(_this);
+    Wayland_VideoCleanup();
 
     SDL_ResetKeyboard();
     SDL_ResetMouse();
@@ -1173,7 +1165,7 @@ void Wayland_VideoQuit(_THIS)
 {
     Wayland_VideoData *data = &waylandVideoData;
 
-    Wayland_VideoCleanup(_this);
+    Wayland_VideoCleanup();
 
 #ifdef HAVE_LIBDECOR_H
     if (data->shell.libdecor) {
