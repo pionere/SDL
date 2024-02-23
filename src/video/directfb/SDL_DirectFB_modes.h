@@ -48,9 +48,8 @@ struct _DFB_DisplayData
 
 
 extern void DirectFB_InitModes(void);
-extern void DirectFB_GetDisplayModes(SDL_VideoDisplay * display);
 extern int DirectFB_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
-extern void DirectFB_QuitModes(_THIS);
+extern void DirectFB_QuitModes(void);
 
 extern void DirectFB_SetContext(SDL_Window *window);
 

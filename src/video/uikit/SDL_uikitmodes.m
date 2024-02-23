@@ -29,6 +29,9 @@
 
 #import <sys/utsname.h>
 
+static void UIKit_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode);
+static void UIKit_DelDisplay(UIScreen *uiscreen);
+
 @implementation SDL_DisplayData
 
 - (instancetype)initWithScreen:(UIScreen*)screen
@@ -242,6 +245,19 @@ static void UIKit_FreeDisplayModeData(SDL_DisplayMode * mode)
     }
 }
 
+static void UIKit_FreeVideoDisplay(SDL_VideoDisplay * display)
+{
+    for (int j = 0; j < display->num_display_modes; j++) {
+        SDL_DisplayMode *mode = &display->display_modes[j];
+        UIKit_FreeDisplayModeData(mode);
+    }
+
+    if (display->driverdata != NULL) {
+        CFRelease(display->driverdata);
+        display->driverdata = NULL;
+    }
+}
+
 static NSUInteger UIKit_GetDisplayModeRefreshRate(UIScreen *uiscreen)
 {
 #ifdef __IPHONE_10_3
@@ -254,7 +270,7 @@ static NSUInteger UIKit_GetDisplayModeRefreshRate(UIScreen *uiscreen)
 
 static int UIKit_InitDisplayMode(SDL_DisplayMode * mode, int w, int h, UIScreen * uiscreen, UIScreenMode * uiscreenmode)
 {
-    if (UIKit_AllocateDisplayModeData(&mode, uiscreenmode) < 0) {
+    if (UIKit_AllocateDisplayModeData(mode, uiscreenmode) < 0) {
         return -1;
     }
 
@@ -272,7 +288,7 @@ static int UIKit_AddSingleDisplayMode(SDL_VideoDisplay * display, int w, int h, 
     SDL_DisplayMode mode;
 
     result = UIKit_InitDisplayMode(&mode, w, h, uiscreen, uiscreenmode);
-    if (result == 0 && !SDL_AddDisplayMode(&display, &mode)) {
+    if (result == 0 && !SDL_AddDisplayMode(display, &mode)) {
         UIKit_FreeDisplayModeData(&mode);
     }
 
@@ -313,21 +329,16 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
     result = UIKit_InitDisplayMode(&current_mode, size.width, size.height, uiscreen, uiscreenmode);
     if (result == 0) {
         SDL_zero(display);
-        display.desktop_mode = current_mode;
-        display.current_mode = current_mode;
-
-        SDL_AddDisplayMode(&display, &current_mode);
 
         /* Allocate the display data */
         SDL_DisplayData *data = [[SDL_DisplayData alloc] initWithScreen:uiscreen];
         if (data) {
             display.driverdata = (void *) CFBridgingRetain(data);
+            UIKit_GetDisplayModes(&display, &current_mode);
             result = SDL_AddVideoDisplay(&display, send_event);
-            // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-            // if (result < 0) {
-            //    UIKit_FreeDisplayModeData(&current_mode);
-            //    CFRelease(display.driverdata);
-            // }
+            if (result < 0) {
+                UIKit_FreeVideoDisplay(&display);
+            }
         } else {
             result = SDL_OutOfMemory();
             UIKit_FreeDisplayModeData(&current_mode);
@@ -337,7 +348,7 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
     return result;
 }
 
-void UIKit_DelDisplay(UIScreen *uiscreen)
+static void UIKit_DelDisplay(UIScreen *uiscreen)
 {
     int num_displays, i;
     SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
@@ -346,7 +357,8 @@ void UIKit_DelDisplay(UIScreen *uiscreen)
         SDL_DisplayData *data = (__bridge SDL_DisplayData *)displays[i].driverdata;
 
         if (data && data.uiscreen == uiscreen) {
-            CFRelease(displays[i].driverdata);
+            /* Release Objective-C objects, so higher level doesn't free() them. */
+            UIKit_FreeVideoDisplay(&displays[i]);
             SDL_DelVideoDisplay(i);
             break;
         }
@@ -384,21 +396,30 @@ int UIKit_InitModes(void)
     return 0;
 }
 
-void UIKit_GetDisplayModes(SDL_VideoDisplay * display)
+static void UIKit_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode)
 {
     @autoreleasepool {
-        SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;
-
-        SDL_bool isLandscape = UIKit_IsDisplayLandscape(data.uiscreen);
-        SDL_bool addRotation = (data.uiscreen == [UIScreen mainScreen]);
-        CGFloat scale = data.uiscreen.scale;
+        SDL_DisplayData *data;
+        UIScreen *uiscreen;
+        SDL_bool isLandscape, addRotation;
+        CGFloat scale;
         NSArray *availableModes = nil;
+        // add the desktop mode
+        display->desktop_mode = *desktop_mode;
+        display->current_mode = *desktop_mode;
 
+        SDL_AddDisplayMode(display, desktop_mode);
+        // add the options
+        data = (__bridge SDL_DisplayData *) display->driverdata;
+        uiscreen = data.uiscreen;
+        isLandscape = UIKit_IsDisplayLandscape(uiscreen);
+        scale = uiscreen.scale;
 #if TARGET_OS_TV
         addRotation = SDL_FALSE;
-        availableModes = @[data.uiscreen.currentMode];
+        availableModes = @[uiscreen.currentMode];
 #else
-        availableModes = data.uiscreen.availableModes;
+        addRotation = (uiscreen == [UIScreen mainScreen]);
+        availableModes = uiscreen.availableModes;
 #endif
 
         for (UIScreenMode *uimode in availableModes) {
@@ -423,7 +444,7 @@ void UIKit_GetDisplayModes(SDL_VideoDisplay * display)
                 h = tmp;
             }
 
-            UIKit_AddDisplayMode(display, w, h, data.uiscreen, uimode, addRotation);
+            UIKit_AddDisplayMode(display, w, h, uiscreen, uimode, addRotation);
         }
     }
 }
@@ -496,26 +517,16 @@ int UIKit_GetDisplayUsableBounds(SDL_VideoDisplay * display, SDL_Rect * rect)
     return 0;
 }
 
-void UIKit_QuitModes(_THIS)
+void UIKit_QuitModes(void)
 {
     [SDL_DisplayWatch stop];
 
     /* Release Objective-C objects, so higher level doesn't free() them. */
-    int i, j;
     @autoreleasepool {
-        for (i = 0; i < _this->num_displays; i++) {
-            SDL_VideoDisplay *display = &_this->displays[i];
-
-            UIKit_FreeDisplayModeData(&display->desktop_mode);
-            for (j = 0; j < display->num_display_modes; j++) {
-                SDL_DisplayMode *mode = &display->display_modes[j];
-                UIKit_FreeDisplayModeData(mode);
-            }
-
-            if (display->driverdata != NULL) {
-                CFRelease(display->driverdata);
-                display->driverdata = NULL;
-            }
+        int num_displays, i;
+        SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+        for (i = 0; i < num_displays; i++) {
+            UIKit_FreeVideoDisplay(&displays[i]);
         }
     }
 }

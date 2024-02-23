@@ -148,7 +148,6 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->GetDisplayBounds = WIN_GetDisplayBounds;
     device->GetDisplayUsableBounds = WIN_GetDisplayUsableBounds;
     device->GetDisplayDPI = WIN_GetDisplayDPI;
-    device->GetDisplayModes = WIN_GetDisplayModes;
     device->SetDisplayMode = WIN_SetDisplayMode;
 #endif
     device->PumpEvents = WIN_PumpEvents;

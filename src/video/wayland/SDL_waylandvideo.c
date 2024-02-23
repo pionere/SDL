@@ -716,7 +716,7 @@ static void Wayland_add_display(uint32_t id)
 static void Wayland_free_display(uint32_t id)
 {
     Wayland_VideoData *d = &waylandVideoData;
-    int num_displays, i;
+    int num_displays, i, j;
     SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
     SDL_WaylandOutputData *data;
 
@@ -740,6 +740,11 @@ static void Wayland_free_display(uint32_t id)
                 zxdg_output_v1_destroy(data->xdg_output);
             }
             wl_output_destroy(data->output);
+
+            /* Clear the wl_output ref so Reset doesn't free it */
+            for (j = 0; j < displays[i].num_display_modes; j += 1) {
+                displays[i].display_modes[j].driverdata = NULL;
+            }
             SDL_DelVideoDisplay(i);
 
             /* Update the index for all remaining displays */
@@ -1009,7 +1014,6 @@ static void Wayland_VideoCleanup()
         for (j = 0; j < display->num_display_modes; j += 1) {
             display->display_modes[j].driverdata = NULL;
         }
-        display->desktop_mode.driverdata = NULL;
         SDL_DelVideoDisplay(i);
     }
     data->output_list = NULL;

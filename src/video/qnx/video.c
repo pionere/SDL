@@ -34,24 +34,23 @@ static screen_event_t   event;
  */
 static int videoInit(_THIS)
 {
+    int result;
     SDL_VideoDisplay display;
 
-    if (screen_create_context(&context, 0) < 0) {
-        return -1;
+    result = screen_create_context(&context, 0);
+    if (result < 0) {
+        return result;
     }
-
-    if (screen_create_event(&event) < 0) {
-        return -1;
+    result = screen_create_event(&event);
+    if (result < 0) {
+        return result;
     }
 
     SDL_zero(display);
+    // FIXME DisplayModes?
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
 
-    if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
-        return -1;
-    }
-
-    _this->num_displays = 1;
-    return 0;
+    return result;
 }
 
 static void videoQuit(_THIS)

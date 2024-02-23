@@ -101,7 +101,6 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     /* Set the function pointers */
     device->VideoInit = DirectFB_VideoInit;
     device->VideoQuit = DirectFB_VideoQuit;
-    device->GetDisplayModes = DirectFB_GetDisplayModes;
     device->SetDisplayMode = DirectFB_SetDisplayMode;
     device->PumpEvents = DirectFB_PumpEventsWindow;
     device->CreateSDLWindow = DirectFB_CreateWindow;
@@ -279,7 +278,7 @@ static void DirectFB_VideoQuit(_THIS)
 {
     DFB_VideoData *devdata = &dfbVideoData;
 
-    DirectFB_QuitModes(_this);
+    DirectFB_QuitModes();
     DirectFB_QuitKeyboard();
     DirectFB_QuitMouse();
 

@@ -142,10 +142,9 @@ int PSP_VideoInit(_THIS)
     // display.current_mode = current_mode;
     SDL_AddDisplayMode(&display, &current_mode);
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
-    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-    // if (result < 0) {
-    //    SDL_free(display.display_modes);
-    // }
+    if (result < 0) {
+        SDL_free(display.display_modes);
+    }
 
     return result;
 }

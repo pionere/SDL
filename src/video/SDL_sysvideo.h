@@ -217,11 +217,6 @@ struct SDL_VideoDevice
     int (*GetDisplayDPI)(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
 
     /*
-     * Get a list of the available display modes for a display.
-     */
-    void (*GetDisplayModes)(SDL_VideoDisplay *display);
-
-    /*
      * Setting the display mode is independent of creating windows, so
      * when the display mode is changed, all existing windows should have
      * their data updated accordingly, including the display surfaces
@@ -485,10 +480,9 @@ extern SDL_VideoDevice *SDL_GetVideoDevice(void);
 extern SDL_VideoDisplay *SDL_GetDisplays(int *num_displays);
 extern int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event);
 extern void SDL_PrivateGetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
+extern void SDL_PrivateResetDisplayModes(SDL_VideoDisplay *display);
 extern void SDL_DelVideoDisplay(int index);
 extern SDL_bool SDL_AddDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode);
-extern void SDL_SetCurrentDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode);
-extern void SDL_SetDesktopDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode);
 extern void SDL_ResetDisplayModes(int displayIndex);
 extern int SDL_GetIndexOfDisplay(SDL_VideoDisplay *display);
 extern SDL_VideoDisplay *SDL_GetDisplay(int displayIndex);

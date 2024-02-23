@@ -41,6 +41,8 @@
  */
 /* #define XRANDR_DISABLED_BY_DEFAULT */
 
+static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *desktop_mode);
+
 static int get_visualinfo(Display *display, int screen, XVisualInfo *vinfo)
 {
     const char *visual_id = SDL_getenv("SDL_VIDEO_X11_VISUALID");
@@ -299,7 +301,7 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
     Uint32 pixelformat;
     XPixmapFormatValues *pixmapformats;
     int scanline_pad;
-    int i, n;
+    int ret, i, n;
 
     if (get_visualinfo(dpy, screen, &vinfo) < 0) {
         return 0; /* uh, skip this screen? */
@@ -383,10 +385,15 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
     if (*display_name) {
         display.name = display_name;
     }
-    display.desktop_mode = mode;
-    display.current_mode = mode;
     display.driverdata = displaydata;
-    return SDL_AddVideoDisplay(&display, send_event);
+    X11_GetDisplayModes(&display, &mode);
+    /* Add the display to the list of SDL displays. */
+    ret = SDL_AddVideoDisplay(&display, send_event);
+    if (ret < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+        SDL_free(displaydata);
+    }
+    return ret;
 }
 
 static void X11_HandleXRandROutputChange(const XRROutputChangeNotifyEvent *ev)
@@ -554,11 +561,12 @@ static int X11_InitModes_StdXlib(void)
     int display_mm_width, display_mm_height, xft_dpi, scanline_pad, n, i;
     SDL_DisplayModeData *modedata;
     SDL_DisplayData *displaydata;
-    SDL_DisplayMode mode;
     XPixmapFormatValues *pixmapformats;
     Uint32 pixelformat;
     XVisualInfo vinfo;
+    int result;
     SDL_VideoDisplay display;
+    SDL_DisplayMode mode;
 
     /* note that generally even if you have a multiple physical monitors, ScreenCount(dpy) still only reports ONE screen. */
 
@@ -624,12 +632,14 @@ static int X11_InitModes_StdXlib(void)
 
     SDL_zero(display);
     display.name = (char *)"Generic X11 Display"; /* this is just copied and thrown away, it's safe to cast to char* here. */
-    display.desktop_mode = mode;
-    display.current_mode = mode;
     display.driverdata = displaydata;
-    SDL_AddVideoDisplay(&display, SDL_TRUE);
-
-    return 0;
+    X11_GetDisplayModes(&display, &mode);
+    result = SDL_AddVideoDisplay(&display, SDL_TRUE);
+    if (result < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+        SDL_free(displaydata);
+    }
+    return result;
 }
 
 int X11_InitModes(_THIS)
@@ -654,11 +664,16 @@ int X11_InitModes(_THIS)
     return X11_InitModes_StdXlib();
 }
 
-void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display)
+static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *desktop_mode)
 {
-    SDL_DisplayData *data = (SDL_DisplayData *)sdl_display->driverdata;
+    SDL_DisplayData *data;
     SDL_DisplayMode mode;
 
+    // add the desktop mode
+    sdl_display->desktop_mode = *desktop_mode;
+    sdl_display->current_mode = *desktop_mode;
+
+    SDL_AddDisplayMode(sdl_display, desktop_mode);
     /* Unfortunately X11 requires the window to be created with the correct
      * visual and depth ahead of time, but the SDL API allows you to create
      * a window before setting the fullscreen display mode.  This means that
@@ -668,6 +683,7 @@ void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display)
     mode.format = sdl_display->current_mode.format;
     mode.driverdata = NULL;
 
+    data = (SDL_DisplayData *)sdl_display->driverdata;
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR
     if (data->use_xrandr) {
         Display *display = x11VideoData.display;

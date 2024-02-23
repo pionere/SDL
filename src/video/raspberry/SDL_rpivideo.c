@@ -172,10 +172,11 @@ static int AddDispManXDisplay(const int display_id)
 
     SDL_AddDisplayMode(&display, &current_mode);
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
-    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-    // if (result < 0) {
-    //    SDL_free(display.display_modes);
-    // }
+    if (result < 0) {
+        SDL_free(display.display_modes);
+        vc_dispmanx_display_close(handle);
+        SDL_free(data);
+    }
     return result;
 }
 
@@ -187,7 +188,7 @@ int RPI_VideoInit(_THIS)
 
     result = AddDispManXDisplay(DISPMANX_ID_MAIN_LCD);    /* your default display */
     if (result == 0) {
-        AddDispManXDisplay(DISPMANX_ID_FORCE_OTHER); /* an "other" display...maybe DSI-connected screen while HDMI is your main */
+        result = AddDispManXDisplay(DISPMANX_ID_FORCE_OTHER); /* an "other" display...maybe DSI-connected screen while HDMI is your main */
     }
 
 #ifdef SDL_INPUT_LINUXEV
@@ -201,8 +202,32 @@ int RPI_VideoInit(_THIS)
     return result;
 }
 
+/* Deinitializes the driverdata of the SDL Displays in the SDL display list. */
+static void RPI_DeinitDisplays(void)
+{
+    SDL_DisplayData *dispdata;
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+
+    /* Iterate on the SDL Display list. */
+    for (i = 0; i < num_displays; i++) {
+        SDL_VideoDisplay *display = &displays[i];
+
+        /* Get the driverdata for this display */
+        dispdata = (SDL_DisplayData *)displays[i].driverdata;
+
+        /* close the handle */
+        if (dispdata && dispdata->dispman_display) {
+            vc_dispmanx_display_close(dispdata->dispman_display);
+            dispdata->dispman_display = NULL;
+        }
+    }
+}
+
 void RPI_VideoQuit(_THIS)
 {
+    RPI_DeinitDisplays();
+
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Quit();
 #endif

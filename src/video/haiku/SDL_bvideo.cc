@@ -67,7 +67,6 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     device->VideoInit = HAIKU_VideoInit;
     device->VideoQuit = HAIKU_VideoQuit;
     device->GetDisplayBounds = HAIKU_GetDisplayBounds;
-    device->GetDisplayModes = HAIKU_GetDisplayModes;
     device->SetDisplayMode = HAIKU_SetDisplayMode;
     device->PumpEvents = HAIKU_PumpEvents;
 

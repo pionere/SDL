@@ -67,7 +67,6 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
     device->VideoQuit = RISCOS_VideoQuit;
     device->PumpEvents = RISCOS_PumpEvents;
 
-    device->GetDisplayModes = RISCOS_GetDisplayModes;
     device->SetDisplayMode = RISCOS_SetDisplayMode;
 
     device->CreateSDLWindow = RISCOS_CreateWindow;

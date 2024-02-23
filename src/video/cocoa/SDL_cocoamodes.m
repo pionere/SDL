@@ -41,6 +41,8 @@
 #define kDisplayModeNativeFlag 0x02000000
 #endif
 
+static void Cocoa_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode);
+static void Cocoa_FreeVideoDisplay(SDL_VideoDisplay * display);
 
 static int CG_SetError(const char *prefix, CGDisplayErr result)
 {
@@ -367,10 +369,11 @@ void Cocoa_InitModes(void)
             CVDisplayLinkRelease(link);
             CGDisplayModeRelease(moderef);
 
-            display.desktop_mode = mode;
-            display.current_mode = mode;
             display.driverdata = displaydata;
-            SDL_AddVideoDisplay(&display, SDL_FALSE);
+            Cocoa_GetDisplayModes(&display, &mode);
+            if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
+                Cocoa_FreeVideoDisplay(&display);
+            }
             SDL_free(display.name);
         }
     }
@@ -500,18 +503,27 @@ int Cocoa_GetDisplayDPI(SDL_VideoDisplay * display, float * ddpi, float * hdpi, 
     return 0;
 }}
 
-void Cocoa_GetDisplayModes(SDL_VideoDisplay * display)
+static void Cocoa_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode)
 {
-    SDL_DisplayData *data = (SDL_DisplayData *) display->driverdata;
+    SDL_DisplayData *data;
+    CGDirectDisplayID displayId;
     CVDisplayLinkRef link = NULL;
     CGDisplayModeRef desktopmoderef;
     SDL_DisplayMode desktopmode;
     CFArrayRef modes;
     CFDictionaryRef dict = NULL;
 
-    CVDisplayLinkCreateWithCGDisplay(data->display, &link);
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
 
-    desktopmoderef = CGDisplayCopyDisplayMode(data->display);
+    SDL_AddDisplayMode(display, desktop_mode);
+    // add the options
+    data = (SDL_DisplayData *) display->driverdata;
+    displayId = data->display;
+    CVDisplayLinkCreateWithCGDisplay(displayId, &link);
+
+    desktopmoderef = CGDisplayCopyDisplayMode(displayId);
 
     /* CopyAllDisplayModes won't always contain the desktop display mode (if
      * NULL is passed in) - for example on a retina 15" MBP, System Preferences
@@ -552,7 +564,7 @@ void Cocoa_GetDisplayModes(SDL_VideoDisplay * display)
     }
 #endif
 
-    modes = CGDisplayCopyAllDisplayModes(data->display, dict);
+    modes = CGDisplayCopyAllDisplayModes(displayId, dict);
 
     if (dict) {
         CFRelease(dict);
@@ -663,25 +675,35 @@ ERR_NO_CAPTURE:
     return -1;
 }
 
-void Cocoa_QuitModes(_THIS)
+static void Cocoa_FreeDisplayModeData(SDL_DisplayMode * mode)
 {
-    int i, j;
+    if (mode->driverdata != NULL) {
+        CFRelease(((SDL_DisplayModeData*)mode->driverdata)->modes);
+        SDL_free(mode->driverdata);
+        mode->driverdata = NULL;
+    }
+}
 
-    for (i = 0; i < _this->num_displays; ++i) {
-        SDL_VideoDisplay *display = &_this->displays[i];
-        SDL_DisplayModeData *mode;
+static void Cocoa_FreeVideoDisplay(SDL_VideoDisplay * display)
+{
+    for (int j = 0; j < display->num_display_modes; j++) {
+        SDL_DisplayMode *mode = &display->display_modes[j];
+        Cocoa_FreeDisplayModeData(mode);
+    }
 
-        if (display->current_mode.driverdata != display->desktop_mode.driverdata) {
-            Cocoa_SetDisplayMode(display, &display->desktop_mode);
-        }
+    if (display->driverdata != NULL) {
+        CFRelease(display->driverdata);
+        display->driverdata = NULL;
+    }
+}
 
-        mode = (SDL_DisplayModeData *) display->desktop_mode.driverdata;
-        CFRelease(mode->modes);
-
-        for (j = 0; j < display->num_display_modes; j++) {
-            mode = (SDL_DisplayModeData*) display->display_modes[j].driverdata;
-            CFRelease(mode->modes);
-        }
+void Cocoa_QuitModes(void)
+{
+    /* Release Objective-C objects, so higher level doesn't free() them. */
+    int num_displays, i;
+    SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+    for (i = 0; i < num_displays; i++) {
+        Cocoa_FreeVideoDisplay(&displays[i]);
     }
 }
 

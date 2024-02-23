@@ -68,7 +68,6 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         /* Set the function pointers */
         device->VideoInit = UIKit_VideoInit;
         device->VideoQuit = UIKit_VideoQuit;
-        device->GetDisplayModes = UIKit_GetDisplayModes;
         device->SetDisplayMode = UIKit_SetDisplayMode;
         device->PumpEvents = UIKit_PumpEvents;
         device->SuspendScreenSaver = UIKit_SuspendScreenSaver;
@@ -156,7 +155,7 @@ void UIKit_VideoQuit(_THIS)
     SDL_QuitGCKeyboard();
     SDL_QuitGCMouse();
 
-    UIKit_QuitModes(_this);
+    UIKit_QuitModes();
 }
 
 void UIKit_SuspendScreenSaver(_THIS)

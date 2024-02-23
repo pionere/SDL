@@ -42,6 +42,8 @@ struct modes_callback_t
     SDL_DisplayMode *modelist;
 };
 
+static void DirectFB_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode);
+
 static DFBEnumerationResult EnumModesCallback(int width, int height, int bpp, void *data)
 {
     struct modes_callback_t *modedata = (struct modes_callback_t *) data;
@@ -235,12 +237,6 @@ void DirectFB_InitModes(void)
         dispdata->vidID = screencbdata->vidlayer[i];
         dispdata->vidIDinuse = 0;
 
-        SDL_zero(display);
-
-        display.desktop_mode = mode;
-        display.current_mode = mode;
-        display.driverdata = dispdata;
-
 #if (DFB_VERSION_ATLEAST(1,2,0))
         dlc.flags =
             DLCONF_WIDTH | DLCONF_HEIGHT | DLCONF_PIXELFORMAT |
@@ -248,27 +244,41 @@ void DirectFB_InitModes(void)
         ret = layer->SetConfiguration(layer, &dlc);
 #endif
 
-        SDL_DFB_CHECKERR(layer->SetCooperativeLevel(layer, DLSCL_SHARED));
+        if (layer->SetCooperativeLevel(layer, DLSCL_SHARED) != DFB_OK) {
+            SDL_free(dispdata);
+            goto error;
+        }
 
-        SDL_AddVideoDisplay(&display, SDL_FALSE);
+        SDL_zero(display);
+        display.driverdata = dispdata;
+        DirectFB_GetDisplayModes(&display, &mode);
+        /* Add the display to the list of SDL displays. */
+        if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
+            SDL_free(display.display_modes);
+            SDL_free(dispdata);
+        }
     }
     SDL_DFB_FREE(screencbdata);
     return;
   error:
     /* FIXME: Cleanup not complete, Free existing displays */
-    SDL_DFB_FREE(dispdata);
     SDL_DFB_RELEASE(layer);
     return;
 }
 
-void DirectFB_GetDisplayModes(SDL_VideoDisplay * display)
+static void DirectFB_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
     SDL_DisplayMode mode;
     struct modes_callback_t data;
     int i;
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
 
+    SDL_AddDisplayMode(display, desktop_mode);
+    // add the options
     data.nummodes = 0;
     /* Enumerate the available fullscreen modes */
     SDL_DFB_CALLOC(data.modelist, DFB_MAX_MODES, sizeof(SDL_DisplayMode));
@@ -365,13 +375,15 @@ int DirectFB_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
     return -1;
 }
 
-void DirectFB_QuitModes(_THIS)
+void DirectFB_QuitModes(void)
 {
     SDL_DisplayMode tmode;
-    int i;
+    SDL_VideoDisplay *displays;
+    int num_displays, i;
 
-    for (i = 0; i < _this->num_displays; ++i) {
-        SDL_VideoDisplay *display = &_this->displays[i];
+    displays = SDL_GetDisplays(&num_displays)
+    for (i = 0; i < num_displays; ++i) {
+        SDL_VideoDisplay *display = &displays[i];
         DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
 
         SDL_GetDesktopDisplayMode(i, &tmode);

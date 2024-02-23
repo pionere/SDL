@@ -87,7 +87,6 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->GetDisplayBounds = Cocoa_GetDisplayBounds;
     device->GetDisplayUsableBounds = Cocoa_GetDisplayUsableBounds;
     device->GetDisplayDPI = Cocoa_GetDisplayDPI;
-    device->GetDisplayModes = Cocoa_GetDisplayModes;
     device->SetDisplayMode = Cocoa_SetDisplayMode;
     device->PumpEvents = Cocoa_PumpEvents;
     device->WaitEventTimeout = Cocoa_WaitEventTimeout;
@@ -212,7 +211,7 @@ void Cocoa_VideoQuit(_THIS)
 { @autoreleasepool
 {
     Cocoa_VideoData *data = cocoaVideoData;
-    Cocoa_QuitModes(_this);
+    Cocoa_QuitModes();
     Cocoa_QuitKeyboard();
     Cocoa_QuitMouse();
     SDL_DestroyMutex(data.swaplock);

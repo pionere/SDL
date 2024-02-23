@@ -157,10 +157,10 @@ static int VIVANTE_AddVideoDisplays()
 
     SDL_AddDisplayMode(&display, &current_mode);
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
-    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-    // if (result < 0) {
-    //    SDL_free(display.display_modes);
-    // }
+    if (result < 0) {
+        SDL_free(display.display_modes);
+        SDL_free(data);
+    }
     return result;
 }
 

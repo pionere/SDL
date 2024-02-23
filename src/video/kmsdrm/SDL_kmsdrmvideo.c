@@ -71,6 +71,8 @@ static char kmsdrm_dri_cardpath[32];
 #define EGL_PLATFORM_GBM_MESA 0x31D7
 #endif
 
+static void KMSDRM_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
+
 static int get_driindex(void)
 {
     int available = -ENOENT;
@@ -251,7 +253,6 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     /* Setup all functions which we can handle */
     device->VideoInit = KMSDRM_VideoInit;
     device->VideoQuit = KMSDRM_VideoQuit;
-    device->GetDisplayModes = KMSDRM_GetDisplayModes;
     device->SetDisplayMode = KMSDRM_SetDisplayMode;
     device->CreateSDLWindow = KMSDRM_CreateWindow;
     device->CreateSDLWindowFrom = KMSDRM_CreateWindowFrom;
@@ -649,6 +650,7 @@ static int KMSDRM_AddDisplay(drmModeConnector *connector, drmModeRes *resources)
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_DisplayData *dispdata = NULL;
     SDL_VideoDisplay display;
+    SDL_DisplayMode current_mode;
     SDL_DisplayModeData *modedata = NULL;
     drmModeEncoder *encoder = NULL;
     drmModeCrtc *crtc = NULL;
@@ -828,18 +830,21 @@ static int KMSDRM_AddDisplay(drmModeConnector *connector, drmModeRes *resources)
 
     modedata->mode_index = mode_index;
 
+    current_mode.format = SDL_PIXELFORMAT_ARGB8888;
+    current_mode.w = dispdata->mode.hdisplay;
+    current_mode.h = dispdata->mode.vdisplay;
+    current_mode.refresh_rate = dispdata->mode.vrefresh;
+    current_mode.driverdata = modedata;
 
     SDL_zero(display);
     display.driverdata = dispdata;
-    display.desktop_mode.w = dispdata->mode.hdisplay;
-    display.desktop_mode.h = dispdata->mode.vdisplay;
-    display.desktop_mode.refresh_rate = dispdata->mode.vrefresh;
-    display.desktop_mode.format = SDL_PIXELFORMAT_ARGB8888;
-    display.desktop_mode.driverdata = modedata;
-    display.current_mode = display.desktop_mode;
-
+    KMSDRM_GetDisplayModes(&display, &current_mode);
     /* Add the display to the list of SDL displays. */
     ret = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    if (ret < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+        // SDL_free(dispdata);
+    }
 
 cleanup:
     if (encoder) {
@@ -1274,13 +1279,19 @@ void KMSDRM_VideoQuit(_THIS)
 }
 
 /* Read modes from the connector modes, and store them in display->display_modes. */
-void KMSDRM_GetDisplayModes(SDL_VideoDisplay *display)
+static void KMSDRM_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode)
 {
     SDL_DisplayData *dispdata = display->driverdata;
     drmModeConnector *conn = dispdata->connector;
     SDL_DisplayMode mode;
     int i;
 
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
+
+    SDL_AddDisplayMode(display, desktop_mode);
+    // add the options
     for (i = 0; i < conn->count_modes; i++) {
         SDL_DisplayModeData *modedata = SDL_calloc(1, sizeof(SDL_DisplayModeData));
 

@@ -355,11 +355,11 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
         }
     }
 
-    if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
-        goto done;
+    functionResult = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    if (functionResult < 0) {
+        SDL_PrivateResetDisplayModes(&display);
     }
 
-    functionResult = 0; /* 0 for Success! */
 done:
     if (dxgiOutput) {
         dxgiOutput->Release();
@@ -435,6 +435,7 @@ static int WINRT_AddDisplaysForAdapter(IDXGIFactory2 *dxgiFactory2, int adapterI
                 display.current_mode = mode;
                 SDL_AddDisplayMode(&display, &mode);
                 if (SDL_AddVideoDisplay(&display, SDL_FALSE) < 0) {
+                    SDL_PrivateResetDisplayModes(&display);
                     return SDL_SetError("Failed to apply DXGI Display-detection workaround");
                 }
             }

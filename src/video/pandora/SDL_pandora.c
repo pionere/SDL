@@ -68,7 +68,6 @@ static SDL_VideoDevice *PND_create(void)
     /* Setup all functions which we can handle */
     device->VideoInit = PND_videoinit;
     device->VideoQuit = PND_videoquit;
-    device->GetDisplayModes = PND_getdisplaymodes;
     device->SetDisplayMode = PND_setdisplaymode;
     device->CreateSDLWindow = PND_createwindow;
     device->CreateSDLWindowFrom = PND_createwindowfrom;
@@ -138,20 +137,14 @@ int PND_videoinit(_THIS)
 
     SDL_AddDisplayMode(&display, &current_mode);
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
-    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-    // if (result < 0) {
-    //    SDL_free(display.display_modes);
-    // }
+    if (result < 0) {
+        SDL_free(display.display_modes);
+    }
 
     return result;
 }
 
 void PND_videoquit(_THIS)
-{
-
-}
-
-void PND_getdisplaymodes(SDL_VideoDisplay * display)
 {
 
 }

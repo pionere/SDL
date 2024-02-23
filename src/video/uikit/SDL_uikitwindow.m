@@ -169,10 +169,6 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
 #if !TARGET_OS_TV
         const CGSize origsize = data.uiscreen.currentMode.size;
         if ((origsize.width == 0.0f) && (origsize.height == 0.0f)) {
-            if (display->num_display_modes == 0) {
-                _this->GetDisplayModes(display);
-            }
-
             int i;
             const SDL_DisplayMode *bestmode = NULL;
             for (i = display->num_display_modes; i >= 0; i--) {

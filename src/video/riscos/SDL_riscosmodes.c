@@ -70,6 +70,8 @@ static const struct
     { SDL_PIXELFORMAT_ARGB8888, MODE_FLAG_ARGB, -1, 5 }
 };
 
+static void RISCOS_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
+
 static SDL_PixelFormatEnum RISCOS_ModeToPixelFormat(int ncolour, int modeflags, int log2bpp)
 {
     int i;
@@ -225,28 +227,29 @@ int RISCOS_InitModes(void)
     }
 
     SDL_zero(display);
-    display.desktop_mode = current_mode;
-    display.current_mode = current_mode;
     // display.driverdata = NULL;
-
-    SDL_AddDisplayMode(&display, &current_mode);
-
+    RISCOS_GetDisplayModes(&display, &current_mode);
+    /* Add the display to the list of SDL displays. */
     result = SDL_AddVideoDisplay(&display, SDL_FALSE);
-    // not much point... If a basic display structure can not be allocated, it is going to crash fast anyway...
-    // if (result < 0) {
-    //    SDL_free(display.display_modes);
-    // }
+    if (result < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+    }
 
     return result;
 }
 
-void RISCOS_GetDisplayModes(SDL_VideoDisplay *display)
+static void RISCOS_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode)
 {
     SDL_DisplayMode mode;
     _kernel_swi_regs regs;
     _kernel_oserror *error;
     void *block, *pos;
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
 
+    SDL_AddDisplayMode(display, desktop_mode);
+    // add the options
     regs.r[0] = 2;
     regs.r[2] = 0;
     regs.r[6] = 0;

@@ -1475,8 +1475,6 @@ static int OS2_VideoInit(_THIS)
             return SDL_SetError("Video mode query failed.");
         }
 
-        SDL_zero(stSDLDisplay); SDL_zero(stSDLDisplayMode);
-
         stSDLDisplayMode.format = _getSDLPixelFormat(stVOInfo.ulBPP,
                                                      stVOInfo.fccColorEncoding);
         stSDLDisplayMode.w = stVOInfo.ulHorizResolution;
@@ -1492,11 +1490,11 @@ static int OS2_VideoInit(_THIS)
             stSDLDisplayMode.driverdata = pModeData;
         }
 
+        SDL_zero(stSDLDisplay);
         stSDLDisplay.name = "Primary";
         stSDLDisplay.desktop_mode = stSDLDisplayMode;
         stSDLDisplay.current_mode = stSDLDisplayMode;
-        stSDLDisplay.driverdata = NULL;
-        stSDLDisplay.num_display_modes = 0;
+        // stSDLDisplay.driverdata = NULL;
 
         pDisplayData = SDL_malloc(sizeof(DISPLAYDATA));
         if (pDisplayData) {
@@ -1519,7 +1517,11 @@ static int OS2_VideoInit(_THIS)
             stSDLDisplay.driverdata = pDisplayData;
         }
 
-        SDL_AddVideoDisplay(&stSDLDisplay, SDL_FALSE);
+        SDL_AddDisplayMode(&stSDLDisplay, &stSDLDisplayMode);
+        if (SDL_AddVideoDisplay(&stSDLDisplay, SDL_FALSE) < 0) {
+            SDL_PrivateResetDisplayModes(&stSDLDisplay);
+            SDL_free(pDisplayData);
+        }
     }
 
     OS2_InitMouse(pVData->hab);
@@ -1571,18 +1573,6 @@ static int OS2_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi,
     return 0;
 }
 
-static void OS2_GetDisplayModes(SDL_VideoDisplay *display)
-{
-    SDL_DisplayMode mode;
-
-    debug_os2("Enter");
-    SDL_copyp(&mode, &display->current_mode);
-    mode.driverdata = (MODEDATA *) SDL_malloc(sizeof(MODEDATA));
-    if (!mode.driverdata) return; /* yikes.. */
-    SDL_memcpy(mode.driverdata, display->current_mode.driverdata, sizeof(MODEDATA));
-    SDL_AddDisplayMode(display, &mode);
-}
-
 static int OS2_SetDisplayMode(SDL_VideoDisplay *display,
                               SDL_DisplayMode *mode)
 {
@@ -1613,7 +1603,6 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     device->VideoQuit = OS2_VideoQuit;
     device->GetDisplayBounds = OS2_GetDisplayBounds;
     device->GetDisplayDPI = OS2_GetDisplayDPI;
-    device->GetDisplayModes = OS2_GetDisplayModes;
     device->SetDisplayMode = OS2_SetDisplayMode;
     device->PumpEvents = OS2_PumpEvents;
     device->CreateSDLWindow = OS2_CreateWindow;

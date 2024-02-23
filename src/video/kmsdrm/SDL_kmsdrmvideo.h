@@ -119,7 +119,6 @@ SDL_bool KMSDRM_WaitPageflip(SDL_WindowData *windata);
 /* Display and window functions */
 int KMSDRM_VideoInit(_THIS);
 void KMSDRM_VideoQuit(_THIS);
-void KMSDRM_GetDisplayModes(SDL_VideoDisplay * display);
 int KMSDRM_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
 int KMSDRM_CreateWindow(_THIS, SDL_Window * window);
 int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data);

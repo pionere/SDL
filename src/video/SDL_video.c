@@ -688,18 +688,33 @@ int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
     return index;
 }
 
+void SDL_PrivateResetDisplayModes(SDL_VideoDisplay *display)
+{
+    int i;
+
+    for (i = display->num_display_modes; i--;) {
+        SDL_free(display->display_modes[i].driverdata);
+        display->display_modes[i].driverdata = NULL;
+    }
+    SDL_free(display->display_modes);
+    display->display_modes = NULL;
+    display->num_display_modes = 0;
+    display->max_display_modes = 0;
+}
+
 void SDL_DelVideoDisplay(int index)
 {
-    if (index < 0 || index >= _this->num_displays) {
-        return;
-    }
+    SDL_VideoDisplay *display;
+    SDL_assert(index >= 0 && index < _this->num_displays);
 
-    SDL_SendDisplayEvent(&_this->displays[index], SDL_DISPLAYEVENT_DISCONNECTED, 0);
+    display = &_this->displays[index];
+    SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_DISCONNECTED, 0);
 
+    SDL_PrivateResetDisplayModes(display);
+    SDL_free(display->driverdata);
+    SDL_free(display->name);
     if (index < (_this->num_displays - 1)) {
-        SDL_free(_this->displays[index].driverdata);
-        SDL_free(_this->displays[index].name);
-        SDL_memmove(&_this->displays[index], &_this->displays[index + 1], (_this->num_displays - index - 1) * sizeof(_this->displays[index]));
+        SDL_memmove(display, display + 1, (_this->num_displays - index - 1) * sizeof(*display));
     }
     --_this->num_displays;
 }
@@ -888,26 +903,8 @@ SDL_bool SDL_AddDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mo
     return SDL_TRUE;
 }
 
-void SDL_SetCurrentDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode)
-{
-    SDL_memcpy(&display->current_mode, mode, sizeof(*mode));
-}
-
-void SDL_SetDesktopDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mode)
-{
-    if (display->desktop_mode.driverdata) {
-        SDL_free(display->desktop_mode.driverdata);
-    }
-    SDL_memcpy(&display->desktop_mode, mode, sizeof(*mode));
-}
-
 static int SDL_GetNumDisplayModesForDisplay(SDL_VideoDisplay *display)
 {
-    if (!display->num_display_modes && _this->GetDisplayModes) {
-        _this->GetDisplayModes(display);
-        SDL_qsort(display->display_modes, display->num_display_modes,
-                  sizeof(SDL_DisplayMode), cmpmodes);
-    }
     return display->num_display_modes;
 }
 
@@ -920,20 +917,9 @@ int SDL_GetNumDisplayModes(int displayIndex)
 
 void SDL_ResetDisplayModes(int displayIndex)
 {
-    SDL_VideoDisplay *display;
-    int i;
-
     CHECK_DISPLAY_INDEX(displayIndex, );
 
-    display = &_this->displays[displayIndex];
-    for (i = display->num_display_modes; i--;) {
-        SDL_free(display->display_modes[i].driverdata);
-        display->display_modes[i].driverdata = NULL;
-    }
-    SDL_free(display->display_modes);
-    display->display_modes = NULL;
-    display->num_display_modes = 0;
-    display->max_display_modes = 0;
+    SDL_PrivateResetDisplayModes(&_this->displays[displayIndex]);
 }
 
 int SDL_GetDisplayMode(int displayIndex, int index, SDL_DisplayMode *mode)
@@ -1151,7 +1137,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
     if (result < 0) {
         return result;
     }
-    SDL_SetCurrentDisplayMode(display, &display_mode);
+    display->current_mode = display_mode;
     return 0;
 }
 
@@ -3420,8 +3406,7 @@ void SDL_VideoQuit(void)
 
     for (i = 0; i < _this->num_displays; ++i) {
         SDL_VideoDisplay *display = &_this->displays[i];
-        SDL_ResetDisplayModes(i);
-        SDL_free(display->desktop_mode.driverdata);
+        SDL_PrivateResetDisplayModes(display);
         SDL_free(display->driverdata);
         SDL_free(display->name);
     }

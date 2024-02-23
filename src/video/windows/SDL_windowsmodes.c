@@ -35,6 +35,8 @@
 
 // SDL_bool setting_display_mode; -- what was the point of this???
 
+static void WIN_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
+
 static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMode *mode)
 {
     SDL_DisplayModeData *data = (SDL_DisplayModeData *)mode->driverdata;
@@ -342,9 +344,8 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
             if (1) { // if (!setting_display_mode) {
                 SDL_Rect bounds;
 
-                SDL_ResetDisplayModes(i);
-                SDL_SetCurrentDisplayMode(&displays[i], &mode);
-                SDL_SetDesktopDisplayMode(&displays[i], &mode);
+                SDL_PrivateResetDisplayModes(&displays[i]);
+                WIN_GetDisplayModes(&displays[i], &mode);
                 if (WIN_GetDisplayBounds(&displays[i], &bounds) == 0) {
                     if (SDL_memcmp(&driverdata->bounds, &bounds, sizeof(bounds)) != 0 || moved) {
                         SDL_SendDisplayEvent(&displays[i], SDL_DISPLAYEVENT_MOVED, 0);
@@ -378,15 +379,19 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
         }
     }
 
-    display.desktop_mode = mode;
-    display.current_mode = mode;
     display.orientation = orientation;
     display.driverdata = displaydata;
     WIN_GetDisplayBounds(&display, &displaydata->bounds);
+    WIN_GetDisplayModes(&display, &mode);
+    /* Add the display to the list of SDL displays. */
     index = SDL_AddVideoDisplay(&display, send_event);
-    SDL_assert(index == *display_index);
     SDL_free(display.name);
-
+    if (index < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+        SDL_free(displaydata);
+        return;
+    }
+    SDL_assert(index == *display_index);
 done:
     *display_index += 1;
 }
@@ -682,12 +687,17 @@ void WIN_ScreenPointToSDL(int *x, int *y)
     }
 }
 
-void WIN_GetDisplayModes(SDL_VideoDisplay *display)
+static void WIN_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode)
 {
     SDL_DisplayData *data = (SDL_DisplayData *)display->driverdata;
     DWORD i;
     SDL_DisplayMode mode;
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
 
+    SDL_AddDisplayMode(display, desktop_mode);
+    // add the options
     for (i = 0;; ++i) {
         if (!WIN_GetDisplayMode(data->DeviceName, i, &mode, NULL)) {
             break;

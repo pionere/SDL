@@ -38,16 +38,6 @@ extern "C" {
 #endif
 
 
-#define WRAP_BMODE 1 /* FIXME: Some debate as to whether this is necessary */
-
-#if WRAP_BMODE
-/* This wrapper is here so that the driverdata can be freed without freeing
-   the display_mode structure */
-struct SDL_DisplayModeData {
-    display_mode *bmode;
-};
-#endif
-
 static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
 }
@@ -56,12 +46,9 @@ static SDL_INLINE SDL_BLooper *_GetBeLooper() {
     return SDL_Looper;
 }
 
-static SDL_INLINE display_mode * _ExtractBMode(SDL_DisplayMode *mode) {
-#if WRAP_BMODE
-    return ((SDL_DisplayModeData *)mode->driverdata)->bmode;
-#else
-    return (display_mode *)(mode->driverdata);
-#endif
+static SDL_INLINE display_mode * _ExtractBMode(SDL_DisplayMode *mode)
+{
+    return (display_mode *)mode->driverdata;
 }
 
 /* Copied from haiku/trunk/src/preferences/screen/ScreenMode.cpp */
@@ -165,43 +152,44 @@ int32 HAIKU_ColorSpaceToSDLPxFormat(uint32 colorspace)
     return 0;       
 }
 
-static void _BDisplayModeToSdlDisplayMode(display_mode *bmode,
-        SDL_DisplayMode *mode) {
+static void HAIKU_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
+
+static void _BDisplayModeToSdlDisplayMode(display_mode *bmode, SDL_DisplayMode *mode)
+{
     mode->w = bmode->virtual_width;
     mode->h = bmode->virtual_height;
     mode->refresh_rate = (int)get_refresh_rate(*bmode);
 
-#if WRAP_BMODE
-    SDL_DisplayModeData *data = (SDL_DisplayModeData*)SDL_calloc(1,
-        sizeof(SDL_DisplayModeData));
-    data->bmode = bmode;
-    
-    mode->driverdata = data;
-
-#else
-
     mode->driverdata = bmode;
-#endif
 
     /* Set the format */
     mode->format = HAIKU_ColorSpaceToSDLPxFormat(bmode->space);
 }
 
 /* Later, there may be more than one monitor available */
-static void _AddDisplay(BScreen *screen) {
+static int _AddDisplay(BScreen *screen)
+{
+    int result;
     SDL_VideoDisplay display;
-    SDL_DisplayMode *mode = (SDL_DisplayMode*)SDL_calloc(1,
-        sizeof(SDL_DisplayMode));
+    SDL_DisplayMode current_mode;
     display_mode *bmode = (display_mode*)SDL_calloc(1, sizeof(display_mode));
+    if (!bmode) {
+        SDL_OutOfMemory();
+        return -1;
+    }
     screen->GetMode(bmode);
 
-    _BDisplayModeToSdlDisplayMode(bmode, mode);
-    
+    _BDisplayModeToSdlDisplayMode(bmode, &current_mode);
+
     SDL_zero(display);
-    display.desktop_mode = *mode;
-    display.current_mode = *mode;
-    
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    // display.driverdata = NULL;
+    HAIKU_GetDisplayModes(&display, &current_mode);
+    /* Add the display to the list of SDL displays. */
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    if (result < 0) {
+        SDL_PrivateResetDisplayModes(&display);
+    }
+    return result;
 }
 
 /*
@@ -213,15 +201,12 @@ int HAIKU_InitModes(void) {
 
     /* TODO: When Haiku supports multiple display screens, call
        _AddDisplayScreen() for each of them. */
-    _AddDisplay(&screen);
-    return 0;
+    return _AddDisplay(&screen);
 }
 
-int HAIKU_QuitModes(void) {
-    /* FIXME: Nothing really needs to be done here at the moment? */
-    return 0;
+void HAIKU_QuitModes(void)
+{
 }
-
 
 int HAIKU_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect) {
     BScreen bscreen;
@@ -233,15 +218,19 @@ int HAIKU_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect) {
     return 0;
 }
 
-void HAIKU_GetDisplayModes(SDL_VideoDisplay *display) {
-    /* Get the current screen */
+static void HAIKU_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode)
+{
     BScreen bscreen;
 
-    /* Iterate through all of the modes */
     SDL_DisplayMode mode;
     display_mode this_bmode;
     display_mode *bmodes;
     uint32 count, i;
+    // add the desktop mode
+    display->desktop_mode = *desktop_mode;
+    display->current_mode = *desktop_mode;
+
+    SDL_AddDisplayMode(display, desktop_mode);
     
     /* Get graphics-hardware supported modes */
     bscreen.GetModeList(&bmodes, &count);
@@ -250,8 +239,16 @@ void HAIKU_GetDisplayModes(SDL_VideoDisplay *display) {
     for (i = 0; i < count; ++i) {
         // FIXME: Apparently there are errors with colorspace changes
         if (bmodes[i].space == this_bmode.space) {
-            _BDisplayModeToSdlDisplayMode(&bmodes[i], &mode);
-            SDL_AddDisplayMode(display, &mode);
+            display_mode *bmode = (display_mode*)SDL_calloc(1, sizeof(display_mode));
+            if (!bmode) {
+                break;
+            }
+            *bmode = bmodes[i];
+
+            _BDisplayModeToSdlDisplayMode(bmode, &mode);
+            if (!SDL_AddDisplayMode(display, &mode)) {
+                SDL_free(bmode);
+            }
         }
     }
     free(bmodes); /* This should not be SDL_free() */
