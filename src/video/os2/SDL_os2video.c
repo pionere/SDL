@@ -1516,7 +1516,7 @@ static int OS2_VideoInit(_THIS)
                   (float)stVOInfo.ulHorizResolution / pDisplayData->ulDPIHor,
                   (float)stVOInfo.ulVertResolution / pDisplayData->ulDPIVer);
 
-            stSDLDisplayMode.driverdata = pDisplayData;
+            stSDLDisplay.driverdata = pDisplayData;
         }
 
         SDL_AddVideoDisplay(&stSDLDisplay, SDL_FALSE);
