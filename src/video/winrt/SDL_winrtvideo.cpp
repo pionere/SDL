@@ -256,8 +256,6 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
     DXGI_OUTPUT_DESC dxgiOutputDesc;
     SDL_VideoDisplay display;
     char *displayName = NULL;
-    UINT numModes;
-    DXGI_MODE_DESC *dxgiModes = NULL;
     int functionResult = -1; /* -1 for failure, 0 for success */
     DXGI_MODE_DESC modeToMatch, closestMatch;
 
@@ -305,36 +303,55 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
         WIN_SetErrorFromHRESULT(__FUNCTION__ ", IDXGIOutput::FindClosestMatchingMode failed", hr);
         goto done;
     } else {
+        UINT numModes;
+        DXGI_MODE_DESC *dxgiModes = NULL;
+        SDL_DisplayMode mode;
         displayName = WIN_StringToUTF8(dxgiOutputDesc.DeviceName);
         display.name = displayName;
-        WINRT_DXGIModeToSDLDisplayMode(&closestMatch, &display.desktop_mode);
-        display.current_mode = display.desktop_mode;
+        WINRT_DXGIModeToSDLDisplayMode(&closestMatch, &mode);
+        display.desktop_mode = mode;
+        display.current_mode = mode;
+        SDL_AddDisplayMode(&display, &mode);
 
-        hr = dxgiOutput->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, 0, &numModes, NULL);
-        if (FAILED(hr)) {
-            if (hr == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE) {
-                // TODO, WinRT: make sure display mode(s) are added when using Terminal Services / Windows Simulator
+        while (1) {
+            hr = dxgiOutput->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, 0, &numModes, dxgiModes);
+            if (SUCCEEDED(hr)) {
+                if (dxgiModes == NULL) {
+                    dxgiModes = (DXGI_MODE_DESC *)SDL_calloc(numModes, sizeof(DXGI_MODE_DESC));
+                    if (!dxgiModes) {
+                        SDL_OutOfMemory();
+                        goto done;
+                    }
+                    continue;
+                }
+                for (UINT i = 0; i < numModes; ++i) {
+                    SDL_DisplayMode sdlMode;
+                    WINRT_DXGIModeToSDLDisplayMode(&dxgiModes[i], &sdlMode);
+                    SDL_AddDisplayMode(&display, &sdlMode);
+                }
+                SDL_free(dxgiModes);
+                break;
             }
-            WIN_SetErrorFromHRESULT(__FUNCTION__ ", IDXGIOutput::GetDisplayModeList [get mode list size] failed", hr);
-            goto done;
-        }
+            SDL_free(dxgiModes);
+            if (hr == DXGI_ERROR_NOT_CURRENTLY_AVAILABLE) {
+                /* DXGI_ERROR_NOT_CURRENTLY_AVAILABLE gets returned by IDXGIOutput::GetDisplayModeList
+                   when using Terminal Services / Windows Simulator
 
-        dxgiModes = (DXGI_MODE_DESC *)SDL_calloc(numModes, sizeof(DXGI_MODE_DESC));
-        if (!dxgiModes) {
-            SDL_OutOfMemory();
-            goto done;
-        }
+                   In this case, just stick to the previous (closest matched mode).
+                */
+                break;
+            }
+            if (hr == DXGI_ERROR_MORE_DATA) {
+                /* Rare case the display modes available can change immediately after calling this method
+                   (there is not enough room for all the display modes)
 
-        hr = dxgiOutput->GetDisplayModeList(DXGI_FORMAT_B8G8R8A8_UNORM, 0, &numModes, dxgiModes);
-        if (FAILED(hr)) {
-            WIN_SetErrorFromHRESULT(__FUNCTION__ ", IDXGIOutput::GetDisplayModeList [get mode contents] failed", hr);
+                   In this case, try again.
+                */
+                dxgiModes = NULL;
+                continue;
+            }
+            WIN_SetErrorFromHRESULT(__FUNCTION__ ", IDXGIOutput::GetDisplayModeList failed", hr);
             goto done;
-        }
-
-        for (UINT i = 0; i < numModes; ++i) {
-            SDL_DisplayMode sdlMode;
-            WINRT_DXGIModeToSDLDisplayMode(&dxgiModes[i], &sdlMode);
-            SDL_AddDisplayMode(&display, &sdlMode);
         }
     }
 
@@ -344,9 +361,6 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
 
     functionResult = 0; /* 0 for Success! */
 done:
-    if (dxgiModes) {
-        SDL_free(dxgiModes);
-    }
     if (dxgiOutput) {
         dxgiOutput->Release();
     }
