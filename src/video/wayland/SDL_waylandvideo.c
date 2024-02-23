@@ -645,8 +645,8 @@ static void display_handle_done(void *data,
     }
 
     SDL_AddDisplayMode(dpy, &desktop_mode);
-    SDL_SetCurrentDisplayMode(dpy, &desktop_mode);
-    SDL_SetDesktopDisplayMode(dpy, &desktop_mode);
+    dpy->desktop_mode = desktop_mode;
+    dpy->current_mode = desktop_mode;
 
     /* Add emulated modes if wp_viewporter is supported and mode emulation is enabled. */
     if (video->viewporter && mode_emulation_enabled) {
