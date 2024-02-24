@@ -26,11 +26,6 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_egl_c.h"
 
-typedef struct SDL_PrivateGLESData
-{
-    int dummy;
-} SDL_PrivateGLESData;
-
 /* OpenGLES functions */
 #define Wayland_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define Wayland_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
