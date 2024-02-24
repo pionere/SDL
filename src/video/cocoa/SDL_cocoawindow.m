@@ -2239,7 +2239,7 @@ void *Cocoa_GetWindowICCProfile(SDL_Window * window, size_t * size)
     return retIccProfileData;
 }}
 
-int Cocoa_GetWindowDisplayIndex(_THIS, SDL_Window * window)
+int Cocoa_GetWindowDisplayIndex(SDL_Window * window)
 { @autoreleasepool
 {
     NSScreen *screen;
@@ -2257,13 +2257,15 @@ int Cocoa_GetWindowDisplayIndex(_THIS, SDL_Window * window)
 
     if (screen != nil) {
         CGDirectDisplayID displayid;
-        int i;
+        int num_displays, i;
+        SDL_VideoDisplay *displays;
 
         /* https://developer.apple.com/documentation/appkit/nsscreen/1388360-devicedescription?language=objc */
         displayid = [[screen.deviceDescription objectForKey:@"NSScreenNumber"] unsignedIntValue];
 
-        for (i = 0; i < _this->num_displays; i++) {
-            SDL_DisplayData *displaydata = (SDL_DisplayData *)_this->displays[i].driverdata;
+        displays = SDL_GetDisplays(&num_displays);
+        for (i = 0; i < num_displays; i++) {
+            SDL_DisplayData *displaydata = (SDL_DisplayData *)displays[i].driverdata;
             if (displaydata != NULL && displaydata->display == displayid) {
                 return i;
             }

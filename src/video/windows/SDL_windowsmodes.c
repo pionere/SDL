@@ -647,15 +647,15 @@ void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut)
  */
 void WIN_ScreenPointToSDL(int *x, int *y)
 {
-    const SDL_VideoDevice *videodevice = SDL_GetVideoDevice();
     const WIN_VideoData *videodata = &winVideoData;
     POINT point;
     HMONITOR monitor;
     SDL_Rect bounds;
     float ddpi, hdpi, vdpi;
-    int i, x_pixels, y_pixels;
+    int num_displays, i, x_pixels, y_pixels;
+    SDL_VideoDisplay *displays;
 
-    if (!videodevice || !videodata->dpi_scaling_enabled) {
+    if (!videodata->dpi_scaling_enabled) {
         return;
     }
 
@@ -664,8 +664,9 @@ void WIN_ScreenPointToSDL(int *x, int *y)
     monitor = MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
 
     /* Search for the corresponding SDL monitor */
-    for (i = 0; i < videodevice->num_displays; ++i) {
-        SDL_VideoDisplay *display = &videodevice->displays[i];
+    displays = SDL_GetDisplays(&num_displays);
+    for (i = 0; i < num_displays; ++i) {
+        SDL_VideoDisplay *display = &displays[i];
         SDL_DisplayData *driverdata = (SDL_DisplayData *)display->driverdata;
         if (driverdata->MonitorHandle == monitor) {
             /* Get SDL display properties */
@@ -806,14 +807,16 @@ int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-void WIN_RefreshDisplays(_THIS)
+void WIN_RefreshDisplays(void)
 {
-    int i;
+    int num_displays, i;
+    SDL_VideoDisplay *displays;
 
     // Mark all displays as potentially invalid to detect
     // entries that have actually been removed
-    for (i = 0; i < _this->num_displays; ++i) {
-        SDL_DisplayData *driverdata = (SDL_DisplayData *)_this->displays[i].driverdata;
+    displays = SDL_GetDisplays(&num_displays);
+    for (i = 0; i < num_displays; ++i) {
+        SDL_DisplayData *driverdata = (SDL_DisplayData *)displays[i].driverdata;
         driverdata->IsValid = SDL_FALSE;
     }
 
@@ -823,8 +826,9 @@ void WIN_RefreshDisplays(_THIS)
 
     // Delete any entries still marked as invalid, iterate
     // in reverse as each delete takes effect immediately
-    for (i = _this->num_displays - 1; i >= 0; --i) {
-        SDL_DisplayData *driverdata = (SDL_DisplayData *)_this->displays[i].driverdata;
+    displays = SDL_GetDisplays(&num_displays);
+    for (i = num_displays - 1; i >= 0; --i) {
+        SDL_DisplayData *driverdata = (SDL_DisplayData *)displays[i].driverdata;
         if (driverdata->IsValid == SDL_FALSE) {
             SDL_DelVideoDisplay(i);
         }

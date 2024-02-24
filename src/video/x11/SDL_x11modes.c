@@ -462,7 +462,7 @@ void X11_HandleXRandREvent(const XEvent *xevent)
     }
 }
 
-static int X11_InitModes_XRandR(_THIS)
+static int X11_InitModes_XRandR(void)
 {
     X11_VideoData *data = &x11VideoData;
     Display *dpy = data->display;
@@ -517,7 +517,7 @@ static int X11_InitModes_XRandR(_THIS)
         }
     }
 
-    if (_this->num_displays == 0) {
+    if (SDL_GetNumVideoDisplays() == 0) {
         return SDL_SetError("No available displays");
     }
 
@@ -642,7 +642,7 @@ static int X11_InitModes_StdXlib(void)
     return result;
 }
 
-int X11_InitModes(_THIS)
+int X11_InitModes(void)
 {
     /* XRandR is the One True Modern Way to do this on X11. If this
        fails, we just won't report any display modes except the current
@@ -654,7 +654,7 @@ int X11_InitModes(_THIS)
         /* require at least XRandR v1.3 */
         if (CheckXRandR(data->display, &xrandr_major, &xrandr_minor) &&
             (xrandr_major >= 2 || (xrandr_major == 1 && xrandr_minor >= 3)) &&
-            X11_InitModes_XRandR(_this) == 0) {
+            X11_InitModes_XRandR() == 0) {
             return 0;
         }
     }

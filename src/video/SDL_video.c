@@ -1239,7 +1239,7 @@ int SDL_GetWindowDisplayIndex(SDL_Window *window)
 
     CHECK_WINDOW_MAGIC(window, -1);
     if (_this->GetWindowDisplayIndex) {
-        displayIndex = _this->GetWindowDisplayIndex(_this, window);
+        displayIndex = _this->GetWindowDisplayIndex(window);
     }
 
     /* A backend implementation may fail to get a display index for the window

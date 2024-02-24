@@ -441,7 +441,7 @@ int X11_VideoInit(_THIS)
     /* Detect the window manager */
     X11_CheckWindowManager();
 
-    if (X11_InitModes(_this) < 0) {
+    if (X11_InitModes() < 0) {
         return -1;
     }
 

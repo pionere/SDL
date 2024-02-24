@@ -2008,9 +2008,10 @@ int Wayland_CreateWindow(_THIS, SDL_Window *window)
     data->scale_factor = 1.0f;
 
     if (window->flags & SDL_WINDOW_ALLOW_HIGHDPI) {
-        int i;
-        for (i = 0; i < SDL_GetVideoDevice()->num_displays; i++) {
-            float scale = ((SDL_WaylandOutputData *)SDL_GetVideoDevice()->displays[i].driverdata)->scale_factor;
+        int num_displays, i;
+        SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+        for (i = 0; i < num_displays; i++) {
+            float scale = ((SDL_WaylandOutputData *)displays[i].driverdata)->scale_factor;
             data->scale_factor = SDL_max(data->scale_factor, scale);
         }
     }

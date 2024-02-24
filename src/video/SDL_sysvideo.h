@@ -249,7 +249,7 @@ struct SDL_VideoDevice
     int (*SetWindowGammaRamp) (SDL_Window * window, const Uint16 * ramp);
     int (*GetWindowGammaRamp) (SDL_Window * window, Uint16 * ramp);
     void* (*GetWindowICCProfile) (SDL_Window * window, size_t* size);
-    int (*GetWindowDisplayIndex)(_THIS, SDL_Window * window);
+    int (*GetWindowDisplayIndex)(SDL_Window * window);
     void (*SetWindowMouseRect)(SDL_Window * window);
     void (*SetWindowMouseGrab) (SDL_Window * window, SDL_bool grabbed);
     void (*SetWindowKeyboardGrab) (SDL_Window * window, SDL_bool grabbed);

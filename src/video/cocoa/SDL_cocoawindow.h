@@ -158,7 +158,7 @@ extern void Cocoa_SetWindowAlwaysOnTop(SDL_Window * window, SDL_bool on_top);
 extern void Cocoa_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 extern int Cocoa_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp);
 extern void* Cocoa_GetWindowICCProfile(SDL_Window * window, size_t * size);
-extern int Cocoa_GetWindowDisplayIndex(_THIS, SDL_Window * window);
+extern int Cocoa_GetWindowDisplayIndex(SDL_Window * window);
 extern int Cocoa_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
 extern void Cocoa_SetWindowMouseRect(SDL_Window * window);
 extern void Cocoa_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
