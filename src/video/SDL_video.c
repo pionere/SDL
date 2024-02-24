@@ -326,6 +326,7 @@ static SDL_VideoDevice *_this = NULL;
 static SDL_atomic_t SDL_messagebox_count;
 
 /* Convenience functions for reading driver flags */
+#ifdef SDL_VIDEO_DRIVER_WAYLAND
 static SDL_bool DisableDisplayModeSwitching()
 {
     return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING);
@@ -335,6 +336,16 @@ static SDL_bool DisableUnsetFullscreenOnMinimize()
 {
     return !!(_this->quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE);
 }
+#else
+static SDL_bool DisableDisplayModeSwitching()
+{
+    return SDL_FALSE;
+}
+static SDL_bool DisableUnsetFullscreenOnMinimize()
+{
+    return SDL_FALSE;
+}
+#endif
 
 static int SDL_UpdateWindowTexture(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
