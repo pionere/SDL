@@ -1665,11 +1665,6 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
         }
     }
 
-    /* Make sure the display list is up to date for window placement */
-    if (_this->RefreshDisplays) {
-        _this->RefreshDisplays(_this);
-    }
-
     /* ensure no more than one of these flags is set */
     type_flags = flags & (SDL_WINDOW_UTILITY | SDL_WINDOW_TOOLTIP | SDL_WINDOW_POPUP_MENU);
     if (type_flags & (type_flags - 1)) {

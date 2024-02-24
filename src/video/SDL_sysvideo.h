@@ -197,11 +197,6 @@ struct SDL_VideoDevice
      */
 
     /*
-     * Refresh the display list
-     */
-    void (*RefreshDisplays)(_THIS);
-
-    /*
      * Get the bounds of a display
      */
     int (*GetDisplayBounds)(SDL_VideoDisplay *display, SDL_Rect *rect);
