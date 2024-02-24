@@ -42,17 +42,17 @@ int PSP_VideoInit(_THIS);
 void PSP_VideoQuit(_THIS);
 int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int PSP_CreateWindow(_THIS, SDL_Window *window);
-int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
-void PSP_SetWindowTitle(SDL_Window *window);
-void PSP_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
-void PSP_SetWindowPosition(SDL_Window *window);
-void PSP_SetWindowSize(SDL_Window *window);
-void PSP_ShowWindow(SDL_Window *window);
-void PSP_HideWindow(_THIS, SDL_Window *window);
-void PSP_RaiseWindow(_THIS, SDL_Window *window);
-void PSP_MaximizeWindow(SDL_Window *window);
+// int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
+// void PSP_SetWindowTitle(SDL_Window *window);
+// void PSP_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+// void PSP_SetWindowPosition(SDL_Window *window);
+// void PSP_SetWindowSize(SDL_Window *window);
+// void PSP_ShowWindow(SDL_Window *window);
+// void PSP_HideWindow(_THIS, SDL_Window *window);
+// void PSP_RaiseWindow(_THIS, SDL_Window *window);
+// void PSP_MaximizeWindow(SDL_Window *window);
 void PSP_MinimizeWindow(SDL_Window *window);
-void PSP_RestoreWindow(SDL_Window *window);
+// void PSP_RestoreWindow(SDL_Window *window);
 void PSP_DestroyWindow(_THIS, SDL_Window *window);
 
 /* Window manager function */

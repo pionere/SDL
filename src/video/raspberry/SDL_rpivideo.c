@@ -88,17 +88,17 @@ static SDL_VideoDevice *RPI_Create()
     device->VideoQuit = RPI_VideoQuit;
     device->SetDisplayMode = RPI_SetDisplayMode;
     device->CreateSDLWindow = RPI_CreateWindow;
-    device->CreateSDLWindowFrom = RPI_CreateWindowFrom;
-    device->SetWindowTitle = RPI_SetWindowTitle;
-    device->SetWindowIcon = RPI_SetWindowIcon;
-    device->SetWindowPosition = RPI_SetWindowPosition;
-    device->SetWindowSize = RPI_SetWindowSize;
-    device->ShowWindow = RPI_ShowWindow;
-    device->HideWindow = RPI_HideWindow;
-    device->RaiseWindow = RPI_RaiseWindow;
-    device->MaximizeWindow = RPI_MaximizeWindow;
+    // device->CreateSDLWindowFrom = RPI_CreateWindowFrom;
+    // device->SetWindowTitle = RPI_SetWindowTitle;
+    // device->SetWindowIcon = RPI_SetWindowIcon;
+    // device->SetWindowPosition = RPI_SetWindowPosition;
+    // device->SetWindowSize = RPI_SetWindowSize;
+    // device->ShowWindow = RPI_ShowWindow;
+    // device->HideWindow = RPI_HideWindow;
+    // device->RaiseWindow = RPI_RaiseWindow;
+    // device->MaximizeWindow = RPI_MaximizeWindow;
     device->MinimizeWindow = RPI_MinimizeWindow;
-    device->RestoreWindow = RPI_RestoreWindow;
+    // device->RestoreWindow = RPI_RestoreWindow;
     device->DestroyWindow = RPI_DestroyWindow;
 #if 0
     device->GetWindowWMInfo = RPI_GetWindowWMInfo;
@@ -371,7 +371,7 @@ void RPI_DestroyWindow(_THIS, SDL_Window *window)
     }
 }
 
-int RPI_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+/*int RPI_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     return -1;
 }
@@ -399,13 +399,13 @@ void RPI_RaiseWindow(_THIS, SDL_Window *window)
 }
 void RPI_MaximizeWindow(SDL_Window *window)
 {
-}
+}*/
 void RPI_MinimizeWindow(SDL_Window *window)
 {
 }
-void RPI_RestoreWindow(SDL_Window *window)
+/*void RPI_RestoreWindow(SDL_Window *window)
 {
-}
+}*/
 
 /*****************************************************************************/
 /* SDL Window Manager function                                               */

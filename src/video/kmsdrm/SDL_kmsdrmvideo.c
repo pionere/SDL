@@ -255,20 +255,20 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     device->VideoQuit = KMSDRM_VideoQuit;
     device->SetDisplayMode = KMSDRM_SetDisplayMode;
     device->CreateSDLWindow = KMSDRM_CreateWindow;
-    device->CreateSDLWindowFrom = KMSDRM_CreateWindowFrom;
-    device->SetWindowTitle = KMSDRM_SetWindowTitle;
-    device->SetWindowIcon = KMSDRM_SetWindowIcon;
-    device->SetWindowPosition = KMSDRM_SetWindowPosition;
+    // device->CreateSDLWindowFrom = KMSDRM_CreateWindowFrom;
+    // device->SetWindowTitle = KMSDRM_SetWindowTitle;
+    // device->SetWindowIcon = KMSDRM_SetWindowIcon;
+    // device->SetWindowPosition = KMSDRM_SetWindowPosition;
     device->SetWindowSize = KMSDRM_SetWindowSize;
     device->SetWindowFullscreen = KMSDRM_SetWindowFullscreen;
     device->GetWindowGammaRamp = KMSDRM_GetWindowGammaRamp;
     device->SetWindowGammaRamp = KMSDRM_SetWindowGammaRamp;
-    device->ShowWindow = KMSDRM_ShowWindow;
-    device->HideWindow = KMSDRM_HideWindow;
-    device->RaiseWindow = KMSDRM_RaiseWindow;
-    device->MaximizeWindow = KMSDRM_MaximizeWindow;
+    // device->ShowWindow = KMSDRM_ShowWindow;
+    // device->HideWindow = KMSDRM_HideWindow;
+    // device->RaiseWindow = KMSDRM_RaiseWindow;
+    // device->MaximizeWindow = KMSDRM_MaximizeWindow;
     device->MinimizeWindow = KMSDRM_MinimizeWindow;
-    device->RestoreWindow = KMSDRM_RestoreWindow;
+    // device->RestoreWindow = KMSDRM_RestoreWindow;
     device->DestroyWindow = KMSDRM_DestroyWindow;
     device->GetWindowWMInfo = KMSDRM_GetWindowWMInfo;
 
@@ -1584,7 +1584,7 @@ int KMSDRM_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp)
     return 0;
 }
 
-int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
+/*int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
 {
     return -1;
 }
@@ -1597,7 +1597,7 @@ void KMSDRM_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 }
 void KMSDRM_SetWindowPosition(SDL_Window *window)
 {
-}
+}*/
 void KMSDRM_SetWindowSize(SDL_Window *window)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
@@ -1612,7 +1612,7 @@ void KMSDRM_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, S
         KMSDRM_DirtySurfaces(window);
     }
 }
-void KMSDRM_ShowWindow(SDL_Window *window)
+/*void KMSDRM_ShowWindow(SDL_Window *window)
 {
 }
 void KMSDRM_HideWindow(_THIS, SDL_Window *window)
@@ -1623,13 +1623,13 @@ void KMSDRM_RaiseWindow(_THIS, SDL_Window *window)
 }
 void KMSDRM_MaximizeWindow(SDL_Window *window)
 {
-}
+}*/
 void KMSDRM_MinimizeWindow(SDL_Window *window)
 {
 }
-void KMSDRM_RestoreWindow(SDL_Window *window)
+/*void KMSDRM_RestoreWindow(SDL_Window *window)
 {
-}
+}*/
 
 /*****************************************************************************/
 /* SDL Window Manager function                                               */

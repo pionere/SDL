@@ -69,8 +69,8 @@ static SDL_VideoDevice *VIVANTE_Create()
     device->SetDisplayMode = VIVANTE_SetDisplayMode;
     device->CreateSDLWindow = VIVANTE_CreateWindow;
     device->SetWindowTitle = VIVANTE_SetWindowTitle;
-    device->SetWindowPosition = VIVANTE_SetWindowPosition;
-    device->SetWindowSize = VIVANTE_SetWindowSize;
+    // device->SetWindowPosition = VIVANTE_SetWindowPosition;
+    // device->SetWindowSize = VIVANTE_SetWindowSize;
     device->ShowWindow = VIVANTE_ShowWindow;
     device->HideWindow = VIVANTE_HideWindow;
     device->DestroyWindow = VIVANTE_DestroyWindow;
@@ -319,15 +319,15 @@ void VIVANTE_SetWindowTitle(SDL_Window *window)
 #endif
 }
 
-void VIVANTE_SetWindowPosition(SDL_Window *window)
+/*void VIVANTE_SetWindowPosition(SDL_Window *window)
 {
-    /* FIXME */
+    // FIXME
 }
 
 void VIVANTE_SetWindowSize(SDL_Window *window)
 {
-    /* FIXME */
-}
+    // FIXME
+}*/
 
 void VIVANTE_ShowWindow(SDL_Window *window)
 {

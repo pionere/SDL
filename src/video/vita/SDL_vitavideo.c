@@ -100,19 +100,19 @@ static SDL_VideoDevice *VITA_Create()
     device->VideoQuit = VITA_VideoQuit;
     device->SetDisplayMode = VITA_SetDisplayMode;
     device->CreateSDLWindow = VITA_CreateWindow;
-    device->CreateSDLWindowFrom = VITA_CreateWindowFrom;
-    device->SetWindowTitle = VITA_SetWindowTitle;
-    device->SetWindowIcon = VITA_SetWindowIcon;
-    device->SetWindowPosition = VITA_SetWindowPosition;
-    device->SetWindowSize = VITA_SetWindowSize;
-    device->ShowWindow = VITA_ShowWindow;
-    device->HideWindow = VITA_HideWindow;
-    device->RaiseWindow = VITA_RaiseWindow;
-    device->MaximizeWindow = VITA_MaximizeWindow;
+    // device->CreateSDLWindowFrom = VITA_CreateWindowFrom;
+    // device->SetWindowTitle = VITA_SetWindowTitle;
+    // device->SetWindowIcon = VITA_SetWindowIcon;
+    // device->SetWindowPosition = VITA_SetWindowPosition;
+    // device->SetWindowSize = VITA_SetWindowSize;
+    // device->ShowWindow = VITA_ShowWindow;
+    // device->HideWindow = VITA_HideWindow;
+    // device->RaiseWindow = VITA_RaiseWindow;
+    // device->MaximizeWindow = VITA_MaximizeWindow;
     device->MinimizeWindow = VITA_MinimizeWindow;
-    device->RestoreWindow = VITA_RestoreWindow;
-    device->SetWindowMouseGrab = VITA_SetWindowGrab;
-    device->SetWindowKeyboardGrab = VITA_SetWindowGrab;
+    // device->RestoreWindow = VITA_RestoreWindow;
+    // device->SetWindowMouseGrab = VITA_SetWindowGrab;
+    // device->SetWindowKeyboardGrab = VITA_SetWindowGrab;
     device->DestroyWindow = VITA_DestroyWindow;
     device->GetWindowWMInfo = VITA_GetWindowWMInfo;
 
@@ -303,7 +303,7 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+/*int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     return -1;
 }
@@ -331,16 +331,16 @@ void VITA_RaiseWindow(_THIS, SDL_Window *window)
 }
 void VITA_MaximizeWindow(SDL_Window *window)
 {
-}
+}*/
 void VITA_MinimizeWindow(SDL_Window *window)
 {
 }
-void VITA_RestoreWindow(SDL_Window *window)
+/*void VITA_RestoreWindow(SDL_Window *window)
 {
 }
 void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 {
-}
+}*/
 
 void VITA_DestroyWindow(_THIS, SDL_Window *window)
 {

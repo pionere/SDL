@@ -175,10 +175,10 @@ int DirectFB_CreateWindow(_THIS, SDL_Window * window)
     return -1;
 }
 
-int DirectFB_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
+/*int DirectFB_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
 {
     return SDL_Unsupported();
-}
+}*/
 
 void DirectFB_SetWindowTitle(SDL_Window * window)
 {

@@ -71,16 +71,16 @@ static SDL_VideoDevice *PND_create(void)
     device->SetDisplayMode = PND_setdisplaymode;
     device->CreateSDLWindow = PND_createwindow;
     device->CreateSDLWindowFrom = PND_createwindowfrom;
-    device->SetWindowTitle = PND_setwindowtitle;
-    device->SetWindowIcon = PND_setwindowicon;
-    device->SetWindowPosition = PND_setwindowposition;
-    device->SetWindowSize = PND_setwindowsize;
-    device->ShowWindow = PND_showwindow;
-    device->HideWindow = PND_hidewindow;
-    device->RaiseWindow = PND_raisewindow;
-    device->MaximizeWindow = PND_maximizewindow;
+    // device->SetWindowTitle = PND_setwindowtitle;
+    // device->SetWindowIcon = PND_setwindowicon;
+    // device->SetWindowPosition = PND_setwindowposition;
+    // device->SetWindowSize = PND_setwindowsize;
+    // device->ShowWindow = PND_showwindow;
+    // device->HideWindow = PND_hidewindow;
+    // device->RaiseWindow = PND_raisewindow;
+    // device->MaximizeWindow = PND_maximizewindow;
     device->MinimizeWindow = PND_minimizewindow;
-    device->RestoreWindow = PND_restorewindow;
+    // device->RestoreWindow = PND_restorewindow;
     device->DestroyWindow = PND_destroywindow;
 #if 0
     device->GetWindowWMInfo = PND_getwindowwminfo;
@@ -194,7 +194,7 @@ int PND_createwindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-int PND_createwindowfrom(_THIS, SDL_Window * window, const void *data)
+/*int PND_createwindowfrom(_THIS, SDL_Window * window, const void *data)
 {
     return -1;
 }
@@ -222,13 +222,13 @@ void PND_raisewindow(_THIS, SDL_Window * window)
 }
 void PND_maximizewindow(SDL_Window * window)
 {
-}
+}*/
 void PND_minimizewindow(SDL_Window * window)
 {
 }
-void PND_restorewindow(SDL_Window * window)
+/*void PND_restorewindow(SDL_Window * window)
 {
-}
+}*/
 void PND_destroywindow(_THIS, SDL_Window * window)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;

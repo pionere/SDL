@@ -72,17 +72,17 @@ static SDL_VideoDevice *PSP_Create()
     device->VideoQuit = PSP_VideoQuit;
     device->SetDisplayMode = PSP_SetDisplayMode;
     device->CreateSDLWindow = PSP_CreateWindow;
-    device->CreateSDLWindowFrom = PSP_CreateWindowFrom;
-    device->SetWindowTitle = PSP_SetWindowTitle;
-    device->SetWindowIcon = PSP_SetWindowIcon;
-    device->SetWindowPosition = PSP_SetWindowPosition;
-    device->SetWindowSize = PSP_SetWindowSize;
-    device->ShowWindow = PSP_ShowWindow;
-    device->HideWindow = PSP_HideWindow;
-    device->RaiseWindow = PSP_RaiseWindow;
-    device->MaximizeWindow = PSP_MaximizeWindow;
+    // device->CreateSDLWindowFrom = PSP_CreateWindowFrom;
+    // device->SetWindowTitle = PSP_SetWindowTitle;
+    // device->SetWindowIcon = PSP_SetWindowIcon;
+    // device->SetWindowPosition = PSP_SetWindowPosition;
+    // device->SetWindowSize = PSP_SetWindowSize;
+    // device->ShowWindow = PSP_ShowWindow;
+    // device->HideWindow = PSP_HideWindow;
+    // device->RaiseWindow = PSP_RaiseWindow;
+    // device->MaximizeWindow = PSP_MaximizeWindow;
     device->MinimizeWindow = PSP_MinimizeWindow;
-    device->RestoreWindow = PSP_RestoreWindow;
+    // device->RestoreWindow = PSP_RestoreWindow;
     device->DestroyWindow = PSP_DestroyWindow;
 #if 0
     device->GetWindowWMInfo = PSP_GetWindowWMInfo;
@@ -189,7 +189,7 @@ int PSP_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+/*int PSP_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     return SDL_Unsupported();
 }
@@ -217,13 +217,13 @@ void PSP_RaiseWindow(_THIS, SDL_Window *window)
 }
 void PSP_MaximizeWindow(SDL_Window *window)
 {
-}
+}*/
 void PSP_MinimizeWindow(SDL_Window *window)
 {
 }
-void PSP_RestoreWindow(SDL_Window *window)
+/*void PSP_RestoreWindow(SDL_Window *window)
 {
-}
+}*/
 void PSP_DestroyWindow(_THIS, SDL_Window *window)
 {
     SDL_free(window->driverdata);
