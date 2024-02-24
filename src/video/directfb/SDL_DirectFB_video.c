@@ -260,7 +260,9 @@ static int DirectFB_VideoInit(_THIS)
     DirectFB_InitModes();
 
 #ifdef SDL_DIRECTFB_OPENGL
-    DirectFB_GL_Initialize(_this);
+    if (DirectFB_GL_Initialize(_this) < 0) {
+        goto error;
+    }
 #endif
 
     DirectFB_InitMouse();
