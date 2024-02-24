@@ -38,7 +38,6 @@
 struct SDL_GLDriverData
 {
     int gl_active;              /* to stop switching drivers while we have a valid context */
-    int initialized;
     DirectFB_GLContext *firstgl;        /* linked list */
 
     /* OpenGL */
@@ -73,10 +72,7 @@ int DirectFB_GL_Initialize(_THIS)
     if (!_this->gl_data) {
         return SDL_OutOfMemory();
     }
-    _this->gl_data->initialized = 0;
-
-    ++_this->gl_data->initialized;
-    _this->gl_data->firstgl = NULL;
+    // _this->gl_data->firstgl = NULL;
 
     if (DirectFB_GL_LoadLibrary(_this, NULL) < 0) {
         return -1;
@@ -92,7 +88,7 @@ int DirectFB_GL_Initialize(_THIS)
 
 void DirectFB_GL_Shutdown(_THIS)
 {
-    if (!_this->gl_data || (--_this->gl_data->initialized > 0)) {
+    if (!_this->gl_data) {
         return;
     }
 

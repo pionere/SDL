@@ -252,8 +252,6 @@ static int DirectFB_VideoInit(_THIS)
     /* simple window manager support */
     devdata->has_own_wm = readBoolEnv(DFBENV_USE_WM, 0);
 
-    devdata->initialized = 1;
-
     devdata->dfb = dfb;
     devdata->firstwin = NULL;
 
@@ -291,8 +289,6 @@ static void DirectFB_VideoQuit(_THIS)
 #ifdef SDL_DIRECTFB_OPENGL
     DirectFB_GL_Shutdown(_this);
 #endif
-
-    devdata->initialized = 0;
 }
 
 /* DirectFB driver general support functions */

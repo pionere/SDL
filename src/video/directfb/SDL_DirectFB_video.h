@@ -136,8 +136,6 @@ struct _DFB_KeyboardData
 
 typedef struct DFB_VideoData
 {
-    int initialized;
-
     IDirectFB           *dfb;
     int                 num_mice;
     int                 mouse_id[0x100];
