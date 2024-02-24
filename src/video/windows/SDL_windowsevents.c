@@ -1360,7 +1360,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         /* Don't start the screensaver or blank the monitor in fullscreen apps */
         if ((wParam & 0xFFF0) == SC_SCREENSAVE ||
             (wParam & 0xFFF0) == SC_MONITORPOWER) {
-            if (SDL_GetVideoDevice()->suspend_screensaver) {
+            SDL_VideoDevice *_this = SDL_GetVideoDevice();
+            if (_this && _this->suspend_screensaver) {
                 return 0;
             }
         }
@@ -1746,7 +1747,6 @@ static void WIN_UpdateClipCursorForWindows()
     Uint32 now = SDL_GetTicks();
     const Uint32 CLIPCURSOR_UPDATE_INTERVAL_MS = 3000;
 
-    if (_this) {
         for (window = _this->windows; window; window = window->next) {
             SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
             if (data) {
@@ -1758,7 +1758,6 @@ static void WIN_UpdateClipCursorForWindows()
                 }
             }
         }
-    }
 }
 
 static void WIN_UpdateMouseCapture()
