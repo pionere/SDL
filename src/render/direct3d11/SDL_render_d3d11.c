@@ -1031,10 +1031,9 @@ static void D3D11_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *eve
 }
 
 #if !defined(__WINRT__)
-static int D3D11_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void D3D11_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GetWindowSizeInPixels(renderer->window, w, h);
-    return 0;
 }
 #endif
 

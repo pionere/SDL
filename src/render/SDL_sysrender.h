@@ -146,7 +146,7 @@ struct SDL_Renderer
     const void *magic;
 
     void (*WindowEvent)(SDL_Renderer *renderer, const SDL_WindowEvent *event);
-    int (*GetOutputSize)(SDL_Renderer *renderer, int *w, int *h);
+    void (*GetOutputSize)(SDL_Renderer *renderer, int *w, int *h);
     SDL_bool (*SupportsBlendMode)(SDL_Renderer *renderer, SDL_BlendMode blendMode);
     int (*CreateTexture)(SDL_Renderer *renderer, SDL_Texture *texture);
     int (*QueueSetViewport)(SDL_Renderer *renderer, SDL_RenderCommand *cmd);

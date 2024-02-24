@@ -293,20 +293,19 @@ static GLES2_FBOList *GLES2_GetFBO(GLES2_RenderData *data, Uint32 w, Uint32 h)
 
 static int GLES2_ActivateRenderer(SDL_Renderer *renderer)
 {
+    int result = 0;
     GLES2_RenderData *data = (GLES2_RenderData *)renderer->driverdata;
 
     if (SDL_GL_GetCurrentContext() != data->context) {
         /* Null out the current program to ensure we set it again */
         data->drawstate.program = NULL;
 
-        if (SDL_GL_MakeCurrent(renderer->window, data->context) < 0) {
-            return -1;
-        }
+        result = SDL_GL_MakeCurrent(renderer->window, data->context);
     }
 
     GL_ClearErrors(renderer);
 
-    return 0;
+    return result;
 }
 
 static void GLES2_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
@@ -319,10 +318,9 @@ static void GLES2_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *eve
     }
 }
 
-static int GLES2_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void GLES2_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GL_GetDrawableSize(renderer->window, w, h);
-    return 0;
 }
 
 static GLenum GetBlendFunc(SDL_BlendFactor factor)

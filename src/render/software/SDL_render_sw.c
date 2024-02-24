@@ -76,7 +76,7 @@ static void SW_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
     }
 }
 
-static int SW_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void SW_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SW_RenderData *data = (SW_RenderData *)renderer->driverdata;
 
@@ -87,15 +87,20 @@ static int SW_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
         if (h) {
             *h = data->surface->h;
         }
-        return 0;
+        return;
     }
 
     if (renderer->window) {
         SDL_GetWindowSizeInPixels(renderer->window, w, h);
-        return 0;
+        return;
     }
 
-    return SDL_SetError("Software renderer doesn't have an output surface");
+    if (w) {
+        *w = 0;
+    }
+    if (h) {
+        *h = 0;
+    }
 }
 
 static int SW_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)

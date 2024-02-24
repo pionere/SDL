@@ -201,15 +201,14 @@ static GLES_FBOList *GLES_GetFBO(GLES_RenderData *data, Uint32 w, Uint32 h)
 
 static int GLES_ActivateRenderer(SDL_Renderer *renderer)
 {
+    int result = 0;
     GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
 
     if (SDL_GL_GetCurrentContext() != data->context) {
-        if (SDL_GL_MakeCurrent(renderer->window, data->context) < 0) {
-            return -1;
-        }
+        result = SDL_GL_MakeCurrent(renderer->window, data->context);
     }
 
-    return 0;
+    return result;
 }
 
 static void GLES_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
@@ -222,10 +221,9 @@ static void GLES_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *even
     }
 }
 
-static int GLES_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void GLES_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GL_GetDrawableSize(renderer->window, w, h);
-    return 0;
 }
 
 static GLenum GetBlendFunc(SDL_BlendFactor factor)

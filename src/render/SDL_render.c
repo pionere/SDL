@@ -702,11 +702,10 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                 if (window && renderer->GetOutputSize) {
                     int window_w, window_h;
                     int output_w, output_h;
-                    if (renderer->GetOutputSize(renderer, &output_w, &output_h) == 0) {
-                        SDL_GetWindowSize(renderer->window, &window_w, &window_h);
-                        renderer->dpi_scale.x = (float)window_w / output_w;
-                        renderer->dpi_scale.y = (float)window_h / output_h;
-                    }
+                    renderer->GetOutputSize(renderer, &output_w, &output_h);
+                    SDL_GetWindowSize(renderer->window, &window_w, &window_h);
+                    renderer->dpi_scale.x = (float)window_w / output_w;
+                    renderer->dpi_scale.y = (float)window_h / output_h;
                 }
 
                 if (renderer->logical_w) {
@@ -939,7 +938,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
 #ifndef SDL_RENDER_DISABLED
     SDL_Renderer *renderer = NULL;
     int n = SDL_GetNumRenderDrivers();
-    SDL_bool batching = SDL_TRUE;
+    SDL_bool batching = SDL_FALSE;
     const char *hint;
 
 #if defined(__ANDROID__)
@@ -979,9 +978,6 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
                 if (SDL_strcasecmp(hint, driver->info.name) == 0) {
                     /* Create a new renderer instance */
                     renderer = driver->CreateRenderer(window, flags);
-                    if (renderer) {
-                        batching = SDL_FALSE;
-                    }
                     break;
                 }
             }
@@ -996,6 +992,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
                     renderer = driver->CreateRenderer(window, flags);
                     if (renderer) {
                         /* Yay, we got one! */
+                        batching = SDL_TRUE;
                         break;
                     }
                 }
@@ -1013,7 +1010,6 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
         }
         /* Create a new renderer instance */
         renderer = render_drivers[index]->CreateRenderer(window, flags);
-        batching = SDL_FALSE;
         if (!renderer) {
             goto error;
         }
@@ -1066,11 +1062,10 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     if (renderer->GetOutputSize) {
         int window_w, window_h;
         int output_w, output_h;
-        if (renderer->GetOutputSize(renderer, &output_w, &output_h) == 0) {
-            SDL_GetWindowSize(renderer->window, &window_w, &window_h);
-            renderer->dpi_scale.x = (float)window_w / output_w;
-            renderer->dpi_scale.y = (float)window_h / output_h;
-        }
+        renderer->GetOutputSize(renderer, &output_w, &output_h);
+        SDL_GetWindowSize(renderer->window, &window_w, &window_h);
+        renderer->dpi_scale.x = (float)window_w / output_w;
+        renderer->dpi_scale.y = (float)window_h / output_h;
     }
 
     renderer->relative_scaling = SDL_GetHintBoolean(SDL_HINT_MOUSE_RELATIVE_SCALING, SDL_TRUE);
@@ -1165,7 +1160,8 @@ int SDL_GetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
     if (renderer->target) {
         return SDL_QueryTexture(renderer->target, NULL, NULL, w, h);
     } else if (renderer->GetOutputSize) {
-        return renderer->GetOutputSize(renderer, w, h);
+        renderer->GetOutputSize(renderer, w, h);
+        return 0;
     } else if (renderer->window) {
         SDL_GetWindowSize(renderer->window, w, h);
         return 0;

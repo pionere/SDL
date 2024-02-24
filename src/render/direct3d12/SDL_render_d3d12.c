@@ -505,10 +505,9 @@ static void D3D12_DestroyRenderer(SDL_Renderer *renderer)
     SDL_free(renderer);
 }
 
-static int D3D12_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void D3D12_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GetWindowSizeInPixels(renderer->window, w, h);
-    return 0;
 }
 
 static D3D12_BLEND GetBlendFunc(SDL_BlendFactor factor)

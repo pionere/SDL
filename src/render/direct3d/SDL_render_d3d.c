@@ -340,10 +340,9 @@ static void D3D_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event
     }
 }
 
-static int D3D_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void D3D_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GetWindowSizeInPixels(renderer->window, w, h);
-    return 0;
 }
 
 static D3DBLEND GetBlendFunc(SDL_BlendFactor factor)

@@ -260,17 +260,16 @@ static int GL_LoadFunctions(GL_RenderData *data)
 
 static int GL_ActivateRenderer(SDL_Renderer *renderer)
 {
+    int result = 0;
     GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
 
     if (SDL_GL_GetCurrentContext() != data->context) {
-        if (SDL_GL_MakeCurrent(renderer->window, data->context) < 0) {
-            return -1;
-        }
+        result = SDL_GL_MakeCurrent(renderer->window, data->context);
     }
 
     GL_ClearErrors(renderer);
 
-    return 0;
+    return result;
 }
 #ifdef DEBUG_RENDER
 static void APIENTRY GL_HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char *message, const void *userParam)
@@ -335,10 +334,9 @@ static void GL_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
     }
 }
 
-static int GL_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void GL_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_GL_GetDrawableSize(renderer->window, w, h);
-    return 0;
 }
 
 static GLenum GetBlendFunc(SDL_BlendFactor factor)
