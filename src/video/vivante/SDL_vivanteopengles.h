@@ -29,7 +29,6 @@
 #include "../SDL_egl_c.h"
 
 /* OpenGLES functions */
-#define VIVANTE_GLES_GetAttribute SDL_EGL_GetAttribute
 #define VIVANTE_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define VIVANTE_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
 #define VIVANTE_GLES_SetSwapInterval SDL_EGL_SetSwapInterval

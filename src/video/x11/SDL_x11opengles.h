@@ -36,7 +36,6 @@ typedef struct SDL_PrivateGLESData
 } SDL_PrivateGLESData;
 
 /* OpenGLES functions */
-#define X11_GLES_GetAttribute SDL_EGL_GetAttribute
 #define X11_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define X11_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
 #define X11_GLES_SetSwapInterval SDL_EGL_SetSwapInterval

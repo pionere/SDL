@@ -32,7 +32,6 @@ typedef struct SDL_PrivateGLESData
 } SDL_PrivateGLESData;
 
 /* OpenGLES functions */
-#define Wayland_GLES_GetAttribute SDL_EGL_GetAttribute
 #define Wayland_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define Wayland_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
 

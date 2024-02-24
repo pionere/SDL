@@ -29,7 +29,6 @@
 #include "../SDL_egl_c.h"
 
 /* OpenGLES functions */
-#define WIN_GLES_GetAttribute SDL_EGL_GetAttribute
 #define WIN_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define WIN_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
 #define WIN_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
