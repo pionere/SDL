@@ -1345,24 +1345,24 @@ int SDL_GetWindowDisplayMode(SDL_Window *window, SDL_DisplayMode *mode)
         return SDL_InvalidParamError("mode");
     }
 
-    fullscreen_mode = window->fullscreen_mode;
-    if (!fullscreen_mode.w) {
-        fullscreen_mode.w = window->windowed.w;
-    }
-    if (!fullscreen_mode.h) {
-        fullscreen_mode.h = window->windowed.h;
-    }
-
     display = SDL_GetDisplayForWindow(window);
 
     /* if in desktop size mode, just return the size of the desktop */
     if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
         fullscreen_mode = display->desktop_mode;
-    } else if (!SDL_GetClosestDisplayModeForDisplay(SDL_GetDisplayForWindow(window),
+    } else {
+        fullscreen_mode = window->fullscreen_mode;
+        if (!fullscreen_mode.w) {
+            fullscreen_mode.w = window->windowed.w;
+        }
+        if (!fullscreen_mode.h) {
+            fullscreen_mode.h = window->windowed.h;
+        }        
+        if (!SDL_GetClosestDisplayModeForDisplay(display,
                                                     &fullscreen_mode,
                                                     &fullscreen_mode)) {
-        SDL_zerop(mode);
-        return SDL_SetError("Couldn't find display mode match");
+            return SDL_SetError("Couldn't find display mode match");
+        }
     }
 
     *mode = fullscreen_mode;
@@ -1512,8 +1512,6 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
 
         if (setDisplayMode) {
             SDL_DisplayMode fullscreen_mode;
-
-            SDL_zero(fullscreen_mode);
 
             if (SDL_GetWindowDisplayMode(other, &fullscreen_mode) == 0) {
                 resized = SDL_TRUE;
