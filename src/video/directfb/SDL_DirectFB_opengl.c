@@ -270,8 +270,9 @@ void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context)
     SDL_DFB_FREE(ctx);
 }
 
-void DirectFB_GL_FreeWindowContexts(_THIS, SDL_Window * window)
+void DirectFB_GL_FreeWindowContexts(SDL_Window * window)
 {
+    SDL_VideoDevice *_this = SDL_GetVideoDevice();
     DirectFB_GLContext *p;
 
     for (p = _this->gl_data->firstgl; p; p = p->next)
@@ -283,8 +284,9 @@ void DirectFB_GL_FreeWindowContexts(_THIS, SDL_Window * window)
         }
 }
 
-void DirectFB_GL_ReAllocWindowContexts(_THIS, SDL_Window * window)
+void DirectFB_GL_ReAllocWindowContexts(SDL_Window * window)
 {
+    SDL_VideoDevice *_this = SDL_GetVideoDevice();
     DirectFB_GLContext *p;
 
     for (p = _this->gl_data->firstgl; p; p = p->next)

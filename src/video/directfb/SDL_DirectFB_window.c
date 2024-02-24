@@ -509,7 +509,7 @@ void DirectFB_AdjustWindowSurface(SDL_Window * window)
 
     if (adjust) {
 #ifdef SDL_DIRECTFB_OPENGL
-        DirectFB_GL_FreeWindowContexts(SDL_GetVideoDevice(), window);
+        DirectFB_GL_FreeWindowContexts(window);
 #endif
 
 #if (DFB_VERSION_ATLEAST(1,2,1))
@@ -538,7 +538,7 @@ void DirectFB_AdjustWindowSurface(SDL_Window * window)
         DirectFB_WM_RedrawLayout(window);
 
 #ifdef SDL_DIRECTFB_OPENGL
-        DirectFB_GL_ReAllocWindowContexts(SDL_GetVideoDevice(), window);
+        DirectFB_GL_ReAllocWindowContexts(window);
 #endif
    }
   error:
