@@ -29,7 +29,7 @@
 extern int UIKit_CreateWindow(_THIS, SDL_Window * window);
 extern void UIKit_SetWindowTitle(SDL_Window * window);
 extern void UIKit_ShowWindow(SDL_Window * window);
-extern void UIKit_HideWindow(_THIS, SDL_Window * window);
+extern void UIKit_HideWindow(SDL_Window * window);
 extern void UIKit_RaiseWindow(_THIS, SDL_Window * window);
 extern void UIKit_SetWindowBordered(SDL_Window * window, SDL_bool bordered);
 extern void UIKit_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);

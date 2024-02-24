@@ -804,7 +804,7 @@ void WIN_ShowWindow(SDL_Window *window)
     ShowWindow(hwnd, nCmdShow);
 }
 
-void WIN_HideWindow(_THIS, SDL_Window *window)
+void WIN_HideWindow(SDL_Window *window)
 {
     HWND hwnd = ((SDL_WindowData *)window->driverdata)->hwnd;
     ShowWindow(hwnd, SW_HIDE);

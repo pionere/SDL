@@ -130,7 +130,7 @@ void KMSDRM_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * _display
 int KMSDRM_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp);
 int KMSDRM_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
 // void KMSDRM_ShowWindow(SDL_Window * window);
-// void KMSDRM_HideWindow(_THIS, SDL_Window * window);
+// void KMSDRM_HideWindow(SDL_Window * window);
 // void KMSDRM_RaiseWindow(_THIS, SDL_Window * window);
 // void KMSDRM_MaximizeWindow(SDL_Window * window);
 void KMSDRM_MinimizeWindow(SDL_Window * window);

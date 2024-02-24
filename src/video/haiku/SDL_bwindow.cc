@@ -162,7 +162,7 @@ void HAIKU_ShowWindow(SDL_Window * window) {
     _ToBeWin(window)->PostMessage(&msg);
 }
 
-void HAIKU_HideWindow(_THIS, SDL_Window * window) {
+void HAIKU_HideWindow(SDL_Window * window) {
     BMessage msg(BWIN_HIDE_WINDOW);
     _ToBeWin(window)->PostMessage(&msg);
 }

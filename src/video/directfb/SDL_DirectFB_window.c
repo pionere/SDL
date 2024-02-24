@@ -301,7 +301,7 @@ void DirectFB_ShowWindow(SDL_Window * window)
 
 }
 
-void DirectFB_HideWindow(_THIS, SDL_Window * window)
+void DirectFB_HideWindow(SDL_Window * window)
 {
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     IDirectFBWindow *dfbwin = windata->dfbwin;

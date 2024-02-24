@@ -239,7 +239,7 @@ void UIKit_ShowWindow(SDL_Window * window)
     }
 }
 
-void UIKit_HideWindow(_THIS, SDL_Window * window)
+void UIKit_HideWindow(SDL_Window * window)
 {
     @autoreleasepool {
         SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;

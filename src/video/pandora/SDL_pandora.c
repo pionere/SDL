@@ -214,7 +214,7 @@ void PND_setwindowsize(SDL_Window * window)
 void PND_showwindow(SDL_Window * window)
 {
 }
-void PND_hidewindow(_THIS, SDL_Window * window)
+void PND_hidewindow(SDL_Window * window)
 {
 }
 void PND_raisewindow(_THIS, SDL_Window * window)

@@ -737,7 +737,6 @@ static void handle_configure_zxdg_decoration(void *data,
 {
     SDL_Window *window = (SDL_Window *)data;
     SDL_WindowData *driverdata = (SDL_WindowData *)window->driverdata;
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
     Wayland_VideoData *viddata = &waylandVideoData;
 
     /* If the compositor tries to force CSD anyway, bail on direct XDG support
@@ -756,7 +755,7 @@ static void handle_configure_zxdg_decoration(void *data,
         }
         WAYLAND_wl_display_roundtrip(viddata->display);
 
-        Wayland_HideWindow(device, window);
+        Wayland_HideWindow(window);
         SDL_zero(driverdata->shell_surface);
         driverdata->shell_surface_type = WAYLAND_SURFACE_LIBDECOR;
 
@@ -1484,12 +1483,12 @@ void Wayland_ShowWindow(SDL_Window *window)
     WAYLAND_wl_display_roundtrip(c->display);
 }
 
-static void Wayland_ReleasePopup(_THIS, SDL_Window *popup)
+static void Wayland_ReleasePopup(SDL_Window *popup)
 {
     SDL_WindowData *popupdata;
 
     /* Basic sanity checks to weed out the weird popup closures */
-    if (!popup || popup->magic != &_this->window_magic) {
+    if (!popup) {
         return;
     }
     popupdata = popup->driverdata;
@@ -1504,7 +1503,7 @@ static void Wayland_ReleasePopup(_THIS, SDL_Window *popup)
 
     /* Release the child _first_, otherwise a protocol error triggers */
     if (popupdata->shell_surface.xdg.roleobj.popup.child != NULL) {
-        Wayland_ReleasePopup(_this, popupdata->shell_surface.xdg.roleobj.popup.child);
+        Wayland_ReleasePopup(popupdata->shell_surface.xdg.roleobj.popup.child);
         popupdata->shell_surface.xdg.roleobj.popup.child = NULL;
     }
 
@@ -1519,7 +1518,7 @@ static void Wayland_ReleasePopup(_THIS, SDL_Window *popup)
     popupdata->shell_surface.xdg.roleobj.popup.positioner = NULL;
 }
 
-void Wayland_HideWindow(_THIS, SDL_Window *window)
+void Wayland_HideWindow(SDL_Window *window)
 {
     Wayland_VideoData *data = &waylandVideoData;
     SDL_WindowData *wind = window->driverdata;
@@ -1543,7 +1542,7 @@ void Wayland_HideWindow(_THIS, SDL_Window *window)
 #endif
         if (data->shell.xdg) {
         if (wind->shell_surface_type == WAYLAND_SURFACE_XDG_POPUP) {
-            Wayland_ReleasePopup(_this, window);
+            Wayland_ReleasePopup(window);
         } else if (wind->shell_surface.xdg.roleobj.toplevel) {
             xdg_toplevel_destroy(wind->shell_surface.xdg.roleobj.toplevel);
             wind->shell_surface.xdg.roleobj.toplevel = NULL;

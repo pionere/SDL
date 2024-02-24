@@ -32,7 +32,7 @@ extern void HAIKU_SetWindowPosition(SDL_Window * window);
 extern void HAIKU_SetWindowSize(SDL_Window * window);
 extern void HAIKU_SetWindowMinimumSize(SDL_Window * window);
 extern void HAIKU_ShowWindow(SDL_Window * window);
-extern void HAIKU_HideWindow(_THIS, SDL_Window * window);
+extern void HAIKU_HideWindow(SDL_Window * window);
 extern void HAIKU_RaiseWindow(_THIS, SDL_Window * window);
 extern void HAIKU_MaximizeWindow(SDL_Window * window);
 extern void HAIKU_MinimizeWindow(SDL_Window * window);

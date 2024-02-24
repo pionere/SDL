@@ -147,7 +147,7 @@ extern void Cocoa_SetWindowMaximumSize(SDL_Window * window);
 extern void Cocoa_GetWindowSizeInPixels(SDL_Window * window, int *w, int *h);
 extern int Cocoa_SetWindowOpacity(SDL_Window * window, float opacity);
 extern void Cocoa_ShowWindow(SDL_Window * window);
-extern void Cocoa_HideWindow(_THIS, SDL_Window * window);
+extern void Cocoa_HideWindow(SDL_Window * window);
 extern void Cocoa_RaiseWindow(_THIS, SDL_Window * window);
 extern void Cocoa_MaximizeWindow(SDL_Window * window);
 extern void Cocoa_MinimizeWindow(SDL_Window * window);

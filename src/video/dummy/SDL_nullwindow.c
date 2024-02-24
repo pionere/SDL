@@ -36,7 +36,7 @@ void DUMMY_ShowWindow(SDL_Window *window)
     SDL_SetKeyboardFocus(window);
 }
 
-void DUMMY_HideWindow(_THIS, SDL_Window *window)
+void DUMMY_HideWindow(SDL_Window *window)
 {
     SDL_SetMouseFocus(NULL);
     SDL_SetKeyboardFocus(NULL);

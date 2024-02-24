@@ -2557,7 +2557,7 @@ void SDL_HideWindow(SDL_Window *window)
     SDL_UpdateFullscreenMode(window, SDL_FALSE);
 
     if (_this->HideWindow) {
-        _this->HideWindow(_this, window);
+        _this->HideWindow(window);
     }
     window->is_hiding = SDL_FALSE;
     SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIDDEN, 0, 0);

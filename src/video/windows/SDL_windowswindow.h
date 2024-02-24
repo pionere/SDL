@@ -83,7 +83,7 @@ extern int WIN_GetWindowBordersSize(SDL_Window * window, int *top, int *left, in
 extern void WIN_GetWindowSizeInPixels(SDL_Window * window, int *width, int *height);
 extern int WIN_SetWindowOpacity(SDL_Window * window, float opacity);
 extern void WIN_ShowWindow(SDL_Window * window);
-extern void WIN_HideWindow(_THIS, SDL_Window * window);
+extern void WIN_HideWindow(SDL_Window * window);
 extern void WIN_RaiseWindow(_THIS, SDL_Window * window);
 extern void WIN_MaximizeWindow(SDL_Window * window);
 extern void WIN_MinimizeWindow(SDL_Window * window);

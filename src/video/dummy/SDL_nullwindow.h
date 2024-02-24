@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 extern void DUMMY_ShowWindow(SDL_Window * window);
-extern void DUMMY_HideWindow(_THIS, SDL_Window * window);
+extern void DUMMY_HideWindow(SDL_Window * window);
 extern void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 
 /* Ends C function definitions when using C++ */

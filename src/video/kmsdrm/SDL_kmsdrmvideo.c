@@ -1615,7 +1615,7 @@ void KMSDRM_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, S
 /*void KMSDRM_ShowWindow(SDL_Window *window)
 {
 }
-void KMSDRM_HideWindow(_THIS, SDL_Window *window)
+void KMSDRM_HideWindow(SDL_Window *window)
 {
 }
 void KMSDRM_RaiseWindow(_THIS, SDL_Window *window)

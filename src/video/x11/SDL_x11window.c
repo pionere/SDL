@@ -687,10 +687,7 @@ int X11_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     window->title = X11_GetWindowTitle(w);
 
-    if (SetupWindowData(window, w, SDL_FALSE) < 0) {
-        return -1;
-    }
-    return 0;
+    return SetupWindowData(window, w, SDL_FALSE);
 }
 
 char *X11_GetWindowTitle(Window xwindow)
@@ -1181,7 +1178,7 @@ void X11_ShowWindow(SDL_Window *window)
     }
 }
 
-void X11_HideWindow(_THIS, SDL_Window *window)
+void X11_HideWindow(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SDL_DisplayData *displaydata = (SDL_DisplayData *)SDL_GetDisplayForWindow(window)->driverdata;

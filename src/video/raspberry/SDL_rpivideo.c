@@ -391,7 +391,7 @@ void RPI_SetWindowSize(SDL_Window *window)
 void RPI_ShowWindow(SDL_Window *window)
 {
 }
-void RPI_HideWindow(_THIS, SDL_Window *window)
+void RPI_HideWindow(SDL_Window *window)
 {
 }
 void RPI_RaiseWindow(_THIS, SDL_Window *window)

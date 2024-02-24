@@ -1023,7 +1023,7 @@ static void OS2_ShowWindow(SDL_Window *window)
     WinShowWindow(pWinData->hwndFrame, TRUE);
 }
 
-static void OS2_HideWindow(_THIS, SDL_Window *window)
+static void OS2_HideWindow(SDL_Window *window)
 {
     WINDATA *pWinData = (WINDATA *)window->driverdata;
 

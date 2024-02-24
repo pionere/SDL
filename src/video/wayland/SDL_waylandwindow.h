@@ -118,7 +118,7 @@ typedef struct
 } SDL_WindowData;
 
 extern void Wayland_ShowWindow(SDL_Window *window);
-extern void Wayland_HideWindow(_THIS, SDL_Window *window);
+extern void Wayland_HideWindow(SDL_Window *window);
 extern void Wayland_RaiseWindow(_THIS, SDL_Window *window);
 extern void Wayland_SetWindowFullscreen(SDL_Window *window,
                                         SDL_VideoDisplay *_display,

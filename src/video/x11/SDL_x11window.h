@@ -95,7 +95,7 @@ extern int X11_SetWindowModalFor(SDL_Window * modal_window, SDL_Window * parent_
 extern int X11_SetWindowInputFocus(SDL_Window * window);
 extern void X11_SetWindowSize(SDL_Window * window);
 extern void X11_ShowWindow(SDL_Window * window);
-extern void X11_HideWindow(_THIS, SDL_Window * window);
+extern void X11_HideWindow(SDL_Window * window);
 extern void X11_RaiseWindow(_THIS, SDL_Window * window);
 extern void X11_MaximizeWindow(SDL_Window * window);
 extern void X11_MinimizeWindow(SDL_Window * window);

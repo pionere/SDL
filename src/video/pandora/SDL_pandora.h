@@ -63,7 +63,7 @@ int PND_createwindow(_THIS, SDL_Window * window);
 // void PND_setwindowposition(SDL_Window * window);
 // void PND_setwindowsize(SDL_Window * window);
 // void PND_showwindow(SDL_Window * window);
-// void PND_hidewindow(_THIS, SDL_Window * window);
+// void PND_hidewindow(SDL_Window * window);
 // void PND_raisewindow(_THIS, SDL_Window * window);
 // void PND_maximizewindow(SDL_Window * window);
 void PND_minimizewindow(SDL_Window * window);
