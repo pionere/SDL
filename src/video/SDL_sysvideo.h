@@ -298,6 +298,7 @@ struct SDL_VideoDevice
     SDL_bool (*Vulkan_CreateSurface)(SDL_VulkanVideo *vulkan_config, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
     void (*Vulkan_GetDrawableSize)(SDL_Window *window, int *w, int *h);
 #endif
+#ifdef SDL_VIDEO_METAL
     /* * * */
     /*
      * Metal support
@@ -306,7 +307,7 @@ struct SDL_VideoDevice
     void (*Metal_DestroyView)(SDL_MetalView view);
     void *(*Metal_GetLayer)(SDL_MetalView view);
     void (*Metal_GetDrawableSize)(SDL_Window *window, int *w, int *h);
-
+#endif
     /* * * */
     /*
      * Event manager functions

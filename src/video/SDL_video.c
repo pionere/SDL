@@ -1735,7 +1735,11 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
 
     if (flags & SDL_WINDOW_METAL) {
+#ifdef SDL_VIDEO_METAL
         if (!_this->Metal_CreateView) {
+#else
+        {
+#endif
             SDL_ContextNotSupported("Metal");
             return NULL;
         }
@@ -1955,8 +1959,11 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 #endif
             return SDL_ContextNotSupported("Vulkan");
     }
-    if ((flags & SDL_WINDOW_METAL) && !_this->Metal_CreateView) {
-        return SDL_ContextNotSupported("Metal");
+    if (flags & SDL_WINDOW_METAL) {
+#ifdef SDL_VIDEO_METAL
+        if (!_this->Metal_CreateView)
+#endif
+            return SDL_ContextNotSupported("Metal");
     }
 
     if (window->flags & SDL_WINDOW_FOREIGN) {
@@ -4857,7 +4864,7 @@ void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
     SDL_Unsupported();
 }
 #endif // SDL_VIDEO_VULKAN
-
+#ifdef SDL_VIDEO_METAL
 SDL_MetalView SDL_Metal_CreateView(SDL_Window *window)
 {
     CHECK_WINDOW_MAGIC(window, NULL);
@@ -4910,5 +4917,27 @@ void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
         SDL_GetWindowSizeInPixels(window, w, h);
     }
 }
+#else
+SDL_MetalView SDL_Metal_CreateView(SDL_Window *window)
+{
+    SDL_Unsupported();
+    return NULL;
+}
 
+void SDL_Metal_DestroyView(SDL_MetalView view)
+{
+    SDL_Unsupported();
+}
+
+void *SDL_Metal_GetLayer(SDL_MetalView view)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
+{
+    SDL_Unsupported();
+}
+#endif // SDL_VIDEO_METAL
 /* vi: set ts=4 sw=4 expandtab: */
