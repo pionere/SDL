@@ -31,6 +31,9 @@
 #include "SDL_vulkan_internal.h"
 
 /* The SDL video driver */
+#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
+#define SDL_VIDEO_OPENGL_ANY    1
+#endif
 
 typedef struct SDL_WindowShaper SDL_WindowShaper;
 typedef struct SDL_ShapeDriver SDL_ShapeDriver;
@@ -365,7 +368,12 @@ struct SDL_VideoDevice
 #ifdef SDL_VIDEO_DRIVER_WAYLAND
     Uint32 quirk_flags;
 #endif
-
+#ifdef SDL_VIDEO_VULKAN
+    /* * * */
+    /* Data used by the Vulkan drivers */
+    SDL_VulkanVideo vulkan_config;
+#endif
+#ifdef SDL_VIDEO_OPENGL_ANY
     /* * * */
     /* Data used by the GL drivers */
     struct
@@ -416,11 +424,7 @@ struct SDL_VideoDevice
      * with a NULL window, but a non-NULL context. (Not allowed in most cases,
      * except on EGL under some circumstances.) */
     SDL_bool gl_allow_no_surface;
-#ifdef SDL_VIDEO_VULKAN
-    /* * * */
-    /* Data used by the Vulkan drivers */
-    SDL_VulkanVideo vulkan_config;
-#endif
+
     /* * * */
     /* Data private to this driver */
     struct SDL_GLDriverData *gl_data;
@@ -428,6 +432,7 @@ struct SDL_VideoDevice
 #ifdef SDL_VIDEO_OPENGL_EGL
     struct SDL_EGL_VideoData *egl_data;
 #endif
+#endif // SDL_VIDEO_OPENGL_ANY
     /* * * */
     /* The function used to dispose of this structure */
     void (*free)(_THIS);

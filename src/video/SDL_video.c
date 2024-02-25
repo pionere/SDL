@@ -591,7 +591,7 @@ int SDL_VideoInit(const char *driver_name)
     _this->name = bootstrap[i]->name;
     _this->next_object_id = 1;
     _this->thread = SDL_ThreadID();
-
+#ifdef SDL_VIDEO_OPENGL_ANY
     /* Set some very sane GL defaults */
     _this->gl_config.driver_loaded = 0;
     _this->gl_config.dll_handle = NULL;
@@ -599,7 +599,7 @@ int SDL_VideoInit(const char *driver_name)
 
     _this->current_glwin_tls = SDL_TLSCreate();
     _this->current_glctx_tls = SDL_TLSCreate();
-
+#endif
     /* Initialize the video subsystem */
     if (_this->VideoInit(_this) < 0) {
         SDL_VideoQuit();
@@ -1710,6 +1710,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
 
     if (flags & SDL_WINDOW_OPENGL) {
+#ifdef SDL_VIDEO_OPENGL_ANY
         if (!_this->GL_CreateContext) {
             SDL_ContextNotSupported("OpenGL");
             return NULL;
@@ -1717,6 +1718,10 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
         if (SDL_GL_LoadLibrary(NULL) < 0) {
             return NULL;
         }
+#else
+            SDL_ContextNotSupported("OpenGL");
+            return NULL;
+#endif
     }
 
     if (flags & SDL_WINDOW_VULKAN) {
@@ -1875,6 +1880,7 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
     }
 
     if (SDL_GetHintBoolean(SDL_HINT_VIDEO_FOREIGN_WINDOW_OPENGL, SDL_FALSE)) {
+#ifdef SDL_VIDEO_OPENGL_ANY
         if (!_this->GL_CreateContext) {
             SDL_ContextNotSupported("OpenGL");
             return NULL;
@@ -1883,6 +1889,10 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
             return NULL;
         }
         flags |= SDL_WINDOW_OPENGL;
+#else
+            SDL_ContextNotSupported("OpenGL");
+            return NULL;
+#endif
     }
 
     if (SDL_GetHintBoolean(SDL_HINT_VIDEO_FOREIGN_WINDOW_VULKAN, SDL_FALSE)) {
@@ -1950,8 +1960,11 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         return SDL_SetError("Conflicting window flags specified");
     }
 
-    if ((flags & SDL_WINDOW_OPENGL) && !_this->GL_CreateContext) {
-        return SDL_ContextNotSupported("OpenGL");
+    if (flags & SDL_WINDOW_OPENGL) {
+#ifdef SDL_VIDEO_OPENGL_ANY
+        if (!_this->GL_CreateContext)
+#endif
+            return SDL_ContextNotSupported("OpenGL");
     }
     if (flags & SDL_WINDOW_VULKAN) {
 #ifdef SDL_VIDEO_VULKAN
@@ -3302,13 +3315,13 @@ void SDL_DestroyWindow(SDL_Window *window)
         SDL_SetMouseFocus(NULL);
     }
 
+#ifdef SDL_VIDEO_OPENGL_ANY
     /* make no context current if this is the current context window. */
-    if (window->flags & SDL_WINDOW_OPENGL) {
-        if (_this->current_glwin == window) {
-            SDL_GL_MakeCurrent(window, NULL);
-        }
+    if (_this->current_glwin == window) { // TODO: SDL_GL_GetCurrentWindow() == window ?
+        SDL_assert(window->flags & SDL_WINDOW_OPENGL);
+        SDL_GL_MakeCurrent(NULL, NULL);
     }
-
+#endif
     SDL_DestroyWindowSurface(window);
     if (_this->checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (_this->DestroyWindowFramebuffer) {
@@ -3332,10 +3345,6 @@ void SDL_DestroyWindow(SDL_Window *window)
 
     if (_this->grabbed_window == window) {
         _this->grabbed_window = NULL; /* ungrabbing input. */
-    }
-
-    if (_this->current_glwin == window) {
-        _this->current_glwin = NULL;
     }
 
     if (_this->wakeup_window == window) {
@@ -3446,7 +3455,7 @@ void SDL_VideoQuit(void)
     _this->free(_this);
     _this = NULL;
 }
-
+#ifdef SDL_VIDEO_OPENGL_ANY
 int SDL_GL_LoadLibrary(const char *path)
 {
     int retval;
@@ -3512,16 +3521,13 @@ void SDL_GL_UnloadLibrary(void)
     }
 }
 
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
 static SDL_INLINE SDL_bool isAtLeastGL3(const char *verstr)
 {
     return verstr && (SDL_atoi(verstr) >= 3);
 }
-#endif
 
 SDL_bool SDL_GL_ExtensionSupported(const char *extension)
 {
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
     const GLubyte *(APIENTRY * glGetStringFunc)(GLenum);
     const char *extensions;
     const char *start;
@@ -3600,9 +3606,6 @@ SDL_bool SDL_GL_ExtensionSupported(const char *extension)
         start = terminator;
     }
     return SDL_FALSE;
-#else
-    return SDL_FALSE;
-#endif
 }
 
 /* Deduce supported ES profile versions from the supported
@@ -3615,7 +3618,6 @@ void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor)
 {
 /* THIS REQUIRES AN EXISTING GL CONTEXT THAT HAS BEEN MADE CURRENT. */
 /*  Please refer to https://bugzilla.libsdl.org/show_bug.cgi?id=3725 for discussion. */
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
     /* XXX This is fragile; it will break in the event of release of
      * new versions of OpenGL ES.
      */
@@ -3632,7 +3634,6 @@ void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor)
         *major = 2;
         *minor = 0;
     }
-#endif
 }
 
 void SDL_GL_ResetAttributes(void)
@@ -3691,7 +3692,6 @@ void SDL_GL_ResetAttributes(void)
 
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
 {
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
     int retval;
 
     if (!_this) {
@@ -3810,14 +3810,10 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         break;
     }
     return retval;
-#else
-    return SDL_Unsupported();
-#endif /* SDL_VIDEO_OPENGL */
 }
 
 int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
 {
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
     GLenum(APIENTRY * glGetErrorFunc)(void);
     GLenum attrib = 0;
     GLenum error = 0;
@@ -4070,9 +4066,6 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
         return SDL_SetError("OpenGL error: %08X", error);
     }
     return 0;
-#else
-    return SDL_Unsupported();
-#endif /* SDL_VIDEO_OPENGL */
 }
 
 #define NOT_AN_OPENGL_WINDOW "The specified window isn't an OpenGL window"
@@ -4222,7 +4215,82 @@ void SDL_GL_DeleteContext(SDL_GLContext context)
 
     _this->GL_DeleteContext(_this, context);
 }
+#else
+int SDL_GL_LoadLibrary(const char *path)
+{
+    return SDL_DllNotSupported("OpenGL");
+}
+void *SDL_GL_GetProcAddress(const char *proc)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+void SDL_GL_UnloadLibrary(void)
+{
+}
+SDL_bool SDL_GL_ExtensionSupported(const char *extension)
+{
+    return SDL_FALSE;
+}
+void SDL_GL_ResetAttributes(void)
+{
+}
+int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
+{
+    return SDL_Unsupported();
+}
+int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
+{
+    return SDL_Unsupported();
+}
+SDL_GLContext SDL_GL_CreateContext(SDL_Window *window)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+int SDL_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
+{
+    return SDL_Unsupported();
+}
+SDL_Window *SDL_GL_GetCurrentWindow(void)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+SDL_GLContext SDL_GL_GetCurrentContext(void)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+void SDL_GL_GetDrawableSize(SDL_Window * window, int *w, int *h)
+{
+    SDL_Unsupported();
+}
+int SDL_GL_SetSwapInterval(int interval)
+{
+    return SDL_Unsupported();
+}
 
+int SDL_GL_GetSwapInterval(void)
+{
+    return 0;
+}
+
+int SDL_GL_SwapWindowWithResult(SDL_Window *window)
+{
+    return SDL_Unsupported();
+}
+
+void SDL_GL_SwapWindow(SDL_Window *window)
+{
+    SDL_GL_SwapWindowWithResult(window);
+}
+
+void SDL_GL_DeleteContext(SDL_GLContext context)
+{
+    SDL_Unsupported();
+}
+#endif // SDL_VIDEO_OPENGL_ANY
 #if 0 /* FIXME */
 /*
  * Utility function used by SDL_WM_SetIcon(); flags & 1 for color key, flags
@@ -4831,7 +4899,7 @@ void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 #else
 int SDL_Vulkan_LoadLibrary(const char *path)
 {
-    return SDL_Unsupported();
+    return SDL_DllNotSupported("Vulkan");
 }
 
 void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
