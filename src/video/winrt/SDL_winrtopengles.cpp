@@ -205,6 +205,54 @@ SDL_EGL_CreateContext_impl(WINRT)
         SDL_EGL_MakeCurrent_impl(WINRT)
 }
 
+extern "C" EGLSurface
+WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
+{
+    WinRT_VideoData *video_data = &winrtVideoData;
+    const SDL_WindowData *data = (const SDL_WindowData *)window->driverdata;
+    EGLSurface surface;
+    SDL_COMPILE_TIME_ASSERT(no_surface, EGL_NO_SURFACE == NULL);
+    /* Call SDL_EGL_ChooseConfig and eglCreateWindowSurface directly,
+     * rather than via SDL_EGL_CreateSurface, as older versions of
+     * ANGLE/WinRT may require that a C++ object, ComPtr<IUnknown>,
+     * be passed into eglCreateWindowSurface.
+     */
+    if (SDL_EGL_ChooseConfig(_this) != 0) {
+        /* SDL_EGL_ChooseConfig failed, SDL_GetError() should have info */
+        return EGL_NO_SURFACE;
+    }
+
+    if (video_data->winrtEglWindow) { /* ... is the 'old' version of ANGLE/WinRT being used? */
+        /* Attempt to create a window surface using older versions of
+         * ANGLE/WinRT:
+         */
+        Microsoft::WRL::ComPtr<IUnknown> cpp_winrtEglWindow = video_data->winrtEglWindow;
+        surface = ((eglCreateWindowSurface_Old_Function)_this->egl_data->eglCreateWindowSurface)(
+            _this->egl_data->egl_display,
+            _this->egl_data->egl_config,
+            cpp_winrtEglWindow, NULL);
+    } else if (data->coreWindow.Get() != nullptr) {
+        /* Attempt to create a window surface using newer versions of
+         * ANGLE/WinRT:
+         */
+        IInspectable *coreWindowAsIInspectable = reinterpret_cast<IInspectable *>(data->coreWindow.Get());
+        surface = _this->egl_data->eglCreateWindowSurface(
+            _this->egl_data->egl_display,
+            _this->egl_data->egl_config,
+            (NativeWindowType)coreWindowAsIInspectable,
+            NULL);
+    } else {
+        SDL_SetError("No supported means to create an EGL window surface are available");
+        return EGL_NO_SURFACE;
+    }
+
+    if (surface == EGL_NO_SURFACE) {
+        SDL_EGL_SetError("unable to create EGL native-window surface", "eglCreateWindowSurface");
+    }
+
+    return surface;
+}
+
 #endif /* SDL_VIDEO_DRIVER_WINRT && SDL_VIDEO_OPENGL_EGL */
 
 /* vi: set ts=4 sw=4 expandtab: */

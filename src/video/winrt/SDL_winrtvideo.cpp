@@ -625,58 +625,22 @@ int WINRT_CreateWindow(_THIS, SDL_Window *window)
 #endif
     }
 
-    /* Make note of the requested window flags, before they start getting changed. */
-    const Uint32 requestedFlags = window->flags;
-
 #ifdef SDL_VIDEO_OPENGL_EGL
     /* Setup the EGL surface, but only if OpenGL ES 2 was requested. */
     if (!(window->flags & SDL_WINDOW_OPENGL)) {
         /* OpenGL ES 2 wasn't requested.  Don't set up an EGL surface. */
         data->egl_surface = EGL_NO_SURFACE;
     } else {
-        /* OpenGL ES 2 was reuqested.  Set up an EGL surface. */
-        WinRT_VideoData *video_data = &winrtVideoData;
-
-        /* Call SDL_EGL_ChooseConfig and eglCreateWindowSurface directly,
-         * rather than via SDL_EGL_CreateSurface, as older versions of
-         * ANGLE/WinRT may require that a C++ object, ComPtr<IUnknown>,
-         * be passed into eglCreateWindowSurface.
-         */
-        if (SDL_EGL_ChooseConfig(_this) != 0) {
-            /* SDL_EGL_ChooseConfig failed, SDL_GetError() should have info */
+        /* OpenGL ES 2 was requested.  Set up an EGL surface. */
+        data->egl_surface = WINRT_GLES_CreateWindowSurface(_this, window);
+        if (data->egl_surface == EGL_NO_SURFACE) {
             return -1;
-        }
-
-        if (video_data->winrtEglWindow) { /* ... is the 'old' version of ANGLE/WinRT being used? */
-            /* Attempt to create a window surface using older versions of
-             * ANGLE/WinRT:
-             */
-            Microsoft::WRL::ComPtr<IUnknown> cpp_winrtEglWindow = video_data->winrtEglWindow;
-            data->egl_surface = ((eglCreateWindowSurface_Old_Function)_this->egl_data->eglCreateWindowSurface)(
-                _this->egl_data->egl_display,
-                _this->egl_data->egl_config,
-                cpp_winrtEglWindow, NULL);
-            if (data->egl_surface == NULL) {
-                return SDL_EGL_SetError("unable to create EGL native-window surface", "eglCreateWindowSurface");
-            }
-        } else if (data->coreWindow.Get() != nullptr) {
-            /* Attempt to create a window surface using newer versions of
-             * ANGLE/WinRT:
-             */
-            IInspectable *coreWindowAsIInspectable = reinterpret_cast<IInspectable *>(data->coreWindow.Get());
-            data->egl_surface = _this->egl_data->eglCreateWindowSurface(
-                _this->egl_data->egl_display,
-                _this->egl_data->egl_config,
-                (NativeWindowType)coreWindowAsIInspectable,
-                NULL);
-            if (data->egl_surface == NULL) {
-                return SDL_EGL_SetError("unable to create EGL native-window surface", "eglCreateWindowSurface");
-            }
-        } else {
-            return SDL_SetError("No supported means to create an EGL window surface are available");
         }
     }
 #endif
+
+    /* Make note of the requested window flags, before they start getting changed. */
+    const Uint32 requestedFlags = window->flags;
 
     /* Determine as many flags dynamically, as possible. */
     window->flags =
@@ -684,7 +648,7 @@ int WINRT_CreateWindow(_THIS, SDL_Window *window)
         SDL_WINDOW_RESIZABLE;
 
 #ifdef SDL_VIDEO_OPENGL_EGL
-    if (data->egl_surface) {
+    if (data->egl_surface != EGL_NO_SURFACE) {
         window->flags |= SDL_WINDOW_OPENGL;
     }
 #endif

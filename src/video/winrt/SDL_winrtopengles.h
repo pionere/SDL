@@ -39,6 +39,7 @@ extern void WINRT_GLES_UnloadLibrary(_THIS);
 extern SDL_GLContext WINRT_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int WINRT_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern int WINRT_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
+extern EGLSurface WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window);
 
 #ifdef __cplusplus
 
