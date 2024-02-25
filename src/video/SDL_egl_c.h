@@ -86,14 +86,14 @@ typedef struct SDL_EGL_VideoData
 
     const char *(EGLAPIENTRY *eglQueryString) (EGLDisplay dpy, EGLint name);
 
-    EGLenum(EGLAPIENTRY *eglQueryAPI)(void);
+    // EGLenum(EGLAPIENTRY *eglQueryAPI)(void);
 
     EGLBoolean(EGLAPIENTRY  *eglGetConfigAttrib) (EGLDisplay dpy, EGLConfig config,
                                      EGLint attribute, EGLint * value);
 
-    EGLBoolean(EGLAPIENTRY *eglWaitNative) (EGLint  engine);
+    // EGLBoolean(EGLAPIENTRY *eglWaitNative) (EGLint  engine);
 
-    EGLBoolean(EGLAPIENTRY *eglWaitGL)(void);
+    // EGLBoolean(EGLAPIENTRY *eglWaitGL)(void);
 
     EGLBoolean(EGLAPIENTRY *eglBindAPI)(EGLenum);
 
@@ -105,15 +105,15 @@ typedef struct SDL_EGL_VideoData
 
    /* Atomic functions */
 
-    EGLSyncKHR(EGLAPIENTRY *eglCreateSyncKHR)(EGLDisplay dpy, EGLenum type, const EGLint *attrib_list);
+    // EGLSyncKHR(EGLAPIENTRY *eglCreateSyncKHR)(EGLDisplay dpy, EGLenum type, const EGLint *attrib_list);
 
-    EGLBoolean(EGLAPIENTRY *eglDestroySyncKHR)(EGLDisplay dpy, EGLSyncKHR sync);
+    // EGLBoolean(EGLAPIENTRY *eglDestroySyncKHR)(EGLDisplay dpy, EGLSyncKHR sync);
 
-    EGLint(EGLAPIENTRY *eglDupNativeFenceFDANDROID)(EGLDisplay dpy, EGLSyncKHR sync);
+    // EGLint(EGLAPIENTRY *eglDupNativeFenceFDANDROID)(EGLDisplay dpy, EGLSyncKHR sync);
 
-    EGLint(EGLAPIENTRY *eglWaitSyncKHR)(EGLDisplay dpy, EGLSyncKHR sync, EGLint flags);
+    // EGLint(EGLAPIENTRY *eglWaitSyncKHR)(EGLDisplay dpy, EGLSyncKHR sync, EGLint flags);
 
-    EGLint(EGLAPIENTRY *eglClientWaitSyncKHR)(EGLDisplay dpy, EGLSyncKHR sync, EGLint flags, EGLTimeKHR timeout);
+    // EGLint(EGLAPIENTRY *eglClientWaitSyncKHR)(EGLDisplay dpy, EGLSyncKHR sync, EGLint flags, EGLTimeKHR timeout);
 
     /* Atomic functions end */
 } SDL_EGL_VideoData;

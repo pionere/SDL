@@ -58,8 +58,8 @@ int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
     LOAD_FUNC(eglMakeCurrent);
     LOAD_FUNC(eglSwapBuffers);
     LOAD_FUNC(eglSwapInterval);
-    LOAD_FUNC(eglWaitNative);
-    LOAD_FUNC(eglWaitGL);
+    // LOAD_FUNC(eglWaitNative);
+    // LOAD_FUNC(eglWaitGL);
     LOAD_FUNC(eglBindAPI);
     LOAD_FUNC(eglQueryString);
     LOAD_FUNC(eglGetError);

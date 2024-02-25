@@ -448,20 +448,20 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     LOAD_FUNC(eglMakeCurrent);
     LOAD_FUNC(eglSwapBuffers);
     LOAD_FUNC(eglSwapInterval);
-    LOAD_FUNC(eglWaitNative);
-    LOAD_FUNC(eglWaitGL);
+    // LOAD_FUNC(eglWaitNative);
+    // LOAD_FUNC(eglWaitGL);
     LOAD_FUNC(eglBindAPI);
-    LOAD_FUNC(eglQueryAPI);
+    // LOAD_FUNC(eglQueryAPI);
     LOAD_FUNC(eglQueryString);
     LOAD_FUNC(eglGetError);
     LOAD_FUNC_EGLEXT(eglQueryDevicesEXT);
     LOAD_FUNC_EGLEXT(eglGetPlatformDisplayEXT);
     /* Atomic functions */
-    LOAD_FUNC_EGLEXT(eglCreateSyncKHR);
-    LOAD_FUNC_EGLEXT(eglDestroySyncKHR);
-    LOAD_FUNC_EGLEXT(eglDupNativeFenceFDANDROID);
-    LOAD_FUNC_EGLEXT(eglWaitSyncKHR);
-    LOAD_FUNC_EGLEXT(eglClientWaitSyncKHR);
+    // LOAD_FUNC_EGLEXT(eglCreateSyncKHR);
+    // LOAD_FUNC_EGLEXT(eglDestroySyncKHR);
+    // LOAD_FUNC_EGLEXT(eglDupNativeFenceFDANDROID);
+    // LOAD_FUNC_EGLEXT(eglWaitSyncKHR);
+    // LOAD_FUNC_EGLEXT(eglClientWaitSyncKHR);
     /* Atomic functions end */
 
     if (path) {
