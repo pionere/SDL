@@ -924,14 +924,6 @@ static int KMSDRM_InitDisplays(void)
         }
     }
 
-    /* Have we added any SDL displays? */
-    if (!SDL_GetNumVideoDisplays()) {
-        if (!ret) {
-            ret = SDL_SetError("No connected displays found.");
-        }
-        goto cleanup;
-    }
-
     /* Determine if video hardware supports async pageflips. */
     ret = KMSDRM_drmGetCap(viddata->drm_fd, DRM_CAP_ASYNC_PAGE_FLIP, &async_pageflip);
     if (ret) {
@@ -939,25 +931,18 @@ static int KMSDRM_InitDisplays(void)
     }
     viddata->async_pageflip_support = async_pageflip ? SDL_TRUE : SDL_FALSE;
 
-    /***********************************/
-    /* Block for Vulkan compatibility. */
-    /***********************************/
-
-    /* THIS IS FOR VULKAN! Leave the FD closed, so VK can work.
-       Will reopen this in CreateWindow, but only if requested a non-VK window. */
-    close(viddata->drm_fd);
-    viddata->drm_fd = -1;
-
 cleanup:
     if (resources) {
         KMSDRM_drmModeFreeResources(resources);
     }
-    if (ret) {
+    // if (ret) {
         if (viddata->drm_fd >= 0) {
+            /* THIS IS FOR VULKAN! Leave the FD closed, so VK can work.
+               Will reopen this in CreateWindow, but only if requested a non-VK window. */
             close(viddata->drm_fd);
             viddata->drm_fd = -1;
         }
-    }
+    // }
     return ret;
 }
 
@@ -972,10 +957,12 @@ cleanup:
 static int KMSDRM_GBMInit(SDL_DisplayData *dispdata)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    int ret = 0;
 
     /* Reopen the FD! */
     viddata->drm_fd = open(viddata->devpath, O_RDWR | O_CLOEXEC);
+    if (viddata->drm_fd < 0) {
+        return SDL_SetError("Could not open %s", viddata->devpath);
+    }
 
     /* Set the FD we just opened as current DRM master. */
     KMSDRM_drmSetMaster(viddata->drm_fd);
@@ -983,12 +970,14 @@ static int KMSDRM_GBMInit(SDL_DisplayData *dispdata)
     /* Create the GBM device. */
     viddata->gbm_dev = KMSDRM_gbm_create_device(viddata->drm_fd);
     if (!viddata->gbm_dev) {
-        ret = SDL_SetError("Couldn't create gbm device.");
+        close(viddata->drm_fd);
+        viddata->drm_fd = -1;
+        return SDL_SetError("Couldn't create gbm device.");
     }
 
     viddata->gbm_init = SDL_TRUE;
 
-    return ret;
+    return 0;
 }
 
 /* Deinit the Vulkan-incompatible KMSDRM stuff. */
@@ -1234,7 +1223,6 @@ int KMSDRM_VideoInit(_THIS)
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "KMSDRM_VideoInit()");
 
-    viddata->video_init = SDL_FALSE;
     viddata->gbm_init = SDL_FALSE;
 
     /* Get KMSDRM resources info and store what we need. Getting and storing
@@ -1249,8 +1237,6 @@ int KMSDRM_VideoInit(_THIS)
 #elif defined(SDL_INPUT_WSCONS)
     SDL_WSCONS_Init();
 #endif
-
-    viddata->video_init = SDL_TRUE;
 
     return ret;
 }
@@ -1275,7 +1261,6 @@ void KMSDRM_VideoQuit(_THIS)
     viddata->windows = NULL;
     viddata->max_windows = 0;
     viddata->num_windows = 0;
-    viddata->video_init = SDL_FALSE;
 }
 
 /* Read modes from the connector modes, and store them in display->display_modes. */
@@ -1524,13 +1509,13 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
        extra window as a dummy surface when working with multiple contexts */
     if (viddata->num_windows >= viddata->max_windows) {
         unsigned int new_max_windows = viddata->max_windows + 1;
-        viddata->windows = (SDL_Window **)SDL_realloc(viddata->windows,
+        void *newWindows = SDL_realloc(viddata->windows,
                                                       new_max_windows * sizeof(SDL_Window *));
-        viddata->max_windows = new_max_windows;
-
-        if (!viddata->windows) {
+        if (!newWindows) {
             return SDL_OutOfMemory();
         }
+        viddata->windows = (SDL_Window **)newWindows;
+        viddata->max_windows = new_max_windows;
     }
 
     viddata->windows[viddata->num_windows++] = window;
