@@ -442,7 +442,9 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     LOAD_FUNC(eglGetConfigAttrib);
     LOAD_FUNC(eglCreateContext);
     LOAD_FUNC(eglDestroyContext);
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     LOAD_FUNC(eglCreatePbufferSurface);
+#endif
     LOAD_FUNC(eglCreateWindowSurface);
     LOAD_FUNC(eglDestroySurface);
     LOAD_FUNC(eglMakeCurrent);
@@ -454,7 +456,9 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     // LOAD_FUNC(eglQueryAPI);
     LOAD_FUNC(eglQueryString);
     LOAD_FUNC(eglGetError);
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     LOAD_FUNC_EGLEXT(eglQueryDevicesEXT);
+#endif
     LOAD_FUNC_EGLEXT(eglGetPlatformDisplayEXT);
     /* Atomic functions */
     // LOAD_FUNC_EGLEXT(eglCreateSyncKHR);
@@ -580,7 +584,7 @@ error:
    (eglInitialize() will fail) then attempt to automatically and silently select the next
    valid available GPU for EGL to use.
 */
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
 int SDL_EGL_InitializeOffscreen(_THIS, int device)
 {
     void *egl_devices[SDL_EGL_MAX_DEVICES];
@@ -660,7 +664,7 @@ int SDL_EGL_InitializeOffscreen(_THIS, int device)
 
     return 0;
 }
-
+#endif
 void SDL_EGL_SetRequiredVisualId(_THIS, int visual_id)
 {
     _this->egl_data->egl_required_visual_id = visual_id;
@@ -1265,7 +1269,7 @@ EGLSurface *SDL_EGL_CreateSurface(_THIS, NativeWindowType nw)
 
     return surface;
 }
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
 EGLSurface
 SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
 {
@@ -1286,7 +1290,7 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
         _this->egl_data->egl_config,
         attributes);
 }
-
+#endif
 void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface)
 {
     SDL_EGL_VideoData *egl_data = _this->egl_data;

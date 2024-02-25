@@ -67,10 +67,10 @@ typedef struct SDL_EGL_VideoData
                                    const EGLint * attrib_list);
 
     EGLBoolean(EGLAPIENTRY *eglDestroyContext) (EGLDisplay dpy, EGLContext ctx);
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     EGLSurface(EGLAPIENTRY *eglCreatePbufferSurface)(EGLDisplay dpy, EGLConfig config,
                                                      EGLint const* attrib_list);
-
+#endif
     EGLSurface(EGLAPIENTRY *eglCreateWindowSurface) (EGLDisplay dpy,
                                          EGLConfig config,
                                          NativeWindowType window,
@@ -98,11 +98,11 @@ typedef struct SDL_EGL_VideoData
     EGLBoolean(EGLAPIENTRY *eglBindAPI)(EGLenum);
 
     EGLint(EGLAPIENTRY *eglGetError)(void);
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     EGLBoolean(EGLAPIENTRY *eglQueryDevicesEXT)(EGLint max_devices,
                                             void **devices,
                                             EGLint *num_devices);
-
+#endif
    /* Atomic functions */
 
     // EGLSyncKHR(EGLAPIENTRY *eglCreateSyncKHR)(EGLDisplay dpy, EGLenum type, const EGLint *attrib_list);
@@ -140,11 +140,11 @@ extern int SDL_EGL_GetSwapInterval(_THIS);
 extern void SDL_EGL_DeleteContext(_THIS, SDL_GLContext context);
 extern EGLSurface *SDL_EGL_CreateSurface(_THIS, NativeWindowType nw);
 extern void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface);
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
 extern EGLSurface SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height);
 /* Assumes that LoadLibraryOnly() has succeeded */
 extern int SDL_EGL_InitializeOffscreen(_THIS, int device);
-
+#endif
 /* These need to be wrapped to get the surface for the window by the platform GLES implementation */
 extern SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface);
 extern int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context);

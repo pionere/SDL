@@ -35,6 +35,10 @@
 
 int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
 {
+    if (_this->egl_data) {
+        return SDL_SetError("EGL context already created");
+    }
+
     /*we can't load EGL dynamically*/
     _this->egl_data = (struct SDL_EGL_VideoData *) SDL_calloc(1, sizeof(SDL_EGL_VideoData));
     if (!_this->egl_data) {
@@ -49,10 +53,12 @@ int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
     LOAD_FUNC(eglGetDisplay);
     LOAD_FUNC(eglInitialize);
     LOAD_FUNC(eglTerminate);
+    // LOAD_FUNC(eglGetProcAddress);
     LOAD_FUNC(eglChooseConfig);
     LOAD_FUNC(eglGetConfigAttrib);
     LOAD_FUNC(eglCreateContext);
     LOAD_FUNC(eglDestroyContext);
+    // LOAD_FUNC(eglCreatePbufferSurface); -- not implemented
     LOAD_FUNC(eglCreateWindowSurface);
     LOAD_FUNC(eglDestroySurface);
     LOAD_FUNC(eglMakeCurrent);
@@ -61,16 +67,19 @@ int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
     // LOAD_FUNC(eglWaitNative);
     // LOAD_FUNC(eglWaitGL);
     LOAD_FUNC(eglBindAPI);
+    // LOAD_FUNC(eglQueryAPI);
     LOAD_FUNC(eglQueryString);
     LOAD_FUNC(eglGetError);
 
     _this->egl_data->egl_display = _this->egl_data->eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (!_this->egl_data->egl_display) {
-        return SDL_SetError("Could not get EGL display");
+        SDL_SetError("Could not get EGL display");
+        goto error;
     }
 
     if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-        return SDL_SetError("Could not initialize EGL");
+        SDL_SetError("Could not initialize EGL");
+        goto error;
     }
 
     if (path) {
@@ -80,6 +89,9 @@ int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
     }
 
     return 0;
+error:
+    SDL_EGL_UnloadLibrary(_this);
+    return -1;
 }
 
 SDL_EGL_CreateContext_impl(Emscripten)
