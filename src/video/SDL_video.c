@@ -1720,6 +1720,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
 
     if (flags & SDL_WINDOW_VULKAN) {
+#ifdef SDL_VIDEO_VULKAN
         if (!_this->Vulkan_CreateSurface) {
             SDL_ContextNotSupported("Vulkan");
             return NULL;
@@ -1727,6 +1728,10 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
         if (SDL_Vulkan_LoadLibrary(NULL) < 0) {
             return NULL;
         }
+#else
+            SDL_ContextNotSupported("Vulkan");
+            return NULL;
+#endif
     }
 
     if (flags & SDL_WINDOW_METAL) {
@@ -1877,6 +1882,7 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
     }
 
     if (SDL_GetHintBoolean(SDL_HINT_VIDEO_FOREIGN_WINDOW_VULKAN, SDL_FALSE)) {
+#ifdef SDL_VIDEO_VULKAN
         if (!_this->Vulkan_CreateSurface) {
             SDL_ContextNotSupported("Vulkan");
             return NULL;
@@ -1889,6 +1895,10 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
             return NULL;
         }
         flags |= SDL_WINDOW_VULKAN;
+#else
+            SDL_ContextNotSupported("Vulkan");
+            return NULL;
+#endif
     }
 
     window = (SDL_Window *)SDL_calloc(1, sizeof(*window));
@@ -1939,8 +1949,11 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     if ((flags & SDL_WINDOW_OPENGL) && !_this->GL_CreateContext) {
         return SDL_ContextNotSupported("OpenGL");
     }
-    if ((flags & SDL_WINDOW_VULKAN) && !_this->Vulkan_CreateSurface) {
-        return SDL_ContextNotSupported("Vulkan");
+    if (flags & SDL_WINDOW_VULKAN) {
+#ifdef SDL_VIDEO_VULKAN
+        if (!_this->Vulkan_CreateSurface)
+#endif
+            return SDL_ContextNotSupported("Vulkan");
     }
     if ((flags & SDL_WINDOW_METAL) && !_this->Metal_CreateView) {
         return SDL_ContextNotSupported("Metal");
@@ -4695,14 +4708,14 @@ void SDL_OnApplicationDidBecomeActive(void)
     }
 }
 
+#ifdef SDL_VIDEO_VULKAN
 #define NOT_A_VULKAN_WINDOW "The specified window isn't a Vulkan window"
 
 int SDL_Vulkan_LoadLibrary(const char *path)
 {
     int retval;
     if (!_this) {
-        SDL_UninitializedVideo();
-        return -1;
+        return SDL_UninitializedVideo();
     }
     if (_this->vulkan_config.loader_loaded) {
         if (path && SDL_strcmp(path, _this->vulkan_config.loader_path) != 0) {
@@ -4808,6 +4821,42 @@ void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
         SDL_GetWindowSizeInPixels(window, w, h);
     }
 }
+#else
+int SDL_Vulkan_LoadLibrary(const char *path)
+{
+    return SDL_Unsupported();
+}
+
+void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+void SDL_Vulkan_UnloadLibrary(void)
+{
+    SDL_Unsupported();
+}
+
+SDL_bool SDL_Vulkan_GetInstanceExtensions(SDL_Window *window, unsigned *count, const char **names)
+{
+    SDL_Unsupported();
+    return SDL_FALSE;
+}
+
+SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
+                                  VkInstance instance,
+                                  VkSurfaceKHR *surface)
+{
+    SDL_Unsupported();
+    return SDL_FALSE;
+}
+
+void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
+{
+    SDL_Unsupported();
+}
+#endif // SDL_VIDEO_VULKAN
 
 SDL_MetalView SDL_Metal_CreateView(SDL_Window *window)
 {

@@ -144,6 +144,7 @@ struct SDL_VideoDisplay
 /* Forward declaration */
 struct SDL_SysWMinfo;
 
+#ifdef SDL_VIDEO_VULKAN
 /* * * */
 /* Data used by the Vulkan drivers */
 typedef struct SDL_VulkanVideo
@@ -154,6 +155,7 @@ typedef struct SDL_VulkanVideo
     char loader_path[256];
     void *loader_handle;
 } SDL_VulkanVideo;
+#endif
 
 /* Define the SDL video driver structure */
 #define _THIS SDL_VideoDevice *_this
@@ -285,7 +287,7 @@ struct SDL_VideoDevice
     int (*GL_SwapWindow) (_THIS, SDL_Window * window);
     void (*GL_DeleteContext) (_THIS, SDL_GLContext context);
     void (*GL_DefaultProfileConfig) (_THIS, int *mask, int *major, int *minor);
-
+#ifdef SDL_VIDEO_VULKAN
     /* * * */
     /*
      * Vulkan support
@@ -295,7 +297,7 @@ struct SDL_VideoDevice
     SDL_bool (*Vulkan_GetInstanceExtensions)(SDL_Window *window, unsigned *count, const char **names);
     SDL_bool (*Vulkan_CreateSurface)(SDL_VulkanVideo *vulkan_config, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
     void (*Vulkan_GetDrawableSize)(SDL_Window *window, int *w, int *h);
-
+#endif
     /* * * */
     /*
      * Metal support
@@ -413,11 +415,11 @@ struct SDL_VideoDevice
      * with a NULL window, but a non-NULL context. (Not allowed in most cases,
      * except on EGL under some circumstances.) */
     SDL_bool gl_allow_no_surface;
-
+#ifdef SDL_VIDEO_VULKAN
     /* * * */
     /* Data used by the Vulkan drivers */
     SDL_VulkanVideo vulkan_config;
-
+#endif
     /* * * */
     /* Data private to this driver */
     struct SDL_GLDriverData *gl_data;
