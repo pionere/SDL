@@ -300,7 +300,9 @@ void SDL_EGL_UnloadLibrary(_THIS)
 
 static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 {
+#if !defined(SDL_VIDEO_STATIC_ANGLE) && !defined(SDL_VIDEO_DRIVER_VITA)
     void *egl_dll_handle = NULL, *opengl_dll_handle = NULL;
+#endif
     const char *path = NULL;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) || defined(SDL_VIDEO_DRIVER_WINRT)
     const char *d3dcompiler;
@@ -387,8 +389,6 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
         }
 #endif
     }
-    _this->egl_data->opengl_dll_handle = opengl_dll_handle;
-
     if (!opengl_dll_handle) {
         return SDL_SetError("Could not initialize OpenGL / GLES library");
     }
@@ -396,12 +396,13 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     /* Loading libGL* in the previous step took care of loading libEGL.so, but we future proof by double checking */
     if (egl_path) {
         egl_dll_handle = SDL_LoadObject(egl_path);
+        if (egl_dll_handle && SDL_LoadFunction(egl_dll_handle, "eglChooseConfig") == NULL) {
+            SDL_UnloadObject(egl_dll_handle);
+            egl_dll_handle = NULL;
+        }
     }
     /* Try loading a EGL symbol, if it does not work try the default library paths */
-    if (!egl_dll_handle || SDL_LoadFunction(egl_dll_handle, "eglChooseConfig") == NULL) {
-        if (egl_dll_handle) {
-            SDL_UnloadObject(egl_dll_handle);
-        }
+    if (!egl_dll_handle) {
         path = SDL_getenv("SDL_VIDEO_EGL_DRIVER");
         if (!path) {
             path = DEFAULT_EGL;
@@ -415,19 +416,21 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
         }
 #endif
 
-        if (!egl_dll_handle || SDL_LoadFunction(egl_dll_handle, "eglChooseConfig") == NULL) {
-            if (egl_dll_handle) {
-                SDL_UnloadObject(egl_dll_handle);
-            }
-            return SDL_SetError("Could not load EGL library");
+        if (egl_dll_handle && SDL_LoadFunction(egl_dll_handle, "eglChooseConfig") != NULL) {
+            SDL_ClearError();
+        } else {
+            SDL_UnloadObject(egl_dll_handle);
+            egl_dll_handle = NULL;
         }
-        SDL_ClearError();
     }
-#endif
-
-    _this->egl_data->egl_dll_handle = egl_dll_handle;
-#ifdef SDL_VIDEO_DRIVER_VITA
+    if (!egl_dll_handle) {
+        if (opengl_dll_handle) {
+            SDL_UnloadObject(opengl_dll_handle);
+        }
+        return SDL_SetError("Could not load EGL library");
+    }
     _this->egl_data->opengl_dll_handle = opengl_dll_handle;
+    _this->egl_data->egl_dll_handle = egl_dll_handle;
 #endif
 
     /* Load new function pointers */
@@ -472,6 +475,7 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 
 int SDL_EGL_LoadLibraryOnly(_THIS, const char *egl_path)
 {
+    int result;
     if (_this->egl_data) {
         return SDL_SetError("EGL context already created");
     }
@@ -481,12 +485,12 @@ int SDL_EGL_LoadLibraryOnly(_THIS, const char *egl_path)
         return SDL_OutOfMemory();
     }
 
-    if (SDL_EGL_LoadLibraryInternal(_this, egl_path) < 0) {
+    result = SDL_EGL_LoadLibraryInternal(_this, egl_path);
+    if (result < 0) {
         SDL_free(_this->egl_data);
         _this->egl_data = NULL;
-        return -1;
     }
-    return 0;
+    return result;
 }
 
 static void SDL_EGL_GetVersion(SDL_EGL_VideoData *egl_data)
@@ -546,15 +550,13 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
         _this->egl_data->egl_display = _this->egl_data->eglGetDisplay(native_display);
     }
     if (_this->egl_data->egl_display == EGL_NO_DISPLAY) {
-        _this->gl_config.driver_loaded = 0;
-        *_this->gl_config.driver_path = '\0';
-        return SDL_SetError("Could not get EGL display");
+        SDL_SetError("Could not get EGL display");
+        goto error;
     }
 
     if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-        _this->gl_config.driver_loaded = 0;
-        *_this->gl_config.driver_path = '\0';
-        return SDL_SetError("Could not initialize EGL");
+        SDL_SetError("Could not initialize EGL");
+        goto error;
     }
 #endif
 
@@ -564,6 +566,11 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
     _this->egl_data->is_offscreen = SDL_FALSE;
 
     return 0;
+error:
+    SDL_EGL_UnloadLibrary(_this);
+    _this->gl_config.driver_loaded = 0;
+    *_this->gl_config.driver_path = '\0';
+    return -1;
 }
 
 /**
