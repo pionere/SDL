@@ -51,11 +51,7 @@ int WIN_GLES_LoadLibrary(_THIS, const char *path)
 #endif
     }
 
-    if (!_this->egl_data) {
-        return SDL_EGL_LoadLibrary(_this, NULL, EGL_DEFAULT_DISPLAY, 0);
-    }
-
-    return 0;
+    return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
 SDL_GLContext WIN_GLES_CreateContext(_THIS, SDL_Window *window)
