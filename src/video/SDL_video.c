@@ -1946,12 +1946,11 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
 
 int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 {
-    SDL_bool loaded_opengl = SDL_FALSE;
-    SDL_bool need_gl_unload = SDL_FALSE;
-    SDL_bool need_gl_load = SDL_FALSE;
-    SDL_bool loaded_vulkan = SDL_FALSE;
-    SDL_bool need_vulkan_unload = SDL_FALSE;
-    SDL_bool need_vulkan_load = SDL_FALSE;
+    SDL_bool gl_unload = SDL_FALSE;
+    SDL_bool gl_load = SDL_FALSE;
+    SDL_bool vulkan_unload = SDL_FALSE;
+    SDL_bool vulkan_load = SDL_FALSE;
+    SDL_bool foreign_win; // whether the old window is foreign (same as whether the new window is foreign at the moment)
     Uint32 graphics_flags;
 
     /* ensure no more than one of these flags is set */
@@ -1979,7 +1978,8 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
             return SDL_ContextNotSupported("Metal");
     }
 
-    if (window->flags & SDL_WINDOW_FOREIGN) {
+    foreign_win = (window->flags & SDL_WINDOW_FOREIGN) ? SDL_TRUE : SDL_FALSE;
+    if (foreign_win) {
         /* Can't destroy and re-create foreign windows, hrm */
         flags |= SDL_WINDOW_FOREIGN;
     } else {
@@ -1987,7 +1987,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     }
 
     /* Restore video mode, etc. */
-    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+    if (!foreign_win) { // (!(window->flags & SDL_WINDOW_FOREIGN)) {
         SDL_HideWindow(window);
     }
 
@@ -2000,65 +2000,63 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         }
     }
 
-    if (_this->DestroyWindow && !(flags & SDL_WINDOW_FOREIGN)) {
+    if (_this->DestroyWindow && !foreign_win) { // !(flags & SDL_WINDOW_FOREIGN)) {
         _this->DestroyWindow(_this, window);
     }
 
     if ((window->flags & SDL_WINDOW_OPENGL) != (flags & SDL_WINDOW_OPENGL)) {
         if (flags & SDL_WINDOW_OPENGL) {
-            need_gl_load = SDL_TRUE;
+            gl_load = SDL_TRUE;
         } else {
-            need_gl_unload = SDL_TRUE;
+            gl_unload = SDL_TRUE;
         }
-    } else if (window->flags & SDL_WINDOW_OPENGL) {
-        need_gl_unload = SDL_TRUE;
-        need_gl_load = SDL_TRUE;
+    } else if (flags & SDL_WINDOW_OPENGL) {
+        gl_unload = SDL_TRUE;
+        gl_load = SDL_TRUE;
     }
 
     if ((window->flags & SDL_WINDOW_VULKAN) != (flags & SDL_WINDOW_VULKAN)) {
         if (flags & SDL_WINDOW_VULKAN) {
-            need_vulkan_load = SDL_TRUE;
+            vulkan_load = SDL_TRUE;
         } else {
-            need_vulkan_unload = SDL_TRUE;
+            vulkan_unload = SDL_TRUE;
         }
-    } else if (window->flags & SDL_WINDOW_VULKAN) {
-        need_vulkan_unload = SDL_TRUE;
-        need_vulkan_load = SDL_TRUE;
+    } else if (flags & SDL_WINDOW_VULKAN) {
+        vulkan_unload = SDL_TRUE;
+        vulkan_load = SDL_TRUE;
     }
 
-    if (need_gl_unload) {
+    if (gl_unload) {
         SDL_GL_UnloadLibrary();
     }
 
-    if (need_vulkan_unload) {
+    if (vulkan_unload) {
         SDL_Vulkan_UnloadLibrary();
     }
 
-    if (need_gl_load) {
+    if (gl_load) {
         if (SDL_GL_LoadLibrary(NULL) < 0) {
             return -1;
         }
-        loaded_opengl = SDL_TRUE;
     }
 
-    if (need_vulkan_load) {
+    if (vulkan_load) {
         if (SDL_Vulkan_LoadLibrary(NULL) < 0) {
             return -1;
         }
-        loaded_vulkan = SDL_TRUE;
     }
 
     window->flags = ((flags & CREATE_FLAGS) | SDL_WINDOW_HIDDEN);
     window->last_fullscreen_flags = window->flags;
     window->is_destroying = SDL_FALSE;
 
-    if (_this->CreateSDLWindow && !(flags & SDL_WINDOW_FOREIGN)) {
+    if (_this->CreateSDLWindow && !foreign_win) { // !(flags & SDL_WINDOW_FOREIGN)) {
         if (_this->CreateSDLWindow(_this, window) < 0) {
-            if (loaded_opengl) {
+            if (gl_load) {
                 SDL_GL_UnloadLibrary();
                 window->flags &= ~SDL_WINDOW_OPENGL;
             }
-            if (loaded_vulkan) {
+            if (vulkan_load) {
                 SDL_Vulkan_UnloadLibrary();
                 window->flags &= ~SDL_WINDOW_VULKAN;
             }
@@ -2066,7 +2064,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         }
     }
 
-    if (flags & SDL_WINDOW_FOREIGN) {
+    if (foreign_win) { // if (flags & SDL_WINDOW_FOREIGN) {
         window->flags |= SDL_WINDOW_FOREIGN;
     }
 
