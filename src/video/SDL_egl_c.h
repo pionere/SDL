@@ -44,12 +44,14 @@ typedef struct SDL_EGL_VideoData
     EGLenum apitype;  /* EGL_OPENGL_ES_API, EGL_OPENGL_API, etc */
 
     EGLDisplay(EGLAPIENTRY *eglGetDisplay) (NativeDisplayType display);
+#if !defined(__WINRT__) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
     EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplay) (EGLenum platform,
                                 void *native_display,
                                 const EGLint *attrib_list);
     EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplayEXT) (EGLenum platform,
                                 void *native_display,
                                 const EGLint *attrib_list);
+#endif
     EGLBoolean(EGLAPIENTRY *eglInitialize) (EGLDisplay dpy, EGLint * major,
                                 EGLint * minor);
     EGLBoolean(EGLAPIENTRY  *eglTerminate) (EGLDisplay dpy);

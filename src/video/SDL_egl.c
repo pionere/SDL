@@ -116,7 +116,11 @@
 #define EGL_PLATFORM_DEVICE_EXT 0x0
 #endif
 
-#if defined(SDL_VIDEO_STATIC_ANGLE) || defined(SDL_VIDEO_DRIVER_VITA)
+#if defined(SDL_VIDEO_DRIVER_VITA) || defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
+#define SDL_VIDEO_STATIC_ANGLE 1
+#endif
+
+#ifdef SDL_VIDEO_STATIC_ANGLE
 #define LOAD_FUNC(NAME) \
     _this->egl_data->NAME = (void *)NAME;
 #else
@@ -300,10 +304,9 @@ void SDL_EGL_UnloadLibrary(_THIS)
 
 static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 {
-#if !defined(SDL_VIDEO_STATIC_ANGLE) && !defined(SDL_VIDEO_DRIVER_VITA)
-    void *egl_dll_handle = NULL, *opengl_dll_handle = NULL;
-#endif
     const char *path = NULL;
+#ifndef SDL_VIDEO_STATIC_ANGLE
+    void *egl_dll_handle = NULL, *opengl_dll_handle = NULL;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) || defined(SDL_VIDEO_DRIVER_WINRT)
     const char *d3dcompiler;
 #endif
@@ -342,7 +345,6 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     }
 #endif
 
-#if !defined(SDL_VIDEO_STATIC_ANGLE) && !defined(SDL_VIDEO_DRIVER_VITA)
     /* A funny thing, loading EGL.so first does not work on the Raspberry, so we load libGL* first */
     path = SDL_getenv("SDL_VIDEO_GL_DRIVER");
     if (path) {
@@ -431,19 +433,26 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     }
     _this->egl_data->opengl_dll_handle = opengl_dll_handle;
     _this->egl_data->egl_dll_handle = egl_dll_handle;
-#endif
+#endif // SDL_VIDEO_STATIC_ANGLE
 
     /* Load new function pointers */
     LOAD_FUNC(eglGetDisplay);
     LOAD_FUNC(eglInitialize);
     LOAD_FUNC(eglTerminate);
+#ifdef SDL_VIDEO_DRIVER_EMSCRIPTEN
+    /* Emscripten forces you to manually cast eglGetProcAddress to the real
+       function type; grep for "__eglMustCastToProperFunctionPointerType" in
+       Emscripten's egl.h for details. */
+    _this->egl_data->eglGetProcAddress = (void *(EGLAPIENTRY *)(const char *)) eglGetProcAddress;
+#else
     LOAD_FUNC(eglGetProcAddress);
+#endif
     LOAD_FUNC(eglChooseConfig);
     LOAD_FUNC(eglGetConfigAttrib);
     LOAD_FUNC(eglCreateContext);
     LOAD_FUNC(eglDestroyContext);
 #ifdef SDL_VIDEO_DRIVER_OFFSCREEN
-    LOAD_FUNC(eglCreatePbufferSurface);
+    LOAD_FUNC(eglCreatePbufferSurface); // not implemented in SDL_VIDEO_DRIVER_EMSCRIPTEN
 #endif
     LOAD_FUNC(eglCreateWindowSurface);
     LOAD_FUNC(eglDestroySurface);
@@ -459,7 +468,9 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 #ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     LOAD_FUNC_EGLEXT(eglQueryDevicesEXT);
 #endif
+#if !defined(__WINRT__) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
     LOAD_FUNC_EGLEXT(eglGetPlatformDisplayEXT);
+#endif
     /* Atomic functions */
     // LOAD_FUNC_EGLEXT(eglCreateSyncKHR);
     // LOAD_FUNC_EGLEXT(eglDestroySyncKHR);
@@ -523,7 +534,7 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
     _this->egl_data->egl_display = EGL_NO_DISPLAY;
 
 #if !defined(__WINRT__)
-#if !defined(SDL_VIDEO_DRIVER_VITA)
+#if !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
     if (platform) {
         /* EGL 1.5 allows querying for client version with EGL_NO_DISPLAY
          * --

@@ -35,63 +35,7 @@
 
 int Emscripten_GLES_LoadLibrary(_THIS, const char *path)
 {
-    if (_this->egl_data) {
-        return SDL_SetError("EGL context already created");
-    }
-
-    /*we can't load EGL dynamically*/
-    _this->egl_data = (struct SDL_EGL_VideoData *) SDL_calloc(1, sizeof(SDL_EGL_VideoData));
-    if (!_this->egl_data) {
-        return SDL_OutOfMemory();
-    }
-
-    /* Emscripten forces you to manually cast eglGetProcAddress to the real
-       function type; grep for "__eglMustCastToProperFunctionPointerType" in
-       Emscripten's egl.h for details. */
-    _this->egl_data->eglGetProcAddress = (void *(EGLAPIENTRY *)(const char *)) eglGetProcAddress;
-
-    LOAD_FUNC(eglGetDisplay);
-    LOAD_FUNC(eglInitialize);
-    LOAD_FUNC(eglTerminate);
-    // LOAD_FUNC(eglGetProcAddress);
-    LOAD_FUNC(eglChooseConfig);
-    LOAD_FUNC(eglGetConfigAttrib);
-    LOAD_FUNC(eglCreateContext);
-    LOAD_FUNC(eglDestroyContext);
-    // LOAD_FUNC(eglCreatePbufferSurface); -- not implemented
-    LOAD_FUNC(eglCreateWindowSurface);
-    LOAD_FUNC(eglDestroySurface);
-    LOAD_FUNC(eglMakeCurrent);
-    LOAD_FUNC(eglSwapBuffers);
-    LOAD_FUNC(eglSwapInterval);
-    // LOAD_FUNC(eglWaitNative);
-    // LOAD_FUNC(eglWaitGL);
-    LOAD_FUNC(eglBindAPI);
-    // LOAD_FUNC(eglQueryAPI);
-    LOAD_FUNC(eglQueryString);
-    LOAD_FUNC(eglGetError);
-
-    _this->egl_data->egl_display = _this->egl_data->eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (!_this->egl_data->egl_display) {
-        SDL_SetError("Could not get EGL display");
-        goto error;
-    }
-
-    if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-        SDL_SetError("Could not initialize EGL");
-        goto error;
-    }
-
-    if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, sizeof(_this->gl_config.driver_path) - 1);
-    } else {
-        *_this->gl_config.driver_path = '\0';
-    }
-
-    return 0;
-error:
-    SDL_EGL_UnloadLibrary(_this);
-    return -1;
+    return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
 SDL_EGL_CreateContext_impl(Emscripten)
