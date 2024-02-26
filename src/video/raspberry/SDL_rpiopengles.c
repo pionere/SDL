@@ -45,8 +45,7 @@ int RPI_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *wdata = ((SDL_WindowData *)window->driverdata);
 
-    if (!(_this->egl_data->eglSwapBuffers(_this->egl_data->egl_display, wdata->egl_surface))) {
-        SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "eglSwapBuffers failed.");
+    if (SDL_EGL_SwapBuffers(_this, wdata->egl_surface) < 0) {
         return 0;
     }
 

@@ -127,9 +127,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
 
     /* Mark a buffer to become the next front buffer.
        This won't happen until pagelip completes. */
-    if (!(_this->egl_data->eglSwapBuffers(_this->egl_data->egl_display,
-                                          windata->egl_surface))) {
-        SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "eglSwapBuffers failed");
+    if (SDL_EGL_SwapBuffers(_this, windata->egl_surface) < 0) {
         return 0;
     }
 
@@ -174,7 +172,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
            That makes it flip immediately, without waiting for the next vblank
            to do so, so even if we don't block on EGL, the flip will have completed
            when we get here again. */
-        if (_this->egl_data->egl_swapinterval == 0 && viddata->async_pageflip_support) {
+        if (SDL_EGL_GetSwapInterval(_this) == 0 && viddata->async_pageflip_support) {
             flip_flags |= DRM_MODE_PAGE_FLIP_ASYNC;
         }
 

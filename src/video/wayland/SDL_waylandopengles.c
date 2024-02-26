@@ -94,21 +94,11 @@ int Wayland_GLES_SetSwapInterval(_THIS, int interval)
     return 0;
 }
 
-int Wayland_GLES_GetSwapInterval(_THIS)
-{
-    if (!_this->egl_data) {
-        SDL_SetError("EGL not initialized");
-        return 0;
-    }
-
-    return _this->egl_data->egl_swapinterval;
-}
-
 int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
     Wayland_VideoData *videodata = &waylandVideoData;
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    const int swap_interval = _this->egl_data->egl_swapinterval;
+    const int swap_interval = SDL_EGL_GetSwapInterval(_this);
 
     /* For windows that we know are hidden, skip swaps entirely, if we don't do
      * this compositors will intentionally stall us indefinitely and there's no
@@ -164,8 +154,8 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
     }
 
     /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
-    if (!_this->egl_data->eglSwapBuffers(_this->egl_data->egl_display, data->egl_surface)) {
-        return SDL_EGL_SetError("unable to show color buffer in an OS-native window", "eglSwapBuffers");
+    if (SDL_EGL_SwapBuffers(_this, data->egl_surface) < 0) {
+        return -1;
     }
 
     WAYLAND_wl_display_flush(videodata->display);
