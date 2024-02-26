@@ -55,14 +55,18 @@ static const int ANGLE_D3D_FEATURE_LEVEL_ANY = 0;
 extern "C" int
 WINRT_GLES_LoadLibrary(_THIS, const char *path)
 {
+    int result;
     WinRT_VideoData *video_data = &winrtVideoData;
+    SDL_EGL_VideoData *egl_data;
 
-    if (SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0) != 0) {
-        return -1;
+    result = SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
+    if (result != 0) {
+        return result;
     }
 
+    egl_data = _this->egl_data;
     /* Load ANGLE/WinRT-specific functions */
-    CreateWinrtEglWindow_Old_Function CreateWinrtEglWindow = (CreateWinrtEglWindow_Old_Function)SDL_LoadFunction(_this->egl_data->opengl_dll_handle, "CreateWinrtEglWindow");
+    CreateWinrtEglWindow_Old_Function CreateWinrtEglWindow = (CreateWinrtEglWindow_Old_Function)SDL_LoadFunction(egl_data->opengl_dll_handle, "CreateWinrtEglWindow");
     if (CreateWinrtEglWindow) {
         /* 'CreateWinrtEglWindow' was found, which means that an an older
          * version of ANGLE/WinRT is being used.  Continue setting up EGL,
@@ -75,7 +79,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
         Microsoft::WRL::ComPtr<IUnknown> cpp_win = reinterpret_cast<IUnknown *>(native_win);
         HRESULT result = CreateWinrtEglWindow(cpp_win, ANGLE_D3D_FEATURE_LEVEL_ANY, &(video_data->winrtEglWindow));
         if (FAILED(result)) {
-            return -1;
+            return SDL_SetError("Could not create an EGL-window");
         }
 
         /* Call eglGetDisplay and eglInitialize as appropriate.  On other
@@ -85,14 +89,8 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          * call will be made in this file, a C++ file, instead.
          */
         Microsoft::WRL::ComPtr<IUnknown> cpp_display = video_data->winrtEglWindow;
-        _this->egl_data->egl_display = ((eglGetDisplay_Old_Function)_this->egl_data->eglGetDisplay)(cpp_display);
-        if (!_this->egl_data->egl_display) {
-            return SDL_EGL_SetError("Could not get Windows 8.0 EGL display", "eglGetDisplay");
-        }
-
-        if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-            return SDL_EGL_SetError("Could not initialize Windows 8.0 EGL", "eglInitialize");
-        }
+        EGLDisplay display = ((eglGetDisplay_Old_Function)egl_data->eglGetDisplay)(cpp_display);
+        return SDL_EGL_InitializeDisplay(egl_data, display); // setup Windows 8.0 EGL display
     } else {
         /* Declare some ANGLE/EGL initialization property-sets, as suggested by
          * MSOpenTech's ANGLE-for-WinRT template apps:
@@ -139,7 +137,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          *
          * Try loading ANGLE as if it were the newer version.
          */
-        eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)_this->egl_data->eglGetProcAddress("eglGetPlatformDisplayEXT");
+        eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)egl_data->eglGetProcAddress("eglGetPlatformDisplayEXT");
         if (!eglGetPlatformDisplayEXT) {
             return SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetProcAddress");
         }
@@ -148,36 +146,24 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
         /* Try initializing EGL at D3D11 Feature Level 10_0+ (which is not
          * supported on WinPhone 8.x.
          */
-        _this->egl_data->egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, defaultDisplayAttributes);
-        if (!_this->egl_data->egl_display) {
-            return SDL_EGL_SetError("Could not get EGL display for Direct3D 10_0+", "eglGetPlatformDisplayEXT");
-        }
-
-        if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE)
-#endif
+        EGLDisplay display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, defaultDisplayAttributes);
+        if (SDL_EGL_InitializeDisplay(egl_data, display) < 0) { // Could not get/initialize EGL display for Direct3D 10_0+
+#else
         {
+#endif
             /* Try initializing EGL at D3D11 Feature Level 9_3, in case the
              * 10_0 init fails, or we're on Windows Phone (which only supports
              * 9_3).
              */
-            _this->egl_data->egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, fl9_3DisplayAttributes);
-            if (!_this->egl_data->egl_display) {
-                return SDL_EGL_SetError("Could not get EGL display for Direct3D 9_3", "eglGetPlatformDisplayEXT");
-            }
-
-            if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
+            display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, fl9_3DisplayAttributes);
+            if (SDL_EGL_InitializeDisplay(egl_data, display) < 0) { // Could not get/initialize EGL display for Direct3D 9_3
                 /* Try initializing EGL at D3D11 Feature Level 11_0 on WARP
                  * (a Windows-provided, software rasterizer) if all else fails.
                  */
-                _this->egl_data->egl_display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warpDisplayAttributes);
-                if (!_this->egl_data->egl_display) {
-                    return SDL_EGL_SetError("Could not get EGL display for Direct3D WARP", "eglGetPlatformDisplayEXT");
-                }
-
-                if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-                    return SDL_EGL_SetError("Could not initialize WinRT 8.x+ EGL", "eglInitialize");
-                }
+                display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warpDisplayAttributes);
+                return SDL_EGL_InitializeDisplay(egl_data, display); // setup WinRT 8.x+ EGL display
             }
+            SDL_ClearError();
         }
     }
 

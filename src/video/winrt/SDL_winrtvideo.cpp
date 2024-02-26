@@ -97,9 +97,6 @@ SDL_Window *WINRT_GlobalSDLWindow = NULL;
 
 static void WINRT_DeleteDevice(SDL_VideoDevice *device)
 {
-    if (winrtVideoData.winrtEglWindow) {
-        winrtVideoData.winrtEglWindow->Release();
-    }
     SDL_zero(winrtVideoData);
     SDL_free(device);
 }

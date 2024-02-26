@@ -178,7 +178,7 @@ int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, EGLint 
 
 /* EGL implementation of SDL OpenGL ES support */
 
-SDL_bool SDL_EGL_HasExtension(_THIS, SDL_EGL_ExtensionType type, const char *ext)
+static SDL_bool SDL_EGL_HasExtension(_THIS, SDL_EGL_ExtensionType type, const char *ext)
 {
     SDL_EGL_VideoData *egl_data = _this->egl_data;
     size_t ext_len;
@@ -285,16 +285,16 @@ void SDL_EGL_UnloadLibrary(_THIS)
     if (egl_data) {
         if (egl_data->egl_display) {
             egl_data->eglTerminate(egl_data->egl_display);
-            egl_data->egl_display = NULL;
+            // egl_data->egl_display = NULL;
         }
 
         if (egl_data->egl_dll_handle) {
             SDL_UnloadObject(egl_data->egl_dll_handle);
-            egl_data->egl_dll_handle = NULL;
+            // egl_data->egl_dll_handle = NULL;
         }
         if (egl_data->opengl_dll_handle) {
             SDL_UnloadObject(egl_data->opengl_dll_handle);
-            egl_data->opengl_dll_handle = NULL;
+            // egl_data->opengl_dll_handle = NULL;
         }
 
         SDL_free(egl_data);
@@ -516,15 +516,28 @@ static void SDL_EGL_GetVersion(SDL_EGL_VideoData *egl_data)
     }
 }
 
+int SDL_EGL_InitializeDisplay(SDL_EGL_VideoData *egl_data, EGLDisplay display)
+{
+    SDL_assert(egl_data != NULL);
+    if (display == EGL_NO_DISPLAY) {
+        return SDL_SetError("Could not get EGL display");
+    }
+
+    if (egl_data->eglInitialize(display, NULL, NULL) != EGL_TRUE) {
+        return SDL_SetError("Could not initialize EGL");
+    }
+    egl_data->egl_display = display;
+    return 0;
+}
+
 int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_display, EGLenum platform)
 {
+    EGLDisplay display = EGL_NO_DISPLAY;
     int library_load_retcode = SDL_EGL_LoadLibraryOnly(_this, egl_path);
     if (library_load_retcode != 0) {
         return library_load_retcode;
     }
-
-    _this->egl_data->egl_display = EGL_NO_DISPLAY;
-
+    SDL_assert(_this->egl_data->egl_display == EGL_NO_DISPLAY);
 #if !defined(__WINRT__)
 #if !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
     if (platform) {
@@ -547,32 +560,25 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
         }
 
         if (eglGetPlatformDisplayfunc) {
-            _this->egl_data->egl_display = eglGetPlatformDisplayfunc(platform, (void *)(uintptr_t)native_display, NULL);
+            display = eglGetPlatformDisplayfunc(platform, (void *)(uintptr_t)native_display, NULL);
         } else {
             if (SDL_EGL_HasExtension(_this, SDL_EGL_CLIENT_EXTENSION, "EGL_EXT_platform_base")) {
                 eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
                 if (eglGetPlatformDisplayEXTfunc) {
-                    _this->egl_data->egl_display = eglGetPlatformDisplayEXTfunc(platform, (void *)(uintptr_t)native_display, NULL);
+                    display = eglGetPlatformDisplayEXTfunc(platform, (void *)(uintptr_t)native_display, NULL);
                 }
             }
         }
     }
 #endif
     /* Try the implementation-specific eglGetDisplay even if eglGetPlatformDisplay fails */
-    if ((_this->egl_data->egl_display == EGL_NO_DISPLAY) && (_this->egl_data->eglGetDisplay)) {
-        _this->egl_data->egl_display = _this->egl_data->eglGetDisplay(native_display);
+    if (display == EGL_NO_DISPLAY && (_this->egl_data->eglGetDisplay)) {
+        display = _this->egl_data->eglGetDisplay(native_display);
     }
-    if (_this->egl_data->egl_display == EGL_NO_DISPLAY) {
-        SDL_SetError("Could not get EGL display");
+    if (SDL_EGL_InitializeDisplay(_this->egl_data, display) < 0) {
         goto error;
     }
-
-    if (_this->egl_data->eglInitialize(_this->egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-        SDL_SetError("Could not initialize EGL");
-        goto error;
-    }
-#endif
-
+#endif // __WINRT__
     /* Get the EGL version with a valid egl_display, for EGL <= 1.4 */
     SDL_EGL_GetVersion(_this->egl_data);
 
@@ -623,20 +629,18 @@ int SDL_EGL_InitializeOffscreen(_THIS)
 
     egl_device_hint = SDL_GetHint("SDL_HINT_EGL_DEVICE");
     if (egl_device_hint) {
-        int device = SDL_atoi(egl_device_hint);
+        int result, device = SDL_atoi(egl_device_hint);
+        EGLDisplay display;
 
         if (device >= num_egl_devices) {
             return SDL_SetError("Invalid EGL device is requested.");
         }
 
-        egl_data->egl_display = eglGetPlatformDisplayEXTfunc(EGL_PLATFORM_DEVICE_EXT, egl_devices[device], NULL);
+        display = eglGetPlatformDisplayEXTfunc(EGL_PLATFORM_DEVICE_EXT, egl_devices[device], NULL);
 
-        if (egl_data->egl_display == EGL_NO_DISPLAY) {
-            return SDL_SetError("eglGetPlatformDisplayEXT() failed.");
-        }
-
-        if (egl_data->eglInitialize(egl_data->egl_display, NULL, NULL) != EGL_TRUE) {
-            return SDL_SetError("Could not initialize EGL");
+        result = SDL_EGL_InitializeDisplay(egl_data, display);
+        if (result < 0) {
+            return result;
         }
     } else {
         int i;
