@@ -396,7 +396,7 @@ static SDL_Cursor *Wayland_CreateCursor(SDL_Surface *surface, int hot_x, int hot
                                    surface->w,
                                    surface->h,
                                    WL_SHM_FORMAT_ARGB8888) < 0) {
-            SDL_free(cursor->driverdata);
+            SDL_free(data);
             SDL_free(cursor);
             return NULL;
         }
@@ -471,19 +471,14 @@ static void Wayland_FreeCursorData(Wayland_CursorData *d)
 
 static void Wayland_FreeCursor(SDL_Cursor *cursor)
 {
-    if (!cursor) {
-        return;
+    Wayland_CursorData *curdata = (Wayland_CursorData *)cursor->driverdata;
+
+    /* Even if the cursor is not ours, free it. */
+    if (curdata) {
+        Wayland_FreeCursorData(curdata);
+        /* Not sure what's meant to happen to shm_data */
+        SDL_free(curdata);
     }
-
-    /* Probably not a cursor we own */
-    if (!cursor->driverdata) {
-        return;
-    }
-
-    Wayland_FreeCursorData((Wayland_CursorData *)cursor->driverdata);
-
-    /* Not sure what's meant to happen to shm_data */
-    SDL_free(cursor->driverdata);
     SDL_free(cursor);
 }
 
