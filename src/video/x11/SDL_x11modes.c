@@ -662,6 +662,7 @@ int X11_InitModes(void)
 static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *desktop_mode)
 {
     SDL_DisplayData *data;
+    SDL_DisplayModeData *modedata;
     SDL_DisplayMode mode;
 
     // add the desktop mode
@@ -686,7 +687,6 @@ static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *
 
         res = X11_XRRGetScreenResources(display, RootWindow(display, data->screen));
         if (res) {
-            SDL_DisplayModeData *modedata;
             XRROutputInfo *output_info;
             int i;
 
@@ -711,8 +711,6 @@ static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *
         return;
     }
 #endif /* SDL_VIDEO_DRIVER_X11_XRANDR */
-
-    SDL_DisplayModeData *modedata;
     /* Add the desktop mode */
     mode = sdl_display->desktop_mode;
     modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
