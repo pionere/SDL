@@ -171,6 +171,10 @@
     SDL_Mouse *mouse;
     int x, y;
 
+    if (sdlwindow == NULL) {
+        return NO;
+    }
+
     if (desiredType == nil) {
         return NO;  /* can't accept anything that's being dropped here. */
     }
