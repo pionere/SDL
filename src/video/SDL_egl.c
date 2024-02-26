@@ -394,6 +394,7 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     if (!opengl_dll_handle) {
         return SDL_SetError("Could not initialize OpenGL / GLES library");
     }
+    _this->egl_data->opengl_dll_handle = opengl_dll_handle;
 
     /* Loading libGL* in the previous step took care of loading libEGL.so, but we future proof by double checking */
     if (egl_path) {
@@ -426,12 +427,8 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
         }
     }
     if (!egl_dll_handle) {
-        if (opengl_dll_handle) {
-            SDL_UnloadObject(opengl_dll_handle);
-        }
         return SDL_SetError("Could not load EGL library");
     }
-    _this->egl_data->opengl_dll_handle = opengl_dll_handle;
     _this->egl_data->egl_dll_handle = egl_dll_handle;
 #endif // SDL_VIDEO_STATIC_ANGLE
 
@@ -502,8 +499,7 @@ int SDL_EGL_LoadLibraryOnly(_THIS, const char *egl_path)
 
     result = SDL_EGL_LoadLibraryInternal(_this, egl_path);
     if (result < 0) {
-        SDL_free(_this->egl_data);
-        _this->egl_data = NULL;
+        SDL_EGL_UnloadLibrary(_this);
     }
     return result;
 }
