@@ -146,12 +146,14 @@ int NACL_GLES_GetSwapInterval(_THIS)
 
 int NACL_GLES_SwapWindow(_THIS, SDL_Window * window)
 {
+    int result;
     NACL_VideoData *driverdata = &naclVideoData;
     struct PP_CompletionCallback callback = { NULL, 0, PP_COMPLETIONCALLBACK_FLAG_NONE };
-    if (driverdata->ppb_graphics->SwapBuffers((PP_Resource) SDL_GL_GetCurrentContext(), callback ) != 0) {
-        return SDL_SetError("SwapBuffers failed");
+    result = driverdata->ppb_graphics->SwapBuffers((PP_Resource) SDL_GL_GetCurrentContext(), callback );
+    if (result != 0) {
+        result = SDL_SetError("SwapBuffers failed");
     }
-    return 0;
+    return result;
 }
 
 void NACL_GLES_DeleteContext(_THIS, SDL_GLContext context)

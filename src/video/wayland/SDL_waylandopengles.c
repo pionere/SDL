@@ -96,6 +96,7 @@ int Wayland_GLES_SetSwapInterval(_THIS, int interval)
 
 int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
+    int result;
     Wayland_VideoData *videodata = &waylandVideoData;
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     const int swap_interval = SDL_EGL_GetSwapInterval(_this);
@@ -154,13 +155,12 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
     }
 
     /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
-    if (SDL_EGL_SwapBuffers(_this, data->egl_surface) < 0) {
-        return -1;
+    result = SDL_EGL_SwapBuffers(_this, data->egl_surface);
+    if (result == 0) {
+        WAYLAND_wl_display_flush(videodata->display);
     }
 
-    WAYLAND_wl_display_flush(videodata->display);
-
-    return 0;
+    return result;
 }
 
 int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)

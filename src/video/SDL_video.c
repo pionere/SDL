@@ -2432,7 +2432,7 @@ void SDL_GetWindowSize(SDL_Window *window, int *w, int *h)
 
 int SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *bottom, int *right)
 {
-    int dummy = 0;
+    int dummy;
 
     if (!top) {
         top = &dummy;

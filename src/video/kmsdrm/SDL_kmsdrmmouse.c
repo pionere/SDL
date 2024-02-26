@@ -207,22 +207,16 @@ cleanup:
 /* This is only for freeing the SDL_cursor.*/
 static void KMSDRM_FreeCursor(SDL_Cursor *cursor)
 {
-    KMSDRM_CursorData *curdata;
+    KMSDRM_CursorData *curdata = (KMSDRM_CursorData *)cursor->driverdata;
 
     /* Even if the cursor is not ours, free it. */
-    if (cursor) {
-        curdata = (KMSDRM_CursorData *)cursor->driverdata;
-        /* Free cursor buffer */
-        if (curdata->buffer) {
-            SDL_free(curdata->buffer);
-            curdata->buffer = NULL;
-        }
-        /* Free cursor itself */
-        if (cursor->driverdata) {
-            SDL_free(cursor->driverdata);
-        }
-        SDL_free(cursor);
+    if (curdata) {
+        SDL_free(curdata->buffer);
+        // curdata->buffer = NULL;
+        SDL_free(curdata);
+        // cursor->driverdata = NULL;
     }
+    SDL_free(cursor);
 }
 
 /* This simply gets the cursor soft-buffer ready.

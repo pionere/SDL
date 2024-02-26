@@ -70,7 +70,7 @@ void KMSDRM_GLES_UnloadLibrary(_THIS)
 
 SDL_EGL_CreateContext_impl(KMSDRM)
 
-    int KMSDRM_GLES_SetSwapInterval(_THIS, int interval)
+int KMSDRM_GLES_SetSwapInterval(_THIS, int interval)
 {
 
     if (!_this->egl_data) {

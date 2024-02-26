@@ -190,19 +190,15 @@ static SDL_Cursor *Emscripten_CreateSystemCursor(SDL_SystemCursor id)
 
 static void Emscripten_FreeCursor(SDL_Cursor *cursor)
 {
-    Emscripten_CursorData *curdata;
-    if (cursor) {
-        curdata = (Emscripten_CursorData *)cursor->driverdata;
-
-        if (curdata) {
-            if (curdata->is_custom) {
-                SDL_free((char *)curdata->system_cursor);
-            }
-            SDL_free(cursor->driverdata);
+    Emscripten_CursorData *curdata = (Emscripten_CursorData *)cursor->driverdata;
+    if (curdata) {
+        if (curdata->is_custom) {
+            SDL_free((char *)curdata->system_cursor);
         }
-
-        SDL_free(cursor);
+        SDL_free(curdata);
     }
+
+    SDL_free(cursor);
 }
 
 static int Emscripten_ShowCursor(SDL_Cursor *cursor)

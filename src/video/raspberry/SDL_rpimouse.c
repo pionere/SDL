@@ -197,33 +197,29 @@ static void RPI_FreeCursor(SDL_Cursor *cursor)
 {
     int ret;
     DISPMANX_UPDATE_HANDLE_T update;
-    RPI_CursorData *curdata;
+    RPI_CursorData *curdata = (RPI_CursorData *)cursor->driverdata;
 
-    if (cursor) {
-        curdata = (RPI_CursorData *)cursor->driverdata;
-
-        if (curdata) {
-            if (curdata->element != DISPMANX_NO_HANDLE) {
-                update = vc_dispmanx_update_start(0);
-                SDL_assert(update);
-                ret = vc_dispmanx_element_remove(update, curdata->element);
-                SDL_assert(ret == DISPMANX_SUCCESS);
-                ret = vc_dispmanx_update_submit_sync(update);
-                SDL_assert(ret == DISPMANX_SUCCESS);
-            }
-
-            if (curdata->resource != DISPMANX_NO_HANDLE) {
-                ret = vc_dispmanx_resource_delete(curdata->resource);
-                SDL_assert(ret == DISPMANX_SUCCESS);
-            }
-
-            SDL_free(cursor->driverdata);
+    if (curdata) {
+        if (curdata->element != DISPMANX_NO_HANDLE) {
+            update = vc_dispmanx_update_start(0);
+            SDL_assert(update);
+            ret = vc_dispmanx_element_remove(update, curdata->element);
+            SDL_assert(ret == DISPMANX_SUCCESS);
+            ret = vc_dispmanx_update_submit_sync(update);
+            SDL_assert(ret == DISPMANX_SUCCESS);
         }
-        SDL_free(cursor);
-        if (cursor == global_cursor) {
-            global_cursor = NULL;
+
+        if (curdata->resource != DISPMANX_NO_HANDLE) {
+            ret = vc_dispmanx_resource_delete(curdata->resource);
+            SDL_assert(ret == DISPMANX_SUCCESS);
         }
+
+        SDL_free(curdata);
     }
+    if (cursor == global_cursor) {
+        global_cursor = NULL;
+    }
+    SDL_free(cursor);
 }
 
 /* Warp the mouse to (x,y) */
