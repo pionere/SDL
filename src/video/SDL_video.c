@@ -1955,27 +1955,28 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 
     /* ensure no more than one of these flags is set */
     graphics_flags = flags & (SDL_WINDOW_OPENGL | SDL_WINDOW_METAL | SDL_WINDOW_VULKAN);
-    if (graphics_flags & (graphics_flags - 1)) {
-        return SDL_SetError("Conflicting window flags specified");
-    }
+    SDL_assert((graphics_flags & (graphics_flags - 1)) == 0);
 
     if (flags & SDL_WINDOW_OPENGL) {
 #ifdef SDL_VIDEO_OPENGL_ANY
-        if (!_this->GL_CreateContext)
+        SDL_assert(_this->GL_CreateContext != NULL);
+#else
+        SDL_assert(0);
 #endif
-            return SDL_ContextNotSupported("OpenGL");
     }
     if (flags & SDL_WINDOW_VULKAN) {
 #ifdef SDL_VIDEO_VULKAN
-        if (!_this->Vulkan_CreateSurface)
+        SDL_assert(_this->Vulkan_CreateSurface != NULL);
+#else
+        SDL_assert(0);
 #endif
-            return SDL_ContextNotSupported("Vulkan");
     }
     if (flags & SDL_WINDOW_METAL) {
 #ifdef SDL_VIDEO_METAL
-        if (!_this->Metal_CreateView)
+        SDL_assert(_this->Metal_CreateView != NULL);
+#else
+        SDL_assert(0);
 #endif
-            return SDL_ContextNotSupported("Metal");
     }
 
     foreign_win = (window->flags & SDL_WINDOW_FOREIGN) ? SDL_TRUE : SDL_FALSE;
