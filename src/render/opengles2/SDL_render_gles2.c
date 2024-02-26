@@ -23,7 +23,7 @@
 #if defined(SDL_VIDEO_RENDER_OGL_ES2) && !defined(SDL_RENDER_DISABLED)
 
 #include "SDL_hints.h"
-#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult */
+#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult, SDL_RecreateWindow and window->flags TODO: SDL_PrivateGetWindowFlags? */
 #include "SDL_opengles2.h"
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_blit.h"
@@ -2051,7 +2051,7 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
         goto error;
     }
 
-    window_flags = SDL_GetWindowFlags(window);
+    window_flags = window->flags;
 
     /* OpenGL ES 3.0 is a superset of OpenGL ES 2.0 */
     if (!(window_flags & SDL_WINDOW_OPENGL) ||
@@ -2087,26 +2087,10 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
 
     /* Create an OpenGL ES 2.0 context */
     data->context = SDL_GL_CreateContext(window);
-    if (!data->context) {
-        SDL_free(renderer);
-        SDL_free(data);
-        goto error;
-    }
-    if (SDL_GL_MakeCurrent(window, data->context) < 0) {
-        SDL_GL_DeleteContext(data->context);
-        SDL_free(renderer);
-        SDL_free(data);
-        goto error;
-    }
-
-    if (GLES2_LoadFunctions(data) < 0) {
-        SDL_GL_DeleteContext(data->context);
-        SDL_free(renderer);
-        SDL_free(data);
-        goto error;
-    }
-
-    if (GLES2_CacheShaders(data) < 0) {
+    if (!data->context
+     || SDL_GL_MakeCurrent(window, data->context) < 0
+     || GLES2_LoadFunctions(data) < 0
+     || GLES2_CacheShaders(data) < 0) {
         SDL_GL_DeleteContext(data->context);
         SDL_free(renderer);
         SDL_free(data);
@@ -2121,11 +2105,7 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     flags |= SDL_RENDERER_PRESENTVSYNC;
 #endif
 
-    if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        SDL_GL_SetSwapInterval(1);
-    } else {
-        SDL_GL_SetSwapInterval(0);
-    }
+    SDL_GL_SetSwapInterval((flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
     if (SDL_GL_GetSwapInterval() != 0) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     }

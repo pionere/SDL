@@ -500,7 +500,7 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
                     OS2_ResizeWindowShape(pWinData->window);
                 break;
             }
-            if ((SDL_GetWindowFlags(pWinData->window) & SDL_WINDOW_RESIZABLE) != 0) {
+            if ((pWinData->window->flags & SDL_WINDOW_RESIZABLE) != 0) {
                 RECTL   rectl;
                 int     iMinW, iMinH, iMaxW, iMaxH;
                 int     iWinW, iWinH;

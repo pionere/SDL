@@ -29,6 +29,7 @@
 #include "software/SDL_render_sw_c.h"
 #include "../SDL_hints_c.h"
 #include "../video/SDL_pixels_c.h"
+#include "../video/SDL_sysvideo.h" /* For window->flags TODO: SDL_PrivateGetWindowFlags? */
 
 #if defined(__ANDROID__)
 #include "../core/android/SDL_android.h"
@@ -746,14 +747,14 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
             } else if (event->window.event == SDL_WINDOWEVENT_HIDDEN) {
                 renderer->hidden = SDL_TRUE;
             } else if (event->window.event == SDL_WINDOWEVENT_SHOWN) {
-                if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)) {
+                if (!(window->flags & SDL_WINDOW_MINIMIZED)) {
                     renderer->hidden = SDL_FALSE;
                 }
             } else if (event->window.event == SDL_WINDOWEVENT_MINIMIZED) {
                 renderer->hidden = SDL_TRUE;
             } else if (event->window.event == SDL_WINDOWEVENT_RESTORED ||
                        event->window.event == SDL_WINDOWEVENT_MAXIMIZED) {
-                if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_HIDDEN)) {
+                if (!(window->flags & SDL_WINDOW_HIDDEN)) {
                     renderer->hidden = SDL_FALSE;
                 }
             }
@@ -1072,7 +1073,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
 
     renderer->line_method = SDL_GetRenderLineMethod();
 
-    if (SDL_GetWindowFlags(window) & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) {
+    if (window->flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) {
         renderer->hidden = SDL_TRUE;
     } else {
         renderer->hidden = SDL_FALSE;

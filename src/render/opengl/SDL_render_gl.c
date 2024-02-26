@@ -22,7 +22,7 @@
 
 #if defined(SDL_VIDEO_RENDER_OGL) && !defined(SDL_RENDER_DISABLED)
 #include "SDL_hints.h"
-#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult */
+#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult, SDL_RecreateWindow and window->flags TODO: SDL_PrivateGetWindowFlags? */
 #include "SDL_opengl.h"
 #include "../SDL_sysrender.h"
 #include "SDL_shaders_gl.h"
@@ -1717,7 +1717,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
 
 #ifndef SDL_VIDEO_VITA_PVR_OGL
-    window_flags = SDL_GetWindowFlags(window);
+    window_flags = window->flags;
     if (!(window_flags & SDL_WINDOW_OPENGL) ||
         profile_mask == SDL_GL_CONTEXT_PROFILE_ES || major != RENDERER_CONTEXT_MAJOR || minor != RENDERER_CONTEXT_MINOR) {
 

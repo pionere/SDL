@@ -293,7 +293,7 @@ static int D3D_ActivateRenderer(SDL_Renderer *renderer)
     if (data->updateSize) {
         SDL_Window *window = renderer->window;
         int w, h;
-        Uint32 window_flags = SDL_GetWindowFlags(window);
+        Uint32 window_flags = window->flags; // TODO: SDL_PrivateGetWindowFlags?
 
         SDL_GetWindowSizeInPixels(window, &w, &h);
         data->pparams.BackBufferWidth = w;
@@ -1610,7 +1610,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_VERSION(&windowinfo.version);
     SDL_GetWindowWMInfo(window, &windowinfo);
 
-    window_flags = SDL_GetWindowFlags(window);
+    window_flags = window->flags; // TODO: SDL_PrivateGetWindowFlags?
     SDL_GetWindowSizeInPixels(window, &w, &h);
     SDL_GetWindowDisplayMode(window, &fullscreen_mode);
 

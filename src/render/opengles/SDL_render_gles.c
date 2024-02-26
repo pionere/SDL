@@ -23,7 +23,7 @@
 #if defined(SDL_VIDEO_RENDER_OGL_ES) && !defined(SDL_RENDER_DISABLED)
 
 #include "SDL_hints.h"
-#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult */
+#include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult, SDL_RecreateWindow and window->flags TODO: SDL_PrivateGetWindowFlags? */
 #include "SDL_opengles.h"
 #include "../SDL_sysrender.h"
 #include "../../SDL_utils_c.h"
@@ -48,9 +48,6 @@ glDrawTexiOES(GLint x, GLint y, GLint z, GLint width, GLint height)
 #endif /* SDL_VIDEO_DRIVER_PANDORA */
 
 /* OpenGL ES 1.1 renderer implementation, based on the OpenGL renderer */
-
-/* Used to re-create the window with OpenGL ES capability */
-extern int SDL_RecreateWindow(SDL_Window *window, Uint32 flags);
 
 static const float inv255f = 1.0f / 255.0f;
 
@@ -359,9 +356,9 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     renderdata->glGenTextures(1, &data->texture);
     result = renderdata->glGetError();
     if (result != GL_NO_ERROR) {
-        if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+        // if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
             SDL_free(data->pixels);
-        }
+        // }
         SDL_free(data);
         return GLES_SetError("glGenTextures()", result);
     }
@@ -390,9 +387,9 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     result = renderdata->glGetError();
     if (result != GL_NO_ERROR) {
-        if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+        // if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
             SDL_free(data->pixels);
-        }
+        // }
         SDL_free(data);
         return GLES_SetError("glTexImage2D()", result);
     }
@@ -1066,7 +1063,7 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
 
-    window_flags = SDL_GetWindowFlags(window);
+    window_flags = window->flags;
     if (!(window_flags & SDL_WINDOW_OPENGL) ||
         profile_mask != SDL_GL_CONTEXT_PROFILE_ES || major != RENDERER_CONTEXT_MAJOR || minor != RENDERER_CONTEXT_MINOR) {
 

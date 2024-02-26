@@ -1146,7 +1146,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             constrain_max_size = FALSE;
         }
 
-        if (!(SDL_GetWindowFlags(data->window) & SDL_WINDOW_BORDERLESS)) {
+        if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
             LONG style = GetWindowLong(hwnd, GWL_STYLE);
             /* DJM - according to the docs for GetMenu(), the
                return value is undefined if hwnd is a child window.
@@ -1177,8 +1177,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         /* Fix our size to the current size */
         info = (MINMAXINFO *)lParam;
-        if (SDL_GetWindowFlags(data->window) & SDL_WINDOW_RESIZABLE) {
-            if (SDL_GetWindowFlags(data->window) & SDL_WINDOW_BORDERLESS) {
+        if (data->window->flags & SDL_WINDOW_RESIZABLE) {
+            if (data->window->flags & SDL_WINDOW_BORDERLESS) {
                 int screenW = GetSystemMetrics(SM_CXSCREEN);
                 int screenH = GetSystemMetrics(SM_CYSCREEN);
                 info->ptMaxSize.x = SDL_max(w, screenW);
@@ -1476,7 +1476,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_NCCALCSIZE:
     {
-        Uint32 window_flags = SDL_GetWindowFlags(data->window);
+        Uint32 window_flags = data->window->flags;
         if (wParam == TRUE && (window_flags & SDL_WINDOW_BORDERLESS) && !(window_flags & SDL_WINDOW_FULLSCREEN)) {
             /* When borderless, need to tell windows that the size of the non-client area is 0 */
             if (!(window_flags & SDL_WINDOW_RESIZABLE)) {
