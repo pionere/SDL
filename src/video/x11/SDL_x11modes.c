@@ -398,7 +398,6 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
 
 static void X11_HandleXRandROutputChange(const XRROutputChangeNotifyEvent *ev)
 {
-    SDL_VideoDisplay *display = NULL;
     int displayidx = -1;
     int num_displays, i;
     SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
@@ -408,23 +407,19 @@ static void X11_HandleXRandROutputChange(const XRROutputChangeNotifyEvent *ev)
 #endif
 
     for (i = 0; i < num_displays; i++) {
-        SDL_VideoDisplay *thisdisplay = &displays[i];
-        const SDL_DisplayData *displaydata = (const SDL_DisplayData *)thisdisplay->driverdata;
+        const SDL_DisplayData *displaydata = (const SDL_DisplayData *)displays[i].driverdata;
         if (displaydata->xrandr_output == ev->output) {
-            display = thisdisplay;
             displayidx = i;
             break;
         }
     }
 
-    SDL_assert((displayidx == -1) == (display == NULL));
-
     if (ev->connection == RR_Disconnected) { /* output is going away */
-        if (display) {
+        if (displayidx >= 0) {
             SDL_DelVideoDisplay(displayidx);
         }
     } else if (ev->connection == RR_Connected) { /* output is coming online */
-        if (display) {
+        if (displayidx >= 0) {
             /* !!! FIXME: update rotation or current mode of existing display? */
         } else {
             Display *dpy = ev->display;
@@ -505,7 +500,7 @@ static int X11_InitModes_XRandR(void)
                     (!looking_for_primary && (screen == default_screen) && (res->outputs[output] == primary))) {
                     continue;
                 }
-                if (X11_AddXRandRDisplay(dpy, screen, res->outputs[output], res, SDL_FALSE) == -1) {
+                if (X11_AddXRandRDisplay(dpy, screen, res->outputs[output], res, SDL_FALSE) < 0) {
                     break;
                 }
             }
@@ -626,9 +621,9 @@ static int X11_InitModes_StdXlib(void)
     }
 
     displaydata->scanline_pad = scanline_pad;
-    displaydata->x = 0;
-    displaydata->y = 0;
-    displaydata->use_xrandr = SDL_FALSE;
+    // displaydata->x = 0;
+    // displaydata->y = 0;
+    // displaydata->use_xrandr = SDL_FALSE;
 
     SDL_zero(display);
     display.name = (char *)"Generic X11 Display"; /* this is just copied and thrown away, it's safe to cast to char* here. */
@@ -717,18 +712,16 @@ static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *
     }
 #endif /* SDL_VIDEO_DRIVER_X11_XRANDR */
 
-    if (!data->use_xrandr) {
-        SDL_DisplayModeData *modedata;
-        /* Add the desktop mode */
-        mode = sdl_display->desktop_mode;
-        modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
-        if (modedata) {
-            *modedata = *(SDL_DisplayModeData *)sdl_display->desktop_mode.driverdata;
-        }
-        mode.driverdata = modedata;
-        if (!SDL_AddDisplayMode(sdl_display, &mode)) {
-            SDL_free(modedata);
-        }
+    SDL_DisplayModeData *modedata;
+    /* Add the desktop mode */
+    mode = sdl_display->desktop_mode;
+    modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
+    if (modedata) {
+        *modedata = *(SDL_DisplayModeData *)sdl_display->desktop_mode.driverdata;
+    }
+    mode.driverdata = modedata;
+    if (!SDL_AddDisplayMode(sdl_display, &mode)) {
+        SDL_free(modedata);
     }
 }
 
