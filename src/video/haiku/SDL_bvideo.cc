@@ -60,7 +60,10 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-
+    if (device == NULL) {
+        SDL_OutOfMemory();
+        return NULL;
+    }
 /* TODO: Figure out if any initialization needs to go here */
 
     /* Set the function pointers */
