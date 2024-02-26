@@ -43,21 +43,20 @@ int RPI_GLES_LoadLibrary(_THIS, const char *path)
 
 int RPI_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
+    int result;
     SDL_WindowData *wdata = ((SDL_WindowData *)window->driverdata);
 
-    if (SDL_EGL_SwapBuffers(_this, wdata->egl_surface) < 0) {
-        return 0;
-    }
+    result = SDL_EGL_SwapBuffers(_this, wdata->egl_surface);
 
     /* Wait immediately for vsync (as if we only had two buffers), for low input-lag scenarios.
      * Run your SDL2 program with "SDL_RPI_DOUBLE_BUFFER=1 <program_name>" to enable this. */
-    if (wdata->double_buffer) {
+    if (result == 0 && wdata->double_buffer) {
         SDL_LockMutex(wdata->vsync_cond_mutex);
         SDL_CondWait(wdata->vsync_cond, wdata->vsync_cond_mutex);
         SDL_UnlockMutex(wdata->vsync_cond_mutex);
     }
 
-    return 0;
+    return result;
 }
 
 SDL_EGL_CreateContext_impl(RPI)

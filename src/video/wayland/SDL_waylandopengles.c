@@ -109,7 +109,7 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
      * -flibit
      */
     if (window->flags & SDL_WINDOW_HIDDEN) {
-        return 0;
+        return -1;
     }
 
     /* Control swap interval ourselves. See comments on Wayland_GLES_SetSwapInterval */
