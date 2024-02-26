@@ -57,11 +57,6 @@ typedef HRESULT(EGLAPIENTRY *CreateWinrtEglWindow_Old_Function)(Microsoft::WRL::
 
 #endif /* __cplusplus */
 
-/* Function pointer typedefs for 'new' ANGLE/WinRT functions, which, unlike
- * the old functions, do not require C++ support and work with plain C.
- */
-typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplayEXT_Function)(EGLenum, void *, const EGLint *);
-
 #endif /* SDL_VIDEO_DRIVER_WINRT && SDL_VIDEO_OPENGL_EGL */
 
 #endif /* SDL_winrtopengles_h_ */

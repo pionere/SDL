@@ -35,13 +35,7 @@ int OFFSCREEN_GLES_LoadLibrary(_THIS, const char *path)
         return ret;
     }
 
-    /* driver_loaded gets incremented by SDL_GL_LoadLibrary when we return,
-       but SDL_EGL_InitializeOffscreen checks that we're loaded before then,
-       so temporarily bump it since we know that LoadLibraryOnly succeeded. */
-
-    _this->gl_config.driver_loaded++;
-    ret = SDL_EGL_InitializeOffscreen(_this, 0);
-    _this->gl_config.driver_loaded--;
+    ret = SDL_EGL_InitializeOffscreen(_this);
     if (ret != 0) {
         return ret;
     }

@@ -31,6 +31,13 @@
 
 #define SDL_EGL_MAX_DEVICES 8
 
+/* Function pointer typedefs for 'new' ANGLE functions, which, unlike
+ * the old functions, do not require C++ support and work with plain C.
+ */
+typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplay_Function) (EGLenum platform, void *native_display, const EGLint *attrib_list);
+typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplayEXT_Function)(EGLenum platform, void *native_display, const EGLint *attrib_list);
+typedef EGLBoolean(EGLAPIENTRY *eglQueryDevicesEXT_Function)(EGLint max_devices, void **devices, EGLint *num_devices);
+
 typedef struct SDL_EGL_VideoData
 {
     void *opengl_dll_handle, *egl_dll_handle;
@@ -44,14 +51,11 @@ typedef struct SDL_EGL_VideoData
     EGLenum apitype;  /* EGL_OPENGL_ES_API, EGL_OPENGL_API, etc */
 
     EGLDisplay(EGLAPIENTRY *eglGetDisplay) (NativeDisplayType display);
-#if !defined(__WINRT__) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
-    EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplay) (EGLenum platform,
-                                void *native_display,
-                                const EGLint *attrib_list);
-    EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplayEXT) (EGLenum platform,
-                                void *native_display,
-                                const EGLint *attrib_list);
-#endif
+
+    // eglGetPlatformDisplay_Function eglGetPlatformDisplay;
+
+    // eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT;
+
     EGLBoolean(EGLAPIENTRY *eglInitialize) (EGLDisplay dpy, EGLint * major,
                                 EGLint * minor);
     EGLBoolean(EGLAPIENTRY  *eglTerminate) (EGLDisplay dpy);
@@ -100,11 +104,9 @@ typedef struct SDL_EGL_VideoData
     EGLBoolean(EGLAPIENTRY *eglBindAPI)(EGLenum);
 
     EGLint(EGLAPIENTRY *eglGetError)(void);
-#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
-    EGLBoolean(EGLAPIENTRY *eglQueryDevicesEXT)(EGLint max_devices,
-                                            void **devices,
-                                            EGLint *num_devices);
-#endif
+
+    // eglQueryDevicesEXT_Function eglQueryDevicesEXT;
+
    /* Atomic functions */
 
     // EGLSyncKHR(EGLAPIENTRY *eglCreateSyncKHR)(EGLDisplay dpy, EGLenum type, const EGLint *attrib_list);
@@ -145,7 +147,7 @@ extern void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface);
 #ifdef SDL_VIDEO_DRIVER_OFFSCREEN
 extern EGLSurface SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height);
 /* Assumes that LoadLibraryOnly() has succeeded */
-extern int SDL_EGL_InitializeOffscreen(_THIS, int device);
+extern int SDL_EGL_InitializeOffscreen(_THIS);
 #endif
 /* These need to be wrapped to get the surface for the window by the platform GLES implementation */
 extern SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface);

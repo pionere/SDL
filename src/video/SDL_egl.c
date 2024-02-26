@@ -462,12 +462,8 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     // LOAD_FUNC(eglQueryAPI);
     LOAD_FUNC(eglQueryString);
     LOAD_FUNC(eglGetError);
-#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
-    LOAD_FUNC_EGLEXT(eglQueryDevicesEXT);
-#endif
-#if !defined(__WINRT__) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
-    LOAD_FUNC_EGLEXT(eglGetPlatformDisplayEXT);
-#endif
+    // LOAD_FUNC_EGLEXT(eglQueryDevicesEXT);
+    // LOAD_FUNC_EGLEXT(eglGetPlatformDisplayEXT);
     /* Atomic functions */
     // LOAD_FUNC_EGLEXT(eglCreateSyncKHR);
     // LOAD_FUNC_EGLEXT(eglDestroySyncKHR);
@@ -538,19 +534,25 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
          * Therefore SDL_EGL_GetVersion() shouldn't work with uninitialized display.
          * - it actually doesn't work on Android that has 1.5 egl client
          * - it works on desktop X11 (using SDL_VIDEO_X11_FORCE_EGL=1) */
+        eglGetPlatformDisplay_Function eglGetPlatformDisplayfunc = NULL;
         SDL_EGL_GetVersion(_this->egl_data);
 
         if (_this->egl_data->egl_version_major == 1 && _this->egl_data->egl_version_minor == 5) {
-            LOAD_FUNC(eglGetPlatformDisplay);
+            // LOAD_FUNC(eglGetPlatformDisplay);
+#ifdef SDL_VIDEO_STATIC_ANGLE
+            eglGetPlatformDisplayfunc = (void *)eglGetPlatformDisplay;
+#else
+            eglGetPlatformDisplayfunc = SDL_LoadFunction(_this->egl_data->egl_dll_handle, "eglGetPlatformDisplay");
+#endif
         }
 
-        if (_this->egl_data->eglGetPlatformDisplay) {
-            _this->egl_data->egl_display = _this->egl_data->eglGetPlatformDisplay(platform, (void *)(uintptr_t)native_display, NULL);
+        if (eglGetPlatformDisplayfunc) {
+            _this->egl_data->egl_display = eglGetPlatformDisplayfunc(platform, (void *)(uintptr_t)native_display, NULL);
         } else {
             if (SDL_EGL_HasExtension(_this, SDL_EGL_CLIENT_EXTENSION, "EGL_EXT_platform_base")) {
-                _this->egl_data->eglGetPlatformDisplayEXT = SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
-                if (_this->egl_data->eglGetPlatformDisplayEXT) {
-                    _this->egl_data->egl_display = _this->egl_data->eglGetPlatformDisplayEXT(platform, (void *)(uintptr_t)native_display, NULL);
+                eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
+                if (eglGetPlatformDisplayEXTfunc) {
+                    _this->egl_data->egl_display = eglGetPlatformDisplayEXTfunc(platform, (void *)(uintptr_t)native_display, NULL);
                 }
             }
         }
@@ -592,40 +594,42 @@ error:
    valid available GPU for EGL to use.
 */
 #ifdef SDL_VIDEO_DRIVER_OFFSCREEN
-int SDL_EGL_InitializeOffscreen(_THIS, int device)
+int SDL_EGL_InitializeOffscreen(_THIS)
 {
     void *egl_devices[SDL_EGL_MAX_DEVICES];
     EGLint num_egl_devices = 0;
     const char *egl_device_hint;
     SDL_EGL_VideoData* egl_data;
 
-    if (_this->gl_config.driver_loaded <= 0) {
-        return SDL_SetError("SDL_EGL_LoadLibraryOnly() has not been called or has failed.");
-    }
+    // if (_this->gl_config.driver_loaded <= 0) {
+    //    return SDL_SetError("SDL_EGL_LoadLibraryOnly() has not been called or has failed.");
+    // }
 
     egl_data = _this->egl_data;
     /* Check for all extensions that are optional until used and fail if any is missing */
-    if (!egl_data->eglQueryDevicesEXT) {
+    eglQueryDevicesEXT_Function eglQueryDevicesEXTfunc = (eglQueryDevicesEXT_Function)SDL_EGL_GetProcAddress(_this, "eglQueryDevicesEXT");
+    if (!eglQueryDevicesEXTfunc) {
         return SDL_SetError("eglQueryDevicesEXT is missing (EXT_device_enumeration not supported by the drivers?)");
     }
 
-    if (!egl_data->eglGetPlatformDisplayEXT) {
+    eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
+    if (!eglGetPlatformDisplayEXTfunc) {
         return SDL_SetError("eglGetPlatformDisplayEXT is missing (EXT_platform_base not supported by the drivers?)");
     }
 
-    if (egl_data->eglQueryDevicesEXT(SDL_EGL_MAX_DEVICES, egl_devices, &num_egl_devices) != EGL_TRUE) {
+    if (eglQueryDevicesEXTfunc(SDL_EGL_MAX_DEVICES, egl_devices, &num_egl_devices) != EGL_TRUE) {
         return SDL_SetError("eglQueryDevicesEXT() failed");
     }
 
     egl_device_hint = SDL_GetHint("SDL_HINT_EGL_DEVICE");
     if (egl_device_hint) {
-        device = SDL_atoi(egl_device_hint);
+        int device = SDL_atoi(egl_device_hint);
 
         if (device >= num_egl_devices) {
             return SDL_SetError("Invalid EGL device is requested.");
         }
 
-        egl_data->egl_display = egl_data->eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, egl_devices[device], NULL);
+        egl_data->egl_display = eglGetPlatformDisplayEXTfunc(EGL_PLATFORM_DEVICE_EXT, egl_devices[device], NULL);
 
         if (egl_data->egl_display == EGL_NO_DISPLAY) {
             return SDL_SetError("eglGetPlatformDisplayEXT() failed.");
@@ -641,7 +645,7 @@ int SDL_EGL_InitializeOffscreen(_THIS, int device)
 
         /* If no hint is provided lets look for the first device/display that will allow us to eglInit */
         for (i = 0; i < num_egl_devices; i++) {
-            attempted_egl_display = egl_data->eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, egl_devices[i], NULL);
+            attempted_egl_display = eglGetPlatformDisplayEXTfunc(EGL_PLATFORM_DEVICE_EXT, egl_devices[i], NULL);
 
             if (attempted_egl_display == EGL_NO_DISPLAY) {
                 continue;
