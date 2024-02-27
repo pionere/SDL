@@ -35,7 +35,7 @@ typedef enum SDL_GLSwapIntervalTearBehavior
     SDL_SWAPINTERVALTEAR_NVIDIA
 } SDL_GLSwapIntervalTearBehavior;
 
-struct SDL_GLDriverData
+typedef struct SDL_GLDriverData
 {
     int errorBase, eventBase;
 
@@ -73,7 +73,7 @@ struct SDL_GLDriverData
     int (*glXSwapIntervalSGI)(int);
     int (*glXSwapIntervalMESA)(int);
     int (*glXGetSwapIntervalMESA)(void);
-};
+} SDL_GLDriverData;
 
 /* OpenGL functions */
 extern int X11_GL_LoadLibrary(_THIS, const char *path);

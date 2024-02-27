@@ -167,12 +167,8 @@ static void X11_GL_InitExtensions(_THIS);
 
 int X11_GL_LoadLibrary(_THIS, const char *path)
 {
-    Display *display;
-    void *handle;
-
-    if (_this->gl_data) {
-        return SDL_SetError("OpenGL context already created");
-    }
+    void *handle = NULL;
+    SDL_GLDriverData *gldata = NULL;
 
     /* Load the OpenGL library */
     if (path == NULL) {
@@ -181,67 +177,70 @@ int X11_GL_LoadLibrary(_THIS, const char *path)
     if (path == NULL) {
         path = DEFAULT_OPENGL;
     }
-    _this->gl_config.dll_handle = GL_LoadObject(path);
-    if (!_this->gl_config.dll_handle) {
+    handle = GL_LoadObject(path);
+    if (!handle) {
 #if defined(OPENGL_REQUIRES_DLOPEN) && defined(HAVE_DLOPEN)
         SDL_SetError("Failed loading %s: %s", path, dlerror());
 #endif
         return -1;
     }
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
 
     /* Allocate OpenGL memory */
-    _this->gl_data =
-        (struct SDL_GLDriverData *)SDL_calloc(1,
-                                              sizeof(struct
-                                                     SDL_GLDriverData));
-    if (!_this->gl_data) {
+    gldata =
+        (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
+    if (!gldata) {
+        // GL_UnloadObject(handle); -- see X11_GL_UnloadLibrary
         return SDL_OutOfMemory();
     }
 
     /* Load function pointers */
-    handle = _this->gl_config.dll_handle;
-    _this->gl_data->glXQueryExtension =
+    gldata->glXQueryExtension =
         (Bool(*)(Display *, int *, int *))
             GL_LoadFunction(handle, "glXQueryExtension");
-    _this->gl_data->glXGetProcAddress =
+    gldata->glXGetProcAddress =
         (void *(*)(const GLubyte *))
             GL_LoadFunction(handle, "glXGetProcAddressARB");
-    _this->gl_data->glXChooseVisual =
+    gldata->glXChooseVisual =
         (XVisualInfo * (*)(Display *, int, int *))
             X11_GL_GetProcAddress(_this, "glXChooseVisual");
-    _this->gl_data->glXCreateContext =
+    gldata->glXCreateContext =
         (GLXContext(*)(Display *, XVisualInfo *, GLXContext, int))
             X11_GL_GetProcAddress(_this, "glXCreateContext");
-    _this->gl_data->glXDestroyContext =
+    gldata->glXDestroyContext =
         (void (*)(Display *, GLXContext))
             X11_GL_GetProcAddress(_this, "glXDestroyContext");
-    _this->gl_data->glXMakeCurrent =
+    gldata->glXMakeCurrent =
         (int (*)(Display *, GLXDrawable, GLXContext))
             X11_GL_GetProcAddress(_this, "glXMakeCurrent");
-    _this->gl_data->glXSwapBuffers =
+    gldata->glXSwapBuffers =
         (void (*)(Display *, GLXDrawable))
             X11_GL_GetProcAddress(_this, "glXSwapBuffers");
-    _this->gl_data->glXQueryDrawable =
+    gldata->glXQueryDrawable =
         (void (*)(Display *, GLXDrawable, int, unsigned int *))
             X11_GL_GetProcAddress(_this, "glXQueryDrawable");
 
-    if (!_this->gl_data->glXQueryExtension ||
-        !_this->gl_data->glXChooseVisual ||
-        !_this->gl_data->glXCreateContext ||
-        !_this->gl_data->glXDestroyContext ||
-        !_this->gl_data->glXMakeCurrent ||
-        !_this->gl_data->glXSwapBuffers) {
-        return SDL_SetError("Could not retrieve OpenGL functions");
+    if (!gldata->glXQueryExtension ||
+        !gldata->glXChooseVisual ||
+        !gldata->glXCreateContext ||
+        !gldata->glXDestroyContext ||
+        !gldata->glXMakeCurrent ||
+        !gldata->glXSwapBuffers) {
+        SDL_SetError("Could not retrieve OpenGL functions");
+        goto error;
     }
 
-    display = x11VideoData.display;
-    if (!_this->gl_data->glXQueryExtension(display, &_this->gl_data->errorBase, &_this->gl_data->eventBase)) {
-        return SDL_SetError("GLX is not supported");
+    if (!gldata->glXQueryExtension(x11VideoData.display, &gldata->errorBase, &gldata->eventBase)) {
+        SDL_SetError("GLX is not supported");
+        goto error;
     }
 
-    _this->gl_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNTESTED;
+    gldata->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNTESTED;
+
+    _this->gl_config.dll_handle = handle;
+    _this->gl_data = gldata;
+
+    SDL_strlcpy(_this->gl_config.driver_path, path,
+                SDL_arraysize(_this->gl_config.driver_path));
 
     /* Initialize extensions */
     /* See lengthy comment about the inc/dec in
@@ -256,8 +255,8 @@ int X11_GL_LoadLibrary(_THIS, const char *path)
     if (((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) ||
          SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE)) &&
         X11_GL_UseEGL(_this) ) {
-#ifdef SDL_VIDEO_OPENGL_EGL
         X11_GL_UnloadLibrary(_this);
+#ifdef SDL_VIDEO_OPENGL_EGL
         _this->GL_LoadLibrary = X11_GLES_LoadLibrary;
         _this->GL_GetProcAddress = X11_GLES_GetProcAddress;
         _this->GL_UnloadLibrary = X11_GLES_UnloadLibrary;
@@ -274,6 +273,10 @@ int X11_GL_LoadLibrary(_THIS, const char *path)
     }
 
     return 0;
+error:
+    SDL_free(gldata);
+    // GL_UnloadObject(handle); -- see X11_GL_UnloadLibrary
+    return -1;
 }
 
 void *X11_GL_GetProcAddress(_THIS, const char *proc)
@@ -913,14 +916,14 @@ int X11_GL_SetSwapInterval(_THIS, int interval)
     return status;
 }
 
-static SDL_GLSwapIntervalTearBehavior CheckSwapIntervalTearBehavior(SDL_VideoDevice *_this, Window drawable, unsigned int current_val, unsigned int current_allow_late)
+static SDL_GLSwapIntervalTearBehavior CheckSwapIntervalTearBehavior(SDL_GLDriverData *gldata, Window drawable, unsigned int current_val, unsigned int current_allow_late)
 {
     /* Mesa and Nvidia interpret GLX_EXT_swap_control_tear differently, as of this writing, so
         figure out which behavior we have.
        Technical details: https://github.com/libsdl-org/SDL/issues/8004#issuecomment-1819603282 */
-    if (_this->gl_data->swap_interval_tear_behavior == SDL_SWAPINTERVALTEAR_UNTESTED) {
-        if (!_this->gl_data->HAS_GLX_EXT_swap_control_tear) {
-            _this->gl_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNKNOWN;
+    if (gldata->swap_interval_tear_behavior == SDL_SWAPINTERVALTEAR_UNTESTED) {
+        if (!gldata->HAS_GLX_EXT_swap_control_tear) {
+            gldata->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNKNOWN;
         } else {
             Display *display = x11VideoData.display;
             unsigned int allow_late_swap_tearing = 22;
@@ -934,35 +937,37 @@ static SDL_GLSwapIntervalTearBehavior CheckSwapIntervalTearBehavior(SDL_VideoDev
              * it has the wrong value cached. To work around it, we just run a no-op
              * update to the current value.
              */
-            _this->gl_data->glXSwapIntervalEXT(display, drawable, current_val);
+            gldata->glXSwapIntervalEXT(display, drawable, current_val);
 
             /* set it to no swap interval and see how it affects GLX_LATE_SWAPS_TEAR_EXT... */
-            _this->gl_data->glXSwapIntervalEXT(display, drawable, 0);
-            _this->gl_data->glXQueryDrawable(display, drawable, GLX_LATE_SWAPS_TEAR_EXT, &allow_late_swap_tearing);
+            gldata->glXSwapIntervalEXT(display, drawable, 0);
+            gldata->glXQueryDrawable(display, drawable, GLX_LATE_SWAPS_TEAR_EXT, &allow_late_swap_tearing);
 
             if (allow_late_swap_tearing == 0) { /* GLX_LATE_SWAPS_TEAR_EXT says whether late swapping is currently in use */
-                _this->gl_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_NVIDIA;
+                gldata->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_NVIDIA;
                 if (current_allow_late) {
                     original_val = -original_val;
                 }
             } else if (allow_late_swap_tearing == 1) {  /* GLX_LATE_SWAPS_TEAR_EXT says whether the Drawable can use late swapping at all */
-                _this->gl_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_MESA;
+                gldata->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_MESA;
             } else {  /* unexpected outcome! */
-                _this->gl_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNKNOWN;
+                gldata->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNKNOWN;
             }
 
             /* set us back to what it was originally... */
-            _this->gl_data->glXSwapIntervalEXT(display, drawable, original_val);
+            gldata->glXSwapIntervalEXT(display, drawable, original_val);
         }
     }
 
-    return _this->gl_data->swap_interval_tear_behavior;
+    return gldata->swap_interval_tear_behavior;
 }
 
 
 int X11_GL_GetSwapInterval(_THIS)
 {
-    if (_this->gl_data->glXSwapIntervalEXT) {
+    SDL_GLDriverData *gldata = _this->gl_data;
+
+    if (gldata->glXSwapIntervalEXT) {
         Display *display = x11VideoData.display;
         const SDL_WindowData *windowdata = (SDL_WindowData *)
                                                SDL_GL_GetCurrentWindow()
@@ -971,17 +976,17 @@ int X11_GL_GetSwapInterval(_THIS)
         unsigned int allow_late_swap_tearing = 0;
         unsigned int interval = 0;
 
-        if (_this->gl_data->HAS_GLX_EXT_swap_control_tear) {
+        if (gldata->HAS_GLX_EXT_swap_control_tear) {
             allow_late_swap_tearing = 22;  /* set this to nonsense. */
-            _this->gl_data->glXQueryDrawable(display, drawable,
+            gldata->glXQueryDrawable(display, drawable,
                                              GLX_LATE_SWAPS_TEAR_EXT,
                                              &allow_late_swap_tearing);
         }
 
-        _this->gl_data->glXQueryDrawable(display, drawable,
+        gldata->glXQueryDrawable(display, drawable,
                                          GLX_SWAP_INTERVAL_EXT, &interval);
 
-        switch (CheckSwapIntervalTearBehavior(_this, drawable, interval, allow_late_swap_tearing)) {
+        switch (CheckSwapIntervalTearBehavior(gldata, drawable, interval, allow_late_swap_tearing)) {
             case SDL_SWAPINTERVALTEAR_MESA:
                 return (int)interval;  /* unsigned int cast to signed that generates negative value if necessary. */
 
@@ -994,8 +999,8 @@ int X11_GL_GetSwapInterval(_THIS)
         }
 
         return (int)interval;  /* shouldn't hit this, but just in case. */
-    } else if (_this->gl_data->glXGetSwapIntervalMESA) {
-        return _this->gl_data->glXGetSwapIntervalMESA();
+    } else if (gldata->glXGetSwapIntervalMESA) {
+        return gldata->glXGetSwapIntervalMESA();
     } else {
         return swapinterval;
     }
@@ -1015,11 +1020,10 @@ void X11_GL_DeleteContext(_THIS, SDL_GLContext context)
     Display *display = x11VideoData.display;
     GLXContext glx_context = (GLXContext)context;
 
-    if (!_this->gl_data) {
-        return;
+    if (_this->gl_data) {
+        _this->gl_data->glXDestroyContext(display, glx_context);
+        X11_XSync(display, False);
     }
-    _this->gl_data->glXDestroyContext(display, glx_context);
-    X11_XSync(display, False);
 }
 
 #endif /* SDL_VIDEO_OPENGL_GLX */
