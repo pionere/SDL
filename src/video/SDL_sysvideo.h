@@ -31,7 +31,7 @@
 #include "SDL_vulkan_internal.h"
 
 /* The SDL video driver */
-#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
+#if defined(SDL_VIDEO_OPENGL) || defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2) || defined(SDL_VIDEO_OPENGL_EGL)
 #define SDL_VIDEO_OPENGL_ANY    1
 #endif
 
