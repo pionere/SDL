@@ -58,30 +58,22 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
             _this->gl_config.driver_loaded = 1;
             SDL_strlcpy(_this->gl_config.driver_path, "libGL.so",
                     SDL_arraysize(_this->gl_config.driver_path));
-            break;
+            return 0;
         }
     }
-    return 0;
+    return SDL_SetError("Couldn't load OpenGL library");
 }
 
 void *HAIKU_GL_GetProcAddress(_THIS, const char *proc)
 {
-    if (_this->gl_config.dll_handle) {
-        void *location = NULL;
-        status_t err;
-        if ((err =
-            get_image_symbol((image_id) (addr_t) _this->gl_config.dll_handle,
-                              proc, B_SYMBOL_TYPE_ANY,
-                              &location)) == B_OK) {
-            return location;
-        } else {
-                SDL_SetError("Couldn't find OpenGL symbol");
-                return NULL;
-        }
-    } else {
-        SDL_SetError("OpenGL library not loaded");
-        return NULL;
+    void *location = NULL;
+    status_t err = get_image_symbol((image_id)(addr_t)_this->gl_config.dll_handle,
+            proc, B_SYMBOL_TYPE_ANY,
+            &location);
+    if (err != B_OK) {
+        SDL_SetError("Couldn't find OpenGL symbol");
     }
+    return location;
 }
 
 
