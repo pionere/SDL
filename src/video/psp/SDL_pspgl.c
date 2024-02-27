@@ -46,6 +46,19 @@
 
 int PSP_GL_LoadLibrary(_THIS, const char *path)
 {
+    SDL_GLDriverData * gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
+    if (!gldata) {
+        SDL_OutOfMemory();
+        return -1;
+    }
+
+    _this->gl_data = gldata;
+    _this->gl_config.driver_loaded = 1;
+    if (path) {
+        SDL_strlcpy(_this->gl_config.driver_path, path, sizeof(_this->gl_config.driver_path) - 1);
+    } else {
+        *_this->gl_config.driver_path = '\0';
+    }
     return 0;
 }
 
@@ -62,7 +75,12 @@ void *PSP_GL_GetProcAddress(_THIS, const char *proc)
 
 void PSP_GL_UnloadLibrary(_THIS)
 {
-    eglTerminate(_this->gl_data->display);
+    SDL_GLDriverData *gldata = _this->gl_data;
+    if (gldata) {
+        eglTerminate(gldata->display);
+        SDL_free(gldata);
+        _this->gl_data = NULL;
+    }
 }
 
 static EGLint width = 480;
