@@ -22,13 +22,16 @@
 #ifndef SDL_vitagles_c_h_
 #define SDL_vitagles_c_h_
 
+#if defined(SDL_VIDEO_VITA_PIB)
+
 #include <pib.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include "SDL_vitavideo.h"
+#include "../SDL_sysvideo.h"
+#include "../SDL_egl_c.h"
 
 typedef struct SDL_GLDriverData
 {
@@ -38,17 +41,18 @@ typedef struct SDL_GLDriverData
     uint32_t swapinterval;
 } SDL_GLDriverData;
 
+extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
 extern void *VITA_GLES_GetProcAddress(_THIS, const char *proc);
+extern void VITA_GLES_UnloadLibrary(_THIS);
 extern int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-extern void VITA_GLES_SwapBuffers(_THIS);
 
 extern int VITA_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window);
-
-extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
-extern void VITA_GLES_UnloadLibrary(_THIS);
+extern void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context);
 extern int VITA_GLES_SetSwapInterval(_THIS, int interval);
 extern int VITA_GLES_GetSwapInterval(_THIS);
+
+#endif // SDL_VIDEO_VITA_PIB
 
 #endif /* SDL_vitagles_c_h_ */
 

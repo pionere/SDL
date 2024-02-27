@@ -22,11 +22,15 @@
 #ifndef SDL_vitagl_pvr_c_h_
 #define SDL_vitagl_pvr_c_h_
 
-#include "SDL_vitavideo.h"
+#if defined(SDL_VIDEO_VITA_PVR_OGL)
+
+#include "SDL_vitagles_pvr_c.h"
 
 extern SDL_GLContext VITA_GL_CreateContext(_THIS, SDL_Window *window);
 extern int VITA_GL_LoadLibrary(_THIS, const char *path);
 extern void *VITA_GL_GetProcAddress(_THIS, const char *proc);
+
+#endif // SDL_VIDEO_VITA_PVR_OGL
 
 #endif /* SDL_vitagl_pvr_c_h_ */
 

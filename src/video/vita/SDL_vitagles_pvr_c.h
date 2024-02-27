@@ -22,12 +22,23 @@
 #ifndef SDL_vitagles_pvr_c_h_
 #define SDL_vitagles_pvr_c_h_
 
-#include "SDL_vitavideo.h"
+#if defined(SDL_VIDEO_VITA_PVR)
+
+#include "../SDL_sysvideo.h"
+#include "../SDL_egl_c.h"
+
+#define VITA_GLES_GetProcAddress SDL_EGL_GetProcAddress
+#define VITA_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define VITA_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
+#define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
+#define VITA_GLES_DeleteContext SDL_EGL_DeleteContext
 
 extern int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
 extern int VITA_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
+
+#endif // SDL_VIDEO_VITA_PVR
 
 #endif /* SDL_vitagles_pvr_c_h_ */
 

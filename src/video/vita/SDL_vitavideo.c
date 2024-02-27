@@ -47,31 +47,25 @@
 #if defined(SDL_VIDEO_VITA_PVR_OGL)
 #include "SDL_vitagl_pvr_c.h"
 #endif
-  #define VITA_GLES_GetProcAddress SDL_EGL_GetProcAddress
-  #define VITA_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
-  #define VITA_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
-  #define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
-  #define VITA_GLES_DeleteContext SDL_EGL_DeleteContext
 #endif
 
 /* Instance */
 Vita_VideoData vitaVideoData;
 SDL_Window *Vita_Window;
 
-static void VITA_Destroy(SDL_VideoDevice *device)
+static void VITA_DeleteDevice(_THIS)
 {
+#ifdef SDL_VIDEO_VITA_PIB
+    VITA_GLES_UnloadLibrary(_this);
+#endif
     SDL_zero(vitaVideoData);
-    SDL_free(device->gl_data);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
-static SDL_VideoDevice *VITA_Create()
+static SDL_VideoDevice *VITA_CreateDevice()
 {
     SDL_VideoDevice *device;
     // Vita_VideoData *phdata = &vitaVideoData;
-#ifdef SDL_VIDEO_VITA_PIB
-    SDL_GLDriverData *gldata;
-#endif
     /* Initialize SDL_VideoDevice structure */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
@@ -81,19 +75,15 @@ static SDL_VideoDevice *VITA_Create()
 
     /* Initialize internal VITA specific data */
 #ifdef SDL_VIDEO_VITA_PIB
-
-    gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
-    if (!gldata) {
-        SDL_OutOfMemory();
+    if (VITA_GLES_LoadLibrary(device, NULL) < 0) {
         SDL_free(device);
         return NULL;
     }
-    device->gl_data = gldata;
 #endif
     // phdata->ime_active = SDL_FALSE;
 
     /* Set device free function */
-    device->free = VITA_Destroy;
+    device->free = VITA_DeleteDevice;
 
     /* Setup all functions which we can handle */
     device->VideoInit = VITA_VideoInit;
@@ -157,7 +147,7 @@ static SDL_VideoDevice *VITA_Create()
 }
 /* "VITA Video Driver" */
 const VideoBootStrap VITA_bootstrap = {
-    "VITA", VITA_Create
+    "VITA", VITA_CreateDevice
 };
 
 /*****************************************************************************/

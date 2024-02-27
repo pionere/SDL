@@ -62,6 +62,13 @@ void VITA_GLES_KeyboardCallback(ScePigletPreSwapData *data)
 
 int VITA_GLES_LoadLibrary(_THIS, const char *path)
 {
+    SDL_GLDriverData *gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
+    if (!gldata) {
+        return SDL_OutOfMemory();
+    }
+    _this->gl_data = gldata;
+    _this->gl_config.driver_loaded = 1;
+
     pibInit(PIB_SHACCCG | PIB_GET_PROC_ADDR_CORE);
     return 0;
 }
@@ -73,7 +80,12 @@ void *VITA_GLES_GetProcAddress(_THIS, const char *proc)
 
 void VITA_GLES_UnloadLibrary(_THIS)
 {
-    eglTerminate(_this->gl_data->display);
+    SDL_GLDriverData *gldata = _this->gl_data;
+    if (gldata) {
+        eglTerminate(gldata->display);
+        SDL_free(gldata);
+        _this->gl_data = NULL;
+    }
 }
 
 static EGLint width = 960;
