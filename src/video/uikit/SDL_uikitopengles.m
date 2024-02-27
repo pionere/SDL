@@ -101,12 +101,13 @@ void UIKit_GL_GetDrawableSize(SDL_Window * window, int * w, int * h)
 
 int UIKit_GL_LoadLibrary(_THIS, const char *path)
 {
-    /* We shouldn't pass a path to this function, since we've already loaded the
-     * library. */
-    if (path != NULL) {
-        return SDL_SetError("iOS GL Load Library just here for compatibility");
-    }
+    _this->gl_config.accelerated = 1;
+    _this->gl_config.driver_loaded = 1;
     return 0;
+}
+
+void UIKit_GL_UnloadLibrary(_THIS)
+{
 }
 
 int UIKit_GL_SwapWindow(_THIS, SDL_Window * window)

@@ -106,6 +106,7 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         device->GL_DeleteContext    = UIKit_GL_DeleteContext;
         device->GL_GetProcAddress   = UIKit_GL_GetProcAddress;
         device->GL_LoadLibrary      = UIKit_GL_LoadLibrary;
+        device->GL_UnloadLibrary    = UIKit_GL_UnloadLibrary;
 #endif
         device->free = UIKit_DeleteDevice;
 
@@ -124,9 +125,6 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         device->Metal_GetLayer = UIKit_Metal_GetLayer;
         device->Metal_GetDrawableSize = UIKit_Metal_GetDrawableSize;
 #endif
-
-        device->gl_config.accelerated = 1;
-
         return device;
     }
 }
@@ -138,7 +136,7 @@ const VideoBootStrap UIKIT_bootstrap = {
 
 int UIKit_VideoInit(_THIS)
 {
-    _this->gl_config.driver_loaded = 1;
+    UIKit_GL_LoadLibrary(_this, NULL);
 
     if (UIKit_InitModes() < 0) {
         return -1;
@@ -156,6 +154,8 @@ void UIKit_VideoQuit(_THIS)
     SDL_QuitGCMouse();
 
     UIKit_QuitModes();
+
+    // UIKit_GL_UnloadLibrary(_this);
 }
 
 void UIKit_SuspendScreenSaver(_THIS)
