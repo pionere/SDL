@@ -40,11 +40,9 @@ struct _DirectFB_GLContext
 };
 
 /* OpenGL functions */
-extern int DirectFB_GL_Initialize(_THIS);
-extern void DirectFB_GL_Shutdown(_THIS);
-
 extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
 extern void *DirectFB_GL_GetProcAddress(_THIS, const char *proc);
+extern void DirectFB_GL_UnloadLibrary(_THIS);
 extern SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window);
 extern int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window,
                                    SDL_GLContext context);

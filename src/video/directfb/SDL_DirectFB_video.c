@@ -126,6 +126,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
 #ifdef SDL_DIRECTFB_OPENGL
     device->GL_LoadLibrary = DirectFB_GL_LoadLibrary;
     device->GL_GetProcAddress = DirectFB_GL_GetProcAddress;
+    device->GL_UnloadLibrary = DirectFB_GL_UnloadLibrary;
     device->GL_MakeCurrent = DirectFB_GL_MakeCurrent;
 
     device->GL_CreateContext = DirectFB_GL_CreateContext;
@@ -258,7 +259,7 @@ static int DirectFB_VideoInit(_THIS)
     DirectFB_InitModes();
 
 #ifdef SDL_DIRECTFB_OPENGL
-    if (DirectFB_GL_Initialize(_this) < 0) {
+    if (DirectFB_GL_LoadLibrary(_this, NULL) < 0) {
         goto error;
     }
 #endif
@@ -287,7 +288,7 @@ static void DirectFB_VideoQuit(_THIS)
     SDL_DFB_RELEASE(devdata->dfb);
 
 #ifdef SDL_DIRECTFB_OPENGL
-    DirectFB_GL_Shutdown(_this);
+    DirectFB_GL_UnloadLibrary(_this);
 #endif
 }
 

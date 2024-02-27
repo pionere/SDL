@@ -37,12 +37,12 @@
 
 struct SDL_GLDriverData
 {
-    int gl_active;              /* to stop switching drivers while we have a valid context */
     DirectFB_GLContext *firstgl;        /* linked list */
-
+#if 0
     /* OpenGL */
     void (*glFinish) (void);
     void (*glFlush) (void);
+#endif
 };
 
 #define OPENGL_REQUIRS_DLOPEN
@@ -57,57 +57,21 @@ struct SDL_GLDriverData
 #define GL_UnloadObject SDL_UnloadObject
 #endif
 
-static void DirectFB_GL_UnloadLibrary(_THIS);
-
-int DirectFB_GL_Initialize(_THIS)
-{
-    if (_this->gl_data) {
-        return 0;
-    }
-
-    _this->gl_data =
-        (struct SDL_GLDriverData *) SDL_calloc(1,
-                                               sizeof(struct
-                                                      SDL_GLDriverData));
-    if (!_this->gl_data) {
-        return SDL_OutOfMemory();
-    }
-    // _this->gl_data->firstgl = NULL;
-
-    if (DirectFB_GL_LoadLibrary(_this, NULL) < 0) {
-        return -1;
-    }
-
-    /* Initialize extensions */
-    /* FIXME needed?
-     * X11_GL_InitExtensions(_this);
-     */
-
-    return 0;
-}
-
-void DirectFB_GL_Shutdown(_THIS)
-{
-    if (!_this->gl_data) {
-        return;
-    }
-
-    DirectFB_GL_UnloadLibrary(_this);
-
-    SDL_free(_this->gl_data);
-    _this->gl_data = NULL;
-}
-
 int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 {
-    void *handle = NULL;
+    void *handle;
+    SDL_GLDriverData *gldata;
 
     SDL_DFB_DEBUG("Loadlibrary : %s\n", path);
 
-    if (_this->gl_data->gl_active) {
-        return SDL_SetError("OpenGL context already created");
+    gldata =
+        (struct SDL_GLDriverData *) SDL_calloc(1,
+                                               sizeof(struct
+                                                      SDL_GLDriverData));
+    if (!gldata) {
+        return SDL_OutOfMemory();
     }
-
+    // gldata->firstgl = NULL;
 
     if (!path) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -118,35 +82,40 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 
     handle = GL_LoadObject(path);
     if (!handle) {
-        SDL_DFB_ERR("Library not found: %s\n", path);
         /* SDL_LoadObject() will call SDL_SetError() for us. */
+        SDL_DFB_FREE(gldata);
         return -1;
     }
 
+#if 0
+    gldata->glFinish = DirectFB_GL_GetProcAddress(_this, "glFinish");
+    gldata->glFlush = DirectFB_GL_GetProcAddress(_this, "glFlush");
+#endif
+
     SDL_DFB_DEBUG("Loaded library: %s\n", path);
 
+    _this->gl_data = gldata;
     _this->gl_config.dll_handle = handle;
+    _this->gl_config.driver_loaded = 1;
     if (path) {
         SDL_strlcpy(_this->gl_config.driver_path, path,
                     SDL_arraysize(_this->gl_config.driver_path));
     } else {
         *_this->gl_config.driver_path = '\0';
     }
-
-    _this->gl_data->glFinish = DirectFB_GL_GetProcAddress(_this, "glFinish");
-    _this->gl_data->glFlush = DirectFB_GL_GetProcAddress(_this, "glFlush");
+    /* Initialize extensions */
+    /* FIXME needed?
+     * X11_GL_InitExtensions(_this);
+     */
 
     return 0;
 }
 
-static void DirectFB_GL_UnloadLibrary(_THIS)
+void DirectFB_GL_UnloadLibrary(_THIS)
 {
- #if 0
-    int ret = GL_UnloadObject(_this->gl_config.dll_handle);
-    if (ret)
-        SDL_DFB_ERR("Error #%d trying to unload library.\n", ret);
+    GL_UnloadObject(_this->gl_config.dll_handle);
     _this->gl_config.dll_handle = NULL;
-#endif
+
     /* Free OpenGL memory */
     SDL_free(_this->gl_data);
     _this->gl_data = NULL;
@@ -170,10 +139,12 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
     SDL_DFB_CHECKERR(windata->surface->GetGL(windata->surface,
                                              &context->context));
 
-    if (!context->context)
+    if (!context->context) {
+        SDL_DFB_FREE(context);
         return NULL;
+    }
 
-    context->is_locked = 0;
+    // context->is_locked = 0;
     context->sdl_window = window;
 
     context->next = _this->gl_data->firstgl;
