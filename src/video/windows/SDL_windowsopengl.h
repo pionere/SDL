@@ -57,7 +57,7 @@ typedef struct tagPIXELFORMATDESCRIPTOR
 } PIXELFORMATDESCRIPTOR, *PPIXELFORMATDESCRIPTOR, *LPPIXELFORMATDESCRIPTOR;
 #endif
 
-struct SDL_GLDriverData
+typedef struct SDL_GLDriverData
 {
     SDL_bool HAS_WGL_ARB_pixel_format;
     SDL_bool HAS_WGL_EXT_swap_control_tear;
@@ -99,7 +99,7 @@ struct SDL_GLDriverData
     int (WINAPI *wglGetPixelFormat)(HDC hdc);
 #endif
     /* *INDENT-ON* */ /* clang-format on */
-};
+} SDL_GLDriverData;
 
 /* OpenGL functions */
 extern int WIN_GL_LoadLibrary(_THIS, const char *path);
@@ -114,8 +114,7 @@ extern int WIN_GL_SetSwapInterval(_THIS, int interval);
 extern int WIN_GL_GetSwapInterval(_THIS);
 extern int WIN_GL_SwapWindow(_THIS, SDL_Window *window);
 extern void WIN_GL_DeleteContext(_THIS, SDL_GLContext context);
-extern void WIN_GL_InitExtensions(_THIS);
-extern SDL_bool WIN_GL_SetPixelFormatFrom(_THIS, SDL_Window *fromWindow, SDL_Window *toWindow);
+extern SDL_bool WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow);
 
 #ifndef WGL_ARB_pixel_format
 #define WGL_NUMBER_PIXEL_FORMATS_ARB    0x2000

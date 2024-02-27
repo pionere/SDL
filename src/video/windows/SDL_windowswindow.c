@@ -612,7 +612,7 @@ int WIN_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
                 /* If the otherWindow has SDL_WINDOW_OPENGL set, set it for the new window as well */
                 if (otherWindow->flags & SDL_WINDOW_OPENGL) {
                     window->flags |= SDL_WINDOW_OPENGL;
-                    if (!WIN_GL_SetPixelFormatFrom(_this, otherWindow, window)) {
+                    if (!WIN_GL_SetPixelFormatFrom(otherWindow, window)) {
                         return -1;
                     }
                 }

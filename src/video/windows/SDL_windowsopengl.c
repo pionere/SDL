@@ -107,9 +107,11 @@ typedef HGLRC(APIENTRYP PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hDC,
 #define SetPixelFormat       _this->gl_data->wglSetPixelFormat
 #endif
 
+static void WIN_GL_InitExtensions(_THIS);
 int WIN_GL_LoadLibrary(_THIS, const char *path)
 {
     void *handle;
+    SDL_GLDriverData *gldata;
 
     if (path == NULL) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -117,61 +119,67 @@ int WIN_GL_LoadLibrary(_THIS, const char *path)
     if (path == NULL) {
         path = DEFAULT_OPENGL;
     }
-    _this->gl_config.dll_handle = SDL_LoadObject(path);
-    if (!_this->gl_config.dll_handle) {
+    handle = SDL_LoadObject(path);
+    if (!handle) {
         return -1;
     }
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
 
     /* Allocate OpenGL memory */
-    _this->gl_data = (struct SDL_GLDriverData *)SDL_calloc(1, sizeof(struct SDL_GLDriverData));
-    if (!_this->gl_data) {
+    gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
+    if (!gldata) {
+        SDL_UnloadObject(handle);
         return SDL_OutOfMemory();
     }
 
     /* Load function pointers */
-    handle = _this->gl_config.dll_handle;
     /* *INDENT-OFF* */ /* clang-format off */
-    _this->gl_data->wglGetProcAddress = (void *(WINAPI *)(const char *))
+    gldata->wglGetProcAddress = (void *(WINAPI *)(const char *))
         SDL_LoadFunction(handle, "wglGetProcAddress");
-    _this->gl_data->wglCreateContext = (HGLRC (WINAPI *)(HDC))
+    gldata->wglCreateContext = (HGLRC (WINAPI *)(HDC))
         SDL_LoadFunction(handle, "wglCreateContext");
-    _this->gl_data->wglDeleteContext = (BOOL (WINAPI *)(HGLRC))
+    gldata->wglDeleteContext = (BOOL (WINAPI *)(HGLRC))
         SDL_LoadFunction(handle, "wglDeleteContext");
-    _this->gl_data->wglMakeCurrent = (BOOL (WINAPI *)(HDC, HGLRC))
+    gldata->wglMakeCurrent = (BOOL (WINAPI *)(HDC, HGLRC))
         SDL_LoadFunction(handle, "wglMakeCurrent");
-    _this->gl_data->wglShareLists = (BOOL (WINAPI *)(HGLRC, HGLRC))
+    gldata->wglShareLists = (BOOL (WINAPI *)(HGLRC, HGLRC))
         SDL_LoadFunction(handle, "wglShareLists");
     /* *INDENT-ON* */ /* clang-format on */
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    _this->gl_data->wglSwapBuffers = (BOOL(WINAPI *)(HDC))
+    gldata->wglSwapBuffers = (BOOL(WINAPI *)(HDC))
         SDL_LoadFunction(handle, "wglSwapBuffers");
-    _this->gl_data->wglDescribePixelFormat = (int(WINAPI *)(HDC, int, UINT, LPPIXELFORMATDESCRIPTOR))
+    gldata->wglDescribePixelFormat = (int(WINAPI *)(HDC, int, UINT, LPPIXELFORMATDESCRIPTOR))
         SDL_LoadFunction(handle, "wglDescribePixelFormat");
-    _this->gl_data->wglChoosePixelFormat = (int(WINAPI *)(HDC, const PIXELFORMATDESCRIPTOR *))
+    gldata->wglChoosePixelFormat = (int(WINAPI *)(HDC, const PIXELFORMATDESCRIPTOR *))
         SDL_LoadFunction(handle, "wglChoosePixelFormat");
-    _this->gl_data->wglSetPixelFormat = (BOOL(WINAPI *)(HDC, int, const PIXELFORMATDESCRIPTOR *))
+    gldata->wglSetPixelFormat = (BOOL(WINAPI *)(HDC, int, const PIXELFORMATDESCRIPTOR *))
         SDL_LoadFunction(handle, "wglSetPixelFormat");
-    _this->gl_data->wglGetPixelFormat = (int(WINAPI *)(HDC hdc))
+    gldata->wglGetPixelFormat = (int(WINAPI *)(HDC hdc))
         SDL_LoadFunction(handle, "wglGetPixelFormat");
 #endif
 
-    if (!_this->gl_data->wglGetProcAddress ||
-        !_this->gl_data->wglCreateContext ||
-        !_this->gl_data->wglDeleteContext ||
-        !_this->gl_data->wglMakeCurrent
+    if (!gldata->wglGetProcAddress ||
+        !gldata->wglCreateContext ||
+        !gldata->wglDeleteContext ||
+        !gldata->wglMakeCurrent
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-        || !_this->gl_data->wglSwapBuffers ||
-        !_this->gl_data->wglDescribePixelFormat ||
-        !_this->gl_data->wglChoosePixelFormat ||
-        !_this->gl_data->wglGetPixelFormat ||
-        !_this->gl_data->wglSetPixelFormat
+        || !gldata->wglSwapBuffers ||
+        !gldata->wglDescribePixelFormat ||
+        !gldata->wglChoosePixelFormat ||
+        !gldata->wglGetPixelFormat ||
+        !gldata->wglSetPixelFormat
 #endif
     ) {
+        SDL_UnloadObject(handle);
+        SDL_free(gldata);
         return SDL_SetError("Could not retrieve OpenGL functions");
     }
+
+    _this->gl_config.dll_handle = handle;
+    _this->gl_data = gldata;
+
+    SDL_strlcpy(_this->gl_config.driver_path, path,
+                SDL_arraysize(_this->gl_config.driver_path));
 
     /* XXX Too sleazy? WIN_GL_InitExtensions looks for certain OpenGL
        extensions via SDL_GL_DeduceMaxSupportedESProfile. This uses
@@ -222,7 +230,7 @@ void *WIN_GL_GetProcAddress(_THIS, const char *proc)
     func = _this->gl_data->wglGetProcAddress(proc);
     if (!func) {
         /* This is probably a normal GL function */
-        func = GetProcAddress(_this->gl_config.dll_handle, proc);
+        func = SDL_LoadFunction(_this->gl_config.dll_handle, proc);
     }
     return func;
 }
@@ -411,7 +419,7 @@ static SDL_bool HasExtension(const char *extension, const char *extensions)
     return SDL_FALSE;
 }
 
-void WIN_GL_InitExtensions(_THIS)
+static void WIN_GL_InitExtensions(_THIS)
 {
     /* *INDENT-OFF* */ /* clang-format off */
     const char *(WINAPI * wglGetExtensionsStringARB)(HDC) = 0;
@@ -422,9 +430,7 @@ void WIN_GL_InitExtensions(_THIS)
     HGLRC hglrc;
     PIXELFORMATDESCRIPTOR pfd;
 
-    if (!_this->gl_data) {
-        return;
-    }
+    SDL_assert(_this->gl_data != NULL);
 
     hwnd =
         CreateWindow(SDL_Appname, SDL_Appname, (WS_POPUP | WS_DISABLED), 0, 0,
@@ -892,13 +898,12 @@ int WIN_GL_SwapWindow(_THIS, SDL_Window *window)
 
 void WIN_GL_DeleteContext(_THIS, SDL_GLContext context)
 {
-    if (!_this->gl_data) {
-        return;
+    if (_this->gl_data) {
+        _this->gl_data->wglDeleteContext((HGLRC)context);
     }
-    _this->gl_data->wglDeleteContext((HGLRC)context);
 }
 
-SDL_bool WIN_GL_SetPixelFormatFrom(_THIS, SDL_Window *fromWindow, SDL_Window *toWindow)
+SDL_bool WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow)
 {
     HDC hfromdc = ((SDL_WindowData *)fromWindow->driverdata)->hdc;
     HDC htodc = ((SDL_WindowData *)toWindow->driverdata)->hdc;
