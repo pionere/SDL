@@ -193,8 +193,8 @@ static SDL_Cursor * HAIKU_CreateCursor(SDL_Surface * surface, int hot_x, int hot
         return NULL;
     }
 
-	BBitmap *cursorBitmap = new BBitmap(BRect(0, 0, surface->w - 1, surface->h - 1), B_RGBA32);
-	cursorBitmap->SetBits(converted->pixels, converted->h * converted->pitch, 0, B_RGBA32);
+    BBitmap *cursorBitmap = new BBitmap(BRect(0, 0, surface->w - 1, surface->h - 1), B_RGBA32);
+    cursorBitmap->SetBits(converted->pixels, converted->h * converted->pitch, 0, B_RGBA32);
     SDL_FreeSurface(converted);
 
     cursor = (SDL_Cursor *) SDL_calloc(1, sizeof(*cursor));
@@ -209,57 +209,57 @@ static SDL_Cursor * HAIKU_CreateCursor(SDL_Surface * surface, int hot_x, int hot
 
 static int HAIKU_ShowCursor(SDL_Cursor *cursor)
 {
-	SDL_Mouse *mouse = SDL_GetMouse();
+    SDL_Mouse *mouse = SDL_GetMouse();
 
-	if (!mouse) {
-		return 0;
-	}
+    if (!mouse) {
+        return 0;
+    }
 
-	if (cursor) {
-		BCursor *hCursor = (BCursor*)cursor->driverdata;
-		be_app->SetCursor(hCursor);
-	} else {
-		BCursor *hCursor = new BCursor(B_CURSOR_ID_NO_CURSOR);
-		be_app->SetCursor(hCursor);
-		delete hCursor;
-	}
+    if (cursor) {
+        BCursor *hCursor = (BCursor*)cursor->driverdata;
+        be_app->SetCursor(hCursor);
+    } else {
+        BCursor *hCursor = new BCursor(B_CURSOR_ID_NO_CURSOR);
+        be_app->SetCursor(hCursor);
+        delete hCursor;
+    }
 
-	return 0;
+    return 0;
 }
 
 static int HAIKU_SetRelativeMouseMode(SDL_bool enabled)
 {
     SDL_Window *window = SDL_GetMouseFocus();
     if (!window) {
-      return 0;
+        return 0;
     }
 
-	SDL_BWin *bewin = _ToBeWin(window);
-	BGLView *_SDL_GLView = bewin->GetGLView();
+    SDL_BWin *bewin = _ToBeWin(window);
+    BGLView *_SDL_GLView = bewin->GetGLView();
 
-	bewin->Lock();
-	if (enabled)
-		_SDL_GLView->SetEventMask(B_POINTER_EVENTS, B_NO_POINTER_HISTORY);
-	else
-		_SDL_GLView->SetEventMask(0, 0);
-	bewin->Unlock();
+    bewin->Lock();
+    if (enabled)
+        _SDL_GLView->SetEventMask(B_POINTER_EVENTS, B_NO_POINTER_HISTORY);
+    else
+        _SDL_GLView->SetEventMask(0, 0);
+    bewin->Unlock();
 
     return 0;
 }
 
 static void HAIKU_MouseInit(void)
 {
-	SDL_Mouse *mouse = SDL_GetMouse();
-	if (!mouse) {
-		return;
-	}
-	mouse->CreateCursor = HAIKU_CreateCursor;
-	mouse->CreateSystemCursor = HAIKU_CreateSystemCursor;
-	mouse->ShowCursor = HAIKU_ShowCursor;
-	mouse->FreeCursor = HAIKU_FreeCursor;
-	mouse->SetRelativeMouseMode = HAIKU_SetRelativeMouseMode;
+    SDL_Mouse *mouse = SDL_GetMouse();
+    if (!mouse) {
+        return;
+    }
+    mouse->CreateCursor = HAIKU_CreateCursor;
+    mouse->CreateSystemCursor = HAIKU_CreateSystemCursor;
+    mouse->ShowCursor = HAIKU_ShowCursor;
+    mouse->FreeCursor = HAIKU_FreeCursor;
+    mouse->SetRelativeMouseMode = HAIKU_SetRelativeMouseMode;
 
-	SDL_SetDefaultCursor(HAIKU_CreateDefaultCursor());
+    SDL_SetDefaultCursor(HAIKU_CreateDefaultCursor());
 }
 
 int HAIKU_VideoInit(_THIS)
@@ -289,7 +289,7 @@ int HAIKU_VideoInit(_THIS)
 
 void HAIKU_VideoQuit(_THIS)
 {
-
+    // HAIKU_GL_UnloadLibrary(_this);
     HAIKU_QuitModes();
 
     SDL_QuitBeApp();

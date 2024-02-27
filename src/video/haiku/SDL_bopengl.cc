@@ -48,7 +48,7 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
 {
 /* FIXME: Is this working correctly? */
     image_info info;
-            int32 cookie = 0;
+    int32 cookie = 0;
     while (get_next_image_info(0, &cookie, &info) == B_OK) {
         void *location = NULL;
         if ( get_image_symbol(info.id, "glBegin", B_SYMBOL_TYPE_ANY,
@@ -58,6 +58,7 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
             _this->gl_config.driver_loaded = 1;
             SDL_strlcpy(_this->gl_config.driver_path, "libGL.so",
                     SDL_arraysize(_this->gl_config.driver_path));
+            break;
         }
     }
     return 0;
