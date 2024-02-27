@@ -56,7 +56,6 @@ extern "C" int
 WINRT_GLES_LoadLibrary(_THIS, const char *path)
 {
     int result;
-    WinRT_VideoData *video_data = &winrtVideoData;
     SDL_EGL_VideoData *egl_data;
 
     result = SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
@@ -77,7 +76,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
         /* TODO, WinRT: check for XAML usage before accessing the CoreWindow, as not doing so could lead to a crash */
         CoreWindow ^ native_win = CoreWindow::GetForCurrentThread();
         Microsoft::WRL::ComPtr<IUnknown> cpp_win = reinterpret_cast<IUnknown *>(native_win);
-        HRESULT result = CreateWinrtEglWindow(cpp_win, ANGLE_D3D_FEATURE_LEVEL_ANY, &(video_data->winrtEglWindow));
+        HRESULT result = CreateWinrtEglWindow(cpp_win, ANGLE_D3D_FEATURE_LEVEL_ANY, &(egl_data->winrt_egl_addon));
         if (FAILED(result)) {
             return SDL_SetError("Could not create an EGL-window");
         }
@@ -88,7 +87,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          * eglGetDisplay requires that a C++ object be passed into it, so the
          * call will be made in this file, a C++ file, instead.
          */
-        Microsoft::WRL::ComPtr<IUnknown> cpp_display = video_data->winrtEglWindow;
+        Microsoft::WRL::ComPtr<IUnknown> cpp_display = egl_data->winrt_egl_addon;
         EGLDisplay display = ((eglGetDisplay_Old_Function)egl_data->eglGetDisplay)(cpp_display);
         return SDL_EGL_InitializeDisplay(egl_data, display); // setup Windows 8.0 EGL display
     } else {
@@ -173,12 +172,10 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
 extern "C" void
 WINRT_GLES_UnloadLibrary(_THIS)
 {
-    WinRT_VideoData *video_data = &winrtVideoData;
-
     /* Release SDL's own COM reference to the ANGLE/WinRT IWinrtEglWindow */
-    if (video_data->winrtEglWindow) {
-        video_data->winrtEglWindow->Release();
-        video_data->winrtEglWindow = nullptr;
+    if (_this->egl_data->winrt_egl_addon) {
+        _this->egl_data->winrt_egl_addon->Release();
+        _this->egl_data->winrt_egl_addon = nullptr;
     }
 
     /* Perform the bulk of the unloading */
@@ -194,8 +191,8 @@ SDL_EGL_CreateContext_impl(WINRT)
 extern "C" EGLSurface
 WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
 {
-    WinRT_VideoData *video_data = &winrtVideoData;
     const SDL_WindowData *data = (const SDL_WindowData *)window->driverdata;
+    SDL_EGL_VideoData *egl_data;
     EGLSurface surface;
     SDL_COMPILE_TIME_ASSERT(no_surface, EGL_NO_SURFACE == NULL);
     /* Call SDL_EGL_ChooseConfig and eglCreateWindowSurface directly,
@@ -208,23 +205,24 @@ WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
         return EGL_NO_SURFACE;
     }
 
-    if (video_data->winrtEglWindow) { /* ... is the 'old' version of ANGLE/WinRT being used? */
+    egl_data = _this->egl_data;
+    if (egl_data->winrt_egl_addon) { /* ... is the 'old' version of ANGLE/WinRT being used? */
         /* Attempt to create a window surface using older versions of
          * ANGLE/WinRT:
          */
-        Microsoft::WRL::ComPtr<IUnknown> cpp_winrtEglWindow = video_data->winrtEglWindow;
-        surface = ((eglCreateWindowSurface_Old_Function)_this->egl_data->eglCreateWindowSurface)(
-            _this->egl_data->egl_display,
-            _this->egl_data->egl_config,
+        Microsoft::WRL::ComPtr<IUnknown> cpp_winrtEglWindow = egl_data->winrt_egl_addon;
+        surface = ((eglCreateWindowSurface_Old_Function)egl_data->eglCreateWindowSurface)(
+            egl_data->egl_display,
+            egl_data->egl_config,
             cpp_winrtEglWindow, NULL);
     } else if (data->coreWindow.Get() != nullptr) {
         /* Attempt to create a window surface using newer versions of
          * ANGLE/WinRT:
          */
         IInspectable *coreWindowAsIInspectable = reinterpret_cast<IInspectable *>(data->coreWindow.Get());
-        surface = _this->egl_data->eglCreateWindowSurface(
-            _this->egl_data->egl_display,
-            _this->egl_data->egl_config,
+        surface = egl_data->eglCreateWindowSurface(
+            egl_data->egl_display,
+            egl_data->egl_config,
             (NativeWindowType)coreWindowAsIInspectable,
             NULL);
     } else {

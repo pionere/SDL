@@ -43,11 +43,6 @@ extern "C" {
 /* Private display data */
 typedef struct WinRT_VideoData
 {
-    /* An object created by ANGLE/WinRT (OpenGL ES 2 for WinRT) that gets
-     * passed to eglGetDisplay and eglCreateWindowSurface:
-     */
-    IUnknown *winrtEglWindow;
-
     /* Event token(s), for unregistering WinRT event handler(s).
        These are just a struct with a 64-bit integer inside them
     */

@@ -49,6 +49,12 @@ typedef struct SDL_EGL_VideoData
     EGLint egl_required_visual_id;
     SDL_bool is_offscreen;  /* whether EGL display was offscreen */
     EGLenum apitype;  /* EGL_OPENGL_ES_API, EGL_OPENGL_API, etc */
+#ifdef SDL_VIDEO_DRIVER_WINRT
+    /* An object created by ANGLE/WinRT (OpenGL ES 2 for WinRT) that gets
+     * passed to eglGetDisplay and eglCreateWindowSurface:
+     */
+    IUnknown *winrt_egl_addon;
+#endif
 
     EGLDisplay(EGLAPIENTRY *eglGetDisplay) (NativeDisplayType display);
 
