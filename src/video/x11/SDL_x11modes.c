@@ -27,6 +27,13 @@
 #include "SDL_timer.h"
 #include "edid.h"
 
+#ifdef SDL_VIDEO_DRIVER_X11_XRANDR
+typedef struct
+{
+    RRMode xrandr_mode;
+} SDL_DisplayModeData;
+#endif
+
 /* #define X11MODES_DEBUG */
 
 /* I'm becoming more and more convinced that the application should never
@@ -554,7 +561,6 @@ static int X11_InitModes_StdXlib(void)
     const int default_screen = DefaultScreen(dpy);
     Screen *screen = ScreenOfDisplay(dpy, default_screen);
     int display_mm_width, display_mm_height, xft_dpi, scanline_pad, n, i;
-    SDL_DisplayModeData *modedata;
     SDL_DisplayData *displaydata;
     XPixmapFormatValues *pixmapformats;
     Uint32 pixelformat;
@@ -574,23 +580,16 @@ static int X11_InitModes_StdXlib(void)
         return SDL_SetError("Palettized video modes are no longer supported");
     }
 
-    SDL_zero(mode);
     mode.w = WidthOfScreen(screen);
     mode.h = HeightOfScreen(screen);
     mode.format = pixelformat;
     mode.refresh_rate = 0; /* don't know it, sorry. */
+    mode.driverdata = NULL;
 
     displaydata = (SDL_DisplayData *)SDL_calloc(1, sizeof(*displaydata));
     if (!displaydata) {
         return SDL_OutOfMemory();
     }
-
-    modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
-    if (!modedata) {
-        SDL_free(displaydata);
-        return SDL_OutOfMemory();
-    }
-    mode.driverdata = modedata;
 
     display_mm_width = WidthMMOfScreen(screen);
     display_mm_height = HeightMMOfScreen(screen);
@@ -662,7 +661,6 @@ int X11_InitModes(void)
 static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *desktop_mode)
 {
     SDL_DisplayData *data;
-    SDL_DisplayModeData *modedata;
     SDL_DisplayMode mode;
 
     // add the desktop mode
@@ -693,7 +691,7 @@ static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *
             output_info = X11_XRRGetOutputInfo(display, res, data->xrandr_output);
             if (output_info && output_info->connection != RR_Disconnected) {
                 for (i = 0; i < output_info->nmode; ++i) {
-                    modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
+                    SDL_DisplayModeData *modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
                     if (!modedata) {
                         continue;
                     }
@@ -711,16 +709,6 @@ static void X11_GetDisplayModes(SDL_VideoDisplay *sdl_display, SDL_DisplayMode *
         return;
     }
 #endif /* SDL_VIDEO_DRIVER_X11_XRANDR */
-    /* Add the desktop mode */
-    mode = sdl_display->desktop_mode;
-    modedata = (SDL_DisplayModeData *)SDL_calloc(1, sizeof(SDL_DisplayModeData));
-    if (modedata) {
-        *modedata = *(SDL_DisplayModeData *)sdl_display->desktop_mode.driverdata;
-    }
-    mode.driverdata = modedata;
-    if (!SDL_AddDisplayMode(sdl_display, &mode)) {
-        SDL_free(modedata);
-    }
 }
 
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR

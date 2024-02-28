@@ -35,21 +35,11 @@ typedef struct
     float hdpi;
     float vdpi;
 
-    SDL_bool use_xrandr;
-
 #ifdef SDL_VIDEO_DRIVER_X11_XRANDR
+    SDL_bool use_xrandr;
     RROutput xrandr_output;
 #endif
 } SDL_DisplayData;
-
-typedef struct
-{
-#ifdef SDL_VIDEO_DRIVER_X11_XRANDR
-    RRMode xrandr_mode;
-#else
-    int unused; /* just so struct isn't empty. */
-#endif
-} SDL_DisplayModeData;
 
 extern int X11_InitModes(void);
 extern int X11_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
