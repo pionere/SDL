@@ -259,29 +259,13 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     device->shape_driver.ResizeWindowShape = X11_ResizeWindowShape;
 
 #ifdef SDL_VIDEO_OPENGL_GLX
-    device->GL_LoadLibrary = X11_GL_LoadLibrary;
-    device->GL_GetProcAddress = X11_GL_GetProcAddress;
-    device->GL_UnloadLibrary = X11_GL_UnloadLibrary;
-    device->GL_CreateContext = X11_GL_CreateContext;
-    device->GL_MakeCurrent = X11_GL_MakeCurrent;
-    device->GL_SetSwapInterval = X11_GL_SetSwapInterval;
-    device->GL_GetSwapInterval = X11_GL_GetSwapInterval;
-    device->GL_SwapWindow = X11_GL_SwapWindow;
-    device->GL_DeleteContext = X11_GL_DeleteContext;
+    X11_GL_InitDevice(device);
 #endif
 #ifdef SDL_VIDEO_OPENGL_EGL
 #ifdef SDL_VIDEO_OPENGL_GLX
     if (SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE)) {
 #endif
-        device->GL_LoadLibrary = X11_GLES_LoadLibrary;
-        device->GL_GetProcAddress = X11_GLES_GetProcAddress;
-        device->GL_UnloadLibrary = X11_GLES_UnloadLibrary;
-        device->GL_CreateContext = X11_GLES_CreateContext;
-        device->GL_MakeCurrent = X11_GLES_MakeCurrent;
-        device->GL_SetSwapInterval = X11_GLES_SetSwapInterval;
-        device->GL_GetSwapInterval = X11_GLES_GetSwapInterval;
-        device->GL_SwapWindow = X11_GLES_SwapWindow;
-        device->GL_DeleteContext = X11_GLES_DeleteContext;
+        X11_GLES_InitDevice(device);
 #ifdef SDL_VIDEO_OPENGL_GLX
     }
 #endif

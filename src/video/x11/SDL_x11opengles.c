@@ -29,30 +29,38 @@
 
 /* EGL implementation of SDL OpenGL support */
 
+void X11_GLES_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = X11_GLES_LoadLibrary;
+    _this->GL_GetProcAddress = X11_GLES_GetProcAddress;
+    _this->GL_UnloadLibrary = X11_GLES_UnloadLibrary;
+    _this->GL_CreateContext = X11_GLES_CreateContext;
+    _this->GL_MakeCurrent = X11_GLES_MakeCurrent;
+    _this->GL_SetSwapInterval = X11_GLES_SetSwapInterval;
+    _this->GL_GetSwapInterval = X11_GLES_GetSwapInterval;
+    _this->GL_SwapWindow = X11_GLES_SwapWindow;
+    _this->GL_DeleteContext = X11_GLES_DeleteContext;
+}
+
 int X11_GLES_LoadLibrary(_THIS, const char *path)
 {
-    X11_VideoData *data = &x11VideoData;
-
     /* If the profile requested is not GL ES, switch over to X11_GL functions  */
-    if ((_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) &&
+    if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES &&
         !SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE)) {
-        #ifdef SDL_VIDEO_OPENGL_GLX
-        X11_GLES_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = X11_GL_LoadLibrary;
-        _this->GL_GetProcAddress = X11_GL_GetProcAddress;
-        _this->GL_UnloadLibrary = X11_GL_UnloadLibrary;
-        _this->GL_CreateContext = X11_GL_CreateContext;
-        _this->GL_MakeCurrent = X11_GL_MakeCurrent;
-        _this->GL_SetSwapInterval = X11_GL_SetSwapInterval;
-        _this->GL_GetSwapInterval = X11_GL_GetSwapInterval;
-        _this->GL_SwapWindow = X11_GL_SwapWindow;
-        _this->GL_DeleteContext = X11_GL_DeleteContext;
-        return X11_GL_LoadLibrary(_this, path);
+#ifdef SDL_VIDEO_OPENGL_GLX
+        X11_GL_InitDevice(_this);
+        return X11_GL_PrivateLoadLibrary(_this, path);
 #else
         return SDL_SetError("SDL not configured with OpenGL/GLX support");
 #endif
     }
 
+    return X11_GLES_PrivateLoadLibrary(_this, path);
+}
+
+int X11_GLES_PrivateLoadLibrary(_THIS, const char *path)
+{
+    X11_VideoData *data = &x11VideoData;
     return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
 }
 

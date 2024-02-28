@@ -412,18 +412,20 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
         XVisualInfo *vinfo = NULL;
 
 #ifdef SDL_VIDEO_OPENGL_EGL
-        if (((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) ||
-             SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
 #ifdef SDL_VIDEO_OPENGL_GLX
-            && (!_this->gl_data || X11_GL_UseEGL(_this) )
+        if (X11_GL_UseEGL(_this)) {
+#else
+        if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ||
+             SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE) {
 #endif
-        ) {
             vinfo = X11_GLES_GetVisual(_this, display, screen);
         } else
 #endif
         {
 #ifdef SDL_VIDEO_OPENGL_GLX
             vinfo = X11_GL_GetVisual(_this, display, screen);
+#else
+            SDL_SetError("Could not create GL window (OpenGL/GLX support not configured)");
 #endif
         }
 
@@ -635,15 +637,23 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
 
 #ifdef SDL_VIDEO_OPENGL_ANY
     if ((window->flags & SDL_WINDOW_OPENGL) &&
-        ((_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) ||
-         SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
 #ifdef SDL_VIDEO_OPENGL_GLX
-        && (!_this->gl_data || X11_GL_UseEGL(_this) )
+        X11_GL_UseEGL(_this)
+#else
+        (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ||
+         SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
 #endif
     ) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         if (!_this->egl_data) {
-            return -1;
+            /* Switch to EGL based functions */
+            // X11_GL_UnloadLibrary(_this);
+
+            // X11_GLES_InitDevice(_this);
+            // if (X11_GLES_PrivateLoadLibrary(_this, NULL) < 0) {
+            //     _this->gl_config.driver_loaded = 0;
+                return -1;
+            // }
         }
 
         /* Create the GLES window surface */
