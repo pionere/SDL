@@ -4095,6 +4095,10 @@ int SDL_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
         return SDL_UninitializedVideo();
     }
 
+    if (!_this->gl_config.driver_loaded) {
+        return SDL_SetError("No GL driver has been loaded");
+    }
+
     if (window == SDL_GL_GetCurrentWindow() &&
         context == SDL_GL_GetCurrentContext()) {
         /* We're already current. */
@@ -4200,7 +4204,7 @@ void SDL_GL_SwapWindow(SDL_Window *window)
 
 void SDL_GL_DeleteContext(SDL_GLContext context)
 {
-    if (!_this || !context) {
+    if (!_this || !context || !_this->gl_config.driver_loaded) {
         return;
     }
 
