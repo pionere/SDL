@@ -66,7 +66,7 @@ int VITA_GLES_LoadLibrary(_THIS, const char *path)
         PVRSRVCreateVirtualAppHint(&hint);
     }
 
-    return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType)0, 0);
+    return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
 SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window)
