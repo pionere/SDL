@@ -322,13 +322,9 @@ void *PND_gl_getprocaddres(_THIS, const char *proc)
 
 void PND_gl_unloadlibrary(_THIS)
 {
-    Pandora_VideoData *phdata = &pandoraVideoData;
-
-        /* Unload OpenGL ES library */
-        if (_this->gl_config.dll_handle) {
-            SDL_UnloadObject(_this->gl_config.dll_handle);
-            _this->gl_config.dll_handle = NULL;
-        }
+    /* Unload OpenGL ES library */
+    SDL_UnloadObject(_this->gl_config.dll_handle);
+    _this->gl_config.dll_handle = NULL;
 }
 
 SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)

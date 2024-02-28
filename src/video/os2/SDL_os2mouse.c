@@ -180,13 +180,6 @@ void OS2_InitMouse(ULONG hab)
 
 void OS2_QuitMouse(void)
 {
-    SDL_Mouse   *pSDLMouse = SDL_GetMouse();
-
-    if (pSDLMouse->def_cursor) {
-        SDL_free(pSDLMouse->def_cursor);
-        pSDLMouse->def_cursor = NULL;
-        pSDLMouse->cur_cursor = NULL;
-    }
 }
 
 #endif /* SDL_VIDEO_DRIVER_OS2 */
