@@ -1814,11 +1814,17 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
 #ifdef SDL_VIDEO_OPENGL_ES2
     if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_EGL
-        if (Cocoa_GLES_SetupWindow(_this, window) < 0) {
-            Cocoa_DestroyWindow(_this, window);
-            return -1;
+        if (!_this->egl_data) {
+            /* Switch to EGL based functions */
+            Cocoa_GL_UnloadLibrary(_this);
+
+            Cocoa_GLES_InitDevice(_this);
+            if (Cocoa_GLES_LoadLibrary(_this, NULL) < 0) {
+                _this->gl_config.driver_loaded = 0;
+                return -1;
+            }
         }
-        return 0;
+        return Cocoa_GLES_SetupWindow(_this, window);
 #else
         return SDL_SetError("Could not create GLES window surface (EGL support not configured)");
 #endif /* SDL_VIDEO_OPENGL_EGL */

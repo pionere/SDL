@@ -41,6 +41,8 @@ extern int Cocoa_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext cont
 extern void Cocoa_GLES_DeleteContext(_THIS, SDL_GLContext context);
 extern int Cocoa_GLES_SetupWindow(_THIS, SDL_Window * window);
 
+extern void Cocoa_GLES_InitDevice(_THIS);
+
 #endif /* SDL_VIDEO_OPENGL_EGL */
 
 #endif /* SDL_cocoaopengles_h_ */

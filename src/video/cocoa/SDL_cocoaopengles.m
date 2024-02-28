@@ -28,21 +28,26 @@
 
 /* EGL implementation of SDL OpenGL support */
 
+void Cocoa_GLES_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = Cocoa_GLES_LoadLibrary;
+    _this->GL_GetProcAddress = Cocoa_GLES_GetProcAddress;
+    _this->GL_UnloadLibrary = Cocoa_GLES_UnloadLibrary;
+    _this->GL_CreateContext = Cocoa_GLES_CreateContext;
+    _this->GL_MakeCurrent = Cocoa_GLES_MakeCurrent;
+    _this->GL_SetSwapInterval = Cocoa_GLES_SetSwapInterval;
+    _this->GL_GetSwapInterval = Cocoa_GLES_GetSwapInterval;
+    _this->GL_SwapWindow = Cocoa_GLES_SwapWindow;
+    _this->GL_DeleteContext = Cocoa_GLES_DeleteContext;
+}
+
 int Cocoa_GLES_LoadLibrary(_THIS, const char *path)
 {
     /* If the profile requested is not GL ES, switch over to WIN_GL functions  */
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_CGL
-        Cocoa_GLES_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = Cocoa_GL_LoadLibrary;
-        _this->GL_GetProcAddress = Cocoa_GL_GetProcAddress;
-        _this->GL_UnloadLibrary = Cocoa_GL_UnloadLibrary;
-        _this->GL_CreateContext = Cocoa_GL_CreateContext;
-        _this->GL_MakeCurrent = Cocoa_GL_MakeCurrent;
-        _this->GL_SetSwapInterval = Cocoa_GL_SetSwapInterval;
-        _this->GL_GetSwapInterval = Cocoa_GL_GetSwapInterval;
-        _this->GL_SwapWindow = Cocoa_GL_SwapWindow;
-        _this->GL_DeleteContext = Cocoa_GL_DeleteContext;
+        /* Switch to CGL based functions */
+        Cocoa_GL_InitDevice(_this);
         return Cocoa_GL_LoadLibrary(_this, path);
 #else
         return SDL_SetError("SDL not configured with OpenGL/CGL support");
@@ -62,17 +67,9 @@ SDL_GLContext Cocoa_GLES_CreateContext(_THIS, SDL_Window * window)
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
         /* Switch to CGL based functions */
         Cocoa_GLES_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = Cocoa_GL_LoadLibrary;
-        _this->GL_GetProcAddress = Cocoa_GL_GetProcAddress;
-        _this->GL_UnloadLibrary = Cocoa_GL_UnloadLibrary;
-        _this->GL_CreateContext = Cocoa_GL_CreateContext;
-        _this->GL_MakeCurrent = Cocoa_GL_MakeCurrent;
-        _this->GL_SetSwapInterval = Cocoa_GL_SetSwapInterval;
-        _this->GL_GetSwapInterval = Cocoa_GL_GetSwapInterval;
-        _this->GL_SwapWindow = Cocoa_GL_SwapWindow;
-        _this->GL_DeleteContext = Cocoa_GL_DeleteContext;
-
-        if (Cocoa_GL_LoadLibrary(_this, NULL) != 0) {
+        Cocoa_GL_InitDevice(_this);
+        if (Cocoa_GL_LoadLibrary(_this, NULL) < 0) {
+            _this->gl_config.driver_loaded = 0;
             return NULL;
         }
 
@@ -109,19 +106,6 @@ int Cocoa_GLES_SetupWindow(_THIS, SDL_Window * window)
     SDL_WindowData *windowdata = (__bridge SDL_WindowData *) window->driverdata;
     SDL_Window *current_win = SDL_GL_GetCurrentWindow();
     SDL_GLContext current_ctx = SDL_GL_GetCurrentContext();
-
-
-    if (_this->egl_data == NULL) {
-        /* !!! FIXME: commenting out this assertion is (I think) incorrect; figure out why driver_loaded is wrong for ANGLE instead. --ryan. */
-        #if 0  /* When hint SDL_HINT_OPENGL_ES_DRIVER is set to "1" (e.g. for ANGLE support), _this->gl_config.driver_loaded can be 1, while the below lines function. */
-        SDL_assert(!_this->gl_config.driver_loaded);
-        #endif
-        if (SDL_EGL_LoadLibrary(_this, NULL, EGL_DEFAULT_DISPLAY, 0) < 0) {
-            SDL_EGL_UnloadLibrary(_this);
-            return -1;
-        }
-        _this->gl_config.driver_loaded = 1;
-    }
 
     /* Create the GLES window surface */
     v = windowdata.nswindow.contentView;

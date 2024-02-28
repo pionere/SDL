@@ -76,6 +76,8 @@ extern int Cocoa_GL_GetSwapInterval(_THIS);
 extern int Cocoa_GL_SwapWindow(_THIS, SDL_Window * window);
 extern void Cocoa_GL_DeleteContext(_THIS, SDL_GLContext context);
 
+extern void Cocoa_GL_InitDevice(_THIS);
+
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif

@@ -222,6 +222,18 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 @end
 
+void Cocoa_GL_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = Cocoa_GL_LoadLibrary;
+    _this->GL_GetProcAddress = Cocoa_GL_GetProcAddress;
+    _this->GL_UnloadLibrary = Cocoa_GL_UnloadLibrary;
+    _this->GL_CreateContext = Cocoa_GL_CreateContext;
+    _this->GL_MakeCurrent = Cocoa_GL_MakeCurrent;
+    _this->GL_SetSwapInterval = Cocoa_GL_SetSwapInterval;
+    _this->GL_GetSwapInterval = Cocoa_GL_GetSwapInterval;
+    _this->GL_SwapWindow = Cocoa_GL_SwapWindow;
+    _this->GL_DeleteContext = Cocoa_GL_DeleteContext;
+}
 
 int Cocoa_GL_LoadLibrary(_THIS, const char *path)
 {
@@ -269,29 +281,19 @@ SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window)
     NSOpenGLPixelFormatAttribute profile;
     int interval;
 
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_EGL
+    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
         /* Switch to EGL based functions */
         Cocoa_GL_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = Cocoa_GLES_LoadLibrary;
-        _this->GL_GetProcAddress = Cocoa_GLES_GetProcAddress;
-        _this->GL_UnloadLibrary = Cocoa_GLES_UnloadLibrary;
-        _this->GL_CreateContext = Cocoa_GLES_CreateContext;
-        _this->GL_MakeCurrent = Cocoa_GLES_MakeCurrent;
-        _this->GL_SetSwapInterval = Cocoa_GLES_SetSwapInterval;
-        _this->GL_GetSwapInterval = Cocoa_GLES_GetSwapInterval;
-        _this->GL_SwapWindow = Cocoa_GLES_SwapWindow;
-        _this->GL_DeleteContext = Cocoa_GLES_DeleteContext;
-
-        if (Cocoa_GLES_LoadLibrary(_this, NULL) != 0) {
+        Cocoa_GLES_InitDevice(_this);
+        if (Cocoa_GLES_LoadLibrary(_this, NULL) < 0) {
+            _this->gl_config.driver_loaded = 0;
             return NULL;
         }
+
         return Cocoa_GLES_CreateContext(_this, window);
-#else
-        SDL_SetError("SDL not configured with EGL support");
-        return NULL;
-#endif
     }
+#endif
 
     attr[i++] = NSOpenGLPFAAllowOfflineRenderers;
 
