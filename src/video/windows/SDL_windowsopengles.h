@@ -33,13 +33,16 @@
 #define WIN_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
 #define WIN_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define WIN_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
+#define WIN_GLES_DeleteContext SDL_EGL_DeleteContext
 
 extern int WIN_GLES_LoadLibrary(_THIS, const char *path);
 extern SDL_GLContext WIN_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int WIN_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern int WIN_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-extern void WIN_GLES_DeleteContext(_THIS, SDL_GLContext context);
 extern int WIN_GLES_SetupWindow(_THIS, SDL_Window * window);
+
+extern void WIN_GLES_InitDevice(_THIS);
+extern int WIN_GLES_PrivateLoadLibrary(_THIS, const char *path);
 
 #endif /* SDL_VIDEO_OPENGL_EGL */
 

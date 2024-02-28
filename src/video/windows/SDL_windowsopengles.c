@@ -29,28 +29,38 @@
 
 /* EGL implementation of SDL OpenGL support */
 
+void WIN_GLES_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = WIN_GLES_LoadLibrary;
+    _this->GL_GetProcAddress = WIN_GLES_GetProcAddress;
+    _this->GL_UnloadLibrary = WIN_GLES_UnloadLibrary;
+    _this->GL_CreateContext = WIN_GLES_CreateContext;
+    _this->GL_MakeCurrent = WIN_GLES_MakeCurrent;
+    _this->GL_SetSwapInterval = WIN_GLES_SetSwapInterval;
+    _this->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
+    _this->GL_SwapWindow = WIN_GLES_SwapWindow;
+    _this->GL_DeleteContext = WIN_GLES_DeleteContext;
+}
+
 int WIN_GLES_LoadLibrary(_THIS, const char *path)
 {
 
     /* If the profile requested is not GL ES, switch over to WIN_GL functions  */
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_WGL
-        WIN_GLES_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = WIN_GL_LoadLibrary;
-        _this->GL_GetProcAddress = WIN_GL_GetProcAddress;
-        _this->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
-        _this->GL_CreateContext = WIN_GL_CreateContext;
-        _this->GL_MakeCurrent = WIN_GL_MakeCurrent;
-        _this->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
-        _this->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
-        _this->GL_SwapWindow = WIN_GL_SwapWindow;
-        _this->GL_DeleteContext = WIN_GL_DeleteContext;
-        return WIN_GL_LoadLibrary(_this, path);
+        /* Switch to WGL based functions */
+        WIN_GL_InitDevice(_this);
+        return WIN_GL_PrivateLoadLibrary(_this, path);
 #else
         return SDL_SetError("SDL not configured with OpenGL/WGL support");
 #endif
     }
 
+    return WIN_GLES_PrivateLoadLibrary(_this, path);
+}
+
+int WIN_GLES_PrivateLoadLibrary(_THIS, const char *path)
+{
     return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
@@ -63,17 +73,9 @@ SDL_GLContext WIN_GLES_CreateContext(_THIS, SDL_Window *window)
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
         /* Switch to WGL based functions */
         WIN_GLES_UnloadLibrary(_this);
-        _this->GL_LoadLibrary = WIN_GL_LoadLibrary;
-        _this->GL_GetProcAddress = WIN_GL_GetProcAddress;
-        _this->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
-        _this->GL_CreateContext = WIN_GL_CreateContext;
-        _this->GL_MakeCurrent = WIN_GL_MakeCurrent;
-        _this->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
-        _this->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
-        _this->GL_SwapWindow = WIN_GL_SwapWindow;
-        _this->GL_DeleteContext = WIN_GL_DeleteContext;
-
-        if (WIN_GL_LoadLibrary(_this, NULL) != 0) {
+        WIN_GL_InitDevice(_this);
+        if (WIN_GL_PrivateLoadLibrary(_this, NULL) < 0) {
+            _this->gl_config.driver_loaded = 0;
             return NULL;
         }
 
@@ -83,11 +85,6 @@ SDL_GLContext WIN_GLES_CreateContext(_THIS, SDL_Window *window)
 
     context = SDL_EGL_CreateContext(_this, data->egl_surface);
     return context;
-}
-
-void WIN_GLES_DeleteContext(_THIS, SDL_GLContext context)
-{
-    SDL_EGL_DeleteContext(_this, context);
 }
 
 /* *INDENT-OFF* */ /* clang-format off */
@@ -101,18 +98,6 @@ int WIN_GLES_SetupWindow(_THIS, SDL_Window *window)
     SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
     SDL_Window *current_win = SDL_GL_GetCurrentWindow();
     SDL_GLContext current_ctx = SDL_GL_GetCurrentContext();
-
-    if (!_this->egl_data) {
-/* !!! FIXME: commenting out this assertion is (I think) incorrect; figure out why driver_loaded is wrong for ANGLE instead. --ryan. */
-#if 0 /* When hint SDL_HINT_OPENGL_ES_DRIVER is set to "1" (e.g. for ANGLE support), _this->gl_config.driver_loaded can be 1, while the below lines function. */
-        SDL_assert(!_this->gl_config.driver_loaded);
-        #endif
-        if (SDL_EGL_LoadLibrary(_this, NULL, EGL_DEFAULT_DISPLAY, 0) < 0) {
-            SDL_EGL_UnloadLibrary(_this);
-            return -1;
-        }
-        _this->gl_config.driver_loaded = 1;
-    }
 
     /* Create the GLES window surface */
     windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)windowdata->hwnd);

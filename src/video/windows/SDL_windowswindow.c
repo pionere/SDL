@@ -539,17 +539,23 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
 
     /* The rest of this macro mess is for OpenGL or OpenGL ES windows */
 #ifdef SDL_VIDEO_OPENGL_ES2
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES
 #ifdef SDL_VIDEO_OPENGL_WGL
-        && (!_this->gl_data || WIN_GL_UseEGL(_this))
+    if (WIN_GL_UseEGL(_this)) {
+#else
+    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #endif /* SDL_VIDEO_OPENGL_WGL */
-    ) {
 #ifdef SDL_VIDEO_OPENGL_EGL
-        if (WIN_GLES_SetupWindow(_this, window) < 0) {
-            WIN_DestroyWindow(_this, window);
-            return -1;
+        if (!_this->egl_data) {
+            /* Switch to EGL based functions */
+            WIN_GL_UnloadLibrary(_this);
+
+            WIN_GLES_InitDevice(_this);
+            if (WIN_GLES_PrivateLoadLibrary(_this, NULL) < 0) {
+                _this->gl_config.driver_loaded = 0;
+                return -1;
+            }
         }
-        return 0;
+        return WIN_GLES_SetupWindow(_this, window);
 #else
         return SDL_SetError("Could not create GLES window surface (EGL support not configured)");
 #endif /* SDL_VIDEO_OPENGL_EGL */
@@ -557,15 +563,20 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
 #endif /* SDL_VIDEO_OPENGL_ES2 */
 
 #ifdef SDL_VIDEO_OPENGL_WGL
-    if (WIN_GL_SetupWindow(_this, window) < 0) {
-        WIN_DestroyWindow(_this, window);
-        return -1;
+    if (!_this->gl_data) {
+        /* Switch to WGL based functions */
+        WIN_GLES_UnloadLibrary(_this);
+
+        WIN_GL_InitDevice(_this);
+        if (WIN_GL_PrivateLoadLibrary(_this, NULL) < 0) {
+            _this->gl_config.driver_loaded = 0;
+            return -1;
+        }
     }
+    return WIN_GL_SetupWindow(_this, window);
 #else
     return SDL_SetError("Could not create GL window (WGL support not configured)");
 #endif
-
-    return 0;
 }
 
 int WIN_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)

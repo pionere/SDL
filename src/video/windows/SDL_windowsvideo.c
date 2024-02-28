@@ -200,26 +200,11 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 #endif
 
 #ifdef SDL_VIDEO_OPENGL_WGL
-    device->GL_LoadLibrary = WIN_GL_LoadLibrary;
-    device->GL_GetProcAddress = WIN_GL_GetProcAddress;
-    device->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
-    device->GL_CreateContext = WIN_GL_CreateContext;
-    device->GL_MakeCurrent = WIN_GL_MakeCurrent;
-    device->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
-    device->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
-    device->GL_SwapWindow = WIN_GL_SwapWindow;
-    device->GL_DeleteContext = WIN_GL_DeleteContext;
+    /* Use WGL based functions */
+    WIN_GL_InitDevice(device);
 #elif defined(SDL_VIDEO_OPENGL_EGL)
     /* Use EGL based functions */
-    device->GL_LoadLibrary = WIN_GLES_LoadLibrary;
-    device->GL_GetProcAddress = WIN_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = WIN_GLES_UnloadLibrary;
-    device->GL_CreateContext = WIN_GLES_CreateContext;
-    device->GL_MakeCurrent = WIN_GLES_MakeCurrent;
-    device->GL_SetSwapInterval = WIN_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
-    device->GL_SwapWindow = WIN_GLES_SwapWindow;
-    device->GL_DeleteContext = WIN_GLES_DeleteContext;
+    WIN_GLES_InitDevice(device);
 #endif
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = WIN_Vulkan_LoadLibrary;
