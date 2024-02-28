@@ -615,16 +615,19 @@ int SDL_EGL_InitializeOffscreen(_THIS)
     /* Check for all extensions that are optional until used and fail if any is missing */
     eglQueryDevicesEXT_Function eglQueryDevicesEXTfunc = (eglQueryDevicesEXT_Function)SDL_EGL_GetProcAddress(_this, "eglQueryDevicesEXT");
     if (!eglQueryDevicesEXTfunc) {
-        return SDL_SetError("eglQueryDevicesEXT is missing (EXT_device_enumeration not supported by the drivers?)");
+        SDL_SetError("eglQueryDevicesEXT is missing (EXT_device_enumeration not supported by the drivers?)");
+        goto error;
     }
 
     eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
     if (!eglGetPlatformDisplayEXTfunc) {
-        return SDL_SetError("eglGetPlatformDisplayEXT is missing (EXT_platform_base not supported by the drivers?)");
+        SDL_SetError("eglGetPlatformDisplayEXT is missing (EXT_platform_base not supported by the drivers?)");
+        goto error;
     }
 
     if (eglQueryDevicesEXTfunc(SDL_EGL_MAX_DEVICES, egl_devices, &num_egl_devices) != EGL_TRUE) {
-        return SDL_SetError("eglQueryDevicesEXT() failed");
+        SDL_SetError("eglQueryDevicesEXT() failed");
+        goto error;
     }
 
     egl_device_hint = SDL_GetHint("SDL_HINT_EGL_DEVICE");
@@ -638,9 +641,8 @@ int SDL_EGL_InitializeOffscreen(_THIS)
 
         display = eglGetPlatformDisplayEXTfunc(EGL_PLATFORM_DEVICE_EXT, egl_devices[device], NULL);
 
-        result = SDL_EGL_InitializeDisplay(egl_data, display);
-        if (result < 0) {
-            return result;
+        if (SDL_EGL_InitializeDisplay(egl_data, display) < 0) {
+            goto error;
         }
     } else {
         int i;
@@ -668,7 +670,8 @@ int SDL_EGL_InitializeOffscreen(_THIS)
         }
 
         if (!found) {
-            return SDL_SetError("Could not find a valid EGL device to initialize");
+            SDL_SetError("Could not find a valid EGL device to initialize");
+            goto error;
         }
     }
 
@@ -678,6 +681,9 @@ int SDL_EGL_InitializeOffscreen(_THIS)
     egl_data->is_offscreen = SDL_TRUE;
 
     return 0;
+error:
+    SDL_EGL_UnloadLibrary(_this);
+    return -1;
 }
 #endif
 void SDL_EGL_SetRequiredVisualId(_THIS, int visual_id)

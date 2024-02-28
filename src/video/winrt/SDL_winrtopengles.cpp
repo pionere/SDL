@@ -59,7 +59,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
     SDL_EGL_VideoData *egl_data;
 
     result = SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
-    if (result != 0) {
+    if (result < 0) {
         return result;
     }
 
@@ -78,7 +78,8 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
         Microsoft::WRL::ComPtr<IUnknown> cpp_win = reinterpret_cast<IUnknown *>(native_win);
         HRESULT result = CreateWinrtEglWindow(cpp_win, ANGLE_D3D_FEATURE_LEVEL_ANY, &(egl_data->winrt_egl_addon));
         if (FAILED(result)) {
-            return SDL_SetError("Could not create an EGL-window");
+            SDL_SetError("Could not create an EGL-window");
+            goto error;
         }
 
         /* Call eglGetDisplay and eglInitialize as appropriate.  On other
@@ -89,7 +90,9 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          */
         Microsoft::WRL::ComPtr<IUnknown> cpp_display = egl_data->winrt_egl_addon;
         EGLDisplay display = ((eglGetDisplay_Old_Function)egl_data->eglGetDisplay)(cpp_display);
-        return SDL_EGL_InitializeDisplay(egl_data, display); // setup Windows 8.0 EGL display
+        if (SDL_EGL_InitializeDisplay(egl_data, display) < 0) { // setup Windows 8.0 EGL display
+            goto error;
+        }
     } else {
         /* Declare some ANGLE/EGL initialization property-sets, as suggested by
          * MSOpenTech's ANGLE-for-WinRT template apps:
@@ -138,7 +141,8 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          */
         eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)egl_data->eglGetProcAddress("eglGetPlatformDisplayEXT");
         if (!eglGetPlatformDisplayEXT) {
-            return SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetProcAddress");
+            SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetProcAddress");
+            goto error;
         }
 
 #if !SDL_WINAPI_FAMILY_PHONE
@@ -160,13 +164,18 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
                  * (a Windows-provided, software rasterizer) if all else fails.
                  */
                 display = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, warpDisplayAttributes);
-                return SDL_EGL_InitializeDisplay(egl_data, display); // setup WinRT 8.x+ EGL display
+                if (SDL_EGL_InitializeDisplay(egl_data, display) < 0) { // Could not get/initialize EGL display for WinRT 8.x+
+                    goto error;
+                }
             }
             SDL_ClearError();
         }
     }
 
     return 0;
+error:
+    WINRT_GLES_UnloadLibrary(_this);
+    return -1;
 }
 
 extern "C" void

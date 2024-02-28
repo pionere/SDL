@@ -42,6 +42,7 @@ int OFFSCREEN_GLES_LoadLibrary(_THIS, const char *path)
 
     ret = SDL_EGL_ChooseConfig(_this);
     if (ret != 0) {
+        SDL_EGL_UnloadLibrary(_this);
         return ret;
     }
 

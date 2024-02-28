@@ -3475,10 +3475,6 @@ int SDL_GL_LoadLibrary(const char *path)
     }
     if (retval == 0) {
         ++_this->gl_config.driver_loaded;
-    } else {
-        if (_this->GL_UnloadLibrary) {
-            _this->GL_UnloadLibrary(_this);
-        }
     }
     return retval;
 }
