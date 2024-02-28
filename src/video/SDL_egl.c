@@ -255,12 +255,14 @@ void *SDL_EGL_GetProcAddress(_THIS, const char *proc)
 {
     SDL_EGL_VideoData *egl_data = _this->egl_data;
     void *retval = NULL;
-    if (egl_data) {
+    SDL_assert(egl_data != NULL);
+    SDL_assert(egl_data->eglGetProcAddress != NULL);
+    if (1) {
         const Uint32 eglver = (((Uint32)egl_data->egl_version_major) << 16) | ((Uint32)egl_data->egl_version_minor);
         const SDL_bool is_egl_15_or_later = eglver >= ((((Uint32)1) << 16) | 5);
 
         /* EGL 1.5 can use eglGetProcAddress() for any symbol. 1.4 and earlier can't use it for core entry points. */
-        if (!retval && is_egl_15_or_later && egl_data->eglGetProcAddress) {
+        if (!retval && is_egl_15_or_later) {
             retval = egl_data->eglGetProcAddress(proc);
         }
 
@@ -272,7 +274,7 @@ void *SDL_EGL_GetProcAddress(_THIS, const char *proc)
 #endif
 
         /* Try eglGetProcAddress if we're on <= 1.4 and still searching... */
-        if (!retval && !is_egl_15_or_later && egl_data->eglGetProcAddress) {
+        if (!retval && !is_egl_15_or_later) {
             retval = egl_data->eglGetProcAddress(proc);
         }
     }
@@ -484,9 +486,8 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 int SDL_EGL_LoadLibraryOnly(_THIS, const char *egl_path)
 {
     int result;
-    if (_this->egl_data) {
-        return SDL_SetError("EGL context already created");
-    }
+
+    SDL_assert(_this->egl_data == NULL);
 
     _this->egl_data = (struct SDL_EGL_VideoData *)SDL_calloc(1, sizeof(SDL_EGL_VideoData));
     if (!_this->egl_data) {
@@ -612,6 +613,7 @@ int SDL_EGL_InitializeOffscreen(_THIS)
     // }
 
     egl_data = _this->egl_data;
+    SDL_assert(egl_data != NULL);
     /* Check for all extensions that are optional until used and fail if any is missing */
     eglQueryDevicesEXT_Function eglQueryDevicesEXTfunc = (eglQueryDevicesEXT_Function)SDL_EGL_GetProcAddress(_this, "eglQueryDevicesEXT");
     if (!eglQueryDevicesEXTfunc) {
@@ -688,6 +690,7 @@ error:
 #endif
 void SDL_EGL_SetRequiredVisualId(_THIS, int visual_id)
 {
+    SDL_assert(_this->egl_data != NULL);
     _this->egl_data->egl_required_visual_id = visual_id;
 }
 
@@ -957,9 +960,7 @@ int SDL_EGL_ChooseConfig(_THIS)
 {
     int ret;
 
-    if (!_this->egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
+    SDL_assert(_this->egl_data != NULL);
 
     /* Try with EGL_CONFIG_CAVEAT set to EGL_NONE, to avoid any EGL_SLOW_CONFIG or EGL_NON_CONFORMANT_CONFIG */
     ret = SDL_EGL_PrivateChooseConfig(_this, SDL_TRUE);
@@ -989,10 +990,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
     EGLint minor_version = _this->gl_config.minor_version;
     SDL_bool profile_es = (profile_mask == SDL_GL_CONTEXT_PROFILE_ES);
 
-    if (!_this->egl_data) {
-        SDL_SetError("EGL not initialized");
-        return NULL;
-    }
+    SDL_assert(_this->egl_data != NULL);
 
     if (_this->gl_config.share_with_current_context) {
         share_context = (EGLContext)SDL_GL_GetCurrentContext();
@@ -1133,9 +1131,7 @@ int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
     EGLContext egl_context = (EGLContext)context;
     SDL_EGL_VideoData *egl_data = _this->egl_data;
 
-    if (!egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
+    SDL_assert(egl_data != NULL);
 
     if (!egl_data->eglMakeCurrent) {
         if (!egl_surface && !context) {
@@ -1171,9 +1167,7 @@ int SDL_EGL_SetSwapInterval(_THIS, int interval)
     SDL_EGL_VideoData *egl_data = _this->egl_data;
     EGLBoolean status;
 
-    if (!egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
+    SDL_assert(egl_data != NULL);
 
     /* FIXME: Revisit this check when EGL_EXT_swap_control_tear is published:
      * https://github.com/KhronosGroup/EGL-Registry/pull/113
@@ -1194,16 +1188,15 @@ int SDL_EGL_SetSwapInterval(_THIS, int interval)
 int SDL_EGL_GetSwapInterval(_THIS)
 {
     SDL_EGL_VideoData *egl_data = _this->egl_data;
-    if (!egl_data) {
-        SDL_SetError("EGL not initialized");
-        return 0;
-    }
+
+    SDL_assert(egl_data != NULL);
 
     return egl_data->egl_swapinterval;
 }
 
 int SDL_EGL_SwapBuffers(_THIS, EGLSurface egl_surface)
 {
+    SDL_assert(_this->egl_data != NULL);
     if (!_this->egl_data->eglSwapBuffers(_this->egl_data->egl_display, egl_surface)) {
         return SDL_EGL_SetError("unable to show color buffer in an OS-native window", "eglSwapBuffers");
     }
@@ -1216,9 +1209,7 @@ void SDL_EGL_DeleteContext(_THIS, SDL_GLContext context)
     EGLContext egl_context = (EGLContext)context;
 
     /* Clean up GLES and EGL */
-    if (!egl_data) {
-        return;
-    }
+    SDL_assert(egl_data != NULL);
 
     if (egl_context != NULL && egl_context != EGL_NO_CONTEXT) {
         egl_data->eglDestroyContext(egl_data->egl_display, egl_context);
@@ -1236,6 +1227,8 @@ EGLSurface *SDL_EGL_CreateSurface(_THIS, NativeWindowType nw)
     int attr = 0;
 
     EGLSurface *surface;
+
+    SDL_assert(_this->egl_data == NULL);
 
     if (SDL_EGL_ChooseConfig(_this) != 0) {
         return EGL_NO_SURFACE;
@@ -1302,6 +1295,8 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
     attributes[1] = width;
     attributes[3] = height;
 
+    SDL_assert(_this->egl_data != NULL);
+
     if (SDL_EGL_ChooseConfig(_this) != 0) {
         return EGL_NO_SURFACE;
     }
@@ -1315,9 +1310,8 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
 void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface)
 {
     SDL_EGL_VideoData *egl_data = _this->egl_data;
-    if (!egl_data) {
-        return;
-    }
+
+    SDL_assert(egl_data != NULL);
 
     if (egl_surface != EGL_NO_SURFACE) {
         egl_data->eglDestroySurface(egl_data->egl_display, egl_surface);

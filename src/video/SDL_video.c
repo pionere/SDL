@@ -4075,6 +4075,8 @@ SDL_GLContext SDL_GL_CreateContext(SDL_Window *window)
         return NULL;
     }
 
+    SDL_assert(_this->gl_config.driver_loaded);
+
     ctx = _this->GL_CreateContext(_this, window);
 
     /* Creating a context is assumed to make it current in the SDL driver. */
@@ -4163,6 +4165,7 @@ int SDL_GL_SetSwapInterval(int interval)
     } else if (SDL_GL_GetCurrentContext() == NULL) {
         return SDL_SetError("No OpenGL context has been made current");
     } else if (_this->GL_SetSwapInterval) {
+        SDL_assert(_this->gl_config.driver_loaded);
         return _this->GL_SetSwapInterval(_this, interval);
     } else {
         return SDL_SetError("Setting the swap interval is not supported");
@@ -4176,6 +4179,7 @@ int SDL_GL_GetSwapInterval(void)
     } else if (SDL_GL_GetCurrentContext() == NULL) {
         return 0;
     } else if (_this->GL_GetSwapInterval) {
+        SDL_assert(_this->gl_config.driver_loaded);
         return _this->GL_GetSwapInterval(_this);
     } else {
         return 0;
@@ -4189,6 +4193,8 @@ int SDL_GL_SwapWindowWithResult(SDL_Window *window)
     if (!(window->flags & SDL_WINDOW_OPENGL)) {
         return SDL_SetError(NOT_AN_OPENGL_WINDOW);
     }
+
+    SDL_assert(_this->gl_config.driver_loaded);
 
     if (SDL_GL_GetCurrentWindow() != window) {
         return SDL_SetError("The specified window has not been made current");
