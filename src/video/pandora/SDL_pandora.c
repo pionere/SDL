@@ -235,7 +235,7 @@ void PND_destroywindow(_THIS, SDL_Window * window)
     eglTerminate(phdata->egl_display);
     phdata->egl_display = EGL_NO_DISPLAY;
     SDL_free(window->driverdata);
-    window->driverdata = NUL;
+    window->driverdata = NULL;
 }
 
 /*****************************************************************************/
