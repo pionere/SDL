@@ -44,13 +44,17 @@ static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create
 /* Instance */
 Pandora_VideoData pandoraVideoData;
 
-static void PND_destroy(SDL_VideoDevice * device)
+static int PND_EGL_ChooseConfig(_THIS);
+static EGLSurface PND_EGL_CreateSurface(_THIS);
+static void PND_EGL_DestroySurface(EGLSurface egl_surface);
+
+static void PND_DeleteDevice(_THIS)
 {
     SDL_zero(pandoraVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
-static SDL_VideoDevice *PND_create(void)
+static SDL_VideoDevice *PND_CreateDevice(void)
 {
     SDL_VideoDevice *device;
     Pandora_VideoData *phdata = &pandoraVideoData;
@@ -63,7 +67,7 @@ static SDL_VideoDevice *PND_create(void)
     }
 
     /* Set device free function */
-    device->free = PND_destroy;
+    device->free = PND_DeleteDevice;
 
     /* Setup all functions which we can handle */
     device->VideoInit = PND_videoinit;
@@ -107,7 +111,7 @@ const VideoBootStrap PND_bootstrap = {
 #else
     "pandora",
 #endif
-    PND_create
+    PND_CreateDevice
 };
 
 /*****************************************************************************/
@@ -170,20 +174,9 @@ int PND_createwindow(_THIS, SDL_Window * window)
 
     /* Check if window must support OpenGL ES rendering */
     if (window->flags & SDL_WINDOW_OPENGL) {
-
-        EGLBoolean initstatus;
-
-        /* Create connection to OpenGL ES */
-        if (phdata->egl_display == EGL_NO_DISPLAY) {
-            phdata->egl_display = eglGetDisplay((NativeDisplayType) 0);
-            if (phdata->egl_display == EGL_NO_DISPLAY) {
-                return SDL_SetError("PND: Can't get connection to OpenGL ES");
-            }
-
-            initstatus = eglInitialize(phdata->egl_display, NULL, NULL);
-            if (initstatus != EGL_TRUE) {
-                return SDL_SetError("PND: Can't init OpenGL ES library");
-            }
+        wdata->gles_surface = PND_EGL_CreateSurface(_this);
+        if (wdata->egl_surface == EGL_NO_SURFACE) {
+            return -1;
         }
     }
 
@@ -228,11 +221,13 @@ void PND_minimizewindow(SDL_Window * window)
 }*/
 void PND_destroywindow(_THIS, SDL_Window * window)
 {
-    Pandora_VideoData *phdata = &pandoraVideoData;
-    eglTerminate(phdata->egl_display);
-    phdata->egl_display = EGL_NO_DISPLAY;
-    SDL_free(window->driverdata);
-    window->driverdata = NULL;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    if (data) {
+        PND_EGL_DestroySurface(data->gles_surface);
+
+        SDL_free(data);
+        window->driverdata = NULL;
+    }
 }
 
 /*****************************************************************************/
@@ -257,8 +252,25 @@ SDL_bool PND_getwindowwminfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 /*****************************************************************************/
 /* SDL OpenGL/OpenGL ES functions                                            */
 /*****************************************************************************/
+static int PND_EGL_InitializeDisplay(EGLDisplay display)
+{
+    Pandora_VideoData *phdata = &pandoraVideoData;
+
+    if (display == EGL_NO_DISPLAY) {
+        return SDL_SetError("Could not get EGL display");
+    }
+
+    if (eglInitialize(display, NULL, NULL) != EGL_TRUE) {
+        return SDL_SetError("Could not initialize EGL");
+    }
+    phdata->egl_display = display;
+    return 0;
+}
+
 int PND_gl_loadlibrary(_THIS, const char *path)
 {
+    EGLDisplay display;
+
     /* Check if OpenGL ES library is specified for GF driver */
     if (!path) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -290,6 +302,22 @@ int PND_gl_loadlibrary(_THIS, const char *path)
                 SDL_arraysize(_this->gl_config.driver_path));
 
     /* New OpenGL ES library is loaded */
+
+    /* Create connection to OpenGL ES */
+    display = eglGetDisplay((NativeDisplayType)0);
+    if (PND_EGL_InitializeDisplay(display) < 0) {
+        PND_gl_unloadlibrary(_this);
+        return -1;
+    }
+
+    _this->gl_config.accelerated = 1;
+
+    /* Always clear stereo enable, since OpenGL ES do not supports stereo */
+    _this->gl_config.stereo = 0;
+
+    /* Under PND OpenGL ES output can't be double buffered */
+    _this->gl_config.double_buffer = 0;
+
     return 0;
 }
 
@@ -319,85 +347,92 @@ void *PND_gl_getprocaddres(_THIS, const char *proc)
 
 void PND_gl_unloadlibrary(_THIS)
 {
+    Pandora_VideoData *phdata = &pandoraVideoData;
+
+    eglTerminate(phdata->egl_display);
+    phdata->egl_display = EGL_NO_DISPLAY;
+
     /* Unload OpenGL ES library */
     SDL_UnloadObject(_this->gl_config.dll_handle);
     _this->gl_config.dll_handle = NULL;
 }
 
-SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
+static int PND_EGL_ChooseConfig(_THIS)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
-    SDL_WindowData *wdata = (SDL_WindowData *) window->driverdata;
     EGLBoolean status;
     EGLint configs;
     uint32_t attr_pos;
     EGLint attr_value;
     EGLint cit;
+    EGLint gles_attributes[32];        /* OpenGL ES attributes for context   */
+    EGLConfig gles_configs[32];
+    EGLint gles_config;         /* OpenGL ES configuration index      */
 
     /* Prepare attributes list to pass them to OpenGL ES */
     attr_pos = 0;
-    wdata->gles_attributes[attr_pos++] = EGL_SURFACE_TYPE;
-    wdata->gles_attributes[attr_pos++] = EGL_WINDOW_BIT;
-    wdata->gles_attributes[attr_pos++] = EGL_RED_SIZE;
-    wdata->gles_attributes[attr_pos++] = _this->gl_config.red_size;
-    wdata->gles_attributes[attr_pos++] = EGL_GREEN_SIZE;
-    wdata->gles_attributes[attr_pos++] = _this->gl_config.green_size;
-    wdata->gles_attributes[attr_pos++] = EGL_BLUE_SIZE;
-    wdata->gles_attributes[attr_pos++] = _this->gl_config.blue_size;
-    wdata->gles_attributes[attr_pos++] = EGL_ALPHA_SIZE;
+    gles_attributes[attr_pos++] = EGL_SURFACE_TYPE;
+    gles_attributes[attr_pos++] = EGL_WINDOW_BIT;
+    gles_attributes[attr_pos++] = EGL_RED_SIZE;
+    gles_attributes[attr_pos++] = _this->gl_config.red_size;
+    gles_attributes[attr_pos++] = EGL_GREEN_SIZE;
+    gles_attributes[attr_pos++] = _this->gl_config.green_size;
+    gles_attributes[attr_pos++] = EGL_BLUE_SIZE;
+    gles_attributes[attr_pos++] = _this->gl_config.blue_size;
+    gles_attributes[attr_pos++] = EGL_ALPHA_SIZE;
 
     /* Setup alpha size in bits */
     if (_this->gl_config.alpha_size) {
-        wdata->gles_attributes[attr_pos++] = _this->gl_config.alpha_size;
+        gles_attributes[attr_pos++] = _this->gl_config.alpha_size;
     } else {
-        wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+        gles_attributes[attr_pos++] = EGL_DONT_CARE;
     }
 
     /* Setup color buffer size */
     if (_this->gl_config.buffer_size) {
-        wdata->gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
-        wdata->gles_attributes[attr_pos++] = _this->gl_config.buffer_size;
+        gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
+        gles_attributes[attr_pos++] = _this->gl_config.buffer_size;
     } else {
-        wdata->gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
-        wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+        gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
+        gles_attributes[attr_pos++] = EGL_DONT_CARE;
     }
 
     /* Setup depth buffer bits */
-    wdata->gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
-    wdata->gles_attributes[attr_pos++] = _this->gl_config.depth_size;
+    gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
+    gles_attributes[attr_pos++] = _this->gl_config.depth_size;
 
     /* Setup stencil bits */
     if (_this->gl_config.stencil_size) {
-        wdata->gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
-        wdata->gles_attributes[attr_pos++] = _this->gl_config.buffer_size;
+        gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
+        gles_attributes[attr_pos++] = _this->gl_config.buffer_size;
     } else {
-        wdata->gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
-        wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+        gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
+        gles_attributes[attr_pos++] = EGL_DONT_CARE;
     }
 
     /* Set number of samples in multisampling */
     if (_this->gl_config.multisamplesamples) {
-        wdata->gles_attributes[attr_pos++] = EGL_SAMPLES;
-        wdata->gles_attributes[attr_pos++] =
+        gles_attributes[attr_pos++] = EGL_SAMPLES;
+        gles_attributes[attr_pos++] =
             _this->gl_config.multisamplesamples;
     }
 
     /* Multisample buffers, OpenGL ES 1.0 spec defines 0 or 1 buffer */
     if (_this->gl_config.multisamplebuffers) {
-        wdata->gles_attributes[attr_pos++] = EGL_SAMPLE_BUFFERS;
-        wdata->gles_attributes[attr_pos++] =
+        gles_attributes[attr_pos++] = EGL_SAMPLE_BUFFERS;
+        gles_attributes[attr_pos++] =
             _this->gl_config.multisamplebuffers;
     }
 
     /* Finish attributes list */
-    wdata->gles_attributes[attr_pos] = EGL_NONE;
+    SDL_assert(attr_pos < SDL_arraysize(gles_attributes));
+    gles_attributes[attr_pos] = EGL_NONE;
 
     /* Request first suitable framebuffer configuration */
-    status = eglChooseConfig(phdata->egl_display, wdata->gles_attributes,
-                             wdata->gles_configs, 1, &configs);
+    status = eglChooseConfig(phdata->egl_display, gles_attributes,
+                             gles_configs, SDL_arraysize(gles_configs), &configs);
     if (status != EGL_TRUE) {
-        SDL_SetError("PND: Can't find closest configuration for OpenGL ES");
-        return NULL;
+        return SDL_SetError("PND: Can't find closest configuration for OpenGL ES");
     }
 
     /* Check if nothing has been found, try "don't care" settings */
@@ -411,52 +446,50 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
                 /* Don't care about color buffer bits, use what exist */
                 /* Replace previous set data with EGL_DONT_CARE       */
                 attr_pos = 0;
-                wdata->gles_attributes[attr_pos++] = EGL_SURFACE_TYPE;
-                wdata->gles_attributes[attr_pos++] = EGL_WINDOW_BIT;
-                wdata->gles_attributes[attr_pos++] = EGL_RED_SIZE;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos++] = EGL_GREEN_SIZE;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos++] = EGL_BLUE_SIZE;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos++] = EGL_ALPHA_SIZE;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_SURFACE_TYPE;
+                gles_attributes[attr_pos++] = EGL_WINDOW_BIT;
+                gles_attributes[attr_pos++] = EGL_RED_SIZE;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_GREEN_SIZE;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_BLUE_SIZE;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_ALPHA_SIZE;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_BUFFER_SIZE;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
 
                 /* Try to find requested or smallest depth */
                 if (_this->gl_config.depth_size) {
-                    wdata->gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
-                    wdata->gles_attributes[attr_pos++] = depthbits[it];
+                    gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
+                    gles_attributes[attr_pos++] = depthbits[it];
                 } else {
-                    wdata->gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
-                    wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                    gles_attributes[attr_pos++] = EGL_DEPTH_SIZE;
+                    gles_attributes[attr_pos++] = EGL_DONT_CARE;
                 }
 
                 if (_this->gl_config.stencil_size) {
-                    wdata->gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
-                    wdata->gles_attributes[attr_pos++] = jt;
+                    gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
+                    gles_attributes[attr_pos++] = jt;
                 } else {
-                    wdata->gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
-                    wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                    gles_attributes[attr_pos++] = EGL_STENCIL_SIZE;
+                    gles_attributes[attr_pos++] = EGL_DONT_CARE;
                 }
 
-                wdata->gles_attributes[attr_pos++] = EGL_SAMPLES;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos++] = EGL_SAMPLE_BUFFERS;
-                wdata->gles_attributes[attr_pos++] = EGL_DONT_CARE;
-                wdata->gles_attributes[attr_pos] = EGL_NONE;
+                gles_attributes[attr_pos++] = EGL_SAMPLES;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos++] = EGL_SAMPLE_BUFFERS;
+                gles_attributes[attr_pos++] = EGL_DONT_CARE;
+                gles_attributes[attr_pos] = EGL_NONE;
 
                 /* Request first suitable framebuffer configuration */
                 status =
                     eglChooseConfig(phdata->egl_display,
-                                    wdata->gles_attributes,
-                                    wdata->gles_configs, 1, &configs);
+                                    gles_attributes,
+                                    gles_configs, SDL_arraysize(gles_configs), &configs);
 
                 if (status != EGL_TRUE) {
-                    SDL_SetError
-                        ("PND: Can't find closest configuration for OpenGL ES");
-                    return NULL;
+                    return SDL_SetError("PND: Can't find closest configuration for OpenGL ES");
                 }
                 if (configs != 0) {
                     break;
@@ -469,13 +502,12 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
 
         /* No available configs */
         if (configs == 0) {
-            SDL_SetError("PND: Can't find any configuration for OpenGL ES");
-            return NULL;
+            return SDL_SetError("PND: Can't find any configuration for OpenGL ES");
         }
     }
 
     /* Initialize config index */
-    wdata->gles_config = 0;
+    gles_config = 0;
 
     /* Now check each configuration to find out the best */
     for (cit = 0; cit < configs; cit++) {
@@ -488,7 +520,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
         if (_this->gl_config.stencil_size) {
             status =
                 eglGetConfigAttrib(phdata->egl_display,
-                                   wdata->gles_configs[cit], EGL_STENCIL_SIZE,
+                                   gles_configs[cit], EGL_STENCIL_SIZE,
                                    &attr_value);
             if (status == EGL_TRUE) {
                 if (attr_value != 0) {
@@ -502,7 +534,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
         if (_this->gl_config.depth_size) {
             status =
                 eglGetConfigAttrib(phdata->egl_display,
-                                   wdata->gles_configs[cit], EGL_DEPTH_SIZE,
+                                   gles_configs[cit], EGL_DEPTH_SIZE,
                                    &attr_value);
             if (status == EGL_TRUE) {
                 if (attr_value != 0) {
@@ -514,86 +546,26 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
         }
 
         /* Exit from loop if found appropriate configuration */
-        if ((depth_found != 0) && (stencil_found != 0)) {
+        if (depth_found && stencil_found) {
+            gles_config = cit;
             break;
         }
     }
 
-    /* If best could not be found, use first */
-    if (cit == configs) {
-        cit = 0;
-    }
-    wdata->gles_config = cit;
-
-    /* Create OpenGL ES context */
-    wdata->gles_context =
-        eglCreateContext(phdata->egl_display,
-                         wdata->gles_configs[wdata->gles_config], NULL, NULL);
-    if (wdata->gles_context == EGL_NO_CONTEXT) {
-        SDL_SetError("PND: OpenGL ES context creation has been failed");
-        return NULL;
-    }
-
-#ifdef WIZ_GLES_LITE
-    if (!hNativeWnd) {
-        hNativeWnd = (NativeWindowType)SDL_malloc(16*1024);
-        if (!hNativeWnd) {
-            printf("Error: Wiz framebuffer allocatation failed\n");
-        } else {
-            printf("SDL: Wiz framebuffer allocated: %X\n", hNativeWnd);
-        }
-    }
-    else {
-        printf("SDL: Wiz framebuffer already allocated: %X\n", hNativeWnd);
-    }
-
-    wdata->gles_surface =
-    eglCreateWindowSurface(phdata->egl_display,
-                   wdata->gles_configs[wdata->gles_config],
-                   hNativeWnd, NULL );
-#else
-    wdata->gles_surface =
-        eglCreateWindowSurface(phdata->egl_display,
-                               wdata->gles_configs[wdata->gles_config],
-                               (NativeWindowType) 0, NULL);
-#endif
-
-
-    if (wdata->gles_surface == 0) {
-        SDL_SetError("Error : eglCreateWindowSurface failed;");
-        return NULL;
-    }
-
-    /* Make just created context current */
-    status =
-        eglMakeCurrent(phdata->egl_display, wdata->gles_surface,
-                       wdata->gles_surface, wdata->gles_context);
-    if (status != EGL_TRUE) {
-        /* Destroy OpenGL ES surface */
-        eglDestroySurface(phdata->egl_display, wdata->gles_surface);
-        eglDestroyContext(phdata->egl_display, wdata->gles_context);
-        wdata->gles_context = EGL_NO_CONTEXT;
-        SDL_SetError("PND: Can't set OpenGL ES context on creation");
-        return NULL;
-    }
-
-    _this->gl_config.accelerated = 1;
-
-    /* Always clear stereo enable, since OpenGL ES do not supports stereo */
-    _this->gl_config.stereo = 0;
+    phdata->gles_config = gles_configs[gles_config];
 
     /* Get back samples and samplebuffers configurations. Rest framebuffer */
     /* parameters could be obtained through the OpenGL ES API              */
     status =
         eglGetConfigAttrib(phdata->egl_display,
-                           wdata->gles_configs[wdata->gles_config],
+                           phdata->gles_config,
                            EGL_SAMPLES, &attr_value);
     if (status == EGL_TRUE) {
         _this->gl_config.multisamplesamples = attr_value;
     }
     status =
         eglGetConfigAttrib(phdata->egl_display,
-                           wdata->gles_configs[wdata->gles_config],
+                           phdata->gles_config,
                            EGL_SAMPLE_BUFFERS, &attr_value);
     if (status == EGL_TRUE) {
         _this->gl_config.multisamplebuffers = attr_value;
@@ -602,61 +574,125 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window)
     /* Get back stencil and depth buffer sizes */
     status =
         eglGetConfigAttrib(phdata->egl_display,
-                           wdata->gles_configs[wdata->gles_config],
+                           phdata->gles_config,
                            EGL_DEPTH_SIZE, &attr_value);
     if (status == EGL_TRUE) {
         _this->gl_config.depth_size = attr_value;
     }
     status =
         eglGetConfigAttrib(phdata->egl_display,
-                           wdata->gles_configs[wdata->gles_config],
+                           phdata->gles_config,
                            EGL_STENCIL_SIZE, &attr_value);
     if (status == EGL_TRUE) {
         _this->gl_config.stencil_size = attr_value;
     }
 
-    /* Under PND OpenGL ES output can't be double buffered */
-    _this->gl_config.double_buffer = 0;
-
-    /* GL ES context was successfully created */
-    return wdata->gles_context;
+    return 0;
 }
 
-int PND_gl_makecurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+static EGLSurface PND_EGL_CreateSurface(_THIS)
+{
+    Pandora_VideoData *phdata = &pandoraVideoData;
+    EGLSurface surface;
+
+    if (PND_EGL_ChooseConfig(_this) != 0) {
+        return EGL_NO_SURFACE;
+    }
+
+#ifdef WIZ_GLES_LITE
+    SDL_assert(hNativeWnd == NULL);
+    hNativeWnd = (NativeWindowType)SDL_malloc(16 * 1024);
+    if (!hNativeWnd) {
+        SDL_OutOfMemory();
+        return EGL_NO_SURFACE;
+    } else {
+        SDL_Log("SDL: Wiz framebuffer allocated: %X\n", hNativeWnd);
+    }
+
+    wdata->gles_surface =
+        eglCreateWindowSurface(phdata->egl_display,
+                               phdata->gles_config,
+                               hNativeWnd, NULL );
+#else
+    wdata->gles_surface =
+        eglCreateWindowSurface(phdata->egl_display,
+                               phdata->gles_config,
+                               (NativeWindowType) 0, NULL);
+#endif
+
+    if (surface == EGL_NO_SURFACE) {
+        SDL_SetError("unable to create an EGL window surface");
+    }
+    return surface;
+}
+
+static void PND_EGL_DestroySurface(EGLSurface egl_surface)
+{
+#ifdef WIZ_GLES_LITE
+    if (hNativeWnd != 0) {
+        SDL_free(hNativeWnd);
+        hNativeWnd = 0;
+        SDL_Log("SDL: Wiz framebuffer released\n");
+    }
+#endif
+    if (egl_surface != EGL_NO_SURFACE) {
+        Pandora_VideoData *phdata = &pandoraVideoData;
+        eglDestroySurface(phdata->egl_display, egl_surface);
+    }
+}
+
+SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
+{
+    Pandora_VideoData *phdata = &pandoraVideoData;
+    SDL_GLContext gles_context;
+
+    /* Create OpenGL ES context */
+    gles_context =
+        eglCreateContext(phdata->egl_display,
+                         phdata->gles_config, NULL, NULL);
+    if (gles_context == EGL_NO_CONTEXT) {
+        SDL_SetError("PND: OpenGL ES context creation has been failed");
+        return NULL;
+    }
+
+    /* Make just created context current */
+    if (PND_gl_makecurrent(_this, window, gles_context) < 0) {
+        /* Destroy OpenGL ES surface */
+        eglDestroyContext(phdata->egl_display, gles_context);
+        SDL_SetError("PND: Can't set OpenGL ES context on creation");
+        return NULL;
+    }
+
+    /* GL ES context was successfully created */
+    return gles_context;
+}
+
+int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata;
     EGLBoolean status;
+    EGLSurface egl_surface;
+    SDL_GLContext context;
 
-    if ((!window) && (!context)) {
-        status =
-            eglMakeCurrent(phdata->egl_display, EGL_NO_SURFACE,
-                           EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (status != EGL_TRUE) {
-            /* Failed to set current GL ES context */
-            return SDL_SetError("PND: Can't set OpenGL ES context");
-        }
+    if (!window) {
+        egl_surface = EGL_NO_SURFACE;
+        SDL_assert(context == EGL_NO_CONTEXT);
     } else {
         wdata = (SDL_WindowData *) window->driverdata;
-        if (wdata->gles_surface == EGL_NO_SURFACE) {
-            return SDL_SetError
-                ("PND: OpenGL ES surface is not initialized for this window");
+        egl_surface = wdata->gles_surface;
+        if (egl_surface == EGL_NO_SURFACE) {
+            context = EGL_NO_CONTEXT;
+        } else if (gles_context == EGL_NO_CONTEXT) {
+            egl_surface = EGL_NO_SURFACE;
         }
-        if (wdata->gles_context == EGL_NO_CONTEXT) {
-            return SDL_SetError
-                ("PND: OpenGL ES context is not initialized for this window");
-        }
-        if (wdata->gles_context != context) {
-            return SDL_SetError
-                ("PND: OpenGL ES context is not belong to this window");
-        }
-        status =
-            eglMakeCurrent(phdata->egl_display, wdata->gles_surface,
-                           wdata->gles_surface, wdata->gles_context);
-        if (status != EGL_TRUE) {
-            /* Failed to set current GL ES context */
-            return SDL_SetError("PND: Can't set OpenGL ES context");
-        }
+    }
+    status =
+        eglMakeCurrent(phdata->egl_display, egl_surface,
+            egl_surface, context);
+    if (status != EGL_TRUE) {
+        /* Failed to set current GL ES context */
+        return SDL_SetError("PND: Can't set OpenGL ES context");
     }
     return 0;
 }
@@ -704,29 +740,13 @@ int PND_gl_swapwindow(_THIS, SDL_Window * window)
 void PND_gl_deletecontext(_THIS, SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
-    EGLBoolean status;
 
     /* Check if OpenGL ES connection has been initialized */
     if (phdata->egl_display != EGL_NO_DISPLAY) {
         if (context != EGL_NO_CONTEXT) {
-            status = eglDestroyContext(phdata->egl_display, context);
-            if (status != EGL_TRUE) {
-                /* Error during OpenGL ES context destroying */
-                SDL_SetError("PND: OpenGL ES context destroy error");
-                return;
-            }
+            eglDestroyContext(phdata->egl_display, context);
         }
     }
-
-#ifdef WIZ_GLES_LITE
-    if (hNativeWnd != 0) {
-      SDL_free(hNativeWnd);
-      hNativeWnd = 0;
-      printf("SDL: Wiz framebuffer released\n");
-    }
-#endif
-
-    return;
 }
 
 #endif /* SDL_VIDEO_DRIVER_PANDORA */

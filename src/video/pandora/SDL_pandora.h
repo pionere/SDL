@@ -31,15 +31,12 @@ typedef struct Pandora_VideoData
 {
     EGLDisplay egl_display;     /* OpenGL ES display connection           */
     uint32_t swapinterval;      /* OpenGL ES default swap interval        */
+    EGLConfig gles_config;
 
 } Pandora_VideoData;
 
 typedef struct SDL_WindowData
 {
-    EGLConfig gles_configs[32];
-    EGLint gles_config;         /* OpenGL ES configuration index      */
-    EGLContext gles_context;    /* OpenGL ES context                  */
-    EGLint gles_attributes[256];        /* OpenGL ES attributes for context   */
     EGLSurface gles_surface;    /* OpenGL ES target rendering surface */
 
 } SDL_WindowData;
