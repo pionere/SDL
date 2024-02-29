@@ -50,6 +50,7 @@ int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     SDL_bool hasXlibSurfaceExtension = SDL_FALSE;
     SDL_bool hasXCBSurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
     Uint32 i;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
@@ -71,16 +72,15 @@ int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     if (!vkGetInstanceProcAddr) {
         goto fail;
     }
-    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
+    if (!vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        (PFN_vkEnumerateInstanceExtensionProperties)
-            vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions) {
         goto fail;
@@ -164,11 +164,10 @@ SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
 {
     X11_VideoData *videoData = &x11VideoData;
     SDL_WindowData *windowData = (SDL_WindowData *)window->driverdata;
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = vulkan_config->vkGetInstanceProcAddr;
 
     SDL_assert(vulkan_config->loader_handle != NULL);
 
-    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
     if (videoData->vulkan_xlib_xcb_library) {
         PFN_vkCreateXcbSurfaceKHR vkCreateXcbSurfaceKHR =
             (PFN_vkCreateXcbSurfaceKHR)vkGetInstanceProcAddr(instance,

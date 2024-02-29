@@ -153,7 +153,6 @@ struct SDL_SysWMinfo;
 typedef struct SDL_VulkanVideo
 {
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
-    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
     int loader_loaded;
     char loader_path[256];
     void *loader_handle;

@@ -43,6 +43,7 @@ int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     SDL_bool hasSurfaceExtension = SDL_FALSE;
     SDL_bool hasWin32SurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
 
@@ -65,14 +66,14 @@ int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         goto fail;
     }
     vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
+    vkEnumerateInstanceExtensionProperties =
         (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
+    if (!vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions) {
         goto fail;

@@ -50,6 +50,7 @@ int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     SDL_bool hasSurfaceExtension = SDL_FALSE;
     SDL_bool hasDisplayExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
 
@@ -77,18 +78,17 @@ int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         goto fail;
     }
 
-    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
 
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
+    if (!vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
 
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        (PFN_vkEnumerateInstanceExtensionProperties)
-            vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
 
     if (!extensions) {
@@ -208,8 +208,7 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     int i, j;
 
     /* Get the function pointers for the functions we will use. */
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
-        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = vulkan_config->vkGetInstanceProcAddr;
 
     PFN_vkCreateDisplayPlaneSurfaceKHR vkCreateDisplayPlaneSurfaceKHR =
         (PFN_vkCreateDisplayPlaneSurfaceKHR)vkGetInstanceProcAddr(

@@ -35,6 +35,7 @@ int DirectFB_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path
     SDL_bool hasSurfaceExtension = SDL_FALSE;
     SDL_bool hasDirectFBSurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
 
@@ -52,15 +53,14 @@ int DirectFB_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path
         vulkan_config->loader_handle, "vkGetInstanceProcAddr");
     if (!vkGetInstanceProcAddr)
         goto fail;
-    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties)
+    if (!vkEnumerateInstanceExtensionProperties)
         goto fail;
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        (PFN_vkEnumerateInstanceExtensionProperties)
-            vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions)
         goto fail;
@@ -112,8 +112,7 @@ SDL_bool DirectFB_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFB_WindowData *windata;
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
-        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = vulkan_config->vkGetInstanceProcAddr;
     PFN_vkCreateDirectFBSurfaceEXT vkCreateDirectFBSurfaceEXT =
         (PFN_vkCreateDirectFBSurfaceEXT)vkGetInstanceProcAddr(
                                             instance,

@@ -54,6 +54,7 @@ int UIKit_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     SDL_bool hasMetalSurfaceExtension = SDL_FALSE;
     SDL_bool hasIOSSurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
 
@@ -111,19 +112,18 @@ int UIKit_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         goto fail;
     }
 
-    vulkan_config->vkGetInstanceProcAddr = (void *)vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
-        (void *)((PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr)(
+    vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vkEnumerateInstanceExtensionProperties =
+        (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
 
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
+    if (!vkEnumerateInstanceExtensionProperties) {
         SDL_SetError("No vkEnumerateInstanceExtensionProperties found.");
         goto fail;
     }
 
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        (PFN_vkEnumerateInstanceExtensionProperties)
-            vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
 
     if (!extensions) {
@@ -185,8 +185,7 @@ SDL_bool UIKit_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
 {
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
-        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = vulkan_config->vkGetInstanceProcAddr;
     PFN_vkCreateMetalSurfaceEXT vkCreateMetalSurfaceEXT =
         (PFN_vkCreateMetalSurfaceEXT)vkGetInstanceProcAddr(
                                             (VkInstance)instance,
