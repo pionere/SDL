@@ -89,8 +89,6 @@ static EGLint height = 272;
 SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
 {
 
-    SDL_WindowData *wdata = (SDL_WindowData *)window->driverdata;
-
     EGLint attribs[32];
     EGLDisplay display;
     EGLContext context;
@@ -102,7 +100,6 @@ SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
     /* EGL init taken from glutCreateWindow() in PSPGL's glut.c. */
     EGLCHK(display = eglGetDisplay(0));
     EGLCHK(eglInitialize(display, NULL, NULL));
-    wdata->uses_gles = SDL_TRUE;
     window->flags |= SDL_WINDOW_FULLSCREEN;
 
     /* Setup the config based on SDL's current values. */

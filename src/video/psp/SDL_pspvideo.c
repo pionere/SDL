@@ -169,17 +169,6 @@ int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
 int PSP_CreateWindow(_THIS, SDL_Window *window)
 {
-    SDL_WindowData *wdata;
-
-    /* Allocate window internal data */
-    wdata = (SDL_WindowData *)SDL_calloc(1, sizeof(SDL_WindowData));
-    if (!wdata) {
-        return SDL_OutOfMemory();
-    }
-
-    /* Setup driver data for this window */
-    window->driverdata = wdata;
-
     SDL_SetKeyboardFocus(window);
 
     /* Window has been successfully created */
@@ -223,8 +212,6 @@ void PSP_MinimizeWindow(SDL_Window *window)
 }*/
 void PSP_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_free(window->driverdata);
-    window->driverdata = NULL;
 }
 
 /*****************************************************************************/

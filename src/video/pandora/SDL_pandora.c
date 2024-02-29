@@ -169,12 +169,9 @@ int PND_createwindow(_THIS, SDL_Window * window)
     window->driverdata = wdata;
 
     /* Check if window must support OpenGL ES rendering */
-    if ((window->flags & SDL_WINDOW_OPENGL) == SDL_WINDOW_OPENGL) {
+    if (window->flags & SDL_WINDOW_OPENGL) {
 
         EGLBoolean initstatus;
-
-        /* Mark this window as OpenGL ES compatible */
-        wdata->uses_gles = SDL_TRUE;
 
         /* Create connection to OpenGL ES */
         if (phdata->egl_display == EGL_NO_DISPLAY) {

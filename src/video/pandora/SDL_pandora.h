@@ -36,8 +36,6 @@ typedef struct Pandora_VideoData
 
 typedef struct SDL_WindowData
 {
-    SDL_bool uses_gles;         /* if true window must support OpenGL ES */
-
     EGLConfig gles_configs[32];
     EGLint gles_config;         /* OpenGL ES configuration index      */
     EGLContext gles_context;    /* OpenGL ES context                  */

@@ -93,9 +93,6 @@ static EGLint height = 544;
 
 SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window)
 {
-
-    SDL_WindowData *wdata = (SDL_WindowData *)window->driverdata;
-
     EGLint attribs[32];
     EGLDisplay display;
     EGLContext context;
@@ -113,7 +110,6 @@ SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window)
     EGLCHK(display = eglGetDisplay(0));
 
     EGLCHK(eglInitialize(display, NULL, NULL));
-    wdata->uses_gles = SDL_TRUE;
     window->flags |= SDL_WINDOW_FULLSCREEN;
 
     EGLCHK(eglBindAPI(EGL_OPENGL_ES_API));

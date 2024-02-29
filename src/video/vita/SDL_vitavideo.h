@@ -39,7 +39,6 @@ typedef struct Vita_VideoData
 
 typedef struct SDL_WindowData
 {
-    SDL_bool uses_gles;
     SceUID buffer_uid;
     void *buffer;
 #if defined(SDL_VIDEO_VITA_PVR)
