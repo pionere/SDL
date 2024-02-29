@@ -1309,11 +1309,9 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
 #endif
 void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface)
 {
-    SDL_EGL_VideoData *egl_data = _this->egl_data;
-
-    SDL_assert(egl_data != NULL);
-
     if (egl_surface != EGL_NO_SURFACE) {
+        SDL_EGL_VideoData *egl_data = _this->egl_data;
+        SDL_assert(egl_data != NULL);
         egl_data->eglDestroySurface(egl_data->egl_display, egl_surface);
     }
 }

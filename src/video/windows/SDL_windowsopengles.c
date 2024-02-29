@@ -103,7 +103,7 @@ int WIN_GLES_SetupWindow(_THIS, SDL_Window *window)
     windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)windowdata->hwnd);
 
     if (windowdata->egl_surface == EGL_NO_SURFACE) {
-        return SDL_SetError("Could not create GLES window surface");
+        return -1;
     }
 
     return WIN_GLES_MakeCurrent(_this, current_win, current_ctx);

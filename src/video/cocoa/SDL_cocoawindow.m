@@ -265,12 +265,12 @@ static void ConvertNSRect(NSScreen *screen, BOOL fullscreen, NSRect *r)
 static void ScheduleContextUpdates(SDL_WindowData *data)
 {
     /* We still support OpenGL as long as Apple offers it, deprecated or not, so disable deprecation warnings about it. */
-    #ifdef SDL_VIDEO_OPENGL
+#ifdef SDL_VIDEO_OPENGL_CGL
 
-    #ifdef __clang__
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    #endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
     NSOpenGLContext *currentContext;
     NSMutableArray *contexts;
@@ -290,11 +290,11 @@ static void ScheduleContextUpdates(SDL_WindowData *data)
         }
     }
 
-    #ifdef __clang__
-    #pragma clang diagnostic pop
-    #endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
-    #endif /* SDL_VIDEO_OPENGL */
+#endif /* SDL_VIDEO_OPENGL_CGL */
 }
 
 /* !!! FIXME: this should use a hint callback. */
@@ -928,11 +928,13 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 - (void)windowDidChangeScreen:(NSNotification *)aNotification
 {
     /*printf("WINDOWDIDCHANGESCREEN\n");*/
+#ifdef SDL_VIDEO_OPENGL_CGL
     if (_data && _data.nscontexts) {
         for (SDLOpenGLContext *context in _data.nscontexts) {
             [context movedToNewScreen];
         }
     }
+#endif
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification *)aNotification
@@ -1633,7 +1635,9 @@ static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsvi
     data.nswindow = nswindow;
     data.created = created;
     data.window_number = nswindow.windowNumber;
+#ifdef SDL_VIDEO_OPENGL_CGL
     data.nscontexts = [[NSMutableArray alloc] init];
+#endif
     data.sdlContentView = nsview;
 
     /* Create an event listener for the window */
@@ -2356,15 +2360,17 @@ void Cocoa_DestroyWindow(_THIS, SDL_Window * window)
             [data.nswindow close];
         }
 
-        #ifdef SDL_VIDEO_OPENGL
+#ifdef SDL_VIDEO_OPENGL_CGL
 
         contexts = [data.nscontexts copy];
         for (SDLOpenGLContext *context in contexts) {
             /* Calling setWindow:NULL causes the context to remove itself from the context list. */
             [context setWindow:NULL];
         }
-
-        #endif /* SDL_VIDEO_OPENGL */
+#endif /* SDL_VIDEO_OPENGL_CGL */
+#ifdef SDL_VIDEO_OPENGL_EGL
+        SDL_EGL_DestroySurface(_this, data.egl_surface);
+#endif
 
         if (window->shaper) {
             CFBridgingRelease(window->shaper->driverdata);

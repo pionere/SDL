@@ -124,7 +124,9 @@ typedef enum
     @property (nonatomic) SDL_Window *window;
     @property (nonatomic) NSWindow *nswindow;
     @property (nonatomic) NSView *sdlContentView;
+#ifdef SDL_VIDEO_OPENGL_CGL
     @property (nonatomic) NSMutableArray *nscontexts;
+#endif
     @property (nonatomic) SDL_bool created;
     @property (nonatomic) SDL_bool inWindowFullscreenTransition;
     @property (nonatomic) NSInteger window_number;
