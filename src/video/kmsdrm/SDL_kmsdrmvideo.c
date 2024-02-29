@@ -52,6 +52,10 @@
 #include <poll.h>
 #include <errno.h>
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for kmsdrm."
+#endif
+
 /* Instance */
 KMSDRM_VideoData kmsdrmVideoData;
 

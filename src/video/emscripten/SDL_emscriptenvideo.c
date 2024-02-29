@@ -36,6 +36,13 @@
 #include "SDL_emscriptenevents.h"
 #include "SDL_emscriptenmouse.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for empscripten."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for empscripten."
+#endif
+
 /* Initialization/Query functions */
 static int Emscripten_VideoInit(_THIS);
 static int Emscripten_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);

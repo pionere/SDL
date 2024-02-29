@@ -22,6 +22,13 @@
 #include "../SDL_sysvideo.h"
 #include "sdl_qnx.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for QNX."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for QNX."
+#endif
+
 static screen_context_t context;
 static screen_event_t   event;
 

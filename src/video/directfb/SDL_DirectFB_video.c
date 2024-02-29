@@ -57,6 +57,10 @@
 
 #include "SDL_DirectFB_dyn.h"
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for directFB."
+#endif
+
 /* Instance */
 DFB_VideoData dfbVideoData;
 

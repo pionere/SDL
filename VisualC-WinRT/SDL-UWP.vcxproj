@@ -188,6 +188,7 @@
     <ClInclude Include="..\src\video\winrt\SDL_winrtmouse_c.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtopengles.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtvideo_cpp.h" />
+    <ClInclude Include="..\src\video\winrt\SDL_winrtvulkan.h" />
     <ClInclude Include="..\src\video\yuv2rgb\yuv_rgb.h" />
     <ClInclude Include="..\src\video\yuv2rgb\yuv_rgb_common.h" />
     <ClInclude Include="..\src\video\yuv2rgb\yuv_rgb_internal.h" />
@@ -360,6 +361,9 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="..\src\video\winrt\SDL_winrtvideo.cpp">
+      <CompileAsWinRT>true</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\src\video\winrt\SDL_winrtvulkan.cpp">
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="..\src\video\yuv2rgb\yuv_rgb_lsx.c" />

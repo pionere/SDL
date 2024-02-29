@@ -45,6 +45,13 @@ extern "C" {
 #include "SDL_ngageevents_c.h"
 #include "SDL_ngageframebuffer_c.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for ngage."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for ngage."
+#endif
+
 /* Instance */
 Ngage_VideoData ngageVideoData;
 

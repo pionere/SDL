@@ -26,16 +26,15 @@
 
 #include "../../SDL_internal.h"
 
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WINDOWS)
-
-#include "SDL_windowsvideo.h"
-#include "SDL_windowswindow.h"
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WINRT)
 
 #include "SDL_loadso.h"
-#include "SDL_windowsvulkan.h"
+#include "SDL_winrtvulkan.h"
 #include "SDL_syswm.h"
 
-int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
+#include "SDL_winrtvideo_cpp.h"
+
+int WINRT_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
     VkExtensionProperties *extensions = NULL;
     Uint32 extensionCount = 0;
@@ -43,6 +42,7 @@ int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     SDL_bool hasSurfaceExtension = SDL_FALSE;
     SDL_bool hasWin32SurfaceExtension = SDL_FALSE;
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
 
     SDL_assert(vulkan_config->loader_handle == NULL);
 
@@ -65,14 +65,14 @@ int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         goto fail;
     }
     vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
-    vulkan_config->vkEnumerateInstanceExtensionProperties =
+    vkEnumerateInstanceExtensionProperties =
         (PFN_vkEnumerateInstanceExtensionProperties)vulkan_config->vkGetInstanceProcAddr(
             VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties");
-    if (!vulkan_config->vkEnumerateInstanceExtensionProperties) {
+    if (!vkEnumerateInstanceExtensionProperties) {
         goto fail;
     }
     extensions = SDL_Vulkan_CreateInstanceExtensionsList(
-        vulkan_config->vkEnumerateInstanceExtensionProperties,
+        vkEnumerateInstanceExtensionProperties,
         &extensionCount);
     if (!extensions) {
         goto fail;
@@ -95,17 +95,17 @@ int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     return 0;
 
 fail:
-    WIN_Vulkan_UnloadLibrary(vulkan_config);
+    WINRT_Vulkan_UnloadLibrary(vulkan_config);
     return -1;
 }
 
-void WIN_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
+void WINRT_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 {
     SDL_UnloadObject(vulkan_config->loader_handle);
     vulkan_config->loader_handle = NULL;
 }
 
-SDL_bool WIN_Vulkan_GetInstanceExtensions(SDL_Window *window,
+SDL_bool WINRT_Vulkan_GetInstanceExtensions(SDL_Window *window,
                                           unsigned *count,
                                           const char **names)
 {
@@ -117,17 +117,20 @@ SDL_bool WIN_Vulkan_GetInstanceExtensions(SDL_Window *window,
         extensionsForWin32);
 }
 
-SDL_bool WIN_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
+SDL_bool WINRT_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface)
 {
-    SDL_WindowData *windowData = (SDL_WindowData *)window->driverdata;
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = vulkan_config->vkGetInstanceProcAddr;
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr =
+        (PFN_vkGetInstanceProcAddr)vulkan_config->vkGetInstanceProcAddr;
     PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR =
         (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(
             instance,
             "vkCreateWin32SurfaceKHR");
+    HWND hwnd;
+    HINSTANCE hinstance;
     VkWin32SurfaceCreateInfoKHR createInfo;
     VkResult result;
 
@@ -138,11 +141,15 @@ SDL_bool WIN_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                      " extension is not enabled in the Vulkan instance.");
         return SDL_FALSE;
     }
+
+    hwnd = NULL; //  FIXME: data->coreWindow.Get() ? ((ICoreWindowInterop)data->coreWindow.Get()).WindowHandle : NULL;
+    hinstance = NULL; // (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE); // FIXME: too
+
     createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     createInfo.pNext = NULL;
     createInfo.flags = 0;
-    createInfo.hinstance = windowData->hinstance;
-    createInfo.hwnd = windowData->hwnd;
+    createInfo.hinstance = hinstance;
+    createInfo.hwnd = hwnd;
     result = vkCreateWin32SurfaceKHR(instance, &createInfo,
                                      NULL, surface);
     if (result != VK_SUCCESS) {

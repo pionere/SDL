@@ -41,6 +41,13 @@
 static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create. */
 #endif
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for pandora."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for pandora."
+#endif
+
 /* Instance */
 Pandora_VideoData pandoraVideoData;
 

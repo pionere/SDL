@@ -40,6 +40,13 @@ extern "C" {
 #include "SDL_bframebuffer.h"
 #include "SDL_bevents.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for haiku."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for haiku."
+#endif
+
 static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
 }

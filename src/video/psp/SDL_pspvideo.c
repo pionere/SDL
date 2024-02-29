@@ -38,6 +38,10 @@
 #include "SDL_pspevents_c.h"
 #include "SDL_pspgl_c.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for empscripten."
+#endif
+
 static void PSP_DeleteDevice(_THIS)
 {
     PSP_GL_UnloadLibrary(_this);

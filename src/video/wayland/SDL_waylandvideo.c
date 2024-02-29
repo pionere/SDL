@@ -62,6 +62,10 @@
 #include <libdecor.h>
 #endif
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for wayland."
+#endif
+
 /* Instance */
 Wayland_VideoData waylandVideoData;
 

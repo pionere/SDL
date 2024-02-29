@@ -50,6 +50,13 @@
 #include "SDL_rpiopengles.h"
 #include "SDL_rpimouse.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for RPI."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for RPI."
+#endif
+
 static void RPI_Destroy(SDL_VideoDevice *device)
 {
     SDL_free(device);

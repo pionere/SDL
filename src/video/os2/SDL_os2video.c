@@ -32,6 +32,13 @@
 #include "SDL_syswm.h"
 #include "SDL_os2util.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for os2."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for os2."
+#endif
+
 #define __MEERROR_H__
 #define  _MEERROR_H_
 #include <mmioos2.h>

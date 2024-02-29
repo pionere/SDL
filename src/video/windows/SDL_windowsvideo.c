@@ -36,6 +36,10 @@
 #include "SDL_windowsshape.h"
 #include "SDL_windowsvulkan.h"
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for windows."
+#endif
+
 /* #define HIGHDPI_DEBUG */
 
 /* Instance */

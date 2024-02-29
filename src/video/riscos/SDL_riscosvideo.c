@@ -35,6 +35,13 @@
 #include "SDL_riscosmodes.h"
 #include "SDL_riscoswindow.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for RiscOS."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for RiscOS."
+#endif
+
 /* Instance */
 RiscOS_VideoData riscosVideoData;
 

@@ -46,6 +46,13 @@
 #include "SDL_ps2video.h"
 #include "SDL_hints.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for ps2."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for ps2."
+#endif
+
 /* PS2 driver bootstrap functions */
 
 static int PS2_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)

@@ -37,6 +37,13 @@
 #include "../SDL_sysvideo.h"
 #include "../../events/SDL_events_c.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for nacl."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for nacl."
+#endif
+
 /* Static init required because NACL_SetScreenResolution
  * may appear even before SDL starts and we want to remember
  * the window width and height

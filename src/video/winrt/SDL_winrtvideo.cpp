@@ -64,12 +64,17 @@ extern "C" {
 #include "../../core/winrt/SDL_winrtapp_direct3d.h"
 #include "../../core/winrt/SDL_winrtapp_xaml.h"
 #include "SDL_winrtvideo_cpp.h"
+#include "SDL_winrtvulkan.h"
 #include "SDL_winrtevents_c.h"
 #include "SDL_winrtgamebar_cpp.h"
 #include "SDL_winrtmouse_c.h"
 #include "SDL_main.h"
 #include "SDL_system.h"
 #include "SDL_hints.h"
+
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for WinRT."
+#endif
 
 /* Initialization/Query functions */
 static int WINRT_VideoInit(_THIS);
@@ -145,6 +150,14 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     device->GL_SwapWindow = WINRT_GLES_SwapWindow;
     device->GL_DeleteContext = WINRT_GLES_DeleteContext;
 #endif
+
+#ifdef SDL_VIDEO_VULKAN
+    device->Vulkan_LoadLibrary = WINRT_Vulkan_LoadLibrary;
+    device->Vulkan_UnloadLibrary = WINRT_Vulkan_UnloadLibrary;
+    device->Vulkan_GetInstanceExtensions = WINRT_Vulkan_GetInstanceExtensions;
+    device->Vulkan_CreateSurface = WINRT_Vulkan_CreateSurface;
+#endif
+
     device->free = WINRT_DeleteDevice;
 
     return device;

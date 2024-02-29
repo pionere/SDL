@@ -42,6 +42,10 @@
 #include "SDL_androidwindow.h"
 #include "SDL_androidvulkan.h"
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for android."
+#endif
+
 /* Instance */
 Android_VideoData androidVideoData;
 

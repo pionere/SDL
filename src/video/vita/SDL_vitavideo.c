@@ -49,6 +49,13 @@
 #endif
 #endif
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for Vita."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for Vita."
+#endif
+
 /* Instance */
 Vita_VideoData vitaVideoData;
 SDL_Window *Vita_Window;

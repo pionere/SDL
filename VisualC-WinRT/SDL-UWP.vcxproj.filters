@@ -408,6 +408,9 @@
     <ClInclude Include="..\src\video\winrt\SDL_winrtvideo_cpp.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\winrt\SDL_winrtvulkan.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\audio\wasapi\SDL_wasapi.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -787,6 +790,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\video\winrt\SDL_winrtvideo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video\winrt\SDL_winrtvulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\audio\wasapi\SDL_wasapi.c">

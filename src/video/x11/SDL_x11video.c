@@ -44,6 +44,10 @@
 
 #include "SDL_x11vulkan.h"
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for x11."
+#endif
+
 /* Instance */
 X11_VideoData x11VideoData;
 

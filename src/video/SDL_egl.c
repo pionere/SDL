@@ -586,11 +586,13 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
     // _this->egl_data->is_offscreen = SDL_FALSE;
 
     return 0;
+#if !defined(__WINRT__)
 error:
     SDL_EGL_UnloadLibrary(_this);
     _this->gl_config.driver_loaded = 0;
     *_this->gl_config.driver_path = '\0';
     return -1;
+#endif
 }
 
 /**

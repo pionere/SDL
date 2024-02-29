@@ -39,6 +39,10 @@
 #include "SDL_vivanteopengles.h"
 #include "SDL_vivantevulkan.h"
 
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for vivante."
+#endif
+
 /* Instance */
 Vivante_VideoData vivanteVideoData;
 
