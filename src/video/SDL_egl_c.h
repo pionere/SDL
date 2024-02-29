@@ -135,7 +135,6 @@ typedef enum SDL_EGL_ExtensionType
     SDL_EGL_CLIENT_EXTENSION
 } SDL_EGL_ExtensionType;
 
-extern int SDL_EGL_GetAttribute(_THIS, SDL_GLattr attrib, int *value);
 extern int SDL_EGL_InitializeDisplay(SDL_EGL_VideoData *egl_data, EGLDisplay display);
 /* SDL_EGL_LoadLibrary can get a display for a specific platform (EGL_PLATFORM_*)
  * or, if 0 is passed, let the implementation decide.

@@ -24,8 +24,10 @@
 #define SDL_x11opengl_h_
 
 #ifdef SDL_VIDEO_OPENGL_GLX
-#include "SDL_opengl.h"
+
 #include <GL/glx.h>
+
+#include "../SDL_sysvideo.h"
 
 typedef enum SDL_GLSwapIntervalTearBehavior
 {

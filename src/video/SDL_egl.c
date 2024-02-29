@@ -583,7 +583,7 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
     /* Get the EGL version with a valid egl_display, for EGL <= 1.4 */
     SDL_EGL_GetVersion(_this->egl_data);
 
-    _this->egl_data->is_offscreen = SDL_FALSE;
+    // _this->egl_data->is_offscreen = SDL_FALSE;
 
     return 0;
 error:
@@ -764,8 +764,9 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
     /* 128 seems even nicer here */
     EGLConfig configs[128];
     SDL_bool has_matching_format = SDL_FALSE;
-    int i, j, best_bitdiff = -1, best_truecolor_bitdiff = -1;
+    int i, j;
     int truecolor_config_idx = -1;
+    Uint32 best_bitdiff = SDL_MAX_UINT32, best_truecolor_bitdiff = SDL_MAX_UINT32;
     SDL_EGL_VideoData *egl_data;
 
     /* Get a valid EGL configuration */
@@ -847,9 +848,8 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
         attribs[i++] = egl_data->egl_surfacetype;
     }
 
-    attribs[i++] = EGL_NONE;
-
     SDL_assert(i < SDL_arraysize(attribs));
+    attribs[i] = EGL_NONE;
 
     if (egl_data->eglChooseConfig(egl_data->egl_display,
                                          attribs,
@@ -878,9 +878,9 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
 
     for (i = 0; i < found_configs; i++) {
         SDL_bool is_truecolor = SDL_FALSE;
-        int bitdiff = 0;
+        Uint32 bitdiff = 0;
 
-        if (has_matching_format && egl_data->egl_required_visual_id) {
+        if (has_matching_format) { //  && egl_data->egl_required_visual_id) {
             EGLint format;
             egl_data->eglGetConfigAttrib(egl_data->egl_display,
                                                 configs[i],
@@ -917,12 +917,12 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
             }
         }
 
-        if ((bitdiff < best_bitdiff) || (best_bitdiff == -1)) {
+        if (bitdiff < best_bitdiff) {
             egl_data->egl_config = configs[i];
             best_bitdiff = bitdiff;
         }
 
-        if (is_truecolor && ((bitdiff < best_truecolor_bitdiff) || (best_truecolor_bitdiff == -1))) {
+        if (is_truecolor && bitdiff < best_truecolor_bitdiff) {
             truecolor_config_idx = i;
             best_truecolor_bitdiff = bitdiff;
         }
@@ -943,7 +943,7 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
        case, turn off FAVOR_TRUECOLOR (and maybe send a patch to make this more
        flexible). */
     if (((_this->gl_config.red_size + _this->gl_config.blue_size + _this->gl_config.green_size) <= 16)) {
-        if (truecolor_config_idx != -1) {
+        if (truecolor_config_idx >= 0) {
             egl_data->egl_config = configs[truecolor_config_idx];
         }
     }
@@ -1132,20 +1132,13 @@ int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
     SDL_EGL_VideoData *egl_data = _this->egl_data;
 
     SDL_assert(egl_data != NULL);
-
-    if (!egl_data->eglMakeCurrent) {
-        if (!egl_surface && !context) {
-            /* Can't do the nothing there is to do? Probably trying to cleanup a failed startup, just return. */
-            return 0;
-        } else {
-            return SDL_SetError("EGL not initialized"); /* something clearly went wrong somewhere. */
-        }
-    }
+    SDL_assert(egl_data->eglBindAPI != NULL);
+    SDL_assert(egl_data->eglMakeCurrent != NULL);
 
     /* Make sure current thread has a valid API bound to it. */
-    if (egl_data->eglBindAPI) {
+    // if (egl_data->eglBindAPI) {
         egl_data->eglBindAPI(egl_data->apitype);
-    }
+    // }
 
     /* The android emulator crashes badly if you try to eglMakeCurrent
      * with a valid context and invalid surface, so we have to check for both here.

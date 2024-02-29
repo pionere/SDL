@@ -88,8 +88,7 @@ static EGLint height = 272;
 
 SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
 {
-
-    EGLint attribs[32];
+    EGLint attribs[16];
     EGLDisplay display;
     EGLContext context;
     EGLSurface surface;
@@ -122,7 +121,8 @@ SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
         attribs[i++] = _this->gl_config.stencil_size;
     }
 
-    attribs[i++] = EGL_NONE;
+    SDL_assert(i < SDL_arraysize(attribs));
+    attribs[i] = EGL_NONE;
 
     EGLCHK(eglChooseConfig(display, attribs, &config, 1, &num_configs));
 

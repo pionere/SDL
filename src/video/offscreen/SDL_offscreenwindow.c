@@ -22,10 +22,9 @@
 
 #ifdef SDL_VIDEO_DRIVER_OFFSCREEN
 
-#include "../SDL_sysvideo.h"
-#include "../SDL_egl_c.h"
-
+#include "SDL_offscreenvideo.h"
 #include "SDL_offscreenwindow.h"
+#include "SDL_offscreenopengles.h"
 
 int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
 {

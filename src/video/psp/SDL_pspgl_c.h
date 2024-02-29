@@ -22,10 +22,12 @@
 #ifndef SDL_pspgl_c_h_
 #define SDL_pspgl_c_h_
 
+#ifdef SDL_VIDEO_DRIVER_PSP
+
 #include <GLES/egl.h>
 #include <GLES/gl.h>
 
-#include "SDL_pspvideo.h"
+#include "../SDL_sysvideo.h"
 
 typedef struct SDL_GLDriverData
 {
@@ -46,6 +48,8 @@ extern int PSP_GL_LoadLibrary(_THIS, const char *path);
 extern void PSP_GL_UnloadLibrary(_THIS);
 extern int PSP_GL_SetSwapInterval(_THIS, int interval);
 extern int PSP_GL_GetSwapInterval(_THIS);
+
+#endif // SDL_VIDEO_DRIVER_PSP
 
 #endif /* SDL_pspgl_c_h_ */
 
