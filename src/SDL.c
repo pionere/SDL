@@ -22,9 +22,11 @@
 
 #if defined(__WIN32__) || defined(__GDK__)
 #include "core/windows/SDL_windows.h"
+#elif defined(__WINRT__)
+#include "core/winrt/SDL_winrtapp_common.h"
 #elif defined(__OS2__)
 #include <stdlib.h> /* _exit() */
-#elif !defined(__WINRT__)
+#else
 #include <unistd.h> /* _exit(), etc. */
 #endif
 #if defined(__OS2__)
@@ -97,6 +99,8 @@ SDL_NORETURN void SDL_ExitProcess(int exitcode)
     /* MingW doesn't have TerminateProcess marked as noreturn, so add an
        ExitProcess here that will never be reached but make MingW happy. */
     ExitProcess(exitcode);
+#elif defined(__WINRT__)
+    WINRT_SDLAppExitPoint(exitcode);
 #elif defined(__EMSCRIPTEN__)
     emscripten_cancel_main_loop();   /* this should "kill" the app. */
     emscripten_force_exit(exitcode); /* this should "kill" the app. */

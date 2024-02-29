@@ -29,6 +29,11 @@
 
 int (*WINRT_SDLAppEntryPoint)(int, char **) = NULL;
 
+extern "C" SDL_NORETURN void WINRT_SDLAppExitPoint(int exitcode)
+{
+    Windows::UI::Xaml::Application::Current->Exit();
+}
+
 extern "C" DECLSPEC int
 SDL_WinRTRunApp(SDL_main_func mainFunction, void *xamlBackgroundPanel)
 {

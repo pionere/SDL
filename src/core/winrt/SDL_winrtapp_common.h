@@ -28,4 +28,6 @@
  */
 extern int (*WINRT_SDLAppEntryPoint)(int, char **);
 
+extern SDL_NORETURN void WINRT_SDLAppExitPoint(int exitcode);
+
 #endif // SDL_winrtapp_common_h_
