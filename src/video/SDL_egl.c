@@ -589,7 +589,6 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
 #if !defined(__WINRT__)
 error:
     SDL_EGL_UnloadLibrary(_this);
-    _this->gl_config.driver_loaded = 0;
     *_this->gl_config.driver_path = '\0';
     return -1;
 #endif
@@ -609,10 +608,6 @@ int SDL_EGL_InitializeOffscreen(_THIS)
     EGLint num_egl_devices = 0;
     const char *egl_device_hint;
     SDL_EGL_VideoData* egl_data;
-
-    // if (_this->gl_config.driver_loaded <= 0) {
-    //    return SDL_SetError("SDL_EGL_LoadLibraryOnly() has not been called or has failed.");
-    // }
 
     egl_data = _this->egl_data;
     SDL_assert(egl_data != NULL);
