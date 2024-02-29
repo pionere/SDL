@@ -454,45 +454,6 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     return 0;
 }
 
-static void CleanupWindowData(SDL_Window *window)
-{
-    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-
-    if (data) {
-        SDL_DelHintCallback(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, WIN_MouseRelativeModeCenterChanged, data);
-
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-        if (data->ICMFileName) {
-            SDL_free(data->ICMFileName);
-        }
-        if (data->keyboard_hook) {
-            UnhookWindowsHookEx(data->keyboard_hook);
-        }
-        ReleaseDC(data->hwnd, data->hdc);
-        RemoveProp(data->hwnd, TEXT("SDL_WindowData"));
-#endif
-        if (data->created) {
-            DestroyWindow(data->hwnd);
-            if (data->parent) {
-                DestroyWindow(data->parent);
-            }
-        } else {
-            /* Restore any original event handler... */
-            if (data->wndproc) {
-#ifdef GWLP_WNDPROC
-                SetWindowLongPtr(data->hwnd, GWLP_WNDPROC,
-                                 (LONG_PTR)data->wndproc);
-#else
-                SetWindowLong(data->hwnd, GWL_WNDPROC,
-                              (LONG_PTR)data->wndproc);
-#endif
-            }
-        }
-        SDL_free(data);
-    }
-    window->driverdata = NULL;
-}
-
 int WIN_CreateWindow(_THIS, SDL_Window *window)
 {
     HWND hwnd, parent = NULL;
@@ -1170,19 +1131,56 @@ void WIN_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
 
 void WIN_DestroyWindow(_THIS, SDL_Window *window)
 {
-    if (window->shaper) {
-        SDL_ShapeData *shapedata = (SDL_ShapeData *)window->shaper->driverdata;
+    SDL_WindowShaper *shaper = window->shaper;
+    SDL_WindowData *data;
+
+    if (shaper) {
+        SDL_ShapeData *shapedata = (SDL_ShapeData *)shaper->driverdata;
         if (shapedata) {
             if (shapedata->mask_tree) {
                 SDL_FreeShapeTree(&shapedata->mask_tree);
             }
             SDL_free(shapedata);
         }
-        SDL_free(window->shaper);
+        SDL_free(shaper);
         window->shaper = NULL;
     }
 
-    CleanupWindowData(window);
+    data = (SDL_WindowData *)window->driverdata;
+    if (data) {
+        SDL_DelHintCallback(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, WIN_MouseRelativeModeCenterChanged, data);
+
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+        if (data->ICMFileName) {
+            SDL_free(data->ICMFileName);
+        }
+        if (data->keyboard_hook) {
+            UnhookWindowsHookEx(data->keyboard_hook);
+        }
+        ReleaseDC(data->hwnd, data->hdc);
+        RemoveProp(data->hwnd, TEXT("SDL_WindowData"));
+#endif
+        if (data->created) {
+            DestroyWindow(data->hwnd);
+            if (data->parent) {
+                DestroyWindow(data->parent);
+            }
+        } else {
+            /* Restore any original event handler... */
+            if (data->wndproc) {
+#ifdef GWLP_WNDPROC
+                SetWindowLongPtr(data->hwnd, GWLP_WNDPROC,
+                                 (LONG_PTR)data->wndproc);
+#else
+                SetWindowLong(data->hwnd, GWL_WNDPROC,
+                              (LONG_PTR)data->wndproc);
+#endif
+            }
+        }
+        SDL_free(data);
+    }
+
+    window->driverdata = NULL;
 }
 
 SDL_bool WIN_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)
