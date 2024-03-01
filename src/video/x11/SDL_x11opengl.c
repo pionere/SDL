@@ -21,15 +21,14 @@
 */
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_DRIVER_X11
-
-#include "SDL_x11video.h"
-#include "SDL_hints.h"
+#if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_OPENGL_GLX)
 
 /* GLX implementation of SDL OpenGL support */
-
-#ifdef SDL_VIDEO_OPENGL_GLX
+#include "SDL_hints.h"
 #include "SDL_loadso.h"
+
+#include "SDL_x11opengl.h"
+#include "SDL_x11video.h"
 #include "SDL_x11opengles.h"
 
 #if defined(__IRIX__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -1038,8 +1037,6 @@ void X11_GL_DeleteContext(_THIS, SDL_GLContext context)
     }
 }
 
-#endif /* SDL_VIDEO_OPENGL_GLX */
-
-#endif /* SDL_VIDEO_DRIVER_X11 */
+#endif /* SDL_VIDEO_DRIVER_X11 && SDL_VIDEO_OPENGL_GLX*/
 
 /* vi: set ts=4 sw=4 expandtab: */

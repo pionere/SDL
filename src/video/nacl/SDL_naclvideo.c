@@ -43,6 +43,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for nacl."
 #endif
+#ifndef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL must be configured for nacl."
+#endif
 
 /* Static init required because NACL_SetScreenResolution
  * may appear even before SDL starts and we want to remember

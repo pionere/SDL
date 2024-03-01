@@ -35,10 +35,12 @@
 #include "SDL_pandora.h"
 #include "SDL_pandora_events.h"
 
-/* WIZ declarations */
+#ifdef SDL_VIDEO_OPENGL_EGL
 #include "GLES/gl.h"
+/* WIZ declarations */
 #ifdef WIZ_GLES_LITE
 static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create. */
+#endif
 #endif
 
 #ifdef SDL_VIDEO_VULKAN
@@ -47,9 +49,14 @@ static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for pandora."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (EGL) for pandora."
+#endif
 
+#ifdef SDL_VIDEO_OPENGL_EGL
 /* Instance */
 Pandora_VideoData pandoraVideoData;
+#endif
 
 static int PND_EGL_ChooseConfig(_THIS);
 static EGLSurface PND_EGL_CreateSurface(_THIS);
@@ -57,14 +64,15 @@ static void PND_EGL_DestroySurface(EGLSurface egl_surface);
 
 static void PND_DeleteDevice(_THIS)
 {
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_zero(pandoraVideoData);
+#endif
     SDL_free(_this);
 }
 
 static SDL_VideoDevice *PND_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    Pandora_VideoData *phdata = &pandoraVideoData;
 
     /* Initialize SDL_VideoDevice structure */
     device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -96,6 +104,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
 #if 0
     device->GetWindowWMInfo = PND_getwindowwminfo;
 #endif
+#ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = PND_gl_loadlibrary;
     device->GL_GetProcAddress = PND_gl_getprocaddres;
     device->GL_UnloadLibrary = PND_gl_unloadlibrary;
@@ -105,6 +114,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
     device->GL_GetSwapInterval = PND_gl_getswapinterval;
     device->GL_SwapWindow = PND_gl_swapwindow;
     device->GL_DeleteContext = PND_gl_deletecontext;
+#endif
     device->PumpEvents = PND_PumpEvents;
 
     /* !!! FIXME: implement SetWindowBordered */
@@ -167,7 +177,7 @@ int PND_setdisplaymode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 
 int PND_createwindow(_THIS, SDL_Window * window)
 {
-    Pandora_VideoData *phdata = &pandoraVideoData;
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *wdata;
 
     /* Allocate window internal data */
@@ -186,7 +196,7 @@ int PND_createwindow(_THIS, SDL_Window * window)
             return -1;
         }
     }
-
+#endif
     /* Window has been successfully created */
     return 0;
 }
@@ -228,6 +238,7 @@ void PND_minimizewindow(SDL_Window * window)
 }*/
 void PND_destroywindow(_THIS, SDL_Window * window)
 {
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     if (data) {
         PND_EGL_DestroySurface(data->gles_surface);
@@ -235,6 +246,7 @@ void PND_destroywindow(_THIS, SDL_Window * window)
         SDL_free(data);
         window->driverdata = NULL;
     }
+#endif
 }
 
 /*****************************************************************************/
@@ -259,6 +271,7 @@ SDL_bool PND_getwindowwminfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 /*****************************************************************************/
 /* SDL OpenGL/OpenGL ES functions                                            */
 /*****************************************************************************/
+#ifdef SDL_VIDEO_OPENGL_EGL
 static int PND_EGL_InitializeDisplay(EGLDisplay display)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
@@ -755,6 +768,8 @@ void PND_gl_deletecontext(_THIS, SDL_GLContext context)
         }
     }
 }
+
+#endif // SDL_VIDEO_OPENGL_EGL
 
 #endif /* SDL_VIDEO_DRIVER_PANDORA */
 

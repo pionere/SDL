@@ -55,6 +55,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for Vita."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_VITA_PIB) && !defined(SDL_VIDEO_VITA_PVR)
+#error "OpenGL is configured, but not the implemented (PIB/PVR) for Vita."
+#endif
 
 /* Instance */
 Vita_VideoData vitaVideoData;

@@ -20,6 +20,9 @@
 */
 
 #include "../../SDL_internal.h"
+
+#if defined(SDL_VIDEO_DRIVER_QNX) && defined(SDL_VIDEO_OPENGL_EGL)
+
 #include "sdl_qnx.h"
 
 static EGLDisplay   egl_disp;
@@ -273,3 +276,5 @@ void glUnloadLibrary(_THIS)
 {
     eglTerminate(egl_disp);
 }
+
+#endif // SDL_VIDEO_DRIVER_QNX && SDL_VIDEO_OPENGL_EGL

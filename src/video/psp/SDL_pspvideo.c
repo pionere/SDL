@@ -39,12 +39,17 @@
 #include "SDL_pspgl_c.h"
 
 #ifdef SDL_VIDEO_VULKAN
-#error "Vulkan is configured, but not implemented for empscripten."
+#error "Vulkan is configured, but not implemented for psp."
+#endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL)
+#error "OpenGL is configured, but not the implemented (GL) for psp."
 #endif
 
 static void PSP_DeleteDevice(_THIS)
 {
+#ifdef SDL_VIDEO_OPENGL
     PSP_GL_UnloadLibrary(_this);
+#endif
     SDL_free(_this);
 }
 
@@ -58,13 +63,13 @@ static SDL_VideoDevice *PSP_CreateDevice()
         SDL_OutOfMemory();
         return NULL;
     }
-
+#ifdef SDL_VIDEO_OPENGL
     /* Initialize internal PSP specific data */
     if (PSP_GL_LoadLibrary(device, NULL) < 0) {
         SDL_free(device);
         return NULL;
     }
-
+#endif
     /* Set device free function */
     device->free = PSP_DeleteDevice;
 
@@ -88,6 +93,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
 #if 0
     device->GetWindowWMInfo = PSP_GetWindowWMInfo;
 #endif
+#ifdef SDL_VIDEO_OPENGL
     device->GL_LoadLibrary = PSP_GL_LoadLibrary;
     device->GL_GetProcAddress = PSP_GL_GetProcAddress;
     device->GL_UnloadLibrary = PSP_GL_UnloadLibrary;
@@ -97,6 +103,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
     device->GL_GetSwapInterval = PSP_GL_GetSwapInterval;
     device->GL_SwapWindow = PSP_GL_SwapWindow;
     device->GL_DeleteContext = PSP_GL_DeleteContext;
+#endif
     device->HasScreenKeyboardSupport = PSP_HasScreenKeyboardSupport;
     device->ShowScreenKeyboard = PSP_ShowScreenKeyboard;
     device->HideScreenKeyboard = PSP_HideScreenKeyboard;

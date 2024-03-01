@@ -56,6 +56,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for RPI."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (EGL) for RPI."
+#endif
 
 static void RPI_Destroy(SDL_VideoDevice *device)
 {
@@ -110,6 +113,7 @@ static SDL_VideoDevice *RPI_Create()
 #if 0
     device->GetWindowWMInfo = RPI_GetWindowWMInfo;
 #endif
+#ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = RPI_GLES_LoadLibrary;
     device->GL_GetProcAddress = RPI_GLES_GetProcAddress;
     device->GL_UnloadLibrary = RPI_GLES_UnloadLibrary;
@@ -120,7 +124,7 @@ static SDL_VideoDevice *RPI_Create()
     device->GL_SwapWindow = RPI_GLES_SwapWindow;
     device->GL_DeleteContext = RPI_GLES_DeleteContext;
     device->GL_DefaultProfileConfig = RPI_GLES_DefaultProfileConfig;
-
+#endif
     device->PumpEvents = RPI_PumpEvents;
 
     return device;

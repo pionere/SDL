@@ -46,6 +46,9 @@ extern "C" {
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for haiku."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL)
+#error "OpenGL is configured, but not the implemented (GL) for haiku."
+#endif
 
 static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);

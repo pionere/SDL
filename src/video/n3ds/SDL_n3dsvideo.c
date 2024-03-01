@@ -35,6 +35,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for n3ds."
 #endif
+#ifdef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL is configured, but not implemented for n3ds."
+#endif
 
 SDL_FORCE_INLINE int AddN3DSDisplay(gfxScreen_t screen);
 

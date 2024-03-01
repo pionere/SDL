@@ -60,6 +60,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for directFB."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_DIRECTFB_OPENGL)
+#error "OpenGL is configured, but not the implemented (GL) for directFB."
+#endif
 
 /* Instance */
 DFB_VideoData dfbVideoData;

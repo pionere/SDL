@@ -20,20 +20,15 @@
 */
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_DRIVER_DIRECTFB
+#if defined(SDL_VIDEO_DRIVER_DIRECTFB) && defined(SDL_DIRECTFB_OPENGL)
 
 #include "SDL_DirectFB_video.h"
-
-#ifdef SDL_DIRECTFB_OPENGL
 
 #include "SDL_DirectFB_opengl.h"
 #include "SDL_DirectFB_window.h"
 
 #include <directfbgl.h>
 #include "SDL_loadso.h"
-#endif
-
-#ifdef SDL_DIRECTFB_OPENGL
 
 struct SDL_GLDriverData
 {
@@ -279,8 +274,6 @@ void DirectFB_GL_DestroyWindowContexts(_THIS, SDL_Window * window)
         if (p->sdl_window == window)
             DirectFB_GL_DeleteContext(_this, p);
 }
-
-#endif
 
 #endif /* SDL_VIDEO_DRIVER_DIRECTFB */
 

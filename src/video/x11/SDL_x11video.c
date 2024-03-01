@@ -37,15 +37,15 @@
 #include "SDL_x11touch.h"
 #include "SDL_x11xinput2.h"
 #include "SDL_x11xfixes.h"
-
-#ifdef SDL_VIDEO_OPENGL_EGL
+#include "SDL_x11opengl.h"
 #include "SDL_x11opengles.h"
-#endif
-
 #include "SDL_x11vulkan.h"
 
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for x11."
+#endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL) && !defined(SDL_VIDEO_OPENGL_GLX)
+#error "OpenGL is configured, but not the implemented (EGL/GLX) for x11."
 #endif
 
 /* Instance */

@@ -22,10 +22,11 @@
 #ifndef __SDL_PANDORA_H__
 #define __SDL_PANDORA_H__
 
-#include <GLES/egl.h>
-
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
+
+#ifdef SDL_VIDEO_OPENGL_EGL
+#include <GLES/egl.h>
 
 typedef struct Pandora_VideoData
 {
@@ -40,7 +41,7 @@ typedef struct SDL_WindowData
     EGLSurface gles_surface;    /* OpenGL ES target rendering surface */
 
 } SDL_WindowData;
-
+#endif
 
 /****************************************************************************/
 /* SDL_VideoDevice functions declaration                                    */
@@ -66,10 +67,12 @@ void PND_minimizewindow(SDL_Window * window);
 void PND_destroywindow(_THIS, SDL_Window * window);
 
 /* Window manager function */
+#if 0
 SDL_bool PND_getwindowwminfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
-
+#endif
 /* OpenGL/OpenGL ES functions */
+#ifdef SDL_VIDEO_OPENGL_EGL
 int PND_gl_loadlibrary(_THIS, const char *path);
 void *PND_gl_getprocaddres(_THIS, const char *proc);
 void PND_gl_unloadlibrary(_THIS);
@@ -79,7 +82,7 @@ int PND_gl_setswapinterval(_THIS, int interval);
 int PND_gl_getswapinterval(_THIS);
 int PND_gl_swapwindow(_THIS, SDL_Window * window);
 void PND_gl_deletecontext(_THIS, SDL_GLContext context);
-
+#endif
 
 #endif /* __SDL_PANDORA_H__ */
 

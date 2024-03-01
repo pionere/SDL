@@ -38,6 +38,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for os2."
 #endif
+#ifdef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL is configured, but not implemented for os2."
+#endif
 
 #define __MEERROR_H__
 #define  _MEERROR_H_

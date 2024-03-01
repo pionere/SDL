@@ -19,6 +19,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include "../../SDL_internal.h"
+
+#ifdef SDL_VIDEO_DRIVER_QNX
+
 #include "../SDL_sysvideo.h"
 #include "sdl_qnx.h"
 
@@ -27,6 +30,9 @@
 #endif
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for QNX."
+#endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (EGL) for QNX."
 #endif
 
 static screen_context_t context;
@@ -104,6 +110,9 @@ static int createWindow(_THIS, SDL_Window *window)
     }
 
     // Create window buffer(s).
+    format = SCREEN_FORMAT_RGBX8888;
+    numbufs = 1;
+#ifdef SDL_VIDEO_OPENGL_EGL
     if (window->flags & SDL_WINDOW_OPENGL) {
         if (glGetConfig(&impl->conf, &format) < 0) {
             goto fail;
@@ -115,10 +124,8 @@ static int createWindow(_THIS, SDL_Window *window)
                                           &usage) < 0) {
             return -1;
         }
-    } else {
-        format = SCREEN_FORMAT_RGBX8888;
-        numbufs = 1;
     }
+#endif
 
     // Set pixel format.
     if (screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_FORMAT,
@@ -328,7 +335,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     device->HideWindow = hideWindow;
     device->PumpEvents = pumpEvents;
     device->DestroyWindow = destroyWindow;
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = glLoadLibrary;
     device->GL_GetProcAddress = glGetProcAddress;
     device->GL_CreateContext = glCreateContext;
@@ -337,7 +344,7 @@ static SDL_VideoDevice *createDevice(int devindex)
     device->GL_MakeCurrent = glMakeCurrent;
     device->GL_DeleteContext = glDeleteContext;
     device->GL_UnloadLibrary = glUnloadLibrary;
-
+#endif
     device->free = deleteDevice;
     return device;
 }
@@ -345,3 +352,5 @@ static SDL_VideoDevice *createDevice(int devindex)
 const VideoBootStrap QNX_bootstrap = {
     "qnx", createDevice
 };
+
+#endif // SDL_VIDEO_DRIVER_QNX

@@ -65,6 +65,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for wayland."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (EGL) for wayland."
+#endif
 
 /* Instance */
 Wayland_VideoData waylandVideoData;

@@ -22,7 +22,7 @@
 #ifndef SDL_pspgl_c_h_
 #define SDL_pspgl_c_h_
 
-#ifdef SDL_VIDEO_DRIVER_PSP
+#if defined(SDL_VIDEO_DRIVER_PSP) && defined(SDL_VIDEO_OPENGL)
 
 #include <GLES/egl.h>
 #include <GLES/gl.h>

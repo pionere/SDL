@@ -40,6 +40,10 @@
 #include "SDL_uikitvulkan.h"
 #include "SDL_uikitmetalview.h"
 
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_ES) && !defined(SDL_VIDEO_OPENGL_ES2)
+#error "OpenGL is configured, but not the implemented (GLES/GLES2) for uikit."
+#endif
+
 /* Initialization/Query functions */
 static int UIKit_VideoInit(_THIS);
 static void UIKit_VideoQuit(_THIS);

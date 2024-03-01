@@ -55,6 +55,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for kmsdrm."
 #endif
+#ifndef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL must be configured for kmsdrm."
+#endif
 
 /* Instance */
 KMSDRM_VideoData kmsdrmVideoData;

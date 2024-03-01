@@ -42,6 +42,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for empscripten."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (EGL) for empscripten."
+#endif
 
 /* Initialization/Query functions */
 static int Emscripten_VideoInit(_THIS);

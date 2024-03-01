@@ -52,6 +52,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for ps2."
 #endif
+#ifdef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL is configured, but not implemented for ps2."
+#endif
 
 /* PS2 driver bootstrap functions */
 

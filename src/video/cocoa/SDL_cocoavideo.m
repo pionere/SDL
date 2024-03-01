@@ -34,6 +34,10 @@
 #include "SDL_cocoametalview.h"
 #include "SDL_cocoaopengles.h"
 
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_CGL) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (CGL/EGL) for cocoa."
+#endif
+
 @implementation Cocoa_VideoData
 
 @end

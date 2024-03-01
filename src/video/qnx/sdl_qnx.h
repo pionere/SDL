@@ -24,17 +24,23 @@
 
 #include "../SDL_sysvideo.h"
 #include <screen/screen.h>
+
+#ifdef SDL_VIDEO_OPENGL_EGL
 #include <EGL/egl.h>
+#endif
 
 typedef struct
 {
     screen_window_t window;
+#ifdef SDL_VIDEO_OPENGL_EGL
     EGLSurface      surface;
     EGLConfig       conf;
+#endif
 } window_impl_t;
 
 extern void handleKeyboardEvent(screen_event_t event);
 
+#ifdef SDL_VIDEO_OPENGL_EGL
 extern int glGetConfig(EGLConfig *pconf, int *pformat);
 extern int glLoadLibrary(_THIS, const char *name);
 void *glGetProcAddress(_THIS, const char *proc);
@@ -44,5 +50,6 @@ extern int glSwapWindow(_THIS, SDL_Window *window);
 extern int glMakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context);
 extern void glDeleteContext(_THIS, SDL_GLContext context);
 extern void glUnloadLibrary(_THIS);
+#endif
 
 #endif

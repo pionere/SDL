@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_DRIVER_PSP
+#if defined(SDL_VIDEO_DRIVER_PSP) && defined(SDL_VIDEO_OPENGL)
 
 #include <stdlib.h>
 #include <string.h>

@@ -51,6 +51,9 @@ extern "C" {
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for ngage."
 #endif
+#ifdef SDL_VIDEO_OPENGL_ANY
+#error "OpenGL is configured, but not implemented for ngage."
+#endif
 
 /* Instance */
 Ngage_VideoData ngageVideoData;

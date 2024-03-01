@@ -34,10 +34,8 @@
 #include "SDL_x11shape.h"
 #include "SDL_x11xinput2.h"
 #include "SDL_x11xfixes.h"
-
-#ifdef SDL_VIDEO_OPENGL_EGL
+#include "SDL_x11opengl.h"
 #include "SDL_x11opengles.h"
-#endif
 
 #include "SDL_timer.h"
 #include "SDL_syswm.h"

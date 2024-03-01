@@ -39,6 +39,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for windows."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL) && !defined(SDL_VIDEO_OPENGL_WGL)
+#error "OpenGL is configured, but not the implemented (EGL/WGL) for windows."
+#endif
 
 /* #define HIGHDPI_DEBUG */
 

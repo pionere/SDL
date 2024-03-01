@@ -60,7 +60,6 @@
 #include "SDL_x11keyboard.h"
 #include "SDL_x11modes.h"
 #include "SDL_x11mouse.h"
-#include "SDL_x11opengl.h"
 #include "SDL_x11window.h"
 #include "SDL_x11vulkan.h"
 
