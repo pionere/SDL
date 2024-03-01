@@ -365,10 +365,10 @@ static void DirectUpdate(SDL_Surface *screen, int numrects, const SDL_Rect *rect
     }
 }
 
-void RedrawWindowL(_THIS)
+void RedrawWindowL()
 {
     Ngage_VideoData *phdata = &ngageVideoData;
-    SDL_Surface *screen = (SDL_Surface *)SDL_GetWindowData(_this->windows, NGAGE_SURFACE);
+    SDL_Surface *screen = (SDL_Surface *)SDL_GetWindowData(SDL_GetWindows(), NGAGE_SURFACE);
 
     int w = screen->w;
     int h = screen->h;

@@ -42,9 +42,8 @@
 static SDL_Window *FindSDLWindowForNSWindow(NSWindow *win)
 {
     SDL_Window *sdlwindow = NULL;
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
-    if (device && device->windows) {
-        for (sdlwindow = device->windows; sdlwindow; sdlwindow = sdlwindow->next) {
+    if (SDL_HasWindows()) {
+        for (sdlwindow = SDL_GetWindows(); sdlwindow; sdlwindow = sdlwindow->next) {
             NSWindow *nswindow = ((__bridge SDL_WindowData *) sdlwindow->driverdata).nswindow;
             if (win == nswindow) {
                 return sdlwindow;
@@ -78,6 +77,10 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
 {
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
 
+    if (!_this) {
+        return; // can happen when returning from fullscreen Space on shutdown
+    }
+
     switch ([theEvent type]) {
         case NSEventTypeLeftMouseDown:
         case NSEventTypeOtherMouseDown:
@@ -90,12 +93,12 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         case NSEventTypeOtherMouseDragged: /* usually middle mouse dragged */
         case NSEventTypeMouseMoved:
         case NSEventTypeScrollWheel:
-            Cocoa_HandleMouseEvent(_this, theEvent);
+            Cocoa_HandleMouseEvent(theEvent);
             break;
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
         case NSEventTypeFlagsChanged:
-            Cocoa_HandleKeyEvent(_this, theEvent);
+            Cocoa_HandleKeyEvent(theEvent);
             break;
         default:
             break;
@@ -232,7 +235,6 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
 
 - (void)focusSomeWindow:(NSNotification *)aNotification
 {
-    SDL_VideoDevice *device;
     /* HACK: Ignore the first call. The application gets a
      * applicationDidBecomeActive: a little bit after the first window is
      * created, and if we don't ignore it, a window that has been created with
@@ -250,20 +252,21 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         return;
     }
 
-    device = SDL_GetVideoDevice();
-    if (device && device->windows) {
-        SDL_Window *window = device->windows;
-        int i;
-        for (i = 0; i < device->num_displays; ++i) {
-            SDL_Window *fullscreen_window = device->displays[i].fullscreen_window;
-            if (fullscreen_window) {
-                if (fullscreen_window->flags & SDL_WINDOW_MINIMIZED) {
-                    SDL_RestoreWindow(fullscreen_window);
+    if (SDL_HasWindows()) {
+        SDL_Window *window;
+        int i, num_displays;
+        SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+        for (i = 0; i < num_displays; ++i) {
+            window = displays[i].fullscreen_window;
+            if (window) {
+                if (window->flags & SDL_WINDOW_MINIMIZED) {
+                    SDL_RestoreWindow(window);
                 }
                 return;
             }
         }
 
+        window = SDL_GetWindows();
         if (window->flags & SDL_WINDOW_MINIMIZED) {
             SDL_RestoreWindow(window);
         } else {

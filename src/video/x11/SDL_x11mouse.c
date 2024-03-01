@@ -305,11 +305,10 @@ static int X11_ShowCursor(SDL_Cursor *cursor)
 
     /* FIXME: Is there a better way than this? */
     {
-        SDL_VideoDevice *video = SDL_GetVideoDevice();
         Display *display = GetDisplay();
         SDL_Window *window;
 
-        for (window = video->windows; window; window = window->next) {
+        for (window = SDL_GetWindows(); window; window = window->next) {
             SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
             if (data) {
                 if (x11_cursor != None) {

@@ -33,11 +33,11 @@
 #endif
 
 /* Get any application owned window handle for clipboard association */
-static HWND GetWindowHandle(_THIS)
+static HWND GetWindowHandle()
 {
     SDL_Window *window;
 
-    window = _this->windows;
+    window = SDL_GetWindows();
     if (window) {
         return ((SDL_WindowData *)window->driverdata)->hwnd;
     }
@@ -49,7 +49,7 @@ int WIN_SetClipboardText(_THIS, const char *text)
     WIN_VideoData *data = &winVideoData;
     int result = 0;
 
-    if (OpenClipboard(GetWindowHandle(_this))) {
+    if (OpenClipboard(GetWindowHandle())) {
         HANDLE hMem;
         LPTSTR tstr;
         SIZE_T i, size;
@@ -106,7 +106,7 @@ char *WIN_GetClipboardText(_THIS)
 
     text = NULL;
     if (IsClipboardFormatAvailable(TEXT_FORMAT) &&
-        OpenClipboard(GetWindowHandle(_this))) {
+        OpenClipboard(GetWindowHandle())) {
         HANDLE hMem;
         LPTSTR tstr;
 

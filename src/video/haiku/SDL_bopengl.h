@@ -41,7 +41,7 @@ extern int HAIKU_GL_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext HAIKU_GL_CreateContext(_THIS, SDL_Window *window);
 extern void HAIKU_GL_DeleteContext(_THIS, SDL_GLContext context);
 
-extern void HAIKU_GL_RebootContexts(_THIS);
+extern void HAIKU_GL_RebootContexts();
 
 #ifdef __cplusplus
 }

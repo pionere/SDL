@@ -604,11 +604,9 @@ static SDL_MOUSE_EVENT_SOURCE GetMouseMessageSource(void)
 
 static SDL_WindowData *WIN_GetWindowDataFromHWND(HWND hwnd)
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
-    SDL_Window *window;
-
-    if (_this) {
-        for (window = _this->windows; window; window = window->next) {
+    if (SDL_HasWindows()) {
+        SDL_Window *window;
+        for (window = SDL_GetWindows(); window; window = window->next) {
             SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
             if (data && data->hwnd == hwnd) {
                 return data;
@@ -1742,12 +1740,11 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 static void WIN_UpdateClipCursorForWindows()
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
     SDL_Window *window;
     Uint32 now = SDL_GetTicks();
     const Uint32 CLIPCURSOR_UPDATE_INTERVAL_MS = 3000;
 
-        for (window = _this->windows; window; window = window->next) {
+        for (window = SDL_GetWindows(); window; window = window->next) {
             SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
             if (data) {
                 if (data->skip_update_clipcursor) {

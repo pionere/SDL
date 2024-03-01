@@ -2234,7 +2234,7 @@ void Wayland_SuspendScreenSaver(_THIS)
        be able to inhibit idle once the first window is created.
     */
     if (data->idle_inhibit_manager) {
-        SDL_Window *window = _this->windows;
+        SDL_Window *window = SDL_GetWindows();
         while (window) {
             SDL_WindowData *win_data = window->driverdata;
 
@@ -2316,12 +2316,11 @@ static void EGLTransparencyChangedCallback(void *userdata, const char *name, con
     if (oldval != newval) {
         SDL_Window *window;
         Wayland_VideoData *viddata = &waylandVideoData;
-        SDL_VideoDevice *dev = SDL_GetVideoDevice();
 
         viddata->egl_transparency_enabled = newval;
 
         /* Iterate over all windows and update the surface opaque regions */
-        for (window = dev->windows; window; window = window->next) {
+        for (window = SDL_GetWindows(); window; window = window->next) {
             SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
 
             if (!newval) {

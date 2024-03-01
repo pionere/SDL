@@ -236,12 +236,10 @@
 
 - (SDL_Window*)findSDLWindow
 {
-    SDL_Window *sdlwindow = NULL;
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
-
     /* !!! FIXME: is there a better way to do this? */
-    if (_this) {
-        for (sdlwindow = _this->windows; sdlwindow; sdlwindow = sdlwindow->next) {
+    if (SDL_HasWindows()) {
+        SDL_Window *sdlwindow;
+        for (sdlwindow = SDL_GetWindows(); sdlwindow; sdlwindow = sdlwindow->next) {
             NSWindow *nswindow = ((__bridge SDL_WindowData *) sdlwindow->driverdata).nswindow;
             if (nswindow == self) {
                 return sdlwindow;
@@ -1131,7 +1129,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
  */
 - (void)flagsChanged:(NSEvent *)theEvent
 {
-    /*Cocoa_HandleKeyEvent(SDL_GetVideoDevice(), theEvent);*/
+    /*Cocoa_DispatchEvent(theEvent);*/
 
     /* Catch capslock in here as a special case:
        https://developer.apple.com/library/archive/qa/qa1519/_index.html
@@ -1151,11 +1149,11 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 }
 - (void)keyDown:(NSEvent *)theEvent
 {
-    /*Cocoa_HandleKeyEvent(SDL_GetVideoDevice(), theEvent);*/
+    /*Cocoa_DispatchEvent(theEvent);*/
 }
 - (void)keyUp:(NSEvent *)theEvent
 {
-    /*Cocoa_HandleKeyEvent(SDL_GetVideoDevice(), theEvent);*/
+    /*Cocoa_DispatchEvent(theEvent);*/
 }
 
 /* We'll respond to selectors by doing nothing so we don't beep.

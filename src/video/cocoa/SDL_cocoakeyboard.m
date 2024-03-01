@@ -383,14 +383,11 @@ void Cocoa_SetTextInputRect(const SDL_Rect *rect)
     [data.fieldEdit setInputRect:rect];
 }
 
-void Cocoa_HandleKeyEvent(_THIS, NSEvent *event)
+void Cocoa_HandleKeyEvent(NSEvent *event)
 {
     unsigned short scancode;
     SDL_Scancode code;
-    Cocoa_VideoData *data = _this ? cocoaVideoData : nil;
-    if (!data) {
-        return;  /* can happen when returning from fullscreen Space on shutdown */
-    }
+    Cocoa_VideoData *data = cocoaVideoData;
 
     scancode = [event keyCode];
 #if 0

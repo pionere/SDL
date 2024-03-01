@@ -285,11 +285,11 @@ static void UpdateScrollDirection(void)
 
 static void UpdatePointerLock(void)
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
-    SDL_Window *window;
-
-    for (window = _this->windows; window != NULL; window = window->next) {
-        UIKit_UpdatePointerLock(window);
+    if (SDL_HasWindows()) {
+        SDL_Window *window;
+        for (window = SDL_GetWindows(); window; window = window->next) {
+            UIKit_UpdatePointerLock(window);
+        }
     }
 }
 

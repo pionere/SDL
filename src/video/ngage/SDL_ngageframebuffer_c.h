@@ -25,7 +25,7 @@ extern int SDL_NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
 extern int SDL_NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects);
 extern void SDL_NGAGE_DestroyWindowFramebuffer(SDL_Window *window);
 
-extern void RedrawWindowL(_THIS);
+extern void RedrawWindowL();
 
 /****************************************************************************/
 /* Runtime                                                                  */

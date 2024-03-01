@@ -154,10 +154,10 @@ int UIKit_CreateWindow(_THIS, SDL_Window *window)
     @autoreleasepool {
         SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
         SDL_DisplayData *data = (__bridge SDL_DisplayData *) display->driverdata;
-        SDL_Window *other;
+        SDL_Window *other = SDL_GetWindows();
 
         /* We currently only handle a single window per display on iOS */
-        for (other = _this->windows; other; other = other->next) {
+        for (; other; other = other->next) {
             if (other != window && SDL_GetDisplayForWindow(other) == display) {
                 return SDL_SetError("Only one window allowed per display.");
             }

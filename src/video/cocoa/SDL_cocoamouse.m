@@ -212,14 +212,15 @@ static void Cocoa_FreeCursor(SDL_Cursor * cursor)
 static int Cocoa_ShowCursor(SDL_Cursor * cursor)
 { @autoreleasepool
 {
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
-    SDL_Window *window = (device ? device->windows : NULL);
-    for (; window != NULL; window = window->next) {
-        SDL_WindowData *driverdata = (__bridge SDL_WindowData *)window->driverdata;
-        if (driverdata) {
-            [driverdata.nswindow performSelectorOnMainThread:@selector(invalidateCursorRectsForView:)
-                                                  withObject:[driverdata.nswindow contentView]
-                                               waitUntilDone:NO];
+    if (SDL_HasWindows()) {
+        SDL_Window *window;
+        for (window = SDL_GetWindows(); window != NULL; window = window->next) {
+            SDL_WindowData *driverdata = (__bridge SDL_WindowData *)window->driverdata;
+            if (driverdata) {
+                [driverdata.nswindow performSelectorOnMainThread:@selector(invalidateCursorRectsForView:)
+                                                      withObject:[driverdata.nswindow contentView]
+                                                   waitUntilDone:NO];
+            }
         }
     }
     return 0;
@@ -229,7 +230,7 @@ static SDL_Window *SDL_FindWindowAtPoint(const int x, const int y)
 {
     const SDL_Point pt = { x, y };
     SDL_Window *i;
-    for (i = SDL_GetVideoDevice()->windows; i; i = i->next) {
+    for (i = SDL_GetWindows(); i; i = i->next) {
         const SDL_Rect r = { i->x, i->y, i->w, i->h };
         if (SDL_PointInRect(&pt, &r)) {
             return i;
@@ -389,18 +390,18 @@ int Cocoa_InitMouse(void)
     return 0;
 }
 
-static void Cocoa_HandleTitleButtonEvent(_THIS, NSEvent *event)
+static void Cocoa_HandleTitleButtonEvent(NSEvent *event)
 {
     SDL_Window *window;
     NSWindow *nswindow = [event window];
 
     /* You might land in this function before SDL_Init if showing a message box.
        Don't derefence a NULL pointer if that happens. */
-    if (_this == NULL) {
+    if (!SDL_HasWindows()) {
         return;
     }
 
-    for (window = _this->windows; window; window = window->next) {
+    for (window = SDL_GetWindows(); window; window = window->next) {
         SDL_WindowData *data = (__bridge SDL_WindowData *)window->driverdata;
         if (data && data.nswindow == nswindow) {
             switch ([event type]) {
@@ -422,7 +423,7 @@ static void Cocoa_HandleTitleButtonEvent(_THIS, NSEvent *event)
     }
 }
 
-void Cocoa_HandleMouseEvent(_THIS, NSEvent *event)
+void Cocoa_HandleMouseEvent(NSEvent *event)
 {
     SDL_Mouse *mouse;
     SDL_MouseData *driverdata;
@@ -447,7 +448,7 @@ void Cocoa_HandleMouseEvent(_THIS, NSEvent *event)
             if ([event window]) {
                 NSRect windowRect = [[[event window] contentView] frame];
                 if (!NSMouseInRect([event locationInWindow], windowRect, NO)) {
-                    Cocoa_HandleTitleButtonEvent(_this, event);
+                    Cocoa_HandleTitleButtonEvent(event);
                     return;
                 }
             }
@@ -460,9 +461,7 @@ void Cocoa_HandleMouseEvent(_THIS, NSEvent *event)
 
     mouse = SDL_GetMouse();
     driverdata = (SDL_MouseData*)mouse->driverdata;
-    if (!driverdata) {
-        return;  /* can happen when returning from fullscreen Space on shutdown */
-    }
+    SDL_assert(driverdata != NULL);
 
     mouseID = mouse ? mouse->mouseID : 0;
     seenWarp = driverdata->seenWarp;

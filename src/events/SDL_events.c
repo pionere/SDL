@@ -1073,10 +1073,10 @@ static SDL_bool SDL_events_need_polling(void)
     return need_polling;
 }
 
-static SDL_Window *SDL_find_active_window(SDL_VideoDevice *_this)
+static SDL_Window *SDL_find_active_window()
 {
-    SDL_Window *window;
-    for (window = _this->windows; window; window = window->next) {
+    SDL_Window *window = SDL_GetWindows();
+    for ( ; window; window = window->next) {
         if (!window->is_destroying) {
             return window;
         }
@@ -1147,7 +1147,7 @@ int SDL_WaitEventTimeout(SDL_Event *event, int timeout)
 
     if (_this && _this->WaitEventTimeout && _this->SendWakeupEvent && !SDL_events_need_polling()) {
         /* Look if a shown window is available to send the wakeup event. */
-        wakeup_window = SDL_find_active_window(_this);
+        wakeup_window = SDL_find_active_window();
         if (wakeup_window) {
             int status = SDL_WaitEventTimeout_Device(_this, wakeup_window, event, start, timeout);
 

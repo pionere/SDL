@@ -40,7 +40,7 @@ extern "C" {
 #include "SDL_ngagevideo.h"
 #include "SDL_ngageevents_c.h"
 
-int HandleWsEvent(_THIS, const TWsEvent &aWsEvent);
+static int HandleWsEvent(_THIS, const TWsEvent &aWsEvent);
 
 void NGAGE_PumpEvents(_THIS)
 {
@@ -49,7 +49,7 @@ void NGAGE_PumpEvents(_THIS)
     while (phdata->NGAGE_WsEventStatus != KRequestPending) {
         phdata->NGAGE_WsSession.GetEvent(phdata->NGAGE_WsEvent);
 
-        HandleWsEvent(_this, phdata->NGAGE_WsEvent);
+        HandleWsEvent(phdata->NGAGE_WsEvent);
 
         phdata->NGAGE_WsEventStatus = KRequestPending;
         phdata->NGAGE_WsSession.EventReady(&phdata->NGAGE_WsEventStatus);
@@ -64,7 +64,7 @@ void NGAGE_PumpEvents(_THIS)
 #include <hal.h>
 
 extern void DisableKeyBlocking(void);
-extern void RedrawWindowL(_THIS);
+extern void RedrawWindowL();
 
 TBool isCursorVisible = EFalse;
 
@@ -147,7 +147,7 @@ static SDL_Scancode ConvertScancode(int key)
     return SDL_GetScancodeFromKey(keycode);
 }
 
-int HandleWsEvent(_THIS, const TWsEvent &aWsEvent)
+static int HandleWsEvent(const TWsEvent &aWsEvent)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     int posted = 0;
@@ -163,7 +163,7 @@ int HandleWsEvent(_THIS, const TWsEvent &aWsEvent)
         phdata->NGAGE_IsWindowFocused = ETrue;
         /* Draw window background and screen buffer */
         DisableKeyBlocking();
-        RedrawWindowL(_this);
+        RedrawWindowL();
         break;
     case EEventFocusLost: /* SDL window lost focus */
     {

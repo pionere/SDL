@@ -288,7 +288,7 @@ int HAIKU_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
 #ifdef SDL_VIDEO_OPENGL
     /* FIXME: Is there some way to reboot the OpenGL context?  This doesn't
        help */
-//    HAIKU_GL_RebootContexts(_this);
+//    HAIKU_GL_RebootContexts();
 #endif
 
     return 0;

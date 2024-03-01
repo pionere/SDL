@@ -1146,7 +1146,7 @@ SDL_bool Wayland_VideoReconnect(_THIS)
 
     Wayland_VideoInit(_this);
 
-    window = _this->windows;
+    window = SDL_GetWindows();
     while (window) {
         /* We're going to cheat _just_ for a second and strip the OpenGL flag.
          * The Wayland driver actually forces it in CreateWindow, and

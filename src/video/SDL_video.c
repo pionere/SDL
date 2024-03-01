@@ -2099,6 +2099,12 @@ SDL_bool SDL_HasWindows(void)
     return _this && _this->windows;
 }
 
+SDL_Window *SDL_GetWindows(void)
+{
+    SDL_assert(_this != NULL);
+    return _this->windows;
+}
+
 Uint32 SDL_GetWindowID(SDL_Window *window)
 {
     CHECK_WINDOW_MAGIC(window, 0);

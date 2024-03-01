@@ -165,8 +165,8 @@ void HAIKU_GL_UnloadLibrary(_THIS) {
 /* FIXME: This function is meant to clear the OpenGL context when the video
    mode changes (see SDL_bmodes.cc), but it doesn't seem to help, and is not
    currently in use. */
-void HAIKU_GL_RebootContexts(_THIS) {
-    SDL_Window *window = _this->windows;
+void HAIKU_GL_RebootContexts() {
+    SDL_Window *window = SDL_GetWindows();
     while (window) {
         SDL_BWin *bwin = _ToBeWin(window);
         if (bwin->GetGLView()) {

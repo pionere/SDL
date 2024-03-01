@@ -2691,7 +2691,6 @@ static void pointer_confine_destroy(SDL_Window *window)
 
 int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
 {
-    SDL_VideoDevice *vd = SDL_GetVideoDevice();
     Wayland_VideoData *d = &waylandVideoData;
     SDL_Window *window;
     struct zwp_relative_pointer_v1 *relative_pointer;
@@ -2711,7 +2710,7 @@ int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
     /* If we have a pointer confine active, we must destroy it here because
      * creating a locked pointer otherwise would be a protocol error.
      */
-    for (window = vd->windows; window; window = window->next) {
+    for (window = SDL_GetWindows(); window; window = window->next) {
         pointer_confine_destroy(window);
     }
 
@@ -2726,7 +2725,7 @@ int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
         input->relative_pointer = relative_pointer;
     }
 
-    for (window = vd->windows; window; window = window->next) {
+    for (window = SDL_GetWindows(); window; window = window->next) {
         lock_pointer_to_window(window, input);
     }
 
@@ -2737,12 +2736,11 @@ int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
 
 int Wayland_input_unlock_pointer(struct SDL_WaylandInput *input)
 {
-    SDL_VideoDevice *vd = SDL_GetVideoDevice();
     Wayland_VideoData *d = &waylandVideoData;
     SDL_Window *window;
     SDL_WindowData *w;
 
-    for (window = vd->windows; window; window = window->next) {
+    for (window = SDL_GetWindows(); window; window = window->next) {
         w = window->driverdata;
         if (w->locked_pointer) {
             zwp_locked_pointer_v1_destroy(w->locked_pointer);
@@ -2757,7 +2755,7 @@ int Wayland_input_unlock_pointer(struct SDL_WaylandInput *input)
 
     d->relative_mouse_mode = 0;
 
-    for (window = vd->windows; window; window = window->next) {
+    for (window = SDL_GetWindows(); window; window = window->next) {
         Wayland_input_confine_pointer(input, window);
     }
 
