@@ -28,6 +28,7 @@
 
 int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
 {
+#ifdef SDL_VIDEO_OPENGL_EGL
     OFFSCREEN_Window *offscreen_window = SDL_calloc(1, sizeof(OFFSCREEN_Window));
 
     if (!offscreen_window) {
@@ -35,7 +36,7 @@ int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
     }
 
     window->driverdata = offscreen_window;
-
+#endif
     if (window->x == SDL_WINDOWPOS_UNDEFINED) {
         window->x = 0;
     }
@@ -43,8 +44,6 @@ int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
     if (window->y == SDL_WINDOWPOS_UNDEFINED) {
         window->y = 0;
     }
-
-    offscreen_window->sdl_window = window;
 
 #ifdef SDL_VIDEO_OPENGL_EGL
     if (window->flags & SDL_WINDOW_OPENGL) {
@@ -64,16 +63,15 @@ int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
 
 void OFFSCREEN_DestroyWindow(_THIS, SDL_Window *window)
 {
+#ifdef SDL_VIDEO_OPENGL_EGL
     OFFSCREEN_Window *offscreen_window = window->driverdata;
 
     if (offscreen_window) {
-#ifdef SDL_VIDEO_OPENGL_EGL
         SDL_EGL_DestroySurface(_this, offscreen_window->egl_surface);
-#endif
         SDL_free(offscreen_window);
+        window->driverdata = NULL;
     }
-
-    window->driverdata = NULL;
+#endif
 }
 
 #endif /* SDL_VIDEO_DRIVER_OFFSCREEN */

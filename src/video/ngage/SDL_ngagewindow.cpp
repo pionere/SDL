@@ -34,14 +34,6 @@ static void ConstructWindowL(void);
 
 int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 {
-    NGAGE_Window *ngage_window = (NGAGE_Window *)SDL_calloc(1, sizeof(NGAGE_Window));
-
-    if (!ngage_window) {
-        return SDL_OutOfMemory();
-    }
-
-    window->driverdata = ngage_window;
-
     if (window->x == SDL_WINDOWPOS_UNDEFINED) {
         window->x = 0;
     }
@@ -50,8 +42,6 @@ int NGAGE_CreateWindow(_THIS, SDL_Window *window)
         window->y = 0;
     }
 
-    ngage_window->sdl_window = window;
-
     ConstructWindowL();
 
     return 0;
@@ -59,8 +49,6 @@ int NGAGE_CreateWindow(_THIS, SDL_Window *window)
 
 void NGAGE_DestroyWindow(_THIS, SDL_Window *window)
 {
-    SDL_free(window->driverdata);
-    window->driverdata = NULL;
 }
 
 /*****************************************************************************/

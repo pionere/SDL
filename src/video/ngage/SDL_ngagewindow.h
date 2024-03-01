@@ -27,12 +27,6 @@
 
 #include "SDL_ngagevideo.h"
 
-typedef struct
-{
-    SDL_Window *sdl_window;
-
-} NGAGE_Window;
-
 extern int
 NGAGE_CreateWindow(_THIS, SDL_Window *window);
 
