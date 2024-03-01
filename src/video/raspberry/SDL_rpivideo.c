@@ -322,17 +322,15 @@ int RPI_CreateWindow(_THIS, SDL_Window *window)
     wdata->dispman_window.height = window->h;
     vc_dispmanx_update_submit_sync(dispman_update);
 
-    if (!_this->egl_data) {
-        if (SDL_GL_LoadLibrary(NULL) < 0) {
+#ifdef SDL_VIDEO_OPENGL_EGL
+    if (window->flags & SDL_WINDOW_OPENGL) {
+        wdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)&wdata->dispman_window);
+
+        if (wdata->egl_surface == EGL_NO_SURFACE) {
             return -1;
         }
     }
-    wdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)&wdata->dispman_window);
-
-    if (wdata->egl_surface == EGL_NO_SURFACE) {
-        return SDL_SetError("Could not create GLES window surface");
-    }
-
+#endif
     /* Start generating vsync callbacks if necesary */
     wdata->double_buffer = SDL_FALSE;
     if (SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE)) {

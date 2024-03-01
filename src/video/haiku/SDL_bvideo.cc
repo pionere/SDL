@@ -287,21 +287,12 @@ int HAIKU_VideoInit(_THIS)
 
     HAIKU_MouseInit();
 
-#ifdef SDL_VIDEO_OPENGL
-        /* testgl application doesn't load library, just tries to load symbols */
-        /* is it correct? if so we have to load library here */
-    if (HAIKU_GL_LoadLibrary(_this, NULL) >= 0) {
-        _this->gl_config.driver_loaded = 1;
-    }
-#endif
-
     /* We're done! */
     return 0;
 }
 
 void HAIKU_VideoQuit(_THIS)
 {
-    // HAIKU_GL_UnloadLibrary(_this);
     HAIKU_QuitModes();
 
     SDL_QuitBeApp();
