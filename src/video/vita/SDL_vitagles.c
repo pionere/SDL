@@ -67,7 +67,11 @@ int VITA_GLES_LoadLibrary(_THIS, const char *path)
         return SDL_OutOfMemory();
     }
     _this->gl_data = gldata;
-    _this->gl_config.driver_loaded = 1;
+    if (path) {
+        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
+    } else {
+        *_this->gl_config.driver_path = '\0';
+    }
 
     pibInit(PIB_SHACCCG | PIB_GET_PROC_ADDR_CORE);
     return 0;

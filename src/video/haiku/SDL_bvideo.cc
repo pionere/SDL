@@ -290,7 +290,9 @@ int HAIKU_VideoInit(_THIS)
 #ifdef SDL_VIDEO_OPENGL
         /* testgl application doesn't load library, just tries to load symbols */
         /* is it correct? if so we have to load library here */
-    HAIKU_GL_LoadLibrary(_this, NULL);
+    if (HAIKU_GL_LoadLibrary(_this, NULL) >= 0) {
+        _this->gl_config.driver_loaded = 1;
+    }
 #endif
 
     /* We're done! */

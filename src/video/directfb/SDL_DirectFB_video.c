@@ -269,6 +269,7 @@ static int DirectFB_VideoInit(_THIS)
     if (DirectFB_GL_LoadLibrary(_this, NULL) < 0) {
         goto error;
     }
+    _this->gl_config.driver_loaded = 1;
 #endif
 
     DirectFB_InitMouse();

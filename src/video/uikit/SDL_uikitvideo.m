@@ -141,6 +141,7 @@ const VideoBootStrap UIKIT_bootstrap = {
 int UIKit_VideoInit(_THIS)
 {
     UIKit_GL_LoadLibrary(_this, NULL);
+    _this->gl_config.driver_loaded = 1;
 
     if (UIKit_InitModes() < 0) {
         return -1;

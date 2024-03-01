@@ -69,6 +69,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
         SDL_free(device);
         return NULL;
     }
+    device->gl_config.driver_loaded = 1;
 #endif
     /* Set device free function */
     device->free = PSP_DeleteDevice;

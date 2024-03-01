@@ -89,6 +89,7 @@ static SDL_VideoDevice *VITA_CreateDevice()
         SDL_free(device);
         return NULL;
     }
+    device->gl_config.driver_loaded = 1;
 #endif
     // phdata->ime_active = SDL_FALSE;
 

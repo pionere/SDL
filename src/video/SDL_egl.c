@@ -474,7 +474,7 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     /* Atomic functions end */
 
     if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, sizeof(_this->gl_config.driver_path) - 1);
+        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
     } else {
         *_this->gl_config.driver_path = '\0';
     }
@@ -554,7 +554,7 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
         if (_this->egl_data->egl_version_major == 1 && _this->egl_data->egl_version_minor == 5) {
             // LOAD_FUNC(eglGetPlatformDisplay);
 #ifdef SDL_VIDEO_STATIC_ANGLE
-            eglGetPlatformDisplayfunc = (void *)eglGetPlatformDisplay;
+            eglGetPlatformDisplayfunc = eglGetPlatformDisplay;
 #else
             eglGetPlatformDisplayfunc = SDL_LoadFunction(_this->egl_data->egl_dll_handle, "eglGetPlatformDisplay");
 #endif

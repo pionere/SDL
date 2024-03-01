@@ -53,9 +53,8 @@ int PSP_GL_LoadLibrary(_THIS, const char *path)
     }
 
     _this->gl_data = gldata;
-    _this->gl_config.driver_loaded = 1;
     if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, sizeof(_this->gl_config.driver_path) - 1);
+        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
     } else {
         *_this->gl_config.driver_path = '\0';
     }
