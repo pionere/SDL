@@ -31,6 +31,10 @@
 
 #define SDL_EGL_MAX_DEVICES 8
 
+#if defined(SDL_VIDEO_DRIVER_VITA) || defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
+#define SDL_VIDEO_STATIC_ANGLE 1
+#endif
+
 /* Function pointer typedefs for 'new' ANGLE functions, which, unlike
  * the old functions, do not require C++ support and work with plain C.
  */
@@ -55,7 +59,7 @@ typedef struct SDL_EGL_VideoData
      */
     IUnknown *winrt_egl_addon;
 #endif
-
+#ifndef SDL_VIDEO_STATIC_ANGLE
     EGLDisplay(EGLAPIENTRY *eglGetDisplay) (NativeDisplayType display);
 
     // eglGetPlatformDisplay_Function eglGetPlatformDisplay;
@@ -126,6 +130,7 @@ typedef struct SDL_EGL_VideoData
     // EGLint(EGLAPIENTRY *eglClientWaitSyncKHR)(EGLDisplay dpy, EGLSyncKHR sync, EGLint flags, EGLTimeKHR timeout);
 
     /* Atomic functions end */
+#endif // !SDL_VIDEO_STATIC_ANGLE
 } SDL_EGL_VideoData;
 
 /* OpenGLES functions */
@@ -162,7 +167,11 @@ extern int SDL_EGL_SwapBuffers(_THIS, EGLSurface egl_surface);
 
 /* SDL Error-reporting */
 extern int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, EGLint eglErrorCode);
+#ifdef SDL_VIDEO_STATIC_ANGLE
+#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, eglGetError())
+#else
 #define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, _this->egl_data->eglGetError())
+#endif
 
 /* A few of useful macros */
 

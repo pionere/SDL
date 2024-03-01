@@ -141,7 +141,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          */
         eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)egl_data->eglGetProcAddress("eglGetPlatformDisplayEXT");
         if (!eglGetPlatformDisplayEXT) {
-            SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetProcAddress");
+            SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetPlatformDisplayEXT");
             goto error;
         }
 
@@ -240,7 +240,7 @@ WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
     }
 
     if (surface == EGL_NO_SURFACE) {
-        SDL_EGL_SetError("unable to create EGL native-window surface", "eglCreateWindowSurface");
+        SDL_EGL_SetError("unable to create an EGL window surface", "eglCreateWindowSurface");
     }
 
     return surface;
