@@ -244,12 +244,12 @@
         for (sdlwindow = _this->windows; sdlwindow; sdlwindow = sdlwindow->next) {
             NSWindow *nswindow = ((__bridge SDL_WindowData *) sdlwindow->driverdata).nswindow;
             if (nswindow == self) {
-                break;
+                return sdlwindow;
             }
         }
     }
 
-    return sdlwindow;
+    return NULL;
 }
 
 @end
