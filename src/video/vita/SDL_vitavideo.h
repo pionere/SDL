@@ -24,7 +24,11 @@
 
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
+#if defined(SDL_VIDEO_VITA_PVR)
 #include "../SDL_egl_c.h"
+#elif defined(SDL_VIDEO_VITA_PIB)
+#include <EGL/egl.h>
+#endif
 
 #include <psp2/types.h>
 #include <psp2/display.h>
@@ -35,15 +39,18 @@ typedef struct Vita_VideoData
 {
     SceWChar16 ime_buffer[SCE_IME_DIALOG_MAX_TEXT_LENGTH];
     SDL_bool ime_active;
+#if defined(SDL_VIDEO_VITA_PIB)
+    EGLDisplay egl_display;     /* OpenGL ES display connection           */
+    uint32_t egl_swapinterval;  /* OpenGL ES default swap interval        */
+#endif
 } Vita_VideoData;
 
 typedef struct SDL_WindowData
 {
     SceUID buffer_uid;
     void *buffer;
-#if defined(SDL_VIDEO_VITA_PVR)
+#if defined(SDL_VIDEO_VITA_PVR) || defined(SDL_VIDEO_VITA_PIB)
     EGLSurface egl_surface;
-    EGLContext egl_context;
 #endif
 } SDL_WindowData;
 

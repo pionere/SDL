@@ -31,15 +31,6 @@
 #include <GLES2/gl2ext.h>
 
 #include "../SDL_sysvideo.h"
-#include "../SDL_egl_c.h"
-
-typedef struct SDL_GLDriverData
-{
-    EGLDisplay display;
-    EGLContext context;
-    EGLSurface surface;
-    uint32_t swapinterval;
-} SDL_GLDriverData;
 
 extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
 extern void *VITA_GLES_GetProcAddress(_THIS, const char *proc);
@@ -52,6 +43,7 @@ extern void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context);
 extern int VITA_GLES_SetSwapInterval(_THIS, int interval);
 extern int VITA_GLES_GetSwapInterval(_THIS);
 
+extern void VITA_GLES_DestroySurface(_THIS, EGLSurface egl_surface);
 #endif // SDL_VIDEO_VITA_PIB
 
 #endif /* SDL_vitagles_c_h_ */
