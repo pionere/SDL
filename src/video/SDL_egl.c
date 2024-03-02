@@ -160,9 +160,10 @@ static const char *SDL_EGL_GetErrorName(EGLint eglErrorCode)
     return "";
 }
 
-int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, EGLint eglErrorCode)
+int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName)
 {
 #ifndef SDL_VERBOSE_ERROR_DISABLED
+    EGLint eglErrorCode = USE_FUNC(eglGetError)();
     const char *errorText = SDL_EGL_GetErrorName(eglErrorCode);
     char altErrorText[32];
     if (errorText[0] == '\0') {

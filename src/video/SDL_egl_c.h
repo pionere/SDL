@@ -168,12 +168,8 @@ extern int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext cont
 extern int SDL_EGL_SwapBuffers(_THIS, EGLSurface egl_surface);
 
 /* SDL Error-reporting */
-extern int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, EGLint eglErrorCode);
-#ifdef SDL_VIDEO_STATIC_ANGLE
-#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, eglGetError())
-#else
-#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, egl_data.eglGetError())
-#endif
+extern int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName);
+#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName)
 
 /* A few of useful macros */
 
