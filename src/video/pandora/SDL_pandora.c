@@ -693,7 +693,6 @@ int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     SDL_WindowData *wdata;
     EGLBoolean status;
     EGLSurface egl_surface;
-    SDL_GLContext context;
 
     if (!window) {
         egl_surface = EGL_NO_SURFACE;
@@ -701,10 +700,9 @@ int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     } else {
         wdata = (SDL_WindowData *) window->driverdata;
         egl_surface = wdata->gles_surface;
+        SDL_assert(context != EGL_NO_CONTEXT);
         if (egl_surface == EGL_NO_SURFACE) {
             context = EGL_NO_CONTEXT;
-        } else if (gles_context == EGL_NO_CONTEXT) {
-            egl_surface = EGL_NO_SURFACE;
         }
     }
     status =
