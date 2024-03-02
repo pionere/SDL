@@ -22,43 +22,54 @@
 
 #if defined(SDL_VIDEO_DRIVER_PSP) && defined(SDL_VIDEO_OPENGL)
 
-#include <stdlib.h>
-#include <string.h>
+#include <GLES/egl.h>
+#include <GLES/gl.h>
 
-#include "SDL_error.h"
 #include "SDL_pspvideo.h"
 #include "SDL_pspgl_c.h"
 
 /*****************************************************************************/
 /* SDL OpenGL/OpenGL ES functions                                            */
 /*****************************************************************************/
-#define EGLCHK(stmt)                           \
-    do {                                       \
-        EGLint err;                            \
-                                               \
-        stmt;                                  \
-        err = eglGetError();                   \
-        if (err != EGL_SUCCESS) {              \
-            SDL_SetError("EGL error %d", err); \
-            return 0;                          \
-        }                                      \
-    } while (0)
+
+static int PSP_EGL_SetError(const char *message, const char *eglFunctionName)
+{
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    EGLint eglErrorCode = eglGetError();
+    return SDL_SetError("%s (call to %s failed, reporting an error of 0x%x)", message, eglFunctionName, (unsigned int)eglErrorCode);
+#else
+    return -1;
+#endif
+}
+
+static int PSP_EGL_InitializeDisplay(EGLDisplay display)
+{
+    Psp_VideoData *psp_data = &pspVideoData;
+
+    if (display == EGL_NO_DISPLAY) {
+        return SDL_SetError("Could not get EGL display");
+    }
+
+    if (eglInitialize(display, NULL, NULL) != EGL_TRUE) {
+        return PSP_EGL_SetError("Could not initialize EGL", "eglInitialize");
+    }
+    psp_data->egl_display = display;
+    return 0;
+}
 
 int PSP_GL_LoadLibrary(_THIS, const char *path)
 {
-    SDL_GLDriverData * gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
-    if (!gldata) {
-        SDL_OutOfMemory();
-        return -1;
-    }
+    EGLDisplay display;
 
-    _this->gl_data = gldata;
     if (path) {
         SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
     } else {
         *_this->gl_config.driver_path = '\0';
     }
-    return 0;
+
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+
+    return PSP_EGL_InitializeDisplay(display);
 }
 
 /* pspgl doesn't provide this call, so stub it out since SDL requires it.
@@ -74,11 +85,11 @@ void *PSP_GL_GetProcAddress(_THIS, const char *proc)
 
 void PSP_GL_UnloadLibrary(_THIS)
 {
-    SDL_GLDriverData *gldata = _this->gl_data;
-    if (gldata) {
-        eglTerminate(gldata->display);
-        SDL_free(gldata);
-        _this->gl_data = NULL;
+    Psp_VideoData *psp_data = &pspVideoData;
+
+    if (psp_data->egl_display) {
+        eglTerminate(psp_data->egl_display);
+        psp_data->egl_display = EGL_NO_DISPLAY;
     }
 }
 
@@ -87,8 +98,10 @@ static EGLint height = 272;
 
 SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
 {
+    Psp_VideoData *psp_data = &pspVideoData;
+    SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
     EGLint attribs[16];
-    EGLDisplay display;
+    EGLDisplay display = psp_data->egl_display;
     EGLContext context;
     EGLSurface surface;
     EGLConfig config;
@@ -96,8 +109,8 @@ SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
     int i;
 
     /* EGL init taken from glutCreateWindow() in PSPGL's glut.c. */
-    EGLCHK(display = eglGetDisplay(0));
-    EGLCHK(eglInitialize(display, NULL, NULL));
+    // EGLCHK(display = eglGetDisplay(0));
+    // EGLCHK(eglInitialize(display, NULL, NULL));
     window->flags |= SDL_WINDOW_FULLSCREEN;
 
     /* Setup the config based on SDL's current values. */
@@ -123,79 +136,109 @@ SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
     SDL_assert(i < SDL_arraysize(attribs));
     attribs[i] = EGL_NONE;
 
-    EGLCHK(eglChooseConfig(display, attribs, &config, 1, &num_configs));
-
-    if (num_configs == 0) {
-        SDL_SetError("No valid EGL configs for requested mode");
-        return 0;
+    if (eglChooseConfig(display, attribs, &config, 1, &num_configs) == EGL_FALSE || num_configs == 0) {
+        PSP_EGL_SetError("Couldn't find matching EGL config", "eglChooseConfig");
+        return EGL_NO_CONTEXT;
     }
 
-    EGLCHK(eglGetConfigAttrib(display, config, EGL_WIDTH, &width));
-    EGLCHK(eglGetConfigAttrib(display, config, EGL_HEIGHT, &height));
+    if (eglGetConfigAttrib(display, config, EGL_WIDTH, &width) == EGL_FALSE ||
+        eglGetConfigAttrib(display, config, EGL_HEIGHT, &height)) {
+        PSP_EGL_SetError("Couldn't retrieve display-dimensions", "eglGetConfigAttrib");
+        return EGL_NO_CONTEXT;
+    }
 
-    EGLCHK(context = eglCreateContext(display, config, NULL, NULL));
-    EGLCHK(surface = eglCreateWindowSurface(display, config, 0, NULL));
-    EGLCHK(eglMakeCurrent(display, surface, surface, context));
+    context = eglCreateContext(display, config, NULL, NULL);
+    if (context == EGL_NO_CONTEXT) {
+        PSP_EGL_SetError("Could not create EGL context", "eglCreateContext");
+        return EGL_NO_CONTEXT;
+    }
+    surface = eglCreateWindowSurface(display, config, 0, NULL);
+    if (surface == EGL_NO_SURFACE) {
+        PSP_EGL_SetError("unable to create an EGL window surface", "eglCreateWindowSurface");
+        eglDestroyContext(display, context);
+        return EGL_NO_CONTEXT;
+    }
+    if (!eglMakeCurrent(display, surface, surface, context)) {
+        PSP_EGL_SetError("Unable to make EGL context current", "eglMakeCurrent");
+        eglDestroySurface(display, surface);
+        eglDestroyContext(display, context);
+        return EGL_NO_CONTEXT;
+    }
 
-    _this->gl_data->display = display;
-    _this->gl_data->context = context;
-    _this->gl_data->surface = surface;
+    SDL_assert(windowdata->egl_surface == NULL);
+    windowdata->egl_surface = surface;
 
     return context;
 }
 
 int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
-    if (!eglMakeCurrent(_this->gl_data->display, _this->gl_data->surface,
-                        _this->gl_data->surface, _this->gl_data->context)) {
-        return SDL_SetError("Unable to make EGL context current");
+    Psp_VideoData *psp_data = &pspVideoData;
+    EGLSurface egl_surface;
+
+    if (window == NULL) {
+        egl_surface = EGL_NO_SURFACE;
+        SDL_assert(context == EGL_NO_CONTEXT);
+    } else {
+        SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
+        egl_surface = windowdata->egl_surface;
+        SDL_assert(context != EGL_NO_CONTEXT);
+    }
+
+    if (!eglMakeCurrent(psp_data->egl_display, egl_surface,
+                        egl_surface, context)) {
+        return PSP_EGL_SetError("Unable to make EGL context current", "eglMakeCurrent");
     }
     return 0;
 }
 
 int PSP_GL_SetSwapInterval(_THIS, int interval)
 {
+    Psp_VideoData *psp_data = &pspVideoData;
     EGLBoolean status;
-    status = eglSwapInterval(_this->gl_data->display, interval);
+    status = eglSwapInterval(psp_data->egl_display, interval);
     if (status == EGL_TRUE) {
         /* Return success to upper level */
-        _this->gl_data->swapinterval = interval;
+        psp_data->egl_swapinterval = interval;
         return 0;
     }
     /* Failed to set swap interval */
-    return SDL_SetError("Unable to set the EGL swap interval");
+    return PSP_EGL_SetError("Unable to set the EGL swap interval", "eglSwapInterval");
 }
 
 int PSP_GL_GetSwapInterval(_THIS)
 {
-    return _this->gl_data->swapinterval;
+    Psp_VideoData *psp_data = &pspVideoData;
+    return psp_data->egl_swapinterval;
 }
 
 int PSP_GL_SwapWindow(_THIS, SDL_Window *window)
 {
-    if (!eglSwapBuffers(_this->gl_data->display, _this->gl_data->surface)) {
-        return SDL_SetError("eglSwapBuffers() failed");
+    Psp_VideoData *psp_data = &pspVideoData;
+    SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
+
+    if (!eglSwapBuffers(psp_data->egl_display, windowdata->egl_surface)) {
+        return PSP_EGL_SetError("unable to show color buffer in an OS-native window", "eglSwapBuffers");
     }
     return 0;
 }
 
 void PSP_GL_DeleteContext(_THIS, SDL_GLContext context)
 {
-    EGLBoolean status;
-
-    /* Check if OpenGL ES connection has been initialized */
-    if (_this->gl_data->display != EGL_NO_DISPLAY) {
-        if (context != EGL_NO_CONTEXT) {
-            status = eglDestroyContext(_this->gl_data->display, context);
-            if (status != EGL_TRUE) {
-                /* Error during OpenGL ES context destroying */
-                SDL_SetError("PSP: OpenGL ES context destroy error");
-                return;
-            }
-        }
+    Psp_VideoData *psp_data = &pspVideoData;
+    if (context != EGL_NO_CONTEXT) {
+        SDL_assert(psp_data->egl_display != EGL_NO_DISPLAY);
+        eglDestroyContext(psp_data->egl_display, context);
     }
+}
 
-    return;
+void PSP_GL_DestroySurface(_THIS, EGLSurface egl_surface)
+{
+    if (egl_surface != EGL_NO_SURFACE) {
+        Psp_VideoData *psp_data = &pspVideoData;
+        SDL_assert(psp_data->egl_display != EGL_NO_DISPLAY);
+        eglDestroySurface(psp_data->egl_display, egl_surface);
+    }
 }
 
 #endif /* SDL_VIDEO_DRIVER_PSP */

@@ -22,10 +22,28 @@
 #ifndef SDL_pspvideo_h_
 #define SDL_pspvideo_h_
 
-#include <GLES/egl.h>
-
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
+
+#ifdef SDL_VIDEO_OPENGL
+// #include <GLES2/gl2.h>
+//#include "../SDL_egl_c.h"
+#include <GLES/egl.h>
+
+typedef struct Psp_VideoData
+{
+    EGLDisplay egl_display;     /* OpenGL ES display connection           */
+    uint32_t egl_swapinterval;  /* OpenGL ES default swap interval        */
+
+} Psp_VideoData;
+
+typedef struct
+{
+    EGLSurface egl_surface;
+} SDL_WindowData;
+
+extern Psp_VideoData pspVideoData; 
+#endif
 
 /****************************************************************************/
 /* SDL_VideoDevice functions declaration                                    */

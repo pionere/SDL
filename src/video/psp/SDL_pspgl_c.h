@@ -24,18 +24,8 @@
 
 #if defined(SDL_VIDEO_DRIVER_PSP) && defined(SDL_VIDEO_OPENGL)
 
-#include <GLES/egl.h>
-#include <GLES/gl.h>
-
 #include "../SDL_sysvideo.h"
-
-typedef struct SDL_GLDriverData
-{
-    EGLDisplay display;
-    EGLContext context;
-    EGLSurface surface;
-    uint32_t swapinterval;
-} SDL_GLDriverData;
+#include "../SDL_egl_c.h"
 
 extern void *PSP_GL_GetProcAddress(_THIS, const char *proc);
 extern int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
@@ -48,6 +38,8 @@ extern int PSP_GL_LoadLibrary(_THIS, const char *path);
 extern void PSP_GL_UnloadLibrary(_THIS);
 extern int PSP_GL_SetSwapInterval(_THIS, int interval);
 extern int PSP_GL_GetSwapInterval(_THIS);
+
+extern void PSP_GL_DestroySurface(_THIS, EGLSurface egl_surface);
 
 #endif // SDL_VIDEO_DRIVER_PSP
 

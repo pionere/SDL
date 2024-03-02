@@ -45,10 +45,15 @@
 #error "OpenGL is configured, but not the implemented (GL) for psp."
 #endif
 
+#ifdef SDL_VIDEO_OPENGL
+/* Instance */
+Psp_VideoData pspVideoData; 
+#endif
+
 static void PSP_DeleteDevice(_THIS)
 {
 #ifdef SDL_VIDEO_OPENGL
-    PSP_GL_UnloadLibrary(_this);
+    SDL_zero(pspVideoData);
 #endif
     SDL_free(_this);
 }
@@ -63,14 +68,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
         SDL_OutOfMemory();
         return NULL;
     }
-#ifdef SDL_VIDEO_OPENGL
-    /* Initialize internal PSP specific data */
-    if (PSP_GL_LoadLibrary(device, NULL) < 0) {
-        SDL_free(device);
-        return NULL;
-    }
-    device->gl_config.driver_loaded = 1;
-#endif
+
     /* Set device free function */
     device->free = PSP_DeleteDevice;
 
@@ -181,6 +179,26 @@ int PSP_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
 int PSP_CreateWindow(_THIS, SDL_Window *window)
 {
+    if (window->flags & SDL_WINDOW_OPENGL) {
+#ifdef SDL_VIDEO_OPENGL
+        SDL_WindowData *data;
+
+        /* Allocate the window data */
+        data = (SDL_WindowData *)SDL_calloc(1, sizeof(*data));
+        if (!data) {
+            return SDL_OutOfMemory();
+        }
+        // data->egl_surface = PSP_GL_CreateSurface(_this, (NativeWindowType)windowdata->hwnd);
+
+        // if (data->egl_surface == EGL_NO_SURFACE) {
+        //    return -1;
+        // }
+        window->driverdata = data;
+#else
+        return SDL_SetError("Could not create GL window (GL support not configured)");
+#endif
+    }
+
     SDL_SetKeyboardFocus(window);
 
     /* Window has been successfully created */
@@ -224,6 +242,14 @@ void PSP_MinimizeWindow(SDL_Window *window)
 }*/
 void PSP_DestroyWindow(_THIS, SDL_Window *window)
 {
+#ifdef SDL_VIDEO_OPENGL
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    if (data) {
+        PSP_GL_DestroySurface(_this, data->egl_surface);
+        SDL_free(data);
+        window->driverdata = NULL;
+    }
+#endif
 }
 
 /*****************************************************************************/
