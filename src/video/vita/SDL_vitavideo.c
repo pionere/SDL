@@ -240,6 +240,12 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
     int temp_profile = 0;
 #endif
 
+    // Vita can only have one window
+    if (Vita_Window) {
+        return SDL_SetError("Only one window supported");
+    }
+    Vita_Window = window;
+
     /* Allocate window internal data */
     wdata = (SDL_WindowData *)SDL_calloc(1, sizeof(SDL_WindowData));
     if (!wdata) {
@@ -248,13 +254,6 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
 
     /* Setup driver data for this window */
     window->driverdata = wdata;
-
-    // Vita can only have one window
-    if (Vita_Window) {
-        return SDL_SetError("Only one window supported");
-    }
-
-    Vita_Window = window;
 
 #if defined(SDL_VIDEO_VITA_PVR)
     win.type = PSP2_DRAWABLE_TYPE_WINDOW;
@@ -346,7 +345,8 @@ void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 void VITA_DestroyWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *data = window->driverdata;
-    if (window == Vita_Window) {
+    if (data) {
+        SDL_assert(window == Vita_Window);
         Vita_Window = NULL;
 #if defined(SDL_VIDEO_VITA_PVR)
         SDL_EGL_DestroySurface(_this, data->egl_surface);
