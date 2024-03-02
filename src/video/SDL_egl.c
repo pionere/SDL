@@ -297,6 +297,7 @@ void SDL_EGL_UnloadLibrary(_THIS)
         SDL_zero(egl_data);
 
         _this->gl_config.gl_type = 0;
+        _this->gl_config.gl_allow_no_surface = SDL_FALSE;
 }
 
 static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
@@ -972,6 +973,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
     EGLint major_version = _this->gl_config.major_version;
     EGLint minor_version = _this->gl_config.minor_version;
     SDL_bool profile_es = (profile_mask == SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_bool allow_no_surface = SDL_FALSE;
 
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
 
@@ -1088,7 +1090,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
             /* On OpenGL ES, the GL_OES_surfaceless_context extension must be
              * present. */
             if (SDL_GL_ExtensionSupported("GL_OES_surfaceless_context")) {
-                _this->gl_config.gl_allow_no_surface = SDL_TRUE;
+                allow_no_surface = SDL_TRUE;
             }
 #if defined(SDL_VIDEO_OPENGL) && !defined(SDL_VIDEO_DRIVER_VITA)
         } else {
@@ -1099,12 +1101,13 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
                 GLint v = 0;
                 glGetIntegervFunc(GL_MAJOR_VERSION, &v);
                 if (v >= 3) {
-                    _this->gl_config.gl_allow_no_surface = SDL_TRUE;
+                    allow_no_surface = SDL_TRUE;
                 }
             }
 #endif
         }
     }
+    _this->gl_config.gl_allow_no_surface = allow_no_surface;
 
     return (SDL_GLContext)egl_context;
 }
