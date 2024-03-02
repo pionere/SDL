@@ -1814,7 +1814,7 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
 #ifdef SDL_VIDEO_OPENGL_EGL
     if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_CGL
-        if (!_this->egl_data) {
+        if (_this->gl_config.gl_type == 0) {
             /* Switch to EGL based functions */
             Cocoa_GL_UnloadLibrary(_this);
 

@@ -407,6 +407,9 @@ struct SDL_VideoDevice
         int driver_loaded;
         char driver_path[256];
         void *dll_handle;
+#ifdef SDL_VIDEO_OPENGL_EGL
+        int gl_type; // whether egl is loaded
+#endif
     } gl_config;
 
     /* * * */
@@ -428,9 +431,6 @@ struct SDL_VideoDevice
     /* Data private to this driver */
     struct SDL_GLDriverData *gl_data;
 
-#ifdef SDL_VIDEO_OPENGL_EGL
-    struct SDL_EGL_VideoData *egl_data;
-#endif
 #endif // SDL_VIDEO_OPENGL_ANY
     /* * * */
     /* The function used to dispose of this structure */

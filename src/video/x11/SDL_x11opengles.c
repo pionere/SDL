@@ -72,13 +72,10 @@ XVisualInfo *X11_GLES_GetVisual(_THIS, Display *display, int screen)
     XVisualInfo vi_in;
     int out_count;
 
-    if (!_this->egl_data) {
-        /* The EGL library wasn't loaded, SDL_GetError() should have info */
-        return NULL;
-    }
+    SDL_assert(egl_data.eglGetConfigAttrib != NULL);
 
-    if (_this->egl_data->eglGetConfigAttrib(_this->egl_data->egl_display,
-                                            _this->egl_data->egl_config,
+    if (egl_data.eglGetConfigAttrib(egl_data.egl_display,
+                                            egl_data.egl_config,
                                             EGL_NATIVE_VISUAL_ID,
                                             &visual_id) == EGL_FALSE ||
         !visual_id) {

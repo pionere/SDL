@@ -1365,7 +1365,7 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
         if (viddata->num_windows <= 1) {
 
             /* Unload EGL/GL library and free egl_data.  */
-            if (_this->egl_data) {
+            if (_this->gl_config.gl_type != 0) {
                 SDL_EGL_UnloadLibrary(_this);
                 _this->gl_config.driver_loaded = 0;
             }
@@ -1466,7 +1466,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
            our KMSDRM_EGL_LoadLibrary() is a dummy precisely to be able to load it here.
            If we let SDL_CreateWindow() load the lib, it would be loaded
            before we call KMSDRM_GBMInit(), causing all GLES programs to fail. */
-        if (!_this->egl_data) {
+        if (_this->gl_config.gl_type == 0) {
             egl_display = (NativeDisplayType)kmsdrmVideoData.gbm_dev;
             if (SDL_EGL_LoadLibrary(_this, NULL, egl_display, EGL_PLATFORM_GBM_MESA) < 0) {
                 /* Try again with OpenGL ES 2.0 */

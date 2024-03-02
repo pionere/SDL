@@ -74,9 +74,7 @@ SDL_GLContext Wayland_GLES_CreateContext(_THIS, SDL_Window *window)
    this style, but this style is much harder to bend the other way.  :/ */
 int Wayland_GLES_SetSwapInterval(_THIS, int interval)
 {
-    if (!_this->egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
+    SDL_assert(egl_data.eglSwapInterval != NULL);
 
     /* technically, this is _all_ adaptive vsync (-1), because we can't
        actually wait for the _next_ vsync if you set 1, but things that
@@ -89,8 +87,8 @@ int Wayland_GLES_SetSwapInterval(_THIS, int interval)
     }
 
     /* !!! FIXME: technically, this should be per-context, right? */
-    _this->egl_data->egl_swapinterval = interval;
-    _this->egl_data->eglSwapInterval(_this->egl_data->egl_display, 0);
+    egl_data.egl_swapinterval = interval;
+    egl_data.eglSwapInterval(egl_data.egl_display, 0);
     return 0;
 }
 
@@ -176,7 +174,7 @@ int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 
     WAYLAND_wl_display_flush(videodata->display);
 
-    _this->egl_data->eglSwapInterval(_this->egl_data->egl_display, 0); /* see comments on Wayland_GLES_SetSwapInterval. */
+    egl_data.eglSwapInterval(egl_data.egl_display, 0); /* see comments on Wayland_GLES_SetSwapInterval. */
 
     return ret;
 }

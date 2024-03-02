@@ -29,8 +29,6 @@
 #include "SDL_emscriptenopengles.h"
 #include "SDL_hints.h"
 
-#define LOAD_FUNC(NAME) _this->egl_data->NAME = NAME;
-
 /* EGL implementation of SDL OpenGL support */
 
 int Emscripten_GLES_LoadLibrary(_THIS, const char *path)

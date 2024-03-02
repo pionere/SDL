@@ -140,7 +140,9 @@ typedef enum SDL_EGL_ExtensionType
     SDL_EGL_CLIENT_EXTENSION
 } SDL_EGL_ExtensionType;
 
-extern int SDL_EGL_InitializeDisplay(SDL_EGL_VideoData *egl_data, EGLDisplay display);
+extern SDL_EGL_VideoData egl_data;
+
+extern int SDL_EGL_InitializeDisplay(EGLDisplay display);
 /* SDL_EGL_LoadLibrary can get a display for a specific platform (EGL_PLATFORM_*)
  * or, if 0 is passed, let the implementation decide.
  */
@@ -170,7 +172,7 @@ extern int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName, 
 #ifdef SDL_VIDEO_STATIC_ANGLE
 #define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, eglGetError())
 #else
-#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, _this->egl_data->eglGetError())
+#define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName, egl_data.eglGetError())
 #endif
 
 /* A few of useful macros */

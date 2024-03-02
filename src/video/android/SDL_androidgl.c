@@ -69,8 +69,8 @@ int Android_GLES_SwapWindow(_THIS, SDL_Window *window)
      * please report to our bug tracker. -- Gabriel
      */
 
-    /*_this->egl_data->eglWaitNative(EGL_CORE_NATIVE_ENGINE);
-    _this->egl_data->eglWaitGL();*/
+    /*egl_data.eglWaitNative(EGL_CORE_NATIVE_ENGINE);
+    egl_data.eglWaitGL();*/
     retval = SDL_EGL_SwapBuffers(_this, ((SDL_WindowData *)window->driverdata)->egl_surface);
 
     SDL_UnlockMutex(Android_ActivityMutex);

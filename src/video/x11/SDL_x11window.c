@@ -644,7 +644,7 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
     ) {
 #ifdef SDL_VIDEO_OPENGL_EGL
 #ifdef SDL_VIDEO_OPENGL_GLX
-        if (!_this->egl_data) {
+        if (_this->gl_config.gl_type == 0) {
             /* Switch to EGL based functions */
             // X11_GL_UnloadLibrary(_this);
 

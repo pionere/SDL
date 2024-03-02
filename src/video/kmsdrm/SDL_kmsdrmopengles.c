@@ -72,13 +72,10 @@ SDL_EGL_CreateContext_impl(KMSDRM)
 
 int KMSDRM_GLES_SetSwapInterval(_THIS, int interval)
 {
-
-    if (!_this->egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
+    SDL_assert(egl_data.eglSwapInterval != NULL);
 
     if (interval == 0 || interval == 1) {
-        _this->egl_data->egl_swapinterval = interval;
+        egl_data.egl_swapinterval = interval;
     } else {
         return SDL_SetError("Only swap intervals of 0 or 1 are supported");
     }

@@ -506,7 +506,7 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
     if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #endif /* SDL_VIDEO_OPENGL_WGL */
 #ifdef SDL_VIDEO_OPENGL_WGL
-        if (!_this->egl_data) {
+        if (_this->gl_config.gl_type == 0) {
             /* Switch to EGL based functions */
             WIN_GL_UnloadLibrary(_this);
 
@@ -523,7 +523,7 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
 
 #ifdef SDL_VIDEO_OPENGL_WGL
 #ifdef SDL_VIDEO_OPENGL_EGL
-    if (!_this->gl_data) {
+    if (_this->gl_config.gl_type == 1) {
         /* Switch to WGL based functions */
         WIN_GLES_UnloadLibrary(_this);
 
