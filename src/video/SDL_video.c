@@ -4121,7 +4121,7 @@ int SDL_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
         if (!(window->flags & SDL_WINDOW_OPENGL)) {
             return SDL_SetError(NOT_AN_OPENGL_WINDOW);
         }
-    } else if (!_this->gl_allow_no_surface) {
+    } else if (!_this->gl_config.gl_allow_no_surface) {
         return SDL_SetError("Use of OpenGL without a window is not supported on this platform");
     }
 

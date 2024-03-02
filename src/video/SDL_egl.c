@@ -1088,7 +1088,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
             /* On OpenGL ES, the GL_OES_surfaceless_context extension must be
              * present. */
             if (SDL_GL_ExtensionSupported("GL_OES_surfaceless_context")) {
-                _this->gl_allow_no_surface = SDL_TRUE;
+                _this->gl_config.gl_allow_no_surface = SDL_TRUE;
             }
 #if defined(SDL_VIDEO_OPENGL) && !defined(SDL_VIDEO_DRIVER_VITA)
         } else {
@@ -1099,7 +1099,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
                 GLint v = 0;
                 glGetIntegervFunc(GL_MAJOR_VERSION, &v);
                 if (v >= 3) {
-                    _this->gl_allow_no_surface = SDL_TRUE;
+                    _this->gl_config.gl_allow_no_surface = SDL_TRUE;
                 }
             }
 #endif
@@ -1124,7 +1124,7 @@ int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
     /* The android emulator crashes badly if you try to eglMakeCurrent
      * with a valid context and invalid surface, so we have to check for both here.
      */
-    if (!egl_context || (!egl_surface && !_this->gl_allow_no_surface)) {
+    if (!egl_context || (!egl_surface && !_this->gl_config.gl_allow_no_surface)) {
         USE_FUNC(eglMakeCurrent)(egl_data.egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     } else {
         if (!USE_FUNC(eglMakeCurrent)(egl_data.egl_display,

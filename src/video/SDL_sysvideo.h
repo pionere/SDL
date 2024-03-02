@@ -404,6 +404,10 @@ struct SDL_VideoDevice
         int framebuffer_srgb_capable;
         int no_error;
         int retained_backing;
+        /* Flag that stores whether it's allowed to call SDL_GL_MakeCurrent()
+         * with a NULL window, but a non-NULL context. (Not allowed in most cases,
+         * except on EGL under some circumstances.) */
+        SDL_bool gl_allow_no_surface;
         int driver_loaded;
         char driver_path[256];
         void *dll_handle;
@@ -421,11 +425,6 @@ struct SDL_VideoDevice
     SDL_GLContext current_glctx;
     SDL_TLSID current_glwin_tls;
     SDL_TLSID current_glctx_tls;
-
-    /* Flag that stores whether it's allowed to call SDL_GL_MakeCurrent()
-     * with a NULL window, but a non-NULL context. (Not allowed in most cases,
-     * except on EGL under some circumstances.) */
-    SDL_bool gl_allow_no_surface;
 
     /* * * */
     /* Data private to this driver */
