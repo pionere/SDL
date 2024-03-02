@@ -643,6 +643,7 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
 #endif
     ) {
 #ifdef SDL_VIDEO_OPENGL_EGL
+#ifdef SDL_VIDEO_OPENGL_GLX
         if (!_this->egl_data) {
             /* Switch to EGL based functions */
             // X11_GL_UnloadLibrary(_this);
@@ -653,7 +654,7 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
                 return -1;
             // }
         }
-
+#endif // SDL_VIDEO_OPENGL_GLX
         /* Create the GLES window surface */
         windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
 

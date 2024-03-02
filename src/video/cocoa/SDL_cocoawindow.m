@@ -1794,14 +1794,12 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
     #pragma clang diagnostic pop
     #endif
 
-#ifdef SDL_VIDEO_OPENGL_ES2
 #ifdef SDL_VIDEO_OPENGL_EGL
     if ((window->flags & SDL_WINDOW_OPENGL) &&
         _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
         [contentView setWantsLayer:TRUE];
     }
 #endif /* SDL_VIDEO_OPENGL_EGL */
-#endif /* SDL_VIDEO_OPENGL_ES2 */
     [nswindow setContentView:contentView];
 
     if (SetupWindowData(window, nswindow, contentView, SDL_TRUE) < 0) {
@@ -1813,9 +1811,9 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
     }
 
     /* The rest of this macro mess is for OpenGL or OpenGL ES windows */
-#ifdef SDL_VIDEO_OPENGL_ES2
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_EGL
+    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
+#ifdef SDL_VIDEO_OPENGL_CGL
         if (!_this->egl_data) {
             /* Switch to EGL based functions */
             Cocoa_GL_UnloadLibrary(_this);
@@ -1826,12 +1824,10 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
                 return -1;
             }
         }
+#endif // SDL_VIDEO_OPENGL_CGL
         return Cocoa_GLES_SetupWindow(_this, window);
-#else
-        return SDL_SetError("Could not create GLES window surface (EGL support not configured)");
-#endif /* SDL_VIDEO_OPENGL_EGL */
     }
-#endif /* SDL_VIDEO_OPENGL_ES2 */
+#endif /* SDL_VIDEO_OPENGL_EGL */
     return 0;
 }}
 
