@@ -260,7 +260,7 @@ int X11_GL_PrivateLoadLibrary(_THIS, const char *path)
 
     glx_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNTESTED;
 
-    _this->gl_config.dll_handle = handle;
+    glx_data->dll_handle = handle;
 
     /* Initialize extensions */
     /* See lengthy comment about the inc/dec in
@@ -282,21 +282,20 @@ void *X11_GL_GetProcAddress(_THIS, const char *proc)
     if (glx_data->glXGetProcAddress) {
         return glx_data->glXGetProcAddress((const GLubyte *)proc);
     }
-    return GL_LoadFunction(_this->gl_config.dll_handle, proc);
+    return GL_LoadFunction(glx_data->dll_handle, proc);
 }
 
 void X11_GL_UnloadLibrary(_THIS)
 {
+    SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
     /* Don't actually unload the library, since it may have registered
      * X11 shutdown hooks, per the notes at:
      * http://dri.sourceforge.net/doc/DRIuserguide.html
      */
 #if 0
-    GL_UnloadObject(_this->gl_config.dll_handle);
-    _this->gl_config.dll_handle = NULL;
+    GL_UnloadObject(glx_data->dll_handle);
+    // glx_data->dll_handle = NULL;
 #endif
-    /* Free OpenGL memory */
-    SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
     SDL_zero(*glx_data);
 }
 

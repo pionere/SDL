@@ -311,8 +311,8 @@ int PND_gl_loadlibrary(_THIS, const char *path)
     }
 
     /* Load dynamic library */
-    _this->gl_config.dll_handle = SDL_LoadObject(path);
-    if (!_this->gl_config.dll_handle) {
+    phdata->opengl_dll_handle = SDL_LoadObject(path);
+    if (!phdata->opengl_dll_handle) {
         /* Failed to load new GL ES library */
         return SDL_SetError("PND: Failed to locate OpenGL ES library");
     }
@@ -348,9 +348,9 @@ void *PND_gl_getprocaddres(_THIS, const char *proc)
     }
 
     /* Then try to get function in the OpenGL ES library */
-    if (_this->gl_config.dll_handle) {
+    if (phdata->opengl_dll_handle) {
         function_address =
-            SDL_LoadFunction(_this->gl_config.dll_handle, proc);
+            SDL_LoadFunction(phdata->opengl_dll_handle, proc);
         if (function_address) {
             return function_address;
         }
@@ -369,8 +369,8 @@ void PND_gl_unloadlibrary(_THIS)
     phdata->egl_display = EGL_NO_DISPLAY;
 
     /* Unload OpenGL ES library */
-    SDL_UnloadObject(_this->gl_config.dll_handle);
-    _this->gl_config.dll_handle = NULL;
+    SDL_UnloadObject(phdata->opengl_dll_handle);
+    phdata->opengl_dll_handle = NULL;
 }
 
 static int PND_EGL_ChooseConfig(_THIS)

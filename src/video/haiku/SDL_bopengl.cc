@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+static image_id dll_handle;
 
 static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
@@ -54,7 +55,7 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
         if ( get_image_symbol(info.id, "glBegin", B_SYMBOL_TYPE_ANY,
                 &location) == B_OK) {
 
-            _this->gl_config.dll_handle = (void *) (addr_t) info.id;
+            dll_handle = info.id;
             return 0;
         }
     }
@@ -64,7 +65,7 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
 void *HAIKU_GL_GetProcAddress(_THIS, const char *proc)
 {
     void *location = NULL;
-    status_t err = get_image_symbol((image_id)(addr_t)_this->gl_config.dll_handle,
+    status_t err = get_image_symbol(dll_handle,
             proc, B_SYMBOL_TYPE_ANY,
             &location);
     if (err != B_OK) {
@@ -156,7 +157,7 @@ int HAIKU_GL_GetSwapInterval(_THIS) {
 
 
 void HAIKU_GL_UnloadLibrary(_THIS) {
-    /* TODO: Implement this, if necessary? */
+    dll_handle = 0;
 }
 
 

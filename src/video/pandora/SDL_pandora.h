@@ -30,6 +30,7 @@
 
 typedef struct Pandora_VideoData
 {
+    void *opengl_dll_handle;
     EGLDisplay egl_display;     /* OpenGL ES display connection           */
     uint32_t swapinterval;      /* OpenGL ES default swap interval        */
     EGLConfig gles_config;

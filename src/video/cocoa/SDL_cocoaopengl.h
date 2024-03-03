@@ -35,11 +35,6 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-struct SDL_GLDriverData
-{
-    int initialized;
-};
-
 @interface SDLOpenGLContext : NSOpenGLContext {
     SDL_atomic_t dirty;
     SDL_Window *window;

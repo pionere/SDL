@@ -237,6 +237,7 @@ void Cocoa_GL_InitDevice(_THIS)
 
 int Cocoa_GL_LoadLibrary(_THIS, const char *path)
 {
+    Cocoa_VideoData *videodata = cocoaVideoData;
     /* Load the OpenGL library */
     if (path == NULL) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -244,8 +245,8 @@ int Cocoa_GL_LoadLibrary(_THIS, const char *path)
     if (path == NULL) {
         path = DEFAULT_OPENGL;
     }
-    _this->gl_config.dll_handle = SDL_LoadObject(path);
-    if (!_this->gl_config.dll_handle) {
+    videodata.dll_handle = SDL_LoadObject(path);
+    if (!videodata.dll_handle) {
         return -1;
     }
     return 0;
@@ -253,13 +254,15 @@ int Cocoa_GL_LoadLibrary(_THIS, const char *path)
 
 void *Cocoa_GL_GetProcAddress(_THIS, const char *proc)
 {
-    return SDL_LoadFunction(_this->gl_config.dll_handle, proc);
+    Cocoa_VideoData *videodata = cocoaVideoData;
+    return SDL_LoadFunction(videodata.dll_handle, proc);
 }
 
 void Cocoa_GL_UnloadLibrary(_THIS)
 {
-    SDL_UnloadObject(_this->gl_config.dll_handle);
-    _this->gl_config.dll_handle = NULL;
+    Cocoa_VideoData *videodata = cocoaVideoData;
+    SDL_UnloadObject(videodata.dll_handle);
+    videodata.dll_handle = NULL;
 }
 
 SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window)

@@ -36,6 +36,17 @@ typedef struct DirectFB_GLContext
     int                 is_locked;
 } DirectFB_GLContext;
 
+typedef struct
+{
+    void *dll_handle;
+    DirectFB_GLContext *firstgl;        /* linked list */
+#if 0
+    /* OpenGL */
+    void (*glFinish) (void);
+    void (*glFlush) (void);
+#endif
+} SDL_GLDriverData;
+
 /* OpenGL functions */
 extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
 extern void *DirectFB_GL_GetProcAddress(_THIS, const char *proc);

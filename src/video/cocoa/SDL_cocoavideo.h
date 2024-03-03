@@ -106,6 +106,9 @@ DECLARE_ALERT_STYLE(Critical);
     @property (nonatomic) NSInteger clipboard_count;
     @property (nonatomic) IOPMAssertionID screensaver_assertion;
     @property (nonatomic) SDL_mutex *swaplock;
+#ifdef SDL_VIDEO_OPENGL_CGL
+    @property (nonatomic) void *dll_handle;
+#endif
 @end
 
 extern Cocoa_VideoData *cocoaVideoData;

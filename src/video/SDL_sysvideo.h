@@ -408,7 +408,6 @@ struct SDL_VideoDevice
          * except on EGL under some circumstances.) */
         SDL_bool gl_allow_no_surface;
         int driver_loaded;
-        void *dll_handle;
 #ifdef SDL_VIDEO_OPENGL_EGL
         int gl_type; // whether egl is loaded
 #endif

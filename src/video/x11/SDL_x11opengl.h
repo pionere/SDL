@@ -39,6 +39,7 @@ typedef enum SDL_GLSwapIntervalTearBehavior
 
 typedef struct SDL_GLDriverData
 {
+    void *dll_handle;
     int errorBase, eventBase;
 
     SDL_bool HAS_GLX_EXT_visual_rating;

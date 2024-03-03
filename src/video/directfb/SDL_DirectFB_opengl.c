@@ -30,16 +30,6 @@
 #include <directfbgl.h>
 #include "SDL_loadso.h"
 
-struct SDL_GLDriverData
-{
-    DirectFB_GLContext *firstgl;        /* linked list */
-#if 0
-    /* OpenGL */
-    void (*glFinish) (void);
-    void (*glFlush) (void);
-#endif
-};
-
 #define OPENGL_REQUIRS_DLOPEN
 #if defined(OPENGL_REQUIRS_DLOPEN) && defined(HAVE_DLOPEN)
 #include <dlfcn.h>
@@ -79,7 +69,7 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 
     SDL_DFB_DEBUG("Loaded library: %s\n", path);
 
-    _this->gl_config.dll_handle = handle;
+    fbgl_data->dll_handle = handle;
 
     /* Initialize extensions */
     /* FIXME needed?
@@ -93,18 +83,17 @@ void DirectFB_GL_UnloadLibrary(_THIS)
 {
     SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
 
-    GL_UnloadObject(_this->gl_config.dll_handle);
-    _this->gl_config.dll_handle = NULL;
+    GL_UnloadObject(fbgl_data->dll_handle);
+    // fbgl_data->dll_handle = NULL;
 
     SDL_zero(*fbgl_data);
 }
 
 void *DirectFB_GL_GetProcAddress(_THIS, const char *proc)
 {
-    void *handle;
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
 
-    handle = _this->gl_config.dll_handle;
-    return GL_LoadFunction(handle, proc);
+    return GL_LoadFunction(fbgl_data->dll_handle, proc);
 }
 
 SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)

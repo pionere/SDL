@@ -594,7 +594,6 @@ int SDL_VideoInit(const char *driver_name)
 #ifdef SDL_VIDEO_OPENGL_ANY
     /* Set some very sane GL defaults */
     _this->gl_config.driver_loaded = 0;
-    _this->gl_config.dll_handle = NULL;
     SDL_GL_ResetAttributes();
 
     _this->current_glwin_tls = SDL_TLSCreate();

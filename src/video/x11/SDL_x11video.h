@@ -148,7 +148,6 @@ typedef struct X11_VideoData
     Time filter_time;
 
 #ifdef SDL_VIDEO_OPENGL_GLX
-    /* Glx variables only valid if _this->gl_config.dll_handle is not NULL */
     SDL_GLDriverData glx_data;
 #endif
 

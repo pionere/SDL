@@ -59,6 +59,7 @@ typedef struct tagPIXELFORMATDESCRIPTOR
 
 typedef struct SDL_GLDriverData
 {
+    void *dll_handle;
     SDL_bool HAS_WGL_ARB_pixel_format;
     SDL_bool HAS_WGL_EXT_swap_control_tear;
     SDL_bool HAS_WGL_ARB_context_flush_control;

@@ -200,7 +200,7 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
         return SDL_SetError("Could not retrieve OpenGL functions");
     }
 
-    _this->gl_config.dll_handle = handle;
+    wgl_data->dll_handle = handle;
 
     /* XXX Too sleazy? WIN_GL_InitExtensions looks for certain OpenGL
        extensions via SDL_GL_DeduceMaxSupportedESProfile. This uses
@@ -252,7 +252,7 @@ void *WIN_GL_GetProcAddress(_THIS, const char *proc)
     func = wgl_data->wglGetProcAddress(proc);
     if (!func) {
         /* This is probably a normal GL function */
-        func = SDL_LoadFunction(_this->gl_config.dll_handle, proc);
+        func = SDL_LoadFunction(wgl_data->dll_handle, proc);
     }
     return func;
 }
@@ -261,8 +261,8 @@ void WIN_GL_UnloadLibrary(_THIS)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
 
-    SDL_UnloadObject(_this->gl_config.dll_handle);
-    _this->gl_config.dll_handle = NULL;
+    SDL_UnloadObject(wgl_data->dll_handle);
+    // wgl_data->dll_handle = NULL;
 
     SDL_zero(*wgl_data);
 }
