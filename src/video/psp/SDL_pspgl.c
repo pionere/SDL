@@ -61,12 +61,6 @@ int PSP_GL_LoadLibrary(_THIS, const char *path)
 {
     EGLDisplay display;
 
-    if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
-    } else {
-        *_this->gl_config.driver_path = '\0';
-    }
-
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
     return PSP_EGL_InitializeDisplay(display);

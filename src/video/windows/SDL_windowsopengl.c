@@ -202,9 +202,6 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
 
     _this->gl_config.dll_handle = handle;
 
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
-
     /* XXX Too sleazy? WIN_GL_InitExtensions looks for certain OpenGL
        extensions via SDL_GL_DeduceMaxSupportedESProfile. This uses
        SDL_GL_ExtensionSupported which in turn calls SDL_GL_GetProcAddress.

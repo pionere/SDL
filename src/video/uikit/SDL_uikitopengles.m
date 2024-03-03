@@ -102,11 +102,6 @@ void UIKit_GL_GetDrawableSize(SDL_Window * window, int * w, int * h)
 int UIKit_GL_LoadLibrary(_THIS, const char *path)
 {
     _this->gl_config.accelerated = 1;
-    if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
-    } else {
-        *_this->gl_config.driver_path = '\0';
-    }
     return 0;
 }
 

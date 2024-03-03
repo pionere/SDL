@@ -68,9 +68,6 @@ int KMSDRM_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
         return -1;
     }
 
-    SDL_strlcpy(vulkan_config->loader_path, path,
-                SDL_arraysize(vulkan_config->loader_path));
-
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
         vulkan_config->loader_handle, "vkGetInstanceProcAddr");
 

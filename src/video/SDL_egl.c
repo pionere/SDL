@@ -303,8 +303,8 @@ void SDL_EGL_UnloadLibrary(_THIS)
 
 static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
 {
-    const char *path = NULL;
 #ifndef SDL_VIDEO_STATIC_ANGLE
+    const char *path = NULL;
     void *egl_dll_handle = NULL, *opengl_dll_handle = NULL;
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) || defined(SDL_VIDEO_DRIVER_WINRT)
     const char *d3dcompiler;
@@ -471,11 +471,6 @@ static int SDL_EGL_LoadLibraryInternal(_THIS, const char *egl_path)
     // LOAD_FUNC_EGLEXT(eglClientWaitSyncKHR);
     /* Atomic functions end */
 
-    if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path, SDL_arraysize(_this->gl_config.driver_path));
-    } else {
-        *_this->gl_config.driver_path = '\0';
-    }
     _this->gl_config.gl_type = 1;
 
     return 0;
@@ -581,7 +576,6 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
 #if !defined(__WINRT__)
 error:
     SDL_EGL_UnloadLibrary(_this);
-    *_this->gl_config.driver_path = '\0';
     return -1;
 #endif
 }

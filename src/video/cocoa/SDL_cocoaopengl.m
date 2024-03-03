@@ -248,8 +248,6 @@ int Cocoa_GL_LoadLibrary(_THIS, const char *path)
     if (!_this->gl_config.dll_handle) {
         return -1;
     }
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
     return 0;
 }
 

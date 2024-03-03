@@ -47,8 +47,6 @@ int DirectFB_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path
     vulkan_config->loader_handle = SDL_LoadObject(path);
     if (!vulkan_config->loader_handle)
         return -1;
-    SDL_strlcpy(vulkan_config->loader_path, path,
-                SDL_arraysize(vulkan_config->loader_path));
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
         vulkan_config->loader_handle, "vkGetInstanceProcAddr");
     if (!vkGetInstanceProcAddr)

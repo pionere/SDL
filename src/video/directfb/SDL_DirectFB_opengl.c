@@ -80,12 +80,7 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
     SDL_DFB_DEBUG("Loaded library: %s\n", path);
 
     _this->gl_config.dll_handle = handle;
-    if (path) {
-        SDL_strlcpy(_this->gl_config.driver_path, path,
-                    SDL_arraysize(_this->gl_config.driver_path));
-    } else {
-        *_this->gl_config.driver_path = '\0';
-    }
+
     /* Initialize extensions */
     /* FIXME needed?
      * X11_GL_InitExtensions(_this);

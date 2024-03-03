@@ -262,9 +262,6 @@ int X11_GL_PrivateLoadLibrary(_THIS, const char *path)
 
     _this->gl_config.dll_handle = handle;
 
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
-
     /* Initialize extensions */
     /* See lengthy comment about the inc/dec in
        ../windows/SDL_windowsopengl.c. */

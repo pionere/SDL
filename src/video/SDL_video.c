@@ -3469,9 +3469,6 @@ int SDL_GL_LoadLibrary(const char *path)
         return SDL_UninitializedVideo();
     }
     if (_this->gl_config.driver_loaded) {
-        if (path && SDL_strcmp(path, _this->gl_config.driver_path) != 0) {
-            return SDL_SetError("OpenGL library already loaded");
-        }
         retval = 0;
     } else {
         if (!_this->GL_LoadLibrary) {
@@ -4804,9 +4801,6 @@ int SDL_Vulkan_LoadLibrary(const char *path)
         return SDL_UninitializedVideo();
     }
     if (_this->vulkan_config.loader_loaded) {
-        if (path && SDL_strcmp(path, _this->vulkan_config.loader_path) != 0) {
-            return SDL_SetError("Vulkan loader library already loaded");
-        }
         retval = 0;
     } else {
         if (!_this->Vulkan_LoadLibrary) {

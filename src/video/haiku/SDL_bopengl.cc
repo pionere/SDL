@@ -55,8 +55,6 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
                 &location) == B_OK) {
 
             _this->gl_config.dll_handle = (void *) (addr_t) info.id;
-            SDL_strlcpy(_this->gl_config.driver_path, "libGL.so",
-                    SDL_arraysize(_this->gl_config.driver_path));
             return 0;
         }
     }

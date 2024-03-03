@@ -37,6 +37,7 @@
 
 int VIVANTE_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
 {
+    void *loader_handle;
     VkExtensionProperties *extensions = NULL;
     Uint32 i, extensionCount = 0;
     SDL_bool hasSurfaceExtension = SDL_FALSE;
@@ -53,20 +54,20 @@ int VIVANTE_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
     if (!path) {
         /* If no path set, try Vivante fb vulkan driver explicitly */
         path = "libvulkan-fb.so";
-        vulkan_config->loader_handle = SDL_LoadObject(path);
-        if (!vulkan_config->loader_handle) {
+        loader_handle = SDL_LoadObject(path);
+        if (!loader_handle) {
             /* If that couldn't be loaded, fall back to default name */
             path = "libvulkan.so";
-            vulkan_config->loader_handle = SDL_LoadObject(path);
+            loader_handle = SDL_LoadObject(path);
         }
     } else {
-        vulkan_config->loader_handle = SDL_LoadObject(path);
+        loader_handle = SDL_LoadObject(path);
     }
-    if (!vulkan_config->loader_handle) {
+    if (!loader_handle) {
         return -1;
     }
-    SDL_strlcpy(vulkan_config->loader_path, path,
-                SDL_arraysize(vulkan_config->loader_path));
+    vulkan_config->loader_handle = loader_handle;
+
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "vivante: Loaded vulkan driver %s", path);
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
         vulkan_config->loader_handle, "vkGetInstanceProcAddr");

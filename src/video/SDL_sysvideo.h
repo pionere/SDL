@@ -154,7 +154,6 @@ typedef struct SDL_VulkanVideo
 {
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
     int loader_loaded;
-    char loader_path[256];
     void *loader_handle;
 } SDL_VulkanVideo;
 #endif
@@ -409,7 +408,6 @@ struct SDL_VideoDevice
          * except on EGL under some circumstances.) */
         SDL_bool gl_allow_no_surface;
         int driver_loaded;
-        char driver_path[256];
         void *dll_handle;
 #ifdef SDL_VIDEO_OPENGL_EGL
         int gl_type; // whether egl is loaded
