@@ -78,17 +78,6 @@ void RPI_DestroyWindow(_THIS, SDL_Window *window);
 SDL_bool RPI_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
-/* OpenGL/OpenGL ES functions */
-int RPI_GLES_LoadLibrary(_THIS, const char *path);
-void *RPI_GLES_GetProcAddress(_THIS, const char *proc);
-void RPI_GLES_UnloadLibrary(_THIS);
-SDL_GLContext RPI_GLES_CreateContext(_THIS, SDL_Window *window);
-int RPI_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-int RPI_GLES_SetSwapInterval(_THIS, int interval);
-int RPI_GLES_GetSwapInterval(_THIS);
-int RPI_GLES_SwapWindow(_THIS, SDL_Window *window);
-void RPI_GLES_DeleteContext(_THIS, SDL_GLContext context);
-
 #endif /* __SDL_RPIVIDEO_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */

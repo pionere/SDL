@@ -2363,7 +2363,7 @@ void Cocoa_DestroyWindow(_THIS, SDL_Window * window)
         }
 #endif /* SDL_VIDEO_OPENGL_CGL */
 #ifdef SDL_VIDEO_OPENGL_EGL
-        SDL_EGL_DestroySurface(_this, data.egl_surface);
+        SDL_EGL_DestroySurface(data.egl_surface);
 #endif
 
         if (window->shaper) {

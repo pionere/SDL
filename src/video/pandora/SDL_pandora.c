@@ -106,7 +106,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
 #endif
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = PND_gl_loadlibrary;
-    device->GL_GetProcAddress = PND_gl_getprocaddres;
+    device->GL_GetProcAddress = PND_gl_getprocaddress;
     device->GL_UnloadLibrary = PND_gl_unloadlibrary;
     device->GL_CreateContext = PND_gl_createcontext;
     device->GL_MakeCurrent = PND_gl_makecurrent;
@@ -337,7 +337,7 @@ int PND_gl_loadlibrary(_THIS, const char *path)
     return 0;
 }
 
-void *PND_gl_getprocaddres(_THIS, const char *proc)
+void *PND_gl_getprocaddress(const char *proc)
 {
     void *function_address;
 
@@ -711,7 +711,7 @@ int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     return 0;
 }
 
-int PND_gl_setswapinterval(_THIS, int interval)
+int PND_gl_setswapinterval(int interval)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     EGLBoolean status;
@@ -731,7 +731,7 @@ int PND_gl_setswapinterval(_THIS, int interval)
     return SDL_SetError("PND: Cannot set swap interval");
 }
 
-int PND_gl_getswapinterval(_THIS)
+int PND_gl_getswapinterval(void)
 {
     return pandoraVideoData.swapinterval;
 }
@@ -751,7 +751,7 @@ int PND_gl_swapwindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-void PND_gl_deletecontext(_THIS, SDL_GLContext context)
+void PND_gl_deletecontext(SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
 

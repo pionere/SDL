@@ -154,7 +154,7 @@ int glLoadLibrary(_THIS, const char *name)
  * @param   proc    Function name
  * @return  Function address
  */
-void *glGetProcAddress(_THIS, const char *proc)
+void *glGetProcAddress(const char *proc)
 {
     return eglGetProcAddress(proc);
 }
@@ -212,7 +212,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
  * @param   interval    New interval value
  * @return  0 if successful, -1 on error
  */
-int glSetSwapInterval(_THIS, int interval)
+int glSetSwapInterval(int interval)
 {
     if (eglSwapInterval(egl_disp, interval) != EGL_TRUE) {
         return -1;
@@ -263,7 +263,7 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
  * @param   _THIS
  * @param   context The context to destroy
  */
-void glDeleteContext(_THIS, SDL_GLContext context)
+void glDeleteContext(SDL_GLContext context)
 {
     eglDestroyContext(egl_disp, context);
 }

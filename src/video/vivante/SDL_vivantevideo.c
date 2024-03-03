@@ -300,7 +300,7 @@ void VIVANTE_DestroyWindow(_THIS, SDL_Window *window)
     data = window->driverdata;
     if (data) {
 #ifdef SDL_VIDEO_OPENGL_EGL
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
+        SDL_EGL_DestroySurface(data->egl_surface);
 #endif
 
         if (data->native_window) {

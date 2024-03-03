@@ -89,7 +89,7 @@ void DirectFB_GL_UnloadLibrary(_THIS)
     SDL_zero(*fbgl_data);
 }
 
-void *DirectFB_GL_GetProcAddress(_THIS, const char *proc)
+void *DirectFB_GL_GetProcAddress(const char *proc)
 {
     SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
 
@@ -121,7 +121,7 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
     SDL_DFB_CHECK(context->context->Unlock(context->context));
 
     if (DirectFB_GL_MakeCurrent(_this, window, context) < 0) {
-        DirectFB_GL_DeleteContext(_this, context);
+        DirectFB_GL_DeleteContext(context);
         return NULL;
     }
 
@@ -156,12 +156,12 @@ int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
     return -1;
 }
 
-int DirectFB_GL_SetSwapInterval(_THIS, int interval)
+int DirectFB_GL_SetSwapInterval(int interval)
 {
     return SDL_Unsupported();
 }
 
-int DirectFB_GL_GetSwapInterval(_THIS)
+int DirectFB_GL_GetSwapInterval()
 {
     return 0;
 }
@@ -192,7 +192,7 @@ int DirectFB_GL_SwapWindow(_THIS, SDL_Window * window)
     return -1;
 }
 
-void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context)
+void DirectFB_GL_DeleteContext(SDL_GLContext context)
 {
     SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *ctx = (DirectFB_GLContext *) context;
@@ -249,7 +249,7 @@ void DirectFB_GL_DestroyWindowContexts(SDL_Window * window)
 
     for (p = fbgl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window)
-            DirectFB_GL_DeleteContext(_this, p);
+            DirectFB_GL_DeleteContext(p);
 }
 
 #endif /* SDL_VIDEO_DRIVER_DIRECTFB */

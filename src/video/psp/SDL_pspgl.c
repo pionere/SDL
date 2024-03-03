@@ -72,7 +72,7 @@ int PSP_GL_LoadLibrary(_THIS, const char *path)
 GLSTUB(glOrtho,(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top,
                     GLdouble zNear, GLdouble zFar))
 */
-void *PSP_GL_GetProcAddress(_THIS, const char *proc)
+void *PSP_GL_GetProcAddress(const char *proc)
 {
     return eglGetProcAddress(proc);
 }
@@ -186,7 +186,7 @@ int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     return 0;
 }
 
-int PSP_GL_SetSwapInterval(_THIS, int interval)
+int PSP_GL_SetSwapInterval(int interval)
 {
     Psp_VideoData *psp_data = &pspVideoData;
     EGLBoolean status;
@@ -200,7 +200,7 @@ int PSP_GL_SetSwapInterval(_THIS, int interval)
     return PSP_EGL_SetError("Unable to set the EGL swap interval", "eglSwapInterval");
 }
 
-int PSP_GL_GetSwapInterval(_THIS)
+int PSP_GL_GetSwapInterval(void)
 {
     Psp_VideoData *psp_data = &pspVideoData;
     return psp_data->egl_swapinterval;
@@ -217,7 +217,7 @@ int PSP_GL_SwapWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void PSP_GL_DeleteContext(_THIS, SDL_GLContext context)
+void PSP_GL_DeleteContext(SDL_GLContext context)
 {
     Psp_VideoData *psp_data = &pspVideoData;
     if (context != EGL_NO_CONTEXT) {
@@ -226,7 +226,7 @@ void PSP_GL_DeleteContext(_THIS, SDL_GLContext context)
     }
 }
 
-void PSP_GL_DestroySurface(_THIS, EGLSurface egl_surface)
+void PSP_GL_DestroySurface(EGLSurface egl_surface)
 {
     if (egl_surface != EGL_NO_SURFACE) {
         Psp_VideoData *psp_data = &pspVideoData;

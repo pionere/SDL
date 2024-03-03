@@ -29,7 +29,7 @@
 
 /* EGL implementation of SDL OpenGL support */
 
-void RPI_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
+void RPI_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
 {
     *mask = SDL_GL_CONTEXT_PROFILE_ES;
     *major = 2;
@@ -46,7 +46,7 @@ int RPI_GLES_SwapWindow(_THIS, SDL_Window *window)
     int result;
     SDL_WindowData *wdata = ((SDL_WindowData *)window->driverdata);
 
-    result = SDL_EGL_SwapBuffers(_this, wdata->egl_surface);
+    result = SDL_EGL_SwapBuffers(wdata->egl_surface);
 
     /* Wait immediately for vsync (as if we only had two buffers), for low input-lag scenarios.
      * Run your SDL2 program with "SDL_RPI_DOUBLE_BUFFER=1 <program_name>" to enable this. */

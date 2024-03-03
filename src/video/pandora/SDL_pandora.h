@@ -75,14 +75,14 @@ SDL_bool PND_getwindowwminfo(SDL_Window * window,
 /* OpenGL/OpenGL ES functions */
 #ifdef SDL_VIDEO_OPENGL_EGL
 int PND_gl_loadlibrary(_THIS, const char *path);
-void *PND_gl_getprocaddres(_THIS, const char *proc);
+void *PND_gl_getprocaddress(const char *proc);
 void PND_gl_unloadlibrary(_THIS);
 SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window);
 int PND_gl_makecurrent(_THIS, SDL_Window * window, SDL_GLContext context);
-int PND_gl_setswapinterval(_THIS, int interval);
-int PND_gl_getswapinterval(_THIS);
+int PND_gl_setswapinterval(int interval);
+int PND_gl_getswapinterval(void);
 int PND_gl_swapwindow(_THIS, SDL_Window * window);
-void PND_gl_deletecontext(_THIS, SDL_GLContext context);
+void PND_gl_deletecontext(SDL_GLContext context);
 #endif
 
 #endif /* __SDL_PANDORA_H__ */

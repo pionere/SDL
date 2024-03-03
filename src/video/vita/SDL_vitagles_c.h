@@ -33,17 +33,17 @@
 #include "../SDL_sysvideo.h"
 
 extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
-extern void *VITA_GLES_GetProcAddress(_THIS, const char *proc);
+extern void *VITA_GLES_GetProcAddress(const char *proc);
 extern void VITA_GLES_UnloadLibrary(_THIS);
 extern int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
 
 extern int VITA_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window);
-extern void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context);
-extern int VITA_GLES_SetSwapInterval(_THIS, int interval);
-extern int VITA_GLES_GetSwapInterval(_THIS);
+extern void VITA_GLES_DeleteContext(SDL_GLContext context);
+extern int VITA_GLES_SetSwapInterval(int interval);
+extern int VITA_GLES_GetSwapInterval(void);
 
-extern void VITA_GLES_DestroySurface(_THIS, EGLSurface egl_surface);
+extern void VITA_GLES_DestroySurface(EGLSurface egl_surface);
 #endif // SDL_VIDEO_VITA_PIB
 
 #endif /* SDL_vitagles_c_h_ */

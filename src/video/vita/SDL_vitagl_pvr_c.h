@@ -28,7 +28,7 @@
 
 extern SDL_GLContext VITA_GL_CreateContext(_THIS, SDL_Window *window);
 extern int VITA_GL_LoadLibrary(_THIS, const char *path);
-extern void *VITA_GL_GetProcAddress(_THIS, const char *proc);
+extern void *VITA_GL_GetProcAddress(const char *proc);
 
 #endif // SDL_VIDEO_VITA_PVR_OGL
 

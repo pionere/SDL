@@ -2259,7 +2259,7 @@ void Wayland_DestroyWindow(_THIS, SDL_Window *window)
 
     if (wind) {
 #ifdef SDL_VIDEO_OPENGL_EGL
-        SDL_EGL_DestroySurface(_this, wind->egl_surface);
+        SDL_EGL_DestroySurface(wind->egl_surface);
 #endif
         if (wind->egl_window) {
             WAYLAND_wl_egl_window_destroy(wind->egl_window);

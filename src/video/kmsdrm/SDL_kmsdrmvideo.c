@@ -1047,7 +1047,7 @@ static void KMSDRM_DestroySurfaces(_THIS, SDL_Window *window)
     SDL_EGL_MakeCurrent(_this, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
     if (windata->egl_surface != EGL_NO_SURFACE) {
-        SDL_EGL_DestroySurface(_this, windata->egl_surface);
+        SDL_EGL_DestroySurface(windata->egl_surface);
         windata->egl_surface = EGL_NO_SURFACE;
     }
 
@@ -1160,7 +1160,7 @@ int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window)
     /* We can't get the EGL context yet because SDL_CreateRenderer has not been called,
        but we need an EGL surface NOW, or GL won't be able to render into any surface
        and we won't see the first frame. */
-    SDL_EGL_SetRequiredVisualId(_this, surface_fmt);
+    SDL_EGL_SetRequiredVisualId(surface_fmt);
     windata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)windata->gs);
 
     if (windata->egl_surface == EGL_NO_SURFACE) {

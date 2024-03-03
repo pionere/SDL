@@ -180,7 +180,7 @@ void Android_DestroyWindow(_THIS, SDL_Window *window)
         SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
         if (data) {
 #ifdef SDL_VIDEO_OPENGL_EGL
-            SDL_EGL_DestroySurface(_this, data->egl_surface);
+            SDL_EGL_DestroySurface(data->egl_surface);
 #endif
 
             if (data->native_window) {
@@ -261,8 +261,7 @@ int Android_OnSurfaceDestroyed(SDL_bool force)
 
 #ifdef SDL_VIDEO_OPENGL_EGL
         if (data->egl_surface != EGL_NO_SURFACE) {
-            SDL_VideoDevice *_this = SDL_GetVideoDevice();
-            SDL_EGL_DestroySurface(_this, data->egl_surface);
+            SDL_EGL_DestroySurface(data->egl_surface);
             data->egl_surface = EGL_NO_SURFACE;
         }
 #endif

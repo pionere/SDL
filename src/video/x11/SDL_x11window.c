@@ -1808,7 +1808,7 @@ void X11_DestroyWindow(_THIS, SDL_Window *window)
         }
 #endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
 #ifdef SDL_VIDEO_OPENGL_EGL
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
+        SDL_EGL_DestroySurface(data->egl_surface);
 #endif
         SDL_free(data);
     }

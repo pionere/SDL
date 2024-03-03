@@ -41,7 +41,7 @@ int NACL_GLES_LoadLibrary(_THIS, const char *path)
     return glInitializePPAPI(PSGetInterface) == 0;
 }
 
-void *NACL_GLES_GetProcAddress(_THIS, const char *proc)
+void *NACL_GLES_GetProcAddress(const char *proc)
 {
 #ifdef HAVE_DLOPEN
     return dlsym( 0 /* RTLD_DEFAULT */, proc);
@@ -132,13 +132,13 @@ SDL_GLContext NACL_GLES_CreateContext(_THIS, SDL_Window * window)
 
 
 
-int NACL_GLES_SetSwapInterval(_THIS, int interval)
+int NACL_GLES_SetSwapInterval(int interval)
 {
     /* STUB */
     return SDL_Unsupported();
 }
 
-int NACL_GLES_GetSwapInterval(_THIS)
+int NACL_GLES_GetSwapInterval(void)
 {
     /* STUB */
     return 0;
@@ -156,7 +156,7 @@ int NACL_GLES_SwapWindow(_THIS, SDL_Window * window)
     return result;
 }
 
-void NACL_GLES_DeleteContext(_THIS, SDL_GLContext context)
+void NACL_GLES_DeleteContext(SDL_GLContext context)
 {
     NACL_VideoData *driverdata = &naclVideoData;
     driverdata->ppb_core->ReleaseResource((PP_Resource) context);

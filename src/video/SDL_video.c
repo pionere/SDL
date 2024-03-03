@@ -3492,7 +3492,7 @@ void *SDL_GL_GetProcAddress(const char *proc)
     func = NULL;
     if (_this->GL_GetProcAddress) {
         if (_this->gl_config.driver_loaded) {
-            func = _this->GL_GetProcAddress(_this, proc);
+            func = _this->GL_GetProcAddress(proc);
         } else {
             SDL_SetError("No GL driver has been loaded");
         }
@@ -3673,7 +3673,7 @@ void SDL_GL_ResetAttributes(void)
 #endif
 
     if (_this->GL_DefaultProfileConfig) {
-        _this->GL_DefaultProfileConfig(_this, &_this->gl_config.profile_mask,
+        _this->GL_DefaultProfileConfig(&_this->gl_config.profile_mask,
                                        &_this->gl_config.major_version,
                                        &_this->gl_config.minor_version);
     }
@@ -4168,7 +4168,7 @@ int SDL_GL_SetSwapInterval(int interval)
         return SDL_SetError("No OpenGL context has been made current");
     } else if (_this->GL_SetSwapInterval) {
         SDL_assert(_this->gl_config.driver_loaded);
-        return _this->GL_SetSwapInterval(_this, interval);
+        return _this->GL_SetSwapInterval(interval);
     } else {
         return SDL_SetError("Setting the swap interval is not supported");
     }
@@ -4182,7 +4182,7 @@ int SDL_GL_GetSwapInterval(void)
         return 0;
     } else if (_this->GL_GetSwapInterval) {
         SDL_assert(_this->gl_config.driver_loaded);
-        return _this->GL_GetSwapInterval(_this);
+        return _this->GL_GetSwapInterval();
     } else {
         return 0;
     }
@@ -4220,7 +4220,7 @@ void SDL_GL_DeleteContext(SDL_GLContext context)
         SDL_GL_MakeCurrent(NULL, NULL);
     }
 
-    _this->GL_DeleteContext(_this, context);
+    _this->GL_DeleteContext(context);
 }
 #else
 int SDL_GL_LoadLibrary(const char *path)

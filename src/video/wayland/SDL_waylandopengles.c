@@ -72,7 +72,7 @@ SDL_GLContext Wayland_GLES_CreateContext(_THIS, SDL_Window *window)
    libretro, Wayland, probably others...it feels like we're eventually going to have
    to give in with a future SDL API revision, since we can bend the other APIs to
    this style, but this style is much harder to bend the other way.  :/ */
-int Wayland_GLES_SetSwapInterval(_THIS, int interval)
+int Wayland_GLES_SetSwapInterval(int interval)
 {
     SDL_assert(egl_data.eglSwapInterval != NULL);
 
@@ -97,7 +97,7 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
     int result;
     Wayland_VideoData *videodata = &waylandVideoData;
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    const int swap_interval = SDL_EGL_GetSwapInterval(_this);
+    const int swap_interval = SDL_EGL_GetSwapInterval();
 
     /* For windows that we know are hidden, skip swaps entirely, if we don't do
      * this compositors will intentionally stall us indefinitely and there's no
@@ -153,7 +153,7 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
     }
 
     /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
-    result = SDL_EGL_SwapBuffers(_this, data->egl_surface);
+    result = SDL_EGL_SwapBuffers(data->egl_surface);
     if (result == 0) {
         WAYLAND_wl_display_flush(videodata->display);
     }
@@ -179,10 +179,10 @@ int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     return ret;
 }
 
-void Wayland_GLES_DeleteContext(_THIS, SDL_GLContext context)
+void Wayland_GLES_DeleteContext(SDL_GLContext context)
 {
     Wayland_VideoData *videodata = &waylandVideoData;
-    SDL_EGL_DeleteContext(_this, context);
+    SDL_EGL_DeleteContext(context);
     WAYLAND_wl_display_flush(videodata->display);
 }
 

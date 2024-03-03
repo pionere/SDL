@@ -140,17 +140,6 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window * window);
 SDL_bool KMSDRM_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
-/* OpenGL/OpenGL ES functions */
-int KMSDRM_GLES_LoadLibrary(_THIS, const char *path);
-void *KMSDRM_GLES_GetProcAddress(_THIS, const char *proc);
-void KMSDRM_GLES_UnloadLibrary(_THIS);
-SDL_GLContext KMSDRM_GLES_CreateContext(_THIS, SDL_Window *window);
-int KMSDRM_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-int KMSDRM_GLES_SetSwapInterval(_THIS, int interval);
-int KMSDRM_GLES_GetSwapInterval(_THIS);
-int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window);
-void KMSDRM_GLES_DeleteContext(_THIS, SDL_GLContext context);
-
 #endif /* __SDL_KMSDRMVIDEO_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */

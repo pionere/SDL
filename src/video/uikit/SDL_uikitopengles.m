@@ -52,7 +52,7 @@
 
 @end
 
-void *UIKit_GL_GetProcAddress(_THIS, const char *proc)
+void *UIKit_GL_GetProcAddress(const char *proc)
 {
     /* Look through all SO's for the proc symbol.  Here's why:
      * -Looking for the path to the OpenGL Library seems not to work in the iOS Simulator.
@@ -195,7 +195,7 @@ SDL_GLContext UIKit_GL_CreateContext(_THIS, SDL_Window * window)
         context.sdlView = view;
 
         if (UIKit_GL_MakeCurrent(_this, window, (__bridge SDL_GLContext) context) < 0) {
-            UIKit_GL_DeleteContext(_this, (SDL_GLContext) CFBridgingRetain(context));
+            UIKit_GL_DeleteContext((SDL_GLContext) CFBridgingRetain(context));
             return NULL;
         }
 
@@ -205,7 +205,7 @@ SDL_GLContext UIKit_GL_CreateContext(_THIS, SDL_Window * window)
     }
 }
 
-void UIKit_GL_DeleteContext(_THIS, SDL_GLContext context)
+void UIKit_GL_DeleteContext(SDL_GLContext context)
 {
     @autoreleasepool {
         /* The context was retained in SDL_GL_CreateContext, so we release it

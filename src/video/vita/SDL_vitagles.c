@@ -80,7 +80,7 @@ int VITA_GLES_LoadLibrary(_THIS, const char *path)
     return VITA_EGL_InitializeDisplay(display);
 }
 
-void *VITA_GLES_GetProcAddress(_THIS, const char *proc)
+void *VITA_GLES_GetProcAddress(const char *proc)
 {
     return eglGetProcAddress(proc);
 }
@@ -210,7 +210,7 @@ int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     return 0;
 }
 
-int VITA_GLES_SetSwapInterval(_THIS, int interval)
+int VITA_GLES_SetSwapInterval(int interval)
 {
     Vita_VideoData *phdata = &vitaVideoData;
     EGLBoolean status;
@@ -224,7 +224,7 @@ int VITA_GLES_SetSwapInterval(_THIS, int interval)
     return VITA_EGL_SetError("Unable to set the EGL swap interval", "eglSwapInterval");
 }
 
-int VITA_GLES_GetSwapInterval(_THIS)
+int VITA_GLES_GetSwapInterval()
 {
     Vita_VideoData *phdata = &vitaVideoData;
     return phdata->egl_swapinterval;
@@ -241,7 +241,7 @@ int VITA_GLES_SwapWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context)
+void VITA_GLES_DeleteContext(SDL_GLContext context)
 {
     Vita_VideoData *phdata = &vitaVideoData;
     if (context != EGL_NO_CONTEXT) {
@@ -250,7 +250,7 @@ void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context)
     }
 }
 
-void VITA_GLES_DestroySurface(_THIS, EGLSurface egl_surface)
+void VITA_GLES_DestroySurface(EGLSurface egl_surface)
 {
     if (egl_surface != EGL_NO_SURFACE) {
         Vita_VideoData *phdata = &vitaVideoData;

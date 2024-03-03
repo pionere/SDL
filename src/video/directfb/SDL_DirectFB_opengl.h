@@ -49,15 +49,15 @@ typedef struct
 
 /* OpenGL functions */
 extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
-extern void *DirectFB_GL_GetProcAddress(_THIS, const char *proc);
+extern void *DirectFB_GL_GetProcAddress(const char *proc);
 extern void DirectFB_GL_UnloadLibrary(_THIS);
 extern SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window);
 extern int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window,
                                    SDL_GLContext context);
-extern int DirectFB_GL_SetSwapInterval(_THIS, int interval);
-extern int DirectFB_GL_GetSwapInterval(_THIS);
+extern int DirectFB_GL_SetSwapInterval(int interval);
+extern int DirectFB_GL_GetSwapInterval(void);
 extern int DirectFB_GL_SwapWindow(_THIS, SDL_Window * window);
-extern void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context);
+extern void DirectFB_GL_DeleteContext(SDL_GLContext context);
 
 extern void DirectFB_GL_FreeWindowContexts(SDL_Window * window);
 extern void DirectFB_GL_ReAllocWindowContexts(SDL_Window * window);

@@ -321,7 +321,7 @@ static void Emscripten_DestroyWindow(_THIS, SDL_Window *window)
     if (data) {
         Emscripten_UnregisterEventHandlers(data);
 #ifdef SDL_VIDEO_OPENGL_EGL
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
+        SDL_EGL_DestroySurface(data->egl_surface);
 #endif
 
         /* We can't destroy the canvas, so resize it to zero instead */

@@ -349,9 +349,9 @@ void VITA_DestroyWindow(_THIS, SDL_Window *window)
         SDL_assert(window == Vita_Window);
         Vita_Window = NULL;
 #if defined(SDL_VIDEO_VITA_PVR)
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
+        SDL_EGL_DestroySurface(data->egl_surface);
 #elif defined(SDL_VIDEO_VITA_PIB)
-        VITA_GLES_DestroySurface(_this, data->egl_surface);
+        VITA_GLES_DestroySurface(data->egl_surface);
 #endif
         // TODO: should we destroy egl context? No one sane should recreate ogl window as non-ogl
         SDL_free(data);

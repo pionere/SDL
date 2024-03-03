@@ -251,7 +251,7 @@ static SDL_bool SDL_EGL_HasExtension(SDL_EGL_ExtensionType type, const char *ext
     return SDL_FALSE;
 }
 
-void *SDL_EGL_GetProcAddress(_THIS, const char *proc)
+void *SDL_EGL_GetProcAddress(const char *proc)
 {
     void *retval = NULL;
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
@@ -550,7 +550,7 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
             display = eglGetPlatformDisplayfunc(platform, (void *)(uintptr_t)native_display, NULL);
         } else {
             if (SDL_EGL_HasExtension(SDL_EGL_CLIENT_EXTENSION, "EGL_EXT_platform_base")) {
-                eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
+                eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress("eglGetPlatformDisplayEXT");
                 if (eglGetPlatformDisplayEXTfunc) {
                     display = eglGetPlatformDisplayEXTfunc(platform, (void *)(uintptr_t)native_display, NULL);
                 }
@@ -596,13 +596,13 @@ int SDL_EGL_InitializeOffscreen(_THIS)
 
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
     /* Check for all extensions that are optional until used and fail if any is missing */
-    eglQueryDevicesEXT_Function eglQueryDevicesEXTfunc = (eglQueryDevicesEXT_Function)SDL_EGL_GetProcAddress(_this, "eglQueryDevicesEXT");
+    eglQueryDevicesEXT_Function eglQueryDevicesEXTfunc = (eglQueryDevicesEXT_Function)SDL_EGL_GetProcAddress("eglQueryDevicesEXT");
     if (!eglQueryDevicesEXTfunc) {
         SDL_SetError("eglQueryDevicesEXT is missing (EXT_device_enumeration not supported by the drivers?)");
         goto error;
     }
 
-    eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress(_this, "eglGetPlatformDisplayEXT");
+    eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXTfunc = (eglGetPlatformDisplayEXT_Function)SDL_EGL_GetProcAddress("eglGetPlatformDisplayEXT");
     if (!eglGetPlatformDisplayEXTfunc) {
         SDL_SetError("eglGetPlatformDisplayEXT is missing (EXT_platform_base not supported by the drivers?)");
         goto error;
@@ -669,7 +669,7 @@ error:
     return -1;
 }
 #endif
-void SDL_EGL_SetRequiredVisualId(_THIS, int visual_id)
+void SDL_EGL_SetRequiredVisualId(int visual_id)
 {
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
     egl_data.egl_required_visual_id = visual_id;
@@ -1070,7 +1070,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
 
     if (SDL_EGL_MakeCurrent(_this, egl_surface, egl_context) < 0) {
         /* Delete the context */
-        SDL_EGL_DeleteContext(_this, egl_context);
+        SDL_EGL_DeleteContext(egl_context);
         return NULL;
     }
 
@@ -1134,7 +1134,7 @@ int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
     return 0;
 }
 
-int SDL_EGL_SetSwapInterval(_THIS, int interval)
+int SDL_EGL_SetSwapInterval(int interval)
 {
     EGLBoolean status;
 
@@ -1156,14 +1156,14 @@ int SDL_EGL_SetSwapInterval(_THIS, int interval)
     return SDL_EGL_SetError("Unable to set the EGL swap interval", "eglSwapInterval");
 }
 
-int SDL_EGL_GetSwapInterval(_THIS)
+int SDL_EGL_GetSwapInterval()
 {
     SDL_assert(USE_FUNC(eglSwapInterval) != NULL);
 
     return egl_data.egl_swapinterval;
 }
 
-int SDL_EGL_SwapBuffers(_THIS, EGLSurface egl_surface)
+int SDL_EGL_SwapBuffers(EGLSurface egl_surface)
 {
     SDL_assert(USE_FUNC(eglSwapBuffers) != NULL);
     if (!USE_FUNC(eglSwapBuffers)(egl_data.egl_display, egl_surface)) {
@@ -1172,7 +1172,7 @@ int SDL_EGL_SwapBuffers(_THIS, EGLSurface egl_surface)
     return 0;
 }
 
-void SDL_EGL_DeleteContext(_THIS, SDL_GLContext context)
+void SDL_EGL_DeleteContext(SDL_GLContext context)
 {
     EGLContext egl_context = (EGLContext)context;
 
@@ -1274,7 +1274,7 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
         attributes);
 }
 #endif
-void SDL_EGL_DestroySurface(_THIS, EGLSurface egl_surface)
+void SDL_EGL_DestroySurface(EGLSurface egl_surface)
 {
     if (egl_surface != EGL_NO_SURFACE) {
         SDL_assert(USE_FUNC(eglDestroySurface) != NULL);

@@ -67,7 +67,7 @@ void OFFSCREEN_DestroyWindow(_THIS, SDL_Window *window)
     OFFSCREEN_Window *offscreen_window = window->driverdata;
 
     if (offscreen_window) {
-        SDL_EGL_DestroySurface(_this, offscreen_window->egl_surface);
+        SDL_EGL_DestroySurface(offscreen_window->egl_surface);
         SDL_free(offscreen_window);
         window->driverdata = NULL;
     }

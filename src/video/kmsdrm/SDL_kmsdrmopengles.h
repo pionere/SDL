@@ -33,9 +33,10 @@
 #define KMSDRM_GLES_DeleteContext SDL_EGL_DeleteContext
 #define KMSDRM_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 
-extern void KMSDRM_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor);
-extern int KMSDRM_GLES_SetSwapInterval(_THIS, int interval);
+extern void KMSDRM_GLES_DefaultProfileConfig(int *mask, int *major, int *minor);
+extern int KMSDRM_GLES_SetSwapInterval(int interval);
 extern int KMSDRM_GLES_LoadLibrary(_THIS, const char *path);
+extern void KMSDRM_GLES_UnloadLibrary(_THIS);
 extern SDL_GLContext KMSDRM_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern int KMSDRM_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);

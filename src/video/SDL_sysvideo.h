@@ -278,16 +278,16 @@ struct SDL_VideoDevice
      * OpenGL support
      */
     int (*GL_LoadLibrary) (_THIS, const char *path);
-    void *(*GL_GetProcAddress) (_THIS, const char *proc);
+    void *(*GL_GetProcAddress) (const char *proc);
     void (*GL_UnloadLibrary) (_THIS);
-      SDL_GLContext(*GL_CreateContext) (_THIS, SDL_Window * window);
+    SDL_GLContext(*GL_CreateContext) (_THIS, SDL_Window * window);
     int (*GL_MakeCurrent) (_THIS, SDL_Window * window, SDL_GLContext context);
     void (*GL_GetDrawableSize) (SDL_Window * window, int *w, int *h);
-    int (*GL_SetSwapInterval) (_THIS, int interval);
-    int (*GL_GetSwapInterval) (_THIS);
+    int (*GL_SetSwapInterval) (int interval);
+    int (*GL_GetSwapInterval) (void);
     int (*GL_SwapWindow) (_THIS, SDL_Window * window);
-    void (*GL_DeleteContext) (_THIS, SDL_GLContext context);
-    void (*GL_DefaultProfileConfig) (_THIS, int *mask, int *major, int *minor);
+    void (*GL_DeleteContext) (SDL_GLContext context);
+    void (*GL_DefaultProfileConfig) (int *mask, int *major, int *minor);
 #ifdef SDL_VIDEO_VULKAN
     /* * * */
     /*

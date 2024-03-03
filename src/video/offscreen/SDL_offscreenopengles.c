@@ -73,7 +73,7 @@ int OFFSCREEN_GLES_SwapWindow(_THIS, SDL_Window *window)
 {
     OFFSCREEN_Window *offscreen_wind = window->driverdata;
 
-    return SDL_EGL_SwapBuffers(_this, offscreen_wind->egl_surface);
+    return SDL_EGL_SwapBuffers(offscreen_wind->egl_surface);
 }
 
 #endif /* SDL_VIDEO_DRIVER_OFFSCREEN && SDL_VIDEO_OPENGL_EGL */

@@ -84,26 +84,6 @@ void VITA_DestroyWindow(_THIS, SDL_Window *window);
 SDL_bool VITA_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
-#ifdef SDL_VIDEO_DRIVER_VITA
-#if defined(SDL_VIDEO_VITA_PVR_OGL)
-/* OpenGL functions */
-int VITA_GL_LoadLibrary(_THIS, const char *path);
-SDL_GLContext VITA_GL_CreateContext(_THIS, SDL_Window *window);
-void *VITA_GL_GetProcAddress(_THIS, const char *proc);
-#endif
-
-/* OpenGLES functions */
-int VITA_GLES_LoadLibrary(_THIS, const char *path);
-void *VITA_GLES_GetProcAddress(_THIS, const char *proc);
-void VITA_GLES_UnloadLibrary(_THIS);
-SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window);
-int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-int VITA_GLES_SetSwapInterval(_THIS, int interval);
-int VITA_GLES_GetSwapInterval(_THIS);
-int VITA_GLES_SwapWindow(_THIS, SDL_Window *window);
-void VITA_GLES_DeleteContext(_THIS, SDL_GLContext context);
-#endif
-
 /* VITA on screen keyboard */
 SDL_bool VITA_HasScreenKeyboardSupport();
 void VITA_ShowScreenKeyboard(SDL_Window *window);

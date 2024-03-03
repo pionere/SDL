@@ -116,7 +116,7 @@ SDL_GLContext VITA_GL_CreateContext(_THIS, SDL_Window *window)
     return context;
 }
 
-void *VITA_GL_GetProcAddress(_THIS, const char *proc)
+void *VITA_GL_GetProcAddress(const char *proc)
 {
     return gl4es_GetProcAddress(proc);
 }

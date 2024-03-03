@@ -61,15 +61,15 @@
 
 /* OpenGL functions */
 extern int Cocoa_GL_LoadLibrary(_THIS, const char *path);
-extern void *Cocoa_GL_GetProcAddress(_THIS, const char *proc);
+extern void *Cocoa_GL_GetProcAddress(const char *proc);
 extern void Cocoa_GL_UnloadLibrary(_THIS);
 extern SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window);
 extern int Cocoa_GL_MakeCurrent(_THIS, SDL_Window * window,
                                 SDL_GLContext context);
-extern int Cocoa_GL_SetSwapInterval(_THIS, int interval);
-extern int Cocoa_GL_GetSwapInterval(_THIS);
+extern int Cocoa_GL_SetSwapInterval(int interval);
+extern int Cocoa_GL_GetSwapInterval();
 extern int Cocoa_GL_SwapWindow(_THIS, SDL_Window * window);
-extern void Cocoa_GL_DeleteContext(_THIS, SDL_GLContext context);
+extern void Cocoa_GL_DeleteContext(SDL_GLContext context);
 
 extern void Cocoa_GL_InitDevice(_THIS);
 

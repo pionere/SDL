@@ -84,7 +84,7 @@ SDL_GLContext Cocoa_GLES_CreateContext(_THIS, SDL_Window * window)
 int Cocoa_GLES_SwapWindow(_THIS, SDL_Window * window)
 { @autoreleasepool
 {
-    return SDL_EGL_SwapBuffers(_this, ((__bridge SDL_WindowData *) window->driverdata).egl_surface);
+    return SDL_EGL_SwapBuffers(((__bridge SDL_WindowData *) window->driverdata).egl_surface);
 }}
 
 int Cocoa_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)

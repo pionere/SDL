@@ -104,16 +104,16 @@ typedef struct SDL_GLDriverData
 
 /* OpenGL functions */
 extern int WIN_GL_LoadLibrary(_THIS, const char *path);
-extern void *WIN_GL_GetProcAddress(_THIS, const char *proc);
+extern void *WIN_GL_GetProcAddress(const char *proc);
 extern void WIN_GL_UnloadLibrary(_THIS);
 extern int WIN_GL_SetupWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window);
 extern int WIN_GL_MakeCurrent(_THIS, SDL_Window *window,
                               SDL_GLContext context);
-extern int WIN_GL_SetSwapInterval(_THIS, int interval);
-extern int WIN_GL_GetSwapInterval(_THIS);
+extern int WIN_GL_SetSwapInterval(int interval);
+extern int WIN_GL_GetSwapInterval(void);
 extern int WIN_GL_SwapWindow(_THIS, SDL_Window *window);
-extern void WIN_GL_DeleteContext(_THIS, SDL_GLContext context);
+extern void WIN_GL_DeleteContext(SDL_GLContext context);
 
 extern void WIN_GL_InitDevice(_THIS);
 extern int WIN_GL_PrivateLoadLibrary(_THIS, const char *path);

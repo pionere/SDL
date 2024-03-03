@@ -26,8 +26,6 @@
 #include "../SDL_sysvideo.h"
 
 #ifdef SDL_VIDEO_OPENGL
-// #include <GLES2/gl2.h>
-//#include "../SDL_egl_c.h"
 #include <GLES/egl.h>
 
 typedef struct Psp_VideoData
@@ -70,17 +68,6 @@ void PSP_DestroyWindow(_THIS, SDL_Window *window);
 /* Window manager function */
 SDL_bool PSP_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
-
-/* OpenGL/OpenGL ES functions */
-int PSP_GL_LoadLibrary(_THIS, const char *path);
-void *PSP_GL_GetProcAddress(_THIS, const char *proc);
-void PSP_GL_UnloadLibrary(_THIS);
-SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window);
-int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-int PSP_GL_SetSwapInterval(_THIS, int interval);
-int PSP_GL_GetSwapInterval(_THIS);
-int PSP_GL_SwapWindow(_THIS, SDL_Window *window);
-void PSP_GL_DeleteContext(_THIS, SDL_GLContext context);
 
 /* PSP on screen keyboard */
 SDL_bool PSP_HasScreenKeyboardSupport();

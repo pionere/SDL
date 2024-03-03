@@ -62,7 +62,7 @@ int HAIKU_GL_LoadLibrary(_THIS, const char *path)
     return SDL_SetError("Couldn't load OpenGL library");
 }
 
-void *HAIKU_GL_GetProcAddress(_THIS, const char *proc)
+void *HAIKU_GL_GetProcAddress(const char *proc)
 {
     void *location = NULL;
     status_t err = get_image_symbol(dll_handle,
@@ -133,7 +133,7 @@ SDL_GLContext HAIKU_GL_CreateContext(_THIS, SDL_Window * window) {
     return (SDL_GLContext)(bwin->GetGLView());
 }
 
-void HAIKU_GL_DeleteContext(_THIS, SDL_GLContext context) {
+void HAIKU_GL_DeleteContext(SDL_GLContext context) {
     // printf("HAIKU_GL_DeleteContext(%llx), thread = %d\n", (uint64)context, find_thread(NULL));
     BGLView* glView = (BGLView*)context;
     SDL_BWin *bwin = (SDL_BWin*)glView->Window();
@@ -145,12 +145,12 @@ void HAIKU_GL_DeleteContext(_THIS, SDL_GLContext context) {
 }
 
 
-int HAIKU_GL_SetSwapInterval(_THIS, int interval) {
+int HAIKU_GL_SetSwapInterval(int interval) {
     /* TODO: Implement this, if necessary? */
     return SDL_Unsupported();
 }
 
-int HAIKU_GL_GetSwapInterval(_THIS) {
+int HAIKU_GL_GetSwapInterval(void) {
     /* TODO: Implement this, if necessary? */
     return 0;
 }

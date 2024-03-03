@@ -245,7 +245,7 @@ void PSP_DestroyWindow(_THIS, SDL_Window *window)
 #ifdef SDL_VIDEO_OPENGL
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     if (data) {
-        PSP_GL_DestroySurface(_this, data->egl_surface);
+        PSP_GL_DestroySurface(data->egl_surface);
         SDL_free(data);
         window->driverdata = NULL;
     }

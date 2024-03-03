@@ -27,19 +27,19 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_egl_c.h"
 
-extern void *PSP_GL_GetProcAddress(_THIS, const char *proc);
+extern void *PSP_GL_GetProcAddress(const char *proc);
 extern int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
-extern void PSP_GL_SwapBuffers(_THIS);
 
 extern int PSP_GL_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window);
+extern void PSP_GL_DeleteContext(SDL_GLContext context);
 
 extern int PSP_GL_LoadLibrary(_THIS, const char *path);
 extern void PSP_GL_UnloadLibrary(_THIS);
-extern int PSP_GL_SetSwapInterval(_THIS, int interval);
-extern int PSP_GL_GetSwapInterval(_THIS);
+extern int PSP_GL_SetSwapInterval(int interval);
+extern int PSP_GL_GetSwapInterval(void);
 
-extern void PSP_GL_DestroySurface(_THIS, EGLSurface egl_surface);
+extern void PSP_GL_DestroySurface(EGLSurface egl_surface);
 
 #endif // SDL_VIDEO_DRIVER_PSP
 

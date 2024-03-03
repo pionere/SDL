@@ -37,7 +37,7 @@
 
 /* EGL implementation of SDL OpenGL support */
 
-void KMSDRM_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
+void KMSDRM_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
 {
     /* if SDL was _also_ built with the Raspberry Pi driver (so we're
        definitely a Pi device), default to GLES2. */
@@ -70,7 +70,7 @@ void KMSDRM_GLES_UnloadLibrary(_THIS)
 
 SDL_EGL_CreateContext_impl(KMSDRM)
 
-int KMSDRM_GLES_SetSwapInterval(_THIS, int interval)
+int KMSDRM_GLES_SetSwapInterval(int interval)
 {
     SDL_assert(egl_data.eglSwapInterval != NULL);
 
@@ -123,7 +123,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
 
     /* Mark a buffer to become the next front buffer.
        This won't happen until pagelip completes. */
-    ret = SDL_EGL_SwapBuffers(_this, windata->egl_surface);
+    ret = SDL_EGL_SwapBuffers(windata->egl_surface);
     if (ret < 0) {
         return ret;
     }
@@ -166,7 +166,7 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
            That makes it flip immediately, without waiting for the next vblank
            to do so, so even if we don't block on EGL, the flip will have completed
            when we get here again. */
-        if (SDL_EGL_GetSwapInterval(_this) == 0 && viddata->async_pageflip_support) {
+        if (SDL_EGL_GetSwapInterval() == 0 && viddata->async_pageflip_support) {
             flip_flags |= DRM_MODE_PAGE_FLIP_ASYNC;
         }
 

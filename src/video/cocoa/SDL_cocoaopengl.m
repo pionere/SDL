@@ -252,7 +252,7 @@ int Cocoa_GL_LoadLibrary(_THIS, const char *path)
     return 0;
 }
 
-void *Cocoa_GL_GetProcAddress(_THIS, const char *proc)
+void *Cocoa_GL_GetProcAddress(const char *proc)
 {
     Cocoa_VideoData *videodata = cocoaVideoData;
     return SDL_LoadFunction(videodata.dll_handle, proc);
@@ -448,7 +448,7 @@ int Cocoa_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
     return 0;
 }}
 
-int Cocoa_GL_SetSwapInterval(_THIS, int interval)
+int Cocoa_GL_SetSwapInterval(int interval)
 { @autoreleasepool
 {
     SDLOpenGLContext *nscontext = (__bridge SDLOpenGLContext *) SDL_GL_GetCurrentContext();
@@ -467,7 +467,7 @@ int Cocoa_GL_SetSwapInterval(_THIS, int interval)
     return status;
 }}
 
-int Cocoa_GL_GetSwapInterval(_THIS)
+int Cocoa_GL_GetSwapInterval(void)
 { @autoreleasepool
 {
     SDLOpenGLContext* nscontext = (__bridge SDLOpenGLContext*)SDL_GL_GetCurrentContext();
@@ -510,7 +510,7 @@ int Cocoa_GL_SwapWindow(_THIS, SDL_Window * window)
     return 0;
 }}
 
-void Cocoa_GL_DeleteContext(_THIS, SDL_GLContext context)
+void Cocoa_GL_DeleteContext(SDL_GLContext context)
 { @autoreleasepool
 {
     SDLOpenGLContext *nscontext = (__bridge SDLOpenGLContext *)context;

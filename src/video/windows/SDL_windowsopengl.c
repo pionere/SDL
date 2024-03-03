@@ -243,7 +243,7 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
     return 0;
 }
 
-void *WIN_GL_GetProcAddress(_THIS, const char *proc)
+void *WIN_GL_GetProcAddress(const char *proc)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     void *func;
@@ -492,10 +492,10 @@ static void WIN_GL_InitExtensions(_THIS)
         /* *INDENT-OFF* */ /* clang-format off */
         wgl_data->wglChoosePixelFormatARB =
             (BOOL (WINAPI *)(HDC, const int *, const FLOAT *, UINT, int *, UINT *))
-            WIN_GL_GetProcAddress(_this, "wglChoosePixelFormatARB");
+            WIN_GL_GetProcAddress("wglChoosePixelFormatARB");
         wgl_data->wglGetPixelFormatAttribivARB =
             (BOOL (WINAPI *)(HDC, int, int, UINT, const int *, int *))
-            WIN_GL_GetProcAddress(_this, "wglGetPixelFormatAttribivARB");
+            WIN_GL_GetProcAddress("wglGetPixelFormatAttribivARB");
         /* *INDENT-ON* */ /* clang-format on */
 
         if ((wgl_data->wglChoosePixelFormatARB != NULL) &&
@@ -508,9 +508,9 @@ static void WIN_GL_InitExtensions(_THIS)
     wgl_data->HAS_WGL_EXT_swap_control_tear = SDL_FALSE;
     if (HasExtension("WGL_EXT_swap_control", extensions)) {
         wgl_data->wglSwapIntervalEXT =
-            WIN_GL_GetProcAddress(_this, "wglSwapIntervalEXT");
+            WIN_GL_GetProcAddress("wglSwapIntervalEXT");
         wgl_data->wglGetSwapIntervalEXT =
-            WIN_GL_GetProcAddress(_this, "wglGetSwapIntervalEXT");
+            WIN_GL_GetProcAddress("wglGetSwapIntervalEXT");
         if (HasExtension("WGL_EXT_swap_control_tear", extensions)) {
             wgl_data->HAS_WGL_EXT_swap_control_tear = SDL_TRUE;
         }
@@ -787,7 +787,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
 
         /* Make the context current */
         if (WIN_GL_MakeCurrent(_this, window, temp_context) < 0) {
-            WIN_GL_DeleteContext(_this, temp_context);
+            WIN_GL_DeleteContext(temp_context);
             return NULL;
         }
 
@@ -850,7 +850,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
     }
 
     if (WIN_GL_MakeCurrent(_this, window, context) < 0) {
-        WIN_GL_DeleteContext(_this, context);
+        WIN_GL_DeleteContext(context);
         return NULL;
     }
 
@@ -886,7 +886,7 @@ int WIN_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     return 0;
 }
 
-int WIN_GL_SetSwapInterval(_THIS, int interval)
+int WIN_GL_SetSwapInterval(int interval)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     if ((interval < 0) && (!wgl_data->HAS_WGL_EXT_swap_control_tear)) {
@@ -901,7 +901,7 @@ int WIN_GL_SetSwapInterval(_THIS, int interval)
     return 0;
 }
 
-int WIN_GL_GetSwapInterval(_THIS)
+int WIN_GL_GetSwapInterval(void)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     int retval = 0;
@@ -924,7 +924,7 @@ int WIN_GL_SwapWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void WIN_GL_DeleteContext(_THIS, SDL_GLContext context)
+void WIN_GL_DeleteContext(SDL_GLContext context)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     if (wgl_data->wglDeleteContext) {
