@@ -60,6 +60,8 @@
 #include "SDL_x11keyboard.h"
 #include "SDL_x11modes.h"
 #include "SDL_x11mouse.h"
+#include "SDL_x11opengl.h"
+#include "SDL_x11opengles.h"
 #include "SDL_x11window.h"
 #include "SDL_x11vulkan.h"
 
@@ -144,6 +146,11 @@ typedef struct X11_VideoData
 
     KeyCode filter_code;
     Time filter_time;
+
+#ifdef SDL_VIDEO_OPENGL_GLX
+    /* Glx variables only valid if _this->gl_config.dll_handle is not NULL */
+    SDL_GLDriverData glx_data;
+#endif
 
 #ifdef SDL_VIDEO_VULKAN
     /* Vulkan variables only valid if _this->vulkan_config.loader_handle is not NULL */
