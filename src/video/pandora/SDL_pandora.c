@@ -304,7 +304,7 @@ int PND_gl_loadlibrary(_THIS, const char *path)
         /* Already linked with GF library which provides egl* subset of  */
         /* functions, use Common profile of OpenGL ES library by default */
 #ifdef WIZ_GLES_LITE
-    path = "/lib/libopengles_lite.so";
+        path = "/lib/libopengles_lite.so";
 #else
         path = "/usr/lib/libGLES_CM.so";
 #endif
@@ -316,10 +316,6 @@ int PND_gl_loadlibrary(_THIS, const char *path)
         /* Failed to load new GL ES library */
         return SDL_SetError("PND: Failed to locate OpenGL ES library");
     }
-
-    /* Store OpenGL ES library path and name */
-    SDL_strlcpy(_this->gl_config.driver_path, path,
-                SDL_arraysize(_this->gl_config.driver_path));
 
     /* New OpenGL ES library is loaded */
 

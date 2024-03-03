@@ -618,12 +618,12 @@ XVisualInfo *X11_GL_GetVisual(_THIS, Display *display, int screen)
     int attribs[64];
     XVisualInfo *vinfo = NULL;
     int *pvistypeattr = NULL;
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     if (_this->gl_config.gl_type != 0) {
         SDL_SetError("Dynamic GLX/EGL switch is not supported");
         return NULL;
     }
-
+#endif
     if (glx_data->glXChooseFBConfig &&
         glx_data->glXGetVisualFromFBConfig) {
         GLXFBConfig *framebuffer_config = NULL;
@@ -696,7 +696,10 @@ SDL_bool X11_GL_UseEGL(_THIS)
         return SDL_FALSE;
     }
 
-    return _this->gl_config.gl_type != 0 ||
+    return
+#ifdef SDL_VIDEO_OPENGL_EGL
+        _this->gl_config.gl_type != 0 ||
+#endif
         SDL_GetHintBoolean(SDL_HINT_OPENGL_ES_DRIVER, SDL_FALSE) ||
         _this->gl_config.major_version == 1 || /* No GLX extension for OpenGL ES 1.x profiles. */
         _this->gl_config.major_version > glx_data->es_profile_max_supported_version.major || (_this->gl_config.major_version == glx_data->es_profile_max_supported_version.major && _this->gl_config.minor_version > glx_data->es_profile_max_supported_version.minor);
