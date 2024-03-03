@@ -100,11 +100,11 @@ typedef HGLRC(APIENTRYP PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hDC,
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
 #define GetDC(hwnd)          (HDC) hwnd
 #define ReleaseDC(hwnd, hdc) 1
-#define SwapBuffers          _this->gl_data->wglSwapBuffers
-#define DescribePixelFormat  _this->gl_data->wglDescribePixelFormat
-#define ChoosePixelFormat    _this->gl_data->wglChoosePixelFormat
-#define GetPixelFormat       _this->gl_data->wglGetPixelFormat
-#define SetPixelFormat       _this->gl_data->wglSetPixelFormat
+#define SwapBuffers          wgl_data->wglSwapBuffers
+#define DescribePixelFormat  wgl_data->wglDescribePixelFormat
+#define ChoosePixelFormat    wgl_data->wglChoosePixelFormat
+#define GetPixelFormat       wgl_data->wglGetPixelFormat
+#define SetPixelFormat       wgl_data->wglSetPixelFormat
 #endif
 
 static void WIN_GL_InitExtensions(_THIS);
@@ -143,7 +143,7 @@ int WIN_GL_LoadLibrary(_THIS, const char *path)
 int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
 {
     void *handle;
-    SDL_GLDriverData *gldata;
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
 
     if (path == NULL) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -156,59 +156,52 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
         return -1;
     }
 
-    /* Allocate OpenGL memory */
-    gldata = (SDL_GLDriverData *)SDL_calloc(1, sizeof(SDL_GLDriverData));
-    if (!gldata) {
-        SDL_UnloadObject(handle);
-        return SDL_OutOfMemory();
-    }
-
     /* Load function pointers */
     /* *INDENT-OFF* */ /* clang-format off */
-    gldata->wglGetProcAddress = (void *(WINAPI *)(const char *))
+    wgl_data->wglGetProcAddress = (void *(WINAPI *)(const char *))
         SDL_LoadFunction(handle, "wglGetProcAddress");
-    gldata->wglCreateContext = (HGLRC (WINAPI *)(HDC))
+    wgl_data->wglCreateContext = (HGLRC (WINAPI *)(HDC))
         SDL_LoadFunction(handle, "wglCreateContext");
-    gldata->wglDeleteContext = (BOOL (WINAPI *)(HGLRC))
+    wgl_data->wglDeleteContext = (BOOL (WINAPI *)(HGLRC))
         SDL_LoadFunction(handle, "wglDeleteContext");
-    gldata->wglMakeCurrent = (BOOL (WINAPI *)(HDC, HGLRC))
+    wgl_data->wglMakeCurrent = (BOOL (WINAPI *)(HDC, HGLRC))
         SDL_LoadFunction(handle, "wglMakeCurrent");
-    gldata->wglShareLists = (BOOL (WINAPI *)(HGLRC, HGLRC))
+    wgl_data->wglShareLists = (BOOL (WINAPI *)(HGLRC, HGLRC))
         SDL_LoadFunction(handle, "wglShareLists");
     /* *INDENT-ON* */ /* clang-format on */
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    gldata->wglSwapBuffers = (BOOL(WINAPI *)(HDC))
+    wgl_data->wglSwapBuffers = (BOOL(WINAPI *)(HDC))
         SDL_LoadFunction(handle, "wglSwapBuffers");
-    gldata->wglDescribePixelFormat = (int(WINAPI *)(HDC, int, UINT, LPPIXELFORMATDESCRIPTOR))
+    wgl_data->wglDescribePixelFormat = (int(WINAPI *)(HDC, int, UINT, LPPIXELFORMATDESCRIPTOR))
         SDL_LoadFunction(handle, "wglDescribePixelFormat");
-    gldata->wglChoosePixelFormat = (int(WINAPI *)(HDC, const PIXELFORMATDESCRIPTOR *))
+    wgl_data->wglChoosePixelFormat = (int(WINAPI *)(HDC, const PIXELFORMATDESCRIPTOR *))
         SDL_LoadFunction(handle, "wglChoosePixelFormat");
-    gldata->wglSetPixelFormat = (BOOL(WINAPI *)(HDC, int, const PIXELFORMATDESCRIPTOR *))
+    wgl_data->wglSetPixelFormat = (BOOL(WINAPI *)(HDC, int, const PIXELFORMATDESCRIPTOR *))
         SDL_LoadFunction(handle, "wglSetPixelFormat");
-    gldata->wglGetPixelFormat = (int(WINAPI *)(HDC hdc))
+    wgl_data->wglGetPixelFormat = (int(WINAPI *)(HDC hdc))
         SDL_LoadFunction(handle, "wglGetPixelFormat");
 #endif
 
-    if (!gldata->wglGetProcAddress ||
-        !gldata->wglCreateContext ||
-        !gldata->wglDeleteContext ||
-        !gldata->wglMakeCurrent
+    if (!wgl_data->wglGetProcAddress ||
+        !wgl_data->wglCreateContext ||
+        !wgl_data->wglDeleteContext ||
+        !wgl_data->wglMakeCurrent
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-        || !gldata->wglSwapBuffers ||
-        !gldata->wglDescribePixelFormat ||
-        !gldata->wglChoosePixelFormat ||
-        !gldata->wglGetPixelFormat ||
-        !gldata->wglSetPixelFormat
+        || !wgl_data->wglSwapBuffers ||
+        !wgl_data->wglDescribePixelFormat ||
+        !wgl_data->wglChoosePixelFormat ||
+        !wgl_data->wglGetPixelFormat ||
+        !wgl_data->wglSetPixelFormat
 #endif
     ) {
         SDL_UnloadObject(handle);
-        SDL_free(gldata);
+        SDL_zero(*wgl_data);
         return SDL_SetError("Could not retrieve OpenGL functions");
     }
 
     _this->gl_config.dll_handle = handle;
-    _this->gl_data = gldata;
+    _this->gl_data = wgl_data;
 
     SDL_strlcpy(_this->gl_config.driver_path, path,
                 SDL_arraysize(_this->gl_config.driver_path));
@@ -256,10 +249,11 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
 
 void *WIN_GL_GetProcAddress(_THIS, const char *proc)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     void *func;
 
     /* This is to pick up extensions */
-    func = _this->gl_data->wglGetProcAddress(proc);
+    func = wgl_data->wglGetProcAddress(proc);
     if (!func) {
         /* This is probably a normal GL function */
         func = SDL_LoadFunction(_this->gl_config.dll_handle, proc);
@@ -269,12 +263,12 @@ void *WIN_GL_GetProcAddress(_THIS, const char *proc)
 
 void WIN_GL_UnloadLibrary(_THIS)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+
     SDL_UnloadObject(_this->gl_config.dll_handle);
     _this->gl_config.dll_handle = NULL;
 
-    /* Free OpenGL memory */
-    SDL_free(_this->gl_data);
-    _this->gl_data = NULL;
+    SDL_zero(*wgl_data);
 }
 
 static void WIN_GL_SetupPixelFormat(_THIS, PIXELFORMATDESCRIPTOR *pfd)
@@ -317,6 +311,9 @@ static void WIN_GL_SetupPixelFormat(_THIS, PIXELFORMATDESCRIPTOR *pfd)
 */
 static int WIN_GL_ChoosePixelFormat(_THIS, HDC hdc, PIXELFORMATDESCRIPTOR *target)
 {
+#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+#endif
     PIXELFORMATDESCRIPTOR pfd;
     int count, index, best = 0;
     unsigned int dist, best_dist = ~0U;
@@ -453,6 +450,7 @@ static SDL_bool HasExtension(const char *extension, const char *extensions)
 
 static void WIN_GL_InitExtensions(_THIS)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     /* *INDENT-OFF* */ /* clang-format off */
     const char *(WINAPI * wglGetExtensionsStringARB)(HDC) = 0;
     /* *INDENT-ON* */ /* clang-format on */
@@ -461,8 +459,6 @@ static void WIN_GL_InitExtensions(_THIS)
     HDC hdc;
     HGLRC hglrc;
     PIXELFORMATDESCRIPTOR pfd;
-
-    SDL_assert(_this->gl_data != NULL);
 
     hwnd =
         CreateWindow(SDL_Appname, SDL_Appname, (WS_POPUP | WS_DISABLED), 0, 0,
@@ -478,15 +474,15 @@ static void WIN_GL_InitExtensions(_THIS)
 
     SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
 
-    hglrc = _this->gl_data->wglCreateContext(hdc);
+    hglrc = wgl_data->wglCreateContext(hdc);
     if (!hglrc) {
         return;
     }
-    _this->gl_data->wglMakeCurrent(hdc, hglrc);
+    wgl_data->wglMakeCurrent(hdc, hglrc);
 
     /* *INDENT-OFF* */ /* clang-format off */
     wglGetExtensionsStringARB = (const char *(WINAPI *)(HDC))
-        _this->gl_data->wglGetProcAddress("wglGetExtensionsStringARB");
+        wgl_data->wglGetProcAddress("wglGetExtensionsStringARB");
     /* *INDENT-ON* */ /* clang-format on */
     if (wglGetExtensionsStringARB) {
         extensions = wglGetExtensionsStringARB(hdc);
@@ -495,62 +491,62 @@ static void WIN_GL_InitExtensions(_THIS)
     }
 
     /* Check for WGL_ARB_pixel_format */
-    _this->gl_data->HAS_WGL_ARB_pixel_format = SDL_FALSE;
+    wgl_data->HAS_WGL_ARB_pixel_format = SDL_FALSE;
     if (HasExtension("WGL_ARB_pixel_format", extensions)) {
         /* *INDENT-OFF* */ /* clang-format off */
-        _this->gl_data->wglChoosePixelFormatARB =
+        wgl_data->wglChoosePixelFormatARB =
             (BOOL (WINAPI *)(HDC, const int *, const FLOAT *, UINT, int *, UINT *))
             WIN_GL_GetProcAddress(_this, "wglChoosePixelFormatARB");
-        _this->gl_data->wglGetPixelFormatAttribivARB =
+        wgl_data->wglGetPixelFormatAttribivARB =
             (BOOL (WINAPI *)(HDC, int, int, UINT, const int *, int *))
             WIN_GL_GetProcAddress(_this, "wglGetPixelFormatAttribivARB");
         /* *INDENT-ON* */ /* clang-format on */
 
-        if ((_this->gl_data->wglChoosePixelFormatARB != NULL) &&
-            (_this->gl_data->wglGetPixelFormatAttribivARB != NULL)) {
-            _this->gl_data->HAS_WGL_ARB_pixel_format = SDL_TRUE;
+        if ((wgl_data->wglChoosePixelFormatARB != NULL) &&
+            (wgl_data->wglGetPixelFormatAttribivARB != NULL)) {
+            wgl_data->HAS_WGL_ARB_pixel_format = SDL_TRUE;
         }
     }
 
     /* Check for WGL_EXT_swap_control */
-    _this->gl_data->HAS_WGL_EXT_swap_control_tear = SDL_FALSE;
+    wgl_data->HAS_WGL_EXT_swap_control_tear = SDL_FALSE;
     if (HasExtension("WGL_EXT_swap_control", extensions)) {
-        _this->gl_data->wglSwapIntervalEXT =
+        wgl_data->wglSwapIntervalEXT =
             WIN_GL_GetProcAddress(_this, "wglSwapIntervalEXT");
-        _this->gl_data->wglGetSwapIntervalEXT =
+        wgl_data->wglGetSwapIntervalEXT =
             WIN_GL_GetProcAddress(_this, "wglGetSwapIntervalEXT");
         if (HasExtension("WGL_EXT_swap_control_tear", extensions)) {
-            _this->gl_data->HAS_WGL_EXT_swap_control_tear = SDL_TRUE;
+            wgl_data->HAS_WGL_EXT_swap_control_tear = SDL_TRUE;
         }
     } else {
-        _this->gl_data->wglSwapIntervalEXT = NULL;
-        _this->gl_data->wglGetSwapIntervalEXT = NULL;
+        wgl_data->wglSwapIntervalEXT = NULL;
+        wgl_data->wglGetSwapIntervalEXT = NULL;
     }
 
     /* Check for WGL_EXT_create_context_es2_profile */
     if (HasExtension("WGL_EXT_create_context_es2_profile", extensions)) {
         SDL_GL_DeduceMaxSupportedESProfile(
-            &_this->gl_data->es_profile_max_supported_version.major,
-            &_this->gl_data->es_profile_max_supported_version.minor);
+            &wgl_data->es_profile_max_supported_version.major,
+            &wgl_data->es_profile_max_supported_version.minor);
     }
 
     /* Check for WGL_ARB_context_flush_control */
     if (HasExtension("WGL_ARB_context_flush_control", extensions)) {
-        _this->gl_data->HAS_WGL_ARB_context_flush_control = SDL_TRUE;
+        wgl_data->HAS_WGL_ARB_context_flush_control = SDL_TRUE;
     }
 
     /* Check for WGL_ARB_create_context_robustness */
     if (HasExtension("WGL_ARB_create_context_robustness", extensions)) {
-        _this->gl_data->HAS_WGL_ARB_create_context_robustness = SDL_TRUE;
+        wgl_data->HAS_WGL_ARB_create_context_robustness = SDL_TRUE;
     }
 
     /* Check for WGL_ARB_create_context_no_error */
     if (HasExtension("WGL_ARB_create_context_no_error", extensions)) {
-        _this->gl_data->HAS_WGL_ARB_create_context_no_error = SDL_TRUE;
+        wgl_data->HAS_WGL_ARB_create_context_no_error = SDL_TRUE;
     }
 
-    _this->gl_data->wglMakeCurrent(hdc, NULL);
-    _this->gl_data->wglDeleteContext(hglrc);
+    wgl_data->wglMakeCurrent(hdc, NULL);
+    wgl_data->wglDeleteContext(hglrc);
     ReleaseDC(hwnd, hdc);
     DestroyWindow(hwnd);
     WIN_PumpEvents(_this);
@@ -558,6 +554,7 @@ static void WIN_GL_InitExtensions(_THIS)
 
 static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     HWND hwnd;
     HDC hdc;
     PIXELFORMATDESCRIPTOR pfd;
@@ -579,22 +576,22 @@ static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
 
     SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
 
-    hglrc = _this->gl_data->wglCreateContext(hdc);
+    hglrc = wgl_data->wglCreateContext(hdc);
     if (hglrc) {
-        _this->gl_data->wglMakeCurrent(hdc, hglrc);
+        wgl_data->wglMakeCurrent(hdc, hglrc);
 
-        if (_this->gl_data->HAS_WGL_ARB_pixel_format) {
-            _this->gl_data->wglChoosePixelFormatARB(hdc, iAttribs, fAttribs,
+        if (wgl_data->HAS_WGL_ARB_pixel_format) {
+            wgl_data->wglChoosePixelFormatARB(hdc, iAttribs, fAttribs,
                                                     1, &pixel_format,
                                                     &matching);
 
             /* Check whether we actually got an SRGB capable buffer */
-            _this->gl_data->wglGetPixelFormatAttribivARB(hdc, pixel_format, 0, 1, &qAttrib, &srgb);
+            wgl_data->wglGetPixelFormatAttribivARB(hdc, pixel_format, 0, 1, &qAttrib, &srgb);
             _this->gl_config.framebuffer_srgb_capable = srgb;
         }
 
-        _this->gl_data->wglMakeCurrent(hdc, NULL);
-        _this->gl_data->wglDeleteContext(hglrc);
+        wgl_data->wglMakeCurrent(hdc, NULL);
+        wgl_data->wglDeleteContext(hglrc);
     }
     ReleaseDC(hwnd, hdc);
     DestroyWindow(hwnd);
@@ -606,6 +603,9 @@ static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
 /* actual work of WIN_GL_SetupWindow() happens here. */
 static int WIN_GL_SetupWindowInternal(_THIS, SDL_Window *window)
 {
+#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+#endif
     HDC hdc = ((SDL_WindowData *)window->driverdata)->hdc;
     PIXELFORMATDESCRIPTOR pfd;
     int pixel_format = 0;
@@ -735,16 +735,18 @@ int WIN_GL_SetupWindow(_THIS, SDL_Window *window)
 
 SDL_bool WIN_GL_UseEGL(_THIS)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
         return SDL_FALSE;
     }
     return _this->gl_data == NULL ||
         SDL_GetHintBoolean(SDL_HINT_OPENGL_ES_DRIVER, SDL_FALSE) ||
-        _this->gl_config.major_version == 1 || _this->gl_config.major_version > _this->gl_data->es_profile_max_supported_version.major || (_this->gl_config.major_version == _this->gl_data->es_profile_max_supported_version.major && _this->gl_config.minor_version > _this->gl_data->es_profile_max_supported_version.minor); /* No WGL extension for OpenGL ES 1.x profiles. */
+        _this->gl_config.major_version == 1 || _this->gl_config.major_version > wgl_data->es_profile_max_supported_version.major || (_this->gl_config.major_version == wgl_data->es_profile_max_supported_version.major && _this->gl_config.minor_version > wgl_data->es_profile_max_supported_version.minor); /* No WGL extension for OpenGL ES 1.x profiles. */
 }
 
 SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     HDC hdc = ((SDL_WindowData *)window->driverdata)->hdc;
     HGLRC context, share_context;
 
@@ -772,13 +774,13 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
         _this->gl_config.profile_mask == 0 &&
         _this->gl_config.flags == 0) {
         /* Create legacy context */
-        context = _this->gl_data->wglCreateContext(hdc);
+        context = wgl_data->wglCreateContext(hdc);
         if (share_context != 0) {
-            _this->gl_data->wglShareLists(share_context, context);
+            wgl_data->wglShareLists(share_context, context);
         }
     } else {
         PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
-        HGLRC temp_context = _this->gl_data->wglCreateContext(hdc);
+        HGLRC temp_context = wgl_data->wglCreateContext(hdc);
         if (!temp_context) {
             SDL_SetError("Could not create GL context");
             return NULL;
@@ -791,7 +793,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
         }
 
         wglCreateContextAttribsARB =
-            (PFNWGLCREATECONTEXTATTRIBSARBPROC)_this->gl_data->wglGetProcAddress("wglCreateContextAttribsARB");
+            (PFNWGLCREATECONTEXTATTRIBSARBPROC)wgl_data->wglGetProcAddress("wglCreateContextAttribsARB");
         if (!wglCreateContextAttribsARB) {
             SDL_SetError("GL 3.x is not supported");
             context = temp_context;
@@ -817,19 +819,19 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
             }
 
             /* only set if wgl extension is available and not the default setting */
-            if ((_this->gl_data->HAS_WGL_ARB_context_flush_control) && (_this->gl_config.release_behavior == 0)) {
+            if ((wgl_data->HAS_WGL_ARB_context_flush_control) && (_this->gl_config.release_behavior == 0)) {
                 attribs[iattr++] = WGL_CONTEXT_RELEASE_BEHAVIOR_ARB;
                 attribs[iattr++] = _this->gl_config.release_behavior ? WGL_CONTEXT_RELEASE_BEHAVIOR_FLUSH_ARB : WGL_CONTEXT_RELEASE_BEHAVIOR_NONE_ARB;
             }
 
             /* only set if wgl extension is available and not the default setting */
-            if ((_this->gl_data->HAS_WGL_ARB_create_context_robustness) && (_this->gl_config.reset_notification != 0)) {
+            if ((wgl_data->HAS_WGL_ARB_create_context_robustness) && (_this->gl_config.reset_notification != 0)) {
                 attribs[iattr++] = WGL_CONTEXT_RESET_NOTIFICATION_STRATEGY_ARB;
                 attribs[iattr++] = _this->gl_config.reset_notification ? WGL_LOSE_CONTEXT_ON_RESET_ARB : WGL_NO_RESET_NOTIFICATION_ARB;
             }
 
             /* only set if wgl extension is available and not the default setting */
-            if ((_this->gl_data->HAS_WGL_ARB_create_context_no_error) && (_this->gl_config.no_error != 0)) {
+            if ((wgl_data->HAS_WGL_ARB_create_context_no_error) && (_this->gl_config.no_error != 0)) {
                 attribs[iattr++] = WGL_CONTEXT_OPENGL_NO_ERROR_ARB;
                 attribs[iattr++] = _this->gl_config.no_error;
             }
@@ -839,7 +841,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
             /* Create the GL 3.x context */
             context = wglCreateContextAttribsARB(hdc, share_context, attribs);
             /* Delete the GL 2.x context */
-            _this->gl_data->wglDeleteContext(temp_context);
+            wgl_data->wglDeleteContext(temp_context);
         }
     }
 
@@ -858,11 +860,10 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
 
 int WIN_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     HDC hdc;
 
-    if (!_this->gl_data) {
-        return SDL_SetError("OpenGL not initialized");
-    }
+    SDL_assert(wgl_data->wglMakeCurrent != NULL);
 
     /* sanity check that higher level handled this. */
     SDL_assert(window || (window == NULL && !context));
@@ -880,7 +881,7 @@ int WIN_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     }
 
     hdc = ((SDL_WindowData *)window->driverdata)->hdc;
-    if (!_this->gl_data->wglMakeCurrent(hdc, (HGLRC)context)) {
+    if (!wgl_data->wglMakeCurrent(hdc, (HGLRC)context)) {
         return WIN_SetError("wglMakeCurrent()");
     }
     return 0;
@@ -888,10 +889,11 @@ int WIN_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 
 int WIN_GL_SetSwapInterval(_THIS, int interval)
 {
-    if ((interval < 0) && (!_this->gl_data->HAS_WGL_EXT_swap_control_tear)) {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+    if ((interval < 0) && (!wgl_data->HAS_WGL_EXT_swap_control_tear)) {
         return SDL_SetError("Negative swap interval unsupported in this GL");
-    } else if (_this->gl_data->wglSwapIntervalEXT) {
-        if (_this->gl_data->wglSwapIntervalEXT(interval) != TRUE) {
+    } else if (wgl_data->wglSwapIntervalEXT) {
+        if (wgl_data->wglSwapIntervalEXT(interval) != TRUE) {
             return WIN_SetError("wglSwapIntervalEXT()");
         }
     } else {
@@ -902,15 +904,19 @@ int WIN_GL_SetSwapInterval(_THIS, int interval)
 
 int WIN_GL_GetSwapInterval(_THIS)
 {
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     int retval = 0;
-    if (_this->gl_data->wglGetSwapIntervalEXT) {
-        retval = _this->gl_data->wglGetSwapIntervalEXT();
+    if (wgl_data->wglGetSwapIntervalEXT) {
+        retval = wgl_data->wglGetSwapIntervalEXT();
     }
     return retval;
 }
 
 int WIN_GL_SwapWindow(_THIS, SDL_Window *window)
 {
+#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+#endif
     HDC hdc = ((SDL_WindowData *)window->driverdata)->hdc;
 
     if (!SwapBuffers(hdc)) {
@@ -921,13 +927,17 @@ int WIN_GL_SwapWindow(_THIS, SDL_Window *window)
 
 void WIN_GL_DeleteContext(_THIS, SDL_GLContext context)
 {
-    if (_this->gl_data) {
-        _this->gl_data->wglDeleteContext((HGLRC)context);
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+    if (wgl_data->wglDeleteContext) {
+        wgl_data->wglDeleteContext((HGLRC)context);
     }
 }
 
 SDL_bool WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow)
 {
+#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+    SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
+#endif
     HDC hfromdc = ((SDL_WindowData *)fromWindow->driverdata)->hdc;
     HDC htodc = ((SDL_WindowData *)toWindow->driverdata)->hdc;
     BOOL result;

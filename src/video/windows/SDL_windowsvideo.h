@@ -347,6 +347,9 @@ typedef struct WIN_VideoData
     HRESULT (WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness);
 #endif                /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
+#ifdef SDL_VIDEO_OPENGL_WGL
+    SDL_GLDriverData wgl_data;
+#endif
     SDL_bool dpi_scaling_enabled;
     SDL_bool cleared;
 } WIN_VideoData;
