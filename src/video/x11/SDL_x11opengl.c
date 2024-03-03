@@ -872,14 +872,13 @@ int X11_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
    with 0 as an argument.
 */
 
-static int swapinterval = 0;
 int X11_GL_SetSwapInterval(int interval)
 {
     SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
-    int status = -1;
+    int status;
 
     if ((interval < 0) && (!glx_data->HAS_GLX_EXT_swap_control_tear)) {
-        SDL_SetError("Negative swap interval unsupported in this GL");
+        status = SDL_SetError("Negative swap interval unsupported in this GL");
     } else if (glx_data->glXSwapIntervalEXT) {
         Display *display = x11VideoData.display;
         const SDL_WindowData *windowdata = (SDL_WindowData *)
@@ -900,23 +899,23 @@ int X11_GL_SetSwapInterval(int interval)
         glx_data->glXSwapIntervalEXT(display, drawable, currentInterval);
         glx_data->glXSwapIntervalEXT(display, drawable, interval);
         status = 0;
-        swapinterval = interval;
+        glx_data->swapinterval = interval;
     } else if (glx_data->glXSwapIntervalMESA) {
         status = glx_data->glXSwapIntervalMESA(interval);
         if (status != 0) {
-            SDL_SetError("glXSwapIntervalMESA failed");
+            status = SDL_SetError("glXSwapIntervalMESA failed");
         } else {
-            swapinterval = interval;
+            glx_data->swapinterval = interval;
         }
     } else if (glx_data->glXSwapIntervalSGI) {
         status = glx_data->glXSwapIntervalSGI(interval);
         if (status != 0) {
-            SDL_SetError("glXSwapIntervalSGI failed");
+            status = SDL_SetError("glXSwapIntervalSGI failed");
         } else {
-            swapinterval = interval;
+            glx_data->swapinterval = interval;
         }
     } else {
-        SDL_Unsupported();
+        status = SDL_Unsupported();
     }
     return status;
 }
@@ -1008,7 +1007,7 @@ int X11_GL_GetSwapInterval(void)
     } else if (glx_data->glXGetSwapIntervalMESA) {
         return glx_data->glXGetSwapIntervalMESA();
     } else {
-        return swapinterval;
+        return glx_data->swapinterval;
     }
 }
 
