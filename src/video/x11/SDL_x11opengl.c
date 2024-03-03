@@ -261,7 +261,6 @@ int X11_GL_PrivateLoadLibrary(_THIS, const char *path)
     glx_data->swap_interval_tear_behavior = SDL_SWAPINTERVALTEAR_UNTESTED;
 
     _this->gl_config.dll_handle = handle;
-    _this->gl_data = glx_data;
 
     SDL_strlcpy(_this->gl_config.driver_path, path,
                 SDL_arraysize(_this->gl_config.driver_path));
@@ -302,7 +301,6 @@ void X11_GL_UnloadLibrary(_THIS)
     /* Free OpenGL memory */
     SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
     SDL_zero(*glx_data);
-    _this->gl_data = NULL;
 }
 
 static SDL_bool HasExtension(const char *extension, const char *extensions)
@@ -701,7 +699,7 @@ SDL_bool X11_GL_UseEGL(_THIS)
         return SDL_FALSE;
     }
 
-    return _this->gl_data == NULL ||
+    return _this->gl_config.gl_type != 0 ||
         SDL_GetHintBoolean(SDL_HINT_OPENGL_ES_DRIVER, SDL_FALSE) ||
         _this->gl_config.major_version == 1 || /* No GLX extension for OpenGL ES 1.x profiles. */
         _this->gl_config.major_version > glx_data->es_profile_max_supported_version.major || (_this->gl_config.major_version == glx_data->es_profile_max_supported_version.major && _this->gl_config.minor_version > glx_data->es_profile_max_supported_version.minor);

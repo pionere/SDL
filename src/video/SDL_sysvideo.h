@@ -426,10 +426,6 @@ struct SDL_VideoDevice
     SDL_TLSID current_glwin_tls;
     SDL_TLSID current_glctx_tls;
 
-    /* * * */
-    /* Data private to this driver */
-    struct SDL_GLDriverData *gl_data;
-
 #endif // SDL_VIDEO_OPENGL_ANY
     /* * * */
     /* The function used to dispose of this structure */

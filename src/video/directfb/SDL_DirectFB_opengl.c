@@ -79,7 +79,6 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 
     SDL_DFB_DEBUG("Loaded library: %s\n", path);
 
-    _this->gl_data = fbgl_data;
     _this->gl_config.dll_handle = handle;
     if (path) {
         SDL_strlcpy(_this->gl_config.driver_path, path,
@@ -103,7 +102,6 @@ void DirectFB_GL_UnloadLibrary(_THIS)
     _this->gl_config.dll_handle = NULL;
 
     SDL_zero(*fbgl_data);
-    _this->gl_data = NULL;
 }
 
 void *DirectFB_GL_GetProcAddress(_THIS, const char *proc)

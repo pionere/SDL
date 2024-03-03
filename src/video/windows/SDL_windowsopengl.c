@@ -201,7 +201,6 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
     }
 
     _this->gl_config.dll_handle = handle;
-    _this->gl_data = wgl_data;
 
     SDL_strlcpy(_this->gl_config.driver_path, path,
                 SDL_arraysize(_this->gl_config.driver_path));
@@ -269,7 +268,6 @@ void WIN_GL_UnloadLibrary(_THIS)
     _this->gl_config.dll_handle = NULL;
 
     SDL_zero(*wgl_data);
-    _this->gl_data = NULL;
 }
 
 static void WIN_GL_SetupPixelFormat(_THIS, PIXELFORMATDESCRIPTOR *pfd)
@@ -740,7 +738,7 @@ SDL_bool WIN_GL_UseEGL(_THIS)
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES) {
         return SDL_FALSE;
     }
-    return _this->gl_data == NULL ||
+    return _this->gl_config.gl_type != 0 ||
         SDL_GetHintBoolean(SDL_HINT_OPENGL_ES_DRIVER, SDL_FALSE) ||
         _this->gl_config.major_version == 1 || _this->gl_config.major_version > wgl_data->es_profile_max_supported_version.major || (_this->gl_config.major_version == wgl_data->es_profile_max_supported_version.major && _this->gl_config.minor_version > wgl_data->es_profile_max_supported_version.minor); /* No WGL extension for OpenGL ES 1.x profiles. */
 }
