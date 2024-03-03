@@ -30,7 +30,7 @@
 #include "../SDL_sysvideo.h"
 #include "SDL_scancode.h"
 #include "SDL_render.h"
-
+#include "SDL_DirectFB_opengl.h"
 
 #define DFB_VERSIONNUM(X, Y, Z)                     \
     ((X)*1000 + (Y)*100 + (Z))
@@ -150,6 +150,10 @@ typedef struct DFB_VideoData
 
     /* global events */
     IDirectFBEventBuffer *events;
+    /* fbgl_data */
+#ifdef SDL_DIRECTFB_OPENGL
+    SDL_GLDriverData fbgl_data;
+#endif
 } DFB_VideoData;
 
 extern DFB_VideoData dfbVideoData;

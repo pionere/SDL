@@ -269,6 +269,7 @@ void WIN_GL_UnloadLibrary(_THIS)
     _this->gl_config.dll_handle = NULL;
 
     SDL_zero(*wgl_data);
+    _this->gl_data = NULL;
 }
 
 static void WIN_GL_SetupPixelFormat(_THIS, PIXELFORMATDESCRIPTOR *pfd)

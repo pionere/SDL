@@ -415,7 +415,7 @@ void DirectFB_DestroyWindow(_THIS, SDL_Window * window)
     SDL_DFB_CHECK(dfbwin->UngrabKeyboard(dfbwin));
 
 #ifdef SDL_DIRECTFB_OPENGL
-    DirectFB_GL_DestroyWindowContexts(_this, window);
+    DirectFB_GL_DestroyWindowContexts(window);
 #endif
 
     if (window->shaper)

@@ -55,18 +55,9 @@ struct SDL_GLDriverData
 int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 {
     void *handle;
-    SDL_GLDriverData *gldata;
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
 
     SDL_DFB_DEBUG("Loadlibrary : %s\n", path);
-
-    gldata =
-        (struct SDL_GLDriverData *) SDL_calloc(1,
-                                               sizeof(struct
-                                                      SDL_GLDriverData));
-    if (!gldata) {
-        return SDL_OutOfMemory();
-    }
-    // gldata->firstgl = NULL;
 
     if (!path) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
@@ -78,18 +69,17 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
     handle = GL_LoadObject(path);
     if (!handle) {
         /* SDL_LoadObject() will call SDL_SetError() for us. */
-        SDL_DFB_FREE(gldata);
         return -1;
     }
 
 #if 0
-    gldata->glFinish = DirectFB_GL_GetProcAddress(_this, "glFinish");
-    gldata->glFlush = DirectFB_GL_GetProcAddress(_this, "glFlush");
+    fbgl_data->glFinish = DirectFB_GL_GetProcAddress(_this, "glFinish");
+    fbgl_data->glFlush = DirectFB_GL_GetProcAddress(_this, "glFlush");
 #endif
 
     SDL_DFB_DEBUG("Loaded library: %s\n", path);
 
-    _this->gl_data = gldata;
+    _this->gl_data = fbgl_data;
     _this->gl_config.dll_handle = handle;
     if (path) {
         SDL_strlcpy(_this->gl_config.driver_path, path,
@@ -107,11 +97,12 @@ int DirectFB_GL_LoadLibrary(_THIS, const char *path)
 
 void DirectFB_GL_UnloadLibrary(_THIS)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
+
     GL_UnloadObject(_this->gl_config.dll_handle);
     _this->gl_config.dll_handle = NULL;
 
-    /* Free OpenGL memory */
-    SDL_free(_this->gl_data);
+    SDL_zero(*fbgl_data);
     _this->gl_data = NULL;
 }
 
@@ -125,6 +116,7 @@ void *DirectFB_GL_GetProcAddress(_THIS, const char *proc)
 
 SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DirectFB_GLContext *context;
 
@@ -141,8 +133,8 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
     // context->is_locked = 0;
     context->sdl_window = window;
 
-    context->next = _this->gl_data->firstgl;
-    _this->gl_data->firstgl = context;
+    context->next = fbgl_data->firstgl;
+    fbgl_data->firstgl = context;
 
     SDL_DFB_CHECK(context->context->Unlock(context->context));
 
@@ -159,10 +151,11 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
 
 int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *ctx = (DirectFB_GLContext *) context;
     DirectFB_GLContext *p;
 
-    for (p = _this->gl_data->firstgl; p; p = p->next)
+    for (p = fbgl_data->firstgl; p; p = p->next)
     {
        if (p->is_locked) {
          SDL_DFB_CHECKERR(p->context->Unlock(p->context));
@@ -193,17 +186,18 @@ int DirectFB_GL_GetSwapInterval(_THIS)
 
 int DirectFB_GL_SwapWindow(_THIS, SDL_Window * window)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     DirectFB_GLContext *p;
 
 #if 0
-    if (devdata->glFinish)
-        devdata->glFinish();
-    else if (devdata->glFlush)
-        devdata->glFlush();
+    if (fbgl_data->glFinish)
+        fbgl_data->glFinish();
+    else if (fbgl_data->glFlush)
+        fbgl_data->glFlush();
 #endif
 
-    for (p = _this->gl_data->firstgl; p; p = p->next)
+    for (p = fbgl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window && p->is_locked)
         {
             SDL_DFB_CHECKERR(p->context->Unlock(p->context));
@@ -218,6 +212,7 @@ int DirectFB_GL_SwapWindow(_THIS, SDL_Window * window)
 
 void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *ctx = (DirectFB_GLContext *) context;
     DirectFB_GLContext *p;
 
@@ -225,22 +220,22 @@ void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context)
         SDL_DFB_CHECK(ctx->context->Unlock(ctx->context));
     SDL_DFB_RELEASE(ctx->context);
 
-    for (p = _this->gl_data->firstgl; p && p->next != ctx; p = p->next)
+    for (p = fbgl_data->firstgl; p && p->next != ctx; p = p->next)
         ;
     if (p)
         p->next = ctx->next;
     else
-        _this->gl_data->firstgl = ctx->next;
+        fbgl_data->firstgl = ctx->next;
 
     SDL_DFB_FREE(ctx);
 }
 
 void DirectFB_GL_FreeWindowContexts(SDL_Window * window)
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *p;
 
-    for (p = _this->gl_data->firstgl; p; p = p->next)
+    for (p = fbgl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window)
         {
             if (p->is_locked)
@@ -251,10 +246,10 @@ void DirectFB_GL_FreeWindowContexts(SDL_Window * window)
 
 void DirectFB_GL_ReAllocWindowContexts(SDL_Window * window)
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *p;
 
-    for (p = _this->gl_data->firstgl; p; p = p->next)
+    for (p = fbgl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window)
         {
             DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
@@ -262,14 +257,15 @@ void DirectFB_GL_ReAllocWindowContexts(SDL_Window * window)
                                              &p->context));
             if (p->is_locked)
                 SDL_DFB_CHECK(p->context->Lock(p->context));
-            }
+        }
 }
 
-void DirectFB_GL_DestroyWindowContexts(_THIS, SDL_Window * window)
+void DirectFB_GL_DestroyWindowContexts(SDL_Window * window)
 {
+    SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *p;
 
-    for (p = _this->gl_data->firstgl; p; p = p->next)
+    for (p = fbgl_data->firstgl; p; p = p->next)
         if (p->sdl_window == window)
             DirectFB_GL_DeleteContext(_this, p);
 }

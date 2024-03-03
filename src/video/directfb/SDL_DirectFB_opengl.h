@@ -27,15 +27,14 @@
 
 #include "../SDL_sysvideo.h"
 
-typedef struct _DirectFB_GLContext DirectFB_GLContext;
-struct _DirectFB_GLContext
+typedef struct DirectFB_GLContext
 {
     IDirectFBGL         *context;
     DirectFB_GLContext  *next;
 
     SDL_Window          *sdl_window;
     int                 is_locked;
-};
+} DirectFB_GLContext;
 
 /* OpenGL functions */
 extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
@@ -51,7 +50,7 @@ extern void DirectFB_GL_DeleteContext(_THIS, SDL_GLContext context);
 
 extern void DirectFB_GL_FreeWindowContexts(SDL_Window * window);
 extern void DirectFB_GL_ReAllocWindowContexts(SDL_Window * window);
-extern void DirectFB_GL_DestroyWindowContexts(_THIS, SDL_Window * window);
+extern void DirectFB_GL_DestroyWindowContexts(SDL_Window * window);
 
 #endif /* SDL_DIRECTFB_OPENGL */
 

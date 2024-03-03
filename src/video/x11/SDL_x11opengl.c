@@ -302,6 +302,7 @@ void X11_GL_UnloadLibrary(_THIS)
     /* Free OpenGL memory */
     SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
     SDL_zero(*glx_data);
+    _this->gl_data = NULL;
 }
 
 static SDL_bool HasExtension(const char *extension, const char *extensions)
