@@ -103,14 +103,19 @@ int Cocoa_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path)
                     SDL_arraysize(vulkan_config->loader_path));
         vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_LoadFunction(
             vulkan_config->loader_handle, "vkGetInstanceProcAddr");
-    }
-
-    if (!vkGetInstanceProcAddr) {
-        SDL_SetError("Failed to find %s in either executable or %s: %s",
-                     "vkGetInstanceProcAddr",
-                     vulkan_config->loader_path,
-                     (const char *) dlerror());
-        goto fail;
+         if (!vkGetInstanceProcAddr) {
+             const char* msg;
+             if (paths == defaultPaths) {
+                 msg = "Failed to find %s in either executable or %s: %s";
+             } else {
+                 msg = "Failed to find %s in %s: %s";
+             }
+             SDL_SetError(msg,
+                          "vkGetInstanceProcAddr",
+                          foundPath,
+                          (const char *) dlerror());
+             goto fail;
+         }
     }
 
     vulkan_config->vkGetInstanceProcAddr = vkGetInstanceProcAddr;
