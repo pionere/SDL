@@ -272,7 +272,7 @@ struct SDL_VideoDevice
     /* Get some platform dependent window information */
     SDL_bool(*GetWindowWMInfo) (SDL_Window * window,
                                 struct SDL_SysWMinfo * info);
-
+#ifdef SDL_VIDEO_OPENGL_ANY
     /* * * */
     /*
      * OpenGL support
@@ -288,6 +288,7 @@ struct SDL_VideoDevice
     int (*GL_SwapWindow) (_THIS, SDL_Window * window);
     void (*GL_DeleteContext) (SDL_GLContext context);
     void (*GL_DefaultProfileConfig) (int *mask, int *major, int *minor);
+#endif
 #ifdef SDL_VIDEO_VULKAN
     /* * * */
     /*
