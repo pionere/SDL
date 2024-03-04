@@ -1475,7 +1475,7 @@ void Android_DetectDevices(void)
 
 int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spec)
 {
-    int audioformat;
+    int audioformat, len;
     jobject jbufobj = NULL;
     jobject result;
     int *resultElements;
@@ -1508,9 +1508,9 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
         /* Error during audio initialization, error printed from Java */
         return SDL_SetError("Java-side initialization failed");
     }
-
-    if ((*env)->GetArrayLength(env, (jintArray)result) != 4) {
-        return SDL_SetError("Unexpected results from Java, expected 4, got %d", (*env)->GetArrayLength(env, (jintArray)result));
+    len = (*env)->GetArrayLength(env, (jintArray)result);
+    if (len != 4) {
+        return SDL_SetError("Unexpected results from Java, expected 4, got %d", len);
     }
     isCopy = JNI_FALSE;
     resultElements = (*env)->GetIntArrayElements(env, (jintArray)result, &isCopy);
@@ -1527,7 +1527,7 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
         spec->format = AUDIO_F32;
         break;
     default:
-        return SDL_SetError("Unexpected audio format from Java: %d\n", audioformat);
+        return SDL_SetError("Unexpected audio format from Java: %d", audioformat);
     }
     spec->channels = resultElements[2];
     spec->samples = resultElements[3];
@@ -1562,7 +1562,7 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
         }
     } break;
     default:
-        return SDL_SetError("Unexpected audio format from Java: %d\n", audioformat);
+        SDL_assert(!"Unexpected audio format from Java: %d");
     }
 
     if (!jbufobj) {
@@ -1592,7 +1592,7 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
             audioBufferPinned = (*env)->GetFloatArrayElements(env, (jfloatArray)audioBuffer, &isCopy);
             break;
         default:
-            return SDL_SetError("Unexpected audio format from Java: %d\n", audioformat);
+            SDL_assert(!"Unexpected audio format from Java: %d");
         }
     }
     return 0;
