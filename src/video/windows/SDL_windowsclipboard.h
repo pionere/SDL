@@ -23,9 +23,9 @@
 #ifndef SDL_windowsclipboard_h_
 #define SDL_windowsclipboard_h_
 
-extern int WIN_SetClipboardText(_THIS, const char *text);
-extern char *WIN_GetClipboardText(_THIS);
-extern SDL_bool WIN_HasClipboardText(_THIS);
+extern int WIN_SetClipboardText(const char *text);
+extern char *WIN_GetClipboardText(void);
+extern SDL_bool WIN_HasClipboardText(void);
 
 extern void WIN_CheckClipboardUpdate(void);
 

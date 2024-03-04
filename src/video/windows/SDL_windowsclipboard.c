@@ -44,7 +44,7 @@ static HWND GetWindowHandle()
     return NULL;
 }
 
-int WIN_SetClipboardText(_THIS, const char *text)
+int WIN_SetClipboardText(const char *text)
 {
     WIN_VideoData *data = &winVideoData;
     int result = 0;
@@ -100,7 +100,7 @@ int WIN_SetClipboardText(_THIS, const char *text)
     return result;
 }
 
-char *WIN_GetClipboardText(_THIS)
+char *WIN_GetClipboardText(void)
 {
     char *text;
 
@@ -126,10 +126,10 @@ char *WIN_GetClipboardText(_THIS)
     return text;
 }
 
-SDL_bool WIN_HasClipboardText(_THIS)
+SDL_bool WIN_HasClipboardText(void)
 {
     SDL_bool result = SDL_FALSE;
-    char *text = WIN_GetClipboardText(_this);
+    char *text = WIN_GetClipboardText();
     if (text) {
         result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
         SDL_free(text);

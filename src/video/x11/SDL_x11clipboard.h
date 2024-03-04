@@ -34,9 +34,9 @@ enum ESDLX11ClipboardMimeType
     SDL_X11_CLIPBOARD_MIME_TYPE_MAX
 };
 
-extern int X11_SetClipboardText(_THIS, const char *text);
-extern char *X11_GetClipboardText(_THIS);
-extern SDL_bool X11_HasClipboardText(_THIS);
+extern int X11_SetClipboardText(const char *text);
+extern char *X11_GetClipboardText(void);
+extern SDL_bool X11_HasClipboardText(void);
 extern int X11_SetPrimarySelectionText(const char *text);
 extern char *X11_GetPrimarySelectionText(void);
 extern SDL_bool X11_HasPrimarySelectionText(void);

@@ -31,7 +31,7 @@
 static id clipboard_observer = nil;
 #endif
 
-int UIKit_SetClipboardText(_THIS, const char *text)
+int UIKit_SetClipboardText(const char *text)
 {
 #if TARGET_OS_TV
     return SDL_SetError("The clipboard is not available on tvOS");
@@ -43,7 +43,7 @@ int UIKit_SetClipboardText(_THIS, const char *text)
 #endif
 }
 
-char *UIKit_GetClipboardText(_THIS)
+char *UIKit_GetClipboardText(void)
 {
 #if TARGET_OS_TV
     return SDL_strdup(""); // Unsupported.
@@ -61,7 +61,7 @@ char *UIKit_GetClipboardText(_THIS)
 #endif
 }
 
-SDL_bool UIKit_HasClipboardText(_THIS)
+SDL_bool UIKit_HasClipboardText(void)
 {
     @autoreleasepool {
 #if !TARGET_OS_TV

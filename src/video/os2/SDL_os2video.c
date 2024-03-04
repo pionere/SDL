@@ -1361,7 +1361,7 @@ static int OS2_UpdateWindowFramebuffer(SDL_Window * window,
 
 /* Clipboard
  */
-static int OS2_SetClipboardText(_THIS, const char *text)
+static int OS2_SetClipboardText(const char *text)
 {
     OS2_VideoData *pVData = &os2VideoData;
     PSZ   pszClipboard;
@@ -1406,7 +1406,7 @@ static int OS2_SetClipboardText(_THIS, const char *text)
     return 0;
 }
 
-static char *OS2_GetClipboardText(_THIS)
+static char *OS2_GetClipboardText()
 {
     OS2_VideoData *pVData = &os2VideoData;
     PSZ pszClipboard = NULL;
@@ -1423,7 +1423,7 @@ static char *OS2_GetClipboardText(_THIS)
     return (!pszClipboard) ? SDL_strdup("") : pszClipboard;
 }
 
-static SDL_bool OS2_HasClipboardText(_THIS)
+static SDL_bool OS2_HasClipboardText(void)
 {
     OS2_VideoData *pVData = &os2VideoData;
     PSZ pszClipboard;

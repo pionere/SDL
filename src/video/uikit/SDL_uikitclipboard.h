@@ -23,9 +23,9 @@
 
 #include "../SDL_sysvideo.h"
 
-extern int UIKit_SetClipboardText(_THIS, const char *text);
-extern char *UIKit_GetClipboardText(_THIS);
-extern SDL_bool UIKit_HasClipboardText(_THIS);
+extern int UIKit_SetClipboardText(const char *text);
+extern char *UIKit_GetClipboardText(void);
+extern SDL_bool UIKit_HasClipboardText(void);
 
 extern void UIKit_InitClipboard(void);
 extern void UIKit_QuitClipboard(void);

@@ -213,7 +213,7 @@ static char *GetSlectionText(Atom selection_type)
     return text;
 }
 
-int X11_SetClipboardText(_THIS, const char *text)
+int X11_SetClipboardText(const char *text)
 {
     X11_VideoData *videodata = &x11VideoData;
     Atom XA_CLIPBOARD = X11_XInternAtom(videodata->display, "CLIPBOARD", 0);
@@ -228,7 +228,7 @@ int X11_SetPrimarySelectionText(const char *text)
     return SetSelectionText(text, XA_PRIMARY);
 }
 
-char *X11_GetClipboardText(_THIS)
+char *X11_GetClipboardText(void)
 {
     X11_VideoData *videodata = &x11VideoData;
     Atom XA_CLIPBOARD = X11_XInternAtom(videodata->display, "CLIPBOARD", 0);
@@ -244,10 +244,10 @@ char *X11_GetPrimarySelectionText(void)
     return GetSlectionText(XA_PRIMARY);
 }
 
-SDL_bool X11_HasClipboardText(_THIS)
+SDL_bool X11_HasClipboardText(void)
 {
     SDL_bool result = SDL_FALSE;
-    char *text = X11_GetClipboardText(_this);
+    char *text = X11_GetClipboardText();
     if (text) {
         result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
         SDL_free(text);

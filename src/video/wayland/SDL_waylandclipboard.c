@@ -26,7 +26,7 @@
 #include "SDL_waylandevents_c.h"
 #include "SDL_waylandclipboard.h"
 
-int Wayland_SetClipboardText(_THIS, const char *text)
+int Wayland_SetClipboardText(const char *text)
 {
     Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
@@ -79,7 +79,7 @@ int Wayland_SetPrimarySelectionText(const char *text)
     return status;
 }
 
-char *Wayland_GetClipboardText(_THIS)
+char *Wayland_GetClipboardText(void)
 {
     Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;
@@ -137,7 +137,7 @@ char *Wayland_GetPrimarySelectionText(void)
     return text;
 }
 
-SDL_bool Wayland_HasClipboardText(_THIS)
+SDL_bool Wayland_HasClipboardText(void)
 {
     Wayland_VideoData *video_data = &waylandVideoData;
     SDL_WaylandDataDevice *data_device = NULL;

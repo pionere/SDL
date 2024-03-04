@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 
-int HAIKU_SetClipboardText(_THIS, const char *text) {
+int HAIKU_SetClipboardText(const char *text) {
     BMessage *clip = NULL;
     if (be_clipboard->Lock()) {
         be_clipboard->Clear();
@@ -51,7 +51,7 @@ int HAIKU_SetClipboardText(_THIS, const char *text) {
     return 0;
 }
 
-char *HAIKU_GetClipboardText(_THIS) {
+char *HAIKU_GetClipboardText(void) {
     BMessage *clip = NULL;
     const char *text = NULL;    
     ssize_t length;
@@ -76,9 +76,9 @@ char *HAIKU_GetClipboardText(_THIS) {
     return result;
 }
 
-SDL_bool HAIKU_HasClipboardText(_THIS) {
+SDL_bool HAIKU_HasClipboardText(void) {
     SDL_bool result = SDL_FALSE;
-    char *text = HAIKU_GetClipboardText(_this);
+    char *text = HAIKU_GetClipboardText();
     if (text) {
         result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
         SDL_free(text);

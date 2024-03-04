@@ -35,7 +35,7 @@ int SDL_SetClipboardText(const char *text)
         text = "";
     }
     if (_this->SetClipboardText) {
-        return _this->SetClipboardText(_this, text);
+        return _this->SetClipboardText(text);
     } else {
         SDL_free(_this->clipboard_text);
         _this->clipboard_text = SDL_strdup(text);
@@ -73,7 +73,7 @@ char *SDL_GetClipboardText(void)
     }
 
     if (_this->GetClipboardText) {
-        return _this->GetClipboardText(_this);
+        return _this->GetClipboardText();
     } else {
         const char *text = _this->clipboard_text;
         if (!text) {
@@ -113,7 +113,7 @@ SDL_bool SDL_HasClipboardText(void)
     }
 
     if (_this->HasClipboardText) {
-        return _this->HasClipboardText(_this);
+        return _this->HasClipboardText();
     } else {
         if (_this->clipboard_text && _this->clipboard_text[0] != '\0') {
             return SDL_TRUE;
