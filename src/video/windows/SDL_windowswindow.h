@@ -99,7 +99,7 @@ extern int WIN_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
 extern void WIN_SetWindowMouseRect(SDL_Window * window);
 extern void WIN_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
 extern void WIN_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed);
-extern void WIN_DestroyWindow(_THIS, SDL_Window * window);
+extern void WIN_DestroyWindow(SDL_Window * window);
 extern SDL_bool WIN_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info);
 extern void WIN_OnWindowEnter(SDL_Window * window);

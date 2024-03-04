@@ -2336,7 +2336,7 @@ void Cocoa_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed)
     }
 }}
 
-void Cocoa_DestroyWindow(_THIS, SDL_Window * window)
+void Cocoa_DestroyWindow(SDL_Window * window)
 { @autoreleasepool
 {
     SDL_WindowData *data = (SDL_WindowData *) CFBridgingRelease(window->driverdata);

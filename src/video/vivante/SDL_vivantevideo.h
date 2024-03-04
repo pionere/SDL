@@ -76,7 +76,7 @@ void VIVANTE_SetWindowPosition(SDL_Window *window);
 void VIVANTE_SetWindowSize(SDL_Window *window);
 void VIVANTE_ShowWindow(SDL_Window *window);
 void VIVANTE_HideWindow(SDL_Window *window);
-void VIVANTE_DestroyWindow(_THIS, SDL_Window *window);
+void VIVANTE_DestroyWindow(SDL_Window *window);
 
 /* Window manager function */
 SDL_bool VIVANTE_GetWindowWMInfo(SDL_Window * window,

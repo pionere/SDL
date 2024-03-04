@@ -164,7 +164,7 @@ extern int Cocoa_GetWindowDisplayIndex(SDL_Window * window);
 extern int Cocoa_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
 extern void Cocoa_SetWindowMouseRect(SDL_Window * window);
 extern void Cocoa_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
-extern void Cocoa_DestroyWindow(_THIS, SDL_Window * window);
+extern void Cocoa_DestroyWindow(SDL_Window * window);
 extern SDL_bool Cocoa_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info);
 extern int Cocoa_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern void Cocoa_AcceptDragAndDrop(SDL_Window * window, SDL_bool accept);

@@ -170,7 +170,7 @@ void Android_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
     Android_JNI_SetOrientation(window->w, window->h, window->flags & SDL_WINDOW_RESIZABLE, SDL_GetHint(SDL_HINT_ORIENTATIONS));
 }
 
-void Android_DestroyWindow(_THIS, SDL_Window *window)
+void Android_DestroyWindow(SDL_Window *window)
 {
     SDL_LockMutex(Android_ActivityMutex);
 

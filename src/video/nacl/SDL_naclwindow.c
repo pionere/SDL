@@ -62,7 +62,7 @@ void NACL_SetWindowTitle(SDL_Window * window)
     /* TODO */
 }
 
-void NACL_DestroyWindow(_THIS, SDL_Window * window)
+void NACL_DestroyWindow(SDL_Window * window)
 {
     NACL_VideoData *driverdata = &naclVideoData;
     if (window == driverdata->window) {

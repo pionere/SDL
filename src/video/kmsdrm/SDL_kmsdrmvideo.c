@@ -1008,7 +1008,7 @@ static void KMSDRM_GBMDeinit(SDL_DisplayData *dispdata)
     viddata->gbm_init = SDL_FALSE;
 }
 
-static void KMSDRM_DestroySurfaces(_THIS, SDL_Window *window)
+static void KMSDRM_DestroySurfaces(SDL_Window *window)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_WindowData *windata = (SDL_WindowData *)window->driverdata;
@@ -1130,7 +1130,7 @@ int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window)
 
     /* If the current window already has surfaces, destroy them before creating other. */
     if (windata->gs) {
-        KMSDRM_DestroySurfaces(_this, window);
+        KMSDRM_DestroySurfaces(window);
     }
 
     if (!KMSDRM_gbm_device_is_format_supported(viddata->gbm_dev,
@@ -1194,14 +1194,13 @@ cleanup:
 #ifdef SDL_INPUT_LINUXEV
 static void KMSDRM_ReleaseVT(void *userdata)
 {
-    SDL_VideoDevice *_this = (SDL_VideoDevice *)userdata;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     int i;
 
     for (i = 0; i < viddata->num_windows; i++) {
         SDL_Window *window = viddata->windows[i];
         if (!(window->flags & SDL_WINDOW_VULKAN)) {
-            KMSDRM_DestroySurfaces(_this, window);
+            KMSDRM_DestroySurfaces(window);
         }
     }
     KMSDRM_drmDropMaster(viddata->drm_fd);
@@ -1334,7 +1333,7 @@ int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
+void KMSDRM_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *windata = (SDL_WindowData *)window->driverdata;
     SDL_DisplayData *dispdata = (SDL_DisplayData *)SDL_GetDisplayForWindow(window)->driverdata;
@@ -1355,7 +1354,7 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
         KMSDRM_DestroyCursorBO(SDL_GetDisplayForWindow(window));
 
         /* Destroy GBM surface and buffers. */
-        KMSDRM_DestroySurfaces(_this, window);
+        KMSDRM_DestroySurfaces(window);
 
         /* Unload library and deinit GBM, but only if this is the last window.
            Note that this is the right comparision because num_windows could be 1
@@ -1365,6 +1364,7 @@ void KMSDRM_DestroyWindow(_THIS, SDL_Window *window)
         if (viddata->num_windows <= 1) {
 
             /* Unload EGL/GL library and free egl_data.  */
+            SDL_VideoDevice *_this = SDL_GetVideoDevice();
             if (_this->gl_config.gl_type != 0) {
                 SDL_EGL_UnloadLibrary(_this);
                 _this->gl_config.driver_loaded = 0;

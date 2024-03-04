@@ -32,7 +32,7 @@ extern void Android_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *di
 extern void Android_MinimizeWindow(SDL_Window *window);
 extern void Android_SetWindowResizable(SDL_Window *window, SDL_bool resizable);
 
-extern void Android_DestroyWindow(_THIS, SDL_Window *window);
+extern void Android_DestroyWindow(SDL_Window *window);
 extern SDL_bool Android_GetWindowWMInfo(SDL_Window *window, struct SDL_SysWMinfo *info);
 extern void Android_OnFocusChanged(SDL_bool hasFocus);
 extern void Android_OnSurfaceChanged(void);

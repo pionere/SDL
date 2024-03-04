@@ -72,7 +72,7 @@ int RPI_CreateWindow(_THIS, SDL_Window *window);
 // void RPI_MaximizeWindow(SDL_Window *window);
 void RPI_MinimizeWindow(SDL_Window *window);
 // void RPI_RestoreWindow(SDL_Window *window);
-void RPI_DestroyWindow(_THIS, SDL_Window *window);
+void RPI_DestroyWindow(SDL_Window *window);
 
 /* Window manager function */
 SDL_bool RPI_GetWindowWMInfo(SDL_Window * window,

@@ -63,7 +63,7 @@ int PSP_CreateWindow(_THIS, SDL_Window *window);
 // void PSP_MaximizeWindow(SDL_Window *window);
 void PSP_MinimizeWindow(SDL_Window *window);
 // void PSP_RestoreWindow(SDL_Window *window);
-void PSP_DestroyWindow(_THIS, SDL_Window *window);
+void PSP_DestroyWindow(SDL_Window *window);
 
 /* Window manager function */
 SDL_bool PSP_GetWindowWMInfo(SDL_Window * window,

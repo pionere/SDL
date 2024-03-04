@@ -218,7 +218,7 @@ void HAIKU_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed) {
     /* TODO: Implement this! */
 }
 
-void HAIKU_DestroyWindow(_THIS, SDL_Window * window) {
+void HAIKU_DestroyWindow(SDL_Window * window) {
     SDL_BWin *data = _ToBeWin(window);
     if (data) {
         data->LockLooper();    /* This MUST be locked */

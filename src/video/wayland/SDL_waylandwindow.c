@@ -2252,7 +2252,7 @@ void Wayland_SuspendScreenSaver(_THIS)
     }
 }
 
-void Wayland_DestroyWindow(_THIS, SDL_Window *window)
+void Wayland_DestroyWindow(SDL_Window *window)
 {
     Wayland_VideoData *data = &waylandVideoData;
     SDL_WindowData *wind = window->driverdata;

@@ -78,7 +78,7 @@ int VITA_CreateWindow(_THIS, SDL_Window *window);
 void VITA_MinimizeWindow(SDL_Window *window);
 // void VITA_RestoreWindow(SDL_Window *window);
 // void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed);
-void VITA_DestroyWindow(_THIS, SDL_Window *window);
+void VITA_DestroyWindow(SDL_Window *window);
 
 /* Window manager function */
 SDL_bool VITA_GetWindowWMInfo(SDL_Window * window,

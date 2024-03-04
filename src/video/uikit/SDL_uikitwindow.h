@@ -35,7 +35,7 @@ extern void UIKit_SetWindowBordered(SDL_Window * window, SDL_bool bordered);
 extern void UIKit_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 extern void UIKit_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
 extern void UIKit_UpdatePointerLock(SDL_Window * window);
-extern void UIKit_DestroyWindow(_THIS, SDL_Window * window);
+extern void UIKit_DestroyWindow(SDL_Window * window);
 extern void UIKit_GetWindowSizeInPixels(SDL_Window * window, int *w, int *h);
 extern SDL_bool UIKit_GetWindowWMInfo(SDL_Window * window,
                                       struct SDL_SysWMinfo * info);

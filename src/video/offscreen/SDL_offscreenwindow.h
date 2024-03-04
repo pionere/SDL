@@ -33,7 +33,7 @@ typedef struct
 #endif
 
 extern int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window);
-extern void OFFSCREEN_DestroyWindow(_THIS, SDL_Window *window);
+extern void OFFSCREEN_DestroyWindow(SDL_Window *window);
 
 #endif /* _SDL_offscreenwindow */
 

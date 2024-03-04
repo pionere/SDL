@@ -292,7 +292,7 @@ static void hideWindow(SDL_Window *window)
  * @param   _THIS
  * @param   window  SDL window that is being destroyed
  */
-static void destroyWindow(_THIS, SDL_Window *window)
+static void destroyWindow(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
 

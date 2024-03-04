@@ -917,7 +917,7 @@ static int OS2_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
     return 0;
 }
 
-static void OS2_DestroyWindow(_THIS, SDL_Window * window)
+static void OS2_DestroyWindow(SDL_Window * window)
 {
     OS2_VideoData *pVData = &os2VideoData;
     WINDATA       *pWinData = (WINDATA *)window->driverdata;

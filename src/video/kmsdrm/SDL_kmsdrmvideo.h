@@ -134,7 +134,7 @@ int KMSDRM_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp);
 // void KMSDRM_MaximizeWindow(SDL_Window * window);
 void KMSDRM_MinimizeWindow(SDL_Window * window);
 // void KMSDRM_RestoreWindow(SDL_Window * window);
-void KMSDRM_DestroyWindow(_THIS, SDL_Window * window);
+void KMSDRM_DestroyWindow(SDL_Window * window);
 
 /* Window manager function */
 SDL_bool KMSDRM_GetWindowWMInfo(SDL_Window * window,

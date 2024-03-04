@@ -319,7 +319,7 @@ void UIKit_UpdatePointerLock(SDL_Window * window)
 #endif /* !TARGET_OS_TV */
 }
 
-void UIKit_DestroyWindow(_THIS, SDL_Window * window)
+void UIKit_DestroyWindow(SDL_Window * window)
 {
     @autoreleasepool {
         if (window->driverdata != NULL) {

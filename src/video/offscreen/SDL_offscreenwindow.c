@@ -61,7 +61,7 @@ int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void OFFSCREEN_DestroyWindow(_THIS, SDL_Window *window)
+void OFFSCREEN_DestroyWindow(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *offscreen_window = window->driverdata;

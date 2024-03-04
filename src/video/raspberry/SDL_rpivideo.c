@@ -351,7 +351,7 @@ int RPI_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void RPI_DestroyWindow(_THIS, SDL_Window *window)
+void RPI_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);

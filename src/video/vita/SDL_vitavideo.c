@@ -344,7 +344,7 @@ void VITA_SetWindowGrab(SDL_Window *window, SDL_bool grabbed)
 {
 }*/
 
-void VITA_DestroyWindow(_THIS, SDL_Window *window)
+void VITA_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *data = window->driverdata;
     if (data) {

@@ -1761,7 +1761,7 @@ void X11_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
     X11_XSync(display, False);
 }
 
-void X11_DestroyWindow(_THIS, SDL_Window *window)
+void X11_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
 

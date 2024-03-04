@@ -403,7 +403,7 @@ void DirectFB_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed)
     }
 }
 
-void DirectFB_DestroyWindow(_THIS, SDL_Window * window)
+void DirectFB_DestroyWindow(SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;

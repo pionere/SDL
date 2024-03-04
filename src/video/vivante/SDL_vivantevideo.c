@@ -290,7 +290,7 @@ int VIVANTE_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void VIVANTE_DestroyWindow(_THIS, SDL_Window *window)
+void VIVANTE_DestroyWindow(SDL_Window *window)
 {
     Vivante_VideoData *videodata = &vivanteVideoData;
     SDL_WindowData *data;

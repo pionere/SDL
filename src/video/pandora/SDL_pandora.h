@@ -65,7 +65,7 @@ int PND_createwindow(_THIS, SDL_Window * window);
 // void PND_maximizewindow(SDL_Window * window);
 void PND_minimizewindow(SDL_Window * window);
 // void PND_restorewindow(SDL_Window * window);
-void PND_destroywindow(_THIS, SDL_Window * window);
+void PND_destroywindow(SDL_Window * window);
 
 /* Window manager function */
 #if 0

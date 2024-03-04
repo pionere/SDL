@@ -31,7 +31,7 @@ extern int
 NGAGE_CreateWindow(_THIS, SDL_Window *window);
 
 extern void
-NGAGE_DestroyWindow(_THIS, SDL_Window *window);
+NGAGE_DestroyWindow(SDL_Window *window);
 
 #endif /* _SDL_ngagewindow */
 

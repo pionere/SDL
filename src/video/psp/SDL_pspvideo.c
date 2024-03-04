@@ -240,7 +240,7 @@ void PSP_MinimizeWindow(SDL_Window *window)
 /*void PSP_RestoreWindow(SDL_Window *window)
 {
 }*/
-void PSP_DestroyWindow(_THIS, SDL_Window *window)
+void PSP_DestroyWindow(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;

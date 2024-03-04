@@ -2006,7 +2006,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     }
 
     if (_this->DestroyWindow && !foreign_win) { // !(flags & SDL_WINDOW_FOREIGN)) {
-        _this->DestroyWindow(_this, window);
+        _this->DestroyWindow(window);
     }
 
     if ((window->flags & SDL_WINDOW_OPENGL) != (flags & SDL_WINDOW_OPENGL)) {
@@ -3338,7 +3338,7 @@ void SDL_DestroyWindow(SDL_Window *window)
         }
     }
     if (_this->DestroyWindow) {
-        _this->DestroyWindow(_this, window);
+        _this->DestroyWindow(window);
     }
     if (window->flags & SDL_WINDOW_OPENGL) {
         SDL_GL_UnloadLibrary();

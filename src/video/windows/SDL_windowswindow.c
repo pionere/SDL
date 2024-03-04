@@ -1129,7 +1129,7 @@ void WIN_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
 }
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
-void WIN_DestroyWindow(_THIS, SDL_Window *window)
+void WIN_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowShaper *shaper = window->shaper;
     SDL_WindowData *data;

@@ -108,7 +108,7 @@ extern int X11_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp);
 extern void* X11_GetWindowICCProfile(SDL_Window * window, size_t * size);
 extern void X11_SetWindowMouseGrab(SDL_Window * window, SDL_bool grabbed);
 extern void X11_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed);
-extern void X11_DestroyWindow(_THIS, SDL_Window * window);
+extern void X11_DestroyWindow(SDL_Window * window);
 extern SDL_bool X11_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info);
 extern int X11_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);

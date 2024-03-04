@@ -236,7 +236,7 @@ void PND_minimizewindow(SDL_Window * window)
 /*void PND_restorewindow(SDL_Window * window)
 {
 }*/
-void PND_destroywindow(_THIS, SDL_Window * window)
+void PND_destroywindow(SDL_Window * window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;

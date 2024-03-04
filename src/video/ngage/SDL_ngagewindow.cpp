@@ -47,7 +47,7 @@ int NGAGE_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void NGAGE_DestroyWindow(_THIS, SDL_Window *window)
+void NGAGE_DestroyWindow(SDL_Window *window)
 {
 }
 
