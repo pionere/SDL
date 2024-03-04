@@ -27,5 +27,6 @@
 
 extern int MacHaptic_MaybeAddDevice(io_object_t device);
 extern int MacHaptic_MaybeRemoveDevice(io_object_t device);
+extern int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result);
 
 /* vi: set ts=4 sw=4 expandtab: */

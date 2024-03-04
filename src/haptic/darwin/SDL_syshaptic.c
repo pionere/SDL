@@ -140,6 +140,15 @@ static const char *FFStrError(unsigned int err)
     }
 }
 
+int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result)
+{
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    return SDL_SetError("%s (%s)", prefix, FFStrError(result));
+#else
+    return -1;
+#endif
+}
+
 /*
  * Initializes the haptic subsystem.
  */
@@ -440,8 +449,7 @@ static unsigned int GetSupportedFeatures(SDL_Haptic *haptic)
     if (ret == FF_OK) {
         supported |= SDL_HAPTIC_GAIN;
     } else if (ret != FFERR_UNSUPPORTED) {
-        return SDL_SetError("Haptic: Unable to get if device supports gain: %s.",
-                            FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to get if device supports gain", ret);
     }
 
     /* Checks if supports autocenter. */
@@ -450,8 +458,7 @@ static unsigned int GetSupportedFeatures(SDL_Haptic *haptic)
     if (ret == FF_OK) {
         supported |= SDL_HAPTIC_AUTOCENTER;
     } else if (ret != FFERR_UNSUPPORTED) {
-        return SDL_SetError("Haptic: Unable to get if device supports autocenter: %s.",
-                            FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to get if device supports autocenter", ret);
     }
 
     /* Check for axes, we have an artificial limit on axes */
@@ -486,8 +493,7 @@ static int SDL_SYS_HapticOpenFromService(SDL_Haptic *haptic, io_service_t servic
     /* Open the device */
     ret = FFCreateDevice(service, &haptic->hwdata->device);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to create device from service: %s.",
-                     FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Unable to create device from service", ret);
         goto creat_err;
     }
 
@@ -501,14 +507,13 @@ static int SDL_SYS_HapticOpenFromService(SDL_Haptic *haptic, io_service_t servic
     ret = FFDeviceSendForceFeedbackCommand(haptic->hwdata->device,
                                            FFSFFC_RESET);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to reset device: %s.", FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Unable to reset device", ret);
         goto open_err;
     }
     ret = FFDeviceSendForceFeedbackCommand(haptic->hwdata->device,
                                            FFSFFC_SETACTUATORSON);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to enable actuators: %s.",
-                     FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Unable to enable actuators: %s.", ret);
         goto open_err;
     }
 
@@ -1131,7 +1136,7 @@ int SDL_SYS_HapticNewEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
                                &effect->hweffect->effect,
                                &effect->hweffect->ref);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to create effect: %s.", FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Unable to create effect", ret);
         goto err_effectdone;
     }
 
@@ -1174,7 +1179,7 @@ int SDL_SYS_HapticUpdateEffect(SDL_Haptic *haptic,
     /* Create the actual effect. */
     ret = FFEffectSetParameters(effect->hweffect->ref, &temp, flags);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to update effect: %s.", FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Unable to update effect", ret);
         goto err_update;
     }
 
@@ -1208,8 +1213,7 @@ int SDL_SYS_HapticRunEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
     /* Run the effect. */
     ret = FFEffectStart(effect->hweffect->ref, iter, 0);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Unable to run the effect: %s.",
-                            FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to run the effect", ret);
     }
 
     return 0;
@@ -1224,8 +1228,7 @@ int SDL_SYS_HapticStopEffect(SDL_Haptic *haptic, struct haptic_effect *effect)
 
     ret = FFEffectStop(effect->hweffect->ref);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Unable to stop the effect: %s.",
-                            FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to stop the effect", ret);
     }
 
     return 0;
@@ -1240,8 +1243,7 @@ void SDL_SYS_HapticDestroyEffect(SDL_Haptic *haptic, struct haptic_effect *effec
 
     ret = FFDeviceReleaseEffect(haptic->hwdata->device, effect->hweffect->ref);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Error removing the effect from the device: %s.",
-                     FFStrError(ret));
+        DARWIN_SetErrorFromHRESULT("Haptic: Error removing the effect from the device", ret);
     }
     SDL_SYS_HapticFreeFFEFFECT(&effect->hweffect->effect,
                                effect->effect.type);
@@ -1260,9 +1262,7 @@ int SDL_SYS_HapticGetEffectStatus(SDL_Haptic *haptic,
 
     ret = FFEffectGetEffectStatus(effect->hweffect->ref, &status);
     if (ret != FF_OK) {
-        SDL_SetError("Haptic: Unable to get effect status: %s.",
-                     FFStrError(ret));
-        return -1;
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to get effect status", ret);
     }
 
     if (status == 0) {
@@ -1283,7 +1283,7 @@ int SDL_SYS_HapticSetGain(SDL_Haptic *haptic, int gain)
     ret = FFDeviceSetForceFeedbackProperty(haptic->hwdata->device,
                                            FFPROP_FFGAIN, &val);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Error setting gain: %s.", FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Error setting gain", ret);
     }
 
     return 0;
@@ -1307,8 +1307,7 @@ int SDL_SYS_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter)
     ret = FFDeviceSetForceFeedbackProperty(haptic->hwdata->device,
                                            FFPROP_AUTOCENTER, &val);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Error setting autocenter: %s.",
-                            FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Error setting autocenter: %s.", ret);
     }
 
     return 0;
@@ -1324,7 +1323,7 @@ int SDL_SYS_HapticPause(SDL_Haptic *haptic)
     ret = FFDeviceSendForceFeedbackCommand(haptic->hwdata->device,
                                            FFSFFC_PAUSE);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Error pausing device: %s.", FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Error pausing device", ret);
     }
 
     return 0;
@@ -1340,7 +1339,7 @@ int SDL_SYS_HapticUnpause(SDL_Haptic *haptic)
     ret = FFDeviceSendForceFeedbackCommand(haptic->hwdata->device,
                                            FFSFFC_CONTINUE);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Error pausing device: %s.", FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Error pausing device", ret);
     }
 
     return 0;
@@ -1356,7 +1355,7 @@ int SDL_SYS_HapticStopAll(SDL_Haptic *haptic)
     ret = FFDeviceSendForceFeedbackCommand(haptic->hwdata->device,
                                            FFSFFC_STOPALL);
     if (ret != FF_OK) {
-        return SDL_SetError("Haptic: Error stopping device: %s.", FFStrError(ret));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Error stopping device", ret);
     }
 
     return 0;

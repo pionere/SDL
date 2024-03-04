@@ -777,61 +777,6 @@ static int DARWIN_JoystickOpen(SDL_Joystick *joystick, int device_index)
     return 0;
 }
 
-/*
- * Like strerror but for force feedback errors.
- */
-static const char *FFStrError(unsigned int err)
-{
-    switch (err) {
-    case FFERR_DEVICEFULL:
-        return "device full";
-    /* This should be valid, but for some reason isn't defined... */
-    /* case FFERR_DEVICENOTREG:
-        return "device not registered"; */
-    case FFERR_DEVICEPAUSED:
-        return "device paused";
-    case FFERR_DEVICERELEASED:
-        return "device released";
-    case FFERR_EFFECTPLAYING:
-        return "effect playing";
-    case FFERR_EFFECTTYPEMISMATCH:
-        return "effect type mismatch";
-    case FFERR_EFFECTTYPENOTSUPPORTED:
-        return "effect type not supported";
-    case FFERR_GENERIC:
-        return "undetermined error";
-    case FFERR_HASEFFECTS:
-        return "device has effects";
-    case FFERR_INCOMPLETEEFFECT:
-        return "incomplete effect";
-    case FFERR_INTERNAL:
-        return "internal fault";
-    case FFERR_INVALIDDOWNLOADID:
-        return "invalid download id";
-    case FFERR_INVALIDPARAM:
-        return "invalid parameter";
-    case FFERR_MOREDATA:
-        return "more data";
-    case FFERR_NOINTERFACE:
-        return "interface not supported";
-    case FFERR_NOTDOWNLOADED:
-        return "effect is not downloaded";
-    case FFERR_NOTINITIALIZED:
-        return "object has not been initialized";
-    case FFERR_OUTOFMEMORY:
-        return "out of memory";
-    case FFERR_UNPLUGGED:
-        return "device is unplugged";
-    case FFERR_UNSUPPORTED:
-        return "function call unsupported";
-    case FFERR_UNSUPPORTEDAXIS:
-        return "axis unsupported";
-
-    default:
-        return "unknown error";
-    }
-}
-
 static int DARWIN_JoystickInitRumble(recDevice *device, Sint16 magnitude)
 {
     HRESULT result;
@@ -839,19 +784,19 @@ static int DARWIN_JoystickInitRumble(recDevice *device, Sint16 magnitude)
     if (!device->ffdevice) {
         result = FFCreateDevice(device->ffservice, &device->ffdevice);
         if (result != FF_OK) {
-            return SDL_SetError("Unable to create force feedback device from service: %s", FFStrError(result));
+            return DARWIN_SetErrorFromHRESULT("Unable to create force feedback device from service", result);
         }
     }
 
     /* Reset and then enable actuators */
     result = FFDeviceSendForceFeedbackCommand(device->ffdevice, FFSFFC_RESET);
     if (result != FF_OK) {
-        return SDL_SetError("Unable to reset force feedback device: %s", FFStrError(result));
+        return DARWIN_SetErrorFromHRESULT("Unable to reset force feedback device", result);
     }
 
     result = FFDeviceSendForceFeedbackCommand(device->ffdevice, FFSFFC_SETACTUATORSON);
     if (result != FF_OK) {
-        return SDL_SetError("Unable to enable force feedback actuators: %s", FFStrError(result));
+        return DARWIN_SetErrorFromHRESULT("Unable to enable force feedback actuators", result);
     }
 
     /* Create the effect */
@@ -863,7 +808,7 @@ static int DARWIN_JoystickInitRumble(recDevice *device, Sint16 magnitude)
     result = FFDeviceCreateEffect(device->ffdevice, kFFEffectType_Sine_ID,
                                   device->ffeffect, &device->ffeffect_ref);
     if (result != FF_OK) {
-        return SDL_SetError("Haptic: Unable to create effect: %s", FFStrError(result));
+        return DARWIN_SetErrorFromHRESULT("Haptic: Unable to create effect", result);
     }
     return 0;
 }
@@ -891,7 +836,7 @@ static int DARWIN_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
         result = FFEffectSetParameters(device->ffeffect_ref, device->ffeffect,
                                        (FFEP_DURATION | FFEP_TYPESPECIFICPARAMS));
         if (result != FF_OK) {
-            return SDL_SetError("Unable to update rumble effect: %s", FFStrError(result));
+            return DARWIN_SetErrorFromHRESULT("Unable to update rumble effect", result);
         }
     } else {
         if (DARWIN_JoystickInitRumble(device, magnitude) < 0) {
@@ -902,7 +847,7 @@ static int DARWIN_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
 
     result = FFEffectStart(device->ffeffect_ref, 1, 0);
     if (result != FF_OK) {
-        return SDL_SetError("Unable to run the rumble effect: %s", FFStrError(result));
+        return DARWIN_SetErrorFromHRESULT("Unable to run the rumble effect", result);
     }
     return 0;
 }
