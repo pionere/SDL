@@ -48,6 +48,15 @@ static AAUDIO_Data ctx;
 static SDL_AudioDevice *audioDevice = NULL;
 static SDL_AudioDevice *captureDevice = NULL;
 
+static int aaudio_SetErrorFromResult(const char *prefix, aaudio_result_t res)
+{
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    return SDL_SetError("%s (%s)", prefix, ctx.AAudio_convertResultToText(res));
+#else
+    return -1;
+#endif
+}
+
 static int aaudio_LoadFunctions(AAUDIO_Data *data)
 {
 #define SDL_PROC(ret, func, params)                                          \
@@ -63,7 +72,6 @@ static int aaudio_LoadFunctions(AAUDIO_Data *data)
     return 0;
 }
 
-void aaudio_errorCallback(AAudioStream *stream, void *userData, aaudio_result_t error);
 void aaudio_errorCallback(AAudioStream *stream, void *userData, aaudio_result_t error)
 {
     LOGI("SDL aaudio_errorCallback: %d - %s", error, ctx.AAudio_convertResultToText(error));
@@ -126,7 +134,7 @@ static int aaudio_OpenDevice(_THIS, const char *devname)
     res = ctx.AAudioStreamBuilder_openStream(ctx.builder, &private->stream);
     if (res != AAUDIO_OK) {
         LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
-        return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+        return aaudio_SetErrorFromResult("AAudioStreamBuilder_openStream failed", res);
     }
 
     this->spec.freq = ctx.AAudioStream_getSampleRate(private->stream);
@@ -161,7 +169,7 @@ static int aaudio_OpenDevice(_THIS, const char *devname)
     res = ctx.AAudioStream_requestStart(private->stream);
     if (res != AAUDIO_OK) {
         LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, iscapture);
-        return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+        return aaudio_SetErrorFromResult("AAudioStream_requestStart failed", res);
     }
 
     LOGI("SDL AAudioStream_requestStart OK");
@@ -178,14 +186,14 @@ static void aaudio_CloseDevice(_THIS)
         res = ctx.AAudioStream_requestStop(private->stream);
         if (res != AAUDIO_OK) {
             LOGI("SDL Failed AAudioStream_requestStop %d", res);
-            SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+            aaudio_SetErrorFromResult("AAudioStream_requestStop failed", res);
             return;
         }
 
         res = ctx.AAudioStream_close(private->stream);
         if (res != AAUDIO_OK) {
             LOGI("SDL Failed AAudioStreamBuilder_delete %d", res);
-            SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+            aaudio_SetErrorFromResult("AAudioStreamBuilder_delete failed", res);
             return;
         }
     }
@@ -249,7 +257,7 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
     res = ctx.AAudioStreamBuilder_openStream(ctx.builder, &hidden->stream);
     if (res != AAUDIO_OK) {
         LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
-        return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+        return aaudio_SetErrorFromResult("AAudioStreamBuilder_openStream failed", res);
     }
 
     {
@@ -275,7 +283,7 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
     res = ctx.AAudioStream_requestStart(hidden->stream);
     if (res != AAUDIO_OK) {
         LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, iscapture);
-        return SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+        return aaudio_SetErrorFromResult("AAudioStream_requestStart (restart) failed", res);
     }
 
     return 0;
@@ -349,7 +357,7 @@ static void aaudio_Deinitialize(void)
             aaudio_result_t res;
             res = ctx.AAudioStreamBuilder_delete(ctx.builder);
             if (res != AAUDIO_OK) {
-                SDL_SetError("Failed AAudioStreamBuilder_delete %s", ctx.AAudio_convertResultToText(res));
+                aaudio_SetErrorFromResult("AAudioStreamBuilder_delete failed", res);
             }
         }
         SDL_UnloadObject(ctx.handle);
@@ -441,7 +449,7 @@ void aaudio_PauseDevices(void)
             aaudio_result_t res = ctx.AAudioStream_requestPause(private->stream);
             if (res != AAUDIO_OK) {
                 LOGI("SDL Failed AAudioStream_requestPause %d", res);
-                SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+                aaudio_SetErrorFromResult("AAudioStream_requestPause failed", res);
             }
         }
     }
@@ -454,7 +462,7 @@ void aaudio_PauseDevices(void)
             aaudio_result_t res = ctx.AAudioStream_requestStop(private->stream);
             if (res != AAUDIO_OK) {
                 LOGI("SDL Failed AAudioStream_requestStop %d", res);
-                SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+                aaudio_SetErrorFromResult("AAudioStream_requestStop (capture) failed", res);
             }
         }
     }
@@ -471,7 +479,7 @@ void aaudio_ResumeDevices(void)
             aaudio_result_t res = ctx.AAudioStream_requestStart(private->stream);
             if (res != AAUDIO_OK) {
                 LOGI("SDL Failed AAudioStream_requestStart %d", res);
-                SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+                aaudio_SetErrorFromResult("AAudioStream_requestStart (resume) failed", res);
             }
         }
         SDL_UnlockMutex(audioDevice->mixer_lock);
@@ -483,7 +491,7 @@ void aaudio_ResumeDevices(void)
             aaudio_result_t res = ctx.AAudioStream_requestStart(private->stream);
             if (res != AAUDIO_OK) {
                 LOGI("SDL Failed AAudioStream_requestStart %d", res);
-                SDL_SetError("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
+                aaudio_SetErrorFromResult("AAudioStream_requestStart (resume capture) failed", res);
             }
         }
         SDL_UnlockMutex(captureDevice->mixer_lock);
