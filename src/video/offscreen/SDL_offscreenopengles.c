@@ -40,41 +40,18 @@ int OFFSCREEN_GLES_LoadLibrary(_THIS, const char *path)
         return ret;
     }
 
-    ret = SDL_EGL_ChooseConfig(_this);
-    if (ret != 0) {
-        SDL_EGL_UnloadLibrary(_this);
-        return ret;
-    }
+    // ret = SDL_EGL_ChooseConfig(_this);
+    // if (ret != 0) {
+    //     SDL_EGL_UnloadLibrary(_this);
+    //     return ret;
+    // }
 
     return 0;
 }
 
-SDL_GLContext OFFSCREEN_GLES_CreateContext(_THIS, SDL_Window *window)
-{
-    OFFSCREEN_Window *offscreen_window = window->driverdata;
-
-    SDL_GLContext context;
-    context = SDL_EGL_CreateContext(_this, offscreen_window->egl_surface);
-
-    return context;
-}
-
-int OFFSCREEN_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
-{
-    if (window) {
-        EGLSurface egl_surface = ((OFFSCREEN_Window *)window->driverdata)->egl_surface;
-        return SDL_EGL_MakeCurrent(_this, egl_surface, context);
-    } else {
-        return SDL_EGL_MakeCurrent(_this, NULL, NULL);
-    }
-}
-
-int OFFSCREEN_GLES_SwapWindow(_THIS, SDL_Window *window)
-{
-    OFFSCREEN_Window *offscreen_wind = window->driverdata;
-
-    return SDL_EGL_SwapBuffers(offscreen_wind->egl_surface);
-}
+SDL_EGL_CreateContext_impl(OFFSCREEN)
+SDL_EGL_MakeCurrent_impl(OFFSCREEN)
+SDL_EGL_SwapWindow_impl(OFFSCREEN)
 
 #endif /* SDL_VIDEO_DRIVER_OFFSCREEN && SDL_VIDEO_OPENGL_EGL */
 

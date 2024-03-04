@@ -29,7 +29,7 @@
 int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
-    OFFSCREEN_Window *offscreen_window = SDL_calloc(1, sizeof(OFFSCREEN_Window));
+    SDL_WindowData *offscreen_window = SDL_calloc(1, sizeof(SDL_WindowData));
 
     if (!offscreen_window) {
         return SDL_OutOfMemory();
@@ -64,7 +64,7 @@ int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
 void OFFSCREEN_DestroyWindow(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
-    OFFSCREEN_Window *offscreen_window = window->driverdata;
+    SDL_WindowData *offscreen_window = window->driverdata;
 
     if (offscreen_window) {
         SDL_EGL_DestroySurface(offscreen_window->egl_surface);

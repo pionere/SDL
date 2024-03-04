@@ -29,7 +29,7 @@
 typedef struct
 {
     EGLSurface egl_surface;
-} OFFSCREEN_Window;
+} SDL_WindowData;
 #endif
 
 extern int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window);
