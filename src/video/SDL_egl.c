@@ -1119,16 +1119,9 @@ int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
         USE_FUNC(eglBindAPI)(egl_data.apitype);
     // }
 
-    /* The android emulator crashes badly if you try to eglMakeCurrent
-     * with a valid context and invalid surface, so we have to check for both here.
-     */
-    if (!egl_context || (!egl_surface && !_this->gl_config.gl_allow_no_surface)) {
-        USE_FUNC(eglMakeCurrent)(egl_data.egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    } else {
-        if (!USE_FUNC(eglMakeCurrent)(egl_data.egl_display,
-                                             egl_surface, egl_surface, egl_context)) {
-            return SDL_EGL_SetError("Unable to make EGL context current", "eglMakeCurrent");
-        }
+    if (!USE_FUNC(eglMakeCurrent)(egl_data.egl_display,
+            egl_surface, egl_surface, egl_context)) {
+        return SDL_EGL_SetError("Unable to make EGL context current", "eglMakeCurrent");
     }
 
     return 0;

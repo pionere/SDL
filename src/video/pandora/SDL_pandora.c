@@ -697,9 +697,7 @@ int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
         wdata = (SDL_WindowData *) window->driverdata;
         egl_surface = wdata->gles_surface;
         SDL_assert(context != EGL_NO_CONTEXT);
-        if (egl_surface == EGL_NO_SURFACE) {
-            context = EGL_NO_CONTEXT;
-        }
+        SDL_assert(egl_surface != EGL_NO_SURFACE);
     }
     status =
         eglMakeCurrent(phdata->egl_display, egl_surface,

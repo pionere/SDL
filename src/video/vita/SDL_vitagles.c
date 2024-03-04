@@ -194,13 +194,13 @@ int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     Vita_VideoData *phdata = &vitaVideoData;
     EGLSurface egl_surface;
 
-    if (window == NULL) {
+    if (!window) {
         egl_surface = EGL_NO_SURFACE;
-        SDL_assert(context == EGL_NO_CONTEXT);
     } else {
         SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
         egl_surface = windowdata->egl_surface;
         SDL_assert(context != EGL_NO_CONTEXT);
+        SDL_assert(egl_surface != EGL_NO_SURFACE);
     }
 
     if (!eglMakeCurrent(phdata->egl_display, egl_surface,

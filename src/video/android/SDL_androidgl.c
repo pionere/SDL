@@ -38,11 +38,21 @@
 
 int Android_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
-    if (window && context) {
-        return SDL_EGL_MakeCurrent(_this, ((SDL_WindowData *)window->driverdata)->egl_surface, context);
+    EGLSurface egl_surface;
+
+    if (!window) {
+        egl_surface = EGL_NO_SURFACE;
     } else {
-        return SDL_EGL_MakeCurrent(_this, NULL, NULL);
+        egl_surface = ((SDL_WindowData *)window->driverdata)->egl_surface;
+        /* The android emulator crashes badly if you try to eglMakeCurrent
+         * with a valid context and invalid surface, and egl_surface is
+         * not guaranteed to be valid on android.
+         */
+        if (egl_surface == EGL_NO_SURFACE) {
+            context = EGL_NO_CONTEXT;
+        }
     }
+    return SDL_EGL_MakeCurrent(_this, egl_surface, context);
 }
 
 SDL_GLContext Android_GLES_CreateContext(_THIS, SDL_Window *window)

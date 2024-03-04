@@ -170,13 +170,13 @@ int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
     Psp_VideoData *psp_data = &pspVideoData;
     EGLSurface egl_surface;
 
-    if (window == NULL) {
+    if (!window) {
         egl_surface = EGL_NO_SURFACE;
-        SDL_assert(context == EGL_NO_CONTEXT);
     } else {
         SDL_WindowData *windowdata = (SDL_WindowData *)window->driverdata;
         egl_surface = windowdata->egl_surface;
         SDL_assert(context != EGL_NO_CONTEXT);
+        SDL_assert(egl_surface != EGL_NO_SURFACE);
     }
 
     if (!eglMakeCurrent(psp_data->egl_display, egl_surface,

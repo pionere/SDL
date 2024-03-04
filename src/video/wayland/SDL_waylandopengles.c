@@ -163,14 +163,18 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
 
 int Wayland_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 {
+    EGLSurface egl_surface;
     int ret;
     Wayland_VideoData *videodata = &waylandVideoData;
 
-    if (window && context) {
-        ret = SDL_EGL_MakeCurrent(_this, ((SDL_WindowData *)window->driverdata)->egl_surface, context);
+    if (!window) {
+        egl_surface = EGL_NO_SURFACE;
     } else {
-        ret = SDL_EGL_MakeCurrent(_this, NULL, NULL);
+        egl_surface = ((SDL_WindowData *)window->driverdata)->egl_surface;
+        SDL_assert(context != EGL_NO_CONTEXT);
+        SDL_assert(egl_surface != EGL_NO_SURFACE);
     }
+    ret = SDL_EGL_MakeCurrent(_this, egl_surface, context);
 
     WAYLAND_wl_display_flush(videodata->display);
 
