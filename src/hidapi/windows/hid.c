@@ -233,6 +233,7 @@ static void free_hid_device(hid_device *dev)
 
 static void register_error(hid_device *device, const char *op)
 {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 	WCHAR *ptr, *msg;
 
 	DWORD count = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -261,6 +262,7 @@ static void register_error(hid_device *device, const char *op)
 	   the hid_error() function can pick it up. */
 	LocalFree(device->last_error_str);
 	device->last_error_str = msg;
+#endif
 }
 
 #ifndef HIDAPI_USE_DDK

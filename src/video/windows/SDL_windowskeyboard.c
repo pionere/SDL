@@ -505,7 +505,7 @@ static void IME_Init(HWND hwnd)
         hResult = CoCreateInstance(&CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, &IID_ITfThreadMgr, (LPVOID *)&videodata->ime_threadmgr);
         if (hResult != S_OK) {
             // videodata->ime_available = SDL_FALSE;
-            SDL_SetError("CoCreateInstance() failed, HRESULT is %08X", (unsigned int)hResult);
+            WIN_SetErrorFromHRESULT("CoCreateInstance() failed", hResult);
             return;
         }
     }

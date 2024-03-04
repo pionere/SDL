@@ -79,7 +79,11 @@ int WIN_SetErrorFromHRESULT(const char *prefix, HRESULT hr)
 /* Sets an error message based on GetLastError() */
 int WIN_SetError(const char *prefix)
 {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     return WIN_SetErrorFromHRESULT(prefix, GetLastError());
+#else
+    return -1;
+#endif
 }
 
 HRESULT

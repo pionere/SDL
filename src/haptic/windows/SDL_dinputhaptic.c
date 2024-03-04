@@ -100,8 +100,7 @@ int SDL_DINPUT_HapticInit(void)
     instance = GetModuleHandle(NULL);
     if (!instance) {
         SDL_SYS_HapticQuit();
-        return SDL_SetError("GetModuleHandle() failed with error code %lu.",
-                            GetLastError());
+        return WIN_SetError("GetModuleHandle() failed");
     }
     ret = IDirectInput8_Initialize(dinput, instance, DIRECTINPUT_VERSION);
     if (FAILED(ret)) {

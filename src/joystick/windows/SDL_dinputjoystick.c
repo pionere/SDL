@@ -425,7 +425,7 @@ int SDL_DINPUT_JoystickInit(void)
     if (!instance) {
         IDirectInput8_Release(dinput);
         dinput = NULL;
-        return SDL_SetError("GetModuleHandle() failed with error code %lu.", GetLastError());
+        return WIN_SetError("GetModuleHandle() failed");
     }
     result = IDirectInput8_Initialize(dinput, instance, DIRECTINPUT_VERSION);
 
