@@ -168,12 +168,15 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 
     if (!x11_display) {
         SDL_X11_UnloadSymbols();
+        SDL_SetError("Couldn't open display");
         return NULL;
     }
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
+        X11_XCloseDisplay(x11_display);
+        SDL_X11_UnloadSymbols();
         SDL_OutOfMemory();
         return NULL;
     }
@@ -189,6 +192,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
         SDL_free(device);
         X11_XCloseDisplay(x11_display);
         SDL_X11_UnloadSymbols();
+        SDL_SetError("Couldn't open display (request)");
         return NULL;
     }
     data->display = x11_display;

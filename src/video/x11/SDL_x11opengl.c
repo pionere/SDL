@@ -244,11 +244,13 @@ int X11_GL_PrivateLoadLibrary(_THIS, const char *path)
             X11_GL_GetProcAddress("glXQueryDrawable");
 
     if (!glx_data->glXQueryExtension ||
+        !glx_data->glXGetProcAddress ||
         !glx_data->glXChooseVisual ||
         !glx_data->glXCreateContext ||
         !glx_data->glXDestroyContext ||
         !glx_data->glXMakeCurrent ||
-        !glx_data->glXSwapBuffers) {
+        !glx_data->glXSwapBuffers ||
+        !glx_data->glXQueryDrawable) {
         SDL_SetError("Could not retrieve OpenGL functions");
         goto error;
     }

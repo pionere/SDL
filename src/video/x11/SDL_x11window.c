@@ -1653,7 +1653,7 @@ void *X11_GetWindowICCProfile(SDL_Window *window, size_t *size)
 
     icc_profile_atom = X11_XInternAtom(display, icc_atom_string, True);
     if (icc_profile_atom == None) {
-        SDL_SetError("Screen is not calibrated.\n");
+        SDL_SetError("Screen is not calibrated.");
         return NULL;
     }
 
@@ -1662,7 +1662,7 @@ void *X11_GetWindowICCProfile(SDL_Window *window, size_t *size)
     real_nitems = atomProp.count;
     icc_profile_data = atomProp.data;
     if (real_format == None) {
-        SDL_SetError("Screen is not calibrated.\n");
+        SDL_SetError("Screen is not calibrated.");
         return NULL;
     }
 
