@@ -52,7 +52,7 @@ extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
 extern void *DirectFB_GL_GetProcAddress(const char *proc);
 extern void DirectFB_GL_UnloadLibrary(_THIS);
 extern SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window);
-extern int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window,
+extern int DirectFB_GL_MakeCurrent(SDL_Window * window,
                                    SDL_GLContext context);
 extern int DirectFB_GL_SetSwapInterval(int interval);
 extern int DirectFB_GL_GetSwapInterval(void);

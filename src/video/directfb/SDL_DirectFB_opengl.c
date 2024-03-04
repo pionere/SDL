@@ -120,7 +120,7 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
 
     SDL_DFB_CHECK(context->context->Unlock(context->context));
 
-    if (DirectFB_GL_MakeCurrent(_this, window, context) < 0) {
+    if (DirectFB_GL_MakeCurrent(window, context) < 0) {
         DirectFB_GL_DeleteContext(context);
         return NULL;
     }
@@ -131,7 +131,7 @@ SDL_GLContext DirectFB_GL_CreateContext(_THIS, SDL_Window * window)
     return NULL;
 }
 
-int DirectFB_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+int DirectFB_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context)
 {
     SDL_GLDriverData *fbgl_data = &dfbVideoData.fbgl_data;
     DirectFB_GLContext *ctx = (DirectFB_GLContext *) context;

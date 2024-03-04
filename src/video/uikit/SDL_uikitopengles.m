@@ -63,7 +63,7 @@ void *UIKit_GL_GetProcAddress(const char *proc)
 /*
   note that SDL_GL_DeleteContext makes it current without passing the window
 */
-int UIKit_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+int UIKit_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context)
 {
     @autoreleasepool {
         SDLEAGLContext *eaglcontext = (__bridge SDLEAGLContext *) context;
@@ -194,7 +194,7 @@ SDL_GLContext UIKit_GL_CreateContext(_THIS, SDL_Window * window)
         /* The context owns the view / drawable. */
         context.sdlView = view;
 
-        if (UIKit_GL_MakeCurrent(_this, window, (__bridge SDL_GLContext) context) < 0) {
+        if (UIKit_GL_MakeCurrent(window, (__bridge SDL_GLContext) context) < 0) {
             UIKit_GL_DeleteContext((SDL_GLContext) CFBridgingRetain(context));
             return NULL;
         }

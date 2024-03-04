@@ -189,7 +189,7 @@ SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window)
     return context;
 }
 
-int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int VITA_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     Vita_VideoData *phdata = &vitaVideoData;
     EGLSurface egl_surface;

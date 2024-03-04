@@ -382,7 +382,7 @@ SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window)
     interval = 0;
     [context setValues:&interval forParameter:NSOpenGLCPSwapInterval];
 
-    if (Cocoa_GL_MakeCurrent(_this, window, sdlcontext) < 0) {
+    if (Cocoa_GL_MakeCurrent(window, sdlcontext) < 0) {
         SDL_GL_DeleteContext(sdlcontext);
         SDL_SetError("Failed making OpenGL context current");
         return NULL;
@@ -431,7 +431,7 @@ SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window)
     return sdlcontext;
 }}
 
-int Cocoa_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+int Cocoa_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context)
 { @autoreleasepool
 {
     if (context) {

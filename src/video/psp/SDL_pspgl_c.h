@@ -28,7 +28,7 @@
 #include "../SDL_egl_c.h"
 
 extern void *PSP_GL_GetProcAddress(const char *proc);
-extern int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
+extern int PSP_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 
 extern int PSP_GL_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window);

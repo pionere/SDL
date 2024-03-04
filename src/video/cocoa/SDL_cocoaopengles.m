@@ -87,10 +87,10 @@ int Cocoa_GLES_SwapWindow(_THIS, SDL_Window * window)
     return SDL_EGL_SwapBuffers(((__bridge SDL_WindowData *) window->driverdata).egl_surface);
 }}
 
-int Cocoa_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+int Cocoa_GLES_MakeCurrent(SDL_Window * window, SDL_GLContext context)
 { @autoreleasepool
 {
-    return SDL_EGL_MakeCurrent(_this, window ? ((__bridge SDL_WindowData *) window->driverdata).egl_surface : EGL_NO_SURFACE, context);
+    return SDL_EGL_MakeCurrent(window ? ((__bridge SDL_WindowData *) window->driverdata).egl_surface : EGL_NO_SURFACE, context);
 }}
 
 int Cocoa_GLES_SetupWindow(_THIS, SDL_Window * window)
@@ -109,7 +109,7 @@ int Cocoa_GLES_SetupWindow(_THIS, SDL_Window * window)
         return -1;
     }
 
-    return Cocoa_GLES_MakeCurrent(_this, current_win, current_ctx);
+    return Cocoa_GLES_MakeCurrent(current_win, current_ctx);
 }
 
 #endif /* SDL_VIDEO_DRIVER_COCOA && SDL_VIDEO_OPENGL_EGL */

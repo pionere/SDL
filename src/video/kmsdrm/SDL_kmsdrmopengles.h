@@ -39,7 +39,7 @@ extern int KMSDRM_GLES_LoadLibrary(_THIS, const char *path);
 extern void KMSDRM_GLES_UnloadLibrary(_THIS);
 extern SDL_GLContext KMSDRM_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window);
-extern int KMSDRM_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
+extern int KMSDRM_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 
 #endif /* SDL_VIDEO_DRIVER_KMSDRM */
 

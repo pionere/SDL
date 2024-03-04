@@ -828,7 +828,7 @@ SDL_GLContext X11_GL_CreateContext(_THIS, SDL_Window *window)
         return NULL;
     }
 
-    if (X11_GL_MakeCurrent(_this, window, context) < 0) {
+    if (X11_GL_MakeCurrent(window, context) < 0) {
         X11_GL_DeleteContext(context);
         return NULL;
     }
@@ -836,7 +836,7 @@ SDL_GLContext X11_GL_CreateContext(_THIS, SDL_Window *window)
     return context;
 }
 
-int X11_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int X11_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     SDL_GLDriverData *glx_data = &x11VideoData.glx_data;
     Display *display = x11VideoData.display;

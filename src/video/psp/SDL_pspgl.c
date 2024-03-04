@@ -165,7 +165,7 @@ SDL_GLContext PSP_GL_CreateContext(_THIS, SDL_Window *window)
     return context;
 }
 
-int PSP_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int PSP_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     Psp_VideoData *psp_data = &pspVideoData;
     EGLSurface egl_surface;

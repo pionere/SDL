@@ -27,7 +27,7 @@ extern int NACL_GLES_LoadLibrary(_THIS, const char *path);
 extern void *NACL_GLES_GetProcAddress(const char *proc);
 extern void NACL_GLES_UnloadLibrary(_THIS);
 extern SDL_GLContext NACL_GLES_CreateContext(_THIS, SDL_Window * window);
-extern int NACL_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context);
+extern int NACL_GLES_MakeCurrent(SDL_Window * window, SDL_GLContext context);
 extern int NACL_GLES_SetSwapInterval(int interval);
 extern int NACL_GLES_GetSwapInterval(void);
 extern int NACL_GLES_SwapWindow(_THIS, SDL_Window * window);

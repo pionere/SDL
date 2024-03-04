@@ -1044,7 +1044,7 @@ static void KMSDRM_DestroySurfaces(_THIS, SDL_Window *window)
     /* Destroy the EGL surface */
     /***************************/
 
-    SDL_EGL_MakeCurrent(_this, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    SDL_EGL_MakeCurrent(EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
     if (windata->egl_surface != EGL_NO_SURFACE) {
         SDL_EGL_DestroySurface(windata->egl_surface);
@@ -1171,7 +1171,7 @@ int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window)
     /* Current context passing to EGL is now done here. If something fails,
        go back to delayed SDL_EGL_MakeCurrent() call in SwapWindow. */
     egl_context = (EGLContext)SDL_GL_GetCurrentContext();
-    ret = SDL_EGL_MakeCurrent(_this, windata->egl_surface, egl_context);
+    ret = SDL_EGL_MakeCurrent(windata->egl_surface, egl_context);
 
     SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED,
                         dispdata->mode.hdisplay, dispdata->mode.vdisplay);

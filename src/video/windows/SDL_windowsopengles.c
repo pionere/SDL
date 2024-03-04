@@ -106,7 +106,7 @@ int WIN_GLES_SetupWindow(_THIS, SDL_Window *window)
         return -1;
     }
 
-    return WIN_GLES_MakeCurrent(_this, current_win, current_ctx);
+    return WIN_GLES_MakeCurrent(current_win, current_ctx);
 }
 
 #endif /* SDL_VIDEO_DRIVER_WINDOWS && SDL_VIDEO_OPENGL_EGL */

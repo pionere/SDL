@@ -38,7 +38,7 @@
 extern int Cocoa_GLES_LoadLibrary(_THIS, const char *path);
 extern SDL_GLContext Cocoa_GLES_CreateContext(_THIS, SDL_Window * window);
 extern int Cocoa_GLES_SwapWindow(_THIS, SDL_Window * window);
-extern int Cocoa_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context);
+extern int Cocoa_GLES_MakeCurrent(SDL_Window * window, SDL_GLContext context);
 extern int Cocoa_GLES_SetupWindow(_THIS, SDL_Window * window);
 
 extern void Cocoa_GLES_InitDevice(_THIS);

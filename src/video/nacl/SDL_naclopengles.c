@@ -56,7 +56,7 @@ void NACL_GLES_UnloadLibrary(_THIS)
     glTerminatePPAPI();
 }
 
-int NACL_GLES_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext sdl_context)
+int NACL_GLES_MakeCurrent(SDL_Window * window, SDL_GLContext sdl_context)
 {
     NACL_VideoData *driverdata = &naclVideoData;
     /* FIXME: Check threading issues...otherwise use a hardcoded _this->context across all threads */

@@ -33,7 +33,7 @@
 #define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define VITA_GLES_DeleteContext SDL_EGL_DeleteContext
 
-extern int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
+extern int VITA_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 extern int VITA_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int VITA_GLES_LoadLibrary(_THIS, const char *path);

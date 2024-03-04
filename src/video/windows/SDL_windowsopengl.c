@@ -725,7 +725,7 @@ int WIN_GL_SetupWindow(_THIS, SDL_Window *window)
     SDL_Window *current_win = SDL_GL_GetCurrentWindow();
     SDL_GLContext current_ctx = SDL_GL_GetCurrentContext();
     const int retval = WIN_GL_SetupWindowInternal(_this, window);
-    WIN_GL_MakeCurrent(_this, current_win, current_ctx);
+    WIN_GL_MakeCurrent(current_win, current_ctx);
     return retval;
 }
 
@@ -786,7 +786,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
         }
 
         /* Make the context current */
-        if (WIN_GL_MakeCurrent(_this, window, temp_context) < 0) {
+        if (WIN_GL_MakeCurrent(window, temp_context) < 0) {
             WIN_GL_DeleteContext(temp_context);
             return NULL;
         }
@@ -849,7 +849,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
         return NULL;
     }
 
-    if (WIN_GL_MakeCurrent(_this, window, context) < 0) {
+    if (WIN_GL_MakeCurrent(window, context) < 0) {
         WIN_GL_DeleteContext(context);
         return NULL;
     }
@@ -857,7 +857,7 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
     return context;
 }
 
-int WIN_GL_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int WIN_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
     HDC hdc;

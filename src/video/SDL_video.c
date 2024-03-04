@@ -4121,7 +4121,7 @@ int SDL_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
         return SDL_SetError("Use of OpenGL without a window is not supported on this platform");
     }
 
-    retval = _this->GL_MakeCurrent(_this, window, context);
+    retval = _this->GL_MakeCurrent(window, context);
     if (retval == 0) {
         _this->current_glwin = window;
         _this->current_glctx = context;

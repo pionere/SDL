@@ -25,7 +25,7 @@
 
 #include "../SDL_sysvideo.h"
 
-extern int UIKit_GL_MakeCurrent(_THIS, SDL_Window * window,
+extern int UIKit_GL_MakeCurrent(SDL_Window * window,
                                 SDL_GLContext context);
 extern void UIKit_GL_GetDrawableSize(SDL_Window * window,
                                      int * w, int * h);

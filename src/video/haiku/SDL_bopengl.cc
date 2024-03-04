@@ -80,7 +80,7 @@ int HAIKU_GL_SwapWindow(_THIS, SDL_Window * window) {
     return 0;
 }
 
-int HAIKU_GL_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context) {
+int HAIKU_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context) {
     BGLView* glView = (BGLView*)context;
     // printf("HAIKU_GL_MakeCurrent(%llx), win = %llx, thread = %d\n", (uint64)context, (uint64)window, find_thread(NULL));
     if (glView) {

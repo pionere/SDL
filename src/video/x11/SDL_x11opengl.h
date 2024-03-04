@@ -84,7 +84,7 @@ extern int X11_GL_LoadLibrary(_THIS, const char *path);
 extern void *X11_GL_GetProcAddress(const char *proc);
 extern void X11_GL_UnloadLibrary(_THIS);
 extern SDL_GLContext X11_GL_CreateContext(_THIS, SDL_Window *window);
-extern int X11_GL_MakeCurrent(_THIS, SDL_Window *window,
+extern int X11_GL_MakeCurrent(SDL_Window *window,
                               SDL_GLContext context);
 extern int X11_GL_SetSwapInterval(int interval);
 extern int X11_GL_GetSwapInterval(void);

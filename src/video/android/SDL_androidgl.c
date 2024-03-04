@@ -36,7 +36,7 @@
 
 #include <dlfcn.h>
 
-int Android_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int Android_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     EGLSurface egl_surface;
 
@@ -52,7 +52,7 @@ int Android_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
             context = EGL_NO_CONTEXT;
         }
     }
-    return SDL_EGL_MakeCurrent(_this, egl_surface, context);
+    return SDL_EGL_MakeCurrent(egl_surface, context);
 }
 
 SDL_GLContext Android_GLES_CreateContext(_THIS, SDL_Window *window)

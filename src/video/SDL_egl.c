@@ -1068,7 +1068,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
 
     egl_data.egl_swapinterval = 0;
 
-    if (SDL_EGL_MakeCurrent(_this, egl_surface, egl_context) < 0) {
+    if (SDL_EGL_MakeCurrent(egl_surface, egl_context) < 0) {
         /* Delete the context */
         SDL_EGL_DeleteContext(egl_context);
         return NULL;
@@ -1107,7 +1107,7 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
     return (SDL_GLContext)egl_context;
 }
 
-int SDL_EGL_MakeCurrent(_THIS, EGLSurface egl_surface, SDL_GLContext context)
+int SDL_EGL_MakeCurrent(EGLSurface egl_surface, SDL_GLContext context)
 {
     EGLContext egl_context = (EGLContext)context;
 

@@ -38,7 +38,7 @@
 extern int X11_GLES_LoadLibrary(_THIS, const char *path);
 extern SDL_GLContext X11_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int X11_GLES_SwapWindow(_THIS, SDL_Window *window);
-extern int X11_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context);
+extern int X11_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 
 extern void X11_GLES_InitDevice(_THIS);
 extern int X11_GLES_PrivateLoadLibrary(_THIS, const char *path);

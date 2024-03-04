@@ -253,7 +253,7 @@ void UIKit_RaiseWindow(_THIS, SDL_Window * window)
      * we only allow one per display, in the iOS fashion.
      * However, we use this entry point to rebind the context to the view
      * during OnWindowRestored processing. */
-    _this->GL_MakeCurrent(_this, _this->current_glwin, _this->current_glctx);
+    _this->GL_MakeCurrent(_this->current_glwin, _this->current_glctx);
 }
 
 static void UIKit_UpdateWindowBorder(SDL_Window * window)
