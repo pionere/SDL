@@ -330,8 +330,9 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void VITA_GXM_SetYUVProfile(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
+    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
     int ret = 0;
-    switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
+    switch (convmode) {
     case SDL_YUV_CONVERSION_BT601:
         ret = sceGxmSetYuvProfile(data->gxm_context, 0, SCE_GXM_YUV_PROFILE_BT601_STANDARD);
         break;
@@ -340,7 +341,7 @@ static void VITA_GXM_SetYUVProfile(SDL_Renderer *renderer, SDL_Texture *texture)
         break;
     case SDL_YUV_CONVERSION_JPEG:
     default:
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Unsupported YUV profile: %d\n", SDL_GetYUVConversionModeForResolution(texture->w, texture->h));
+        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Unsupported YUV profile: %d", convmode);
         break;
     }
 

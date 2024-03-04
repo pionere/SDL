@@ -189,7 +189,8 @@ int SDL_CalculateYUVSize(Uint32 format, int w, int h, size_t *size, int *pitch)
 
 static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
 {
-    switch (SDL_GetYUVConversionModeForResolution(width, height)) {
+    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(width, height);
+    switch (convmode) {
     case SDL_YUV_CONVERSION_JPEG:
         *yuv_type = YCBCR_JPEG;
         break;
@@ -200,7 +201,7 @@ static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
         *yuv_type = YCBCR_709;
         break;
     default:
-        return SDL_SetError("Unexpected YUV conversion mode");
+        return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
     }
     return 0;
 }

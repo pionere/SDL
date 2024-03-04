@@ -607,7 +607,9 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
     GLuint fragment;
     GLES2_ShaderType vtype, ftype;
     GLES2_ProgramCacheEntry *program;
-
+#if SDL_HAVE_YUV
+    SDL_YUV_CONVERSION_MODE convmode;
+#endif
     /* Select an appropriate shader pair for the specified modes */
     vtype = GLES2_SHADER_VERTEX_DEFAULT;
     switch (source) {
@@ -628,7 +630,8 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
         break;
 #if SDL_HAVE_YUV
     case GLES2_IMAGESOURCE_TEXTURE_YUV:
-        switch (SDL_GetYUVConversionModeForResolution(w, h)) {
+        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_YUV_JPEG;
             break;
@@ -639,12 +642,13 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_YUV_BT709;
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d\n", SDL_GetYUVConversionModeForResolution(w, h));
+            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
             goto fault;
         }
         break;
     case GLES2_IMAGESOURCE_TEXTURE_NV12:
-        switch (SDL_GetYUVConversionModeForResolution(w, h)) {
+        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV12_JPEG;
             break;
@@ -663,12 +667,13 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             }
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d\n", SDL_GetYUVConversionModeForResolution(w, h));
+            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
             goto fault;
         }
         break;
     case GLES2_IMAGESOURCE_TEXTURE_NV21:
-        switch (SDL_GetYUVConversionModeForResolution(w, h)) {
+        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV21_JPEG;
             break;
@@ -679,7 +684,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV21_BT709;
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d\n", SDL_GetYUVConversionModeForResolution(w, h));
+            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
             goto fault;
         }
         break;

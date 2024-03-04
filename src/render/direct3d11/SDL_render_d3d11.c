@@ -1965,8 +1965,9 @@ static int D3D11_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             textureData->mainTextureResourceViewV
         };
         D3D11_Shader shader;
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
 
-        switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             shader = SHADER_YUV_JPEG;
             break;
@@ -1977,7 +1978,7 @@ static int D3D11_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             shader = SHADER_YUV_BT709;
             break;
         default:
-            return SDL_SetError("Unsupported YUV conversion mode");
+            return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
         return D3D11_SetDrawState(renderer, cmd, rendererData->pixelShaders[shader],
@@ -1989,8 +1990,9 @@ static int D3D11_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             textureData->mainTextureResourceViewNV,
         };
         D3D11_Shader shader;
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
 
-        switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             shader = texture->format == SDL_PIXELFORMAT_NV12 ? SHADER_NV12_JPEG : SHADER_NV21_JPEG;
             break;
@@ -2001,7 +2003,7 @@ static int D3D11_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             shader = texture->format == SDL_PIXELFORMAT_NV12 ? SHADER_NV12_BT709 : SHADER_NV21_BT709;
             break;
         default:
-            return SDL_SetError("Unsupported YUV conversion mode");
+            return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
         return D3D11_SetDrawState(renderer, cmd, rendererData->pixelShaders[shader],

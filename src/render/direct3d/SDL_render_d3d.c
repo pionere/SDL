@@ -951,7 +951,8 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
     }
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {
-        switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             *shader = data->shaders[SHADER_YUV_JPEG];
             break;
@@ -962,7 +963,7 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
             *shader = data->shaders[SHADER_YUV_BT709];
             break;
         default:
-            return SDL_SetError("Unsupported YUV conversion mode");
+            return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
         UpdateTextureScaleMode(data, texturedata, 1);
