@@ -72,7 +72,7 @@ static int aaudio_LoadFunctions(AAUDIO_Data *data)
     return 0;
 }
 
-void aaudio_errorCallback(AAudioStream *stream, void *userData, aaudio_result_t error)
+static void aaudio_errorCallback(AAudioStream *stream, void *userData, aaudio_result_t error)
 {
     LOGI("SDL aaudio_errorCallback: %d - %s", error, ctx.AAudio_convertResultToText(error));
 }
