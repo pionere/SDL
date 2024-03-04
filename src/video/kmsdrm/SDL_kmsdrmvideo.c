@@ -1164,7 +1164,7 @@ int KMSDRM_CreateSurfaces(_THIS, SDL_Window *window)
     windata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)windata->gs);
 
     if (windata->egl_surface == EGL_NO_SURFACE) {
-        ret = SDL_SetError("Could not create EGL window surface");
+        ret = -1;
         goto cleanup;
     }
 
@@ -1507,7 +1507,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
            Needs the window diverdata in place. */
         ret = KMSDRM_CreateSurfaces(_this, window);
         if (ret != 0) {
-            return SDL_SetError("Can't window GBM/EGL surfaces on window creation.");
+            return ret;
         }
     } /* NON-Vulkan block ends. */
 

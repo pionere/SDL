@@ -69,19 +69,8 @@ int VITA_GLES_LoadLibrary(_THIS, const char *path)
     return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
-SDL_GLContext VITA_GLES_CreateContext(_THIS, SDL_Window *window)
-{
-    return SDL_EGL_CreateContext(_this, ((SDL_WindowData *)window->driverdata)->egl_surface);
-}
-
-int VITA_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
-{
-    if (window && context) {
-        return SDL_EGL_MakeCurrent(_this, ((SDL_WindowData *)window->driverdata)->egl_surface, context);
-    } else {
-        return SDL_EGL_MakeCurrent(_this, NULL, NULL);
-    }
-}
+SDL_EGL_CreateContext_impl(VITA)
+SDL_EGL_MakeCurrent_impl(VITA)
 
 int VITA_GLES_SwapWindow(_THIS, SDL_Window *window)
 {

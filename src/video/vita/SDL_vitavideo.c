@@ -292,7 +292,7 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
             _this->gl_config.profile_mask = temp_profile;
         }
         if (egl_surface == EGL_NO_SURFACE) {
-            return SDL_SetError("Could not create GLES window surface");
+            return -1;
         }
         wdata->egl_surface = egl_surface;
     }

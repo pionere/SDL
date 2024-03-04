@@ -659,7 +659,7 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
         windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
 
         if (windowdata->egl_surface == EGL_NO_SURFACE) {
-            return SDL_SetError("Could not create GLES window surface");
+            return -1;
         }
 #else
         return SDL_SetError("Could not create GLES window surface (EGL support not configured)");
