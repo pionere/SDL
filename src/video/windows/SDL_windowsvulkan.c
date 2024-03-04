@@ -146,8 +146,7 @@ SDL_bool WIN_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     result = vkCreateWin32SurfaceKHR(instance, &createInfo,
                                      NULL, surface);
     if (result != VK_SUCCESS) {
-        SDL_SetError("vkCreateWin32SurfaceKHR failed: %s",
-                     SDL_Vulkan_GetResultString(result));
+        SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateWin32SurfaceKHR", result);
         return SDL_FALSE;
     }
     return SDL_TRUE;

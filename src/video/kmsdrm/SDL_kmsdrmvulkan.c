@@ -479,8 +479,7 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                             NULL,
                                             surface);
     if (result != VK_SUCCESS) {
-        SDL_SetError("vkCreateDisplayPlaneSurfaceKHR failed: %s",
-                     SDL_Vulkan_GetResultString(result));
+        SDL_Vulkan_SetError("unable to create a Vulkan display surface", "vkCreateDisplayPlaneSurfaceKHR", result);
         goto clean;
     }
 

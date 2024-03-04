@@ -25,7 +25,7 @@
 
 #ifdef SDL_VIDEO_VULKAN
 
-const char *SDL_Vulkan_GetResultString(VkResult result)
+static const char *SDL_Vulkan_GetResultString(VkResult result)
 {
     switch ((int)result) {
     case VK_SUCCESS:
@@ -117,6 +117,16 @@ const char *SDL_Vulkan_GetResultString(VkResult result)
     return "VK_<Unknown>";
 }
 
+int SDL_Vulkan_SetError(const char *message, const char *vulkanFunctionName, VkResult result)
+{
+#ifndef SDL_VERBOSE_ERROR_DISABLED
+    const char *errorText = SDL_Vulkan_GetResultString(result);
+    return SDL_SetError("%s (call to %s failed, reporting an error of %s (%d))", message, vulkanFunctionName, errorText, (int)result);
+#else
+    return -1;
+#endif
+}
+
 VkExtensionProperties *SDL_Vulkan_CreateInstanceExtensionsList(
     PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties,
     Uint32 *extensionCount)
@@ -125,21 +135,8 @@ VkExtensionProperties *SDL_Vulkan_CreateInstanceExtensionsList(
     VkResult result = vkEnumerateInstanceExtensionProperties(NULL, &count, NULL);
     VkExtensionProperties *retval;
 
-    if (result == VK_ERROR_INCOMPATIBLE_DRIVER) {
-        /* Avoid the ERR_MAX_STRLEN limit by passing part of the message as a string argument.  */
-        SDL_SetError(
-            "You probably don't have a working Vulkan driver installed. %s %s %s(%d)",
-            "Getting Vulkan extensions failed:",
-            "vkEnumerateInstanceExtensionProperties returned",
-            SDL_Vulkan_GetResultString(result),
-            (int)result);
-        return NULL;
-    } else if (result != VK_SUCCESS) {
-        SDL_SetError(
-            "Getting Vulkan extensions failed: vkEnumerateInstanceExtensionProperties returned "
-            "%s(%d)",
-            SDL_Vulkan_GetResultString(result),
-            (int)result);
+    if (result != VK_SUCCESS) {
+        SDL_Vulkan_SetError("Querying for Vulkan extensions failed", "vkEnumerateInstanceExtensionProperties", result);
         return NULL;
     }
 
@@ -156,11 +153,7 @@ VkExtensionProperties *SDL_Vulkan_CreateInstanceExtensionsList(
 
     result = vkEnumerateInstanceExtensionProperties(NULL, &count, retval);
     if (result != VK_SUCCESS) {
-        SDL_SetError(
-            "Getting Vulkan extensions failed: vkEnumerateInstanceExtensionProperties returned "
-            "%s(%d)",
-            SDL_Vulkan_GetResultString(result),
-            (int)result);
+        SDL_Vulkan_SetError("Getting Vulkan extensions failed", "vkEnumerateInstanceExtensionProperties", result);
         SDL_free(retval);
         return NULL;
     }
@@ -483,7 +476,7 @@ SDL_bool SDL_Vulkan_Display_CreateSurface(void *vkGetInstanceProcAddr_,
 
     result = vkCreateDisplayPlaneSurfaceKHR(instance, &createInfo, NULL, surface);
     if (result != VK_SUCCESS) {
-        SDL_SetError("vkCreateDisplayPlaneSurfaceKHR failed: %s", SDL_Vulkan_GetResultString(result));
+        SDL_Vulkan_SetError("unable to create a Vulkan display surface", "vkCreateDisplayPlaneSurfaceKHR", result);
         return SDL_FALSE;
     }
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "vulkandisplay: Created surface");

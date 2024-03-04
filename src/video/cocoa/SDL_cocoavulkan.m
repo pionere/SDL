@@ -217,8 +217,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
         result = vkCreateMetalSurfaceEXT(instance, &createInfo, NULL, surface);
         if (result != VK_SUCCESS) {
             Cocoa_Metal_DestroyView(metalview);
-            SDL_SetError("vkCreateMetalSurfaceEXT failed: %s",
-                         SDL_Vulkan_GetResultString(result));
+            SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateMetalSurfaceEXT", result);
             return SDL_FALSE;
         }
     } else {
@@ -231,8 +230,7 @@ SDL_bool Cocoa_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                            NULL, surface);
         if (result != VK_SUCCESS) {
             Cocoa_Metal_DestroyView(metalview);
-            SDL_SetError("vkCreateMacOSSurfaceMVK failed: %s",
-                         SDL_Vulkan_GetResultString(result));
+            SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateMacOSSurfaceMVK", result);
             return SDL_FALSE;
         }
     }

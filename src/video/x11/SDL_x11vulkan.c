@@ -190,7 +190,7 @@ SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
         result = vkCreateXcbSurfaceKHR(instance, &createInfo,
                                        NULL, surface);
         if (result != VK_SUCCESS) {
-            SDL_SetError("vkCreateXcbSurfaceKHR failed: %s", SDL_Vulkan_GetResultString(result));
+            SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateXcbSurfaceKHR", result);
             return SDL_FALSE;
         }
         return SDL_TRUE;
@@ -212,7 +212,7 @@ SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
         result = vkCreateXlibSurfaceKHR(instance, &createInfo,
                                         NULL, surface);
         if (result != VK_SUCCESS) {
-            SDL_SetError("vkCreateXlibSurfaceKHR failed: %s", SDL_Vulkan_GetResultString(result));
+            SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateXlibSurfaceKHR", result);
             return SDL_FALSE;
         }
         return SDL_TRUE;

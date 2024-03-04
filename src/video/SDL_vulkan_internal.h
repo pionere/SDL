@@ -66,7 +66,7 @@
 
 #include "SDL_vulkan.h"
 
-extern const char *SDL_Vulkan_GetResultString(VkResult result);
+extern int SDL_Vulkan_SetError(const char *message, const char *vulkanFunctionName, VkResult result);
 
 extern VkExtensionProperties *SDL_Vulkan_CreateInstanceExtensionsList(
     PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties,

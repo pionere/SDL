@@ -153,8 +153,7 @@ SDL_bool Wayland_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     result = vkCreateWaylandSurfaceKHR(instance, &createInfo,
                                        NULL, surface);
     if (result != VK_SUCCESS) {
-        SDL_SetError("vkCreateWaylandSurfaceKHR failed: %s",
-                     SDL_Vulkan_GetResultString(result));
+        SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateWaylandSurfaceKHR", result);
         return SDL_FALSE;
     }
     return SDL_TRUE;

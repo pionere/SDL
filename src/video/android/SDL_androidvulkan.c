@@ -144,8 +144,7 @@ SDL_bool Android_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     result = vkCreateAndroidSurfaceKHR(instance, &createInfo,
                                        NULL, surface);
     if (result != VK_SUCCESS) {
-        SDL_SetError("vkCreateAndroidSurfaceKHR failed: %s",
-                     SDL_Vulkan_GetResultString(result));
+        SDL_Vulkan_SetError("unable to create a Vulkan window surface", "vkCreateAndroidSurfaceKHR", result);
         return SDL_FALSE;
     }
     return SDL_TRUE;
