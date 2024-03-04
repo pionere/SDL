@@ -184,12 +184,14 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     // data->active_cursor_confined_window = NULL;
 #endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
 
-    data->display = x11_display;
     data->request_display = X11_XOpenDisplay(display);
     if (!data->request_display) {
-        X11_DeleteDevice(device);
+        SDL_free(device);
+        X11_XCloseDisplay(x11_display);
+        SDL_X11_UnloadSymbols();
         return NULL;
     }
+    data->display = x11_display;
 
     device->wakeup_lock = SDL_CreateMutex();
 
