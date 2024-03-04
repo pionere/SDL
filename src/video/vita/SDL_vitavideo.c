@@ -235,9 +235,9 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
     SDL_WindowData *wdata;
 #if defined(SDL_VIDEO_VITA_PVR)
     Psp2NativeWindow win;
-    int temp_major = 2;
-    int temp_minor = 1;
-    int temp_profile = 0;
+    SDL_bool pvrOgl;
+    int temp_major, temp_minor, temp_profile;
+    EGLSurface egl_surface;
 #endif
 
     // Vita can only have one window
@@ -273,7 +273,8 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
         win.windowSize = PSP2_WINDOW_960X544;
     }
     if (window->flags & SDL_WINDOW_OPENGL) {
-        if (SDL_getenv("VITA_PVR_OGL") != NULL) {
+        pvrOgl = SDL_getenv("VITA_PVR_OGL") != NULL;
+        if (pvrOgl) {
             /* Set version to 2.1 and PROFILE to ES */
             temp_major = _this->gl_config.major_version;
             temp_minor = _this->gl_config.minor_version;
@@ -283,16 +284,17 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
             _this->gl_config.minor_version = 1;
             _this->gl_config.profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
         }
-        wdata->egl_surface = SDL_EGL_CreateSurface(_this, &win);
-        if (wdata->egl_surface == EGL_NO_SURFACE) {
-            return SDL_SetError("Could not create GLES window surface");
-        }
-        if (SDL_getenv("VITA_PVR_OGL") != NULL) {
+        egl_surface = SDL_EGL_CreateSurface(_this, &win);
+        if (pvrOgl) {
             /* Revert */
             _this->gl_config.major_version = temp_major;
             _this->gl_config.minor_version = temp_minor;
             _this->gl_config.profile_mask = temp_profile;
         }
+        if (egl_surface == EGL_NO_SURFACE) {
+            return SDL_SetError("Could not create GLES window surface");
+        }
+        wdata->egl_surface = egl_surface;
     }
 #endif
 
