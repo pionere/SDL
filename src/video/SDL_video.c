@@ -657,6 +657,11 @@ const char *SDL_GetCurrentVideoDriver(void)
     return _this->name;
 }
 
+SDL_bool SDL_HasVideoDevice(void)
+{
+    return _this != NULL;
+}
+
 SDL_VideoDevice *SDL_GetVideoDevice(void)
 {
     return _this;

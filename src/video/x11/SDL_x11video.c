@@ -124,15 +124,14 @@ static void X11_DeleteDevice(SDL_VideoDevice *device)
 static SDL_bool safety_net_triggered = SDL_FALSE;
 static int X11_SafetyNetErrHandler(Display *d, XErrorEvent *e)
 {
-    SDL_VideoDevice *device = NULL;
     /* if we trigger an error in our error handler, don't try again. */
     if (!safety_net_triggered) {
         safety_net_triggered = SDL_TRUE;
-        device = SDL_GetVideoDevice();
-        if (device) {
-            int i;
-            for (i = 0; i < device->num_displays; i++) {
-                SDL_VideoDisplay *display = &device->displays[i];
+        if (SDL_HasVideoDevice()) {
+            int i, num_displays;
+            SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+            for (i = 0; i < num_displays; i++) {
+                SDL_VideoDisplay *display = &displays[i];
                 if (SDL_memcmp(&display->current_mode, &display->desktop_mode,
                                sizeof(SDL_DisplayMode)) != 0) {
                     X11_SetDisplayMode(display, &display->desktop_mode);

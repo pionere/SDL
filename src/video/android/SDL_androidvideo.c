@@ -272,36 +272,43 @@ void Android_OnResize(void)
       which can happen after VideoInit().
     */
     SDL_Window *window;
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
-    if (device && device->num_displays > 0) {
-        SDL_VideoDisplay *display = &device->displays[0];
-        display->desktop_mode.format = Android_ScreenFormat;
-        display->desktop_mode.w = Android_DeviceWidth;
-        display->desktop_mode.h = Android_DeviceHeight;
-        display->desktop_mode.refresh_rate = Android_ScreenRate;
-    }
 
-    window = Android_Window;
-    if (window) {
-        /* Force the current mode to match the resize otherwise the SDL_WINDOWEVENT_RESTORED event
-         * will fall back to the old mode */
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-        display->display_modes[0].format = Android_ScreenFormat;
-        display->display_modes[0].w = Android_DeviceWidth;
-        display->display_modes[0].h = Android_DeviceHeight;
-        display->display_modes[0].refresh_rate = Android_ScreenRate;
-        display->current_mode = display->display_modes[0];
+    if (SDL_HasVideoDevice()) {
+        int num_displays;
+        SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+        if (num_displays > 0) {
+            displays[0].desktop_mode.format = Android_ScreenFormat;
+            displays[0].desktop_mode.w = Android_DeviceWidth;
+            displays[0].desktop_mode.h = Android_DeviceHeight;
+            displays[0].desktop_mode.refresh_rate = Android_ScreenRate;
 
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, Android_SurfaceWidth, Android_SurfaceHeight);
+            window = Android_Window;
+            if (window) {
+                /* Force the current mode to match the resize otherwise the SDL_WINDOWEVENT_RESTORED event
+                 * will fall back to the old mode */
+                SDL_assert(SDL_GetDisplayForWindow(window) == &displays[0]);
+                displays[0].display_modes[0].format = Android_ScreenFormat;
+                displays[0].display_modes[0].w = Android_DeviceWidth;
+                displays[0].display_modes[0].h = Android_DeviceHeight;
+                displays[0].display_modes[0].refresh_rate = Android_ScreenRate;
+                displays[0].current_mode = displays[0].display_modes[0];
+
+                SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, Android_SurfaceWidth, Android_SurfaceHeight);
+            }
+        } else {
+            SDL_assert(Android_Window == NULL);
+        }
     }
 }
 
 void Android_OnOrientationChanged(SDL_DisplayOrientation orientation)
 {
-    SDL_VideoDevice *device = SDL_GetVideoDevice();
-    if (device && device->num_displays > 0) {
-        SDL_VideoDisplay *display = &device->displays[0];
-        SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
+    if (SDL_HasVideoDevice()) {
+        int num_displays;
+        SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
+        if (num_displays > 0) {
+            SDL_SendDisplayEvent(&displays[0], SDL_DISPLAYEVENT_ORIENTATION, orientation);
+        }
     }
 }
 

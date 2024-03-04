@@ -75,9 +75,7 @@ static SDL_bool s_bShouldHandleEventsInSDLApplication = SDL_FALSE;
 
 static void Cocoa_DispatchEvent(NSEvent *theEvent)
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
-
-    if (!_this) {
+    if (!SDL_HasVideoDevice()) {
         return; // can happen when returning from fullscreen Space on shutdown
     }
 
