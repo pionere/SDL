@@ -1685,19 +1685,24 @@ static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_Co
 #ifdef ANDROID
     { /* Extract and verify the SDK version */
         const char *tmp;
+        int sdkver, ver;
 
         tmp = SDL_strstr(mappingString, SDL_CONTROLLER_SDKGE_FIELD);
         if (tmp) {
             tmp += SDL_CONTROLLER_SDKGE_FIELD_SIZE;
-            if (!(SDL_GetAndroidSDKVersion() >= SDL_atoi(tmp))) {
-                return SDL_SetError("SDK version %d < minimum version %d", SDL_GetAndroidSDKVersion(), SDL_atoi(tmp));
+            ver = SDL_atoi(tmp);
+            sdkver = SDL_GetAndroidSDKVersion();
+            if (!(sdkver >= ver)) {
+                return SDL_SetError("SDK version %d < minimum version %d", sdkver, ver);
             }
         }
         tmp = SDL_strstr(mappingString, SDL_CONTROLLER_SDKLE_FIELD);
         if (tmp) {
             tmp += SDL_CONTROLLER_SDKLE_FIELD_SIZE;
-            if (!(SDL_GetAndroidSDKVersion() <= SDL_atoi(tmp))) {
-                return SDL_SetError("SDK version %d > maximum version %d", SDL_GetAndroidSDKVersion(), SDL_atoi(tmp));
+            ver = SDL_atoi(tmp);
+            sdkver = SDL_GetAndroidSDKVersion();
+            if (!(sdkver <= ver)) {
+                return SDL_SetError("SDK version %d > maximum version %d", sdkver, ver);
             }
         }
     }
