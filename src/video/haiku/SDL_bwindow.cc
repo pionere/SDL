@@ -78,7 +78,7 @@ static int _InitWindow(SDL_Window *window) {
     return 0;
 }
 
-int HAIKU_CreateWindow(_THIS, SDL_Window *window) {
+int HAIKU_CreateSDLWindow(_THIS, SDL_Window *window) {
     if (_InitWindow(window) < 0) {
         return -1;
     }
@@ -88,7 +88,7 @@ int HAIKU_CreateWindow(_THIS, SDL_Window *window) {
     return 0;
 }
 
-int HAIKU_CreateWindowFrom(_THIS, SDL_Window * window, const void *data) {
+int HAIKU_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data) {
 
     SDL_BWin *otherBWin = (SDL_BWin*)data;
     if (!otherBWin->LockLooper()) {

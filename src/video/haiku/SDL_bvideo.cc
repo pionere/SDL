@@ -77,18 +77,29 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
 /* TODO: Figure out if any initialization needs to go here */
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = HAIKU_VideoInit;
     device->VideoQuit = HAIKU_VideoQuit;
+    // device->ResetTouch = HAIKU_ResetTouch;
     device->GetDisplayBounds = HAIKU_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = HAIKU_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = HAIKU_GetDisplayDPI;
     device->SetDisplayMode = HAIKU_SetDisplayMode;
-    device->PumpEvents = HAIKU_PumpEvents;
 
-    device->CreateSDLWindow = HAIKU_CreateWindow;
-    device->CreateSDLWindowFrom = HAIKU_CreateWindowFrom;
+    /* Window functions */
+    device->CreateSDLWindow = HAIKU_CreateSDLWindow;
+    device->CreateSDLWindowFrom = HAIKU_CreateSDLWindowFrom;
     device->SetWindowTitle = HAIKU_SetWindowTitle;
     device->SetWindowIcon = HAIKU_SetWindowIcon;
     device->SetWindowPosition = HAIKU_SetWindowPosition;
     device->SetWindowSize = HAIKU_SetWindowSize;
+    device->SetWindowMinimumSize = HAIKU_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = HAIKU_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = HAIKU_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = HAIKU_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = HAIKU_SetWindowOpacity;
+    // device->SetWindowModalFor = HAIKU_SetWindowModalFor;
+    // device->SetWindowInputFocus = HAIKU_SetWindowInputFocus;
     device->ShowWindow = HAIKU_ShowWindow;
     device->HideWindow = HAIKU_HideWindow;
     device->RaiseWindow = HAIKU_RaiseWindow;
@@ -97,39 +108,93 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     device->RestoreWindow = HAIKU_RestoreWindow;
     device->SetWindowBordered = HAIKU_SetWindowBordered;
     device->SetWindowResizable = HAIKU_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = HAIKU_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = HAIKU_SetWindowFullscreen;
     device->SetWindowGammaRamp = HAIKU_SetWindowGammaRamp;
     device->GetWindowGammaRamp = HAIKU_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = HAIKU_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = HAIKU_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = HAIKU_SetWindowMouseRect;
     device->SetWindowMouseGrab = HAIKU_SetWindowMouseGrab;
-    device->SetWindowMinimumSize = HAIKU_SetWindowMinimumSize;
+    // device->SetWindowKeyboardGrab = HAIKU_SetWindowKeyboardGrab;
     device->DestroyWindow = HAIKU_DestroyWindow;
-    device->GetWindowWMInfo = HAIKU_GetWindowWMInfo;
     device->CreateWindowFramebuffer = HAIKU_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = HAIKU_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = HAIKU_DestroyWindowFramebuffer;
-    
-    device->CreateShaper = NULL;
-    device->SetWindowShape = NULL;
+    // device->OnWindowEnter = HAIKU_OnWindowEnter;
+    // device->FlashWindow = HAIKU_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = HAIKU_CreateShaper;
+    // device->SetWindowShape = HAIKU_SetWindowShape;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = HAIKU_GetWindowWMInfo;
 
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL
     device->GL_LoadLibrary = HAIKU_GL_LoadLibrary;
     device->GL_GetProcAddress = HAIKU_GL_GetProcAddress;
     device->GL_UnloadLibrary = HAIKU_GL_UnloadLibrary;
     device->GL_CreateContext = HAIKU_GL_CreateContext;
     device->GL_MakeCurrent = HAIKU_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = HAIKU_GL_GetDrawableSize;
     device->GL_SetSwapInterval = HAIKU_GL_SetSwapInterval;
     device->GL_GetSwapInterval = HAIKU_GL_GetSwapInterval;
     device->GL_SwapWindow = HAIKU_GL_SwapWindow;
     device->GL_DeleteContext = HAIKU_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = HAIKU_GL_DefaultProfileConfig;
 #endif
 
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = HAIKU_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = HAIKU_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = HAIKU_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = HAIKU_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = HAIKU_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = HAIKU_Metal_CreateView;
+    // device->Metal_DestroyView = HAIKU_Metal_DestroyView;
+    // device->Metal_GetLayer = HAIKU_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = HAIKU_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = HAIKU_WaitEventTimeout;
+    // device->SendWakeupEvent = HAIKU_SendWakeupEvent;
+    device->PumpEvents = HAIKU_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = HAIKU_SuspendScreenSaver;
+
+    /* Text input */
     device->StartTextInput = HAIKU_StartTextInput;
     device->StopTextInput = HAIKU_StopTextInput;
     device->SetTextInputRect = HAIKU_SetTextInputRect;
+    // device->ClearComposition = HAIKU_ClearComposition;
+    // device->IsTextInputShown = HAIKU_IsTextInputShown;
 
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = HAIKU_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = HAIKU_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = HAIKU_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = HAIKU_IsScreenKeyboardShown;
+
+    /* Clipboard */
     device->SetClipboardText = HAIKU_SetClipboardText;
     device->GetClipboardText = HAIKU_GetClipboardText;
     device->HasClipboardText = HAIKU_HasClipboardText;
+    // device->SetPrimarySelectionText = HAIKU_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = HAIKU_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = HAIKU_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = HAIKU_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = HAIKU_AcceptDragAndDrop;
 
     device->free = HAIKU_DeleteDevice;
 
