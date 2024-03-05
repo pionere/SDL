@@ -35,7 +35,7 @@
 
 #include "../SDL_pixels_c.h"
 
-int DirectFB_CreateWindow(_THIS, SDL_Window * window)
+int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     SDL_DFB_DISPLAYDATA(window);
@@ -175,7 +175,7 @@ int DirectFB_CreateWindow(_THIS, SDL_Window * window)
     return -1;
 }
 
-/*int DirectFB_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
+/*int DirectFB_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 {
     return SDL_Unsupported();
 }*/

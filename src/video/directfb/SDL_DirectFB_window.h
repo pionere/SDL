@@ -52,8 +52,8 @@ struct _DFB_WindowData
     int                     wm_lasty;
 };
 
-extern int DirectFB_CreateWindow(_THIS, SDL_Window * window);
-// extern int DirectFB_CreateWindowFrom(_THIS, SDL_Window * window, const void *data);
+extern int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window);
+// extern int DirectFB_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data);
 extern void DirectFB_SetWindowTitle(SDL_Window * window);
 extern void DirectFB_SetWindowIcon(SDL_Window * window,
                                    SDL_Surface * icon);

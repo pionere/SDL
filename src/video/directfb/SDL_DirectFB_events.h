@@ -27,7 +27,7 @@
 /* Functions to be exported */
 extern void DirectFB_InitKeyboard(void);
 extern void DirectFB_QuitKeyboard(void);
-extern void DirectFB_PumpEventsWindow(_THIS);
+extern void DirectFB_PumpEvents(_THIS);
 
 #endif /* SDL_DirectFB_events_h_ */
 

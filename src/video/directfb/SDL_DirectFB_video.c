@@ -106,54 +106,125 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     }
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = DirectFB_VideoInit;
     device->VideoQuit = DirectFB_VideoQuit;
+    // device->ResetTouch = DirectFB_ResetTouch;
+    // device->GetDisplayBounds = DirectFB_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = DirectFB_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = DirectFB_GetDisplayDPI;
     device->SetDisplayMode = DirectFB_SetDisplayMode;
-    device->PumpEvents = DirectFB_PumpEventsWindow;
-    device->CreateSDLWindow = DirectFB_CreateWindow;
-    device->CreateSDLWindowFrom = DirectFB_CreateWindowFrom;
+    /* Event manager functions */
+    // device->WaitEventTimeout = DirectFB_WaitEventTimeout;
+    // device->SendWakeupEvent = DirectFB_SendWakeupEvent;
+    device->PumpEvents = DirectFB_PumpEvents;
+
+    /* Window functions */
+    device->CreateSDLWindow = DirectFB_CreateSDLWindow;
+    device->CreateSDLWindowFrom = DirectFB_CreateSDLWindowFrom;
     device->SetWindowTitle = DirectFB_SetWindowTitle;
     device->SetWindowIcon = DirectFB_SetWindowIcon;
     device->SetWindowPosition = DirectFB_SetWindowPosition;
     device->SetWindowSize = DirectFB_SetWindowSize;
+    // device->SetWindowMinimumSize = DirectFB_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = DirectFB_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = DirectFB_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = DirectFB_GetWindowSizeInPixels;
     device->SetWindowOpacity = DirectFB_SetWindowOpacity;
+    // device->SetWindowModalFor = DirectFB_SetWindowModalFor;
+    // device->SetWindowInputFocus = DirectFB_SetWindowInputFocus;
     device->ShowWindow = DirectFB_ShowWindow;
     device->HideWindow = DirectFB_HideWindow;
     device->RaiseWindow = DirectFB_RaiseWindow;
     device->MaximizeWindow = DirectFB_MaximizeWindow;
     device->MinimizeWindow = DirectFB_MinimizeWindow;
     device->RestoreWindow = DirectFB_RestoreWindow;
+    // device->SetWindowBordered = DirectFB_SetWindowBordered;
+    // device->SetWindowResizable = DirectFB_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = DirectFB_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = DirectFB_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = DirectFB_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = DirectFB_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = DirectFB_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = DirectFB_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = DirectFB_SetWindowMouseRect;
     device->SetWindowMouseGrab = DirectFB_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = DirectFB_SetWindowKeyboardGrab;
     device->DestroyWindow = DirectFB_DestroyWindow;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = DirectFB_GetWindowWMInfo;
 
-    /* !!! FIXME: implement SetWindowBordered */
+    // device->CreateWindowFramebuffer = DirectFB_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = DirectFB_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = DirectFB_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = DirectFB_OnWindowEnter;
+    // device->FlashWindow = DirectFB_FlashWindow;
 
+    /* OpenGL support */
 #ifdef SDL_DIRECTFB_OPENGL
     device->GL_LoadLibrary = DirectFB_GL_LoadLibrary;
     device->GL_GetProcAddress = DirectFB_GL_GetProcAddress;
     device->GL_UnloadLibrary = DirectFB_GL_UnloadLibrary;
     device->GL_MakeCurrent = DirectFB_GL_MakeCurrent;
-
     device->GL_CreateContext = DirectFB_GL_CreateContext;
+    // device->GL_GetDrawableSize = DirectFB_GL_GetDrawableSize;
     device->GL_SetSwapInterval = DirectFB_GL_SetSwapInterval;
     device->GL_GetSwapInterval = DirectFB_GL_GetSwapInterval;
     device->GL_SwapWindow = DirectFB_GL_SwapWindow;
     device->GL_DeleteContext = DirectFB_GL_DeleteContext;
-
+    // device->GL_DefaultProfileConfig = DirectFB_GL_DefaultProfileConfig;
 #endif
 
-    /* Shaped window support */
+    /* Shaped-window functions */
     device->CreateShaper = DirectFB_CreateShaper;
     device->SetWindowShape = DirectFB_SetWindowShape;
 
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = DirectFB_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = DirectFB_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = DirectFB_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = DirectFB_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = DirectFB_Vulkan_GetDrawableSize;
 #endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = DirectFB_Metal_CreateView;
+    // device->Metal_DestroyView = DirectFB_Metal_DestroyView;
+    // device->Metal_GetLayer = DirectFB_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = DirectFB_Metal_GetDrawableSize;
+#endif
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = DirectFB_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = DirectFB_StartTextInput;
+    // device->StopTextInput = DirectFB_StopTextInput;
+    // device->SetTextInputRect = DirectFB_SetTextInputRect;
+    // device->ClearComposition = DirectFB_ClearComposition;
+    // device->IsTextInputShown = DirectFB_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = DirectFB_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = DirectFB_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = DirectFB_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = DirectFB_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = DirectFB_SetClipboardText;
+    // device->GetClipboardText = DirectFB_GetClipboardText;
+    // device->HasClipboardText = DirectFB_HasClipboardText;
+    // device->SetPrimarySelectionText = DirectFB_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = DirectFB_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = DirectFB_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = DirectFB_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = DirectFB_AcceptDragAndDrop;
 
     device->free = DirectFB_DeleteDevice;
 
