@@ -47,7 +47,7 @@ void *glGetProcAddress(const char *proc);
 extern SDL_GLContext glCreateContext(_THIS, SDL_Window *window);
 extern int glSetSwapInterval(int interval);
 extern int glSwapWindow(_THIS, SDL_Window *window);
-extern int glMakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context);
+extern int glMakeCurrent(SDL_Window * window, SDL_GLContext context);
 extern void glDeleteContext(SDL_GLContext context);
 extern void glUnloadLibrary(_THIS);
 #endif

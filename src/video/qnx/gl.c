@@ -208,7 +208,6 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 
 /**
  * Sets a new value for the number of frames to display before swapping buffers.
- * @param   _THIS
  * @param   interval    New interval value
  * @return  0 if successful, -1 on error
  */
@@ -236,12 +235,11 @@ int glSwapWindow(_THIS, SDL_Window *window)
 
 /**
  * Makes the given context the current one for drawing operations.
- * @param   _THIS
  * @param   window  SDL window associated with the context (maybe NULL)
  * @param   context The context to activate
  * @return  0 if successful, -1 on error
  */
-int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int glMakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     window_impl_t   *impl;
     EGLSurface      surface = NULL;
@@ -260,7 +258,6 @@ int glMakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context)
 
 /**
  * Destroys a context.
- * @param   _THIS
  * @param   context The context to destroy
  */
 void glDeleteContext(SDL_GLContext context)
