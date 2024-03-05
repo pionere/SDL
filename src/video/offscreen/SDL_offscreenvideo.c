@@ -72,7 +72,7 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
     device->SetDisplayMode = OFFSCREEN_SetDisplayMode;
 
     /* Window functions */
-    // device->CreateSDLWindow = OFFSCREEN_CreateSDLWindow;
+    device->CreateSDLWindow = OFFSCREEN_CreateSDLWindow;
     // device->CreateSDLWindowFrom = OFFSCREEN_CreateSDLWindowFrom;
     // device->SetWindowTitle = OFFSCREEN_SetWindowTitle;
     // device->SetWindowIcon = OFFSCREEN_SetWindowIcon;

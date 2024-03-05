@@ -133,7 +133,7 @@ int glGetConfig(EGLConfig *pconf, int *pformat)
  * @param   name    unused
  * @return  0 if successful, -1 on error
  */
-int glLoadLibrary(_THIS, const char *name)
+int QNX_GL_LoadLibrary(_THIS, const char *name)
 {
     EGLNativeDisplayType    disp_id = EGL_DEFAULT_DISPLAY;
 
@@ -154,7 +154,7 @@ int glLoadLibrary(_THIS, const char *name)
  * @param   proc    Function name
  * @return  Function address
  */
-void *glGetProcAddress(const char *proc)
+void *QNX_GL_GetProcAddress(const char *proc)
 {
     return eglGetProcAddress(proc);
 }
@@ -166,7 +166,7 @@ void *glGetProcAddress(const char *proc)
  * @param   window  The SDL window to create the context for
  * @return  A pointer to the created context, if successful, NULL on error
  */
-SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
+SDL_GLContext QNX_GL_CreateContext(_THIS, SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     EGLContext      context;
@@ -211,7 +211,7 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
  * @param   interval    New interval value
  * @return  0 if successful, -1 on error
  */
-int glSetSwapInterval(int interval)
+int QNX_GL_SetSwapInterval(int interval)
 {
     if (eglSwapInterval(egl_disp, interval) != EGL_TRUE) {
         return -1;
@@ -226,7 +226,7 @@ int glSetSwapInterval(int interval)
  * @param   window  Window to swap buffers for
  * @return  0 if successful, -1 on error
  */
-int glSwapWindow(_THIS, SDL_Window *window)
+int QNX_GL_SwapWindow(_THIS, SDL_Window *window)
 {
     /* !!! FIXME: should we migrate this all over to use SDL_egl.c? */
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -239,7 +239,7 @@ int glSwapWindow(_THIS, SDL_Window *window)
  * @param   context The context to activate
  * @return  0 if successful, -1 on error
  */
-int glMakeCurrent(SDL_Window *window, SDL_GLContext context)
+int QNX_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     window_impl_t   *impl;
     EGLSurface      surface = NULL;
@@ -260,7 +260,7 @@ int glMakeCurrent(SDL_Window *window, SDL_GLContext context)
  * Destroys a context.
  * @param   context The context to destroy
  */
-void glDeleteContext(SDL_GLContext context)
+void QNX_GL_DeleteContext(SDL_GLContext context)
 {
     eglDestroyContext(egl_disp, context);
 }
@@ -269,7 +269,7 @@ void glDeleteContext(SDL_GLContext context)
  * Terminates access to the EGL library.
  * @param   _THIS
  */
-void glUnloadLibrary(_THIS)
+void QNX_GL_UnloadLibrary(_THIS)
 {
     eglTerminate(egl_disp);
 }

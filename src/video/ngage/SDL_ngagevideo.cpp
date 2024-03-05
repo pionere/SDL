@@ -127,7 +127,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     device->SetDisplayMode = NGAGE_SetDisplayMode;
 
     /* Window functions */
-    // device->CreateSDLWindow = NGAGE_CreateSDLWindow;
+    device->CreateSDLWindow = NGAGE_CreateSDLWindow;
     // device->CreateSDLWindowFrom = NGAGE_CreateSDLWindowFrom;
     // device->SetWindowTitle = NGAGE_SetWindowTitle;
     // device->SetWindowIcon = NGAGE_SetWindowIcon;

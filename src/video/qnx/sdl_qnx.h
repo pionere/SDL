@@ -42,14 +42,14 @@ extern void handleKeyboardEvent(screen_event_t event);
 
 #ifdef SDL_VIDEO_OPENGL_EGL
 extern int glGetConfig(EGLConfig *pconf, int *pformat);
-extern int glLoadLibrary(_THIS, const char *name);
-void *glGetProcAddress(const char *proc);
-extern SDL_GLContext glCreateContext(_THIS, SDL_Window *window);
-extern int glSetSwapInterval(int interval);
-extern int glSwapWindow(_THIS, SDL_Window *window);
-extern int glMakeCurrent(SDL_Window * window, SDL_GLContext context);
-extern void glDeleteContext(SDL_GLContext context);
-extern void glUnloadLibrary(_THIS);
+extern int QNX_GL_LoadLibrary(_THIS, const char *name);
+void *QNX_GL_GetProcAddress(const char *proc);
+extern SDL_GLContext QNX_GL_CreateContext(_THIS, SDL_Window *window);
+extern int QNX_GL_SetSwapInterval(int interval);
+extern int QNX_GL_SwapWindow(_THIS, SDL_Window *window);
+extern int QNX_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context);
+extern void QNX_GL_DeleteContext(SDL_GLContext context);
+extern void QNX_GL_UnloadLibrary(_THIS);
 #endif
 
 #endif

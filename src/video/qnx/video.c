@@ -45,7 +45,7 @@ static screen_event_t   event;
  * @param   _THIS
  * @return  0 if successful, -1 on error
  */
-static int videoInit(_THIS)
+static int QNX_VideoInit(_THIS)
 {
     int result;
     SDL_VideoDisplay display;
@@ -66,7 +66,7 @@ static int videoInit(_THIS)
     return result;
 }
 
-static void videoQuit(_THIS)
+static void QNX_VideoQuit(_THIS)
 {
 }
 
@@ -77,7 +77,7 @@ static void videoQuit(_THIS)
  * @param   window  SDL window to initialize
  * @return  0 if successful, -1 on error
  */
-static int createWindow(_THIS, SDL_Window *window)
+static int QNX_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     window_impl_t   *impl;
     int             size[2];
@@ -152,14 +152,14 @@ fail:
 
 /**
  * Gets a pointer to the Screen buffer associated with the given window. Note
- * that the buffer is actually created in createWindow().
+ * that the buffer is actually created in QNX_CreateSDLWindow().
  * @param       window  SDL window to get the buffer for
  * @param[out]  format  Holds the pixel format for the buffer
  * @param[out]  pixels  Holds a pointer to the window's buffer
  * @param[out]  pitch   Holds the number of bytes per line
  * @return  0 if successful, -1 on error
  */
-static int createWindowFramebuffer(SDL_Window * window, Uint32 * format,
+static int QNX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format,
                         void ** pixels, int *pitch)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -193,7 +193,7 @@ static int createWindowFramebuffer(SDL_Window * window, Uint32 * format,
  * @param   numrects    Rect array length
  * @return  0 if successful, -1 on error
  */
-static int updateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
+static int QNX_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
                         int numrects)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
@@ -213,7 +213,7 @@ static int updateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
  * Runs the main event loop.
  * @param   _THIS
  */
-static void pumpEvents(_THIS)
+static void QNX_PumpEvents(_THIS)
 {
     int             type;
 
@@ -247,7 +247,7 @@ static void pumpEvents(_THIS)
  * @param   _THIS
  * @param   window  SDL window to update
  */
-static void setWindowSize(SDL_Window *window)
+static void QNX_SetWindowSize(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     int             size[2];
@@ -264,7 +264,7 @@ static void setWindowSize(SDL_Window *window)
  * Makes the native window associated with the given SDL window visible.
  * @param   window  SDL window to update
  */
-static void showWindow(SDL_Window *window)
+static void QNX_ShowWindow(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     const int       visible = 1;
@@ -278,7 +278,7 @@ static void showWindow(SDL_Window *window)
  * @param   _THIS
  * @param   window  SDL window to update
  */
-static void hideWindow(SDL_Window *window)
+static void QNX_HideWindow(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     const int       visible = 0;
@@ -292,7 +292,7 @@ static void hideWindow(SDL_Window *window)
  * @param   _THIS
  * @param   window  SDL window that is being destroyed
  */
-static void destroyWindow(SDL_Window *window)
+static void QNX_DestroyWindow(SDL_Window *window)
 {
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
 
@@ -306,7 +306,7 @@ static void destroyWindow(SDL_Window *window)
  * Frees the plugin object created by createDevice().
  * @param   device  Plugin object to free
  */
-static void deleteDevice(SDL_VideoDevice *device)
+static void QNX_DeleteDevice(SDL_VideoDevice *device)
 {
     SDL_free(device);
 }
@@ -316,7 +316,7 @@ static void deleteDevice(SDL_VideoDevice *device)
  * @param   devindex    Unused
  * @return  Initialized device if successful, NULL otherwise
  */
-static SDL_VideoDevice *createDevice(int devindex)
+static SDL_VideoDevice *QNX_CreateDevice(int devindex)
 {
     SDL_VideoDevice *device;
 
@@ -325,32 +325,133 @@ static SDL_VideoDevice *createDevice(int devindex)
         return NULL;
     }
 
-    device->VideoInit = videoInit;
-    device->VideoQuit = videoQuit;
-    device->CreateSDLWindow = createWindow;
-    device->CreateWindowFramebuffer = createWindowFramebuffer;
-    device->UpdateWindowFramebuffer = updateWindowFramebuffer;
-    device->SetWindowSize = setWindowSize;
-    device->ShowWindow = showWindow;
-    device->HideWindow = hideWindow;
-    device->PumpEvents = pumpEvents;
-    device->DestroyWindow = destroyWindow;
+    /* Set the function pointers */
+    /* Initialization/Query functions */
+    device->VideoInit = QNX_VideoInit;
+    device->VideoQuit = QNX_VideoQuit;
+    // device->ResetTouch = QNX_ResetTouch;
+    // device->GetDisplayBounds = QNX_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = QNX_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = QNX_GetDisplayDPI;
+    // device->SetDisplayMode = QNX_SetDisplayMode;
+
+    /* Window functions */
+    device->CreateSDLWindow = QNX_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = QNX_CreateSDLWindowFrom;
+    // device->SetWindowTitle = QNX_SetWindowTitle;
+    // device->SetWindowIcon = QNX_SetWindowIcon;
+    // device->SetWindowPosition = QNX_SetWindowPosition;
+    device->SetWindowSize = QNX_SetWindowSize;
+    // device->SetWindowMinimumSize = QNX_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = QNX_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = QNX_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = QNX_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = QNX_SetWindowOpacity;
+    // device->SetWindowModalFor = QNX_SetWindowModalFor;
+    // device->SetWindowInputFocus = QNX_SetWindowInputFocus;
+    device->ShowWindow = QNX_ShowWindow;
+    device->HideWindow = QNX_HideWindow;
+    // device->RaiseWindow = QNX_RaiseWindow;
+    // device->MaximizeWindow = QNX_MaximizeWindow;
+    // device->MinimizeWindow = QNX_MinimizeWindow;
+    // device->RestoreWindow = QNX_RestoreWindow;
+    // device->SetWindowBordered = QNX_SetWindowBordered;
+    // device->SetWindowResizable = QNX_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = QNX_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = QNX_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = QNX_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = QNX_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = QNX_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = QNX_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = QNX_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = QNX_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = QNX_SetWindowKeyboardGrab;
+    device->DestroyWindow = QNX_DestroyWindow;
+    device->CreateWindowFramebuffer = QNX_CreateWindowFramebuffer;
+    device->UpdateWindowFramebuffer = QNX_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = QNX_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = QNX_OnWindowEnter;
+    // device->FlashWindow = QNX_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = QNX_CreateShaper;
+    // device->SetWindowShape = QNX_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = QNX_GetWindowWMInfo;
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = glLoadLibrary;
-    device->GL_GetProcAddress = glGetProcAddress;
-    device->GL_CreateContext = glCreateContext;
-    device->GL_SetSwapInterval = glSetSwapInterval;
-    device->GL_SwapWindow = glSwapWindow;
-    device->GL_MakeCurrent = glMakeCurrent;
-    device->GL_DeleteContext = glDeleteContext;
-    device->GL_UnloadLibrary = glUnloadLibrary;
+    device->GL_LoadLibrary = QNX_GL_LoadLibrary;
+    device->GL_GetProcAddress = QNX_GL_GetProcAddress;
+    device->GL_UnloadLibrary = QNX_GL_UnloadLibrary;
+    device->GL_CreateContext = QNX_GL_CreateContext;
+    device->GL_MakeCurrent = QNX_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = QNX_GL_GetDrawableSize;
+    device->GL_SetSwapInterval = QNX_GL_SetSwapInterval;
+    // device->GL_GetSwapInterval = QNX_GL_GetSwapInterval;
+    device->GL_SwapWindow = QNX_GL_SwapWindow;
+    device->GL_DeleteContext = QNX_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = QNX_GL_DefaultProfileConfig;
 #endif
-    device->free = deleteDevice;
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = QNX_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = QNX_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = QNX_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = QNX_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = QNX_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = QNX_Metal_CreateView;
+    // device->Metal_DestroyView = QNX_Metal_DestroyView;
+    // device->Metal_GetLayer = QNX_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = QNX_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = QNX_WaitEventTimeout;
+    // device->SendWakeupEvent = QNX_SendWakeupEvent;
+    device->PumpEvents = QNX_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = QNX_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = QNX_StartTextInput;
+    // device->StopTextInput = QNX_StopTextInput;
+    // device->SetTextInputRect = QNX_SetTextInputRect;
+    // device->ClearComposition = QNX_ClearComposition;
+    // device->IsTextInputShown = QNX_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = QNX_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = QNX_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = QNX_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = QNX_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = QNX_SetClipboardText;
+    // device->GetClipboardText = QNX_GetClipboardText;
+    // device->HasClipboardText = QNX_HasClipboardText;
+    // device->SetPrimarySelectionText = QNX_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = QNX_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = QNX_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = QNX_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = QNX_AcceptDragAndDrop;
+
+    device->free = QNX_DeleteDevice;
+
     return device;
 }
 /* "QNX Screen" */
 const VideoBootStrap QNX_bootstrap = {
-    "qnx", createDevice
+    "qnx", QNX_CreateDevice
 };
 
 #endif // SDL_VIDEO_DRIVER_QNX
