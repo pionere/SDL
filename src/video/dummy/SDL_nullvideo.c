@@ -78,15 +78,120 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     device->is_dummy = SDL_TRUE;
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = DUMMY_VideoInit;
     device->VideoQuit = DUMMY_VideoQuit;
-    device->PumpEvents = DUMMY_PumpEvents;
+    // device->ResetTouch = DUMMY_ResetTouch;
+    // device->GetDisplayBounds = DUMMY_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = DUMMY_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = DUMMY_GetDisplayDPI;
+    // device->SetDisplayMode = DUMMY_SetDisplayMode;
+
+    /* Window functions */
+    // device->CreateSDLWindow = DUMMY_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = DUMMY_CreateSDLWindowFrom;
+    // device->SetWindowTitle = DUMMY_SetWindowTitle;
+    // device->SetWindowIcon = DUMMY_SetWindowIcon;
+    // device->SetWindowPosition = DUMMY_SetWindowPosition;
+    // device->SetWindowSize = DUMMY_SetWindowSize;
+    // device->SetWindowMinimumSize = DUMMY_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = DUMMY_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = DUMMY_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = DUMMY_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = DUMMY_SetWindowOpacity;
+    // device->SetWindowModalFor = DUMMY_SetWindowModalFor;
+    // device->SetWindowInputFocus = DUMMY_SetWindowInputFocus;
     device->ShowWindow = DUMMY_ShowWindow;
     device->HideWindow = DUMMY_HideWindow;
+    // device->RaiseWindow = DUMMY_RaiseWindow;
+    // device->MaximizeWindow = DUMMY_MaximizeWindow;
+    // device->MinimizeWindow = DUMMY_MinimizeWindow;
+    // device->RestoreWindow = DUMMY_RestoreWindow;
+    // device->SetWindowBordered = DUMMY_SetWindowBordered;
+    // device->SetWindowResizable = DUMMY_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = DUMMY_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = DUMMY_SetWindowFullscreen;
-    device->CreateWindowFramebuffer = SDL_DUMMY_CreateWindowFramebuffer;
-    device->UpdateWindowFramebuffer = SDL_DUMMY_UpdateWindowFramebuffer;
-    device->DestroyWindowFramebuffer = SDL_DUMMY_DestroyWindowFramebuffer;
+    // device->SetWindowGammaRamp = DUMMY_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = DUMMY_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = DUMMY_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = DUMMY_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = DUMMY_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = DUMMY_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = DUMMY_SetWindowKeyboardGrab;
+    // device->DestroyWindow = DUMMY_DestroyWindow;
+    device->CreateWindowFramebuffer = DUMMY_CreateWindowFramebuffer;
+    device->UpdateWindowFramebuffer = DUMMY_UpdateWindowFramebuffer;
+    device->DestroyWindowFramebuffer = DUMMY_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = DUMMY_OnWindowEnter;
+    // device->FlashWindow = DUMMY_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = DUMMY_CreateShaper;
+    // device->SetWindowShape = DUMMY_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = DUMMY_GetWindowWMInfo;
+    /* OpenGL support */
+#ifdef SDL_VIDEO_OPENGL_EGL
+    // device->GL_LoadLibrary = DUMMY_GL_LoadLibrary;
+    // device->GL_GetProcAddress = DUMMY_GL_GetProcAddress;
+    // device->GL_UnloadLibrary = DUMMY_GL_UnloadLibrary;
+    // device->GL_CreateContext = DUMMY_GL_CreateContext;
+    // device->GL_MakeCurrent = DUMMY_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = DUMMY_GL_GetDrawableSize;
+    // device->GL_SetSwapInterval = DUMMY_GL_SetSwapInterval;
+    // device->GL_GetSwapInterval = DUMMY_GL_GetSwapInterval;
+    // device->GL_SwapWindow = DUMMY_GL_SwapWindow;
+    // device->GL_DeleteContext = DUMMY_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = DUMMY_GL_DefaultProfileConfig;
+#endif
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = DUMMY_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = DUMMY_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = DUMMY_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = DUMMY_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = DUMMY_Vulkan_GetDrawableSize;
+#endif
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = DUMMY_Metal_CreateView;
+    // device->Metal_DestroyView = DUMMY_Metal_DestroyView;
+    // device->Metal_GetLayer = DUMMY_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = DUMMY_Metal_GetDrawableSize;
+#endif
+    /* Event manager functions */
+    // device->WaitEventTimeout = DUMMY_WaitEventTimeout;
+    // device->SendWakeupEvent = DUMMY_SendWakeupEvent;
+    device->PumpEvents = DUMMY_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = DUMMY_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = DUMMY_StartTextInput;
+    // device->StopTextInput = DUMMY_StopTextInput;
+    // device->SetTextInputRect = DUMMY_SetTextInputRect;
+    // device->ClearComposition = DUMMY_ClearComposition;
+    // device->IsTextInputShown = DUMMY_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = DUMMY_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = DUMMY_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = DUMMY_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = DUMMY_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = DUMMY_SetClipboardText;
+    // device->GetClipboardText = DUMMY_GetClipboardText;
+    // device->HasClipboardText = DUMMY_HasClipboardText;
+    // device->SetPrimarySelectionText = DUMMY_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = DUMMY_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = DUMMY_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = DUMMY_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = DUMMY_AcceptDragAndDrop;
 
     device->free = DUMMY_DeleteDevice;
 

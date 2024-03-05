@@ -27,14 +27,14 @@
 
 #define DUMMY_SURFACE "_SDL_DummySurface"
 
-int SDL_DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_Surface *surface;
     const Uint32 surface_format = SDL_PIXELFORMAT_RGB888;
     int w, h;
 
     /* Free the old framebuffer surface */
-    SDL_DUMMY_DestroyWindowFramebuffer(window);
+    DUMMY_DestroyWindowFramebuffer(window);
 
     /* Create a new one */
     SDL_GetWindowSizeInPixels(window, &w, &h);
@@ -51,7 +51,7 @@ int SDL_DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void *
     return 0;
 }
 
-int SDL_DUMMY_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
+int DUMMY_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
     static int frame_number;
     SDL_Surface *surface;
@@ -71,7 +71,7 @@ int SDL_DUMMY_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
     return 0;
 }
 
-void SDL_DUMMY_DestroyWindowFramebuffer(SDL_Window *window)
+void DUMMY_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
