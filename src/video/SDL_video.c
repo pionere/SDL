@@ -3660,8 +3660,14 @@ void SDL_GL_ResetAttributes(void)
     _this->gl_config.multisamplebuffers = 0;
     _this->gl_config.multisamplesamples = 0;
     _this->gl_config.floatbuffers = 0;
-    _this->gl_config.retained_backing = 1;
     _this->gl_config.accelerated = -1; /* accelerated or not, both are fine */
+    _this->gl_config.flags = 0;
+    _this->gl_config.share_with_current_context = 0;
+    _this->gl_config.release_behavior = SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH;
+    _this->gl_config.reset_notification = SDL_GL_CONTEXT_RESET_NO_NOTIFICATION;
+    _this->gl_config.framebuffer_srgb_capable = 0;
+    _this->gl_config.no_error = 0;
+    _this->gl_config.retained_backing = 1;
 
 #ifdef SDL_VIDEO_OPENGL
     _this->gl_config.major_version = 2;
@@ -3682,14 +3688,6 @@ void SDL_GL_ResetAttributes(void)
                                        &_this->gl_config.major_version,
                                        &_this->gl_config.minor_version);
     }
-
-    _this->gl_config.flags = 0;
-    _this->gl_config.framebuffer_srgb_capable = 0;
-    _this->gl_config.no_error = 0;
-    _this->gl_config.release_behavior = SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH;
-    _this->gl_config.reset_notification = SDL_GL_CONTEXT_RESET_NO_NOTIFICATION;
-
-    _this->gl_config.share_with_current_context = 0;
 }
 
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
@@ -3763,11 +3761,7 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         break;
     case SDL_GL_CONTEXT_EGL:
         /* FIXME: SDL_GL_CONTEXT_EGL to be deprecated in SDL 2.1 */
-        if (value != 0) {
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-        } else {
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
-        }
+        _this->gl_config.profile_mask = value != 0 ? SDL_GL_CONTEXT_PROFILE_ES : 0;
         break;
     case SDL_GL_CONTEXT_FLAGS:
         if (value & ~(
@@ -3976,15 +3970,10 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
         return 0;
     }
     case SDL_GL_CONTEXT_EGL:
-        /* FIXME: SDL_GL_CONTEXT_EGL to be deprecated in SDL 2.1 */
-        {
-            if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
-                *value = 1;
-            } else {
-                *value = 0;
-            }
-            return 0;
-        }
+    {   /* FIXME: SDL_GL_CONTEXT_EGL to be deprecated in SDL 2.1 */
+        *value = _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ? 1 : 0;
+        return 0;
+    }
     case SDL_GL_CONTEXT_FLAGS:
     {
         *value = _this->gl_config.flags;
@@ -4006,10 +3995,20 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
         return 0;
     }
     case SDL_GL_CONTEXT_NO_ERROR:
-        {
-            *value = _this->gl_config.no_error;
-            return 0;
-        }
+    {
+        *value = _this->gl_config.no_error;
+        return 0;
+    }
+    case SDL_GL_CONTEXT_RESET_NOTIFICATION:
+    {
+        *value = _this->gl_config.reset_notification;
+        return 0;
+    }
+    case SDL_GL_FLOATBUFFERS:
+    {
+        *value = _this->gl_config.floatbuffers;
+        return 0;
+    }
     default:
         return SDL_SetError("Unknown OpenGL attribute");
     }
