@@ -95,13 +95,6 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->GetDisplayDPI = Cocoa_GetDisplayDPI;
     device->SetDisplayMode = Cocoa_SetDisplayMode;
 
-    /* Event manager functions */
-    device->PumpEvents = Cocoa_PumpEvents;
-    device->WaitEventTimeout = Cocoa_WaitEventTimeout;
-    device->SendWakeupEvent = Cocoa_SendWakeupEvent;
-    /* Screensaver */
-    device->SuspendScreenSaver = Cocoa_SuspendScreenSaver;
-
     /* Window functions */
     device->CreateSDLWindow = Cocoa_CreateSDLWindow;
     device->CreateSDLWindowFrom = Cocoa_CreateSDLWindowFrom;
@@ -112,8 +105,8 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->SetWindowMinimumSize = Cocoa_SetWindowMinimumSize;
     device->SetWindowMaximumSize = Cocoa_SetWindowMaximumSize;
     // device->GetWindowBordersSize = Cocoa_GetWindowBordersSize;
-    device->SetWindowOpacity = Cocoa_SetWindowOpacity;
     device->GetWindowSizeInPixels = Cocoa_GetWindowSizeInPixels;
+    device->SetWindowOpacity = Cocoa_SetWindowOpacity;
     // device->SetWindowModalFor = Cocoa_SetWindowModalFor;
     // device->SetWindowInputFocus = Cocoa_SetWindowInputFocus;
     device->ShowWindow = Cocoa_ShowWindow;
@@ -134,12 +127,6 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->SetWindowMouseGrab = Cocoa_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = Cocoa_SetWindowKeyboardGrab;
     device->DestroyWindow = Cocoa_DestroyWindow;
-    /* Get some platform dependent window information */
-    device->GetWindowWMInfo = Cocoa_GetWindowWMInfo;
-    /* Hit-testing */
-    device->SetWindowHitTest = Cocoa_SetWindowHitTest;
-    /* Tell window that app enabled drag'n'drop events */
-    device->AcceptDragAndDrop = Cocoa_AcceptDragAndDrop;
     // device->CreateWindowFramebuffer = Cocoa_CreateWindowFramebuffer;
     // device->UpdateWindowFramebuffer = Cocoa_UpdateWindowFramebuffer;
     // device->DestroyWindowFramebuffer = Cocoa_DestroyWindowFramebuffer;
@@ -148,6 +135,8 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     /* Shaped-window functions */
     device->CreateShaper = Cocoa_CreateShaper;
     device->SetWindowShape = Cocoa_SetWindowShape;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = Cocoa_GetWindowWMInfo;
 
     /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_CGL
@@ -172,6 +161,13 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->Metal_GetLayer = Cocoa_Metal_GetLayer;
     device->Metal_GetDrawableSize = Cocoa_Metal_GetDrawableSize;
 #endif
+    /* Event manager functions */
+    device->WaitEventTimeout = Cocoa_WaitEventTimeout;
+    device->SendWakeupEvent = Cocoa_SendWakeupEvent;
+    device->PumpEvents = Cocoa_PumpEvents;
+
+    /* Screensaver */
+    device->SuspendScreenSaver = Cocoa_SuspendScreenSaver;
 
     /* Text input */
     device->StartTextInput = Cocoa_StartTextInput;
@@ -179,6 +175,12 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->SetTextInputRect = Cocoa_SetTextInputRect;
     // device->ClearComposition = Cocoa_ClearComposition;
     // device->IsTextInputShown = Cocoa_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = Cocoa_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = Cocoa_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = Cocoa_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = Cocoa_IsScreenKeyboardShown;
 
     /* Clipboard */
     device->SetClipboardText = Cocoa_SetClipboardText;
@@ -188,11 +190,11 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     // device->GetPrimarySelectionText = Cocoa_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = Cocoa_HasPrimarySelectionText;
 
-    /* Screen keyboard */
-    // device->HasScreenKeyboardSupport = Cocoa_HasScreenKeyboardSupport;
-    // device->ShowScreenKeyboard = Cocoa_ShowScreenKeyboard;
-    // device->HideScreenKeyboard = Cocoa_HideScreenKeyboard;
-    // device->IsScreenKeyboardShown = Cocoa_IsScreenKeyboardShown;
+    /* Hit-testing */
+    device->SetWindowHitTest = Cocoa_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    device->AcceptDragAndDrop = Cocoa_AcceptDragAndDrop;
 
     device->free = Cocoa_DeleteDevice;
 
