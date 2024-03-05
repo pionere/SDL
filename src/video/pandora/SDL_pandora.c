@@ -669,7 +669,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
     }
 
     /* Make just created context current */
-    if (PND_gl_makecurrent(_this, window, gles_context) < 0) {
+    if (PND_gl_makecurrent(window, gles_context) < 0) {
         /* Destroy OpenGL ES surface */
         eglDestroyContext(phdata->egl_display, gles_context);
         SDL_SetError("PND: Can't set OpenGL ES context on creation");
@@ -680,7 +680,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
     return gles_context;
 }
 
-int PND_gl_makecurrent(_THIS, SDL_Window *window, SDL_GLContext context)
+int PND_gl_makecurrent(SDL_Window *window, SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata;
