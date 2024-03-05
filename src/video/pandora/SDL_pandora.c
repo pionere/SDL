@@ -89,7 +89,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
     device->VideoQuit = PND_videoquit;
     device->SetDisplayMode = PND_setdisplaymode;
     device->CreateSDLWindow = PND_createwindow;
-    device->CreateSDLWindowFrom = PND_createwindowfrom;
+    // device->CreateSDLWindowFrom = PND_createwindowfrom;
     // device->SetWindowTitle = PND_setwindowtitle;
     // device->SetWindowIcon = PND_setwindowicon;
     // device->SetWindowPosition = PND_setwindowposition;
