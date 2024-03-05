@@ -61,32 +61,127 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
         return 0;
     }
 
-    /* General video */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = OFFSCREEN_VideoInit;
     device->VideoQuit = OFFSCREEN_VideoQuit;
+    // device->ResetTouch = OFFSCREEN_ResetTouch;
+    // device->GetDisplayBounds = OFFSCREEN_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = OFFSCREEN_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = OFFSCREEN_GetDisplayDPI;
     device->SetDisplayMode = OFFSCREEN_SetDisplayMode;
-    device->PumpEvents = OFFSCREEN_PumpEvents;
-    device->CreateWindowFramebuffer = SDL_OFFSCREEN_CreateWindowFramebuffer;
-    device->UpdateWindowFramebuffer = SDL_OFFSCREEN_UpdateWindowFramebuffer;
-    device->DestroyWindowFramebuffer = SDL_OFFSCREEN_DestroyWindowFramebuffer;
-    device->free = OFFSCREEN_DeleteDevice;
 
+    /* Window functions */
+    // device->CreateSDLWindow = OFFSCREEN_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = OFFSCREEN_CreateSDLWindowFrom;
+    // device->SetWindowTitle = OFFSCREEN_SetWindowTitle;
+    // device->SetWindowIcon = OFFSCREEN_SetWindowIcon;
+    // device->SetWindowPosition = OFFSCREEN_SetWindowPosition;
+    // device->SetWindowSize = OFFSCREEN_SetWindowSize;
+    // device->SetWindowMinimumSize = OFFSCREEN_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = OFFSCREEN_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = OFFSCREEN_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = OFFSCREEN_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = OFFSCREEN_SetWindowOpacity;
+    // device->SetWindowModalFor = OFFSCREEN_SetWindowModalFor;
+    // device->SetWindowInputFocus = OFFSCREEN_SetWindowInputFocus;
+    // device->ShowWindow = OFFSCREEN_ShowWindow;
+    // device->HideWindow = OFFSCREEN_HideWindow;
+    // device->RaiseWindow = OFFSCREEN_RaiseWindow;
+    // device->MaximizeWindow = OFFSCREEN_MaximizeWindow;
+    // device->MinimizeWindow = OFFSCREEN_MinimizeWindow;
+    // device->RestoreWindow = OFFSCREEN_RestoreWindow;
+    // device->SetWindowBordered = OFFSCREEN_SetWindowBordered;
+    // device->SetWindowResizable = OFFSCREEN_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = OFFSCREEN_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = OFFSCREEN_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = OFFSCREEN_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = OFFSCREEN_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = OFFSCREEN_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = OFFSCREEN_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = OFFSCREEN_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = OFFSCREEN_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = OFFSCREEN_SetWindowKeyboardGrab;
+    device->DestroyWindow = OFFSCREEN_DestroyWindow;
+    device->CreateWindowFramebuffer = OFFSCREEN_CreateWindowFramebuffer;
+    device->UpdateWindowFramebuffer = OFFSCREEN_UpdateWindowFramebuffer;
+    device->DestroyWindowFramebuffer = OFFSCREEN_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = OFFSCREEN_OnWindowEnter;
+    // device->FlashWindow = OFFSCREEN_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = OFFSCREEN_CreateShaper;
+    // device->SetWindowShape = OFFSCREEN_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = OFFSCREEN_GetWindowWMInfo;
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    /* GL context */
-    device->GL_SwapWindow = OFFSCREEN_GLES_SwapWindow;
-    device->GL_MakeCurrent = OFFSCREEN_GLES_MakeCurrent;
-    device->GL_CreateContext = OFFSCREEN_GLES_CreateContext;
-    device->GL_DeleteContext = OFFSCREEN_GLES_DeleteContext;
-    device->GL_LoadLibrary = OFFSCREEN_GLES_LoadLibrary;
-    device->GL_UnloadLibrary = OFFSCREEN_GLES_UnloadLibrary;
-    device->GL_GetProcAddress = OFFSCREEN_GLES_GetProcAddress;
-    device->GL_GetSwapInterval = OFFSCREEN_GLES_GetSwapInterval;
-    device->GL_SetSwapInterval = OFFSCREEN_GLES_SetSwapInterval;
+    device->GL_LoadLibrary = OFFSCREEN_GL_LoadLibrary;
+    device->GL_GetProcAddress = OFFSCREEN_GL_GetProcAddress;
+    device->GL_UnloadLibrary = OFFSCREEN_GL_UnloadLibrary;
+    device->GL_CreateContext = OFFSCREEN_GL_CreateContext;
+    device->GL_MakeCurrent = OFFSCREEN_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = OFFSCREEN_GL_GetDrawableSize;
+    device->GL_SetSwapInterval = OFFSCREEN_GL_SetSwapInterval;
+    device->GL_GetSwapInterval = OFFSCREEN_GL_GetSwapInterval;
+    device->GL_SwapWindow = OFFSCREEN_GL_SwapWindow;
+    device->GL_DeleteContext = OFFSCREEN_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = OFFSCREEN_GL_DefaultProfileConfig;
 #endif
 
-    /* "Window" */
-    device->CreateSDLWindow = OFFSCREEN_CreateWindow;
-    device->DestroyWindow = OFFSCREEN_DestroyWindow;
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = OFFSCREEN_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = OFFSCREEN_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = OFFSCREEN_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = OFFSCREEN_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = OFFSCREEN_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = OFFSCREEN_Metal_CreateView;
+    // device->Metal_DestroyView = OFFSCREEN_Metal_DestroyView;
+    // device->Metal_GetLayer = OFFSCREEN_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = OFFSCREEN_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = OFFSCREEN_WaitEventTimeout;
+    // device->SendWakeupEvent = OFFSCREEN_SendWakeupEvent;
+    device->PumpEvents = OFFSCREEN_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = OFFSCREEN_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = OFFSCREEN_StartTextInput;
+    // device->StopTextInput = OFFSCREEN_StopTextInput;
+    // device->SetTextInputRect = OFFSCREEN_SetTextInputRect;
+    // device->ClearComposition = OFFSCREEN_ClearComposition;
+    // device->IsTextInputShown = OFFSCREEN_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = OFFSCREEN_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = OFFSCREEN_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = OFFSCREEN_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = OFFSCREEN_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = OFFSCREEN_SetClipboardText;
+    // device->GetClipboardText = OFFSCREEN_GetClipboardText;
+    // device->HasClipboardText = OFFSCREEN_HasClipboardText;
+    // device->SetPrimarySelectionText = OFFSCREEN_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = OFFSCREEN_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = OFFSCREEN_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = OFFSCREEN_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = OFFSCREEN_AcceptDragAndDrop;
+
+    device->free = OFFSCREEN_DeleteDevice;
 
     return device;
 }

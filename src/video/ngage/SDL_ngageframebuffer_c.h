@@ -21,9 +21,9 @@
 
 #include "../../SDL_internal.h"
 
-extern int SDL_NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch);
-extern int SDL_NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects);
-extern void SDL_NGAGE_DestroyWindowFramebuffer(SDL_Window *window);
+extern int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch);
+extern int NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects);
+extern void NGAGE_DestroyWindowFramebuffer(SDL_Window *window);
 
 extern void RedrawWindowL();
 

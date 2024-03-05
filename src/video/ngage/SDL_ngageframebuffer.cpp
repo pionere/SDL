@@ -42,7 +42,7 @@ static int GetBpp(TDisplayMode displaymode);
 static void DirectUpdate(SDL_Surface *surface, int numrects, SDL_Rect *rects);
 static void DrawBackground();
 
-int SDL_NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     SDL_Surface *surface;
@@ -50,7 +50,7 @@ int SDL_NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void
     int w, h;
 
     /* Free the old framebuffer surface */
-    SDL_NGAGE_DestroyWindowFramebuffer(window);
+    NGAGE_DestroyWindowFramebuffer(window);
 
     /* Create a new one */
     SDL_GetWindowSizeInPixels(window, &w, &h);
@@ -141,7 +141,7 @@ int SDL_NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void
     return 0;
 }
 
-int SDL_NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
+int NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
 #if 0
     static int frame_number;
@@ -166,7 +166,7 @@ int SDL_NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
     return 0;
 }
 
-void SDL_NGAGE_DestroyWindowFramebuffer(SDL_Window *window)
+void NGAGE_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 

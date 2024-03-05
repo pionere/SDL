@@ -28,7 +28,7 @@
 #include "SDL_ngagevideo.h"
 
 extern int
-NGAGE_CreateWindow(_THIS, SDL_Window *window);
+NGAGE_CreateSDLWindow(_THIS, SDL_Window *window);
 
 extern void
 NGAGE_DestroyWindow(SDL_Window *window);

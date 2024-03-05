@@ -32,7 +32,7 @@ typedef struct
 } SDL_WindowData;
 #endif
 
-extern int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window);
+extern int OFFSCREEN_CreateSDLWindow(_THIS, SDL_Window *window);
 extern void OFFSCREEN_DestroyWindow(SDL_Window *window);
 
 #endif /* _SDL_offscreenwindow */

@@ -26,7 +26,7 @@
 #include "SDL_offscreenwindow.h"
 #include "SDL_offscreenopengles.h"
 
-int OFFSCREEN_CreateWindow(_THIS, SDL_Window *window)
+int OFFSCREEN_CreateSDLWindow(_THIS, SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *offscreen_window = SDL_calloc(1, sizeof(SDL_WindowData));

@@ -32,7 +32,7 @@ const TUint32 WindowClientHandle = 9210;
 void DisableKeyBlocking(void);
 static void ConstructWindowL(void);
 
-int NGAGE_CreateWindow(_THIS, SDL_Window *window)
+int NGAGE_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     if (window->x == SDL_WINDOWPOS_UNDEFINED) {
         window->x = 0;
