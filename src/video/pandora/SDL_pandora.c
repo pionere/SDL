@@ -328,9 +328,6 @@ int PND_gl_loadlibrary(_THIS, const char *path)
 
     _this->gl_config.accelerated = 1;
 
-    /* Always clear stereo enable, since OpenGL ES do not supports stereo */
-    _this->gl_config.stereo = 0;
-
     /* Under PND OpenGL ES output can't be double buffered */
     _this->gl_config.double_buffer = 0;
 

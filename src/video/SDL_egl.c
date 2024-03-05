@@ -668,13 +668,14 @@ error:
     SDL_EGL_UnloadLibrary(_this);
     return -1;
 }
-#endif
+#endif // SDL_VIDEO_DRIVER_OFFSCREEN
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
 void SDL_EGL_SetRequiredVisualId(int visual_id)
 {
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
     egl_data.egl_required_visual_id = visual_id;
 }
-
+#endif
 #ifdef DUMP_EGL_CONFIG
 
 #define ATTRIBUTE(_attr) \
@@ -744,7 +745,9 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
     EGLint found_configs = 0, value;
     /* 128 seems even nicer here */
     EGLConfig configs[128];
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
     SDL_bool has_matching_format = SDL_FALSE;
+#endif
     int i, j;
     int truecolor_config_idx = -1;
     Uint32 best_bitdiff = SDL_MAX_UINT32, best_truecolor_bitdiff = SDL_MAX_UINT32;
@@ -797,12 +800,12 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
         attribs[i++] = EGL_COLOR_COMPONENT_TYPE_EXT;
         attribs[i++] = EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT;
     }
-
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     if (egl_data.is_offscreen) {
         attribs[i++] = EGL_SURFACE_TYPE;
         attribs[i++] = EGL_PBUFFER_BIT;
     }
-
+#endif
     attribs[i++] = EGL_RENDERABLE_TYPE;
     if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef EGL_KHR_create_context
@@ -837,7 +840,7 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
         found_configs == 0) {
         return -1;
     }
-
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
     /* first ensure that a found config has a matching format, or the function will fall through. */
     if (egl_data.egl_required_visual_id) {
         for (i = 0; i < found_configs; i++) {
@@ -851,14 +854,14 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
             }
         }
     }
-
+#endif
     /* eglChooseConfig returns a number of configurations that match or exceed the requested attribs. */
     /* From those, we select the one that matches our requirements more closely via a makeshift algorithm */
 
     for (i = 0; i < found_configs; i++) {
         SDL_bool is_truecolor = SDL_FALSE;
         Uint32 bitdiff = 0;
-
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
         if (has_matching_format) { //  && egl_data.egl_required_visual_id) {
             EGLint format;
             USE_FUNC(eglGetConfigAttrib)(egl_data.egl_display,
@@ -868,7 +871,7 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
                 continue;
             }
         }
-
+#endif
         USE_FUNC(eglGetConfigAttrib)(egl_data.egl_display, configs[i], EGL_RED_SIZE, &value);
         if (value == 8) {
             USE_FUNC(eglGetConfigAttrib)(egl_data.egl_display, configs[i], EGL_GREEN_SIZE, &value);

@@ -49,8 +49,12 @@ typedef struct SDL_EGL_VideoData
     EGLConfig egl_config;
     int egl_swapinterval;
     int egl_version_major, egl_version_minor;
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
     EGLint egl_required_visual_id;
+#endif
+#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
     SDL_bool is_offscreen;  /* whether EGL display was offscreen */
+#endif
     EGLenum apitype;  /* EGL_OPENGL_ES_API, EGL_OPENGL_API, etc */
 #ifdef SDL_VIDEO_DRIVER_WINRT
     /* An object created by ANGLE/WinRT (OpenGL ES 2 for WinRT) that gets
@@ -149,7 +153,9 @@ extern int SDL_EGL_LoadLibraryOnly(_THIS, const char *path);
 extern int SDL_EGL_LoadLibrary(_THIS, const char *path, NativeDisplayType native_display, EGLenum platform);
 extern void *SDL_EGL_GetProcAddress(const char *proc);
 extern void SDL_EGL_UnloadLibrary(_THIS);
+#ifdef SDL_VIDEO_DRIVER_KMSDRM
 extern void SDL_EGL_SetRequiredVisualId(int visual_id);
+#endif
 extern int SDL_EGL_ChooseConfig(_THIS);
 extern int SDL_EGL_SetSwapInterval(int interval);
 extern int SDL_EGL_GetSwapInterval(void);
