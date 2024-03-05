@@ -110,7 +110,6 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     
     device->shape_driver.CreateShaper = NULL;
     device->shape_driver.SetWindowShape = NULL;
-    device->shape_driver.ResizeWindowShape = NULL;
 
 #ifdef SDL_VIDEO_OPENGL
     device->GL_LoadLibrary = HAIKU_GL_LoadLibrary;

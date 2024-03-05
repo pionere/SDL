@@ -1644,7 +1644,6 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
 
     device->shape_driver.CreateShaper = OS2_CreateShaper;
     device->shape_driver.SetWindowShape = OS2_SetWindowShape;
-    device->shape_driver.ResizeWindowShape = OS2_ResizeWindowShape;
 
     device->free = OS2_DeleteDevice;
 

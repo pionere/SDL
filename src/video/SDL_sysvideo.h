@@ -63,7 +63,6 @@ struct SDL_ShapeDriver
 {
     SDL_WindowShaper *(*CreateShaper)(SDL_Window *window);
     int (*SetWindowShape)(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode);
-    int (*ResizeWindowShape)(SDL_Window *window);
 };
 
 typedef struct SDL_WindowUserData

@@ -203,7 +203,6 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 
     device->shape_driver.CreateShaper = Win32_CreateShaper;
     device->shape_driver.SetWindowShape = Win32_SetWindowShape;
-    device->shape_driver.ResizeWindowShape = Win32_ResizeWindowShape;
 #endif
 
 #ifdef SDL_VIDEO_OPENGL_WGL

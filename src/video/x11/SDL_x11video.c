@@ -265,7 +265,6 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 
     device->shape_driver.CreateShaper = X11_CreateShaper;
     device->shape_driver.SetWindowShape = X11_SetWindowShape;
-    device->shape_driver.ResizeWindowShape = X11_ResizeWindowShape;
 
 #ifdef SDL_VIDEO_OPENGL_GLX
     X11_GL_InitDevice(device);
