@@ -49,13 +49,13 @@
 /* Instance */
 Vivante_VideoData vivanteVideoData;
 
-static void VIVANTE_Destroy(SDL_VideoDevice *device)
+static void VIVANTE_DeleteDevice(_THIS)
 {
     SDL_zero(vivanteVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
-static SDL_VideoDevice *VIVANTE_Create()
+static SDL_VideoDevice *VIVANTE_CreateDevice()
 {
     SDL_VideoDevice *device;
     Vivante_VideoData *data = &vivanteVideoData;
@@ -67,48 +67,134 @@ static SDL_VideoDevice *VIVANTE_Create()
         return NULL;
     }
 
-    /* Set device free function */
-    device->free = VIVANTE_Destroy;
-
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = VIVANTE_VideoInit;
     device->VideoQuit = VIVANTE_VideoQuit;
+    // device->ResetTouch = VIVANTE_ResetTouch;
+    // device->GetDisplayBounds = VIVANTE_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = VIVANTE_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = VIVANTE_GetDisplayDPI;
     device->SetDisplayMode = VIVANTE_SetDisplayMode;
-    device->CreateSDLWindow = VIVANTE_CreateWindow;
+
+    /* Window functions */
+    device->CreateSDLWindow = VIVANTE_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = VIVANTE_CreateSDLWindowFrom;
     device->SetWindowTitle = VIVANTE_SetWindowTitle;
+    // device->SetWindowIcon = VIVANTE_SetWindowIcon;
     // device->SetWindowPosition = VIVANTE_SetWindowPosition;
     // device->SetWindowSize = VIVANTE_SetWindowSize;
+    // device->SetWindowMinimumSize = VIVANTE_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = VIVANTE_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = VIVANTE_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = VIVANTE_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = VIVANTE_SetWindowOpacity;
+    // device->SetWindowModalFor = VIVANTE_SetWindowModalFor;
+    // device->SetWindowInputFocus = VIVANTE_SetWindowInputFocus;
     device->ShowWindow = VIVANTE_ShowWindow;
     device->HideWindow = VIVANTE_HideWindow;
+    // device->RaiseWindow = VIVANTE_RaiseWindow;
+    // device->MaximizeWindow = VIVANTE_MaximizeWindow;
+    // device->MinimizeWindow = VIVANTE_MinimizeWindow;
+    // device->RestoreWindow = VIVANTE_RestoreWindow;
+    // device->SetWindowBordered = VIVANTE_SetWindowBordered;
+    // device->SetWindowResizable = VIVANTE_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = VIVANTE_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = VIVANTE_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = VIVANTE_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = VIVANTE_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = VIVANTE_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = VIVANTE_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = VIVANTE_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = VIVANTE_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = VIVANTE_SetWindowKeyboardGrab;
     device->DestroyWindow = VIVANTE_DestroyWindow;
+    // device->CreateWindowFramebuffer = VIVANTE_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = VIVANTE_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = VIVANTE_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = VIVANTE_OnWindowEnter;
+    // device->FlashWindow = VIVANTE_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = VIVANTE_CreateShaper;
+    // device->SetWindowShape = VIVANTE_SetWindowShape;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = VIVANTE_GetWindowWMInfo;
 
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = VIVANTE_GLES_LoadLibrary;
-    device->GL_GetProcAddress = VIVANTE_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = VIVANTE_GLES_UnloadLibrary;
-    device->GL_CreateContext = VIVANTE_GLES_CreateContext;
-    device->GL_MakeCurrent = VIVANTE_GLES_MakeCurrent;
-    device->GL_SetSwapInterval = VIVANTE_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = VIVANTE_GLES_GetSwapInterval;
-    device->GL_SwapWindow = VIVANTE_GLES_SwapWindow;
-    device->GL_DeleteContext = VIVANTE_GLES_DeleteContext;
+    device->GL_LoadLibrary = VIVANTE_GL_LoadLibrary;
+    device->GL_GetProcAddress = VIVANTE_GL_GetProcAddress;
+    device->GL_UnloadLibrary = VIVANTE_GL_UnloadLibrary;
+    device->GL_CreateContext = VIVANTE_GL_CreateContext;
+    device->GL_MakeCurrent = VIVANTE_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = VIVANTE_GL_GetDrawableSize;
+    device->GL_SetSwapInterval = VIVANTE_GL_SetSwapInterval;
+    device->GL_GetSwapInterval = VIVANTE_GL_GetSwapInterval;
+    device->GL_SwapWindow = VIVANTE_GL_SwapWindow;
+    device->GL_DeleteContext = VIVANTE_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = VIVANTE_GL_DefaultProfileConfig;
 #endif
 
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = VIVANTE_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = VIVANTE_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = VIVANTE_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = VIVANTE_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = VIVANTE_Vulkan_GetDrawableSize;
 #endif
 
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = VIVANTE_Metal_CreateView;
+    // device->Metal_DestroyView = VIVANTE_Metal_DestroyView;
+    // device->Metal_GetLayer = VIVANTE_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = VIVANTE_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = VIVANTE_WaitEventTimeout;
+    // device->SendWakeupEvent = VIVANTE_SendWakeupEvent;
     device->PumpEvents = VIVANTE_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = VIVANTE_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = VIVANTE_StartTextInput;
+    // device->StopTextInput = VIVANTE_StopTextInput;
+    // device->SetTextInputRect = VIVANTE_SetTextInputRect;
+    // device->ClearComposition = VIVANTE_ClearComposition;
+    // device->IsTextInputShown = VIVANTE_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = VIVANTE_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = VIVANTE_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = VIVANTE_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = VIVANTE_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = VIVANTE_SetClipboardText;
+    // device->GetClipboardText = VIVANTE_GetClipboardText;
+    // device->HasClipboardText = VIVANTE_HasClipboardText;
+    // device->SetPrimarySelectionText = VIVANTE_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = VIVANTE_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = VIVANTE_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = VIVANTE_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = VIVANTE_AcceptDragAndDrop;
+
+    device->free = VIVANTE_DeleteDevice;
+
 
     return device;
 }
 /* "Vivante EGL Video Driver" */
 const VideoBootStrap VIVANTE_bootstrap = {
-    "vivante", VIVANTE_Create
+    "vivante", VIVANTE_CreateDevice
 };
 
 /*****************************************************************************/
@@ -251,7 +337,7 @@ int VIVANTE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-int VIVANTE_CreateWindow(_THIS, SDL_Window *window)
+int VIVANTE_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     Vivante_VideoData *videodata = &vivanteVideoData;
     SDL_DisplayData *displaydata;

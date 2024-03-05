@@ -70,7 +70,7 @@ typedef struct SDL_WindowData
 int VIVANTE_VideoInit(_THIS);
 void VIVANTE_VideoQuit(_THIS);
 int VIVANTE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-int VIVANTE_CreateWindow(_THIS, SDL_Window *window);
+int VIVANTE_CreateSDLWindow(_THIS, SDL_Window *window);
 void VIVANTE_SetWindowTitle(SDL_Window *window);
 void VIVANTE_SetWindowPosition(SDL_Window *window);
 void VIVANTE_SetWindowSize(SDL_Window *window);

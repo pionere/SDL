@@ -93,66 +93,139 @@ static SDL_VideoDevice *VITA_CreateDevice()
 #endif
     // phdata->ime_active = SDL_FALSE;
 
-    /* Set device free function */
-    device->free = VITA_DeleteDevice;
-
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = VITA_VideoInit;
     device->VideoQuit = VITA_VideoQuit;
+    // device->ResetTouch = VITA_ResetTouch;
+    // device->GetDisplayBounds = VITA_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = VITA_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = VITA_GetDisplayDPI;
     device->SetDisplayMode = VITA_SetDisplayMode;
-    device->CreateSDLWindow = VITA_CreateWindow;
-    // device->CreateSDLWindowFrom = VITA_CreateWindowFrom;
+
+    /* Window functions */
+    device->CreateSDLWindow = VITA_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = VITA_CreateSDLWindowFrom;
     // device->SetWindowTitle = VITA_SetWindowTitle;
     // device->SetWindowIcon = VITA_SetWindowIcon;
     // device->SetWindowPosition = VITA_SetWindowPosition;
     // device->SetWindowSize = VITA_SetWindowSize;
+    // device->SetWindowMinimumSize = VITA_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = VITA_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = VITA_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = VITA_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = VITA_SetWindowOpacity;
+    // device->SetWindowModalFor = VITA_SetWindowModalFor;
+    // device->SetWindowInputFocus = VITA_SetWindowInputFocus;
     // device->ShowWindow = VITA_ShowWindow;
     // device->HideWindow = VITA_HideWindow;
     // device->RaiseWindow = VITA_RaiseWindow;
     // device->MaximizeWindow = VITA_MaximizeWindow;
     device->MinimizeWindow = VITA_MinimizeWindow;
     // device->RestoreWindow = VITA_RestoreWindow;
-    // device->SetWindowMouseGrab = VITA_SetWindowGrab;
-    // device->SetWindowKeyboardGrab = VITA_SetWindowGrab;
+    // device->SetWindowBordered = VITA_SetWindowBordered;
+    // device->SetWindowResizable = VITA_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = VITA_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = VITA_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = VITA_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = VITA_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = VITA_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = VITA_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = VITA_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = VITA_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = VITA_SetWindowKeyboardGrab;
     device->DestroyWindow = VITA_DestroyWindow;
+    // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
+    // device->CreateWindowFramebuffer = VITA_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = VITA_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = VITA_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = VITA_OnWindowEnter;
+    // device->FlashWindow = VITA_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = VITA_CreateShaper;
+    // device->SetWindowShape = VITA_SetWindowShape;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = VITA_GetWindowWMInfo;
 
-    /*
-        // Disabled, causes issues on high-framerate updates. SDL still emulates this.
-        device->CreateWindowFramebuffer = VITA_CreateWindowFramebuffer;
-        device->UpdateWindowFramebuffer = VITA_UpdateWindowFramebuffer;
-        device->DestroyWindowFramebuffer = VITA_DestroyWindowFramebuffer;
-    */
-
+    /* OpenGL support */
 #if defined(SDL_VIDEO_VITA_PIB) || defined(SDL_VIDEO_VITA_PVR)
 #if defined(SDL_VIDEO_VITA_PVR_OGL)
     if (SDL_getenv("VITA_PVR_OGL") != NULL) {
         device->GL_LoadLibrary = VITA_GL_LoadLibrary;
-        device->GL_CreateContext = VITA_GL_CreateContext;
         device->GL_GetProcAddress = VITA_GL_GetProcAddress;
+        device->GL_CreateContext = VITA_GL_CreateContext;
     } else {
 #endif
         device->GL_LoadLibrary = VITA_GLES_LoadLibrary;
-        device->GL_CreateContext = VITA_GLES_CreateContext;
         device->GL_GetProcAddress = VITA_GLES_GetProcAddress;
+        device->GL_CreateContext = VITA_GLES_CreateContext;
 #if defined(SDL_VIDEO_VITA_PVR_OGL)
     }
 #endif
 
     device->GL_UnloadLibrary = VITA_GLES_UnloadLibrary;
     device->GL_MakeCurrent = VITA_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = VITA_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = VITA_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = VITA_GLES_GetSwapInterval;
     device->GL_SwapWindow = VITA_GLES_SwapWindow;
     device->GL_DeleteContext = VITA_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = VITA_GLES_DefaultProfileConfig;
 #endif
 
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = VITA_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = VITA_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = VITA_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = VITA_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = VITA_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = VITA_Metal_CreateView;
+    // device->Metal_DestroyView = VITA_Metal_DestroyView;
+    // device->Metal_GetLayer = VITA_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = VITA_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = VITA_WaitEventTimeout;
+    // device->SendWakeupEvent = VITA_SendWakeupEvent;
+    device->PumpEvents = VITA_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = VITA_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = VITA_StartTextInput;
+    // device->StopTextInput = VITA_StopTextInput;
+    // device->SetTextInputRect = VITA_SetTextInputRect;
+    // device->ClearComposition = VITA_ClearComposition;
+    // device->IsTextInputShown = VITA_IsTextInputShown;
+
+    /* Screen keyboard */
     device->HasScreenKeyboardSupport = VITA_HasScreenKeyboardSupport;
     device->ShowScreenKeyboard = VITA_ShowScreenKeyboard;
     device->HideScreenKeyboard = VITA_HideScreenKeyboard;
     device->IsScreenKeyboardShown = VITA_IsScreenKeyboardShown;
 
-    device->PumpEvents = VITA_PumpEvents;
+    /* Clipboard */
+    // device->SetClipboardText = VITA_SetClipboardText;
+    // device->GetClipboardText = VITA_GetClipboardText;
+    // device->HasClipboardText = VITA_HasClipboardText;
+    // device->SetPrimarySelectionText = VITA_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = VITA_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = VITA_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = VITA_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = VITA_AcceptDragAndDrop;
+
+    device->free = VITA_DeleteDevice;
 
     return device;
 }
@@ -230,7 +303,7 @@ int VITA_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-int VITA_CreateWindow(_THIS, SDL_Window *window)
+int VITA_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *wdata;
 #if defined(SDL_VIDEO_VITA_PVR)
@@ -305,7 +378,7 @@ int VITA_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-/*int VITA_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+/*int VITA_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     return -1;
 }

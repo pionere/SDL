@@ -160,17 +160,17 @@ SDL_bool SDL_WAYLAND_own_output(struct wl_output *output)
     return wl_proxy_get_tag((struct wl_proxy *)output) == &SDL_WAYLAND_output_tag;
 }
 
-static void Wayland_DeleteDevice(SDL_VideoDevice *device)
+static void Wayland_DeleteDevice(_THIS)
 {
     if (waylandVideoData.display) {
         WAYLAND_wl_display_flush(waylandVideoData.display);
         WAYLAND_wl_display_disconnect(waylandVideoData.display);
     }
-    if (device->wakeup_lock) {
-        SDL_DestroyMutex(device->wakeup_lock);
+    if (_this->wakeup_lock) {
+        SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(waylandVideoData);
-    SDL_free(device);
+    SDL_free(_this);
     SDL_WAYLAND_UnloadSymbols();
 }
 
@@ -228,69 +228,124 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = Wayland_VideoInit;
     device->VideoQuit = Wayland_VideoQuit;
+    // device->ResetTouch = Wayland_ResetTouch;
     device->GetDisplayBounds = Wayland_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = Wayland_GetDisplayUsableBounds;
     device->GetDisplayDPI = Wayland_GetDisplayDPI;
-    device->GetWindowWMInfo = Wayland_GetWindowWMInfo;
-    device->SuspendScreenSaver = Wayland_SuspendScreenSaver;
+    // device->SetDisplayMode = Wayland_SetDisplayMode;
 
-    device->PumpEvents = Wayland_PumpEvents;
-    device->WaitEventTimeout = Wayland_WaitEventTimeout;
-    device->SendWakeupEvent = Wayland_SendWakeupEvent;
-
-#ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_SwapWindow = Wayland_GLES_SwapWindow;
-    device->GL_GetSwapInterval = Wayland_GLES_GetSwapInterval;
-    device->GL_SetSwapInterval = Wayland_GLES_SetSwapInterval;
-    device->GL_MakeCurrent = Wayland_GLES_MakeCurrent;
-    device->GL_CreateContext = Wayland_GLES_CreateContext;
-    device->GL_LoadLibrary = Wayland_GLES_LoadLibrary;
-    device->GL_UnloadLibrary = Wayland_GLES_UnloadLibrary;
-    device->GL_GetProcAddress = Wayland_GLES_GetProcAddress;
-    device->GL_DeleteContext = Wayland_GLES_DeleteContext;
-#endif
-
-    device->CreateSDLWindow = Wayland_CreateWindow;
-    device->ShowWindow = Wayland_ShowWindow;
-    device->HideWindow = Wayland_HideWindow;
-    device->RaiseWindow = Wayland_RaiseWindow;
-    device->SetWindowFullscreen = Wayland_SetWindowFullscreen;
-    device->MaximizeWindow = Wayland_MaximizeWindow;
-    device->MinimizeWindow = Wayland_MinimizeWindow;
-    device->SetWindowMouseRect = Wayland_SetWindowMouseRect;
-    device->SetWindowMouseGrab = Wayland_SetWindowMouseGrab;
-    device->SetWindowKeyboardGrab = Wayland_SetWindowKeyboardGrab;
-    device->RestoreWindow = Wayland_RestoreWindow;
-    device->SetWindowBordered = Wayland_SetWindowBordered;
-    device->SetWindowResizable = Wayland_SetWindowResizable;
+    /* Window functions */
+    device->CreateSDLWindow = Wayland_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = Wayland_CreateSDLWindowFrom;
+    device->SetWindowTitle = Wayland_SetWindowTitle;
+    // device->SetWindowIcon = Wayland_SetWindowIcon;
+    // device->SetWindowPosition = Wayland_SetWindowPosition;
     device->SetWindowSize = Wayland_SetWindowSize;
     device->SetWindowMinimumSize = Wayland_SetWindowMinimumSize;
     device->SetWindowMaximumSize = Wayland_SetWindowMaximumSize;
-    device->SetWindowModalFor = Wayland_SetWindowModalFor;
-    device->SetWindowTitle = Wayland_SetWindowTitle;
+    // device->GetWindowBordersSize = Wayland_GetWindowBordersSize;
     device->GetWindowSizeInPixels = Wayland_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = Wayland_SetWindowOpacity;
+    device->SetWindowModalFor = Wayland_SetWindowModalFor;
+    // device->SetWindowInputFocus = Wayland_SetWindowInputFocus;
+    device->ShowWindow = Wayland_ShowWindow;
+    device->HideWindow = Wayland_HideWindow;
+    device->RaiseWindow = Wayland_RaiseWindow;
+    device->MaximizeWindow = Wayland_MaximizeWindow;
+    device->MinimizeWindow = Wayland_MinimizeWindow;
+    device->RestoreWindow = Wayland_RestoreWindow;
+    device->SetWindowBordered = Wayland_SetWindowBordered;
+    device->SetWindowResizable = Wayland_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = Wayland_SetWindowAlwaysOnTop;
+    device->SetWindowFullscreen = Wayland_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = Wayland_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = Wayland_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = Wayland_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = Wayland_GetWindowDisplayIndex;
+    device->SetWindowMouseRect = Wayland_SetWindowMouseRect;
+    device->SetWindowMouseGrab = Wayland_SetWindowMouseGrab;
+    device->SetWindowKeyboardGrab = Wayland_SetWindowKeyboardGrab;
     device->DestroyWindow = Wayland_DestroyWindow;
-    device->SetWindowHitTest = Wayland_SetWindowHitTest;
+    // device->CreateWindowFramebuffer = Wayland_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = Wayland_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = Wayland_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = Wayland_OnWindowEnter;
     device->FlashWindow = Wayland_FlashWindow;
-    device->HasScreenKeyboardSupport = Wayland_HasScreenKeyboardSupport;
+    /* Shaped-window functions */
+    // device->CreateShaper = Wayland_CreateShaper;
+    // device->SetWindowShape = Wayland_SetWindowShape;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = Wayland_GetWindowWMInfo;
 
+    /* OpenGL support */
+#ifdef SDL_VIDEO_OPENGL_EGL
+    device->GL_LoadLibrary = Wayland_GLES_LoadLibrary;
+    device->GL_GetProcAddress = Wayland_GLES_GetProcAddress;
+    device->GL_UnloadLibrary = Wayland_GLES_UnloadLibrary;
+    device->GL_CreateContext = Wayland_GLES_CreateContext;
+    device->GL_MakeCurrent = Wayland_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = Wayland_GLES_GetDrawableSize;
+    device->GL_SetSwapInterval = Wayland_GLES_SetSwapInterval;
+    device->GL_GetSwapInterval = Wayland_GLES_GetSwapInterval;
+    device->GL_SwapWindow = Wayland_GLES_SwapWindow;
+    device->GL_DeleteContext = Wayland_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = Wayland_GLES_DefaultProfileConfig;
+#endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    device->Vulkan_LoadLibrary = Wayland_Vulkan_LoadLibrary;
+    device->Vulkan_UnloadLibrary = Wayland_Vulkan_UnloadLibrary;
+    device->Vulkan_GetInstanceExtensions = Wayland_Vulkan_GetInstanceExtensions;
+    device->Vulkan_CreateSurface = Wayland_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = Wayland_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = Wayland_Metal_CreateView;
+    // device->Metal_DestroyView = Wayland_Metal_DestroyView;
+    // device->Metal_GetLayer = Wayland_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = Wayland_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    device->WaitEventTimeout = Wayland_WaitEventTimeout;
+    device->SendWakeupEvent = Wayland_SendWakeupEvent;
+    device->PumpEvents = Wayland_PumpEvents;
+
+    /* Screensaver */
+    device->SuspendScreenSaver = Wayland_SuspendScreenSaver;
+
+    /* Text input */
+    device->StartTextInput = Wayland_StartTextInput;
+    device->StopTextInput = Wayland_StopTextInput;
+    device->SetTextInputRect = Wayland_SetTextInputRect;
+    // device->ClearComposition = Wayland_ClearComposition;
+    // device->IsTextInputShown = Wayland_IsTextInputShown;
+
+    /* Screen keyboard */
+    device->HasScreenKeyboardSupport = Wayland_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = Wayland_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = Wayland_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = Wayland_IsScreenKeyboardShown;
+
+    /* Clipboard */
     device->SetClipboardText = Wayland_SetClipboardText;
     device->GetClipboardText = Wayland_GetClipboardText;
     device->HasClipboardText = Wayland_HasClipboardText;
     device->SetPrimarySelectionText = Wayland_SetPrimarySelectionText;
     device->GetPrimarySelectionText = Wayland_GetPrimarySelectionText;
     device->HasPrimarySelectionText = Wayland_HasPrimarySelectionText;
-    device->StartTextInput = Wayland_StartTextInput;
-    device->StopTextInput = Wayland_StopTextInput;
-    device->SetTextInputRect = Wayland_SetTextInputRect;
 
-#ifdef SDL_VIDEO_VULKAN
-    device->Vulkan_LoadLibrary = Wayland_Vulkan_LoadLibrary;
-    device->Vulkan_UnloadLibrary = Wayland_Vulkan_UnloadLibrary;
-    device->Vulkan_GetInstanceExtensions = Wayland_Vulkan_GetInstanceExtensions;
-    device->Vulkan_CreateSurface = Wayland_Vulkan_CreateSurface;
-#endif
+    /* Hit-testing */
+    device->SetWindowHitTest = Wayland_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = Wayland_AcceptDragAndDrop;
 
     device->free = Wayland_DeleteDevice;
 
