@@ -114,10 +114,6 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     // device->GetDisplayUsableBounds = DirectFB_GetDisplayUsableBounds;
     // device->GetDisplayDPI = DirectFB_GetDisplayDPI;
     device->SetDisplayMode = DirectFB_SetDisplayMode;
-    /* Event manager functions */
-    // device->WaitEventTimeout = DirectFB_WaitEventTimeout;
-    // device->SendWakeupEvent = DirectFB_SendWakeupEvent;
-    device->PumpEvents = DirectFB_PumpEvents;
 
     /* Window functions */
     device->CreateSDLWindow = DirectFB_CreateSDLWindow;
@@ -151,22 +147,23 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     device->SetWindowMouseGrab = DirectFB_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = DirectFB_SetWindowKeyboardGrab;
     device->DestroyWindow = DirectFB_DestroyWindow;
-    /* Get some platform dependent window information */
-    device->GetWindowWMInfo = DirectFB_GetWindowWMInfo;
-
     // device->CreateWindowFramebuffer = DirectFB_CreateWindowFramebuffer;
     // device->UpdateWindowFramebuffer = DirectFB_UpdateWindowFramebuffer;
     // device->DestroyWindowFramebuffer = DirectFB_DestroyWindowFramebuffer;
     // device->OnWindowEnter = DirectFB_OnWindowEnter;
     // device->FlashWindow = DirectFB_FlashWindow;
-
+    /* Shaped-window functions */
+    device->CreateShaper = DirectFB_CreateShaper;
+    device->SetWindowShape = DirectFB_SetWindowShape;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = DirectFB_GetWindowWMInfo;
     /* OpenGL support */
 #ifdef SDL_DIRECTFB_OPENGL
     device->GL_LoadLibrary = DirectFB_GL_LoadLibrary;
     device->GL_GetProcAddress = DirectFB_GL_GetProcAddress;
     device->GL_UnloadLibrary = DirectFB_GL_UnloadLibrary;
-    device->GL_MakeCurrent = DirectFB_GL_MakeCurrent;
     device->GL_CreateContext = DirectFB_GL_CreateContext;
+    device->GL_MakeCurrent = DirectFB_GL_MakeCurrent;
     // device->GL_GetDrawableSize = DirectFB_GL_GetDrawableSize;
     device->GL_SetSwapInterval = DirectFB_GL_SetSwapInterval;
     device->GL_GetSwapInterval = DirectFB_GL_GetSwapInterval;
@@ -174,10 +171,6 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     device->GL_DeleteContext = DirectFB_GL_DeleteContext;
     // device->GL_DefaultProfileConfig = DirectFB_GL_DefaultProfileConfig;
 #endif
-
-    /* Shaped-window functions */
-    device->CreateShaper = DirectFB_CreateShaper;
-    device->SetWindowShape = DirectFB_SetWindowShape;
 
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
@@ -195,6 +188,10 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     // device->Metal_GetLayer = DirectFB_Metal_GetLayer;
     // device->Metal_GetDrawableSize = DirectFB_Metal_GetDrawableSize;
 #endif
+    /* Event manager functions */
+    // device->WaitEventTimeout = DirectFB_WaitEventTimeout;
+    // device->SendWakeupEvent = DirectFB_SendWakeupEvent;
+    device->PumpEvents = DirectFB_PumpEvents;
 
     /* Screensaver */
     // device->SuspendScreenSaver = DirectFB_SuspendScreenSaver;
