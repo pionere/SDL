@@ -25,6 +25,7 @@
 
 #include "SDL.h"
 #include "SDL_video.h"
+#include "SDL_shape.h"
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_pixels_c.h"
@@ -3301,6 +3302,82 @@ SDL_Window *SDL_GetFocusWindow(void)
         }
     }
     return NULL;
+}
+
+SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned int y, unsigned int w, unsigned int h, Uint32 flags)
+{
+    SDL_Window *result = NULL;
+    result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
+    if (result) {
+        if (_this->shape_driver.CreateShaper == NULL) {
+            SDL_DestroyWindow(result);
+            return NULL;
+        }
+        result->shaper = _this->shape_driver.CreateShaper(result);
+        if (result->shaper) {
+            result->shaper->userx = x;
+            result->shaper->usery = y;
+            result->shaper->mode.mode = ShapeModeDefault;
+            result->shaper->mode.parameters.binarizationCutoff = 1;
+            result->shaper->hasshape = SDL_FALSE;
+            return result;
+        } else {
+            SDL_DestroyWindow(result);
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
+{
+    int result;
+
+    if (!SDL_IsShapedWindow(window)) {
+        /* The window given was not a shapeable window. */
+        return SDL_NONSHAPEABLE_WINDOW;
+    }
+    if (!shape) {
+        /* Invalid shape argument. */
+        return SDL_INVALID_SHAPE_ARGUMENT;
+    }
+
+    if (shape_mode) {
+        window->shaper->mode = *shape_mode;
+    }
+    result = _this->shape_driver.SetWindowShape(window->shaper, shape, shape_mode);
+    window->shaper->hasshape = SDL_TRUE;
+    if (window->shaper->userx != 0 && window->shaper->usery != 0) {
+        int x = window->shaper->userx;
+        int y = window->shaper->usery;
+
+        if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
+            SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
+            int displayIndex;
+            SDL_Rect bounds;
+
+            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
+                displayIndex = (x & 0xFFFF);
+            } else {
+                displayIndex = (y & 0xFFFF);
+            }
+            if (displayIndex >= _this->num_displays) {
+                displayIndex = 0;
+            }
+
+            SDL_GetDisplayBounds(displayIndex, &bounds);
+            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
+                window->x = bounds.x + (bounds.w - window->w) / 2;
+            }
+            if (SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y)) {
+                window->y = bounds.y + (bounds.h - window->h) / 2;
+            }
+        }
+        SDL_SetWindowPosition(window, x, y);
+        window->shaper->userx = 0;
+        window->shaper->usery = 0;
+    }
+    return result;
 }
 
 void SDL_DestroyWindow(SDL_Window *window)
