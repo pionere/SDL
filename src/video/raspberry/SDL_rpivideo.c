@@ -332,11 +332,10 @@ int RPI_CreateWindow(_THIS, SDL_Window *window)
     }
 #endif
     /* Start generating vsync callbacks if necesary */
-    wdata->double_buffer = SDL_FALSE;
-    if (SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE)) {
+    wdata->double_buffer = SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE);
+    if (wdata->double_buffer) {
         wdata->vsync_cond = SDL_CreateCond();
         wdata->vsync_cond_mutex = SDL_CreateMutex();
-        wdata->double_buffer = SDL_TRUE;
         vc_dispmanx_vsync_callback(displaydata->dispman_display, RPI_vsync_callback, (void *)wdata);
     }
 

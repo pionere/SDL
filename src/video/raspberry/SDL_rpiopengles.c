@@ -48,8 +48,7 @@ int RPI_GLES_SwapWindow(_THIS, SDL_Window *window)
 
     result = SDL_EGL_SwapBuffers(wdata->egl_surface);
 
-    /* Wait immediately for vsync (as if we only had two buffers), for low input-lag scenarios.
-     * Run your SDL2 program with "SDL_RPI_DOUBLE_BUFFER=1 <program_name>" to enable this. */
+    /* Wait immediately for vsync (as if we only had two buffers), for low input-lag scenarios. */
     if (result == 0 && wdata->double_buffer) {
         SDL_LockMutex(wdata->vsync_cond_mutex);
         SDL_CondWait(wdata->vsync_cond, wdata->vsync_cond_mutex);

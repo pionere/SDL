@@ -1509,6 +1509,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
         if (ret != 0) {
             return ret;
         }
+        windata->double_buffer = SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE);
     } /* NON-Vulkan block ends. */
 
     /* Add window to the internal list of tracked windows. Note, while it may
