@@ -23,7 +23,7 @@
 #ifndef SDL_naclwindow_h_
 #define SDL_naclwindow_h_
 
-extern int NACL_CreateWindow(_THIS, SDL_Window * window);
+extern int NACL_CreateSDLWindow(_THIS, SDL_Window * window);
 extern void NACL_SetWindowTitle(SDL_Window * window);
 extern void NACL_DestroyWindow(SDL_Window * window);
 

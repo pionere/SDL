@@ -119,7 +119,7 @@ SDL_bool KMSDRM_WaitPageflip(SDL_WindowData *windata);
 int KMSDRM_VideoInit(_THIS);
 void KMSDRM_VideoQuit(_THIS);
 int KMSDRM_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
-int KMSDRM_CreateWindow(_THIS, SDL_Window * window);
+int KMSDRM_CreateSDLWindow(_THIS, SDL_Window * window);
 // int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data);
 // void KMSDRM_SetWindowTitle(SDL_Window * window);
 // void KMSDRM_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);

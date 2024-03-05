@@ -29,7 +29,7 @@
 #include "SDL_naclvideo.h"
 #include "SDL_naclwindow.h"
 
-int NACL_CreateWindow(_THIS, SDL_Window * window)
+int NACL_CreateSDLWindow(_THIS, SDL_Window * window)
 {
     NACL_VideoData *driverdata = &naclVideoData;
 

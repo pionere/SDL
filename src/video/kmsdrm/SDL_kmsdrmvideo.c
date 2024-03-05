@@ -257,39 +257,73 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     viddata->devindex = devindex;
     viddata->drm_fd = -1;
 
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = KMSDRM_VideoInit;
     device->VideoQuit = KMSDRM_VideoQuit;
+    // device->ResetTouch = KMSDRM_ResetTouch;
+    // device->GetDisplayBounds = KMSDRM_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = KMSDRM_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = KMSDRM_GetDisplayDPI;
     device->SetDisplayMode = KMSDRM_SetDisplayMode;
-    device->CreateSDLWindow = KMSDRM_CreateWindow;
-    // device->CreateSDLWindowFrom = KMSDRM_CreateWindowFrom;
+
+    /* Window functions */
+    device->CreateSDLWindow = KMSDRM_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = KMSDRM_CreateSDLWindowFrom;
     // device->SetWindowTitle = KMSDRM_SetWindowTitle;
     // device->SetWindowIcon = KMSDRM_SetWindowIcon;
     // device->SetWindowPosition = KMSDRM_SetWindowPosition;
     device->SetWindowSize = KMSDRM_SetWindowSize;
-    device->SetWindowFullscreen = KMSDRM_SetWindowFullscreen;
-    device->GetWindowGammaRamp = KMSDRM_GetWindowGammaRamp;
-    device->SetWindowGammaRamp = KMSDRM_SetWindowGammaRamp;
+    // device->SetWindowMinimumSize = KMSDRM_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = KMSDRM_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = KMSDRM_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = KMSDRM_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = KMSDRM_SetWindowOpacity;
+    // device->SetWindowModalFor = KMSDRM_SetWindowModalFor;
+    // device->SetWindowInputFocus = KMSDRM_SetWindowInputFocus;
     // device->ShowWindow = KMSDRM_ShowWindow;
     // device->HideWindow = KMSDRM_HideWindow;
     // device->RaiseWindow = KMSDRM_RaiseWindow;
     // device->MaximizeWindow = KMSDRM_MaximizeWindow;
     device->MinimizeWindow = KMSDRM_MinimizeWindow;
     // device->RestoreWindow = KMSDRM_RestoreWindow;
+    // device->SetWindowBordered = KMSDRM_SetWindowBordered;
+    // device->SetWindowResizable = KMSDRM_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = KMSDRM_SetWindowAlwaysOnTop;
+    device->SetWindowFullscreen = KMSDRM_SetWindowFullscreen;
+    device->SetWindowGammaRamp = KMSDRM_SetWindowGammaRamp;
+    device->GetWindowGammaRamp = KMSDRM_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = KMSDRM_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = KMSDRM_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = KMSDRM_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = KMSDRM_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = KMSDRM_SetWindowKeyboardGrab;
     device->DestroyWindow = KMSDRM_DestroyWindow;
+    // device->CreateWindowFramebuffer = KMSDRM_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = KMSDRM_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = KMSDRM_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = KMSDRM_OnWindowEnter;
+    // device->FlashWindow = KMSDRM_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = KMSDRM_CreateShaper;
+    // device->SetWindowShape = KMSDRM_SetWindowShape;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = KMSDRM_GetWindowWMInfo;
 
+    /* OpenGL support */
     device->GL_LoadLibrary = KMSDRM_GLES_LoadLibrary;
     device->GL_GetProcAddress = KMSDRM_GLES_GetProcAddress;
     device->GL_UnloadLibrary = KMSDRM_GLES_UnloadLibrary;
     device->GL_CreateContext = KMSDRM_GLES_CreateContext;
     device->GL_MakeCurrent = KMSDRM_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = KMSDRM_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = KMSDRM_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = KMSDRM_GLES_GetSwapInterval;
     device->GL_SwapWindow = KMSDRM_GLES_SwapWindow;
     device->GL_DeleteContext = KMSDRM_GLES_DeleteContext;
-    device->GL_DefaultProfileConfig = KMSDRM_GLES_DefaultProfileConfig;
+    // device->GL_DefaultProfileConfig = KMSDRM_GLES_DefaultProfileConfig;
 
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = KMSDRM_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = KMSDRM_Vulkan_UnloadLibrary;
@@ -298,7 +332,49 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     device->Vulkan_GetDrawableSize = KMSDRM_Vulkan_GetDrawableSize;
 #endif
 
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = KMSDRM_Metal_CreateView;
+    // device->Metal_DestroyView = KMSDRM_Metal_DestroyView;
+    // device->Metal_GetLayer = KMSDRM_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = KMSDRM_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = KMSDRM_WaitEventTimeout;
+    // device->SendWakeupEvent = KMSDRM_SendWakeupEvent;
     device->PumpEvents = KMSDRM_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = KMSDRM_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = KMSDRM_StartTextInput;
+    // device->StopTextInput = KMSDRM_StopTextInput;
+    // device->SetTextInputRect = KMSDRM_SetTextInputRect;
+    // device->ClearComposition = KMSDRM_ClearComposition;
+    // device->IsTextInputShown = KMSDRM_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = KMSDRM_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = KMSDRM_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = KMSDRM_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = KMSDRM_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = KMSDRM_SetClipboardText;
+    // device->GetClipboardText = KMSDRM_GetClipboardText;
+    // device->HasClipboardText = KMSDRM_HasClipboardText;
+    // device->SetPrimarySelectionText = KMSDRM_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = KMSDRM_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = KMSDRM_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = KMSDRM_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = KMSDRM_AcceptDragAndDrop;
+
     device->free = KMSDRM_DeleteDevice;
 
     return device;
@@ -1359,7 +1435,7 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
         /* Unload library and deinit GBM, but only if this is the last window.
            Note that this is the right comparision because num_windows could be 1
            if there is a complete window, or 0 if we got here from SDL_CreateWindow()
-           because KMSDRM_CreateWindow() returned an error so the window wasn't
+           because KMSDRM_CreateSDLWindow() returned an error so the window wasn't
            added to the windows list. */
         if (viddata->num_windows <= 1) {
 
@@ -1410,7 +1486,7 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
 /* reflect it: if it's fullscreen, KMSDRM_SetWindwoFullscreen() will  */
 /* be called by SDL later, and we can manage it there.                */
 /**********************************************************************/
-int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
+int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *windata = NULL;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
@@ -1447,7 +1523,7 @@ int KMSDRM_CreateWindow(_THIS, SDL_Window *window)
                -Load the GL library (which can't be done until the GBM device has been
                 created, so we have to do it here instead of doing it on VideoInit())
                 and mark it as loaded by setting gl_config.driver_loaded to 1.
-               So if you ever see KMSDRM_CreateWindow() to be called two times in tests,
+               So if you ever see KMSDRM_CreateSDLWindow() to be called two times in tests,
                don't be shy to debug GL_CreateRenderer() or GLES2_CreateRenderer()
                to find out why!
              */
@@ -1577,7 +1653,7 @@ int KMSDRM_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp)
     return 0;
 }
 
-/*int KMSDRM_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
+/*int KMSDRM_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 {
     return -1;
 }

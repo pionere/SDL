@@ -112,28 +112,124 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     }
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = NACL_VideoInit;
     device->VideoQuit = NACL_VideoQuit;
-    device->PumpEvents = NACL_PumpEvents;
-
-    device->CreateSDLWindow = NACL_CreateWindow;
-    device->SetWindowTitle = NACL_SetWindowTitle;
-    device->DestroyWindow = NACL_DestroyWindow;
-
+    // device->ResetTouch = NACL_ResetTouch;
+    // device->GetDisplayBounds = NACL_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = NACL_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = NACL_GetDisplayDPI;
     device->SetDisplayMode = NACL_SetDisplayMode;
 
-    device->free = NACL_DeleteDevice;
+    /* Window functions */
+    device->CreateSDLWindow = NACL_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = NACL_CreateSDLWindowFrom;
+    device->SetWindowTitle = NACL_SetWindowTitle;
+    // device->SetWindowIcon = NACL_SetWindowIcon;
+    // device->SetWindowPosition = NACL_SetWindowPosition;
+    // device->SetWindowSize = NACL_SetWindowSize;
+    // device->SetWindowMinimumSize = NACL_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = NACL_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = NACL_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = NACL_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = NACL_SetWindowOpacity;
+    // device->SetWindowModalFor = NACL_SetWindowModalFor;
+    // device->SetWindowInputFocus = NACL_SetWindowInputFocus;
+    // device->ShowWindow = NACL_ShowWindow;
+    // device->HideWindow = NACL_HideWindow;
+    // device->RaiseWindow = NACL_RaiseWindow;
+    // device->MaximizeWindow = NACL_MaximizeWindow;
+    // device->MinimizeWindow = NACL_MinimizeWindow;
+    // device->RestoreWindow = NACL_RestoreWindow;
+    // device->SetWindowBordered = NACL_SetWindowBordered;
+    // device->SetWindowResizable = NACL_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = NACL_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = NACL_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = NACL_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = NACL_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = NACL_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = NACL_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = NACL_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = NACL_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = NACL_SetWindowKeyboardGrab;
+    device->DestroyWindow = NACL_DestroyWindow;
+    // device->CreateWindowFramebuffer = NACL_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = NACL_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = NACL_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = NACL_OnWindowEnter;
+    // device->FlashWindow = NACL_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = NACL_CreateShaper;
+    // device->SetWindowShape = NACL_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = NACL_GetWindowWMInfo;
 
-    /* GL pointers */
+    /* OpenGL support */
     device->GL_LoadLibrary = NACL_GLES_LoadLibrary;
     device->GL_GetProcAddress = NACL_GLES_GetProcAddress;
     device->GL_UnloadLibrary = NACL_GLES_UnloadLibrary;
     device->GL_CreateContext = NACL_GLES_CreateContext;
     device->GL_MakeCurrent = NACL_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = NACL_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = NACL_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = NACL_GLES_GetSwapInterval;
     device->GL_SwapWindow = NACL_GLES_SwapWindow;
     device->GL_DeleteContext = NACL_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = NACL_GLES_DefaultProfileConfig;
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = NACL_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = NACL_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = NACL_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = NACL_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = NACL_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = NACL_Metal_CreateView;
+    // device->Metal_DestroyView = NACL_Metal_DestroyView;
+    // device->Metal_GetLayer = NACL_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = NACL_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = NACL_WaitEventTimeout;
+    // device->SendWakeupEvent = NACL_SendWakeupEvent;
+    // device->PumpEvents = NACL_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = NACL_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = NACL_StartTextInput;
+    // device->StopTextInput = NACL_StopTextInput;
+    // device->SetTextInputRect = NACL_SetTextInputRect;
+    // device->ClearComposition = NACL_ClearComposition;
+    // device->IsTextInputShown = NACL_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = NACL_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = NACL_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = NACL_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = NACL_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = NACL_SetClipboardText;
+    // device->GetClipboardText = NACL_GetClipboardText;
+    // device->HasClipboardText = NACL_HasClipboardText;
+    // device->SetPrimarySelectionText = NACL_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = NACL_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = NACL_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = NACL_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = NACL_AcceptDragAndDrop;
+
+    device->free = NACL_DeleteDevice;
 
 
     return device;
