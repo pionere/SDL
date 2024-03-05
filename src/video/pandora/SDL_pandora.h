@@ -49,40 +49,39 @@ typedef struct SDL_WindowData
 /****************************************************************************/
 
 /* Display and window functions */
-int PND_videoinit(_THIS);
-void PND_videoquit(_THIS);
-void PND_getdisplaymodes(SDL_VideoDisplay * display);
-int PND_setdisplaymode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
-int PND_createwindow(_THIS, SDL_Window * window);
-// int PND_createwindowfrom(_THIS, SDL_Window * window, const void *data);
-// void PND_setwindowtitle(SDL_Window * window);
-// void PND_setwindowicon(SDL_Window * window, SDL_Surface * icon);
-// void PND_setwindowposition(SDL_Window * window);
-// void PND_setwindowsize(SDL_Window * window);
-// void PND_showwindow(SDL_Window * window);
-// void PND_hidewindow(SDL_Window * window);
-// void PND_raisewindow(_THIS, SDL_Window * window);
-// void PND_maximizewindow(SDL_Window * window);
-void PND_minimizewindow(SDL_Window * window);
-// void PND_restorewindow(SDL_Window * window);
-void PND_destroywindow(SDL_Window * window);
+int PND_VideoInit(_THIS);
+void PND_VideoQuit(_THIS);
+int PND_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode);
+int PND_CreateSDLWindow(_THIS, SDL_Window * window);
+// int PND_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data);
+// void PND_SetWindowTitle(SDL_Window * window);
+// void PND_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);
+// void PND_SetWindowPosition(SDL_Window * window);
+// void PND_SetWindowSize(SDL_Window * window);
+// void PND_ShowWindow(SDL_Window * window);
+// void PND_HideWindow(SDL_Window * window);
+// void PND_RaiseWindow(_THIS, SDL_Window * window);
+// void PND_MaximizeWindow(SDL_Window * window);
+void PND_MinimizeWindow(SDL_Window * window);
+// void PND_RestoreWindow(SDL_Window * window);
+void PND_DestroyWindow(SDL_Window * window);
 
 /* Window manager function */
 #if 0
-SDL_bool PND_getwindowwminfo(SDL_Window * window,
+SDL_bool PND_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 #endif
 /* OpenGL/OpenGL ES functions */
 #ifdef SDL_VIDEO_OPENGL_EGL
-int PND_gl_loadlibrary(_THIS, const char *path);
-void *PND_gl_getprocaddress(const char *proc);
-void PND_gl_unloadlibrary(_THIS);
-SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window * window);
-int PND_gl_makecurrent(SDL_Window * window, SDL_GLContext context);
-int PND_gl_setswapinterval(int interval);
-int PND_gl_getswapinterval(void);
-int PND_gl_swapwindow(_THIS, SDL_Window * window);
-void PND_gl_deletecontext(SDL_GLContext context);
+int PND_GL_LoadLibrary(_THIS, const char *path);
+void *PND_GL_GetProcAddress(const char *proc);
+void PND_GL_UnloadLibrary(_THIS);
+SDL_GLContext PND_GL_CreateContext(_THIS, SDL_Window * window);
+int PND_GL_MakeCurrent(SDL_Window * window, SDL_GLContext context);
+int PND_GL_SetSwapInterval(int interval);
+int PND_GL_GetSwapInterval(void);
+int PND_GL_SwapWindow(_THIS, SDL_Window * window);
+void PND_GL_DeleteContext(SDL_GLContext context);
 #endif
 
 #endif /* __SDL_PANDORA_H__ */

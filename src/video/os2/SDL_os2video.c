@@ -747,7 +747,7 @@ static WINDATA *_setupWindow(SDL_Window *window, HWND hwndFrame,
     return pWinData;
 }
 
-static int OS2_CreateWindow(_THIS, SDL_Window *window)
+static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     RECTL            rectl;
     HWND             hwndFrame, hwnd;
@@ -806,7 +806,7 @@ static int OS2_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-static int OS2_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     OS2_VideoData   *pVData = &os2VideoData;
     CHAR             acBuf[256];
@@ -938,8 +938,8 @@ static void OS2_DestroyWindow(SDL_Window * window)
     }
 
     if (!pWinData->fnUserWndProc) {
-        /* Window was created by SDL (OS2_CreateWindow()),
-         * not by user (OS2_CreateWindowFrom()) */
+        /* Window was created by SDL (OS2_CreateSDLWindow()),
+         * not by user (OS2_CreateSDLWindowFrom()) */
         WinDestroyWindow(pWinData->hwndFrame);
     } else {
         WinSetWindowULong(pWinData->hwnd, 0, 0);
@@ -1610,19 +1610,29 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     }
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = OS2_VideoInit;
     device->VideoQuit = OS2_VideoQuit;
+    // device->ResetTouch = OS2_ResetTouch;
     device->GetDisplayBounds = OS2_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = OS2_GetDisplayUsableBounds;
     device->GetDisplayDPI = OS2_GetDisplayDPI;
     device->SetDisplayMode = OS2_SetDisplayMode;
-    device->PumpEvents = OS2_PumpEvents;
-    device->CreateSDLWindow = OS2_CreateWindow;
-    device->CreateSDLWindowFrom = OS2_CreateWindowFrom;
-    device->DestroyWindow = OS2_DestroyWindow;
+
+    /* Window functions */
+    device->CreateSDLWindow = OS2_CreateSDLWindow;
+    device->CreateSDLWindowFrom = OS2_CreateSDLWindowFrom;
     device->SetWindowTitle = OS2_SetWindowTitle;
     device->SetWindowIcon = OS2_SetWindowIcon;
     device->SetWindowPosition = OS2_SetWindowPosition;
     device->SetWindowSize = OS2_SetWindowSize;
+    // device->SetWindowMinimumSize = OS2_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = OS2_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = OS2_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = OS2_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = OS2_SetWindowOpacity;
+    // device->SetWindowModalFor = OS2_SetWindowModalFor;
+    // device->SetWindowInputFocus = OS2_SetWindowInputFocus;
     device->ShowWindow = OS2_ShowWindow;
     device->HideWindow = OS2_HideWindow;
     device->RaiseWindow = OS2_RaiseWindow;
@@ -1630,21 +1640,94 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     device->MinimizeWindow = OS2_MinimizeWindow;
     device->RestoreWindow = OS2_RestoreWindow;
     device->SetWindowBordered = OS2_SetWindowBordered;
+    // device->SetWindowResizable = OS2_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = OS2_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = OS2_SetWindowFullscreen;
-    device->GetWindowWMInfo = OS2_GetWindowWMInfo;
-    device->OnWindowEnter = OS2_OnWindowEnter;
-    device->SetWindowHitTest = OS2_SetWindowHitTest;
+    // device->SetWindowGammaRamp = OS2_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = OS2_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = OS2_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = OS2_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = OS2_SetWindowMouseRect;
     device->SetWindowMouseGrab = OS2_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = OS2_SetWindowKeyboardGrab;
+    device->DestroyWindow = OS2_DestroyWindow;
     device->CreateWindowFramebuffer = OS2_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = OS2_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = OS2_DestroyWindowFramebuffer;
+    device->OnWindowEnter = OS2_OnWindowEnter;
+    // device->FlashWindow = OS2_FlashWindow;
+    /* Shaped-window functions */
+    device->CreateShaper = OS2_CreateShaper;
+    device->SetWindowShape = OS2_SetWindowShape;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = OS2_GetWindowWMInfo;
 
+    /* OpenGL support */
+#ifdef SDL_VIDEO_OPENGL_EGL
+    // device->GL_LoadLibrary = OS2_GL_LoadLibrary;
+    // device->GL_GetProcAddress = OS2_GL_GetProcAddress;
+    // device->GL_UnloadLibrary = OS2_GL_UnloadLibrary;
+    // device->GL_CreateContext = OS2_GL_CreateContext;
+    // device->GL_MakeCurrent = OS2_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = OS2_GL_GetDrawableSize;
+    // device->GL_SetSwapInterval = OS2_GL_SetSwapInterval;
+    // device->GL_GetSwapInterval = OS2_GL_GetSwapInterval;
+    // device->GL_SwapWindow = OS2_GL_SwapWindow;
+    // device->GL_DeleteContext = OS2_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = OS2_GL_DefaultProfileConfig;
+#endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = OS2_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = OS2_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = OS2_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = OS2_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = OS2_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = OS2_Metal_CreateView;
+    // device->Metal_DestroyView = OS2_Metal_DestroyView;
+    // device->Metal_GetLayer = OS2_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = OS2_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = OS2_WaitEventTimeout;
+    // device->SendWakeupEvent = OS2_SendWakeupEvent;
+    device->PumpEvents = OS2_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = OS2_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = OS2_StartTextInput;
+    // device->StopTextInput = OS2_StopTextInput;
+    // device->SetTextInputRect = OS2_SetTextInputRect;
+    // device->ClearComposition = OS2_ClearComposition;
+    // device->IsTextInputShown = OS2_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = OS2_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = OS2_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = OS2_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = OS2_IsScreenKeyboardShown;
+
+    /* Clipboard */
     device->SetClipboardText = OS2_SetClipboardText;
     device->GetClipboardText = OS2_GetClipboardText;
     device->HasClipboardText = OS2_HasClipboardText;
+    // device->SetPrimarySelectionText = OS2_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = OS2_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = OS2_HasPrimarySelectionText;
 
-    device->CreateShaper = OS2_CreateShaper;
-    device->SetWindowShape = OS2_SetWindowShape;
+    /* Hit-testing */
+    device->SetWindowHitTest = OS2_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = OS2_AcceptDragAndDrop;
 
     device->free = OS2_DeleteDevice;
 

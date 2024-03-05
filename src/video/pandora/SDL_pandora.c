@@ -81,43 +81,129 @@ static SDL_VideoDevice *PND_CreateDevice(void)
         return NULL;
     }
 
-    /* Set device free function */
-    device->free = PND_DeleteDevice;
+    /* Set the function pointers */
+    /* Initialization/Query functions */
+    device->VideoInit = PND_VideoInit;
+    device->VideoQuit = PND_VideoQuit;
+    // device->ResetTouch = PND_ResetTouch;
+    // device->GetDisplayBounds = PND_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = PND_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = PND_GetDisplayDPI;
+    device->SetDisplayMode = PND_SetDisplayMode;
 
-    /* Setup all functions which we can handle */
-    device->VideoInit = PND_videoinit;
-    device->VideoQuit = PND_videoquit;
-    device->SetDisplayMode = PND_setdisplaymode;
-    device->CreateSDLWindow = PND_createwindow;
-    // device->CreateSDLWindowFrom = PND_createwindowfrom;
-    // device->SetWindowTitle = PND_setwindowtitle;
-    // device->SetWindowIcon = PND_setwindowicon;
-    // device->SetWindowPosition = PND_setwindowposition;
-    // device->SetWindowSize = PND_setwindowsize;
-    // device->ShowWindow = PND_showwindow;
-    // device->HideWindow = PND_hidewindow;
-    // device->RaiseWindow = PND_raisewindow;
-    // device->MaximizeWindow = PND_maximizewindow;
-    device->MinimizeWindow = PND_minimizewindow;
-    // device->RestoreWindow = PND_restorewindow;
-    device->DestroyWindow = PND_destroywindow;
+    /* Window functions */
+    device->CreateSDLWindow = PND_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = PND_CreateSDLWindowFrom;
+    // device->SetWindowTitle = PND_SetWindowTitle;
+    // device->SetWindowIcon = PND_SetWindowIcon;
+    // device->SetWindowPosition = PND_SetWindowPosition;
+    // device->SetWindowSize = PND_SetWindowSize;
+    // device->SetWindowMinimumSize = PND_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = PND_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = PND_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = PND_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = PND_SetWindowOpacity;
+    // device->SetWindowModalFor = PND_SetWindowModalFor;
+    // device->SetWindowInputFocus = PND_SetWindowInputFocus;
+    // device->ShowWindow = PND_ShowWindow;
+    // device->HideWindow = PND_HideWindow;
+    // device->RaiseWindow = PND_RaiseWindow;
+    // device->MaximizeWindow = PND_MaximizeWindow;
+    device->MinimizeWindow = PND_MinimizeWindow;
+    // device->RestoreWindow = PND_RestoreWindow;
+    // device->SetWindowBordered = PND_SetWindowBordered;
+    // device->SetWindowResizable = PND_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = PND_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = PND_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = PND_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = PND_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = PND_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = PND_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = PND_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = PND_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = PND_SetWindowKeyboardGrab;
+    device->DestroyWindow = PND_DestroyWindow;
+    // device->CreateWindowFramebuffer = PND_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = PND_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = PND_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = PND_OnWindowEnter;
+    // device->FlashWindow = PND_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = PND_CreateShaper;
+    // device->SetWindowShape = PND_SetWindowShape;
 #if 0
-    device->GetWindowWMInfo = PND_getwindowwminfo;
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = PND_GetWindowWMInfo;
 #endif
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = PND_gl_loadlibrary;
-    device->GL_GetProcAddress = PND_gl_getprocaddress;
-    device->GL_UnloadLibrary = PND_gl_unloadlibrary;
-    device->GL_CreateContext = PND_gl_createcontext;
-    device->GL_MakeCurrent = PND_gl_makecurrent;
-    device->GL_SetSwapInterval = PND_gl_setswapinterval;
-    device->GL_GetSwapInterval = PND_gl_getswapinterval;
-    device->GL_SwapWindow = PND_gl_swapwindow;
-    device->GL_DeleteContext = PND_gl_deletecontext;
+    device->GL_LoadLibrary = PND_GL_LoadLibrary;
+    device->GL_GetProcAddress = PND_GL_GetProcAddress;
+    device->GL_UnloadLibrary = PND_GL_UnloadLibrary;
+    device->GL_CreateContext = PND_GL_CreateContext;
+    device->GL_MakeCurrent = PND_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = PND_GL_GetDrawableSize;
+    device->GL_SetSwapInterval = PND_GL_SetSwapInterval;
+    device->GL_GetSwapInterval = PND_GL_GetSwapInterval;
+    device->GL_SwapWindow = PND_GL_SwapWindow;
+    device->GL_DeleteContext = PND_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = PND_GL_DefaultProfileConfig;
 #endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = PND_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = PND_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = PND_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = PND_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = PND_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = PND_Metal_CreateView;
+    // device->Metal_DestroyView = PND_Metal_DestroyView;
+    // device->Metal_GetLayer = PND_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = PND_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = PND_WaitEventTimeout;
+    // device->SendWakeupEvent = PND_SendWakeupEvent;
     device->PumpEvents = PND_PumpEvents;
 
-    /* !!! FIXME: implement SetWindowBordered */
+    /* Screensaver */
+    // device->SuspendScreenSaver = PND_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = PND_StartTextInput;
+    // device->StopTextInput = PND_StopTextInput;
+    // device->SetTextInputRect = PND_SetTextInputRect;
+    // device->ClearComposition = PND_ClearComposition;
+    // device->IsTextInputShown = PND_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = PND_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = PND_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = PND_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = PND_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = PND_SetClipboardText;
+    // device->GetClipboardText = PND_GetClipboardText;
+    // device->HasClipboardText = PND_HasClipboardText;
+    // device->SetPrimarySelectionText = PND_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = PND_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = PND_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = PND_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = PND_AcceptDragAndDrop;
+
+    device->free = PND_DeleteDevice;
 
     return device;
 }
@@ -134,7 +220,7 @@ const VideoBootStrap PND_bootstrap = {
 /*****************************************************************************/
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
-int PND_videoinit(_THIS)
+int PND_VideoInit(_THIS)
 {
     int result;
     SDL_VideoDisplay display;
@@ -165,17 +251,17 @@ int PND_videoinit(_THIS)
     return result;
 }
 
-void PND_videoquit(_THIS)
+void PND_VideoQuit(_THIS)
 {
 
 }
 
-int PND_setdisplaymode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
+int PND_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 {
     return 0;
 }
 
-int PND_createwindow(_THIS, SDL_Window * window)
+int PND_CreateSDLWindow(_THIS, SDL_Window * window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *wdata;
@@ -201,42 +287,42 @@ int PND_createwindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-/*int PND_createwindowfrom(_THIS, SDL_Window * window, const void *data)
+/*int PND_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 {
     return -1;
 }
 
-void PND_setwindowtitle(SDL_Window * window)
+void PND_SetWindowTitle(SDL_Window * window)
 {
 }
-void PND_setwindowicon(SDL_Window * window, SDL_Surface * icon)
+void PND_SetWindowIcon(SDL_Window * window, SDL_Surface * icon)
 {
 }
-void PND_setwindowposition(SDL_Window * window)
+void PND_SetWindowPosition(SDL_Window * window)
 {
 }
-void PND_setwindowsize(SDL_Window * window)
+void PND_SetWindowSize(SDL_Window * window)
 {
 }
-void PND_showwindow(SDL_Window * window)
+void PND_ShowWindow(SDL_Window * window)
 {
 }
-void PND_hidewindow(SDL_Window * window)
+void PND_HideWindow(SDL_Window * window)
 {
 }
-void PND_raisewindow(_THIS, SDL_Window * window)
+void PND_RaiseWindow(_THIS, SDL_Window * window)
 {
 }
-void PND_maximizewindow(SDL_Window * window)
+void PND_MaximizeWindow(SDL_Window * window)
 {
 }*/
-void PND_minimizewindow(SDL_Window * window)
+void PND_MinimizeWindow(SDL_Window * window)
 {
 }
-/*void PND_restorewindow(SDL_Window * window)
+/*void PND_RestoreWindow(SDL_Window * window)
 {
 }*/
-void PND_destroywindow(SDL_Window * window)
+void PND_DestroyWindow(SDL_Window * window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
@@ -253,7 +339,7 @@ void PND_destroywindow(SDL_Window * window)
 /* SDL Window Manager function                                               */
 /*****************************************************************************/
 #if 0
-SDL_bool PND_getwindowwminfo(SDL_Window * window, struct SDL_SysWMinfo *info)
+SDL_bool PND_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 {
     if (info->version.major <= SDL_MAJOR_VERSION) {
         return SDL_TRUE;
@@ -287,7 +373,7 @@ static int PND_EGL_InitializeDisplay(EGLDisplay display)
     return 0;
 }
 
-int PND_gl_loadlibrary(_THIS, const char *path)
+int PND_GL_LoadLibrary(_THIS, const char *path)
 {
     EGLDisplay display;
 
@@ -322,7 +408,7 @@ int PND_gl_loadlibrary(_THIS, const char *path)
     /* Create connection to OpenGL ES */
     display = eglGetDisplay((NativeDisplayType)0);
     if (PND_EGL_InitializeDisplay(display) < 0) {
-        PND_gl_unloadlibrary(_this);
+        PND_GL_UnloadLibrary(_this);
         return -1;
     }
 
@@ -334,7 +420,7 @@ int PND_gl_loadlibrary(_THIS, const char *path)
     return 0;
 }
 
-void *PND_gl_getprocaddress(const char *proc)
+void *PND_GL_GetProcAddress(const char *proc)
 {
     void *function_address;
 
@@ -358,7 +444,7 @@ void *PND_gl_getprocaddress(const char *proc)
     return NULL;
 }
 
-void PND_gl_unloadlibrary(_THIS)
+void PND_GL_UnloadLibrary(_THIS)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
 
@@ -654,7 +740,7 @@ static void PND_EGL_DestroySurface(EGLSurface egl_surface)
     }
 }
 
-SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
+SDL_GLContext PND_GL_CreateContext(_THIS, SDL_Window *window)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_GLContext gles_context;
@@ -669,7 +755,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
     }
 
     /* Make just created context current */
-    if (PND_gl_makecurrent(window, gles_context) < 0) {
+    if (PND_GL_MakeCurrent(window, gles_context) < 0) {
         /* Destroy OpenGL ES surface */
         eglDestroyContext(phdata->egl_display, gles_context);
         SDL_SetError("PND: Can't set OpenGL ES context on creation");
@@ -680,7 +766,7 @@ SDL_GLContext PND_gl_createcontext(_THIS, SDL_Window *window)
     return gles_context;
 }
 
-int PND_gl_makecurrent(SDL_Window *window, SDL_GLContext context)
+int PND_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata;
@@ -706,7 +792,7 @@ int PND_gl_makecurrent(SDL_Window *window, SDL_GLContext context)
     return 0;
 }
 
-int PND_gl_setswapinterval(int interval)
+int PND_GL_SetSwapInterval(int interval)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     EGLBoolean status;
@@ -726,12 +812,12 @@ int PND_gl_setswapinterval(int interval)
     return SDL_SetError("PND: Cannot set swap interval");
 }
 
-int PND_gl_getswapinterval(void)
+int PND_GL_GetSwapInterval(void)
 {
     return pandoraVideoData.swapinterval;
 }
 
-int PND_gl_swapwindow(_THIS, SDL_Window * window)
+int PND_GL_SwapWindow(_THIS, SDL_Window * window)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
     SDL_WindowData *wdata = (SDL_WindowData *) window->driverdata;
@@ -746,7 +832,7 @@ int PND_gl_swapwindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-void PND_gl_deletecontext(SDL_GLContext context)
+void PND_GL_DeleteContext(SDL_GLContext context)
 {
     Pandora_VideoData *phdata = &pandoraVideoData;
 
