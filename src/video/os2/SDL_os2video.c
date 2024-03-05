@@ -1218,24 +1218,25 @@ static void _combineRectRegions(SDL_ShapeTree *node, void *closure)
 
 static SDL_WindowShaper* OS2_CreateShaper(SDL_Window * window)
 {
-    SDL_WindowShaper* pSDLShaper = SDL_malloc(sizeof(SDL_WindowShaper));
+    SDL_WindowShaper* result = SDL_malloc(sizeof(SDL_WindowShaper));
 
     debug_os2("Enter");
-    pSDLShaper->window = window;
-    pSDLShaper->mode.mode = ShapeModeDefault;
-    pSDLShaper->mode.parameters.binarizationCutoff = 1;
-    pSDLShaper->userx = 0;
-    pSDLShaper->usery = 0;
-    pSDLShaper->driverdata = (SDL_ShapeTree *)NULL;
-    window->shaper = pSDLShaper;
 
-    if (OS2_ResizeWindowShape(window) != 0) {
-        window->shaper = NULL;
-        SDL_free(pSDLShaper);
+    if (!result) {
+        SDL_OutOfMemory();
         return NULL;
     }
 
-    return pSDLShaper;
+    result->window = window;
+    result->mode.mode = ShapeModeDefault;
+    result->mode.parameters.binarizationCutoff = 1;
+    result->userx = result->usery = 0;
+    result->hasshape = SDL_FALSE;
+    result->driverdata = (SDL_ShapeTree *)NULL;
+    window->shaper = result;
+    // OS2_ResizeWindowShape(window);
+
+    return result;
 }
 
 static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
@@ -1282,8 +1283,8 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
 static int OS2_ResizeWindowShape(SDL_Window *window)
 {
     debug_os2("Enter");
-    if (!window)
-        return -1;
+    SDL_assert(window != NULL);
+    SDL_assert(window->shaper != NULL);
 
     if (window->x != -1000) {
         if (window->shaper->driverdata)

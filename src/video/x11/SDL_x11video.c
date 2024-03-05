@@ -263,9 +263,10 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     device->SetWindowMouseRect = X11_SetWindowMouseRect;
 #endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
 
+#ifdef SDL_VIDEO_DRIVER_X11_XSHAPE
     device->CreateShaper = X11_CreateShaper;
     device->SetWindowShape = X11_SetWindowShape;
-
+#endif
 #ifdef SDL_VIDEO_OPENGL_GLX
     X11_GL_InitDevice(device);
 #endif

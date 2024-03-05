@@ -30,12 +30,12 @@
 
 SDL_WindowShaper *DirectFB_CreateShaper(SDL_Window* window)
 {
-    SDL_WindowShaper* result = NULL;
-    SDL_ShapeData* data;
-    int resized_properly;
+    SDL_WindowShaper* result = SDL_malloc(sizeof(SDL_WindowShaper));
+    SDL_ShapeData* data = SDL_malloc(sizeof(SDL_ShapeData));
 
-    result = SDL_malloc(sizeof(SDL_WindowShaper));
-    if (!result) {
+    if (!result || !data) {
+        SDL_free(data);
+        SDL_free(result);
         SDL_OutOfMemory();
         return NULL;
     }
@@ -43,32 +43,26 @@ SDL_WindowShaper *DirectFB_CreateShaper(SDL_Window* window)
     result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
     result->userx = result->usery = 0;
-    data = SDL_malloc(sizeof(SDL_ShapeData));
-    if (!data) {
-        SDL_free(result);
-        SDL_OutOfMemory();
-        return NULL;
-    }
+    result->hasshape = SDL_FALSE;
     result->driverdata = data;
     data->surface = NULL;
     window->shaper = result;
-    resized_properly = DirectFB_ResizeWindowShape(window);
-    SDL_assert(resized_properly == 0);
+    // DirectFB_ResizeWindowShape(window);
 
     return result;
 }
 
 int DirectFB_ResizeWindowShape(SDL_Window* window)
 {
-    SDL_ShapeData* data = window->shaper->driverdata;
-    SDL_assert(data != NULL);
+    SDL_assert(window != NULL);
+    SDL_assert(window->shaper != NULL);
 
-    if (window->x != -1000)
-    {
+    if (window->x != -1000) {
         window->shaper->userx = window->x;
         window->shaper->usery = window->y;
+
+        SDL_SetWindowPosition(window, -1000, -1000);
     }
-    SDL_SetWindowPosition(window,-1000,-1000);
 
     return 0;
 }

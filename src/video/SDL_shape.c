@@ -60,16 +60,16 @@ void SDL_CalculateShapeBitmap(SDL_WindowShapeMode mode, SDL_Surface *shape, Uint
             pixel_value = 0;
             pixel = (Uint8 *)(shape->pixels) + (y * shape->pitch) + (x * shape->format->BytesPerPixel);
             switch (shape->format->BytesPerPixel) {
-            case (1):
+            case 1:
                 pixel_value = *pixel;
                 break;
-            case (2):
+            case 2:
                 pixel_value = *(Uint16 *)pixel;
                 break;
-            case (3):
+            case 3:
                 pixel_value = *(Uint32 *)pixel & (~shape->format->Amask);
                 break;
-            case (4):
+            case 4:
                 pixel_value = *(Uint32 *)pixel;
                 break;
             }
@@ -120,16 +120,16 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(SDL_WindowShapeMode mode, SD
             pixel_value = 0;
             pixel = (Uint8 *)(mask->pixels) + (y * mask->pitch) + (x * mask->format->BytesPerPixel);
             switch (mask->format->BytesPerPixel) {
-            case (1):
+            case 1:
                 pixel_value = *pixel;
                 break;
-            case (2):
+            case 2:
                 pixel_value = *(Uint16 *)pixel;
                 break;
-            case (3):
+            case 3:
                 pixel_value = *(Uint32 *)pixel & (~mask->format->Amask);
                 break;
-            case (4):
+            case 4:
                 pixel_value = *(Uint32 *)pixel;
                 break;
             }
@@ -234,19 +234,11 @@ void SDL_FreeShapeTree(SDL_ShapeTree **shape_tree)
     *shape_tree = NULL;
 }
 
-static SDL_bool SDL_WindowHasAShape(SDL_Window *window)
-{
-    if (!SDL_IsShapedWindow(window)) {
-        return SDL_FALSE;
-    }
-    return window->shaper->hasshape;
-}
-
 int SDL_GetShapedWindowMode(SDL_Window *window, SDL_WindowShapeMode *shape_mode)
 {
     if (SDL_IsShapedWindow(window)) {
         if (!shape_mode) {
-            if (SDL_WindowHasAShape(window)) {
+            if (window->shaper->hasshape) {
                 return 0; /* The window given has a shape. */
             } else {
                 return SDL_WINDOW_LACKS_SHAPE; /* The window given is shapeable but lacks a shape. */

@@ -27,9 +27,12 @@
 
 SDL_WindowShaper *Win32_CreateShaper(SDL_Window *window)
 {
-    int resized_properly;
     SDL_WindowShaper *result = (SDL_WindowShaper *)SDL_malloc(sizeof(SDL_WindowShaper));
-    if (!result) {
+    SDL_ShapeData *data = (SDL_ShapeData *)SDL_calloc(1, sizeof(SDL_ShapeData));
+
+    if (!result || !data) {
+        SDL_free(data);
+        SDL_free(result);
         SDL_OutOfMemory();
         return NULL;
     }
@@ -38,21 +41,9 @@ SDL_WindowShaper *Win32_CreateShaper(SDL_Window *window)
     result->mode.parameters.binarizationCutoff = 1;
     result->userx = result->usery = 0;
     result->hasshape = SDL_FALSE;
-    result->driverdata = (SDL_ShapeData *)SDL_calloc(1, sizeof(SDL_ShapeData));
-    if (!result->driverdata) {
-        SDL_free(result);
-        SDL_OutOfMemory();
-        return NULL;
-    }
+    result->driverdata = data;
     window->shaper = result;
-    /* Put some driver-data here. */
-    resized_properly = Win32_ResizeWindowShape(window);
-    if (resized_properly != 0) {
-        SDL_free(result->driverdata);
-        SDL_free(result);
-        window->shaper = NULL;
-        return NULL;
-    }
+    // Win32_ResizeWindowShape(window);
 
     return result;
 }
@@ -103,13 +94,10 @@ int Win32_ResizeWindowShape(SDL_Window *window)
 {
     SDL_ShapeData *data;
 
-    if (!window) {
-        return -1;
-    }
+    SDL_assert(window != NULL);
+    SDL_assert(window->shaper != NULL);
     data = (SDL_ShapeData *)window->shaper->driverdata;
-    if (!data) {
-        return -1;
-    }
+    SDL_assert(data != NULL);
 
     if (data->mask_tree) {
         SDL_FreeShapeTree(&data->mask_tree);

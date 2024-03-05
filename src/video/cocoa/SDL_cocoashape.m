@@ -44,7 +44,6 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
 {
     SDL_WindowShaper* result;
     SDL_ShapeData* data;
-    int resized_properly;
     SDL_WindowData* windata = (__bridge SDL_WindowData*)window->driverdata;
 
     result = (SDL_WindowShaper *)SDL_malloc(sizeof(SDL_WindowShaper));
@@ -61,7 +60,7 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
     result->userx = result->usery = 0;
-    window->shaper = result;
+    result->hasshape = SDL_FALSE;
 
     data = [[SDL_ShapeData alloc] init];
     data.context = [windata.nswindow graphicsContext];
@@ -71,8 +70,8 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     /* TODO: There's no place to release this... */
     result->driverdata = (void*) CFBridgingRetain(data);
 
-    resized_properly = Cocoa_ResizeWindowShape(window);
-    SDL_assert(resized_properly == 0);
+    window->shaper = result;
+    // Cocoa_ResizeWindowShape(window);
     return result;
 }}
 

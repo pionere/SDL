@@ -3307,26 +3307,25 @@ SDL_Window *SDL_GetFocusWindow(void)
 SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned int y, unsigned int w, unsigned int h, Uint32 flags)
 {
     SDL_Window *result = NULL;
-    result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
-    if (result) {
-        if (_this->CreateShaper == NULL) {
-            SDL_DestroyWindow(result);
-            return NULL;
+    if (_this->CreateShaper != NULL) {
+        result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
+        if (result) {
+            result->shaper = _this->CreateShaper(result);
+            if (result->shaper) {
+                result->shaper->userx = x;
+                result->shaper->usery = y;
+                SDL_assert(result->shaper->mode.mode == ShapeModeDefault);
+                SDL_assert(result->shaper->mode.parameters.binarizationCutoff == 1);
+                SDL_assert(result->shaper->hasshape == SDL_FALSE);
+            } else {
+                SDL_DestroyWindow(result);
+                result = NULL;
+            }
         }
-        result->shaper = _this->CreateShaper(result);
-        if (result->shaper) {
-            result->shaper->userx = x;
-            result->shaper->usery = y;
-            result->shaper->mode.mode = ShapeModeDefault;
-            result->shaper->mode.parameters.binarizationCutoff = 1;
-            result->shaper->hasshape = SDL_FALSE;
-            return result;
-        } else {
-            SDL_DestroyWindow(result);
-            return NULL;
-        }
+    } else {
+        SDL_Unsupported();
     }
-    return NULL;
+    return result;
 }
 
 int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)

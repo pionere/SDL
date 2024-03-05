@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_DRIVER_X11
+#if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_XSHAPE)
 
 #include "SDL_x11video.h"
 #include "SDL_x11shape.h"
@@ -29,48 +29,47 @@
 
 SDL_WindowShaper *X11_CreateShaper(SDL_Window *window)
 {
-    SDL_WindowShaper *result = NULL;
+    SDL_WindowShaper *result;
+    SDL_ShapeData *data;
 
-#ifdef SDL_VIDEO_DRIVER_X11_XSHAPE
-    SDL_ShapeData *data = NULL;
-    if (SDL_X11_HAVE_XSHAPE) { /* Make sure X server supports it. */
-        result = SDL_malloc(sizeof(SDL_WindowShaper));
-        if (!result) {
-            SDL_OutOfMemory();
-            return NULL;
-        }
-        result->window = window;
-        result->mode.mode = ShapeModeDefault;
-        result->mode.parameters.binarizationCutoff = 1;
-        result->userx = result->usery = 0;
-        data = SDL_malloc(sizeof(SDL_ShapeData));
-        if (!data) {
-            SDL_free(result);
-            SDL_OutOfMemory();
-            return NULL;
-        }
-        result->driverdata = data;
-        data->bitmapsize = 0;
-        data->bitmap = NULL;
-        window->shaper = result;
-        if (X11_ResizeWindowShape(window) != 0) {
-            SDL_free(result);
-            SDL_free(data);
-            window->shaper = NULL;
-            return NULL;
-        }
+    result = SDL_malloc(sizeof(SDL_WindowShaper));
+    data = SDL_malloc(sizeof(SDL_ShapeData));
+    if (!result || !data) {
+        SDL_free(data);
+        SDL_free(result);
+        SDL_OutOfMemory();
+        return NULL;
     }
-#endif
+    result->window = window;
+    result->mode.mode = ShapeModeDefault;
+    result->mode.parameters.binarizationCutoff = 1;
+    result->userx = result->usery = 0;
+    result->hasshape = SDL_FALSE;
+    result->driverdata = data;
+    data->bitmapsize = 0;
+    data->bitmap = NULL;
+    window->shaper = result;
+    if (X11_ResizeWindowShape(window) != 0) {
+        SDL_free(data);
+        SDL_free(result);
+        window->shaper = NULL;
+        return NULL;
+    }
 
     return result;
 }
 
 int X11_ResizeWindowShape(SDL_Window *window)
 {
-    SDL_ShapeData *data = window->shaper->driverdata;
-    unsigned int bitmapsize = window->w / 8;
+    SDL_ShapeData *data;
+    unsigned int bitmapsize;
+
+    SDL_assert(window != NULL);
+    SDL_assert(window->shaper != NULL);
+    data = (SDL_ShapeData *)window->shaper->driverdata;
     SDL_assert(data != NULL);
 
+    bitmapsize = window->w / 8;
     if (window->w % 8 > 0) {
         bitmapsize += 1;
     }
@@ -94,17 +93,14 @@ int X11_ResizeWindowShape(SDL_Window *window)
 
 int X11_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
 {
-#ifdef SDL_VIDEO_DRIVER_X11_XSHAPE
     SDL_ShapeData *data = NULL;
     SDL_WindowData *windowdata = NULL;
     Pixmap shapemask;
-#endif
 
     if (!shaper || !shape || !shaper->driverdata) {
         return -1;
     }
 
-#ifdef SDL_VIDEO_DRIVER_X11_XSHAPE
     if (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode)) {
         return -2;
     }
@@ -123,9 +119,8 @@ int X11_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     X11_XSync(x11VideoData.display, False);
 
     X11_XFreePixmap(x11VideoData.display, shapemask);
-#endif
 
     return 0;
 }
 
-#endif /* SDL_VIDEO_DRIVER_X11 */
+#endif /* SDL_VIDEO_DRIVER_X11 && SDL_VIDEO_DRIVER_X11_XSHAPE */
