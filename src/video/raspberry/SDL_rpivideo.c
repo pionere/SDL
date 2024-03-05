@@ -60,9 +60,9 @@
 #error "OpenGL is configured, but not the implemented (EGL) for RPI."
 #endif
 
-static void RPI_Destroy(SDL_VideoDevice *device)
+static void RPI_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static int RPI_GetRefreshRate()
@@ -79,7 +79,7 @@ static int RPI_GetRefreshRate()
     return 60; /* Failed to get display state, default to 60 */
 }
 
-static SDL_VideoDevice *RPI_Create()
+static SDL_VideoDevice *RPI_CreateDevice()
 {
     SDL_VideoDevice *device;
 
@@ -90,48 +90,135 @@ static SDL_VideoDevice *RPI_Create()
         return NULL;
     }
 
-    /* Set device free function */
-    device->free = RPI_Destroy;
-
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = RPI_VideoInit;
     device->VideoQuit = RPI_VideoQuit;
+    // device->ResetTouch = RPI_ResetTouch;
+    // device->GetDisplayBounds = RPI_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = RPI_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = RPI_GetDisplayDPI;
     device->SetDisplayMode = RPI_SetDisplayMode;
-    device->CreateSDLWindow = RPI_CreateWindow;
-    // device->CreateSDLWindowFrom = RPI_CreateWindowFrom;
+
+    /* Window functions */
+    device->CreateSDLWindow = RPI_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = RPI_CreateSDLWindowFrom;
     // device->SetWindowTitle = RPI_SetWindowTitle;
     // device->SetWindowIcon = RPI_SetWindowIcon;
     // device->SetWindowPosition = RPI_SetWindowPosition;
     // device->SetWindowSize = RPI_SetWindowSize;
+    // device->SetWindowMinimumSize = RPI_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = RPI_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = RPI_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = RPI_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = RPI_SetWindowOpacity;
+    // device->SetWindowModalFor = RPI_SetWindowModalFor;
+    // device->SetWindowInputFocus = RPI_SetWindowInputFocus;
     // device->ShowWindow = RPI_ShowWindow;
     // device->HideWindow = RPI_HideWindow;
     // device->RaiseWindow = RPI_RaiseWindow;
     // device->MaximizeWindow = RPI_MaximizeWindow;
     device->MinimizeWindow = RPI_MinimizeWindow;
     // device->RestoreWindow = RPI_RestoreWindow;
+    // device->SetWindowBordered = RPI_SetWindowBordered;
+    // device->SetWindowResizable = RPI_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = RPI_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = RPI_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = RPI_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = RPI_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = RPI_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = RPI_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = RPI_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = RPI_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = RPI_SetWindowKeyboardGrab;
     device->DestroyWindow = RPI_DestroyWindow;
+    // device->CreateWindowFramebuffer = RPI_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = RPI_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = RPI_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = RPI_OnWindowEnter;
+    // device->FlashWindow = RPI_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = RPI_CreateShaper;
+    // device->SetWindowShape = RPI_SetWindowShape;
 #if 0
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = RPI_GetWindowWMInfo;
 #endif
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = RPI_GLES_LoadLibrary;
     device->GL_GetProcAddress = RPI_GLES_GetProcAddress;
     device->GL_UnloadLibrary = RPI_GLES_UnloadLibrary;
     device->GL_CreateContext = RPI_GLES_CreateContext;
     device->GL_MakeCurrent = RPI_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = RPI_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = RPI_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = RPI_GLES_GetSwapInterval;
     device->GL_SwapWindow = RPI_GLES_SwapWindow;
     device->GL_DeleteContext = RPI_GLES_DeleteContext;
     device->GL_DefaultProfileConfig = RPI_GLES_DefaultProfileConfig;
 #endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = RPI_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = RPI_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = RPI_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = RPI_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = RPI_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = RPI_Metal_CreateView;
+    // device->Metal_DestroyView = RPI_Metal_DestroyView;
+    // device->Metal_GetLayer = RPI_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = RPI_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = RPI_WaitEventTimeout;
+    // device->SendWakeupEvent = RPI_SendWakeupEvent;
     device->PumpEvents = RPI_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = RPI_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = RPI_StartTextInput;
+    // device->StopTextInput = RPI_StopTextInput;
+    // device->SetTextInputRect = RPI_SetTextInputRect;
+    // device->ClearComposition = RPI_ClearComposition;
+    // device->IsTextInputShown = RPI_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = RPI_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = RPI_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = RPI_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = RPI_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = RPI_SetClipboardText;
+    // device->GetClipboardText = RPI_GetClipboardText;
+    // device->HasClipboardText = RPI_HasClipboardText;
+    // device->SetPrimarySelectionText = RPI_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = RPI_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = RPI_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = RPI_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = RPI_AcceptDragAndDrop;
+
+    device->free = RPI_DeleteDevice;
 
     return device;
 }
 /* "RPI Video Driver"*/
 const VideoBootStrap RPI_bootstrap = {
-    "RPI", RPI_Create
+    "RPI", RPI_CreateDevice
 };
 
 /*****************************************************************************/
@@ -259,7 +346,7 @@ static void RPI_vsync_callback(DISPMANX_UPDATE_HANDLE_T u, void *data)
     SDL_UnlockMutex(wdata->vsync_cond_mutex);
 }
 
-int RPI_CreateWindow(_THIS, SDL_Window *window)
+int RPI_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *wdata;
     SDL_VideoDisplay *display;
@@ -377,7 +464,7 @@ void RPI_DestroyWindow(SDL_Window *window)
     }
 }
 
-/*int RPI_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+/*int RPI_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     return -1;
 }

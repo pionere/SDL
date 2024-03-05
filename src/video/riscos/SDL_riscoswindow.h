@@ -32,7 +32,7 @@ typedef struct
     sprite_header *fb_sprite;
 } SDL_WindowData;
 
-extern int RISCOS_CreateWindow(_THIS, SDL_Window * window);
+extern int RISCOS_CreateSDLWindow(_THIS, SDL_Window * window);
 extern void RISCOS_DestroyWindow(SDL_Window * window);
 extern SDL_bool RISCOS_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info);

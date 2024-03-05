@@ -50,10 +50,10 @@ static void UIKit_VideoQuit(_THIS);
 
 /* UIKit driver bootstrap functions */
 
-static void UIKit_DeleteDevice(SDL_VideoDevice * device)
+static void UIKit_DeleteDevice(_THIS)
 {
     @autoreleasepool {
-        SDL_free(device);
+        SDL_free(_this);
     }
 }
 
@@ -70,50 +70,74 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         }
 
         /* Set the function pointers */
+        /* Initialization/Query functions */
         device->VideoInit = UIKit_VideoInit;
         device->VideoQuit = UIKit_VideoQuit;
+        // device->ResetTouch = UIKit_ResetTouch;
+        // device->GetDisplayBounds = UIKit_GetDisplayBounds;
+        device->GetDisplayUsableBounds = UIKit_GetDisplayUsableBounds;
+        device->GetDisplayDPI = UIKit_GetDisplayDPI;
         device->SetDisplayMode = UIKit_SetDisplayMode;
-        device->PumpEvents = UIKit_PumpEvents;
-        device->SuspendScreenSaver = UIKit_SuspendScreenSaver;
-        device->CreateSDLWindow = UIKit_CreateWindow;
+
+        /* Window functions */
+        device->CreateSDLWindow = UIKit_CreateSDLWindow;
+        // device->CreateSDLWindowFrom = UIKit_CreateSDLWindowFrom;
         device->SetWindowTitle = UIKit_SetWindowTitle;
+        // device->SetWindowIcon = UIKit_SetWindowIcon;
+        // device->SetWindowPosition = UIKit_SetWindowPosition;
+        // device->SetWindowSize = UIKit_SetWindowSize;
+        // device->SetWindowMinimumSize = UIKit_SetWindowMinimumSize;
+        // device->SetWindowMaximumSize = UIKit_SetWindowMaximumSize;
+        // device->GetWindowBordersSize = UIKit_GetWindowBordersSize;
+        device->GetWindowSizeInPixels = UIKit_GetWindowSizeInPixels;
+        // device->SetWindowOpacity = UIKit_SetWindowOpacity;
+        // device->SetWindowModalFor = UIKit_SetWindowModalFor;
+        // device->SetWindowInputFocus = UIKit_SetWindowInputFocus;
         device->ShowWindow = UIKit_ShowWindow;
         device->HideWindow = UIKit_HideWindow;
         device->RaiseWindow = UIKit_RaiseWindow;
+        // device->MaximizeWindow = UIKit_MaximizeWindow;
+        // device->MinimizeWindow = UIKit_MinimizeWindow;
+        // device->RestoreWindow = UIKit_RestoreWindow;
         device->SetWindowBordered = UIKit_SetWindowBordered;
+        // device->SetWindowResizable = UIKit_SetWindowResizable;
+        // device->SetWindowAlwaysOnTop = UIKit_SetWindowAlwaysOnTop;
         device->SetWindowFullscreen = UIKit_SetWindowFullscreen;
+        // device->SetWindowGammaRamp = UIKit_SetWindowGammaRamp;
+        // device->GetWindowGammaRamp = UIKit_GetWindowGammaRamp;
+        // device->GetWindowICCProfile = UIKit_GetWindowICCProfile;
+        // device->GetWindowDisplayIndex = UIKit_GetWindowDisplayIndex;
+        // device->SetWindowMouseRect = UIKit_SetWindowMouseRect;
         device->SetWindowMouseGrab = UIKit_SetWindowMouseGrab;
+        // device->SetWindowKeyboardGrab = UIKit_SetWindowKeyboardGrab;
         device->DestroyWindow = UIKit_DestroyWindow;
+        // device->CreateWindowFramebuffer = UIKit_CreateWindowFramebuffer;
+        // device->UpdateWindowFramebuffer = UIKit_UpdateWindowFramebuffer;
+        // device->DestroyWindowFramebuffer = UIKit_DestroyWindowFramebuffer;
+        // device->OnWindowEnter = UIKit_OnWindowEnter;
+        // device->FlashWindow = UIKit_FlashWindow;
+        /* Shaped-window functions */
+        // device->CreateShaper = UIKit_CreateShaper;
+        // device->SetWindowShape = UIKit_SetWindowShape;
+        /* Get some platform dependent window information */
         device->GetWindowWMInfo = UIKit_GetWindowWMInfo;
-        device->GetDisplayUsableBounds = UIKit_GetDisplayUsableBounds;
-        device->GetDisplayDPI = UIKit_GetDisplayDPI;
-        device->GetWindowSizeInPixels = UIKit_GetWindowSizeInPixels;
 
-#ifdef SDL_IPHONE_KEYBOARD
-        device->HasScreenKeyboardSupport = UIKit_HasScreenKeyboardSupport;
-        device->ShowScreenKeyboard = UIKit_ShowScreenKeyboard;
-        device->HideScreenKeyboard = UIKit_HideScreenKeyboard;
-        device->IsScreenKeyboardShown = UIKit_IsScreenKeyboardShown;
-        device->SetTextInputRect = UIKit_SetTextInputRect;
-#endif
-
-        device->SetClipboardText = UIKit_SetClipboardText;
-        device->GetClipboardText = UIKit_GetClipboardText;
-        device->HasClipboardText = UIKit_HasClipboardText;
-
-        /* OpenGL (ES) functions */
+        /* OpenGL support */
 #if defined(SDL_VIDEO_OPENGL_ES) || defined(SDL_VIDEO_OPENGL_ES2)
-        device->GL_MakeCurrent      = UIKit_GL_MakeCurrent;
-        device->GL_GetDrawableSize  = UIKit_GL_GetDrawableSize;
-        device->GL_SwapWindow       = UIKit_GL_SwapWindow;
-        device->GL_CreateContext    = UIKit_GL_CreateContext;
-        device->GL_DeleteContext    = UIKit_GL_DeleteContext;
-        device->GL_GetProcAddress   = UIKit_GL_GetProcAddress;
-        device->GL_LoadLibrary      = UIKit_GL_LoadLibrary;
-        device->GL_UnloadLibrary    = UIKit_GL_UnloadLibrary;
+        device->GL_LoadLibrary = UIKit_GL_LoadLibrary;
+        device->GL_GetProcAddress = UIKit_GL_GetProcAddress;
+        device->GL_UnloadLibrary = UIKit_GL_UnloadLibrary;
+        device->GL_CreateContext = UIKit_GL_CreateContext;
+        device->GL_MakeCurrent = UIKit_GL_MakeCurrent;
+        device->GL_GetDrawableSize = UIKit_GL_GetDrawableSize;
+        // device->GL_SetSwapInterval = UIKit_GL_SetSwapInterval;
+        // device->GL_GetSwapInterval = UIKit_GL_GetSwapInterval;
+        device->GL_SwapWindow = UIKit_GL_SwapWindow;
+        device->GL_DeleteContext = UIKit_GL_DeleteContext;
+        // device->GL_DefaultProfileConfig = UIKit_GL_DefaultProfileConfig;
 #endif
-        device->free = UIKit_DeleteDevice;
 
+        /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
         device->Vulkan_LoadLibrary = UIKit_Vulkan_LoadLibrary;
         device->Vulkan_UnloadLibrary = UIKit_Vulkan_UnloadLibrary;
@@ -123,12 +147,52 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         device->Vulkan_GetDrawableSize = UIKit_Vulkan_GetDrawableSize;
 #endif
 
+        /* Metal support */
 #ifdef SDL_VIDEO_METAL
         device->Metal_CreateView = UIKit_Metal_CreateView;
         device->Metal_DestroyView = UIKit_Metal_DestroyView;
         device->Metal_GetLayer = UIKit_Metal_GetLayer;
         device->Metal_GetDrawableSize = UIKit_Metal_GetDrawableSize;
 #endif
+
+        /* Event manager functions */
+        // device->WaitEventTimeout = UIKit_WaitEventTimeout;
+        // device->SendWakeupEvent = UIKit_SendWakeupEvent;
+        device->PumpEvents = UIKit_PumpEvents;
+
+        /* Screensaver */
+        device->SuspendScreenSaver = UIKit_SuspendScreenSaver;
+
+        /* Text input */
+#ifdef SDL_IPHONE_KEYBOARD
+        // device->StartTextInput = UIKit_StartTextInput;
+        // device->StopTextInput = UIKit_StopTextInput;
+        device->SetTextInputRect = UIKit_SetTextInputRect;
+        // device->ClearComposition = UIKit_ClearComposition;
+        // device->IsTextInputShown = UIKit_IsTextInputShown;
+
+        /* Screen keyboard */
+        device->HasScreenKeyboardSupport = UIKit_HasScreenKeyboardSupport;
+        device->ShowScreenKeyboard = UIKit_ShowScreenKeyboard;
+        device->HideScreenKeyboard = UIKit_HideScreenKeyboard;
+        device->IsScreenKeyboardShown = UIKit_IsScreenKeyboardShown;
+#endif
+        /* Clipboard */
+        device->SetClipboardText = UIKit_SetClipboardText;
+        device->GetClipboardText = UIKit_GetClipboardText;
+        device->HasClipboardText = UIKit_HasClipboardText;
+        // device->SetPrimarySelectionText = UIKit_SetPrimarySelectionText;
+        // device->GetPrimarySelectionText = UIKit_GetPrimarySelectionText;
+        // device->HasPrimarySelectionText = UIKit_HasPrimarySelectionText;
+
+        /* Hit-testing */
+        // device->SetWindowHitTest = UIKit_SetWindowHitTest;
+
+        /* Tell window that app enabled drag'n'drop events */
+        // device->AcceptDragAndDrop = UIKit_AcceptDragAndDrop;
+
+        device->free = UIKit_DeleteDevice;
+
         return device;
     }
 }

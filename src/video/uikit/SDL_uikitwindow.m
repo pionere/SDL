@@ -149,7 +149,7 @@ static int SetupWindowData(SDL_Window *window, UIWindow *uiwindow, SDL_bool crea
     return 0;
 }
 
-int UIKit_CreateWindow(_THIS, SDL_Window *window)
+int UIKit_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     @autoreleasepool {
         SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);

@@ -31,7 +31,7 @@
 #include "SDL_riscosvideo.h"
 #include "SDL_riscoswindow.h"
 
-int RISCOS_CreateWindow(_THIS, SDL_Window *window)
+int RISCOS_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *driverdata;
 
