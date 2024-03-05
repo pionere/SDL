@@ -1642,8 +1642,8 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     device->GetClipboardText = OS2_GetClipboardText;
     device->HasClipboardText = OS2_HasClipboardText;
 
-    device->shape_driver.CreateShaper = OS2_CreateShaper;
-    device->shape_driver.SetWindowShape = OS2_SetWindowShape;
+    device->CreateShaper = OS2_CreateShaper;
+    device->SetWindowShape = OS2_SetWindowShape;
 
     device->free = OS2_DeleteDevice;
 

@@ -145,8 +145,8 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
 #endif
 
     /* Shaped window support */
-    device->shape_driver.CreateShaper = DirectFB_CreateShaper;
-    device->shape_driver.SetWindowShape = DirectFB_SetWindowShape;
+    device->CreateShaper = DirectFB_CreateShaper;
+    device->SetWindowShape = DirectFB_SetWindowShape;
 
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = DirectFB_Vulkan_LoadLibrary;

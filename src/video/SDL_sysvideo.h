@@ -36,7 +36,6 @@
 #endif
 
 typedef struct SDL_WindowShaper SDL_WindowShaper;
-typedef struct SDL_ShapeDriver SDL_ShapeDriver;
 typedef struct SDL_VideoDisplay SDL_VideoDisplay;
 typedef struct SDL_VideoDevice SDL_VideoDevice;
 
@@ -56,13 +55,6 @@ struct SDL_WindowShaper
     SDL_bool hasshape;
 
     void *driverdata;
-};
-
-/* Define the SDL shape driver structure */
-struct SDL_ShapeDriver
-{
-    SDL_WindowShaper *(*CreateShaper)(SDL_Window *window);
-    int (*SetWindowShape)(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode);
 };
 
 typedef struct SDL_WindowUserData
@@ -266,7 +258,8 @@ struct SDL_VideoDevice
     /*
      * Shaped-window functions
      */
-    SDL_ShapeDriver shape_driver;
+    SDL_WindowShaper *(*CreateShaper)(SDL_Window *window);
+    int (*SetWindowShape)(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode);
 
     /* Get some platform dependent window information */
     SDL_bool(*GetWindowWMInfo) (SDL_Window * window,

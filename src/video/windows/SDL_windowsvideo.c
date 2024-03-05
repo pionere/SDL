@@ -201,8 +201,8 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->AcceptDragAndDrop = WIN_AcceptDragAndDrop;
     device->FlashWindow = WIN_FlashWindow;
 
-    device->shape_driver.CreateShaper = Win32_CreateShaper;
-    device->shape_driver.SetWindowShape = Win32_SetWindowShape;
+    device->CreateShaper = Win32_CreateShaper;
+    device->SetWindowShape = Win32_SetWindowShape;
 #endif
 
 #ifdef SDL_VIDEO_OPENGL_WGL

@@ -130,8 +130,8 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->AcceptDragAndDrop = Cocoa_AcceptDragAndDrop;
     device->FlashWindow = Cocoa_FlashWindow;
 
-    device->shape_driver.CreateShaper = Cocoa_CreateShaper;
-    device->shape_driver.SetWindowShape = Cocoa_SetWindowShape;
+    device->CreateShaper = Cocoa_CreateShaper;
+    device->SetWindowShape = Cocoa_SetWindowShape;
 
 #ifdef SDL_VIDEO_OPENGL_CGL
     Cocoa_GL_InitDevice(device);

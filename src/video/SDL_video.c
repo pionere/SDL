@@ -3309,11 +3309,11 @@ SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned i
     SDL_Window *result = NULL;
     result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
     if (result) {
-        if (_this->shape_driver.CreateShaper == NULL) {
+        if (_this->CreateShaper == NULL) {
             SDL_DestroyWindow(result);
             return NULL;
         }
-        result->shaper = _this->shape_driver.CreateShaper(result);
+        result->shaper = _this->CreateShaper(result);
         if (result->shaper) {
             result->shaper->userx = x;
             result->shaper->usery = y;
@@ -3345,7 +3345,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
     if (shape_mode) {
         window->shaper->mode = *shape_mode;
     }
-    result = _this->shape_driver.SetWindowShape(window->shaper, shape, shape_mode);
+    result = _this->SetWindowShape(window->shaper, shape, shape_mode);
     window->shaper->hasshape = SDL_TRUE;
     if (window->shaper->userx != 0 && window->shaper->usery != 0) {
         int x = window->shaper->userx;
