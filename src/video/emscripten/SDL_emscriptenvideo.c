@@ -53,7 +53,7 @@ static void Emscripten_VideoQuit(_THIS);
 static int Emscripten_GetDisplayUsableBounds(SDL_VideoDisplay *display, SDL_Rect *rect);
 static int Emscripten_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
 
-static int Emscripten_CreateWindow(_THIS, SDL_Window *window);
+static int Emscripten_CreateSDLWindow(_THIS, SDL_Window *window);
 static void Emscripten_SetWindowSize(SDL_Window *window);
 static void Emscripten_DestroyWindow(SDL_Window *window);
 static void Emscripten_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen);
@@ -75,7 +75,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
     if (!device) {
         SDL_OutOfMemory();
-        return 0;
+        return NULL;
     }
 
     /* Firefox sends blur event which would otherwise prevent full screen
@@ -85,45 +85,124 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = Emscripten_VideoInit;
     device->VideoQuit = Emscripten_VideoQuit;
+    // device->ResetTouch = Emscripten_ResetTouch;
+    // device->GetDisplayBounds = Emscripten_GetDisplayBounds;
     device->GetDisplayUsableBounds = Emscripten_GetDisplayUsableBounds;
     device->GetDisplayDPI = Emscripten_GetDisplayDPI;
     device->SetDisplayMode = Emscripten_SetDisplayMode;
 
-    device->PumpEvents = Emscripten_PumpEvents;
-
-    device->CreateSDLWindow = Emscripten_CreateWindow;
+    /* Window functions */
+    device->CreateSDLWindow = Emscripten_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = Emscripten_CreateSDLWindowFrom;
     device->SetWindowTitle = Emscripten_SetWindowTitle;
-    /*device->SetWindowIcon = Emscripten_SetWindowIcon;
-    device->SetWindowPosition = Emscripten_SetWindowPosition;*/
+    // device->SetWindowIcon = Emscripten_SetWindowIcon;
+    // device->SetWindowPosition = Emscripten_SetWindowPosition;
     device->SetWindowSize = Emscripten_SetWindowSize;
-    /*device->ShowWindow = Emscripten_ShowWindow;
-    device->HideWindow = Emscripten_HideWindow;
-    device->RaiseWindow = Emscripten_RaiseWindow;
-    device->MaximizeWindow = Emscripten_MaximizeWindow;
-    device->MinimizeWindow = Emscripten_MinimizeWindow;
-    device->RestoreWindow = Emscripten_RestoreWindow;
-    device->SetWindowMouseGrab = Emscripten_SetWindowMouseGrab;*/
+    // device->SetWindowMinimumSize = Emscripten_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = Emscripten_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = Emscripten_GetWindowBordersSize;
     device->GetWindowSizeInPixels = Emscripten_GetWindowSizeInPixels;
-    device->DestroyWindow = Emscripten_DestroyWindow;
+    // device->SetWindowOpacity = Emscripten_SetWindowOpacity;
+    // device->SetWindowModalFor = Emscripten_SetWindowModalFor;
+    // device->SetWindowInputFocus = Emscripten_SetWindowInputFocus;
+    // device->ShowWindow = Emscripten_ShowWindow;
+    // device->HideWindow = Emscripten_HideWindow;
+    // device->RaiseWindow = Emscripten_RaiseWindow;
+    // device->MaximizeWindow = Emscripten_MaximizeWindow;
+    // device->MinimizeWindow = Emscripten_MinimizeWindow;
+    // device->RestoreWindow = Emscripten_RestoreWindow;
+    // device->SetWindowBordered = Emscripten_SetWindowBordered;
+    // device->SetWindowResizable = Emscripten_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = Emscripten_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = Emscripten_SetWindowFullscreen;
-
+    // device->SetWindowGammaRamp = Emscripten_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = Emscripten_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = Emscripten_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = Emscripten_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = Emscripten_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = Emscripten_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = Emscripten_SetWindowKeyboardGrab;
+    device->DestroyWindow = Emscripten_DestroyWindow;
     device->CreateWindowFramebuffer = Emscripten_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = Emscripten_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = Emscripten_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = Emscripten_OnWindowEnter;
+    // device->FlashWindow = Emscripten_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = Emscripten_CreateShaper;
+    // device->SetWindowShape = Emscripten_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = Emscripten_GetWindowWMInfo;
 
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = Emscripten_GLES_LoadLibrary;
     device->GL_GetProcAddress = Emscripten_GLES_GetProcAddress;
     device->GL_UnloadLibrary = Emscripten_GLES_UnloadLibrary;
     device->GL_CreateContext = Emscripten_GLES_CreateContext;
     device->GL_MakeCurrent = Emscripten_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = Emscripten_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = Emscripten_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = Emscripten_GLES_GetSwapInterval;
     device->GL_SwapWindow = Emscripten_GLES_SwapWindow;
     device->GL_DeleteContext = Emscripten_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = Emscripten_GLES_DefaultProfileConfig;
 #endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = Emscripten_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = Emscripten_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = Emscripten_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = Emscripten_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = Emscripten_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = Emscripten_Metal_CreateView;
+    // device->Metal_DestroyView = Emscripten_Metal_DestroyView;
+    // device->Metal_GetLayer = Emscripten_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = Emscripten_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = Emscripten_WaitEventTimeout;
+    // device->SendWakeupEvent = Emscripten_SendWakeupEvent;
+    device->PumpEvents = Emscripten_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = Emscripten_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = Emscripten_StartTextInput;
+    // device->StopTextInput = Emscripten_StopTextInput;
+    // device->SetTextInputRect = Emscripten_SetTextInputRect;
+    // device->ClearComposition = Emscripten_ClearComposition;
+    // device->IsTextInputShown = Emscripten_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = Emscripten_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = Emscripten_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = Emscripten_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = Emscripten_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = Emscripten_SetClipboardText;
+    // device->GetClipboardText = Emscripten_GetClipboardText;
+    // device->HasClipboardText = Emscripten_HasClipboardText;
+    // device->SetPrimarySelectionText = Emscripten_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = Emscripten_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = Emscripten_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = Emscripten_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = Emscripten_AcceptDragAndDrop;
 
     device->free = Emscripten_DeleteDevice;
 
@@ -216,7 +295,7 @@ static void Emscripten_PumpEvents(_THIS)
     /* do nothing. */
 }
 
-static int Emscripten_CreateWindow(_THIS, SDL_Window *window)
+static int Emscripten_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *wdata;
     double scaled_w, scaled_h;
