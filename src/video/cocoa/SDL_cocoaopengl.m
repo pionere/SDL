@@ -229,10 +229,12 @@ void Cocoa_GL_InitDevice(_THIS)
     _this->GL_UnloadLibrary = Cocoa_GL_UnloadLibrary;
     _this->GL_CreateContext = Cocoa_GL_CreateContext;
     _this->GL_MakeCurrent = Cocoa_GL_MakeCurrent;
+    // _this->GL_GetDrawableSize = Cocoa_GL_GetDrawableSize;
     _this->GL_SetSwapInterval = Cocoa_GL_SetSwapInterval;
     _this->GL_GetSwapInterval = Cocoa_GL_GetSwapInterval;
     _this->GL_SwapWindow = Cocoa_GL_SwapWindow;
     _this->GL_DeleteContext = Cocoa_GL_DeleteContext;
+    // _this->GL_DefaultProfileConfig = Cocoa_GL_DefaultProfileConfig;
 }
 
 int Cocoa_GL_LoadLibrary(_THIS, const char *path)

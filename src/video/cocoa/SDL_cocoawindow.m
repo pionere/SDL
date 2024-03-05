@@ -1712,7 +1712,7 @@ static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsvi
     return 0;
 }}
 
-int Cocoa_CreateWindow(_THIS, SDL_Window * window)
+int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
 { @autoreleasepool
 {
     Cocoa_VideoData *videodata = cocoaVideoData;
@@ -1831,7 +1831,7 @@ int Cocoa_CreateWindow(_THIS, SDL_Window * window)
     return 0;
 }}
 
-int Cocoa_CreateWindowFrom(_THIS, SDL_Window * window, const void *data)
+int Cocoa_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 { @autoreleasepool
 {
     NSView* nsview = nil;

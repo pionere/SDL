@@ -86,27 +86,36 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = Cocoa_VideoInit;
     device->VideoQuit = Cocoa_VideoQuit;
+    // device->ResetTouch = Cocoa_ResetTouch;
     device->GetDisplayBounds = Cocoa_GetDisplayBounds;
     device->GetDisplayUsableBounds = Cocoa_GetDisplayUsableBounds;
     device->GetDisplayDPI = Cocoa_GetDisplayDPI;
     device->SetDisplayMode = Cocoa_SetDisplayMode;
+
+    /* Event manager functions */
     device->PumpEvents = Cocoa_PumpEvents;
     device->WaitEventTimeout = Cocoa_WaitEventTimeout;
     device->SendWakeupEvent = Cocoa_SendWakeupEvent;
+    /* Screensaver */
     device->SuspendScreenSaver = Cocoa_SuspendScreenSaver;
 
-    device->CreateSDLWindow = Cocoa_CreateWindow;
-    device->CreateSDLWindowFrom = Cocoa_CreateWindowFrom;
+    /* Window functions */
+    device->CreateSDLWindow = Cocoa_CreateSDLWindow;
+    device->CreateSDLWindowFrom = Cocoa_CreateSDLWindowFrom;
     device->SetWindowTitle = Cocoa_SetWindowTitle;
     device->SetWindowIcon = Cocoa_SetWindowIcon;
     device->SetWindowPosition = Cocoa_SetWindowPosition;
     device->SetWindowSize = Cocoa_SetWindowSize;
     device->SetWindowMinimumSize = Cocoa_SetWindowMinimumSize;
     device->SetWindowMaximumSize = Cocoa_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = Cocoa_GetWindowBordersSize;
     device->SetWindowOpacity = Cocoa_SetWindowOpacity;
     device->GetWindowSizeInPixels = Cocoa_GetWindowSizeInPixels;
+    // device->SetWindowModalFor = Cocoa_SetWindowModalFor;
+    // device->SetWindowInputFocus = Cocoa_SetWindowInputFocus;
     device->ShowWindow = Cocoa_ShowWindow;
     device->HideWindow = Cocoa_HideWindow;
     device->RaiseWindow = Cocoa_RaiseWindow;
@@ -125,20 +134,29 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->SetWindowMouseGrab = Cocoa_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = Cocoa_SetWindowKeyboardGrab;
     device->DestroyWindow = Cocoa_DestroyWindow;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = Cocoa_GetWindowWMInfo;
+    /* Hit-testing */
     device->SetWindowHitTest = Cocoa_SetWindowHitTest;
+    /* Tell window that app enabled drag'n'drop events */
     device->AcceptDragAndDrop = Cocoa_AcceptDragAndDrop;
+    // device->CreateWindowFramebuffer = Cocoa_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = Cocoa_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = Cocoa_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = Cocoa_OnWindowEnter;
     device->FlashWindow = Cocoa_FlashWindow;
-
+    /* Shaped-window functions */
     device->CreateShaper = Cocoa_CreateShaper;
     device->SetWindowShape = Cocoa_SetWindowShape;
 
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_CGL
     Cocoa_GL_InitDevice(device);
 #elif defined(SDL_VIDEO_OPENGL_EGL)
     Cocoa_GLES_InitDevice(device);
 #endif
 
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = Cocoa_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = Cocoa_Vulkan_UnloadLibrary;
@@ -147,6 +165,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->Vulkan_GetDrawableSize = Cocoa_Vulkan_GetDrawableSize;
 #endif
 
+    /* Metal support */
 #ifdef SDL_VIDEO_METAL
     device->Metal_CreateView = Cocoa_Metal_CreateView;
     device->Metal_DestroyView = Cocoa_Metal_DestroyView;
@@ -154,13 +173,26 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     device->Metal_GetDrawableSize = Cocoa_Metal_GetDrawableSize;
 #endif
 
+    /* Text input */
     device->StartTextInput = Cocoa_StartTextInput;
     device->StopTextInput = Cocoa_StopTextInput;
     device->SetTextInputRect = Cocoa_SetTextInputRect;
+    // device->ClearComposition = Cocoa_ClearComposition;
+    // device->IsTextInputShown = Cocoa_IsTextInputShown;
 
+    /* Clipboard */
     device->SetClipboardText = Cocoa_SetClipboardText;
     device->GetClipboardText = Cocoa_GetClipboardText;
     device->HasClipboardText = Cocoa_HasClipboardText;
+    // device->SetPrimarySelectionText = Cocoa_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = Cocoa_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = Cocoa_HasPrimarySelectionText;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = Cocoa_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = Cocoa_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = Cocoa_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = Cocoa_IsScreenKeyboardShown;
 
     device->free = Cocoa_DeleteDevice;
 
