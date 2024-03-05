@@ -822,9 +822,9 @@ static int SDL_EGL_PrivateChooseConfig(_THIS, SDL_bool set_config_caveat_none)
         USE_FUNC(eglBindAPI)(EGL_OPENGL_API);
     }
 
-    if (egl_data.egl_surfacetype) {
+    if (_this->gl_config.egl_surfacetype) {
         attribs[i++] = EGL_SURFACE_TYPE;
-        attribs[i++] = egl_data.egl_surfacetype;
+        attribs[i++] = _this->gl_config.egl_surfacetype;
     }
 
     SDL_assert(i < SDL_arraysize(attribs));

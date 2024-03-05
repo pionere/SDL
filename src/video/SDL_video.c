@@ -3668,6 +3668,7 @@ void SDL_GL_ResetAttributes(void)
     _this->gl_config.framebuffer_srgb_capable = 0;
     _this->gl_config.no_error = 0;
     _this->gl_config.retained_backing = 1;
+    _this->gl_config.egl_surfacetype = 0;
 
 #ifdef SDL_VIDEO_OPENGL
     _this->gl_config.major_version = 2;
@@ -3800,6 +3801,9 @@ int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
         break;
     case SDL_GL_CONTEXT_NO_ERROR:
         _this->gl_config.no_error = value;
+        break;
+    case SDL_GL_SURFACETYPE_EGL:
+        _this->gl_config.egl_surfacetype = value;
         break;
     default:
         retval = SDL_SetError("Unknown OpenGL attribute");
@@ -4007,6 +4011,11 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
     case SDL_GL_FLOATBUFFERS:
     {
         *value = _this->gl_config.floatbuffers;
+        return 0;
+    }
+    case SDL_GL_SURFACETYPE_EGL:
+    {
+        *value = _this->gl_config.egl_surfacetype;
         return 0;
     }
     default:
