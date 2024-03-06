@@ -1995,13 +1995,6 @@ int Wayland_CreateSDLWindow(_THIS, SDL_Window *window)
 
     window->driverdata = data;
 
-    if (window->x == SDL_WINDOWPOS_UNDEFINED) {
-        window->x = 0;
-    }
-    if (window->y == SDL_WINDOWPOS_UNDEFINED) {
-        window->y = 0;
-    }
-
     data->sdlwindow = window;
 
     data->scale_factor = 1.0f;

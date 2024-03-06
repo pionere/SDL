@@ -34,14 +34,6 @@ static void ConstructWindowL(void);
 
 int NGAGE_CreateSDLWindow(_THIS, SDL_Window *window)
 {
-    if (window->x == SDL_WINDOWPOS_UNDEFINED) {
-        window->x = 0;
-    }
-
-    if (window->y == SDL_WINDOWPOS_UNDEFINED) {
-        window->y = 0;
-    }
-
     ConstructWindowL();
 
     return 0;

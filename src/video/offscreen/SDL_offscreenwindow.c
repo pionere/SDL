@@ -36,16 +36,7 @@ int OFFSCREEN_CreateSDLWindow(_THIS, SDL_Window *window)
     }
 
     window->driverdata = offscreen_window;
-#endif
-    if (window->x == SDL_WINDOWPOS_UNDEFINED) {
-        window->x = 0;
-    }
 
-    if (window->y == SDL_WINDOWPOS_UNDEFINED) {
-        window->y = 0;
-    }
-
-#ifdef SDL_VIDEO_OPENGL_EGL
     if (window->flags & SDL_WINDOW_OPENGL) {
 
         offscreen_window->egl_surface = SDL_EGL_CreateOffscreenSurface(_this, window->w, window->h);
