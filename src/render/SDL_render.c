@@ -666,6 +666,12 @@ int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo *info)
 #endif
 }
 
+const SDL_RendererInfo *SDL_PrivateGetRenderDriverInfo(int index)
+{
+    SDL_assert(index >= 0 && index < SDL_GetNumRenderDrivers());
+    return &render_drivers[index]->info;
+}
+
 static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, int *logical_h, SDL_DRect *viewport, SDL_FPoint *scale)
 {
     SDL_LockMutex(renderer->target_mutex);
@@ -1151,6 +1157,12 @@ int SDL_GetRendererInfo(SDL_Renderer *renderer, SDL_RendererInfo *info)
 
     *info = renderer->info;
     return 0;
+}
+
+const SDL_RendererInfo *SDL_PrivateGetRendererInfo(const SDL_Renderer *renderer)
+{
+    SDL_assert(renderer != NULL);
+    return &renderer->info;
 }
 
 int SDL_GetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)

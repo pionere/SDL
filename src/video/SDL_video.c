@@ -32,6 +32,7 @@
 #include "SDL_rect_c.h"
 #include "../events/SDL_events_c.h"
 #include "../timer/SDL_timer_c.h"
+#include "../render/SDL_sysrender.h"
 
 #include "SDL_syswm.h"
 
@@ -207,7 +208,7 @@ static Uint32 SDL_DefaultGraphicsBackends(SDL_VideoDevice *_this)
 
 static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
-    SDL_RendererInfo info;
+    const SDL_RendererInfo *info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
     int i;
     int w, h;
@@ -225,28 +226,27 @@ static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pi
         /* Check to see if there's a specific driver requested */
         if (specific_accelerated_renderer) {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-                SDL_GetRenderDriverInfo(i, &info);
-                if (SDL_strcasecmp(info.name, hint) == 0) {
+                info = SDL_PrivateGetRenderDriverInfo(i);
+                if (SDL_strcasecmp(info->name, hint) == 0) {
                     renderer = SDL_CreateRenderer(window, i, 0);
                     break;
                 }
             }
-            if (!renderer || (SDL_GetRendererInfo(renderer, &info) == -1)) {
-                if (renderer) {
-                    SDL_DestroyRenderer(renderer);
-                }
+            if (!renderer) {
                 return SDL_SetError("Requested renderer for " SDL_HINT_FRAMEBUFFER_ACCELERATION " is not available");
             }
             /* if it was specifically requested, even if SDL_RENDERER_ACCELERATED isn't set, we'll accept this renderer. */
         } else {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-                SDL_GetRenderDriverInfo(i, &info);
-                if (SDL_strcmp(info.name, "software") != 0) {
+                info = SDL_PrivateGetRenderDriverInfo(i);
+                if (SDL_strcmp(info->name, "software") != 0) {
                     renderer = SDL_CreateRenderer(window, i, 0);
-                    if (renderer && (SDL_GetRendererInfo(renderer, &info) == 0) && (info.flags & SDL_RENDERER_ACCELERATED)) {
-                        break; /* this will work. */
-                    }
-                    if (renderer) { /* wasn't accelerated, etc, skip it. */
+                    if (renderer) {
+                        info = SDL_PrivateGetRendererInfo(renderer);
+                        if (info->flags & SDL_RENDERER_ACCELERATED) {
+                            break; /* this will work. */
+                        }
+                        /* wasn't accelerated skip it. */
                         SDL_DestroyRenderer(renderer);
                         renderer = NULL;
                     }
@@ -268,10 +268,6 @@ static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pi
         SDL_SetWindowData(window, SDL_WINDOWTEXTUREDATA, data);
 
         data->renderer = renderer;
-    } else {
-        if (SDL_GetRendererInfo(data->renderer, &info) == -1) {
-            return -1;
-        }
     }
 
     /* Free any old texture and pixel data */
@@ -283,12 +279,13 @@ static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pi
     data->pixels = NULL;
 
     /* Find the first format without an alpha channel */
-    *format = info.texture_formats[0];
+    info = SDL_PrivateGetRendererInfo(data->renderer);
+    *format = info->texture_formats[0];
 
-    for (i = 0; i < (int)info.num_texture_formats; ++i) {
-        if (!SDL_ISPIXELFORMAT_FOURCC(info.texture_formats[i]) &&
-            !SDL_ISPIXELFORMAT_ALPHA(info.texture_formats[i])) {
-            *format = info.texture_formats[i];
+    for (i = 0; i < (int)info->num_texture_formats; ++i) {
+        if (!SDL_ISPIXELFORMAT_FOURCC(info->texture_formats[i]) &&
+            !SDL_ISPIXELFORMAT_ALPHA(info->texture_formats[i])) {
+            *format = info->texture_formats[i];
             break;
         }
     }

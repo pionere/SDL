@@ -324,6 +324,10 @@ extern void *SDL_AllocateRenderVertices(SDL_Renderer *renderer, const size_t num
 extern int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
 extern int SDL_PrivateUpperBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
 
+/* private helper functions */
+extern const SDL_RendererInfo *SDL_PrivateGetRenderDriverInfo(int index);
+extern const SDL_RendererInfo *SDL_PrivateGetRendererInfo(const SDL_Renderer *renderer);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }
