@@ -26,6 +26,7 @@
 #include "sdl_qnx.h"
 
 static EGLDisplay   egl_disp;
+static int egl_swapinterval;
 
 /**
  * Detertmines the pixel format to use based on the current display and EGL
@@ -214,10 +215,20 @@ SDL_GLContext QNX_GL_CreateContext(_THIS, SDL_Window *window)
 int QNX_GL_SetSwapInterval(int interval)
 {
     if (eglSwapInterval(egl_disp, interval) != EGL_TRUE) {
+        egl_swapinterval = interval;
         return -1;
     }
 
     return 0;
+}
+
+/**
+ * Gets the current value for the number of frames to display before swapping buffers.
+ * @return  interval value
+ */
+int QNX_GL_GetSwapInterval(void)
+{
+    return egl_swapinterval;
 }
 
 /**
