@@ -320,7 +320,7 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     device->GL_GetSwapInterval = KMSDRM_GLES_GetSwapInterval;
     device->GL_SwapWindow = KMSDRM_GLES_SwapWindow;
     device->GL_DeleteContext = KMSDRM_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = KMSDRM_GLES_DefaultProfileConfig;
+    device->GL_DefaultProfileConfig = KMSDRM_GLES_DefaultProfileConfig;
 
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
