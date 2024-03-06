@@ -451,11 +451,6 @@ void X11_StopTextInput(void)
 
 void X11_SetTextInputRect(const SDL_Rect *rect)
 {
-    if (!rect) {
-        SDL_InvalidParamError("rect");
-        return;
-    }
-
 #ifdef SDL_USE_IME
     SDL_IME_UpdateTextRect(rect);
 #endif

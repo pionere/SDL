@@ -4552,7 +4552,11 @@ void SDL_StopTextInput(void)
 void SDL_SetTextInputRect(const SDL_Rect *rect)
 {
     if (_this && _this->SetTextInputRect) {
-        _this->SetTextInputRect(rect);
+        if (rect) {
+            _this->SetTextInputRect(rect);
+        } else {
+            SDL_InvalidParamError("rect");
+        }
     }
 }
 

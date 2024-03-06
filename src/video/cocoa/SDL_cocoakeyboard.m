@@ -375,11 +375,6 @@ void Cocoa_SetTextInputRect(const SDL_Rect *rect)
 {
     Cocoa_VideoData *data = cocoaVideoData;
 
-    if (!rect) {
-        SDL_InvalidParamError("rect");
-        return;
-    }
-
     [data.fieldEdit setInputRect:rect];
 }
 

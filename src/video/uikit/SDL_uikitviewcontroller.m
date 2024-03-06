@@ -612,11 +612,6 @@ SDL_bool UIKit_IsScreenKeyboardShown(SDL_Window *window)
 
 void UIKit_SetTextInputRect(const SDL_Rect *rect)
 {
-    if (!rect) {
-        SDL_InvalidParamError("rect");
-        return;
-    }
-
     @autoreleasepool {
         SDL_uikitviewcontroller *vc = GetWindowViewController(SDL_GetFocusWindow());
         if (vc != nil) {

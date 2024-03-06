@@ -360,10 +360,6 @@ void WIN_SetTextInputRect(const SDL_Rect *rect)
     WIN_ImeData *videodata = &winImeData;
     HIMC himc;
 
-    if (!rect) {
-        SDL_InvalidParamError("rect");
-        return;
-    }
 #ifdef IME_DRAW_UI
     videodata->ime_rect = *rect;
 #endif

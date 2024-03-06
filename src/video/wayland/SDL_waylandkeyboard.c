@@ -116,11 +116,6 @@ void Wayland_SetTextInputRect(const SDL_Rect *rect)
 {
     Wayland_VideoData *driverdata = &waylandVideoData;
 
-    if (!rect) {
-        SDL_InvalidParamError("rect");
-        return;
-    }
-
     if (driverdata->text_input_manager) {
         struct SDL_WaylandInput *input = driverdata->input;
         if (input && input->text_input) {
