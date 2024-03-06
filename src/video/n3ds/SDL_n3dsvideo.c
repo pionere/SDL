@@ -72,7 +72,6 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = N3DS_VideoInit;
     device->VideoQuit = N3DS_VideoQuit;
-    // device->ResetTouch = N3DS_ResetTouch;
     device->GetDisplayBounds = N3DS_GetDisplayBounds;
     // device->GetDisplayUsableBounds = N3DS_GetDisplayUsableBounds;
     // device->GetDisplayDPI = N3DS_GetDisplayDPI;

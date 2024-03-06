@@ -94,7 +94,6 @@ static SDL_VideoDevice *RPI_CreateDevice()
     /* Initialization/Query functions */
     device->VideoInit = RPI_VideoInit;
     device->VideoQuit = RPI_VideoQuit;
-    // device->ResetTouch = RPI_ResetTouch;
     // device->GetDisplayBounds = RPI_GetDisplayBounds;
     // device->GetDisplayUsableBounds = RPI_GetDisplayUsableBounds;
     // device->GetDisplayDPI = RPI_GetDisplayDPI;

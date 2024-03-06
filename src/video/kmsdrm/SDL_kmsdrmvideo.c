@@ -261,7 +261,6 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = KMSDRM_VideoInit;
     device->VideoQuit = KMSDRM_VideoQuit;
-    // device->ResetTouch = KMSDRM_ResetTouch;
     // device->GetDisplayBounds = KMSDRM_GetDisplayBounds;
     // device->GetDisplayUsableBounds = KMSDRM_GetDisplayUsableBounds;
     // device->GetDisplayDPI = KMSDRM_GetDisplayDPI;

@@ -65,7 +65,6 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = OFFSCREEN_VideoInit;
     device->VideoQuit = OFFSCREEN_VideoQuit;
-    // device->ResetTouch = OFFSCREEN_ResetTouch;
     // device->GetDisplayBounds = OFFSCREEN_GetDisplayBounds;
     // device->GetDisplayUsableBounds = OFFSCREEN_GetDisplayUsableBounds;
     // device->GetDisplayDPI = OFFSCREEN_GetDisplayDPI;

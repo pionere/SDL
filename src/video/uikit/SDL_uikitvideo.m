@@ -73,7 +73,6 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         /* Initialization/Query functions */
         device->VideoInit = UIKit_VideoInit;
         device->VideoQuit = UIKit_VideoQuit;
-        // device->ResetTouch = UIKit_ResetTouch;
         // device->GetDisplayBounds = UIKit_GetDisplayBounds;
         device->GetDisplayUsableBounds = UIKit_GetDisplayUsableBounds;
         device->GetDisplayDPI = UIKit_GetDisplayDPI;

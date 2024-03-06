@@ -80,7 +80,6 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = HAIKU_VideoInit;
     device->VideoQuit = HAIKU_VideoQuit;
-    // device->ResetTouch = HAIKU_ResetTouch;
     device->GetDisplayBounds = HAIKU_GetDisplayBounds;
     // device->GetDisplayUsableBounds = HAIKU_GetDisplayUsableBounds;
     // device->GetDisplayDPI = HAIKU_GetDisplayDPI;

@@ -215,7 +215,6 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = X11_VideoInit;
     device->VideoQuit = X11_VideoQuit;
-    device->ResetTouch = X11_ResetTouch;
     device->GetDisplayBounds = X11_GetDisplayBounds;
     device->GetDisplayUsableBounds = X11_GetDisplayUsableBounds;
     device->GetDisplayDPI = X11_GetDisplayDPI;

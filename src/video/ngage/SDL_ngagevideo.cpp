@@ -120,7 +120,6 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = NGAGE_VideoInit;
     device->VideoQuit = NGAGE_VideoQuit;
-    // device->ResetTouch = NGAGE_ResetTouch;
     // device->GetDisplayBounds = NGAGE_GetDisplayBounds;
     // device->GetDisplayUsableBounds = NGAGE_GetDisplayUsableBounds;
     // device->GetDisplayDPI = NGAGE_GetDisplayDPI;

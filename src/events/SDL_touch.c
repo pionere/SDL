@@ -24,7 +24,6 @@
 
 #include "SDL_events.h"
 #include "SDL_events_c.h"
-#include "../video/SDL_sysvideo.h"
 
 static int SDL_num_touch = 0;
 static SDL_Touch **SDL_touchDevices = NULL;
@@ -53,7 +52,7 @@ int SDL_GetNumTouchDevices(void)
 SDL_TouchID SDL_GetTouchDevice(int index)
 {
     if (index < 0 || index >= SDL_num_touch) {
-        SDL_SetError("Unknown touch device index %d", index);
+        SDL_SetError("Unknown touch device");
         return 0;
     }
     return SDL_touchDevices[index]->id;
@@ -86,13 +85,7 @@ SDL_Touch *SDL_GetTouch(SDL_TouchID id)
 {
     int index = SDL_GetTouchIndex(id);
     if (index < 0 || index >= SDL_num_touch) {
-        SDL_VideoDevice *_this = SDL_GetVideoDevice();
-        if (_this->ResetTouch != NULL) {
-            SDL_SetError("Unknown touch id %d, resetting", (int)id);
-            _this->ResetTouch();
-        } else {
-            SDL_SetError("Unknown touch device id %d, cannot reset", (int)id);
-        }
+        SDL_SetError("Unknown touch device");
         return NULL;
     }
     return SDL_touchDevices[index];

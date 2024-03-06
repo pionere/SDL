@@ -88,7 +88,6 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = Emscripten_VideoInit;
     device->VideoQuit = Emscripten_VideoQuit;
-    // device->ResetTouch = Emscripten_ResetTouch;
     // device->GetDisplayBounds = Emscripten_GetDisplayBounds;
     device->GetDisplayUsableBounds = Emscripten_GetDisplayUsableBounds;
     device->GetDisplayDPI = Emscripten_GetDisplayDPI;

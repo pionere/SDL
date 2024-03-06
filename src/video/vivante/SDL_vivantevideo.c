@@ -71,7 +71,6 @@ static SDL_VideoDevice *VIVANTE_CreateDevice()
     /* Initialization/Query functions */
     device->VideoInit = VIVANTE_VideoInit;
     device->VideoQuit = VIVANTE_VideoQuit;
-    // device->ResetTouch = VIVANTE_ResetTouch;
     // device->GetDisplayBounds = VIVANTE_GetDisplayBounds;
     // device->GetDisplayUsableBounds = VIVANTE_GetDisplayUsableBounds;
     // device->GetDisplayDPI = VIVANTE_GetDisplayDPI;

@@ -329,7 +329,6 @@ static SDL_VideoDevice *QNX_CreateDevice(int devindex)
     /* Initialization/Query functions */
     device->VideoInit = QNX_VideoInit;
     device->VideoQuit = QNX_VideoQuit;
-    // device->ResetTouch = QNX_ResetTouch;
     // device->GetDisplayBounds = QNX_GetDisplayBounds;
     // device->GetDisplayUsableBounds = QNX_GetDisplayUsableBounds;
     // device->GetDisplayDPI = QNX_GetDisplayDPI;

@@ -126,7 +126,6 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = PS2_VideoInit;
     device->VideoQuit = PS2_VideoQuit;
-    // device->ResetTouch = PS2_ResetTouch;
     // device->GetDisplayBounds = PS2_GetDisplayBounds;
     // device->GetDisplayUsableBounds = PS2_GetDisplayUsableBounds;
     // device->GetDisplayDPI = PS2_GetDisplayDPI;

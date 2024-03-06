@@ -125,7 +125,6 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = WINRT_VideoInit;
     device->VideoQuit = WINRT_VideoQuit;
-    // device->ResetTouch = WINRT_ResetTouch;
     // device->GetDisplayBounds = WINRT_GetDisplayBounds;
     // device->GetDisplayUsableBounds = WINRT_GetDisplayUsableBounds;
     // device->GetDisplayDPI = WINRT_GetDisplayDPI;

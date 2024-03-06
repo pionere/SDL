@@ -81,7 +81,6 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = DUMMY_VideoInit;
     device->VideoQuit = DUMMY_VideoQuit;
-    // device->ResetTouch = DUMMY_ResetTouch;
     // device->GetDisplayBounds = DUMMY_GetDisplayBounds;
     // device->GetDisplayUsableBounds = DUMMY_GetDisplayUsableBounds;
     // device->GetDisplayDPI = DUMMY_GetDisplayDPI;

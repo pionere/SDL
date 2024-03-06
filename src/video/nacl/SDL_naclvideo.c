@@ -115,7 +115,6 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     /* Initialization/Query functions */
     device->VideoInit = NACL_VideoInit;
     device->VideoQuit = NACL_VideoQuit;
-    // device->ResetTouch = NACL_ResetTouch;
     // device->GetDisplayBounds = NACL_GetDisplayBounds;
     // device->GetDisplayUsableBounds = NACL_GetDisplayUsableBounds;
     // device->GetDisplayDPI = NACL_GetDisplayDPI;

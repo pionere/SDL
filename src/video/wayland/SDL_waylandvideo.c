@@ -231,7 +231,6 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = Wayland_VideoInit;
     device->VideoQuit = Wayland_VideoQuit;
-    // device->ResetTouch = Wayland_ResetTouch;
     device->GetDisplayBounds = Wayland_GetDisplayBounds;
     // device->GetDisplayUsableBounds = Wayland_GetDisplayUsableBounds;
     device->GetDisplayDPI = Wayland_GetDisplayDPI;

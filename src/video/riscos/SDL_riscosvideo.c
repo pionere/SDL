@@ -76,7 +76,6 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = RISCOS_VideoInit;
     device->VideoQuit = RISCOS_VideoQuit;
-    // device->ResetTouch = RISCOS_ResetTouch;
     // device->GetDisplayBounds = RISCOS_GetDisplayBounds;
     // device->GetDisplayUsableBounds = RISCOS_GetDisplayUsableBounds;
     // device->GetDisplayDPI = RISCOS_GetDisplayDPI;

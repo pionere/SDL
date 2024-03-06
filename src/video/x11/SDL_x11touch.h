@@ -25,7 +25,6 @@
 
 extern void X11_InitTouch(void);
 extern void X11_QuitTouch(void);
-extern void X11_ResetTouch(void);
 
 #endif /* SDL_x11touch_h_ */
 

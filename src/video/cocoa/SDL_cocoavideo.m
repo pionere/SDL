@@ -89,7 +89,6 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = Cocoa_VideoInit;
     device->VideoQuit = Cocoa_VideoQuit;
-    // device->ResetTouch = Cocoa_ResetTouch;
     device->GetDisplayBounds = Cocoa_GetDisplayBounds;
     device->GetDisplayUsableBounds = Cocoa_GetDisplayUsableBounds;
     device->GetDisplayDPI = Cocoa_GetDisplayDPI;

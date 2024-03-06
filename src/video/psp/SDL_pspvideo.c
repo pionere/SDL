@@ -73,7 +73,6 @@ static SDL_VideoDevice *PSP_CreateDevice()
     /* Initialization/Query functions */
     device->VideoInit = PSP_VideoInit;
     device->VideoQuit = PSP_VideoQuit;
-    // device->ResetTouch = PSP_ResetTouch;
     // device->GetDisplayBounds = PSP_GetDisplayBounds;
     // device->GetDisplayUsableBounds = PSP_GetDisplayUsableBounds;
     // device->GetDisplayDPI = PSP_GetDisplayDPI;

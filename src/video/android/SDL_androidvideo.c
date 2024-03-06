@@ -95,7 +95,6 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = Android_VideoInit;
     device->VideoQuit = Android_VideoQuit;
-    // device->ResetTouch = Android_ResetTouch;
     // device->GetDisplayBounds = Android_GetDisplayBounds;
     // device->GetDisplayUsableBounds = Android_GetDisplayUsableBounds;
     device->GetDisplayDPI = Android_GetDisplayDPI;

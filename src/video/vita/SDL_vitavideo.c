@@ -97,7 +97,6 @@ static SDL_VideoDevice *VITA_CreateDevice()
     /* Initialization/Query functions */
     device->VideoInit = VITA_VideoInit;
     device->VideoQuit = VITA_VideoQuit;
-    // device->ResetTouch = VITA_ResetTouch;
     // device->GetDisplayBounds = VITA_GetDisplayBounds;
     // device->GetDisplayUsableBounds = VITA_GetDisplayUsableBounds;
     // device->GetDisplayDPI = VITA_GetDisplayDPI;

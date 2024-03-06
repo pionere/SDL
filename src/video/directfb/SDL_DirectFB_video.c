@@ -109,7 +109,6 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = DirectFB_VideoInit;
     device->VideoQuit = DirectFB_VideoQuit;
-    // device->ResetTouch = DirectFB_ResetTouch;
     // device->GetDisplayBounds = DirectFB_GetDisplayBounds;
     // device->GetDisplayUsableBounds = DirectFB_GetDisplayUsableBounds;
     // device->GetDisplayDPI = DirectFB_GetDisplayDPI;

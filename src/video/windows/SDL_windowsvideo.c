@@ -151,7 +151,6 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = WIN_VideoInit;
     device->VideoQuit = WIN_VideoQuit;
-    // device->ResetTouch = WIN_ResetTouch;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->GetDisplayBounds = WIN_GetDisplayBounds;
     device->GetDisplayUsableBounds = WIN_GetDisplayUsableBounds;

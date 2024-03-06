@@ -85,7 +85,6 @@ static SDL_VideoDevice *PND_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = PND_VideoInit;
     device->VideoQuit = PND_VideoQuit;
-    // device->ResetTouch = PND_ResetTouch;
     // device->GetDisplayBounds = PND_GetDisplayBounds;
     // device->GetDisplayUsableBounds = PND_GetDisplayUsableBounds;
     // device->GetDisplayDPI = PND_GetDisplayDPI;

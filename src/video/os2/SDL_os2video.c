@@ -1613,7 +1613,6 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     /* Initialization/Query functions */
     device->VideoInit = OS2_VideoInit;
     device->VideoQuit = OS2_VideoQuit;
-    // device->ResetTouch = OS2_ResetTouch;
     device->GetDisplayBounds = OS2_GetDisplayBounds;
     // device->GetDisplayUsableBounds = OS2_GetDisplayUsableBounds;
     device->GetDisplayDPI = OS2_GetDisplayDPI;
