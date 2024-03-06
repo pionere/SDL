@@ -129,8 +129,8 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         device->GL_CreateContext = UIKit_GL_CreateContext;
         device->GL_MakeCurrent = UIKit_GL_MakeCurrent;
         device->GL_GetDrawableSize = UIKit_GL_GetDrawableSize;
-        // device->GL_SetSwapInterval = UIKit_GL_SetSwapInterval;
-        // device->GL_GetSwapInterval = UIKit_GL_GetSwapInterval;
+        device->GL_SetSwapInterval = UIKit_GL_SetSwapInterval;
+        device->GL_GetSwapInterval = UIKit_GL_GetSwapInterval;
         device->GL_SwapWindow = UIKit_GL_SwapWindow;
         device->GL_DeleteContext = UIKit_GL_DeleteContext;
         // device->GL_DefaultProfileConfig = UIKit_GL_DefaultProfileConfig;

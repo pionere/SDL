@@ -95,6 +95,16 @@ void UIKit_GL_GetDrawableSize(SDL_Window * window, int * w, int * h)
     }
 }
 
+int UIKit_GL_SetSwapInterval(int interval)
+{
+    return SDL_Unsupported();
+}
+
+int UIKit_GL_GetSwapInterval(void)
+{
+    return 0;
+}
+
 int UIKit_GL_LoadLibrary(_THIS, const char *path)
 {
     _this->gl_config.accelerated = 1;
