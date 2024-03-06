@@ -169,7 +169,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     device->GL_UnloadLibrary = NACL_GLES_UnloadLibrary;
     device->GL_CreateContext = NACL_GLES_CreateContext;
     device->GL_MakeCurrent = NACL_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = NACL_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = NACL_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = NACL_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = NACL_GLES_GetSwapInterval;
     device->GL_SwapWindow = NACL_GLES_SwapWindow;

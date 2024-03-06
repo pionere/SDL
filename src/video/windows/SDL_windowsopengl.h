@@ -103,6 +103,8 @@ typedef struct SDL_GLDriverData
 } SDL_GLDriverData;
 
 /* OpenGL functions */
+#define WIN_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int WIN_GL_LoadLibrary(_THIS, const char *path);
 extern void *WIN_GL_GetProcAddress(const char *proc);
 extern void WIN_GL_UnloadLibrary(_THIS);

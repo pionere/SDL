@@ -143,7 +143,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     device->GL_UnloadLibrary = Emscripten_GLES_UnloadLibrary;
     device->GL_CreateContext = Emscripten_GLES_CreateContext;
     device->GL_MakeCurrent = Emscripten_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = Emscripten_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = Emscripten_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = Emscripten_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = Emscripten_GLES_GetSwapInterval;
     device->GL_SwapWindow = Emscripten_GLES_SwapWindow;

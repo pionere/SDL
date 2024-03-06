@@ -27,6 +27,8 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_egl_c.h"
 
+#define PSP_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern void *PSP_GL_GetProcAddress(const char *proc);
 extern int PSP_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 

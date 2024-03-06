@@ -29,6 +29,7 @@
 /* OpenGLES functions */
 #define Wayland_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define Wayland_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define Wayland_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define Wayland_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 
 extern int Wayland_GLES_LoadLibrary(_THIS, const char *path);

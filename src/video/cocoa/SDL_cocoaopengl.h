@@ -60,6 +60,8 @@
 @end
 
 /* OpenGL functions */
+#define Cocoa_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int Cocoa_GL_LoadLibrary(_THIS, const char *path);
 extern void *Cocoa_GL_GetProcAddress(const char *proc);
 extern void Cocoa_GL_UnloadLibrary(_THIS);

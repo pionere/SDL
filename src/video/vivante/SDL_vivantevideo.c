@@ -126,7 +126,7 @@ static SDL_VideoDevice *VIVANTE_CreateDevice()
     device->GL_UnloadLibrary = VIVANTE_GL_UnloadLibrary;
     device->GL_CreateContext = VIVANTE_GL_CreateContext;
     device->GL_MakeCurrent = VIVANTE_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = VIVANTE_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = VIVANTE_GL_GetDrawableSize;
     device->GL_SetSwapInterval = VIVANTE_GL_SetSwapInterval;
     device->GL_GetSwapInterval = VIVANTE_GL_GetSwapInterval;
     device->GL_SwapWindow = VIVANTE_GL_SwapWindow;

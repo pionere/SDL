@@ -31,6 +31,7 @@
 /* OpenGLES functions */
 #define Emscripten_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define Emscripten_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define Emscripten_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define Emscripten_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define Emscripten_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define Emscripten_GLES_DeleteContext SDL_EGL_DeleteContext

@@ -116,7 +116,7 @@ void WIN_GL_InitDevice(_THIS)
     _this->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
     _this->GL_CreateContext = WIN_GL_CreateContext;
     _this->GL_MakeCurrent = WIN_GL_MakeCurrent;
-    // _this->GL_GetDrawableSize = WIN_GL_GetDrawableSize;
+    _this->GL_GetDrawableSize = WIN_GL_GetDrawableSize;
     _this->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
     _this->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
     _this->GL_SwapWindow = WIN_GL_SwapWindow;

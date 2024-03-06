@@ -36,7 +36,7 @@ void X11_GLES_InitDevice(_THIS)
     _this->GL_UnloadLibrary = X11_GLES_UnloadLibrary;
     _this->GL_CreateContext = X11_GLES_CreateContext;
     _this->GL_MakeCurrent = X11_GLES_MakeCurrent;
-    // _this->GL_GetDrawableSize = X11_GLES_GetDrawableSize;
+    _this->GL_GetDrawableSize = X11_GLES_GetDrawableSize;
     _this->GL_SetSwapInterval = X11_GLES_SetSwapInterval;
     _this->GL_GetSwapInterval = X11_GLES_GetSwapInterval;
     _this->GL_SwapWindow = X11_GLES_SwapWindow;

@@ -29,6 +29,7 @@
 
 #define VITA_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define VITA_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define VITA_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define VITA_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define VITA_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define VITA_GLES_DeleteContext SDL_EGL_DeleteContext

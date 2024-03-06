@@ -73,6 +73,8 @@ SDL_bool PND_GetWindowWMInfo(SDL_Window * window,
 #endif
 /* OpenGL/OpenGL ES functions */
 #ifdef SDL_VIDEO_OPENGL_EGL
+#define PND_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 int PND_GL_LoadLibrary(_THIS, const char *path);
 void *PND_GL_GetProcAddress(const char *proc);
 void PND_GL_UnloadLibrary(_THIS);

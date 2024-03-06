@@ -35,7 +35,7 @@ void Cocoa_GLES_InitDevice(_THIS)
     _this->GL_UnloadLibrary = Cocoa_GLES_UnloadLibrary;
     _this->GL_CreateContext = Cocoa_GLES_CreateContext;
     _this->GL_MakeCurrent = Cocoa_GLES_MakeCurrent;
-    // _this->GL_GetDrawableSize = Cocoa_GLES_GetDrawableSize;
+    _this->GL_GetDrawableSize = Cocoa_GLES_GetDrawableSize;
     _this->GL_SetSwapInterval = Cocoa_GLES_SetSwapInterval;
     _this->GL_GetSwapInterval = Cocoa_GLES_GetSwapInterval;
     _this->GL_SwapWindow = Cocoa_GLES_SwapWindow;

@@ -286,7 +286,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     device->GL_UnloadLibrary = Wayland_GLES_UnloadLibrary;
     device->GL_CreateContext = Wayland_GLES_CreateContext;
     device->GL_MakeCurrent = Wayland_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = Wayland_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = Wayland_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = Wayland_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = Wayland_GLES_GetSwapInterval;
     device->GL_SwapWindow = Wayland_GLES_SwapWindow;

@@ -384,7 +384,7 @@ static SDL_VideoDevice *QNX_CreateDevice(int devindex)
     device->GL_UnloadLibrary = QNX_GL_UnloadLibrary;
     device->GL_CreateContext = QNX_GL_CreateContext;
     device->GL_MakeCurrent = QNX_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = QNX_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = QNX_GL_GetDrawableSize;
     device->GL_SetSwapInterval = QNX_GL_SetSwapInterval;
     // device->GL_GetSwapInterval = QNX_GL_GetSwapInterval;
     device->GL_SwapWindow = QNX_GL_SwapWindow;

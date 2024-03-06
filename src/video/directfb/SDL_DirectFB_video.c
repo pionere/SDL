@@ -162,7 +162,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     device->GL_UnloadLibrary = DirectFB_GL_UnloadLibrary;
     device->GL_CreateContext = DirectFB_GL_CreateContext;
     device->GL_MakeCurrent = DirectFB_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = DirectFB_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = DirectFB_GL_GetDrawableSize;
     device->GL_SetSwapInterval = DirectFB_GL_SetSwapInterval;
     device->GL_GetSwapInterval = DirectFB_GL_GetSwapInterval;
     device->GL_SwapWindow = DirectFB_GL_SwapWindow;

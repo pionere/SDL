@@ -142,7 +142,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
     device->GL_UnloadLibrary = PND_GL_UnloadLibrary;
     device->GL_CreateContext = PND_GL_CreateContext;
     device->GL_MakeCurrent = PND_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = PND_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = PND_GL_GetDrawableSize;
     device->GL_SetSwapInterval = PND_GL_SetSwapInterval;
     device->GL_GetSwapInterval = PND_GL_GetSwapInterval;
     device->GL_SwapWindow = PND_GL_SwapWindow;

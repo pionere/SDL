@@ -164,7 +164,7 @@ static SDL_VideoDevice *VITA_CreateDevice()
 
     device->GL_UnloadLibrary = VITA_GLES_UnloadLibrary;
     device->GL_MakeCurrent = VITA_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = VITA_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = VITA_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = VITA_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = VITA_GLES_GetSwapInterval;
     device->GL_SwapWindow = VITA_GLES_SwapWindow;

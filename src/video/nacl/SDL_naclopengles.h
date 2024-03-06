@@ -23,6 +23,8 @@
 #ifndef SDL_naclopengles_h_
 #define SDL_naclopengles_h_
 
+#define NACL_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int NACL_GLES_LoadLibrary(_THIS, const char *path);
 extern void *NACL_GLES_GetProcAddress(const char *proc);
 extern void NACL_GLES_UnloadLibrary(_THIS);

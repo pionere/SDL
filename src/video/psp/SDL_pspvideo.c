@@ -131,7 +131,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
     device->GL_UnloadLibrary = PSP_GL_UnloadLibrary;
     device->GL_CreateContext = PSP_GL_CreateContext;
     device->GL_MakeCurrent = PSP_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = PSP_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = PSP_GL_GetDrawableSize;
     device->GL_SetSwapInterval = PSP_GL_SetSwapInterval;
     device->GL_GetSwapInterval = PSP_GL_GetSwapInterval;
     device->GL_SwapWindow = PSP_GL_SwapWindow;

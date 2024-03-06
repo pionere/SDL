@@ -120,7 +120,7 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
     device->GL_UnloadLibrary = OFFSCREEN_GL_UnloadLibrary;
     device->GL_CreateContext = OFFSCREEN_GL_CreateContext;
     device->GL_MakeCurrent = OFFSCREEN_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = OFFSCREEN_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = OFFSCREEN_GL_GetDrawableSize;
     device->GL_SetSwapInterval = OFFSCREEN_GL_SetSwapInterval;
     device->GL_GetSwapInterval = OFFSCREEN_GL_GetSwapInterval;
     device->GL_SwapWindow = OFFSCREEN_GL_SwapWindow;

@@ -48,6 +48,8 @@ typedef struct
 } SDL_GLDriverData;
 
 /* OpenGL functions */
+#define DirectFB_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int DirectFB_GL_LoadLibrary(_THIS, const char *path);
 extern void *DirectFB_GL_GetProcAddress(const char *proc);
 extern void DirectFB_GL_UnloadLibrary(_THIS);

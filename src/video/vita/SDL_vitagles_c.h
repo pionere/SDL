@@ -32,6 +32,8 @@
 
 #include "../SDL_sysvideo.h"
 
+#define VITA_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int VITA_GLES_LoadLibrary(_THIS, const char *path);
 extern void *VITA_GLES_GetProcAddress(const char *proc);
 extern void VITA_GLES_UnloadLibrary(_THIS);

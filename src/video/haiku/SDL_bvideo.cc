@@ -125,7 +125,7 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     device->GL_UnloadLibrary = HAIKU_GL_UnloadLibrary;
     device->GL_CreateContext = HAIKU_GL_CreateContext;
     device->GL_MakeCurrent = HAIKU_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = HAIKU_GL_GetDrawableSize;
+    device->GL_GetDrawableSize = HAIKU_GL_GetDrawableSize;
     device->GL_SetSwapInterval = HAIKU_GL_SetSwapInterval;
     device->GL_GetSwapInterval = HAIKU_GL_GetSwapInterval;
     device->GL_SwapWindow = HAIKU_GL_SwapWindow;

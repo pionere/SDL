@@ -31,6 +31,7 @@
 /* OpenGLES functions */
 #define VIVANTE_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define VIVANTE_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define VIVANTE_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define VIVANTE_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define VIVANTE_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define VIVANTE_GLES_DeleteContext   SDL_EGL_DeleteContext

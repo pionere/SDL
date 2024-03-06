@@ -30,6 +30,7 @@
 
 #define OFFSCREEN_GLES_GetProcAddress  SDL_EGL_GetProcAddress
 #define OFFSCREEN_GLES_UnloadLibrary   SDL_EGL_UnloadLibrary
+#define OFFSCREEN_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define OFFSCREEN_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define OFFSCREEN_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define OFFSCREEN_GLES_DeleteContext   SDL_EGL_DeleteContext

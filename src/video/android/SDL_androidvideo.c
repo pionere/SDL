@@ -148,7 +148,7 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     device->GL_UnloadLibrary = Android_GLES_UnloadLibrary;
     device->GL_CreateContext = Android_GLES_CreateContext;
     device->GL_MakeCurrent = Android_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = Android_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = Android_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = Android_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = Android_GLES_GetSwapInterval;
     device->GL_SwapWindow = Android_GLES_SwapWindow;

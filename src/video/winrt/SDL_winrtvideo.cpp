@@ -179,7 +179,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     device->GL_UnloadLibrary = WINRT_GLES_UnloadLibrary;
     device->GL_CreateContext = WINRT_GLES_CreateContext;
     device->GL_MakeCurrent = WINRT_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = WINRT_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = WINRT_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = WINRT_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = WINRT_GLES_GetSwapInterval;
     device->GL_SwapWindow = WINRT_GLES_SwapWindow;

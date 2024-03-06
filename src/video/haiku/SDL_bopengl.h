@@ -30,6 +30,8 @@ extern "C" {
 
 #include "../SDL_sysvideo.h"
 
+#define HAIKU_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int HAIKU_GL_LoadLibrary(_THIS, const char *path);      /* FIXME */
 extern void *HAIKU_GL_GetProcAddress(const char *proc); /* FIXME */
 extern void HAIKU_GL_UnloadLibrary(_THIS);                     /* TODO */

@@ -41,6 +41,8 @@ typedef struct
 extern void handleKeyboardEvent(screen_event_t event);
 
 #ifdef SDL_VIDEO_OPENGL_EGL
+#define QNX_GL_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 extern int glGetConfig(EGLConfig *pconf, int *pformat);
 extern int QNX_GL_LoadLibrary(_THIS, const char *name);
 void *QNX_GL_GetProcAddress(const char *proc);
