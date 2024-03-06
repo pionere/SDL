@@ -55,7 +55,6 @@ extern "C" {
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
-#include "../../render/SDL_sysrender.h"
 #include "SDL_syswm.h"
 #include "SDL_winrtopengles.h"
 #include "../../core/windows/SDL_windows.h"

@@ -28,7 +28,6 @@
 #include "SDL_blit_slow.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
-#include "../SDL_assert_c.h"
 
 /* The general purpose software blit routine */
 static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,

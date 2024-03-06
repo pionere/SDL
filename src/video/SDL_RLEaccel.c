@@ -91,7 +91,6 @@
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
-#include "../SDL_assert_c.h"
 
 #define PIXEL_COPY(to, from, len, bpp) \
     SDL_memcpy(to, from, (size_t)(len) * (bpp))

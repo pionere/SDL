@@ -2253,13 +2253,6 @@ int Cocoa_GetWindowDisplayIndex(SDL_Window * window)
     NSScreen *screen;
     SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
 
-    /* Not recognized via CHECK_WINDOW_MAGIC */
-    if (data == nil) {
-        /* Don't set the error here, it hides other errors and is ignored anyway */
-        /*return SDL_SetError("Window data not set");*/
-        return -1;
-    }
-
     /* NSWindow.screen may be nil when the window is off-screen. */
     screen = data.nswindow.screen;
 

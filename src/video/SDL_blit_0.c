@@ -24,7 +24,6 @@
 
 #include "SDL_video.h"
 #include "SDL_blit.h"
-#include "../SDL_assert_c.h"
 
 /* Functions to blit from bitmaps to other surfaces */
 
