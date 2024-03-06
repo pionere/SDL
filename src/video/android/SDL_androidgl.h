@@ -23,6 +23,15 @@
 #ifndef SDL_androidgl_h_
 #define SDL_androidgl_h_
 
+#include "../SDL_sysvideo.h"
+#include "../SDL_egl_c.h"
+
+#define Android_GLES_GetProcAddress SDL_EGL_GetProcAddress
+#define Android_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define Android_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
+#define Android_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
+#define Android_GLES_DeleteContext   SDL_EGL_DeleteContext
+
 SDL_GLContext Android_GLES_CreateContext(_THIS, SDL_Window *window);
 int Android_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 int Android_GLES_SwapWindow(_THIS, SDL_Window *window);

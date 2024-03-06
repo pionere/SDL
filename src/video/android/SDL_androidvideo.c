@@ -27,7 +27,6 @@
 #include "SDL_video.h"
 #include "SDL_mouse.h"
 #include "SDL_hints.h"
-#include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
 #include "../../events/SDL_windowevents_c.h"
@@ -57,13 +56,6 @@ static int Android_VideoInit(_THIS);
 static void Android_VideoQuit(_THIS);
 int Android_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
 
-#include "../SDL_egl_c.h"
-#define Android_GLES_GetProcAddress SDL_EGL_GetProcAddress
-#define Android_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
-#define Android_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
-#define Android_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
-#define Android_GLES_DeleteContext   SDL_EGL_DeleteContext
-
 /* Android driver bootstrap functions */
 
 /* These are filled in with real values in Android_SetScreenResolution on init (before SDL_main()) */
@@ -82,16 +74,15 @@ static void Android_SuspendScreenSaver(_THIS)
     Android_JNI_SuspendScreenSaver(_this->suspend_screensaver);
 }
 
-static void Android_DeleteDevice(SDL_VideoDevice *device)
+static void Android_DeleteDevice(_THIS)
 {
     SDL_zero(androidVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *Android_CreateDevice(void)
 {
     SDL_VideoDevice *device;
-    SDL_bool block_on_pause;
 
     /* Initialize all variables that we clean on shutdown */
     device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
@@ -101,52 +92,108 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     }
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = Android_VideoInit;
     device->VideoQuit = Android_VideoQuit;
-    block_on_pause = SDL_GetHintBoolean(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, SDL_TRUE);
-    if (block_on_pause) {
-        device->PumpEvents = Android_PumpEvents_Blocking;
-    } else {
-        device->PumpEvents = Android_PumpEvents_NonBlocking;
-    }
-
+    // device->ResetTouch = Android_ResetTouch;
+    // device->GetDisplayBounds = Android_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = Android_GetDisplayUsableBounds;
     device->GetDisplayDPI = Android_GetDisplayDPI;
+    // device->SetDisplayMode = Android_SetDisplayMode;
 
-    device->CreateSDLWindow = Android_CreateWindow;
+    /* Window functions */
+    device->CreateSDLWindow = Android_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = Android_CreateSDLWindowFrom;
     device->SetWindowTitle = Android_SetWindowTitle;
-    device->SetWindowFullscreen = Android_SetWindowFullscreen;
+    // device->SetWindowIcon = Android_SetWindowIcon;
+    // device->SetWindowPosition = Android_SetWindowPosition;
+    // device->SetWindowSize = Android_SetWindowSize;
+    // device->SetWindowMinimumSize = Android_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = Android_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = Android_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = Android_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = Android_SetWindowOpacity;
+    // device->SetWindowModalFor = Android_SetWindowModalFor;
+    // device->SetWindowInputFocus = Android_SetWindowInputFocus;
+    // device->ShowWindow = Android_ShowWindow;
+    // device->HideWindow = Android_HideWindow;
+    // device->RaiseWindow = Android_RaiseWindow;
+    // device->MaximizeWindow = Android_MaximizeWindow;
     device->MinimizeWindow = Android_MinimizeWindow;
+    // device->RestoreWindow = Android_RestoreWindow;
+    // device->SetWindowBordered = Android_SetWindowBordered;
     device->SetWindowResizable = Android_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = Android_SetWindowAlwaysOnTop;
+    device->SetWindowFullscreen = Android_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = Android_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = Android_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = Android_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = Android_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = Android_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = Android_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = Android_SetWindowKeyboardGrab;
     device->DestroyWindow = Android_DestroyWindow;
+    // device->CreateWindowFramebuffer = Android_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = Android_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = Android_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = Android_OnWindowEnter;
+    // device->FlashWindow = Android_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = Android_CreateShaper;
+    // device->SetWindowShape = Android_SetWindowShape;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = Android_GetWindowWMInfo;
 
-    device->free = Android_DeleteDevice;
-
-    /* GL pointers */
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = Android_GLES_LoadLibrary;
     device->GL_GetProcAddress = Android_GLES_GetProcAddress;
     device->GL_UnloadLibrary = Android_GLES_UnloadLibrary;
     device->GL_CreateContext = Android_GLES_CreateContext;
     device->GL_MakeCurrent = Android_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = Android_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = Android_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = Android_GLES_GetSwapInterval;
     device->GL_SwapWindow = Android_GLES_SwapWindow;
     device->GL_DeleteContext = Android_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = Android_GLES_DefaultProfileConfig;
 #endif
 
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = Android_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = Android_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = Android_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = Android_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = Android_Vulkan_GetDrawableSize;
 #endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = Android_Metal_CreateView;
+    // device->Metal_DestroyView = Android_Metal_DestroyView;
+    // device->Metal_GetLayer = Android_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = Android_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = Android_WaitEventTimeout;
+    // device->SendWakeupEvent = Android_SendWakeupEvent;
+    if (SDL_GetHintBoolean(SDL_HINT_ANDROID_BLOCK_ON_PAUSE, SDL_TRUE)) {
+        device->PumpEvents = Android_PumpEvents_Blocking;
+    } else {
+        device->PumpEvents = Android_PumpEvents_NonBlocking;
+    }
 
     /* Screensaver */
     device->SuspendScreenSaver = Android_SuspendScreenSaver;
 
     /* Text input */
+    // device->StartTextInput = Android_StartTextInput;
+    // device->StopTextInput = Android_StopTextInput;
     device->SetTextInputRect = Android_SetTextInputRect;
+    // device->ClearComposition = Android_ClearComposition;
+    // device->IsTextInputShown = Android_IsTextInputShown;
 
     /* Screen keyboard */
     device->HasScreenKeyboardSupport = Android_HasScreenKeyboardSupport;
@@ -158,6 +205,17 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     device->SetClipboardText = Android_SetClipboardText;
     device->GetClipboardText = Android_GetClipboardText;
     device->HasClipboardText = Android_HasClipboardText;
+    // device->SetPrimarySelectionText = Android_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = Android_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = Android_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = Android_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = Android_AcceptDragAndDrop;
+
+    device->free = Android_DeleteDevice;
 
     return device;
 }

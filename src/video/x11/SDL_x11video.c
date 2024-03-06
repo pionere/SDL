@@ -212,21 +212,18 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     data->is_steam_deck = SDL_GetHintBoolean("SteamDeck", SDL_FALSE);
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = X11_VideoInit;
     device->VideoQuit = X11_VideoQuit;
     device->ResetTouch = X11_ResetTouch;
     device->GetDisplayBounds = X11_GetDisplayBounds;
     device->GetDisplayUsableBounds = X11_GetDisplayUsableBounds;
     device->GetDisplayDPI = X11_GetDisplayDPI;
-    device->GetWindowICCProfile = X11_GetWindowICCProfile;
     device->SetDisplayMode = X11_SetDisplayMode;
-    device->SuspendScreenSaver = X11_SuspendScreenSaver;
-    device->PumpEvents = X11_PumpEvents;
-    device->WaitEventTimeout = X11_WaitEventTimeout;
-    device->SendWakeupEvent = X11_SendWakeupEvent;
 
-    device->CreateSDLWindow = X11_CreateWindow;
-    device->CreateSDLWindowFrom = X11_CreateWindowFrom;
+    /* Window functions */
+    device->CreateSDLWindow = X11_CreateSDLWindow;
+    device->CreateSDLWindowFrom = X11_CreateSDLWindowFrom;
     device->SetWindowTitle = X11_SetWindowTitle;
     device->SetWindowIcon = X11_SetWindowIcon;
     device->SetWindowPosition = X11_SetWindowPosition;
@@ -234,6 +231,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     device->SetWindowMinimumSize = X11_SetWindowMinimumSize;
     device->SetWindowMaximumSize = X11_SetWindowMaximumSize;
     device->GetWindowBordersSize = X11_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = X11_GetWindowSizeInPixels;
     device->SetWindowOpacity = X11_SetWindowOpacity;
     device->SetWindowModalFor = X11_SetWindowModalFor;
     device->SetWindowInputFocus = X11_SetWindowInputFocus;
@@ -248,25 +246,29 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     device->SetWindowAlwaysOnTop = X11_SetWindowAlwaysOnTop;
     device->SetWindowFullscreen = X11_SetWindowFullscreen;
     device->SetWindowGammaRamp = X11_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = X11_GetWindowGammaRamp;
+    device->GetWindowICCProfile = X11_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = X11_GetWindowDisplayIndex;
+#ifdef SDL_VIDEO_DRIVER_X11_XFIXES
+    device->SetWindowMouseRect = X11_SetWindowMouseRect;
+#endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
     device->SetWindowMouseGrab = X11_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = X11_SetWindowKeyboardGrab;
     device->DestroyWindow = X11_DestroyWindow;
     device->CreateWindowFramebuffer = X11_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = X11_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = X11_DestroyWindowFramebuffer;
-    device->GetWindowWMInfo = X11_GetWindowWMInfo;
-    device->SetWindowHitTest = X11_SetWindowHitTest;
-    device->AcceptDragAndDrop = X11_AcceptDragAndDrop;
+    // device->OnWindowEnter = X11_OnWindowEnter;
     device->FlashWindow = X11_FlashWindow;
-
-#ifdef SDL_VIDEO_DRIVER_X11_XFIXES
-    device->SetWindowMouseRect = X11_SetWindowMouseRect;
-#endif /* SDL_VIDEO_DRIVER_X11_XFIXES */
-
+    /* Shaped-window functions */
 #ifdef SDL_VIDEO_DRIVER_X11_XSHAPE
     device->CreateShaper = X11_CreateShaper;
     device->SetWindowShape = X11_SetWindowShape;
 #endif
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = X11_GetWindowWMInfo;
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_GLX
     X11_GL_InitDevice(device);
 #endif
@@ -280,28 +282,59 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 #endif
 #endif
 
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    device->Vulkan_LoadLibrary = X11_Vulkan_LoadLibrary;
+    device->Vulkan_UnloadLibrary = X11_Vulkan_UnloadLibrary;
+    device->Vulkan_GetInstanceExtensions = X11_Vulkan_GetInstanceExtensions;
+    device->Vulkan_CreateSurface = X11_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = X11_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = X11_Metal_CreateView;
+    // device->Metal_DestroyView = X11_Metal_DestroyView;
+    // device->Metal_GetLayer = X11_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = X11_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    device->WaitEventTimeout = X11_WaitEventTimeout;
+    device->SendWakeupEvent = X11_SendWakeupEvent;
+    device->PumpEvents = X11_PumpEvents;
+
+    /* Screensaver */
+    device->SuspendScreenSaver = X11_SuspendScreenSaver;
+
+    /* Text input */
+    device->StartTextInput = X11_StartTextInput;
+    device->StopTextInput = X11_StopTextInput;
+    device->SetTextInputRect = X11_SetTextInputRect;
+    // device->ClearComposition = X11_ClearComposition;
+    // device->IsTextInputShown = X11_IsTextInputShown;
+
+    /* Screen keyboard */
+    device->HasScreenKeyboardSupport = X11_HasScreenKeyboardSupport;
+    device->ShowScreenKeyboard = X11_ShowScreenKeyboard;
+    device->HideScreenKeyboard = X11_HideScreenKeyboard;
+    device->IsScreenKeyboardShown = X11_IsScreenKeyboardShown;
+
+    /* Clipboard */
     device->SetClipboardText = X11_SetClipboardText;
     device->GetClipboardText = X11_GetClipboardText;
     device->HasClipboardText = X11_HasClipboardText;
     device->SetPrimarySelectionText = X11_SetPrimarySelectionText;
     device->GetPrimarySelectionText = X11_GetPrimarySelectionText;
     device->HasPrimarySelectionText = X11_HasPrimarySelectionText;
-    device->StartTextInput = X11_StartTextInput;
-    device->StopTextInput = X11_StopTextInput;
-    device->SetTextInputRect = X11_SetTextInputRect;
-    device->HasScreenKeyboardSupport = X11_HasScreenKeyboardSupport;
-    device->ShowScreenKeyboard = X11_ShowScreenKeyboard;
-    device->HideScreenKeyboard = X11_HideScreenKeyboard;
-    device->IsScreenKeyboardShown = X11_IsScreenKeyboardShown;
+
+    /* Hit-testing */
+    device->SetWindowHitTest = X11_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    device->AcceptDragAndDrop = X11_AcceptDragAndDrop;
 
     device->free = X11_DeleteDevice;
-
-#ifdef SDL_VIDEO_VULKAN
-    device->Vulkan_LoadLibrary = X11_Vulkan_LoadLibrary;
-    device->Vulkan_UnloadLibrary = X11_Vulkan_UnloadLibrary;
-    device->Vulkan_GetInstanceExtensions = X11_Vulkan_GetInstanceExtensions;
-    device->Vulkan_CreateSurface = X11_Vulkan_CreateSurface;
-#endif
 
     return device;
 }

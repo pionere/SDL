@@ -36,7 +36,7 @@
 /* Currently only one window */
 SDL_Window *Android_Window = NULL;
 
-int Android_CreateWindow(_THIS, SDL_Window *window)
+int Android_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     SDL_WindowData *data;
     int retval = 0;

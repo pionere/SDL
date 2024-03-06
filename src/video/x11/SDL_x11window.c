@@ -363,7 +363,7 @@ static void SetWindowBordered(Display *display, int screen, Window window, SDL_b
     }
 }
 
-int X11_CreateWindow(_THIS, SDL_Window *window)
+int X11_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     X11_VideoData *data = &x11VideoData;
     SDL_DisplayData *displaydata =
@@ -690,7 +690,7 @@ int X11_CreateWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-int X11_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     Window w = (Window)data;
 

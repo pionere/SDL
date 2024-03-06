@@ -171,10 +171,12 @@ void X11_GL_InitDevice(_THIS)
     _this->GL_UnloadLibrary = X11_GL_UnloadLibrary;
     _this->GL_CreateContext = X11_GL_CreateContext;
     _this->GL_MakeCurrent = X11_GL_MakeCurrent;
+    // _this->GL_GetDrawableSize = X11_GL_GetDrawableSize;
     _this->GL_SetSwapInterval = X11_GL_SetSwapInterval;
     _this->GL_GetSwapInterval = X11_GL_GetSwapInterval;
     _this->GL_SwapWindow = X11_GL_SwapWindow;
     _this->GL_DeleteContext = X11_GL_DeleteContext;
+    // _this->GL_DefaultProfileConfig = X11_GL_DefaultProfileConfig;
 }
 
 int X11_GL_LoadLibrary(_THIS, const char *path)
