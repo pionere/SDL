@@ -212,20 +212,6 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     WIN_GLES_InitDevice(device);
 #endif
 
-#ifdef SDL_VIDEO_OPENGL_EGL
-    // device->GL_LoadLibrary = WIN_GL_LoadLibrary;
-    // device->GL_GetProcAddress = WIN_GL_GetProcAddress;
-    // device->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
-    // device->GL_CreateContext = WIN_GL_CreateContext;
-    // device->GL_MakeCurrent = WIN_GL_MakeCurrent;
-    // device->GL_GetDrawableSize = WIN_GL_GetDrawableSize;
-    // device->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
-    // device->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
-    // device->GL_SwapWindow = WIN_GL_SwapWindow;
-    // device->GL_DeleteContext = WIN_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = WIN_GL_DefaultProfileConfig;
-#endif
-
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = WIN_Vulkan_LoadLibrary;
