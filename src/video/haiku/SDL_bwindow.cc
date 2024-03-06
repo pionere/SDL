@@ -209,8 +209,15 @@ int HAIKU_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp) {
 
 void HAIKU_SetWindowMinimumSize(SDL_Window * window) {
     BMessage msg(BWIN_MINIMUM_SIZE_WINDOW);
-    msg.AddInt32("window-w", window->w -1);
-    msg.AddInt32("window-h", window->h -1);
+    msg.AddInt32("window-w", window->min_w);
+    msg.AddInt32("window-h", window->min_h);
+    _ToBeWin(window)->PostMessage(&msg);
+}
+
+void HAIKU_SetWindowMaximumSize(SDL_Window * window) {
+    BMessage msg(BWIN_MAXIMUM_SIZE_WINDOW);
+    msg.AddInt32("window-w", window->max_w);
+    msg.AddInt32("window-h", window->max_h);
     _ToBeWin(window)->PostMessage(&msg);
 }
 

@@ -83,7 +83,7 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     device->SetWindowPosition = HAIKU_SetWindowPosition;
     device->SetWindowSize = HAIKU_SetWindowSize;
     device->SetWindowMinimumSize = HAIKU_SetWindowMinimumSize;
-    // device->SetWindowMaximumSize = HAIKU_SetWindowMaximumSize;
+    device->SetWindowMaximumSize = HAIKU_SetWindowMaximumSize;
     // device->GetWindowBordersSize = HAIKU_GetWindowBordersSize;
     // device->GetWindowSizeInPixels = HAIKU_GetWindowSizeInPixels;
     // device->SetWindowOpacity = HAIKU_SetWindowOpacity;
