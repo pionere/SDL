@@ -60,9 +60,9 @@ static void DUMMY_EVDEV_Poll(_THIS);
 
 /* DUMMY driver bootstrap functions */
 
-static void DUMMY_DeleteDevice(SDL_VideoDevice *device)
+static void DUMMY_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *DUMMY_CreateDevice(void)

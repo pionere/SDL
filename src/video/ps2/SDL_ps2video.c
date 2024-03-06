@@ -63,9 +63,9 @@ static int PS2_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-static void PS2_DeleteDevice(SDL_VideoDevice *device)
+static void PS2_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static int PS2_CreateSDLWindow(_THIS, SDL_Window *window)

@@ -1592,10 +1592,10 @@ static int OS2_SetDisplayMode(SDL_VideoDisplay *display,
 }
 
 
-static void OS2_DeleteDevice(SDL_VideoDevice *device)
+static void OS2_DeleteDevice(_THIS)
 {
     SDL_zero(os2VideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *OS2_CreateDevice(void)

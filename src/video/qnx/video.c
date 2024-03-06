@@ -306,9 +306,9 @@ static void QNX_DestroyWindow(SDL_Window *window)
  * Frees the plugin object created by createDevice().
  * @param   device  Plugin object to free
  */
-static void QNX_DeleteDevice(SDL_VideoDevice *device)
+static void QNX_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 /**

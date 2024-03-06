@@ -54,10 +54,9 @@ typedef struct
 
 /* N3DS driver bootstrap functions */
 
-static void N3DS_DeleteDevice(SDL_VideoDevice *device)
+static void N3DS_DeleteDevice(_THIS)
 {
-    SDL_free(device->displays);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *N3DS_CreateDevice(void)

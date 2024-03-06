@@ -100,7 +100,7 @@ static char *get_classname()
 
 static int (*orig_x11_errhandler)(Display *, XErrorEvent *) = NULL;
 
-static void X11_DeleteDevice(SDL_VideoDevice *device)
+static void X11_DeleteDevice(_THIS)
 {
     X11_VideoData *data = &x11VideoData;
     if (data->display) {
@@ -111,11 +111,11 @@ static void X11_DeleteDevice(SDL_VideoDevice *device)
         X11_XCloseDisplay(data->request_display);
     }
     SDL_free(data->windowlist);
-    if (device->wakeup_lock) {
-        SDL_DestroyMutex(device->wakeup_lock);
+    if (_this->wakeup_lock) {
+        SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(x11VideoData);
-    SDL_free(device);
+    SDL_free(_this);
 
     SDL_X11_UnloadSymbols();
 }

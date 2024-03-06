@@ -83,11 +83,11 @@ static const DirectFBAccelerationMaskNames(acceleration_mask);
 
 /* DirectFB driver bootstrap functions */
 
-static void DirectFB_DeleteDevice(SDL_VideoDevice * device)
+static void DirectFB_DeleteDevice(_THIS)
 {
     SDL_DirectFB_UnLoadLibrary();
     SDL_zero(dfbVideoData);
-    SDL_DFB_FREE(device);
+    SDL_DFB_FREE(_this);
 }
 
 static SDL_VideoDevice *DirectFB_CreateDevice(void)

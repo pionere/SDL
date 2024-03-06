@@ -85,11 +85,11 @@ static int NACL_Available(void) {
     return PSGetInstanceId() != 0;
 }
 
-static void NACL_DeleteDevice(SDL_VideoDevice *device) {
+static void NACL_DeleteDevice(_THIS) {
     NACL_VideoData *driverdata = &naclVideoData;
     driverdata->ppb_core->ReleaseResource((PP_Resource) driverdata->ppb_message_loop);
     // SDL_zero(naclVideoData); -- do not clear, to remember the window width and height
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static int NACL_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)

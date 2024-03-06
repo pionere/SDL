@@ -62,9 +62,9 @@ static void Emscripten_SetWindowTitle(SDL_Window *window);
 
 /* Emscripten driver bootstrap functions */
 
-static void Emscripten_DeleteDevice(SDL_VideoDevice *device)
+static void Emscripten_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *Emscripten_CreateDevice(void)

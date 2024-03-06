@@ -54,16 +54,6 @@ static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
 }
 
-/* FIXME: Undefined functions */
-//    #define HAIKU_PumpEvents NULL
-    #define HAIKU_StartTextInput NULL
-    #define HAIKU_StopTextInput NULL
-    #define HAIKU_SetTextInputRect NULL
-
-//    #define HAIKU_DeleteDevice NULL
-
-/* End undefined functions */
-
 static SDL_VideoDevice * HAIKU_CreateDevice(void)
 {
     SDL_VideoDevice *device;
@@ -169,9 +159,9 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     // device->SuspendScreenSaver = HAIKU_SuspendScreenSaver;
 
     /* Text input */
-    device->StartTextInput = HAIKU_StartTextInput;
-    device->StopTextInput = HAIKU_StopTextInput;
-    device->SetTextInputRect = HAIKU_SetTextInputRect;
+    // device->StartTextInput = HAIKU_StartTextInput;
+    // device->StopTextInput = HAIKU_StopTextInput;
+    // device->SetTextInputRect = HAIKU_SetTextInputRect;
     // device->ClearComposition = HAIKU_ClearComposition;
     // device->IsTextInputShown = HAIKU_IsTextInputShown;
 
@@ -204,9 +194,9 @@ const VideoBootStrap HAIKU_bootstrap = {
     "haiku", HAIKU_CreateDevice
 };
 
-void HAIKU_DeleteDevice(SDL_VideoDevice * device)
+void HAIKU_DeleteDevice(_THIS)
 {
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_Cursor * HAIKU_CreateSystemCursor(SDL_SystemCursor id)

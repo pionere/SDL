@@ -65,7 +65,7 @@ static void NGAGE_VideoQuit(_THIS);
 
 /* NGAGE driver bootstrap functions */
 
-static void NGAGE_DeleteDevice(SDL_VideoDevice *device)
+static void NGAGE_DeleteDevice(_THIS)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
 
@@ -101,7 +101,7 @@ static void NGAGE_DeleteDevice(SDL_VideoDevice *device)
 
         SDL_zero(ngageVideoData);
 
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *NGAGE_CreateDevice(void)

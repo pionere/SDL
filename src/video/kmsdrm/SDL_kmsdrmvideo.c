@@ -220,10 +220,10 @@ static int KMSDRM_Available(void)
     return ret;
 }
 
-static void KMSDRM_DeleteDevice(SDL_VideoDevice *device)
+static void KMSDRM_DeleteDevice(_THIS)
 {
     SDL_zero(kmsdrmVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 
     SDL_KMSDRM_UnloadSymbols();
 }
