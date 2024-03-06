@@ -56,8 +56,6 @@ static int Android_VideoInit(_THIS);
 static void Android_VideoQuit(_THIS);
 int Android_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi, float *hdpi, float *vdpi);
 
-/* Android driver bootstrap functions */
-
 /* These are filled in with real values in Android_SetScreenResolution on init (before SDL_main()) */
 int Android_SurfaceWidth = 0;
 int Android_SurfaceHeight = 0;
@@ -164,7 +162,7 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     device->Vulkan_UnloadLibrary = Android_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = Android_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = Android_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = Android_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = Android_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */

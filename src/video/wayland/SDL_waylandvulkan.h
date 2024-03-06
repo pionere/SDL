@@ -29,10 +29,12 @@
 #ifndef SDL_waylandvulkan_h_
 #define SDL_waylandvulkan_h_
 
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WAYLAND)
+
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
 
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WAYLAND)
+#define Wayland_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
 
 int Wayland_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void Wayland_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

@@ -49,6 +49,9 @@
 /* Instance */
 Vivante_VideoData vivanteVideoData;
 
+/* Vivante driver bootstrap functions */
+#define VIVANTE_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
+
 static void VIVANTE_DeleteDevice(_THIS)
 {
     SDL_zero(vivanteVideoData);
@@ -140,7 +143,7 @@ static SDL_VideoDevice *VIVANTE_CreateDevice()
     device->Vulkan_UnloadLibrary = VIVANTE_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = VIVANTE_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = VIVANTE_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = VIVANTE_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = VIVANTE_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */

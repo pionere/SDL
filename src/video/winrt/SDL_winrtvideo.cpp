@@ -102,7 +102,6 @@ WinRT_VideoData winrtVideoData;
 SDL_Window *WINRT_GlobalSDLWindow = NULL;
 
 /* WinRT driver bootstrap functions */
-
 static void WINRT_DeleteDevice(_THIS)
 {
     SDL_zero(winrtVideoData);
@@ -194,7 +193,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     device->Vulkan_UnloadLibrary = WINRT_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = WINRT_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = WINRT_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = WINRT_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = WINRT_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */

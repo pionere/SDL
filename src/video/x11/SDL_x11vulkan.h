@@ -23,13 +23,15 @@
 #ifndef SDL_x11vulkan_h_
 #define SDL_x11vulkan_h_
 
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_X11)
+
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
 
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_X11)
-
 /*typedef struct xcb_connection_t xcb_connection_t;*/
 typedef xcb_connection_t *(*PFN_XGetXCBConnection)(Display *dpy);
+
+#define X11_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
 
 int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

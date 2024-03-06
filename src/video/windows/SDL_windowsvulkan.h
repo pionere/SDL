@@ -29,10 +29,10 @@
 #ifndef SDL_windowsvulkan_h_
 #define SDL_windowsvulkan_h_
 
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WINDOWS)
+
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
-
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_WINDOWS)
 
 int WIN_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void WIN_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
@@ -43,6 +43,7 @@ SDL_bool WIN_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,
                                   VkInstance instance,
                                   VkSurfaceKHR *surface);
+void WIN_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h);
 
 #endif
 

@@ -24,10 +24,12 @@
 #ifndef SDL_DirectFB_vulkan_h_
 #define SDL_DirectFB_vulkan_h_
 
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_DIRECTFB)
+
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
 
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_DIRECTFB)
+#define DirectFB_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
 
 int DirectFB_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void DirectFB_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

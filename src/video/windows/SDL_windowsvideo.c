@@ -88,7 +88,6 @@ extern void D3D12_XBOX_GetResolution(Uint32 *width, Uint32 *height);
 #endif
 
 /* Windows driver bootstrap functions */
-
 static void WIN_DeleteDevice(_THIS)
 {
     SDL_UnregisterApp();
@@ -233,7 +232,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->Vulkan_UnloadLibrary = WIN_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = WIN_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = WIN_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = WIN_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = WIN_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */

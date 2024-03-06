@@ -29,10 +29,12 @@
 #ifndef SDL_androidvulkan_h_
 #define SDL_androidvulkan_h_
 
+#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_ANDROID)
+
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
 
-#if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_ANDROID)
+#define Android_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
 
 int Android_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void Android_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

@@ -287,7 +287,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     device->Vulkan_UnloadLibrary = X11_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = X11_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = X11_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = X11_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = X11_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */

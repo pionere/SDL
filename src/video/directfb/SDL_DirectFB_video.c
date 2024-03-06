@@ -82,7 +82,6 @@ static const DirectFBSurfaceBlittingFlagsNames(blitting_flags);
 static const DirectFBAccelerationMaskNames(acceleration_mask);
 
 /* DirectFB driver bootstrap functions */
-
 static void DirectFB_DeleteDevice(_THIS)
 {
     SDL_DirectFB_UnLoadLibrary();
@@ -177,7 +176,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     device->Vulkan_UnloadLibrary = DirectFB_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = DirectFB_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = DirectFB_Vulkan_CreateSurface;
-    // device->Vulkan_GetDrawableSize = DirectFB_Vulkan_GetDrawableSize;
+    device->Vulkan_GetDrawableSize = DirectFB_Vulkan_GetDrawableSize;
 #endif
 
     /* Metal support */
