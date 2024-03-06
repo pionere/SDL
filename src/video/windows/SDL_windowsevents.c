@@ -1108,7 +1108,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         BOOL constrain_max_size;
 
         if (SDL_IsShapedWindow(data->window)) {
-            Win32_ResizeWindowShape(data->window);
+            WIN_ResizeWindowShape(data->window);
         }
 
         /* If this is an expected size change, allow it */

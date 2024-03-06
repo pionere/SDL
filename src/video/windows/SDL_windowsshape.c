@@ -25,7 +25,7 @@
 #include "SDL_windowsshape.h"
 #include "SDL_windowsvideo.h"
 
-SDL_WindowShaper *Win32_CreateShaper(SDL_Window *window)
+SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
 {
     SDL_WindowShaper *result = (SDL_WindowShaper *)SDL_malloc(sizeof(SDL_WindowShaper));
     SDL_ShapeData *data = (SDL_ShapeData *)SDL_calloc(1, sizeof(SDL_ShapeData));
@@ -43,7 +43,7 @@ SDL_WindowShaper *Win32_CreateShaper(SDL_Window *window)
     result->hasshape = SDL_FALSE;
     result->driverdata = data;
     window->shaper = result;
-    // Win32_ResizeWindowShape(window);
+    // WIN_ResizeWindowShape(window);
 
     return result;
 }
@@ -63,7 +63,7 @@ static void CombineRectRegions(SDL_ShapeTree *node, void *closure)
     }
 }
 
-int Win32_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
+int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
 {
     SDL_ShapeData *data;
     HRGN mask_region = NULL;
@@ -90,7 +90,7 @@ int Win32_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_Windo
     return 0;
 }
 
-int Win32_ResizeWindowShape(SDL_Window *window)
+int WIN_ResizeWindowShape(SDL_Window *window)
 {
     SDL_ShapeData *data;
 

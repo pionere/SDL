@@ -36,10 +36,12 @@ void WIN_GLES_InitDevice(_THIS)
     _this->GL_UnloadLibrary = WIN_GLES_UnloadLibrary;
     _this->GL_CreateContext = WIN_GLES_CreateContext;
     _this->GL_MakeCurrent = WIN_GLES_MakeCurrent;
+    // _this->GL_GetDrawableSize = WIN_GLES_GetDrawableSize;
     _this->GL_SetSwapInterval = WIN_GLES_SetSwapInterval;
     _this->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
     _this->GL_SwapWindow = WIN_GLES_SwapWindow;
     _this->GL_DeleteContext = WIN_GLES_DeleteContext;
+    // _this->GL_DefaultProfileConfig = WIN_GLES_DefaultProfileConfig;
 }
 
 int WIN_GLES_LoadLibrary(_THIS, const char *path)

@@ -454,7 +454,7 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     return 0;
 }
 
-int WIN_CreateWindow(_THIS, SDL_Window *window)
+int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     HWND hwnd, parent = NULL;
     DWORD style = STYLE_BASIC;
@@ -540,7 +540,7 @@ int WIN_CreateWindow(_THIS, SDL_Window *window)
 #endif // SDL_VIDEO_OPENGL_WGL
 }
 
-int WIN_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
+int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     return -1;

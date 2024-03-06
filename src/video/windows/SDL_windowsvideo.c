@@ -89,7 +89,7 @@ extern void D3D12_XBOX_GetResolution(Uint32 *width, Uint32 *height);
 
 /* Windows driver bootstrap functions */
 
-static void WIN_DeleteDevice(SDL_VideoDevice *device)
+static void WIN_DeleteDevice(_THIS)
 {
     SDL_UnregisterApp();
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -100,11 +100,11 @@ static void WIN_DeleteDevice(SDL_VideoDevice *device)
         SDL_UnloadObject(winVideoData.shcoreDLL);
     }
 #endif
-    if (device->wakeup_lock) {
-        SDL_DestroyMutex(device->wakeup_lock);
+    if (_this->wakeup_lock) {
+        SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(winVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *WIN_CreateDevice(void)
@@ -148,30 +148,30 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 #endif /* #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__) */
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = WIN_VideoInit;
     device->VideoQuit = WIN_VideoQuit;
+    // device->ResetTouch = WIN_ResetTouch;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->GetDisplayBounds = WIN_GetDisplayBounds;
     device->GetDisplayUsableBounds = WIN_GetDisplayUsableBounds;
     device->GetDisplayDPI = WIN_GetDisplayDPI;
     device->SetDisplayMode = WIN_SetDisplayMode;
 #endif
-    device->PumpEvents = WIN_PumpEvents;
-    device->WaitEventTimeout = WIN_WaitEventTimeout;
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    device->SendWakeupEvent = WIN_SendWakeupEvent;
-    device->SuspendScreenSaver = WIN_SuspendScreenSaver;
-#endif
-
-    device->CreateSDLWindow = WIN_CreateWindow;
-    device->CreateSDLWindowFrom = WIN_CreateWindowFrom;
+    /* Window functions */
+    device->CreateSDLWindow = WIN_CreateSDLWindow;
+    device->CreateSDLWindowFrom = WIN_CreateSDLWindowFrom;
     device->SetWindowTitle = WIN_SetWindowTitle;
     device->SetWindowIcon = WIN_SetWindowIcon;
     device->SetWindowPosition = WIN_SetWindowPosition;
     device->SetWindowSize = WIN_SetWindowSize;
+    // device->SetWindowMinimumSize = WIN_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = WIN_SetWindowMaximumSize;
     device->GetWindowBordersSize = WIN_GetWindowBordersSize;
     device->GetWindowSizeInPixels = WIN_GetWindowSizeInPixels;
     device->SetWindowOpacity = WIN_SetWindowOpacity;
+    // device->SetWindowModalFor = WIN_SetWindowModalFor;
+    // device->SetWindowInputFocus = WIN_SetWindowInputFocus;
     device->ShowWindow = WIN_ShowWindow;
     device->HideWindow = WIN_HideWindow;
     device->RaiseWindow = WIN_RaiseWindow;
@@ -184,27 +184,28 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->SetWindowFullscreen = WIN_SetWindowFullscreen;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->SetWindowGammaRamp = WIN_SetWindowGammaRamp;
-    device->GetWindowICCProfile = WIN_GetWindowICCProfile;
     device->GetWindowGammaRamp = WIN_GetWindowGammaRamp;
+    device->GetWindowICCProfile = WIN_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = WIN_GetWindowDisplayIndex;
     device->SetWindowMouseRect = WIN_SetWindowMouseRect;
     device->SetWindowMouseGrab = WIN_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = WIN_SetWindowKeyboardGrab;
 #endif
     device->DestroyWindow = WIN_DestroyWindow;
-    device->GetWindowWMInfo = WIN_GetWindowWMInfo;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->CreateWindowFramebuffer = WIN_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = WIN_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = WIN_DestroyWindowFramebuffer;
     device->OnWindowEnter = WIN_OnWindowEnter;
-    device->SetWindowHitTest = WIN_SetWindowHitTest;
-    device->AcceptDragAndDrop = WIN_AcceptDragAndDrop;
     device->FlashWindow = WIN_FlashWindow;
-
-    device->CreateShaper = Win32_CreateShaper;
-    device->SetWindowShape = Win32_SetWindowShape;
+    /* Shaped-window functions */
+    device->CreateShaper = WIN_CreateShaper;
+    device->SetWindowShape = WIN_SetWindowShape;
 #endif
+    /* Get some platform dependent window information */
+    device->GetWindowWMInfo = WIN_GetWindowWMInfo;
 
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_WGL
     /* Use WGL based functions */
     WIN_GL_InitDevice(device);
@@ -212,24 +213,76 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     /* Use EGL based functions */
     WIN_GLES_InitDevice(device);
 #endif
+
+#ifdef SDL_VIDEO_OPENGL_EGL
+    // device->GL_LoadLibrary = WIN_GL_LoadLibrary;
+    // device->GL_GetProcAddress = WIN_GL_GetProcAddress;
+    // device->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
+    // device->GL_CreateContext = WIN_GL_CreateContext;
+    // device->GL_MakeCurrent = WIN_GL_MakeCurrent;
+    // device->GL_GetDrawableSize = WIN_GL_GetDrawableSize;
+    // device->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
+    // device->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
+    // device->GL_SwapWindow = WIN_GL_SwapWindow;
+    // device->GL_DeleteContext = WIN_GL_DeleteContext;
+    // device->GL_DefaultProfileConfig = WIN_GL_DefaultProfileConfig;
+#endif
+
+    /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN
     device->Vulkan_LoadLibrary = WIN_Vulkan_LoadLibrary;
     device->Vulkan_UnloadLibrary = WIN_Vulkan_UnloadLibrary;
     device->Vulkan_GetInstanceExtensions = WIN_Vulkan_GetInstanceExtensions;
     device->Vulkan_CreateSurface = WIN_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = WIN_Vulkan_GetDrawableSize;
 #endif
 
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = WIN_Metal_CreateView;
+    // device->Metal_DestroyView = WIN_Metal_DestroyView;
+    // device->Metal_GetLayer = WIN_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = WIN_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    device->WaitEventTimeout = WIN_WaitEventTimeout;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    device->SendWakeupEvent = WIN_SendWakeupEvent;
+#endif
+    device->PumpEvents = WIN_PumpEvents;
+
+    /* Screensaver */
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    device->SuspendScreenSaver = WIN_SuspendScreenSaver;
+
+    /* Text input */
     device->StartTextInput = WIN_StartTextInput;
     device->StopTextInput = WIN_StopTextInput;
     device->SetTextInputRect = WIN_SetTextInputRect;
     device->ClearComposition = WIN_ClearComposition;
     device->IsTextInputShown = WIN_IsTextInputShown;
+#endif
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = WIN_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = WIN_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = WIN_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = WIN_IsScreenKeyboardShown;
 
+    /* Clipboard */
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->SetClipboardText = WIN_SetClipboardText;
     device->GetClipboardText = WIN_GetClipboardText;
     device->HasClipboardText = WIN_HasClipboardText;
+    // device->SetPrimarySelectionText = WIN_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = WIN_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = WIN_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    device->SetWindowHitTest = WIN_SetWindowHitTest;
 #endif
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = WIN_AcceptDragAndDrop;
 
     device->free = WIN_DeleteDevice;
 

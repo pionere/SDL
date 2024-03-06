@@ -116,10 +116,12 @@ void WIN_GL_InitDevice(_THIS)
     _this->GL_UnloadLibrary = WIN_GL_UnloadLibrary;
     _this->GL_CreateContext = WIN_GL_CreateContext;
     _this->GL_MakeCurrent = WIN_GL_MakeCurrent;
+    // _this->GL_GetDrawableSize = WIN_GL_GetDrawableSize;
     _this->GL_SetSwapInterval = WIN_GL_SetSwapInterval;
     _this->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
     _this->GL_SwapWindow = WIN_GL_SwapWindow;
     _this->GL_DeleteContext = WIN_GL_DeleteContext;
+    // _this->GL_DefaultProfileConfig = WIN_GL_DefaultProfileConfig;
 }
 
 int WIN_GL_LoadLibrary(_THIS, const char *path)
@@ -227,7 +229,7 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
          will be 2 copies of the SDL_GL_ExtensionSupported code.
        - Add a private equivalent of SDL_GL_ExtensionSupported to
          SDL_video.c.
-       - Move the call to WIN_GL_InitExtensions back to WIN_CreateWindow
+       - Move the call to WIN_GL_InitExtensions back to WIN_CreateSDLWindow
          and add a flag to gl_data to avoid multiple calls to this
          expensive function. This is probably the least objectionable
          alternative if this increment/decrement trick is unacceptable.

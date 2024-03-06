@@ -86,7 +86,7 @@ static int WINRT_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode
 static void WINRT_VideoQuit(_THIS);
 
 /* Window functions */
-static int WINRT_CreateWindow(_THIS, SDL_Window * window);
+static int WINRT_CreateSDLWindow(_THIS, SDL_Window * window);
 static void WINRT_SetWindowSize(SDL_Window * window);
 static void WINRT_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, SDL_bool fullscreen);
 static void WINRT_DestroyWindow(SDL_Window * window);
@@ -103,10 +103,10 @@ SDL_Window *WINRT_GlobalSDLWindow = NULL;
 
 /* WinRT driver bootstrap functions */
 
-static void WINRT_DeleteDevice(SDL_VideoDevice *device)
+static void WINRT_DeleteDevice(_THIS)
 {
     SDL_zero(winrtVideoData);
-    SDL_free(device);
+    SDL_free(_this);
 }
 
 static SDL_VideoDevice *WINRT_CreateDevice(void)
@@ -122,17 +122,106 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     }
 
     /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = WINRT_VideoInit;
     device->VideoQuit = WINRT_VideoQuit;
-    device->CreateSDLWindow = WINRT_CreateWindow;
-    device->SetWindowSize = WINRT_SetWindowSize;
-    device->SetWindowFullscreen = WINRT_SetWindowFullscreen;
-    device->DestroyWindow = WINRT_DestroyWindow;
+    // device->ResetTouch = WINRT_ResetTouch;
+    // device->GetDisplayBounds = WINRT_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = WINRT_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = WINRT_GetDisplayDPI;
     device->SetDisplayMode = WINRT_SetDisplayMode;
-    device->PumpEvents = WINRT_PumpEvents;
+
+    /* Window functions */
+    device->CreateSDLWindow = WINRT_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = WINRT_CreateSDLWindowFrom;
+    // device->SetWindowTitle = WINRT_SetWindowTitle;
+    // device->SetWindowIcon = WINRT_SetWindowIcon;
+    // device->SetWindowPosition = WINRT_SetWindowPosition;
+    device->SetWindowSize = WINRT_SetWindowSize;
+    // device->SetWindowMinimumSize = WINRT_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = WINRT_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = WINRT_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = WINRT_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = WINRT_SetWindowOpacity;
+    // device->SetWindowModalFor = WINRT_SetWindowModalFor;
+    // device->SetWindowInputFocus = WINRT_SetWindowInputFocus;
+    // device->ShowWindow = WINRT_ShowWindow;
+    // device->HideWindow = WINRT_HideWindow;
+    // device->RaiseWindow = WINRT_RaiseWindow;
+    // device->MaximizeWindow = WINRT_MaximizeWindow;
+    // device->MinimizeWindow = WINRT_MinimizeWindow;
+    // device->RestoreWindow = WINRT_RestoreWindow;
+    // device->SetWindowBordered = WINRT_SetWindowBordered;
+    // device->SetWindowResizable = WINRT_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = WINRT_SetWindowAlwaysOnTop;
+    device->SetWindowFullscreen = WINRT_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = WINRT_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = WINRT_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = WINRT_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = WINRT_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = WINRT_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = WINRT_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = WINRT_SetWindowKeyboardGrab;
+    device->DestroyWindow = WINRT_DestroyWindow;
+    // device->CreateWindowFramebuffer = WINRT_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = WINRT_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = WINRT_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = WINRT_OnWindowEnter;
+    // device->FlashWindow = WINRT_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = WINRT_CreateShaper;
+    // device->SetWindowShape = WINRT_SetWindowShape;
+    /* Get some platform dependent window information */
     device->GetWindowWMInfo = WINRT_GetWindowWMInfo;
+
+    /* OpenGL support */
+#ifdef SDL_VIDEO_OPENGL_EGL
+    device->GL_LoadLibrary = WINRT_GLES_LoadLibrary;
+    device->GL_GetProcAddress = WINRT_GLES_GetProcAddress;
+    device->GL_UnloadLibrary = WINRT_GLES_UnloadLibrary;
+    device->GL_CreateContext = WINRT_GLES_CreateContext;
+    device->GL_MakeCurrent = WINRT_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = WINRT_GLES_GetDrawableSize;
+    device->GL_SetSwapInterval = WINRT_GLES_SetSwapInterval;
+    device->GL_GetSwapInterval = WINRT_GLES_GetSwapInterval;
+    device->GL_SwapWindow = WINRT_GLES_SwapWindow;
+    device->GL_DeleteContext = WINRT_GLES_DeleteContext;
+    // device->GL_DefaultProfileConfig = WINRT_GLES_DefaultProfileConfig;
+#endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    device->Vulkan_LoadLibrary = WINRT_Vulkan_LoadLibrary;
+    device->Vulkan_UnloadLibrary = WINRT_Vulkan_UnloadLibrary;
+    device->Vulkan_GetInstanceExtensions = WINRT_Vulkan_GetInstanceExtensions;
+    device->Vulkan_CreateSurface = WINRT_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = WINRT_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = WINRT_Metal_CreateView;
+    // device->Metal_DestroyView = WINRT_Metal_DestroyView;
+    // device->Metal_GetLayer = WINRT_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = WINRT_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = WINRT_WaitEventTimeout;
+    // device->SendWakeupEvent = WINRT_SendWakeupEvent;
+    device->PumpEvents = WINRT_PumpEvents;
+
+    /* Screensaver */
     device->SuspendScreenSaver = WINRT_SuspendScreenSaver;
 
+    /* Text input */
+    // device->StartTextInput = WINRT_StartTextInput;
+    // device->StopTextInput = WINRT_StopTextInput;
+    // device->SetTextInputRect = WINRT_SetTextInputRect;
+    // device->ClearComposition = WINRT_ClearComposition;
+    // device->IsTextInputShown = WINRT_IsTextInputShown;
+
+    /* Screen keyboard */
 #if NTDDI_VERSION >= NTDDI_WIN10
     device->HasScreenKeyboardSupport = WINRT_HasScreenKeyboardSupport;
     device->ShowScreenKeyboard = WINRT_ShowScreenKeyboard;
@@ -142,24 +231,19 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     WINTRT_InitialiseInputPaneEvents();
 #endif
 
-#ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = WINRT_GLES_LoadLibrary;
-    device->GL_GetProcAddress = WINRT_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = WINRT_GLES_UnloadLibrary;
-    device->GL_CreateContext = WINRT_GLES_CreateContext;
-    device->GL_MakeCurrent = WINRT_GLES_MakeCurrent;
-    device->GL_SetSwapInterval = WINRT_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = WINRT_GLES_GetSwapInterval;
-    device->GL_SwapWindow = WINRT_GLES_SwapWindow;
-    device->GL_DeleteContext = WINRT_GLES_DeleteContext;
-#endif
+    /* Clipboard */
+    // device->SetClipboardText = WINRT_SetClipboardText;
+    // device->GetClipboardText = WINRT_GetClipboardText;
+    // device->HasClipboardText = WINRT_HasClipboardText;
+    // device->SetPrimarySelectionText = WINRT_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = WINRT_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = WINRT_HasPrimarySelectionText;
 
-#ifdef SDL_VIDEO_VULKAN
-    device->Vulkan_LoadLibrary = WINRT_Vulkan_LoadLibrary;
-    device->Vulkan_UnloadLibrary = WINRT_Vulkan_UnloadLibrary;
-    device->Vulkan_GetInstanceExtensions = WINRT_Vulkan_GetInstanceExtensions;
-    device->Vulkan_CreateSurface = WINRT_Vulkan_CreateSurface;
-#endif
+    /* Hit-testing */
+    // device->SetWindowHitTest = WINRT_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = WINRT_AcceptDragAndDrop;
 
     device->free = WINRT_DeleteDevice;
 
@@ -610,7 +694,7 @@ static bool WINRT_IsCoreWindowActive(CoreWindow ^ coreWindow)
     return true;
 }
 
-int WINRT_CreateWindow(_THIS, SDL_Window *window)
+int WINRT_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     // Make sure that only one window gets created, at least until multimonitor
     // support is added.
