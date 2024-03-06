@@ -49,9 +49,6 @@
 /* Instance */
 Vivante_VideoData vivanteVideoData;
 
-/* Vivante driver bootstrap functions */
-#define VIVANTE_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
-
 static void VIVANTE_DeleteDevice(_THIS)
 {
     SDL_zero(vivanteVideoData);

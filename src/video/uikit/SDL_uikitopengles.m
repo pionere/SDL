@@ -87,14 +87,10 @@ void UIKit_GL_GetDrawableSize(SDL_Window * window, int * w, int * h)
         UIView *view = data.viewcontroller.view;
         if ([view isKindOfClass:[SDL_uikitopenglview class]]) {
             SDL_uikitopenglview *glview = (SDL_uikitopenglview *) view;
-            if (w) {
-                *w = glview.backingWidth;
-            }
-            if (h) {
-                *h = glview.backingHeight;
-            }
+            *w = glview.backingWidth;
+            *h = glview.backingHeight;
         } else {
-            SDL_GetWindowSize(window, w, h);
+            SDL_PrivateGetWindowSizeInPixels(window, w, h);
         }
     }
 }

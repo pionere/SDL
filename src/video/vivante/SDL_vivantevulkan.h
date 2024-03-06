@@ -34,6 +34,8 @@
 
 #if defined(SDL_VIDEO_VULKAN) && defined(SDL_VIDEO_DRIVER_VIVANTE)
 
+#define VIVANTE_Vulkan_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
+
 int VIVANTE_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void VIVANTE_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
 SDL_bool VIVANTE_Vulkan_GetInstanceExtensions(SDL_Window *window,

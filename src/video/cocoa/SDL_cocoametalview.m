@@ -178,15 +178,11 @@ void Cocoa_Metal_GetDrawableSize(SDL_Window * window, int * w, int * h)
     if (metalview) {
         CAMetalLayer *layer = (CAMetalLayer*)metalview.layer;
         SDL_assert(layer != NULL);
-        if (w) {
-            *w = layer.drawableSize.width;
-        }
-        if (h) {
-            *h = layer.drawableSize.height;
-        }
+        *w = layer.drawableSize.width;
+        *h = layer.drawableSize.height;
     } else {
         /* Fall back to the viewport size. */
-        SDL_GetWindowSizeInPixels(window, w, h);
+        SDL_PrivateGetWindowSizeInPixels(window, w, h);
     }
 }}
 

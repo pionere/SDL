@@ -125,14 +125,10 @@ void UIKit_Metal_GetDrawableSize(SDL_Window * window, int * w, int * h)
         if (metalview) {
             CAMetalLayer *layer = (CAMetalLayer*)metalview.layer;
             assert(layer != NULL);
-            if (w) {
-                *w = layer.drawableSize.width;
-            }
-            if (h) {
-                *h = layer.drawableSize.height;
-            }
+            *w = layer.drawableSize.width;
+            *h = layer.drawableSize.height;
         } else {
-            SDL_GetWindowSize(window, w, h);
+            SDL_PrivateGetWindowSizeInPixels(window, w, h);
         }
     }
 }

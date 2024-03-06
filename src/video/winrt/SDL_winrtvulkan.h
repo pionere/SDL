@@ -40,7 +40,7 @@ extern "C" {
 extern "C" {
 #endif
 
-#define WINRT_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
+#define WINRT_Vulkan_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 
 int WINRT_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void WINRT_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

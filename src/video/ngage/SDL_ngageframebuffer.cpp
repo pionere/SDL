@@ -53,7 +53,7 @@ int NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void **p
     NGAGE_DestroyWindowFramebuffer(window);
 
     /* Create a new one */
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
     if (!surface) {
         return -1;

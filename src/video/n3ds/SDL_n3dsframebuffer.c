@@ -69,7 +69,7 @@ SDL_FORCE_INLINE SDL_Surface *
 CreateNewWindowFramebuffer(SDL_Window *window)
 {
     int w, h;
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     return SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, FRAMEBUFFER_FORMAT);
 }
 

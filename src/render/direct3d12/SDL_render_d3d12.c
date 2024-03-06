@@ -1264,7 +1264,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     /* The width and height of the swap chain must be based on the display's
      * non-rotated size.
      */
-    SDL_GetWindowSizeInPixels(renderer->window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
     data->rotation = D3D12_GetCurrentRotation();
     if (D3D12_IsDisplayRotated90Degrees(data->rotation)) {
         int tmp = w;

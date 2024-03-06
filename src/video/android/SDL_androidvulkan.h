@@ -34,7 +34,7 @@
 #include "../SDL_vulkan_internal.h"
 #include "../SDL_sysvideo.h"
 
-#define Android_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
+#define Android_Vulkan_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 
 int Android_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void Android_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

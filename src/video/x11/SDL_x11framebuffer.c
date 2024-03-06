@@ -56,7 +56,7 @@ int X11_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
     XVisualInfo vinfo;
     int w, h;
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     /* Free the old framebuffer surface */
     X11_DestroyWindowFramebuffer(window);
@@ -151,7 +151,7 @@ int X11_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
     int x, y, w, h;
     int window_w, window_h;
 
-    SDL_GetWindowSizeInPixels(window, &window_w, &window_h);
+    SDL_PrivateGetWindowSizeInPixels(window, &window_w, &window_h);
 
 #ifndef NO_SHARED_MEMORY
     if (data->use_mitshm) {

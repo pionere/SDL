@@ -31,7 +31,7 @@
 /*typedef struct xcb_connection_t xcb_connection_t;*/
 typedef xcb_connection_t *(*PFN_XGetXCBConnection)(Display *dpy);
 
-#define X11_Vulkan_GetDrawableSize SDL_GetWindowSizeInPixels
+#define X11_Vulkan_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 
 int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);

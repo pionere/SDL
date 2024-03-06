@@ -212,7 +212,7 @@ static int SDL_CreateWindowTexture(SDL_Window *window, Uint32 *format, void **pi
     int i;
     int w, h;
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     if (!data) {
         SDL_Renderer *renderer = NULL;
@@ -355,7 +355,7 @@ static int SDL_UpdateWindowTexture(SDL_Window *window, const SDL_Rect *rects, in
     void *src;
     int w, h;
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
     if (!data || !data->texture) {
@@ -2475,6 +2475,17 @@ int SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *botto
     return _this->GetWindowBordersSize(window, top, left, bottom, right);
 }
 
+void SDL_PrivateGetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
+{
+    if (_this->GetWindowSizeInPixels) {
+        _this->GetWindowSizeInPixels(window, w, h);
+    } else {
+        // SDL_GetWindowSize
+        *w = window->w;
+        *h = window->h;
+    }
+}
+
 void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 {
     int filter;
@@ -2489,11 +2500,7 @@ void SDL_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
         h = &filter;
     }
 
-    if (_this->GetWindowSizeInPixels) {
-        _this->GetWindowSizeInPixels(window, w, h);
-    } else {
-        SDL_GetWindowSize(window, w, h);
-    }
+    SDL_PrivateGetWindowSizeInPixels(window, w, h);
 }
 
 void SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h)
@@ -2703,7 +2710,7 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
     SDL_bool created_framebuffer = SDL_FALSE;
     int w, h;
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     /* This will switch the video backend from using a software surface to
        using a GPU texture through the 2D render API, if we think this would
@@ -2815,7 +2822,7 @@ int SDL_UpdateWindowSurface(SDL_Window *window)
 
     full_rect.x = 0;
     full_rect.y = 0;
-    SDL_GetWindowSizeInPixels(window, &full_rect.w, &full_rect.h);
+    SDL_PrivateGetWindowSizeInPixels(window, &full_rect.w, &full_rect.h);
 
     return SDL_UpdateWindowSurfaceRects(window, &full_rect, 1);
 }
@@ -4245,12 +4252,22 @@ SDL_GLContext SDL_GL_GetCurrentContext(void)
 
 void SDL_GL_GetDrawableSize(SDL_Window * window, int *w, int *h)
 {
+    int filter;
+
     CHECK_WINDOW_MAGIC(window, );
+
+    if (!w) {
+        w = &filter;
+    }
+
+    if (!h) {
+        h = &filter;
+    }
 
     if (_this->GL_GetDrawableSize) {
         _this->GL_GetDrawableSize(window, w, h);
     } else {
-        SDL_GetWindowSizeInPixels(window, w, h);
+        SDL_PrivateGetWindowSizeInPixels(window, w, h);
     }
 }
 
@@ -4264,7 +4281,7 @@ int SDL_GL_SetSwapInterval(int interval)
         SDL_assert(_this->gl_config.driver_loaded);
         return _this->GL_SetSwapInterval(interval);
     } else {
-        return SDL_SetError("Setting the swap interval is not supported");
+        return SDL_Unsupported();
     }
 }
 
@@ -5012,12 +5029,22 @@ SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
 
 void SDL_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
+    int filter;
+
     CHECK_WINDOW_MAGIC(window, );
+
+    if (!w) {
+        w = &filter;
+    }
+
+    if (!h) {
+        h = &filter;
+    }
 
     if (_this->Vulkan_GetDrawableSize) {
         _this->Vulkan_GetDrawableSize(window, w, h);
     } else {
-        SDL_GetWindowSizeInPixels(window, w, h);
+        SDL_PrivateGetWindowSizeInPixels(window, w, h);
     }
 }
 #else
@@ -5101,12 +5128,22 @@ void *SDL_Metal_GetLayer(SDL_MetalView view)
 
 void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
 {
+    int filter;
+
     CHECK_WINDOW_MAGIC(window, );
+
+    if (!w) {
+        w = &filter;
+    }
+
+    if (!h) {
+        h = &filter;
+    }
 
     if (_this->Metal_GetDrawableSize) {
         _this->Metal_GetDrawableSize(window, w, h);
     } else {
-        SDL_GetWindowSizeInPixels(window, w, h);
+        SDL_PrivateGetWindowSizeInPixels(window, w, h);
     }
 }
 #else

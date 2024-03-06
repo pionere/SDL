@@ -295,7 +295,7 @@ static int D3D_ActivateRenderer(SDL_Renderer *renderer)
         int w, h;
         Uint32 window_flags = window->flags; // TODO: SDL_PrivateGetWindowFlags?
 
-        SDL_GetWindowSizeInPixels(window, &w, &h);
+        SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
         data->pparams.BackBufferWidth = w;
         data->pparams.BackBufferHeight = h;
         if (window_flags & SDL_WINDOW_FULLSCREEN && (window_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP) {
@@ -1612,7 +1612,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_GetWindowWMInfo(window, &windowinfo);
 
     window_flags = window->flags; // TODO: SDL_PrivateGetWindowFlags?
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     SDL_GetWindowDisplayMode(window, &fullscreen_mode);
 
     SDL_zero(pparams);

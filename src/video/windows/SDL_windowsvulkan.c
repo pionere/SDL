@@ -152,11 +152,6 @@ SDL_bool WIN_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     return SDL_TRUE;
 }
 
-void WIN_Vulkan_GetDrawableSize(SDL_Window *window, int *w, int *h)
-{
-    SDL_GetWindowSizeInPixels(window, w, h);
-}
-
 #endif
 
 /* vi: set ts=4 sw=4 expandtab: */
