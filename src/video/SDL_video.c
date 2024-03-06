@@ -402,7 +402,6 @@ static void SDL_StartTextInputPrivate(SDL_bool default_value)
 {
     SDL_Window *window;
 
-    if (_this) {
         /* First, enable text events */
         (void)SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
         (void)SDL_EventState(SDL_TEXTEDITING, SDL_ENABLE);
@@ -419,7 +418,6 @@ static void SDL_StartTextInputPrivate(SDL_bool default_value)
         if (_this->StartTextInput) {
             _this->StartTextInput();
         }
-    }
 }
 
 static int SDLCALL cmpmodes(const void *A, const void *B)
@@ -2095,6 +2093,13 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     }
 
     SDL_FinishWindowCreation(window, flags);
+
+    return 0;
+}
+
+int SDL_CheckWindow(SDL_Window *window)
+{
+    CHECK_WINDOW_MAGIC(window, -1);
 
     return 0;
 }
@@ -4503,19 +4508,31 @@ SDL_bool SDL_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 
 void SDL_StartTextInput(void)
 {
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return;
+    }
     SDL_StartTextInputPrivate(SDL_TRUE);
 }
 
 void SDL_ClearComposition(void)
 {
-    if (_this && _this->ClearComposition) {
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return;
+    }
+    if (_this->ClearComposition) {
         _this->ClearComposition();
     }
 }
 
 SDL_bool SDL_IsTextInputShown(void)
 {
-    if (_this && _this->IsTextInputShown) {
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return SDL_FALSE;
+    }
+    if (_this->IsTextInputShown) {
         return _this->IsTextInputShown();
     }
 
@@ -4551,7 +4568,11 @@ void SDL_StopTextInput(void)
 
 void SDL_SetTextInputRect(const SDL_Rect *rect)
 {
-    if (_this && _this->SetTextInputRect) {
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return;
+    }
+    if (_this->SetTextInputRect) {
         if (rect) {
             _this->SetTextInputRect(rect);
         } else {
@@ -4562,7 +4583,11 @@ void SDL_SetTextInputRect(const SDL_Rect *rect)
 
 SDL_bool SDL_HasScreenKeyboardSupport(void)
 {
-    if (_this && _this->HasScreenKeyboardSupport) {
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return SDL_FALSE;
+    }
+    if (_this->HasScreenKeyboardSupport) {
         return _this->HasScreenKeyboardSupport();
     }
     return SDL_FALSE;
@@ -4570,7 +4595,9 @@ SDL_bool SDL_HasScreenKeyboardSupport(void)
 
 SDL_bool SDL_IsScreenKeyboardShown(SDL_Window *window)
 {
-    if (window && _this && _this->IsScreenKeyboardShown) {
+    CHECK_WINDOW_MAGIC(window, SDL_FALSE)
+
+    if (_this->IsScreenKeyboardShown) {
         return _this->IsScreenKeyboardShown(window);
     }
     return SDL_FALSE;

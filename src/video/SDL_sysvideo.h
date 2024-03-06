@@ -474,6 +474,7 @@ extern int SDL_GetMessageBoxCount(void);
 
 extern void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor);
 
+extern int SDL_CheckWindow(SDL_Window *window);
 extern int SDL_RecreateWindow(SDL_Window *window, Uint32 flags);
 extern SDL_Window *SDL_GetWindows(void);
 extern SDL_bool SDL_HasWindows(void);

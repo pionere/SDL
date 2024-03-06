@@ -946,8 +946,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     Android_ActivityMutex_Lock_Running();
 #endif
 
-    if (!window) {
-        SDL_InvalidParamError("window");
+    if (SDL_CheckWindow(window) < 0) {
         goto error;
     }
 
