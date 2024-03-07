@@ -119,9 +119,10 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
         SDL_OutOfMemory();
         return NULL;
     }
-    device->wakeup_lock = SDL_CreateMutex();
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    device->wakeup_lock = SDL_CreateMutex();
+
     data->userDLL = SDL_LoadObject("USER32.DLL");
     if (data->userDLL) {
         data->CloseTouchInputHandle = (BOOL (WINAPI *)(HTOUCHINPUT))SDL_LoadFunction(data->userDLL, "CloseTouchInputHandle");
@@ -230,8 +231,8 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 #endif
 
     /* Event manager functions */
-    device->WaitEventTimeout = WIN_WaitEventTimeout;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    device->WaitEventTimeout = WIN_WaitEventTimeout;
     device->SendWakeupEvent = WIN_SendWakeupEvent;
 #endif
     device->PumpEvents = WIN_PumpEvents;
