@@ -44,8 +44,7 @@ struct _DFB_Theme
 extern void DirectFB_WM_AdjustWindowLayout(SDL_Window * window, int flags, int w, int h);
 extern void DirectFB_WM_RedrawLayout(SDL_Window * window);
 
-extern int DirectFB_WM_ProcessEvent(_THIS, SDL_Window * window,
-                                    DFBWindowEvent * evt);
+extern int DirectFB_WM_ProcessEvent(SDL_Window * window, DFBWindowEvent * evt);
 
 extern DFBResult DirectFB_WM_GetClientSize(SDL_Window * window,
                                            int *cw, int *ch);

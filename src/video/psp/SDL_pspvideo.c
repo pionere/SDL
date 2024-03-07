@@ -311,7 +311,7 @@ void PSP_ShowWindow(SDL_Window *window)
 void PSP_HideWindow(SDL_Window *window)
 {
 }
-void PSP_RaiseWindow(_THIS, SDL_Window *window)
+void PSP_RaiseWindow(SDL_Window *window)
 {
 }
 void PSP_MaximizeWindow(SDL_Window *window)

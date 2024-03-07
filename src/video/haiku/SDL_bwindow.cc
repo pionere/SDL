@@ -167,7 +167,7 @@ void HAIKU_HideWindow(SDL_Window * window) {
     _ToBeWin(window)->PostMessage(&msg);
 }
 
-void HAIKU_RaiseWindow(_THIS, SDL_Window * window) {
+void HAIKU_RaiseWindow(SDL_Window * window) {
     BMessage msg(BWIN_SHOW_WINDOW);    /* Activate this window and move to front */
     _ToBeWin(window)->PostMessage(&msg);
 }

@@ -2660,7 +2660,7 @@ void SDL_RaiseWindow(SDL_Window *window)
         return;
     }
     if (_this->RaiseWindow) {
-        _this->RaiseWindow(_this, window);
+        _this->RaiseWindow(window);
     }
 }
 

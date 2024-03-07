@@ -276,7 +276,7 @@ static int WMPos(DFB_WindowData * p, int x, int y)
     return pos;
 }
 
-int DirectFB_WM_ProcessEvent(_THIS, SDL_Window * window, DFBWindowEvent * evt)
+int DirectFB_WM_ProcessEvent(SDL_Window * window, DFBWindowEvent * evt)
 {
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     SDL_Window *grabbed_window = SDL_GetGrabbedWindow();
@@ -310,7 +310,7 @@ int DirectFB_WM_ProcessEvent(_THIS, SDL_Window * window, DFBWindowEvent * evt)
                 return 1;
             case WM_POS_CAPTION:
                 if (!(wopts & DWOP_KEEP_STACKING)) {
-                    DirectFB_RaiseWindow(_this, window);
+                    DirectFB_RaiseWindow(window);
                 }
                 if (window->flags & SDL_WINDOW_MAXIMIZED)
                     return 1;

@@ -1232,7 +1232,7 @@ static void SetWindowActive(SDL_Window *window)
     }
 }
 
-void X11_RaiseWindow(_THIS, SDL_Window *window)
+void X11_RaiseWindow(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     Display *display = x11VideoData.display;

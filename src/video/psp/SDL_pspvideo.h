@@ -59,7 +59,7 @@ int PSP_CreateSDLWindow(_THIS, SDL_Window *window);
 // void PSP_SetWindowSize(SDL_Window *window);
 // void PSP_ShowWindow(SDL_Window *window);
 // void PSP_HideWindow(SDL_Window *window);
-// void PSP_RaiseWindow(_THIS, SDL_Window *window);
+// void PSP_RaiseWindow(SDL_Window *window);
 // void PSP_MaximizeWindow(SDL_Window *window);
 void PSP_MinimizeWindow(SDL_Window *window);
 // void PSP_RestoreWindow(SDL_Window *window);

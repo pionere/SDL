@@ -68,7 +68,7 @@ int RPI_CreateSDLWindow(_THIS, SDL_Window *window);
 // void RPI_SetWindowSize(SDL_Window *window);
 // void RPI_ShowWindow(SDL_Window *window);
 // void RPI_HideWindow(SDL_Window *window);
-// void RPI_RaiseWindow(_THIS, SDL_Window *window);
+// void RPI_RaiseWindow(SDL_Window *window);
 // void RPI_MaximizeWindow(SDL_Window *window);
 void RPI_MinimizeWindow(SDL_Window *window);
 // void RPI_RestoreWindow(SDL_Window *window);

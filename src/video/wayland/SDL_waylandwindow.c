@@ -1632,7 +1632,7 @@ static void Wayland_activate_window(SDL_WindowData *wind,
     }
 }
 
-void Wayland_RaiseWindow(_THIS, SDL_Window *window)
+void Wayland_RaiseWindow(SDL_Window *window)
 {
     SDL_WindowData *wind = window->driverdata;
 

@@ -410,7 +410,7 @@ void DirectFB_PumpEvents(_THIS)
 
         while (windata->eventbuffer->GetEvent(windata->eventbuffer,
                                         DFB_EVENT(&evt)) == DFB_OK) {
-            if (!DirectFB_WM_ProcessEvent(_this, w, &evt)) {
+            if (!DirectFB_WM_ProcessEvent(w, &evt)) {
                 /* Send a SDL_SYSWMEVENT if the application wants them */
                 if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
                     SDL_SysWMmsg wmmsg;

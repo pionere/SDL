@@ -1999,7 +1999,7 @@ void Cocoa_HideWindow(SDL_Window * window)
     [nswindow orderOut:nil];
 }}
 
-void Cocoa_RaiseWindow(_THIS, SDL_Window * window)
+void Cocoa_RaiseWindow(SDL_Window * window)
 { @autoreleasepool
 {
     SDL_WindowData *windowData = ((__bridge SDL_WindowData *) window->driverdata);

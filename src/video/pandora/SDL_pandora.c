@@ -309,7 +309,7 @@ void PND_ShowWindow(SDL_Window * window)
 void PND_HideWindow(SDL_Window * window)
 {
 }
-void PND_RaiseWindow(_THIS, SDL_Window * window)
+void PND_RaiseWindow(SDL_Window * window)
 {
 }
 void PND_MaximizeWindow(SDL_Window * window)

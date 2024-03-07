@@ -62,7 +62,7 @@ extern void DirectFB_SetWindowPosition(SDL_Window * window);
 extern void DirectFB_SetWindowSize(SDL_Window * window);
 extern void DirectFB_ShowWindow(SDL_Window * window);
 extern void DirectFB_HideWindow(SDL_Window * window);
-extern void DirectFB_RaiseWindow(_THIS, SDL_Window * window);
+extern void DirectFB_RaiseWindow(SDL_Window * window);
 extern void DirectFB_MaximizeWindow(SDL_Window * window);
 extern void DirectFB_MinimizeWindow(SDL_Window * window);
 extern void DirectFB_RestoreWindow(SDL_Window * window);

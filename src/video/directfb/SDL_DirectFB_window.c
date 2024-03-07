@@ -310,7 +310,7 @@ void DirectFB_HideWindow(SDL_Window * window)
     SDL_DFB_CHECK(dfbwin->SetOpacity(dfbwin, 0));
 }
 
-void DirectFB_RaiseWindow(_THIS, SDL_Window * window)
+void DirectFB_RaiseWindow(SDL_Window * window)
 {
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
     IDirectFBWindow *dfbwin = windata->dfbwin;

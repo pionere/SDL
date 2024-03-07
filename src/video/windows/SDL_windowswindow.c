@@ -774,7 +774,7 @@ void WIN_HideWindow(SDL_Window *window)
     ShowWindow(hwnd, SW_HIDE);
 }
 
-void WIN_RaiseWindow(_THIS, SDL_Window *window)
+void WIN_RaiseWindow(SDL_Window *window)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     /* If desired, raise the window more forcefully.

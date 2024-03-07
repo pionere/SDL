@@ -1041,7 +1041,7 @@ static void OS2_HideWindow(SDL_Window *window)
     WinShowWindow(pWinData->hwndFrame, FALSE);
 }
 
-static void OS2_RaiseWindow(_THIS, SDL_Window *window)
+static void OS2_RaiseWindow(SDL_Window *window)
 {
     debug_os2("Enter");
     OS2_SetWindowPosition(window);

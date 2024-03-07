@@ -400,7 +400,7 @@ void VITA_ShowWindow(SDL_Window *window)
 void VITA_HideWindow(SDL_Window *window)
 {
 }
-void VITA_RaiseWindow(_THIS, SDL_Window *window)
+void VITA_RaiseWindow(SDL_Window *window)
 {
 }
 void VITA_MaximizeWindow(SDL_Window *window)

@@ -227,7 +227,7 @@ struct SDL_VideoDevice
     int (*SetWindowInputFocus) (SDL_Window * window);
     void (*ShowWindow) (SDL_Window * window);
     void (*HideWindow) (SDL_Window * window);
-    void (*RaiseWindow) (_THIS, SDL_Window * window);
+    void (*RaiseWindow) (SDL_Window *window);
     void (*MaximizeWindow) (SDL_Window * window);
     void (*MinimizeWindow) (SDL_Window * window);
     void (*RestoreWindow) (SDL_Window * window);
