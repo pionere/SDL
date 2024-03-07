@@ -680,6 +680,34 @@ SDL_VideoDevice *SDL_GetVideoDevice(void)
     return _this;
 }
 
+void SDL_PrivatePumpEvents(void)
+{
+    if (_this) {
+        SDL_assert(_this->PumpEvents != NULL);
+
+        _this->PumpEvents(_this);
+    }
+}
+
+SDL_bool SDL_HasWaitTimeoutSupport(void)
+{
+    return _this && _this->SendWakeupEvent /*&& _this->WaitEventTimeout*/;
+}
+
+void SDL_PrivateSendWakeupEvent(SDL_Window *window)
+{
+    SDL_assert(_this != NULL);
+    SDL_assert(_this->SendWakeupEvent != NULL);
+    _this->SendWakeupEvent(window);
+}
+
+int SDL_PrivateWaitEventTimeout(int timeout)
+{
+    SDL_assert(_this != NULL);
+    SDL_assert(_this->WaitEventTimeout != NULL);
+    return _this->WaitEventTimeout(_this, timeout);
+}
+
 SDL_bool SDL_OnVideoThread(void)
 {
     return (_this && SDL_ThreadID() == _this->thread) ? SDL_TRUE : SDL_FALSE;
