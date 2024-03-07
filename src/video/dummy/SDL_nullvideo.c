@@ -117,7 +117,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     // device->SetWindowMouseRect = DUMMY_SetWindowMouseRect;
     // device->SetWindowMouseGrab = DUMMY_SetWindowMouseGrab;
     // device->SetWindowKeyboardGrab = DUMMY_SetWindowKeyboardGrab;
-    // device->DestroyWindow = DUMMY_DestroyWindow;
+    device->DestroyWindow = DUMMY_DestroyWindow;
     device->CreateWindowFramebuffer = DUMMY_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = DUMMY_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = DUMMY_DestroyWindowFramebuffer;

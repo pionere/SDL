@@ -76,6 +76,10 @@ static int PS2_CreateSDLWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
+static void PS2_DestroyWindow(SDL_Window *window)
+{
+}
+
 static int PS2_VideoInit(_THIS)
 {
     int result;
@@ -162,7 +166,7 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
     // device->SetWindowMouseRect = PS2_SetWindowMouseRect;
     // device->SetWindowMouseGrab = PS2_SetWindowMouseGrab;
     // device->SetWindowKeyboardGrab = PS2_SetWindowKeyboardGrab;
-    // device->DestroyWindow = PS2_DestroyWindow;
+    device->DestroyWindow = PS2_DestroyWindow;
     // device->CreateWindowFramebuffer = PS2_CreateWindowFramebuffer;
     // device->UpdateWindowFramebuffer = PS2_UpdateWindowFramebuffer;
     // device->DestroyWindowFramebuffer = PS2_DestroyWindowFramebuffer;

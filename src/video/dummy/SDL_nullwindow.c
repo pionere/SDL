@@ -64,6 +64,10 @@ void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, 
     }
 }
 
+void DUMMY_DestroyWindow(SDL_Window *window)
+{
+}
+
 #endif /* SDL_VIDEO_DRIVER_DUMMY */
 
 /* vi: set ts=4 sw=4 expandtab: */
