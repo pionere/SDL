@@ -30,6 +30,11 @@
 
 #include "SDL_nullwindow.h"
 
+int DUMMY_CreateSDLWindow(_THIS, SDL_Window *window)
+{
+    return 0;
+}
+
 void DUMMY_ShowWindow(SDL_Window *window)
 {
     SDL_SetMouseFocus(window);

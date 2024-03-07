@@ -87,7 +87,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     // device->SetDisplayMode = DUMMY_SetDisplayMode;
 
     /* Window functions */
-    // device->CreateSDLWindow = DUMMY_CreateSDLWindow;
+    device->CreateSDLWindow = DUMMY_CreateSDLWindow;
     // device->CreateSDLWindowFrom = DUMMY_CreateSDLWindowFrom;
     // device->SetWindowTitle = DUMMY_SetWindowTitle;
     // device->SetWindowIcon = DUMMY_SetWindowIcon;
