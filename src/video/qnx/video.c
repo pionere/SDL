@@ -210,6 +210,19 @@ static int QNX_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects
 }
 
 /**
+ * Destroy the screen buffer associated with the given window. Note
+ * that the buffer is actually created in QNX_CreateSDLWindow() and
+ * destroyed by QNX_DestroyWindow() so this function does nothing.
+ * @param       window  SDL window to get the buffer for
+ */
+static void QNX_DestroyWindowFramebuffer(SDL_Window * window)
+{
+    // window_impl_t   *impl = (window_impl_t *)window->driverdata;
+
+    // screen_destroy_window_buffers(impl->window);
+}
+
+/**
  * Runs the main event loop.
  * @param   _THIS
  */
@@ -244,7 +257,6 @@ static void QNX_PumpEvents(_THIS)
 
 /**
  * Updates the size of the native window using the geometry of the SDL window.
- * @param   _THIS
  * @param   window  SDL window to update
  */
 static void QNX_SetWindowSize(SDL_Window *window)
@@ -275,7 +287,6 @@ static void QNX_ShowWindow(SDL_Window *window)
 
 /**
  * Makes the native window associated with the given SDL window invisible.
- * @param   _THIS
  * @param   window  SDL window to update
  */
 static void QNX_HideWindow(SDL_Window *window)
@@ -289,7 +300,6 @@ static void QNX_HideWindow(SDL_Window *window)
 
 /**
  * Destroys the native window associated with the given SDL window.
- * @param   _THIS
  * @param   window  SDL window that is being destroyed
  */
 static void QNX_DestroyWindow(SDL_Window *window)
@@ -303,8 +313,8 @@ static void QNX_DestroyWindow(SDL_Window *window)
 }
 
 /**
- * Frees the plugin object created by createDevice().
- * @param   device  Plugin object to free
+ * Frees the plugin object created by QNX_CreateDevice().
+ * @param   _THIS  Plugin object to free
  */
 static void QNX_DeleteDevice(_THIS)
 {
@@ -368,7 +378,7 @@ static SDL_VideoDevice *QNX_CreateDevice(int devindex)
     device->DestroyWindow = QNX_DestroyWindow;
     device->CreateWindowFramebuffer = QNX_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = QNX_UpdateWindowFramebuffer;
-    // device->DestroyWindowFramebuffer = QNX_DestroyWindowFramebuffer;
+    device->DestroyWindowFramebuffer = QNX_DestroyWindowFramebuffer;
     // device->OnWindowEnter = QNX_OnWindowEnter;
     // device->FlashWindow = QNX_FlashWindow;
     /* Shaped-window functions */
