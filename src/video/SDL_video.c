@@ -1882,9 +1882,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
      * but it's important or window focus will get broken on windows!
      */
 #if !defined(__WIN32__) && !defined(__GDK__)
-    if (window->flags & SDL_WINDOW_MINIMIZED) {
-        window->flags &= ~SDL_WINDOW_MINIMIZED;
-    }
+    window->flags &= ~SDL_WINDOW_MINIMIZED;
 #endif
 
 #if defined(__WINRT__) && (NTDDI_VERSION < NTDDI_WIN10)
@@ -2092,7 +2090,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         }
     }
 
-    window->flags = ((flags & CREATE_FLAGS) | SDL_WINDOW_HIDDEN);
+    window->flags = ((flags & (CREATE_FLAGS | SDL_WINDOW_FOREIGN)) | SDL_WINDOW_HIDDEN);
     window->last_fullscreen_flags = window->flags;
     window->is_destroying = SDL_FALSE;
 
@@ -2108,10 +2106,6 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
             }
             return -1;
         }
-    }
-
-    if (foreign_win) { // if (flags & SDL_WINDOW_FOREIGN) {
-        window->flags |= SDL_WINDOW_FOREIGN;
     }
 
     if (_this->SetWindowTitle && window->title) {
@@ -2723,13 +2717,13 @@ int SDL_SetWindowFullscreen(SDL_Window *window, Uint32 flags)
     CHECK_WINDOW_MAGIC(window, -1);
 
     flags &= FULLSCREEN_MASK;
+    oldflags = window->flags & FULLSCREEN_MASK;
 
-    if (flags == (window->flags & FULLSCREEN_MASK)) {
+    if (flags == oldflags) {
         return 0;
     }
 
     /* clear the previous flags and OR in the new ones */
-    oldflags = window->flags & FULLSCREEN_MASK;
     window->flags &= ~FULLSCREEN_MASK;
     window->flags |= flags;
 
@@ -2793,7 +2787,7 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
 #endif
 
         if (attempt_texture_framebuffer) {
-            if (SDL_CreateWindowTexture(window, &format, &pixels, &pitch) == -1) {
+            if (SDL_CreateWindowTexture(window, &format, &pixels, &pitch) < 0) {
                 /* !!! FIXME: if this failed halfway (made renderer, failed to make texture, etc),
                    !!! FIXME:  we probably need to clean this up so it doesn't interfere with
                    !!! FIXME:  a software fallback at the system level (can we blit to an
