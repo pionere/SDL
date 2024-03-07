@@ -70,10 +70,10 @@ SDL_bool PSP_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
 /* PSP on screen keyboard */
-SDL_bool PSP_HasScreenKeyboardSupport();
-void PSP_ShowScreenKeyboard(SDL_Window *window);
-void PSP_HideScreenKeyboard(SDL_Window *window);
-SDL_bool PSP_IsScreenKeyboardShown(SDL_Window *window);
+// SDL_bool PSP_HasScreenKeyboardSupport();
+// void PSP_ShowScreenKeyboard(SDL_Window *window);
+// void PSP_HideScreenKeyboard(SDL_Window *window);
+// SDL_bool PSP_IsScreenKeyboardShown(SDL_Window *window);
 
 #endif /* SDL_pspvideo_h_ */
 
