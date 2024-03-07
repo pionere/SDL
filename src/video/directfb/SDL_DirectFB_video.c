@@ -115,7 +115,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
 
     /* Window functions */
     device->CreateSDLWindow = DirectFB_CreateSDLWindow;
-    device->CreateSDLWindowFrom = DirectFB_CreateSDLWindowFrom;
+    // device->CreateSDLWindowFrom = DirectFB_CreateSDLWindowFrom;
     device->SetWindowTitle = DirectFB_SetWindowTitle;
     device->SetWindowIcon = DirectFB_SetWindowIcon;
     device->SetWindowPosition = DirectFB_SetWindowPosition;

@@ -196,7 +196,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     /* Event manager functions */
     // device->WaitEventTimeout = NACL_WaitEventTimeout;
     // device->SendWakeupEvent = NACL_SendWakeupEvent;
-    // device->PumpEvents = NACL_PumpEvents;
+    device->PumpEvents = NACL_PumpEvents;
 
     /* Screensaver */
     // device->SuspendScreenSaver = NACL_SuspendScreenSaver;
