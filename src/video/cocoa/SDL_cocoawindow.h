@@ -127,7 +127,6 @@ typedef enum
 #ifdef SDL_VIDEO_OPENGL_CGL
     @property (nonatomic) NSMutableArray *nscontexts;
 #endif
-    @property (nonatomic) SDL_bool created;
     @property (nonatomic) SDL_bool inWindowFullscreenTransition;
     @property (nonatomic) NSInteger window_number;
     @property (nonatomic) NSInteger flash_request;

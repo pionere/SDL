@@ -295,7 +295,7 @@ static int WIN_GetScalingDPIForHWND(HWND hwnd)
 #endif
 }
 
-static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool created)
+static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
 {
     WIN_VideoData *videodata = &winVideoData;
     SDL_WindowData *data;
@@ -314,7 +314,6 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     data->hdc = GetDC(hwnd);
 #endif
     data->hinstance = (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE);
-    data->created = created;
     data->high_surrogate = 0;
     data->mouse_button_flags = (WPARAM)-1;
     data->last_pointer_update = (LPARAM)-1;
@@ -454,7 +453,7 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     return 0;
 }
 
-static int SetupGLWindow(_THIS, SDL_Window *window, SDL_bool created)
+static int SetupGLWindow(_THIS, SDL_Window *window)
 {
     if (!(window->flags & SDL_WINDOW_OPENGL)) {
         return 0;
@@ -496,7 +495,7 @@ static int SetupGLWindow(_THIS, SDL_Window *window, SDL_bool created)
         }
     }
 #endif // SDL_VIDEO_OPENGL_EGL
-    if (!created) {
+    if (window->flags & SDL_WINDOW_FOREIGN) {
         const char *hint = SDL_GetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT);
         if (hint) {
             /* This hint is a pointer (in string form) of the address of
@@ -541,7 +540,7 @@ int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
 
     WIN_PumpEvents(_this);
 
-    if (SetupWindowData(window, hwnd, parent, SDL_TRUE) < 0) {
+    if (SetupWindowData(window, hwnd, parent) < 0) {
         DestroyWindow(hwnd);
         if (parent) {
             DestroyWindow(parent);
@@ -556,7 +555,7 @@ int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
         ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
     }
 
-    return SetupGLWindow(_this, window, SDL_TRUE);
+    return SetupGLWindow(_this, window);
 }
 
 int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
@@ -584,11 +583,11 @@ int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
         SDL_small_free(title, isstack);
     }
 
-    if (SetupWindowData(window, hwnd, GetParent(hwnd), SDL_FALSE) < 0) {
+    if (SetupWindowData(window, hwnd, GetParent(hwnd)) < 0) {
         return -1;
     }
 
-    return SetupGLWindow(_this, window, SDL_FALSE);
+    return SetupGLWindow(_this, window);
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 }
 
@@ -1156,7 +1155,7 @@ void WIN_DestroyWindow(SDL_Window *window)
 #ifdef SDL_VIDEO_OPENGL_EGL
         SDL_EGL_DestroySurface(data->egl_surface);
 #endif
-        if (data->created) {
+        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             DestroyWindow(data->hwnd);
             if (data->parent) {
                 DestroyWindow(data->parent);

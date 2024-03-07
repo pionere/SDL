@@ -1619,7 +1619,7 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
 }
 @end
 
-static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsview, SDL_bool created)
+static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsview)
 { @autoreleasepool
 {
     SDL_WindowData *data;
@@ -1631,7 +1631,6 @@ static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsvi
     }
     data.window = window;
     data.nswindow = nswindow;
-    data.created = created;
     data.window_number = nswindow.windowNumber;
 #ifdef SDL_VIDEO_OPENGL_CGL
     data.nscontexts = [[NSMutableArray alloc] init];
@@ -1802,7 +1801,7 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
 #endif /* SDL_VIDEO_OPENGL_EGL */
     [nswindow setContentView:contentView];
 
-    if (SetupWindowData(window, nswindow, contentView, SDL_TRUE) < 0) {
+    if (SetupWindowData(window, nswindow, contentView) < 0) {
         return -1;
     }
 
@@ -1868,7 +1867,7 @@ int Cocoa_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
     #pragma clang diagnostic pop
     #endif
 
-    return SetupWindowData(window, nswindow, nsview, SDL_FALSE);
+    return SetupWindowData(window, nswindow, nsview);
 }}
 
 void Cocoa_SetWindowTitle(SDL_Window * window)
@@ -2341,7 +2340,7 @@ void Cocoa_DestroyWindow(SDL_Window * window)
         }
         [data.listener close];
         data.listener = nil;
-        if (data.created) {
+        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             /* Release the content view to avoid further updateLayer callbacks */
             [data.nswindow setContentView:nil];
             [data.nswindow close];

@@ -244,7 +244,7 @@ Uint32 X11_GetNetWMState(SDL_Window *window, Window xwindow)
     return flags;
 }
 
-static int SetupWindowData(SDL_Window *window, Window w, BOOL created)
+static int SetupWindowData(SDL_Window *window, Window w)
 {
     X11_VideoData *videodata = &x11VideoData;
     SDL_WindowData *data;
@@ -268,7 +268,6 @@ static int SetupWindowData(SDL_Window *window, Window w, BOOL created)
                           NULL);
     }
 #endif
-    data->created = created;
 
     /* Associate the data with the window */
 
@@ -627,7 +626,7 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
         X11_XSetWMProtocols(display, w, protocols, proto_count);
     }
 
-    if (SetupWindowData(window, w, SDL_TRUE) < 0) {
+    if (SetupWindowData(window, w) < 0) {
         X11_XDestroyWindow(display, w);
         return -1;
     }
@@ -696,7 +695,7 @@ int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     window->title = X11_GetWindowTitle(w);
 
-    return SetupWindowData(window, w, SDL_FALSE);
+    return SetupWindowData(window, w);
 }
 
 char *X11_GetWindowTitle(Window xwindow)
@@ -1797,7 +1796,7 @@ void X11_DestroyWindow(SDL_Window *window)
             X11_XDestroyIC(data->ic);
         }
 #endif
-        if (data->created) {
+        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             X11_XDestroyWindow(display, data->xwindow);
             X11_XFlush(display);
         }
