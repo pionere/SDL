@@ -1670,7 +1670,7 @@ void X11_SendWakeupEvent(SDL_Window *window)
     X11_XFlush(req_display);
 }
 
-int X11_WaitEventTimeout(_THIS, int timeout)
+int X11_WaitEventTimeout(int timeout)
 {
     X11_VideoData *videodata = &x11VideoData;
     Display *display;

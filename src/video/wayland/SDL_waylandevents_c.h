@@ -147,7 +147,7 @@ struct SDL_WaylandInput
 
 extern void Wayland_PumpEvents(_THIS);
 extern void Wayland_SendWakeupEvent(SDL_Window *window);
-extern int Wayland_WaitEventTimeout(_THIS, int timeout);
+extern int Wayland_WaitEventTimeout(int timeout);
 
 extern void Wayland_add_data_device_manager(uint32_t id, uint32_t version);
 extern void Wayland_add_primary_selection_device_manager(uint32_t id, uint32_t version);

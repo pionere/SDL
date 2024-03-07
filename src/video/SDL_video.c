@@ -705,7 +705,7 @@ int SDL_PrivateWaitEventTimeout(int timeout)
 {
     SDL_assert(_this != NULL);
     SDL_assert(_this->WaitEventTimeout != NULL);
-    return _this->WaitEventTimeout(_this, timeout);
+    return _this->WaitEventTimeout(timeout);
 }
 
 SDL_bool SDL_OnVideoThread(void)

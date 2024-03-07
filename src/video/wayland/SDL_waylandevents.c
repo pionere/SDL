@@ -276,7 +276,7 @@ static int dispatch_queued_events(void)
     return ret >= 0 ? 1 : ret;
 }
 
-int Wayland_WaitEventTimeout(_THIS, int timeout)
+int Wayland_WaitEventTimeout(int timeout)
 {
     Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;

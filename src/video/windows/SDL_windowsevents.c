@@ -1797,7 +1797,7 @@ void SDL_SetWindowsMessageHook(SDL_WindowsMessageHook callback, void *userdata)
     g_WindowsMessageHookData = userdata;
 }
 
-int WIN_WaitEventTimeout(_THIS, int timeout)
+int WIN_WaitEventTimeout(int timeout)
 {
     if (g_WindowsEnableMessageLoop) {
         DWORD dwMilliseconds, ret;

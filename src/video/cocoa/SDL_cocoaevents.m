@@ -542,7 +542,7 @@ static int Cocoa_PumpEventsUntilDate(NSDate *expiration, bool accumulate)
     return 1;
 }
 
-int Cocoa_WaitEventTimeout(_THIS, int timeout)
+int Cocoa_WaitEventTimeout(int timeout)
 { @autoreleasepool
 {
     if (timeout > 0) {
