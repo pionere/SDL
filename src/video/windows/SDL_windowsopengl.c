@@ -934,14 +934,13 @@ void WIN_GL_DeleteContext(SDL_GLContext context)
     }
 }
 
-SDL_bool WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow)
+int WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     SDL_GLDriverData *wgl_data = &winVideoData.wgl_data;
 #endif
     HDC hfromdc = ((SDL_WindowData *)fromWindow->driverdata)->hdc;
     HDC htodc = ((SDL_WindowData *)toWindow->driverdata)->hdc;
-    BOOL result;
 
     /* get the pixel format of the fromWindow */
     int pixel_format = GetPixelFormat(hfromdc);
@@ -950,9 +949,10 @@ SDL_bool WIN_GL_SetPixelFormatFrom(SDL_Window *fromWindow, SDL_Window *toWindow)
     DescribePixelFormat(hfromdc, pixel_format, sizeof(pfd), &pfd);
 
     /* set the pixel format of the toWindow */
-    result = SetPixelFormat(htodc, pixel_format, &pfd);
-
-    return result ? SDL_TRUE : SDL_FALSE;
+    if (!SetPixelFormat(htodc, pixel_format, &pfd)) {
+        return WIN_SetError("SetPixelFormat() from");
+    }
+    return 0;
 }
 
 #endif /* SDL_VIDEO_OPENGL_WGL */

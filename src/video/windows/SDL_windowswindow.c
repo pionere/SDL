@@ -454,46 +454,8 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent, SDL_bool 
     return 0;
 }
 
-int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
+static int SetupGLWindow(_THIS, SDL_Window *window, SDL_bool created)
 {
-    HWND hwnd, parent = NULL;
-    DWORD style = STYLE_BASIC;
-    int x, y;
-    int w, h;
-
-    if (window->flags & SDL_WINDOW_SKIP_TASKBAR) {
-        parent = CreateWindow(SDL_Appname, TEXT(""), STYLE_BASIC, 0, 0, 32, 32, NULL, NULL, SDL_Instance, NULL);
-    }
-
-    style |= GetWindowStyle(window);
-
-    /* Figure out what the window area will be */
-    WIN_AdjustWindowRectWithStyle(window, style, FALSE, &x, &y, &w, &h, SDL_FALSE);
-
-    hwnd =
-        CreateWindow(SDL_Appname, TEXT(""), style, x, y, w, h, parent, NULL,
-                     SDL_Instance, NULL);
-    if (!hwnd) {
-        return WIN_SetError("Couldn't create window");
-    }
-
-    WIN_PumpEvents(_this);
-
-    if (SetupWindowData(window, hwnd, parent, SDL_TRUE) < 0) {
-        DestroyWindow(hwnd);
-        if (parent) {
-            DestroyWindow(parent);
-        }
-        return -1;
-    }
-
-    /* Inform Windows of the frame change so we can respond to WM_NCCALCSIZE */
-    SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
-
-    if (window->flags & SDL_WINDOW_MINIMIZED) {
-        ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
-    }
-
     if (!(window->flags & SDL_WINDOW_OPENGL)) {
         return 0;
     }
@@ -534,16 +496,73 @@ int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
         }
     }
 #endif // SDL_VIDEO_OPENGL_EGL
+    if (!created) {
+        const char *hint = SDL_GetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT);
+        if (hint) {
+            /* This hint is a pointer (in string form) of the address of
+               the window to share a pixel format with
+            */
+            SDL_Window *otherWindow = NULL;
+            (void)SDL_sscanf(hint, "%p", (void **)&otherWindow);
+
+            if (otherWindow) {
+                return WIN_GL_SetPixelFormatFrom(otherWindow, window);
+            }
+        }
+    }
+
     return WIN_GL_SetupWindow(_this, window);
 #else
     return SDL_SetError("Could not create GL window (WGL support not configured)");
 #endif // SDL_VIDEO_OPENGL_WGL
 }
 
+int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
+{
+    HWND hwnd, parent = NULL;
+    DWORD style = STYLE_BASIC;
+    int x, y, w, h;
+
+    if (window->flags & SDL_WINDOW_SKIP_TASKBAR) {
+        parent = CreateWindow(SDL_Appname, TEXT(""), STYLE_BASIC, 0, 0, 32, 32, NULL, NULL, SDL_Instance, NULL);
+    }
+
+    style |= GetWindowStyle(window);
+
+    /* Figure out what the window area will be */
+    WIN_AdjustWindowRectWithStyle(window, style, FALSE, &x, &y, &w, &h, SDL_FALSE);
+
+    hwnd =
+        CreateWindow(SDL_Appname, TEXT(""), style, x, y, w, h, parent, NULL,
+                     SDL_Instance, NULL);
+    if (!hwnd) {
+        return WIN_SetError("Couldn't create window");
+    }
+
+    WIN_PumpEvents(_this);
+
+    if (SetupWindowData(window, hwnd, parent, SDL_TRUE) < 0) {
+        DestroyWindow(hwnd);
+        if (parent) {
+            DestroyWindow(parent);
+        }
+        return -1;
+    }
+
+    /* Inform Windows of the frame change so we can respond to WM_NCCALCSIZE */
+    SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+
+    if (window->flags & SDL_WINDOW_MINIMIZED) {
+        ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
+    }
+
+    return SetupGLWindow(_this, window, SDL_TRUE);
+}
+
 int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    return -1;
+    return SDL_Unsupported();
 #else
     HWND hwnd = (HWND)data;
     LPTSTR title;
@@ -569,33 +588,7 @@ int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
         return -1;
     }
 
-#ifdef SDL_VIDEO_OPENGL_WGL
-    {
-        const char *hint = SDL_GetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT);
-        if (hint) {
-            /* This hint is a pointer (in string form) of the address of
-               the window to share a pixel format with
-            */
-            SDL_Window *otherWindow = NULL;
-            (void)SDL_sscanf(hint, "%p", (void **)&otherWindow);
-
-            /* Do some error checking on the pointer */
-            if (otherWindow && otherWindow->magic == &_this->window_magic) {
-                /* If the otherWindow has SDL_WINDOW_OPENGL set, set it for the new window as well */
-                if (otherWindow->flags & SDL_WINDOW_OPENGL) {
-                    window->flags |= SDL_WINDOW_OPENGL;
-                    if (!WIN_GL_SetPixelFormatFrom(otherWindow, window)) {
-                        return -1;
-                    }
-                }
-            }
-        } else if (window->flags & SDL_WINDOW_OPENGL) {
-            /* Try to set up the pixel format, if it hasn't been set by the application */
-            WIN_GL_SetupWindow(_this, window);
-        }
-    }
-#endif
-    return 0;
+    return SetupGLWindow(_this, window, SDL_FALSE);
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 }
 
@@ -1160,14 +1153,14 @@ void WIN_DestroyWindow(SDL_Window *window)
         ReleaseDC(data->hwnd, data->hdc);
         RemoveProp(data->hwnd, TEXT("SDL_WindowData"));
 #endif
+#ifdef SDL_VIDEO_OPENGL_EGL
+        SDL_EGL_DestroySurface(data->egl_surface);
+#endif
         if (data->created) {
             DestroyWindow(data->hwnd);
             if (data->parent) {
                 DestroyWindow(data->parent);
             }
-#ifdef SDL_VIDEO_OPENGL_EGL
-            SDL_EGL_DestroySurface(data->egl_surface);
-#endif
         } else {
             /* Restore any original event handler... */
             if (data->wndproc) {
