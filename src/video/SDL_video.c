@@ -587,6 +587,23 @@ int SDL_VideoInit(const char *driver_name)
     _this->name = bootstrap[i]->name;
     _this->next_object_id = 1;
     _this->thread = SDL_ThreadID();
+    /* Validate the interface */
+    SDL_assert(_this->CreateSDLWindow != NULL);
+    SDL_assert(_this->PumpEvents != NULL);
+    SDL_assert((_this->SendWakeupEvent == NULL && _this->WaitEventTimeout == NULL) || _this->wakeup_lock != NULL);
+    SDL_assert((_this->CreateShaper == NULL) == (_this->SetWindowShape == NULL));
+    SDL_assert((_this->CreateWindowFramebuffer == NULL) == (_this->UpdateWindowFramebuffer == NULL) && (_this->CreateWindowFramebuffer == NULL) == (_this->DestroyWindowFramebuffer == NULL));
+    SDL_assert((_this->SetClipboardText == NULL) == (_this->GetClipboardText == NULL) && (_this->SetClipboardText == NULL) == (_this->HasClipboardText == NULL));
+    SDL_assert((_this->SetPrimarySelectionText == NULL) == (_this->GetPrimarySelectionText == NULL) && (_this->SetPrimarySelectionText == NULL) == (_this->HasPrimarySelectionText == NULL));
+#ifdef SDL_VIDEO_METAL
+    SDL_assert((_this->Metal_CreateView == NULL) == (_this->Metal_DestroyView == NULL) && (_this->Metal_CreateView == NULL) == (_this->Metal_GetLayer == NULL));
+    SDL_assert((_this->Metal_CreateView == NULL) == (_this->Metal_GetDrawableSize == NULL));
+#endif
+#ifdef SDL_VIDEO_VULKAN
+    SDL_assert((_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_UnloadLibrary == NULL) && (_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_GetInstanceExtensions == NULL));
+    SDL_assert((_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_CreateSurface == NULL) && (_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_GetDrawableSize == NULL));
+#endif
+    SDL_assert(_this->DestroyWindow != NULL);
 #ifdef SDL_VIDEO_OPENGL_ANY
     /* Set some very sane GL defaults */
     _this->gl_config.driver_loaded = 0;
