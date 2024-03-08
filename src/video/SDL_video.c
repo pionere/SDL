@@ -68,85 +68,33 @@
 
 /* Available video drivers */
 static const VideoBootStrap *const bootstrap[] = {
-#ifdef SDL_VIDEO_DRIVER_COCOA
-    &COCOA_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_X11
-    &X11_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_WAYLAND
-    &Wayland_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_VIVANTE
-    &VIVANTE_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_DIRECTFB
-    &DirectFB_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_WINDOWS
-    &WIN_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_WINRT
-    &WINRT_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_HAIKU
-    &HAIKU_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_PANDORA
-    &PND_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_UIKIT
-    &UIKit_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_ANDROID
-    &Android_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_PS2
-    &PS2_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_PSP
-    &PSP_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_VITA
-    &VITA_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_N3DS
-    &N3DS_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_KMSDRM
-    &KMSDRM_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_RISCOS
-    &RISCOS_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_RPI
-    &RPI_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_NACL
-    &NACL_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_EMSCRIPTEN
-    &Emscripten_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_QNX
-    &QNX_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_OS2
-    &OS2DIVE_bootstrap,
-    &OS2VMAN_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_NGAGE
-    &NGAGE_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_OFFSCREEN
-    &OFFSCREEN_bootstrap,
-#endif
-#ifdef SDL_VIDEO_DRIVER_DUMMY
-    &DUMMY_bootstrap,
-#ifdef SDL_INPUT_LINUXEV
-    &DUMMY_evdev_bootstrap,
-#endif
-#endif
+    COCOA_BOOTSTRAP_ENTRY
+    X11_BOOTSTRAP_ENTRY
+    Wayland_BOOTSTRAP_ENTRY
+    VIVANTE_BOOTSTRAP_ENTRY
+    DirectFB_BOOTSTRAP_ENTRY
+    WIN_BOOTSTRAP_ENTRY
+    WINRT_BOOTSTRAP_ENTRY
+    HAIKU_BOOTSTRAP_ENTRY
+    PND_BOOTSTRAP_ENTRY
+    UIKit_BOOTSTRAP_ENTRY
+    Android_BOOTSTRAP_ENTRY
+    PS2_BOOTSTRAP_ENTRY
+    PSP_BOOTSTRAP_ENTRY
+    VITA_BOOTSTRAP_ENTRY
+    N3DS_BOOTSTRAP_ENTRY
+    KMSDRM_BOOTSTRAP_ENTRY
+    RISCOS_BOOTSTRAP_ENTRY
+    RPI_BOOTSTRAP_ENTRY
+    NACL_BOOTSTRAP_ENTRY
+    Emscripten_BOOTSTRAP_ENTRY
+    QNX_BOOTSTRAP_ENTRY
+    OS2DIVE_BOOTSTRAP_ENTRY
+    OS2VMAN_BOOTSTRAP_ENTRY
+    NGAGE_BOOTSTRAP_ENTRY
+    OFFSCREEN_BOOTSTRAP_ENTRY
+    DUMMY_BOOTSTRAP_ENTRY
+    DUMMY_evdev_BOOTSTRAP_ENTRY
 };
 
 #define CHECK_WINDOW_MAGIC(window, retval)                  \

@@ -424,35 +424,7 @@ typedef struct VideoBootStrap
     SDL_VideoDevice *(*create)(void);
 } VideoBootStrap;
 
-/* Not all of these are available in a given build. Use #ifdefs, etc. */
-extern const VideoBootStrap COCOA_bootstrap;
-extern const VideoBootStrap X11_bootstrap;
-extern const VideoBootStrap DirectFB_bootstrap;
-extern const VideoBootStrap WIN_bootstrap;
-extern const VideoBootStrap WINRT_bootstrap;
-extern const VideoBootStrap HAIKU_bootstrap;
-extern const VideoBootStrap PND_bootstrap;
-extern const VideoBootStrap UIKit_bootstrap;
-extern const VideoBootStrap Android_bootstrap;
-extern const VideoBootStrap PS2_bootstrap;
-extern const VideoBootStrap PSP_bootstrap;
-extern const VideoBootStrap VITA_bootstrap;
-extern const VideoBootStrap RISCOS_bootstrap;
-extern const VideoBootStrap N3DS_bootstrap;
-extern const VideoBootStrap RPI_bootstrap;
-extern const VideoBootStrap KMSDRM_bootstrap;
-extern const VideoBootStrap KMSDRM_LEGACY_bootstrap;
-extern const VideoBootStrap DUMMY_bootstrap;
-extern const VideoBootStrap DUMMY_evdev_bootstrap;
-extern const VideoBootStrap Wayland_bootstrap;
-extern const VideoBootStrap NACL_bootstrap;
-extern const VideoBootStrap VIVANTE_bootstrap;
-extern const VideoBootStrap Emscripten_bootstrap;
-extern const VideoBootStrap QNX_bootstrap;
-extern const VideoBootStrap OFFSCREEN_bootstrap;
-extern const VideoBootStrap NGAGE_bootstrap;
-extern const VideoBootStrap OS2DIVE_bootstrap;
-extern const VideoBootStrap OS2VMAN_bootstrap;
+#include "SDL_sysvideo_c.h"
 
 /* Use SDL_OnVideoThread() sparingly, to avoid regressions in use cases that currently happen to work */
 extern SDL_bool SDL_OnVideoThread(void);
