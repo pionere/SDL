@@ -1153,9 +1153,6 @@
     <ClCompile Include="..\..\src\video\SDL_bmp.c">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\video\SDL_clipboard.c">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\video\SDL_egl.c">
       <Filter>video</Filter>
     </ClCompile>

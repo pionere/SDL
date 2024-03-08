@@ -612,7 +612,6 @@
     <ClCompile Include="..\..\src\video\SDL_blit_N.c" />
     <ClCompile Include="..\..\src\video\SDL_blit_slow.c" />
     <ClCompile Include="..\..\src\video\SDL_bmp.c" />
-    <ClCompile Include="..\..\src\video\SDL_clipboard.c" />
     <ClCompile Include="..\..\src\video\SDL_egl.c" />
     <ClCompile Include="..\..\src\video\SDL_fillrect.c" />
     <ClCompile Include="..\..\src\video\SDL_pixels.c" />
