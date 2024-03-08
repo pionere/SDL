@@ -84,7 +84,7 @@ static const VideoBootStrap *const bootstrap[] = {
     &DirectFB_bootstrap,
 #endif
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
-    &WINDOWS_bootstrap,
+    &WIN_bootstrap,
 #endif
 #ifdef SDL_VIDEO_DRIVER_WINRT
     &WINRT_bootstrap,
@@ -96,7 +96,7 @@ static const VideoBootStrap *const bootstrap[] = {
     &PND_bootstrap,
 #endif
 #ifdef SDL_VIDEO_DRIVER_UIKIT
-    &UIKIT_bootstrap,
+    &UIKit_bootstrap,
 #endif
 #ifdef SDL_VIDEO_DRIVER_ANDROID
     &Android_bootstrap,

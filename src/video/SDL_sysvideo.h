@@ -428,11 +428,11 @@ typedef struct VideoBootStrap
 extern const VideoBootStrap COCOA_bootstrap;
 extern const VideoBootStrap X11_bootstrap;
 extern const VideoBootStrap DirectFB_bootstrap;
-extern const VideoBootStrap WINDOWS_bootstrap;
+extern const VideoBootStrap WIN_bootstrap;
 extern const VideoBootStrap WINRT_bootstrap;
 extern const VideoBootStrap HAIKU_bootstrap;
 extern const VideoBootStrap PND_bootstrap;
-extern const VideoBootStrap UIKIT_bootstrap;
+extern const VideoBootStrap UIKit_bootstrap;
 extern const VideoBootStrap Android_bootstrap;
 extern const VideoBootStrap PS2_bootstrap;
 extern const VideoBootStrap PSP_bootstrap;
