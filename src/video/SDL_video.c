@@ -3247,6 +3247,7 @@ void SDL_OnWindowRestored(SDL_Window *window)
      * for the fullscreen case? In principle it seems like just hiding/showing
      * windows shouldn't affect the stacking order; maybe the right fix is to
      * re-decouple OnWindowShown and OnWindowRestored.
+     * -- update UIKit_RaiseWindow in case this is reactivated
      */
     /*SDL_RaiseWindow(window);*/
 

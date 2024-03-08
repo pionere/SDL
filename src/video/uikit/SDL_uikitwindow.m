@@ -249,12 +249,14 @@ void UIKit_HideWindow(SDL_Window * window)
 
 void UIKit_RaiseWindow(SDL_Window * window)
 {
+#if 0 // - commented out because SDL_OnWindowRestored does not call SDL_RaiseWindow any more
     /* We don't currently offer a concept of "raising" the SDL window, since
      * we only allow one per display, in the iOS fashion.
      * However, we use this entry point to rebind the context to the view
      * during OnWindowRestored processing. */
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
     _this->GL_MakeCurrent(_this->current_glwin, _this->current_glctx);
+#endif
 }
 
 static void UIKit_UpdateWindowBorder(SDL_Window * window)
