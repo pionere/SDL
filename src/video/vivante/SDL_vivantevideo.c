@@ -186,7 +186,7 @@ static SDL_VideoDevice *VIVANTE_CreateDevice()
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = VIVANTE_AcceptDragAndDrop;
 
-    device->free = VIVANTE_DeleteDevice;
+    device->DeleteDevice = VIVANTE_DeleteDevice;
 
 
     return device;

@@ -191,7 +191,7 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = RISCOS_AcceptDragAndDrop;
 
-    device->free = RISCOS_DeleteDevice;
+    device->DeleteDevice = RISCOS_DeleteDevice;
 
     return device;
 }

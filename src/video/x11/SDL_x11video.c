@@ -333,7 +333,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     device->AcceptDragAndDrop = X11_AcceptDragAndDrop;
 
-    device->free = X11_DeleteDevice;
+    device->DeleteDevice = X11_DeleteDevice;
 
     return device;
 }

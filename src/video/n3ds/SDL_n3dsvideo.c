@@ -182,7 +182,7 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = N3DS_AcceptDragAndDrop;
 
-    device->free = N3DS_DeleteDevice;
+    device->DeleteDevice = N3DS_DeleteDevice;
 
     return device;
 }

@@ -245,7 +245,7 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = PS2_AcceptDragAndDrop;
 
-    device->free = PS2_DeleteDevice;
+    device->DeleteDevice = PS2_DeleteDevice;
 
     return device;
 }

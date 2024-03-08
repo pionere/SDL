@@ -202,7 +202,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = PND_AcceptDragAndDrop;
 
-    device->free = PND_DeleteDevice;
+    device->DeleteDevice = PND_DeleteDevice;
 
     return device;
 }

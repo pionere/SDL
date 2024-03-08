@@ -211,7 +211,7 @@ static SDL_VideoDevice *RPI_CreateDevice()
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = RPI_AcceptDragAndDrop;
 
-    device->free = RPI_DeleteDevice;
+    device->DeleteDevice = RPI_DeleteDevice;
 
     return device;
 }

@@ -190,7 +190,7 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
         /* Tell window that app enabled drag'n'drop events */
         // device->AcceptDragAndDrop = UIKit_AcceptDragAndDrop;
 
-        device->free = UIKit_DeleteDevice;
+        device->DeleteDevice = UIKit_DeleteDevice;
 
         return device;
     }

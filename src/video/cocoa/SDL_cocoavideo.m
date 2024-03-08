@@ -195,7 +195,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     device->AcceptDragAndDrop = Cocoa_AcceptDragAndDrop;
 
-    device->free = Cocoa_DeleteDevice;
+    device->DeleteDevice = Cocoa_DeleteDevice;
 
     return device;
 }}

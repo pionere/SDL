@@ -415,7 +415,7 @@ struct SDL_VideoDevice
 #endif // SDL_VIDEO_OPENGL_ANY
     /* * * */
     /* The function used to dispose of this structure */
-    void (*free)(_THIS);
+    void (*DeleteDevice)(_THIS);
 };
 
 typedef struct VideoBootStrap

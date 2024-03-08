@@ -374,7 +374,7 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = KMSDRM_AcceptDragAndDrop;
 
-    device->free = KMSDRM_DeleteDevice;
+    device->DeleteDevice = KMSDRM_DeleteDevice;
 
     return device;
 }

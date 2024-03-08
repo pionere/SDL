@@ -242,7 +242,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = WINRT_AcceptDragAndDrop;
 
-    device->free = WINRT_DeleteDevice;
+    device->DeleteDevice = WINRT_DeleteDevice;
 
     return device;
 }

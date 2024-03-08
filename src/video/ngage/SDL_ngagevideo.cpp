@@ -235,7 +235,7 @@ static SDL_VideoDevice *NGAGE_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = NGAGE_AcceptDragAndDrop;
 
-    device->free = NGAGE_DeleteDevice;
+    device->DeleteDevice = NGAGE_DeleteDevice;
 
     return device;
 }

@@ -221,7 +221,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = DirectFB_AcceptDragAndDrop;
 
-    device->free = DirectFB_DeleteDevice;
+    device->DeleteDevice = DirectFB_DeleteDevice;
 
     return device;
 }

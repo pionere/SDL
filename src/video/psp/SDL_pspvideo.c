@@ -191,7 +191,7 @@ static SDL_VideoDevice *PSP_CreateDevice()
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = PSP_AcceptDragAndDrop;
 
-    device->free = PSP_DeleteDevice;
+    device->DeleteDevice = PSP_DeleteDevice;
 
     return device;
 }

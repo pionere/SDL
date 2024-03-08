@@ -1728,7 +1728,7 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = OS2_AcceptDragAndDrop;
 
-    device->free = OS2_DeleteDevice;
+    device->DeleteDevice = OS2_DeleteDevice;
 
     return device;
 }

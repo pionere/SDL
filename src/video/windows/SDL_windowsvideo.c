@@ -269,7 +269,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = WIN_AcceptDragAndDrop;
 
-    device->free = WIN_DeleteDevice;
+    device->DeleteDevice = WIN_DeleteDevice;
 
     return device;
 }

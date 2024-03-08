@@ -224,7 +224,7 @@ static SDL_VideoDevice *VITA_CreateDevice()
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = VITA_AcceptDragAndDrop;
 
-    device->free = VITA_DeleteDevice;
+    device->DeleteDevice = VITA_DeleteDevice;
 
     return device;
 }

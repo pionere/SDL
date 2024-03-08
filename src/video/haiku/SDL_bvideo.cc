@@ -185,7 +185,7 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = HAIKU_AcceptDragAndDrop;
 
-    device->free = HAIKU_DeleteDevice;
+    device->DeleteDevice = HAIKU_DeleteDevice;
 
     return device;
 }

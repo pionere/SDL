@@ -192,7 +192,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = DUMMY_AcceptDragAndDrop;
 
-    device->free = DUMMY_DeleteDevice;
+    device->DeleteDevice = DUMMY_DeleteDevice;
 
     return device;
 }

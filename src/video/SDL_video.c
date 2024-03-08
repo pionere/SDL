@@ -604,6 +604,7 @@ int SDL_VideoInit(const char *driver_name)
     SDL_assert((_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_CreateSurface == NULL) && (_this->Vulkan_LoadLibrary == NULL) == (_this->Vulkan_GetDrawableSize == NULL));
 #endif
     SDL_assert(_this->DestroyWindow != NULL);
+    SDL_assert(_this->DeleteDevice != NULL);
 #ifdef SDL_VIDEO_OPENGL_ANY
     /* Set some very sane GL defaults */
     _this->gl_config.driver_loaded = 0;
@@ -3586,7 +3587,7 @@ void SDL_VideoQuit(void)
     _this->clipboard_text = NULL;
     SDL_free(_this->primary_selection_text);
     _this->primary_selection_text = NULL;
-    _this->free(_this);
+    _this->DeleteDevice(_this);
     _this = NULL;
 }
 #ifdef SDL_VIDEO_OPENGL_ANY

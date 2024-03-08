@@ -346,7 +346,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = Wayland_AcceptDragAndDrop;
 
-    device->free = Wayland_DeleteDevice;
+    device->DeleteDevice = Wayland_DeleteDevice;
 
     device->quirk_flags = VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING |
                           VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE;

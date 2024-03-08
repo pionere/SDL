@@ -454,7 +454,7 @@ static SDL_VideoDevice *QNX_CreateDevice(int devindex)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = QNX_AcceptDragAndDrop;
 
-    device->free = QNX_DeleteDevice;
+    device->DeleteDevice = QNX_DeleteDevice;
 
     return device;
 }

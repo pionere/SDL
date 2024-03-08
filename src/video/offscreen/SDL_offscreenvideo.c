@@ -180,7 +180,7 @@ static SDL_VideoDevice *OFFSCREEN_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = OFFSCREEN_AcceptDragAndDrop;
 
-    device->free = OFFSCREEN_DeleteDevice;
+    device->DeleteDevice = OFFSCREEN_DeleteDevice;
 
     return device;
 }

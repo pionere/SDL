@@ -203,7 +203,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = Emscripten_AcceptDragAndDrop;
 
-    device->free = Emscripten_DeleteDevice;
+    device->DeleteDevice = Emscripten_DeleteDevice;
 
     return device;
 }

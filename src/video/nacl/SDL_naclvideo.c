@@ -228,7 +228,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = NACL_AcceptDragAndDrop;
 
-    device->free = NACL_DeleteDevice;
+    device->DeleteDevice = NACL_DeleteDevice;
 
 
     return device;

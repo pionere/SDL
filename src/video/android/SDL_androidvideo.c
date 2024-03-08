@@ -212,7 +212,7 @@ static SDL_VideoDevice *Android_CreateDevice(void)
     /* Tell window that app enabled drag'n'drop events */
     // device->AcceptDragAndDrop = Android_AcceptDragAndDrop;
 
-    device->free = Android_DeleteDevice;
+    device->DeleteDevice = Android_DeleteDevice;
 
     return device;
 }
