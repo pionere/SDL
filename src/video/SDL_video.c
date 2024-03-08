@@ -4603,15 +4603,17 @@ void SDL_StopTextInput(void)
     SDL_Window *window;
 
     /* Stop the text input system */
-    if (_this && _this->StopTextInput) {
-        _this->StopTextInput();
-    }
+    if (_this) {
+        if (_this->StopTextInput) {
+            _this->StopTextInput();
+        }
 
-    /* Hide the on-screen keyboard, if any */
-    if (SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
-        window = SDL_GetFocusWindow();
-        if (window && _this && _this->HideScreenKeyboard) {
-            _this->HideScreenKeyboard(window);
+        /* Hide the on-screen keyboard, if any */
+        if (_this->HideScreenKeyboard && SDL_GetHintBoolean(SDL_HINT_ENABLE_SCREEN_KEYBOARD, SDL_TRUE)) {
+            window = SDL_GetFocusWindow();
+            if (window) {
+                _this->HideScreenKeyboard(window);
+            }
         }
     }
 
@@ -4656,6 +4658,21 @@ SDL_bool SDL_IsScreenKeyboardShown(SDL_Window *window)
     }
     return SDL_FALSE;
 }
+
+void SDL_TextInputInit(void)
+{
+    if (_this && _this->StartTextInput) {
+        _this->StartTextInput();
+    }
+}
+
+void SDL_TextInputQuit(void)
+{
+    if (_this && _this->StopTextInput) {
+        _this->StopTextInput();
+    }
+}
+
 // clipboard
 int SDL_SetClipboardText(const char *text)
 {

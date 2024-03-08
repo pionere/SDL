@@ -496,6 +496,9 @@ extern void SDL_OnWindowFocusLost(SDL_Window *window);
 extern void SDL_UpdateWindowGrab(SDL_Window *window);
 extern SDL_Window *SDL_GetFocusWindow(void);
 
+extern void SDL_TextInputInit(void);
+extern void SDL_TextInputQuit(void);
+
 extern SDL_bool SDL_ShouldAllowTopmost(void);
 
 extern float SDL_ComputeDiagonalDPI(int hpix, int vpix, float hinches, float vinches);
