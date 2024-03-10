@@ -1794,7 +1794,11 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
 
 #ifdef SDL_VIDEO_OPENGL_EGL
     if ((window->flags & SDL_WINDOW_OPENGL) &&
-        _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
+#ifdef SDL_VIDEO_OPENGL_CGL
+         (_this->gl_config.gl_type != 0)) { // TODO: _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ?
+#else
+         (1)) {
+#endif
         [contentView setWantsLayer:TRUE];
     }
 #endif /* SDL_VIDEO_OPENGL_EGL */
@@ -1804,26 +1808,15 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
         return -1;
     }
 
-    if (!(window->flags & SDL_WINDOW_OPENGL)) {
-        return 0;
-    }
-
-    /* The rest of this macro mess is for OpenGL or OpenGL ES windows */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
+    if (window->flags & SDL_WINDOW_OPENGL) {
 #ifdef SDL_VIDEO_OPENGL_CGL
-        if (_this->gl_config.gl_type == 0) {
-            /* Switch to EGL based functions */
-            Cocoa_GL_UnloadLibrary(_this);
-
-            Cocoa_GLES_InitDevice(_this);
-            if (Cocoa_GLES_LoadLibrary(_this, NULL) < 0) {
-                _this->gl_config.driver_loaded = 0;
-                return -1;
-            }
-        }
+        if (_this->gl_config.gl_type != 0) {
+#else
+        {
 #endif // SDL_VIDEO_OPENGL_CGL
-        return Cocoa_GLES_SetupWindow(_this, window);
+            return Cocoa_GLES_SetupWindow(_this, window);
+        }
     }
 #endif /* SDL_VIDEO_OPENGL_EGL */
     return 0;

@@ -345,7 +345,8 @@ int VITA_CreateSDLWindow(_THIS, SDL_Window *window)
         win.windowSize = PSP2_WINDOW_960X544;
     }
     if (window->flags & SDL_WINDOW_OPENGL) {
-        pvrOgl = SDL_getenv("VITA_PVR_OGL") != NULL;
+#if defined(SDL_VIDEO_VITA_PVR_OGL)
+        pvrOgl = _this->GL_LoadLibrary == VITA_GL_LoadLibrary;
         if (pvrOgl) {
             /* Set version to 2.1 and PROFILE to ES */
             temp_major = _this->gl_config.major_version;
@@ -356,13 +357,16 @@ int VITA_CreateSDLWindow(_THIS, SDL_Window *window)
             _this->gl_config.minor_version = 1;
             _this->gl_config.profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
         }
+#endif
         egl_surface = SDL_EGL_CreateSurface(_this, &win);
+#if defined(SDL_VIDEO_VITA_PVR_OGL)
         if (pvrOgl) {
             /* Revert */
             _this->gl_config.major_version = temp_major;
             _this->gl_config.minor_version = temp_minor;
             _this->gl_config.profile_mask = temp_profile;
         }
+#endif
         if (egl_surface == EGL_NO_SURFACE) {
             return -1;
         }

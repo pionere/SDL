@@ -50,6 +50,7 @@ int X11_GLES_LoadLibrary(_THIS, const char *path)
     if (_this->gl_config.profile_mask != SDL_GL_CONTEXT_PROFILE_ES &&
         !SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE)) {
 #ifdef SDL_VIDEO_OPENGL_GLX
+        /* Switch to GLX based functions */
         X11_GL_InitDevice(_this);
         return X11_GL_PrivateLoadLibrary(_this, path);
 #else

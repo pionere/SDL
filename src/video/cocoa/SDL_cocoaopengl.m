@@ -239,6 +239,15 @@ void Cocoa_GL_InitDevice(_THIS)
 
 int Cocoa_GL_LoadLibrary(_THIS, const char *path)
 {
+    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
+#ifdef SDL_VIDEO_OPENGL_EGL
+        /* Switch to EGL based functions */
+        Cocoa_GLES_InitDevice(_this);
+        return Cocoa_GLES_LoadLibrary(_this, path);
+#else
+        return SDL_SetError("SDL not configured with EGL support");
+#endif
+    }
     Cocoa_VideoData *videodata = cocoaVideoData;
     /* Load the OpenGL library */
     if (path == NULL) {
@@ -283,20 +292,6 @@ SDL_GLContext Cocoa_GL_CreateContext(_THIS, SDL_Window * window)
     int glversion_minor;
     NSOpenGLPixelFormatAttribute profile;
     int interval;
-
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
-        /* Switch to EGL based functions */
-        Cocoa_GL_UnloadLibrary(_this);
-        Cocoa_GLES_InitDevice(_this);
-        if (Cocoa_GLES_LoadLibrary(_this, NULL) < 0) {
-            _this->gl_config.driver_loaded = 0;
-            return NULL;
-        }
-
-        return Cocoa_GLES_CreateContext(_this, window);
-    }
-#endif
 
     attr[i++] = NSOpenGLPFAAllowOfflineRenderers;
 

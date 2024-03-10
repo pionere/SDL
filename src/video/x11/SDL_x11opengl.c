@@ -189,6 +189,7 @@ int X11_GL_LoadLibrary(_THIS, const char *path)
     if (result >= 0 && X11_GL_UseEGL(_this)) {
         X11_GL_UnloadLibrary(_this);
 #ifdef SDL_VIDEO_OPENGL_EGL
+        /* Switch to EGL based functions */
         X11_GLES_InitDevice(_this);
         return X11_GLES_PrivateLoadLibrary(_this, NULL);
 #else

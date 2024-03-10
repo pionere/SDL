@@ -751,20 +751,6 @@ SDL_GLContext WIN_GL_CreateContext(_THIS, SDL_Window *window)
     HDC hdc = ((SDL_WindowData *)window->driverdata)->hdc;
     HGLRC context, share_context;
 
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (WIN_GL_UseEGL(_this)) {
-        /* Switch to EGL based functions */
-        WIN_GL_UnloadLibrary(_this);
-        WIN_GLES_InitDevice(_this);
-        if (WIN_GLES_PrivateLoadLibrary(_this, NULL) < 0) {
-            _this->gl_config.driver_loaded = 0;
-            return NULL;
-        }
-
-        return WIN_GLES_CreateContext(_this, window);
-    }
-#endif
-
     if (_this->gl_config.share_with_current_context) {
         share_context = (HGLRC)SDL_GL_GetCurrentContext();
     } else {

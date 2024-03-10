@@ -408,10 +408,9 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
 
 #ifdef SDL_VIDEO_OPENGL_EGL
 #ifdef SDL_VIDEO_OPENGL_GLX
-        if (X11_GL_UseEGL(_this)) {
+        if (_this->gl_config.gl_type != 0) { // TODO: _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES, SDL_HINT_VIDEO_X11_FORCE_EGL ?
 #else
-        if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ||
-             SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE) {
+        if (1) {
 #endif
             vinfo = X11_GLES_GetVisual(_this, display, screen);
         } else
@@ -630,39 +629,22 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
     }
     windowdata = (SDL_WindowData *)window->driverdata;
 
-#ifdef SDL_VIDEO_OPENGL_ANY
-    if ((window->flags & SDL_WINDOW_OPENGL) &&
-#ifdef SDL_VIDEO_OPENGL_GLX
-        X11_GL_UseEGL(_this)
-#else
-        (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES ||
-         SDL_GetHintBoolean(SDL_HINT_VIDEO_X11_FORCE_EGL, SDL_FALSE))
-#endif
-    ) {
 #ifdef SDL_VIDEO_OPENGL_EGL
+    if (window->flags & SDL_WINDOW_OPENGL) {
 #ifdef SDL_VIDEO_OPENGL_GLX
-        if (_this->gl_config.gl_type == 0) {
-            /* Switch to EGL based functions */
-            // X11_GL_UnloadLibrary(_this);
-
-            // X11_GLES_InitDevice(_this);
-            // if (X11_GLES_PrivateLoadLibrary(_this, NULL) < 0) {
-            //     _this->gl_config.driver_loaded = 0;
-                return -1;
-            // }
-        }
-#endif // SDL_VIDEO_OPENGL_GLX
-        /* Create the GLES window surface */
-        windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
-
-        if (windowdata->egl_surface == EGL_NO_SURFACE) {
-            return -1;
-        }
+        if (_this->gl_config.gl_type != 0) { // TODO: _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES, SDL_HINT_VIDEO_X11_FORCE_EGL ?
 #else
-        return SDL_SetError("Could not create GLES window surface (EGL support not configured)");
-#endif /* SDL_VIDEO_OPENGL_EGL */
+        {
+#endif // SDL_VIDEO_OPENGL_GLX
+            /* Create the GLES window surface */
+            windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
+
+            if (windowdata->egl_surface == EGL_NO_SURFACE) {
+                return -1;
+            }
+        }
     }
-#endif
+#endif /* SDL_VIDEO_OPENGL_EGL */
 
 #ifdef X_HAVE_UTF8_STRING
     if (SDL_X11_HAVE_UTF8 && windowdata->ic) {

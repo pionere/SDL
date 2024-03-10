@@ -458,39 +458,15 @@ static int SetupGLWindow(_THIS, SDL_Window *window)
     /* The rest of this macro mess is for OpenGL or OpenGL ES windows */
 #ifdef SDL_VIDEO_OPENGL_EGL
 #ifdef SDL_VIDEO_OPENGL_WGL
-    if (WIN_GL_UseEGL(_this)) {
+    if (_this->gl_config.gl_type != 0) {
 #else
-    if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
+    {
 #endif /* SDL_VIDEO_OPENGL_WGL */
-#ifdef SDL_VIDEO_OPENGL_WGL
-        if (_this->gl_config.gl_type == 0) {
-            /* Switch to EGL based functions */
-            WIN_GL_UnloadLibrary(_this);
-
-            WIN_GLES_InitDevice(_this);
-            if (WIN_GLES_PrivateLoadLibrary(_this, NULL) < 0) {
-                _this->gl_config.driver_loaded = 0;
-                return -1;
-            }
-        }
-#endif // SDL_VIDEO_OPENGL_WGL
         return WIN_GLES_SetupWindow(_this, window);
     }
 #endif /* SDL_VIDEO_OPENGL_EGL */
 
 #ifdef SDL_VIDEO_OPENGL_WGL
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (_this->gl_config.gl_type == 1) {
-        /* Switch to WGL based functions */
-        WIN_GLES_UnloadLibrary(_this);
-
-        WIN_GL_InitDevice(_this);
-        if (WIN_GL_PrivateLoadLibrary(_this, NULL) < 0) {
-            _this->gl_config.driver_loaded = 0;
-            return -1;
-        }
-    }
-#endif // SDL_VIDEO_OPENGL_EGL
     if (window->flags & SDL_WINDOW_FOREIGN) {
         const char *hint = SDL_GetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT);
         if (hint) {
@@ -507,8 +483,9 @@ static int SetupGLWindow(_THIS, SDL_Window *window)
     }
 
     return WIN_GL_SetupWindow(_this, window);
-#else
-    return SDL_SetError("Could not create GL window (WGL support not configured)");
+#elif !defined(SDL_VIDEO_OPENGL_EGL)
+    SDL_assert(!"Should not happen");
+    return SDL_SetError("Could not create GL window (GL support is not configured)");
 #endif // SDL_VIDEO_OPENGL_WGL
 }
 
