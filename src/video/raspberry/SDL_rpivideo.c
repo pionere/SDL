@@ -79,7 +79,7 @@ static int RPI_GetRefreshRate()
     return 60; /* Failed to get display state, default to 60 */
 }
 
-static SDL_VideoDevice *RPI_CreateDevice()
+static SDL_VideoDevice *RPI_CreateDevice(void)
 {
     SDL_VideoDevice *device;
 

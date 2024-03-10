@@ -72,7 +72,7 @@ static void VITA_DeleteDevice(_THIS)
     SDL_free(_this);
 }
 
-static SDL_VideoDevice *VITA_CreateDevice()
+static SDL_VideoDevice *VITA_CreateDevice(void)
 {
     SDL_VideoDevice *device;
     // Vita_VideoData *phdata = &vitaVideoData;
