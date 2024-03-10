@@ -245,7 +245,6 @@ int Emscripten_VideoInit(_THIS)
 
 static int Emscripten_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
-    /* can't do this */
     return 0;
 }
 

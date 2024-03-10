@@ -103,7 +103,7 @@ void SDL_DirectFB_UnLoadLibrary(void)
 
 int SDL_DirectFB_LoadLibrary(void)
 {
-    return 1;
+    return 0;
 }
 
 void SDL_DirectFB_UnLoadLibrary(void)

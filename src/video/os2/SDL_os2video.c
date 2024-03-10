@@ -1166,9 +1166,9 @@ static SDL_bool OS2_GetWindowWMInfo(SDL_Window * window,
     return SDL_FALSE;
 }
 
-static void OS2_OnWindowEnter(SDL_Window * window)
+/*void OS2_OnWindowEnter(SDL_Window * window)
 {
-}
+}*/
 
 static int OS2_SetWindowHitTest(SDL_Window *window, SDL_bool enabled)
 {
@@ -1584,11 +1584,10 @@ static int OS2_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi,
     return 0;
 }
 
-static int OS2_SetDisplayMode(SDL_VideoDisplay *display,
-                              SDL_DisplayMode *mode)
+static int OS2_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     debug_os2("Enter");
-    return -1;
+    return 0;
 }
 
 
@@ -1653,7 +1652,7 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
     device->CreateWindowFramebuffer = OS2_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = OS2_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = OS2_DestroyWindowFramebuffer;
-    device->OnWindowEnter = OS2_OnWindowEnter;
+    // device->OnWindowEnter = OS2_OnWindowEnter;
     // device->FlashWindow = OS2_FlashWindow;
     /* Shaped-window functions */
     device->CreateShaper = OS2_CreateShaper;

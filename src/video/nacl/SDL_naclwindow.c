@@ -57,10 +57,10 @@ int NACL_CreateSDLWindow(_THIS, SDL_Window * window)
     return 0;
 }
 
-void NACL_SetWindowTitle(SDL_Window * window)
+/*void NACL_SetWindowTitle(SDL_Window * window)
 {
-    /* TODO */
-}
+    // TODO
+}*/
 
 void NACL_DestroyWindow(SDL_Window * window)
 {

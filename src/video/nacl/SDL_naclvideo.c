@@ -123,7 +123,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     /* Window functions */
     device->CreateSDLWindow = NACL_CreateSDLWindow;
     // device->CreateSDLWindowFrom = NACL_CreateSDLWindowFrom;
-    device->SetWindowTitle = NACL_SetWindowTitle;
+    // device->SetWindowTitle = NACL_SetWindowTitle;
     // device->SetWindowIcon = NACL_SetWindowIcon;
     // device->SetWindowPosition = NACL_SetWindowPosition;
     // device->SetWindowSize = NACL_SetWindowSize;
