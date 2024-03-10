@@ -162,8 +162,12 @@ typedef enum
 struct SDL_VideoDevice
 {
     /* * * */
+    /* The index of this video driver in the bootstrap-array */
+    int vdriver_index;
+
+    /* * * */
     /* The name of this video driver */
-    const char *name;
+    const char *vdriver_name;
 
     /* * * */
     /* Initialization/Query functions */
@@ -339,7 +343,6 @@ struct SDL_VideoDevice
     /* Data common to all drivers */
     SDL_threadID thread;
     SDL_bool checked_texture_framebuffer;
-    SDL_bool is_dummy;
     SDL_bool suspend_screensaver;
     SDL_Window *wakeup_window;
     SDL_mutex *wakeup_lock; /* Initialized only if WaitEventTimeout/SendWakeupEvent are supported */

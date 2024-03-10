@@ -1468,11 +1468,6 @@ static int OS2_VideoInit(_THIS)
         return SDL_SetError("Window class not successfully registered.");
     }
 
-    if (SDL_strcasecmp(_this->name, OS2DRIVER_NAME_VMAN) == 0)
-        pVData->pOutput = &voVMan;
-    else
-        pVData->pOutput = &voDive;
-
     /* Add display */
     {
         SDL_VideoDisplay    stSDLDisplay;
@@ -1733,19 +1728,23 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
 
 static SDL_VideoDevice *OS2DIVE_CreateDevice(void)
 {
+    OS2_VideoData *pVData = &os2VideoData;
     VIDEOOUTPUTINFO stVOInfo;
     if (!voDive.QueryInfo(&stVOInfo)) {
         return NULL;
     }
+    pVData->pOutput = &voDive;
     return OS2_CreateDevice();
 }
 
 static SDL_VideoDevice *OS2VMAN_CreateDevice(void)
 {
+    OS2_VideoData *pVData = &os2VideoData;
     VIDEOOUTPUTINFO stVOInfo;
     if (!voVMan.QueryInfo(&stVOInfo)) {
           return NULL;
     }
+    pVData->pOutput = &voVMan;
     return OS2_CreateDevice();
 }
 

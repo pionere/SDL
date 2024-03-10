@@ -72,7 +72,6 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
         SDL_OutOfMemory();
         return 0;
     }
-    device->is_dummy = SDL_TRUE;
 
     /* Set the function pointers */
     /* Initialization/Query functions */

@@ -532,7 +532,8 @@ int SDL_VideoInit(const char *driver_name)
     /* From this point on, use SDL_VideoQuit to cleanup on error, rather than
     pre_driver_error. */
     _this = video;
-    _this->name = bootstrap[i]->name;
+    _this->vdriver_index = i;
+    _this->vdriver_name = bootstrap[i]->name;
     _this->next_object_id = 1;
     _this->thread = SDL_ThreadID();
     /* Validate the interface */
@@ -616,7 +617,7 @@ const char *SDL_GetCurrentVideoDriver(void)
         SDL_UninitializedVideo();
         return NULL;
     }
-    return _this->name;
+    return _this->vdriver_name;
 }
 
 SDL_bool SDL_HasVideoDevice(void)
@@ -1414,7 +1415,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
     /* if the window is going away and no resolution change is necessary,
        do nothing, or else we may trigger an ugly double-transition
      */
-    if (SDL_strcmp(_this->name, "cocoa") == 0) { /* don't do this for X11, etc */
+    if (_this->vdriver_index == SDL_VIDEODRIVER_COCOA) { /* don't do this for X11, etc */
         if (window->is_destroying && (window->last_fullscreen_flags & FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             return 0;
         }
@@ -1643,12 +1644,12 @@ static int SDL_ContextNotSupported(const char *name)
                         "or not available in current SDL video driver "
                         "(%s) or platform",
                         name,
-                        _this->name);
+                        _this->vdriver_name);
 }
 
 static int SDL_DllNotSupported(const char *name)
 {
-    return SDL_SetError("No dynamic %s support in current SDL video driver (%s)", name, _this->name);
+    return SDL_SetError("No dynamic %s support in current SDL video driver (%s)", name, _this->vdriver_name);
 }
 
 SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
@@ -2710,22 +2711,27 @@ static SDL_Surface *SDL_CreateWindowFramebuffer(SDL_Window *window)
                 attempt_texture_framebuffer = SDL_FALSE;
             }
         }
-
-        if (_this->is_dummy) { /* dummy driver never has GPU support, of course. */
+#if defined(SDL_VIDEO_DRIVER_DUMMY) /* dummy driver never has GPU support, of course. */
+        if (_this->vdriver_index == SDL_VIDEODRIVER_DUMMY) {
             attempt_texture_framebuffer = SDL_FALSE;
         }
-
-#if defined(__LINUX__)
+#ifdef SDL_INPUT_LINUXEV
+        if (_this->vdriver_index == SDL_VIDEODRIVER_DUMMY_evdev) {
+            attempt_texture_framebuffer = SDL_FALSE;
+        }
+#endif // SDL_INPUT_LINUXEV
+#endif // SDL_VIDEO_DRIVER_DUMMY
+#if defined(__LINUX__) && defined(SDL_VIDEO_DRIVER_X11)
         /* On WSL, direct X11 is faster than using OpenGL for window framebuffers, so try to detect WSL and avoid texture framebuffer. */
-        else if ((_this->CreateWindowFramebuffer) && (SDL_strcmp(_this->name, "x11") == 0)) {
+        else if (_this->CreateWindowFramebuffer && _this->vdriver_index == SDL_VIDEODRIVER_X11) {
             struct stat sb;
             if ((stat("/proc/sys/fs/binfmt_misc/WSLInterop", &sb) == 0) || (stat("/run/WSL", &sb) == 0)) { /* if either of these exist, we're on WSL. */
                 attempt_texture_framebuffer = SDL_FALSE;
             }
         }
 #endif
-#if defined(__WIN32__) || defined(__WINGDK__) /* GDI BitBlt() is way faster than Direct3D dynamic textures right now. (!!! FIXME: is this still true?) */
-        else if ((_this->CreateWindowFramebuffer) && (SDL_strcmp(_this->name, "windows") == 0)) {
+#if (defined(__WIN32__) || defined(__WINGDK__)) && defined(SDL_VIDEO_DRIVER_WINDOWS) /* GDI BitBlt() is way faster than Direct3D dynamic textures right now. (!!! FIXME: is this still true?) */
+        else if (_this->CreateWindowFramebuffer && _this->vdriver_index == SDL_VIDEODRIVER_WIN) {
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #endif
@@ -3245,7 +3251,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
     }
 
 #if defined(__MACOSX__) && defined(SDL_VIDEO_DRIVER_COCOA)
-    if (SDL_strcmp(_this->name, "cocoa") == 0) {  /* don't do this for X11, etc */
+    if (_this->vdriver_index == SDL_VIDEODRIVER_COCOA) {  /* don't do this for X11, etc */
         if (Cocoa_IsWindowInFullscreenSpace(window)) {
             return SDL_FALSE;
         }
@@ -3578,7 +3584,7 @@ void *SDL_GL_GetProcAddress(const char *proc)
             SDL_SetError("No GL driver has been loaded");
         }
     } else {
-        SDL_SetError("No dynamic GL support in current SDL video driver (%s)", _this->name);
+        SDL_SetError("No dynamic GL support in current SDL video driver (%s)", _this->vdriver_name);
     }
     return func;
 }
