@@ -31,6 +31,7 @@
 /* OpenGLES functions */
 #define RPI_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define RPI_GLES_UnloadLibrary SDL_EGL_UnloadLibrary
+#define RPI_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define RPI_GLES_SetSwapInterval SDL_EGL_SetSwapInterval
 #define RPI_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 #define RPI_GLES_DeleteContext   SDL_EGL_DeleteContext

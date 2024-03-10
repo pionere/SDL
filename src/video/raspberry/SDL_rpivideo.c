@@ -151,7 +151,7 @@ static SDL_VideoDevice *RPI_CreateDevice(void)
     device->GL_UnloadLibrary = RPI_GLES_UnloadLibrary;
     device->GL_CreateContext = RPI_GLES_CreateContext;
     device->GL_MakeCurrent = RPI_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = RPI_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = RPI_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = RPI_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = RPI_GLES_GetSwapInterval;
     device->GL_SwapWindow = RPI_GLES_SwapWindow;

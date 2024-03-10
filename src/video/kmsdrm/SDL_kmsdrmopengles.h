@@ -31,6 +31,7 @@
 /* OpenGLES functions */
 #define KMSDRM_GLES_GetProcAddress SDL_EGL_GetProcAddress
 #define KMSDRM_GLES_DeleteContext SDL_EGL_DeleteContext
+#define KMSDRM_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define KMSDRM_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 
 extern void KMSDRM_GLES_DefaultProfileConfig(int *mask, int *major, int *minor);

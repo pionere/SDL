@@ -315,7 +315,7 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     device->GL_UnloadLibrary = KMSDRM_GLES_UnloadLibrary;
     device->GL_CreateContext = KMSDRM_GLES_CreateContext;
     device->GL_MakeCurrent = KMSDRM_GLES_MakeCurrent;
-    // device->GL_GetDrawableSize = KMSDRM_GLES_GetDrawableSize;
+    device->GL_GetDrawableSize = KMSDRM_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = KMSDRM_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = KMSDRM_GLES_GetSwapInterval;
     device->GL_SwapWindow = KMSDRM_GLES_SwapWindow;
