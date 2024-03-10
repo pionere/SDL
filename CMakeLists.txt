@@ -14,11 +14,6 @@ else()
   set(SDL2_SUBPROJECT ON)
 endif()
 
-if (HAIKU)
-  enable_language(CXX)
-  set(LINKER_LANGUAGE CXX)
-endif()
-
 set(EXTRA_LIBS)
 set(EXTRA_LDFLAGS)
 
@@ -3025,6 +3020,7 @@ elseif(APPLE)
   CheckPTHREAD()
 
 elseif(HAIKU)
+  enable_language(CXX)
   if(SDL_AUDIO)
     set(SDL_AUDIO_DRIVER_HAIKU 1)
     file(GLOB HAIKU_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/haiku/*.cc)
