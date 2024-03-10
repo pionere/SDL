@@ -121,7 +121,7 @@ static DWORD GetWindowStyle(SDL_Window *window)
  */
 static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL menu, int *x, int *y, int *width, int *height, SDL_bool use_current)
 {
-    WIN_VideoData *videodata = SDL_GetVideoDevice() ? &winVideoData : NULL;
+    WIN_VideoData *videodata = &winVideoData;
     RECT rect;
     int dpi = 96;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -177,14 +177,12 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 
             mon = MonitorFromRect(&screen_rect, MONITOR_DEFAULTTONEAREST);
 
-            if (videodata) {
-                /* GetDpiForMonitor docs promise to return the same hdpi / vdpi */
-                if (videodata->GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &frame_dpi, &unused) != S_OK) {
-                    frame_dpi = 96;
-                }
-
-                videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, frame_dpi);
+            /* GetDpiForMonitor docs promise to return the same hdpi / vdpi */
+            if (videodata->GetDpiForMonitor(mon, MDT_EFFECTIVE_DPI, &frame_dpi, &unused) != S_OK) {
+                frame_dpi = 96;
             }
+
+            videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, frame_dpi);
         } else {
             AdjustWindowRectEx(&rect, style, menu, 0);
         }
