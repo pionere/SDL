@@ -404,6 +404,7 @@ static SDL_bool NAS_Init(SDL_AudioDriverImpl * impl)
     } else {
         AuServer *aud = NAS_AuOpenServer("", 0, NULL, 0, NULL, NULL);
         if (!aud) {
+            UnloadNASLibrary();
             SDL_SetError("NAS: AuOpenServer() failed (no audio server?)");
             return SDL_FALSE;
         }

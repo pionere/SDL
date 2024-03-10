@@ -386,7 +386,7 @@ static SDL_bool aaudio_Init(SDL_AudioDriverImpl *impl)
     ctx.handle = SDL_LoadObject(LIB_AAUDIO_SO);
     if (!ctx.handle) {
         LOGI("SDL couldn't find " LIB_AAUDIO_SO);
-        goto failure;
+        return SDL_FALSE;
     }
 
     if (aaudio_LoadFunctions(&ctx) < 0) {
@@ -422,14 +422,12 @@ static SDL_bool aaudio_Init(SDL_AudioDriverImpl *impl)
     return SDL_TRUE;
 
 failure:
-    if (ctx.handle) {
-        if (ctx.builder) {
-            ctx.AAudioStreamBuilder_delete(ctx.builder);
-        }
-        SDL_UnloadObject(ctx.handle);
+    if (ctx.builder) {
+        ctx.AAudioStreamBuilder_delete(ctx.builder);
+        ctx.builder = NULL;
     }
+    SDL_UnloadObject(ctx.handle);
     ctx.handle = NULL;
-    ctx.builder = NULL;
     return SDL_FALSE;
 }
 /* "AAudio audio driver" */

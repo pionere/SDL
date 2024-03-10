@@ -383,16 +383,6 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     SDL_bool available, capture_available;
 
-    /* Set the function pointers */
-    impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
-    impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
-
-    impl->PreventSimultaneousOpens = SDL_TRUE;
-
-    /* no threads here */
-    impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
-    impl->ProvidesOwnCallbackThread = SDL_TRUE;
-
     /* *INDENT-OFF* */ /* clang-format off */
     /* check availability */
     available = MAIN_THREAD_EM_ASM_INT({
@@ -407,10 +397,11 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
 
     if (!available) {
         SDL_SetError("No audio context available");
+        return SDL_FALSE;
     }
 
     /* *INDENT-OFF* */ /* clang-format off */
-    capture_available = available && MAIN_THREAD_EM_ASM_INT({
+    capture_available = MAIN_THREAD_EM_ASM_INT({
         if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) {
             return true;
         } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') {
@@ -420,9 +411,17 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
     });
 /* *INDENT-ON* */ /* clang-format on */
 
+    /* Set the function pointers */
+    impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
+    impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
+    /* no threads here */
+    impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
+
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    impl->ProvidesOwnCallbackThread = SDL_TRUE;
     impl->HasCaptureSupport = capture_available;
 
-    return available;
+    return SDL_TRUE;
 }
 /* "SDL emscripten audio driver" */
 const AudioBootStrap EMSCRIPTENAUDIO_bootstrap = {
