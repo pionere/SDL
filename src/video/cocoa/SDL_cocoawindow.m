@@ -29,7 +29,6 @@
 #include "SDL_syswm.h"
 #include "SDL_timer.h"  /* For SDL_GetTicks() */
 #include "SDL_hints.h"
-#include "../SDL_sysvideo.h"
 #include "../../SDL_hints_c.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"

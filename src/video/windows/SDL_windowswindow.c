@@ -25,8 +25,6 @@
 #include "../../core/windows/SDL_windows.h"
 
 #include "SDL_log.h"
-#include "../SDL_sysvideo.h"
-#include "../SDL_pixels_c.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_windowevents_c.h"

@@ -33,8 +33,6 @@
 
 #include "SDL_syswm.h"
 
-#include "../SDL_pixels_c.h"
-
 int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;

@@ -22,8 +22,6 @@
 
 #if SDL_VIDEO_DRIVER_DUMMY
 
-// #include "../SDL_sysvideo.h"
-
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_windowevents_c.h"

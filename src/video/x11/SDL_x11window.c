@@ -23,8 +23,6 @@
 #ifdef SDL_VIDEO_DRIVER_X11
 
 #include "SDL_hints.h"
-#include "../SDL_sysvideo.h"
-#include "../SDL_pixels_c.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/SDL_events_c.h"

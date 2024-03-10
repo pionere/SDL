@@ -30,8 +30,6 @@
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/default_cursor.h"
 
-#include "../SDL_pixels_c.h"
-
 static SDL_Cursor *KMSDRM_CreateDefaultCursor(void);
 static SDL_Cursor *KMSDRM_CreateCursor(SDL_Surface *surface, int hot_x, int hot_y);
 static int KMSDRM_ShowCursor(SDL_Cursor *cursor);

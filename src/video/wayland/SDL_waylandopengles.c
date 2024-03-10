@@ -24,8 +24,7 @@
 
 #include "SDL_timer.h"
 #include "../../core/unix/SDL_poll.h"
-#include "../SDL_sysvideo.h"
-#include "../../events/SDL_windowevents_c.h"
+
 #include "SDL_waylandvideo.h"
 #include "SDL_waylandopengles.h"
 #include "SDL_waylandwindow.h"

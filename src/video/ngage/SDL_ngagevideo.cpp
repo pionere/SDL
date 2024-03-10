@@ -32,8 +32,6 @@ extern "C" {
 #endif
 
 #include "SDL_video.h"
-#include "../SDL_sysvideo.h"
-#include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
 
 #ifdef __cplusplus

@@ -29,12 +29,9 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "../SDL_sysvideo.h"
-
 #include "SDL_mouse.h"
 #include "../../events/SDL_mouse_c.h"
 #include "SDL_waylandvideo.h"
-#include "../SDL_pixels_c.h"
 #include "SDL_waylandevents_c.h"
 
 #include "wayland-cursor.h"

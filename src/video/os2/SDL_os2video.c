@@ -23,9 +23,8 @@
 
 #ifdef SDL_VIDEO_DRIVER_OS2
 
-#include "SDL_video.h"
 #include "SDL_mouse.h"
-#include "../SDL_pixels_c.h"
+
 #include "../SDL_shape_internals.h"
 #include "../../events/SDL_events_c.h"
 #include "SDL_os2video.h"
