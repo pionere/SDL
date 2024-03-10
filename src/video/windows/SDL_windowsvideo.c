@@ -195,7 +195,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
     device->CreateWindowFramebuffer = WIN_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = WIN_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = WIN_DestroyWindowFramebuffer;
-    device->OnWindowEnter = WIN_OnWindowEnter;
+    // device->OnWindowEnter = WIN_OnWindowEnter;
     device->FlashWindow = WIN_FlashWindow;
     /* Shaped-window functions */
     device->CreateShaper = WIN_CreateShaper;

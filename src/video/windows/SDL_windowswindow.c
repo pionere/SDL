@@ -1270,20 +1270,14 @@ void SDL_HelperWindowDestroy(void)
 }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+#if 0 // commented out till someone proves this does anything useful...
 void WIN_OnWindowEnter(SDL_Window *window)
 {
-    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-
-    if (!data || !data->hwnd) {
-        /* The window wasn't fully initialized */
-        return;
-    }
-
     if (window->flags & SDL_WINDOW_ALWAYS_ON_TOP) {
         WIN_SetWindowPositionInternal(window, SWP_NOCOPYBITS | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 }
-
+#endif
 static BOOL GetClientScreenRect(HWND hwnd, RECT *rect)
 {
     return GetClientRect(hwnd, rect) &&             /* RECT( left , top , right , bottom )   */

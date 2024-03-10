@@ -3207,9 +3207,11 @@ void SDL_OnWindowRestored(SDL_Window *window)
 
 void SDL_OnWindowEnter(SDL_Window *window)
 {
+#if 0 // -- see WIN_OnWindowEnter
     if (_this->OnWindowEnter) {
         _this->OnWindowEnter(window);
     }
+#endif
 }
 
 void SDL_OnWindowLeave(SDL_Window *window)

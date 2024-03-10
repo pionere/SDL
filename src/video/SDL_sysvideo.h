@@ -246,7 +246,7 @@ struct SDL_VideoDevice
     int (*CreateWindowFramebuffer) (SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
     int (*UpdateWindowFramebuffer) (SDL_Window * window, const SDL_Rect * rects, int numrects);
     void (*DestroyWindowFramebuffer) (SDL_Window * window);
-    void (*OnWindowEnter) (SDL_Window * window);
+    // void (*OnWindowEnter) (SDL_Window *window);
     int (*FlashWindow) (SDL_Window * window, SDL_FlashOperation operation);
 
     /* * * */

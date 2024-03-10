@@ -101,7 +101,7 @@ extern void WIN_SetWindowKeyboardGrab(SDL_Window * window, SDL_bool grabbed);
 extern void WIN_DestroyWindow(SDL_Window * window);
 extern SDL_bool WIN_GetWindowWMInfo(SDL_Window * window,
                                     struct SDL_SysWMinfo *info);
-extern void WIN_OnWindowEnter(SDL_Window * window);
+// extern void WIN_OnWindowEnter(SDL_Window * window);
 extern void WIN_UpdateClipCursor(SDL_Window *window);
 extern int WIN_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y);
