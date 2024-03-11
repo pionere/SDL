@@ -138,7 +138,6 @@ static Uint32 SDL_DefaultGraphicsBackends(SDL_VideoDevice *_this)
     return 0;
 }
 
-
 static SDL_VideoDevice *_this = NULL;
 static SDL_atomic_t SDL_messagebox_count;
 
@@ -163,7 +162,6 @@ static SDL_bool DisableUnsetFullscreenOnMinimize()
     return SDL_FALSE;
 }
 #endif
-
 
 static void SDL_StartTextInputPrivate(SDL_bool default_value)
 {
@@ -998,24 +996,24 @@ static void SDL_GetClosestPointOnRect(const SDL_Rect *rect, SDL_Point *point)
     }
 }
 
-static int GetRectDisplayIndex(int x, int y, int w, int h)
+static int GetPointDisplayIndex(int x, int y)
 {
     int i, dist;
     int closest = -1;
     int closest_dist = 0x7FFFFFFF;
-    SDL_Point closest_point_on_display;
-    SDL_Point delta;
-    SDL_Point center;
-    center.x = x + w / 2;
-    center.y = y + h / 2;
+    SDL_Point center, delta, closest_point_on_display;
+
+    center.x = x;
+    center.y = y;
 
     if (_this) {
         for (i = 0; i < _this->num_displays; ++i) {
             SDL_Rect display_rect;
-            SDL_GetDisplayBounds(i, &display_rect);
+            SDL_VideoDisplay *display = &_this->displays[i];
+            SDL_PrivateGetDisplayBounds(display, &display_rect);
 
             /* Check if the window is fully enclosed */
-            if (SDL_EnclosePoints(&center, 1, &display_rect, NULL)) {
+            if (SDL_PointInRect(&center, &display_rect)) {
                 return i;
             }
 
@@ -1042,12 +1040,18 @@ static int GetRectDisplayIndex(int x, int y, int w, int h)
 
 int SDL_GetPointDisplayIndex(const SDL_Point *point)
 {
-    return GetRectDisplayIndex(point->x, point->y, 1, 1);
+    if (!point) {
+        return SDL_InvalidParamError("point");
+    }
+    return GetPointDisplayIndex(point->x, point->y);
 }
 
 int SDL_GetRectDisplayIndex(const SDL_Rect *rect)
 {
-    return GetRectDisplayIndex(rect->x, rect->y, rect->w, rect->h);
+    if (!rect) {
+        return SDL_InvalidParamError("rect");
+    }
+    return GetPointDisplayIndex(rect->x + rect->w / 2, rect->y + rect->h / 2);
 }
 
 int SDL_GetWindowDisplayIndex(SDL_Window *window)
@@ -1084,7 +1088,7 @@ int SDL_GetWindowDisplayIndex(SDL_Window *window)
             return displayIndex;
         }
 
-        displayIndex = GetRectDisplayIndex(window->x, window->y, window->w, window->h);
+        displayIndex = GetPointDisplayIndex(window->x + (window->w >> 1), window->y + (window->h >> 1));
 
         /* Find the display containing the window if fullscreen */
         for (i = 0; i < _this->num_displays; ++i) {
