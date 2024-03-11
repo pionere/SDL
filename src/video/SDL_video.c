@@ -1023,7 +1023,8 @@ static int GetPointDisplayIndex(int x, int y)
 
             delta.x = center.x - closest_point_on_display.x;
             delta.y = center.y - closest_point_on_display.y;
-            dist = (delta.x * delta.x + delta.y * delta.y);
+            // dist = (delta.x * delta.x + delta.y * delta.y); -- use Manhattan distance to avoid possible overflow
+            dist = SDL_abs(delta.x) + SDL_abs(delta.y);
             if (dist < closest_dist) {
                 closest = i;
                 closest_dist = dist;
