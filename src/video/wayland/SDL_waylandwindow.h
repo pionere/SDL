@@ -140,7 +140,6 @@ extern int Wayland_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *paren
 extern void Wayland_SetWindowTitle(SDL_Window *window);
 extern void Wayland_DestroyWindow(SDL_Window *window);
 extern void Wayland_SuspendScreenSaver(_THIS);
-
 extern SDL_bool
 Wayland_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info);
 extern int Wayland_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
@@ -148,6 +147,7 @@ extern int Wayland_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
 
 extern void Wayland_InitWin(void);
 extern void Wayland_QuitWin(void);
+extern void Wayland_RemoveOutputFromWindow(SDL_WindowData *window, struct wl_output *output);
 
 #endif /* SDL_waylandwindow_h_ */
 

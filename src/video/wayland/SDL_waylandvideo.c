@@ -780,6 +780,8 @@ static void Wayland_free_display(uint32_t id)
     int num_displays, i, j;
     SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
     SDL_WaylandOutputData *data;
+    struct wl_output *output;
+    SDL_Window *window;
 
     for (i = 0; i < num_displays; i += 1) {
         data = (SDL_WaylandOutputData *)displays[i].driverdata;
@@ -800,7 +802,11 @@ static void Wayland_free_display(uint32_t id)
             if (data->xdg_output) {
                 zxdg_output_v1_destroy(data->xdg_output);
             }
-            wl_output_destroy(data->output);
+            output = data->output;
+            for (window = SDL_GetWindows(); window; window = window->next) {
+                Wayland_RemoveOutputFromWindow(window->driverdata, output);
+            }
+            wl_output_destroy(output);
 
             /* Clear the wl_output ref so Reset doesn't free it */
             for (j = 0; j < displays[i].num_display_modes; j += 1) {
