@@ -35,8 +35,7 @@ typedef xcb_connection_t *(*PFN_XGetXCBConnection)(Display *dpy);
 
 int X11_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
-SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                          unsigned *count,
+SDL_bool X11_Vulkan_GetInstanceExtensions(unsigned *count,
                                           const char **names);
 SDL_bool X11_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,

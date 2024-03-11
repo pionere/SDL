@@ -37,8 +37,7 @@
 
 int Cocoa_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void Cocoa_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
-SDL_bool Cocoa_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                          unsigned *count,
+SDL_bool Cocoa_Vulkan_GetInstanceExtensions(unsigned *count,
                                           const char **names);
 SDL_bool Cocoa_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                   SDL_Window *window,

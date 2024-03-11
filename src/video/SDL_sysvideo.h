@@ -287,7 +287,7 @@ struct SDL_VideoDevice
      */
     int (*Vulkan_LoadLibrary)(SDL_VulkanVideo *vulkan_config, const char *path);
     void (*Vulkan_UnloadLibrary)(SDL_VulkanVideo *vulkan_config);
-    SDL_bool (*Vulkan_GetInstanceExtensions)(SDL_Window *window, unsigned *count, const char **names);
+    SDL_bool (*Vulkan_GetInstanceExtensions)(unsigned *count, const char **names);
     SDL_bool (*Vulkan_CreateSurface)(SDL_VulkanVideo *vulkan_config, SDL_Window *window, VkInstance instance, VkSurfaceKHR *surface);
     void (*Vulkan_GetDrawableSize)(SDL_Window *window, int *w, int *h);
 #endif

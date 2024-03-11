@@ -133,8 +133,7 @@ void KMSDRM_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
 /* members of the VkInstanceCreateInfo struct passed to              */
 /* vkCreateInstance().                                               */
 /*********************************************************************/
-SDL_bool KMSDRM_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                             unsigned *count,
+SDL_bool KMSDRM_Vulkan_GetInstanceExtensions(unsigned *count,
                                              const char **names)
 {
     static const char *const extensionsForKMSDRM[] = {

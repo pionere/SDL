@@ -110,8 +110,7 @@ void Wayland_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
     vulkan_config->loader_handle = NULL;
 }
 
-SDL_bool Wayland_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                              unsigned *count,
+SDL_bool Wayland_Vulkan_GetInstanceExtensions(unsigned *count,
                                               const char **names)
 {
     static const char *const extensionsForWayland[] = {

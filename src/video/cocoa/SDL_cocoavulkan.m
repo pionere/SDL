@@ -164,8 +164,7 @@ void Cocoa_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
     vulkan_config->loader_handle = NULL;
 }
 
-SDL_bool Cocoa_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                          unsigned *count,
+SDL_bool Cocoa_Vulkan_GetInstanceExtensions(unsigned *count,
                                           const char **names)
 {
     static const char *const extensionsForCocoa[] = {

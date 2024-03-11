@@ -38,8 +38,7 @@
 
 int VIVANTE_Vulkan_LoadLibrary(SDL_VulkanVideo *vulkan_config, const char *path);
 void VIVANTE_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config);
-SDL_bool VIVANTE_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                              unsigned *count,
+SDL_bool VIVANTE_Vulkan_GetInstanceExtensions(unsigned *count,
                                               const char **names);
 SDL_bool VIVANTE_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
                                       SDL_Window *window,

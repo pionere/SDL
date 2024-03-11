@@ -135,8 +135,7 @@ void X11_Vulkan_UnloadLibrary(SDL_VulkanVideo *vulkan_config)
     vulkan_config->loader_handle = NULL;
 }
 
-SDL_bool X11_Vulkan_GetInstanceExtensions(SDL_Window *window,
-                                          unsigned *count,
+SDL_bool X11_Vulkan_GetInstanceExtensions(unsigned *count,
                                           const char **names)
 {
     X11_VideoData *videoData = &x11VideoData;
