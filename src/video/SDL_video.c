@@ -4481,6 +4481,7 @@ void SDL_WM_SetIcon(SDL_Surface * icon, Uint8 * mask)
             int flags = 0;
             mask = (Uint8 *) SDL_malloc(mask_len);
             if (mask == NULL) {
+                SDL_OutOfMemory();
                 return;
             }
             SDL_memset(mask, ~0, mask_len);
@@ -5233,15 +5234,20 @@ void SDL_Metal_DestroyView(SDL_MetalView view)
 
 void *SDL_Metal_GetLayer(SDL_MetalView view)
 {
-    if (_this && _this->Metal_GetLayer) {
-        if (view) {
-            return _this->Metal_GetLayer(view);
-        } else {
-            SDL_InvalidParamError("view");
-            return NULL;
-        }
+    if (!_this) {
+        SDL_UninitializedVideo();
+        return NULL;
+    }
+
+    if (!view) {
+        SDL_InvalidParamError("view");
+        return NULL;
+    }
+
+    if (_this->Metal_GetLayer) {
+        return _this->Metal_GetLayer(view);
     } else {
-        SDL_SetError("Metal is not supported.");
+        SDL_Unsupported();
         return NULL;
     }
 }
