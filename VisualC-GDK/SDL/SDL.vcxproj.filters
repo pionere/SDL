@@ -588,6 +588,12 @@
     <ClInclude Include="..\..\src\video\SDL_blit_slow.h">
       <Filter>video</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\video\SDL_egl_c.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\video\SDL_framebuffer.h">
+      <Filter>video</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\video\SDL_pixels_c.h">
       <Filter>video</Filter>
     </ClInclude>
@@ -601,9 +607,6 @@
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\video\SDL_sysvideo_c.h">
-      <Filter>video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\video\SDL_egl_c.h">
       <Filter>video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\video\SDL_yuv_c.h">
@@ -1169,6 +1172,9 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\video\SDL_fillrect.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\video\SDL_framebuffer.c">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\video\SDL_pixels.c">

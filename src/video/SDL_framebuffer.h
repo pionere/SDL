@@ -19,14 +19,19 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_rect_c_h_
-#define SDL_rect_c_h_
+#ifndef SDL_framebuffer_h_
+#define SDL_framebuffer_h_
 
 #include "../SDL_internal.h"
-#include "SDL_rect.h"
+#include "SDL_sysvideo.h"
 
-extern SDL_bool SDL_GetSpanEnclosingRect(int width, int height, int numrects, const SDL_Rect *rects, SDL_Rect *span);
+extern int SDL_CreateWindowFramebuffer(SDL_Window *window,
+                                       Uint32 *format,
+                                       void **pixels, int *pitch);
+extern int SDL_UpdateWindowFramebuffer(SDL_Window *window,
+                                       const SDL_Rect *rects, int numrects);
+extern void SDL_DestroyWindowFramebuffer(SDL_Window *window);
 
-#endif /* SDL_rect_c_h_ */
+#endif /* SDL_framebuffer_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

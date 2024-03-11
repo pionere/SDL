@@ -418,6 +418,7 @@
     <ClInclude Include="..\..\src\video\SDL_blit_copy.h" />
     <ClInclude Include="..\..\src\video\SDL_blit_slow.h" />
     <ClInclude Include="..\..\src\video\SDL_egl_c.h" />
+    <ClInclude Include="..\..\src\video\SDL_framebuffer.h" />
     <ClInclude Include="..\..\src\video\SDL_pixels_c.h" />
     <ClInclude Include="..\..\src\video\SDL_rect_c.h" />
     <ClInclude Include="..\..\src\video\SDL_RLEaccel_c.h" />
@@ -614,6 +615,7 @@
     <ClCompile Include="..\..\src\video\SDL_blit_slow.c" />
     <ClCompile Include="..\..\src\video\SDL_bmp.c" />
     <ClCompile Include="..\..\src\video\SDL_egl.c" />
+    <ClCompile Include="..\..\src\video\SDL_framebuffer.c" />
     <ClCompile Include="..\..\src\video\SDL_fillrect.c" />
     <ClCompile Include="..\..\src\video\SDL_pixels.c" />
     <ClCompile Include="..\..\src\video\SDL_rect.c" />
