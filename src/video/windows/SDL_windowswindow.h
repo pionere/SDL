@@ -65,11 +65,13 @@ typedef struct
 #ifdef SDL_VIDEO_OPENGL_EGL
     EGLSurface egl_surface;
 #endif
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     /**
      * Cached value of GetDpiForWindow, for use for scaling points in the client area
      * between dpi-scaled points and pixels. Only used if videodata->dpi_scaling_enabled.
      */
     int scaling_dpi;
+#endif
 } SDL_WindowData;
 
 extern int WIN_CreateSDLWindow(_THIS, SDL_Window * window);

@@ -275,10 +275,9 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 const VideoBootStrap WIN_bootstrap = {
     "windows", WIN_CreateDevice
 };
-
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 static BOOL WIN_DeclareDPIAwareUnaware(void)
 {
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
@@ -287,13 +286,11 @@ static BOOL WIN_DeclareDPIAwareUnaware(void)
         /* Windows 8.1 */
         return SUCCEEDED(data->SetProcessDpiAwareness(PROCESS_DPI_UNAWARE));
     }
-#endif
     return FALSE;
 }
 
 static BOOL WIN_DeclareDPIAwareSystem()
 {
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
@@ -306,13 +303,11 @@ static BOOL WIN_DeclareDPIAwareSystem()
         /* Windows Vista */
         return data->SetProcessDPIAware();
     }
-#endif
     return FALSE;
 }
 
 static BOOL WIN_DeclareDPIAwarePerMonitor(void)
 {
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_VideoData *data = &winVideoData;
 
     if (data->SetProcessDpiAwarenessContext) {
@@ -325,15 +320,11 @@ static BOOL WIN_DeclareDPIAwarePerMonitor(void)
         /* Older OS: fall back to system DPI aware */
         return WIN_DeclareDPIAwareSystem();
     }
-#endif
     return FALSE;
 }
 
 static BOOL WIN_DeclareDPIAwarePerMonitorV2(void)
 {
-#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    return FALSE;
-#else
     WIN_VideoData *data = &winVideoData;
 
     /* Declare DPI aware (may have been done in external code or a manifest, as well) */
@@ -364,7 +355,6 @@ static BOOL WIN_DeclareDPIAwarePerMonitorV2(void)
         /* Older OS: fall back to per-monitor (or system) */
         return WIN_DeclareDPIAwarePerMonitor();
     }
-#endif
 }
 
 #ifdef HIGHDPI_DEBUG
@@ -419,18 +409,19 @@ static void WIN_InitDPIScaling(void)
         data->dpi_scaling_enabled = SDL_TRUE;
     }
 }
+#endif // !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 
 int WIN_VideoInit(_THIS)
 {
     WIN_VideoData *data = &winVideoData;
-
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_InitDPIAwareness();
     WIN_InitDPIScaling();
 
 #ifdef HIGHDPI_DEBUG
     SDL_Log("DPI awareness: %s", WIN_GetDPIAwareness());
 #endif
-
+#endif
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     /* For Xbox, we just need to create the single display */
     {

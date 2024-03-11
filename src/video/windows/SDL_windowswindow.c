@@ -123,8 +123,8 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 {
     WIN_VideoData *videodata = &winVideoData;
     RECT rect;
-    int dpi = 96;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    int dpi = 96;
     UINT frame_dpi;
 #endif
 
@@ -137,7 +137,7 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
     /* Convert client rect from SDL coordinates to pixels (no-op if DPI scaling not enabled) */
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     WIN_ScreenPointFromSDL(x, y, &dpi);
-#endif
+
     /* Note, use the guessed DPI returned from WIN_ScreenPointFromSDL rather than the cached one in
        data->scaling_dpi.
 
@@ -148,7 +148,7 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
     */
     *width = MulDiv(*width, dpi, 96);
     *height = MulDiv(*height, dpi, 96);
-
+#endif
     /* Copy the client size in pixels into this rect structure,
        which we'll then adjust with AdjustWindowRectEx */
     rect.left = 0;
@@ -314,12 +314,13 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
     data->mouse_button_flags = (WPARAM)-1;
     data->last_pointer_update = (LPARAM)-1;
     data->initializing = SDL_TRUE;
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     data->scaling_dpi = WIN_GetScalingDPIForHWND(hwnd);
 
 #ifdef HIGHDPI_DEBUG
     SDL_Log("SetupWindowData: initialized data->scaling_dpi to %d", data->scaling_dpi);
 #endif
-
+#endif
     SDL_AddHintCallback(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, WIN_MouseRelativeModeCenterChanged, data);
 
     window->driverdata = data;
@@ -436,12 +437,14 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
     if (videodata->RegisterTouchWindow) {
         videodata->RegisterTouchWindow(hwnd, (TWF_FINETOUCH | TWF_WANTPALM));
     }
-#endif
 
     /* Force the SDL_WINDOW_ALLOW_HIGHDPI window flag if we are doing DPI scaling */
     if (videodata->dpi_scaling_enabled) {
         window->flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    } else {
+        window->flags &= ~SDL_WINDOW_ALLOW_HIGHDPI;
     }
+#endif
 
     data->initializing = SDL_FALSE;
 
@@ -1399,6 +1402,7 @@ int WIN_SetWindowOpacity(SDL_Window *window, float opacity)
  */
 void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 {
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
     const WIN_VideoData *videodata = &winVideoData;
 
@@ -1408,6 +1412,7 @@ void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
 
     *x = MulDiv(*x, 96, data->scaling_dpi);
     *y = MulDiv(*y, 96, data->scaling_dpi);
+#endif
 }
 
 /**
@@ -1417,6 +1422,7 @@ void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
  */
 void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y)
 {
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
     const WIN_VideoData *videodata = &winVideoData;
 
@@ -1426,6 +1432,7 @@ void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y)
 
     *x = MulDiv(*x, data->scaling_dpi, 96);
     *y = MulDiv(*y, data->scaling_dpi, 96);
+#endif
 }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)

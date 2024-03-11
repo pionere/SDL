@@ -350,7 +350,9 @@ typedef struct WIN_VideoData
 #ifdef SDL_VIDEO_OPENGL_WGL
     SDL_GLDriverData wgl_data;
 #endif
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     SDL_bool dpi_scaling_enabled;
+#endif
     SDL_bool cleared;
 } WIN_VideoData;
 
