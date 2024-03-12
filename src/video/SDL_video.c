@@ -566,6 +566,8 @@ int SDL_GetIndexOfDisplay(SDL_VideoDisplay *display)
 {
     int displayIndex;
 
+    SDL_assert(_this != NULL);
+
     for (displayIndex = 0; displayIndex < _this->num_displays; ++displayIndex) {
         if (display == &_this->displays[displayIndex]) {
             return displayIndex;
@@ -612,6 +614,7 @@ int SDL_GetDisplayBounds(int displayIndex, SDL_Rect *rect)
 
 void SDL_PrivateGetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
+    SDL_assert(_this != NULL);
     SDL_assert(display >= &_this->displays[0] && display < &_this->displays[_this->num_displays]);
     SDL_assert(rect != NULL);
 
@@ -919,6 +922,8 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
     SDL_DisplayMode current_mode;
     int result;
 
+    SDL_assert(_this != NULL);
+
     /* Mode switching disabled via driver quirk flag, nothing to do and cannot fail. */
     if (DisableDisplayModeSwitching()) {
         return 0;
@@ -1190,6 +1195,8 @@ int SDL_GetWindowDisplayMode(SDL_Window *window, SDL_DisplayMode *mode)
 
 void *SDL_GetWindowICCProfile(SDL_Window *window, size_t *size)
 {
+    CHECK_WINDOW_MAGIC(window, NULL);
+
     if (!_this->GetWindowICCProfile) {
         SDL_Unsupported();
         return NULL;
@@ -1760,6 +1767,8 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     SDL_bool foreign_win; // whether the old window is foreign (same as whether the new window is foreign at the moment)
     Uint32 graphics_flags;
 
+    SDL_assert(_this != NULL);
+
     /* ensure no more than one of these flags is set */
     graphics_flags = flags & (SDL_WINDOW_OPENGL | SDL_WINDOW_METAL | SDL_WINDOW_VULKAN);
     SDL_assert((graphics_flags & (graphics_flags - 1)) == 0);
@@ -2277,6 +2286,8 @@ int SDL_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *botto
 
 void SDL_PrivateGetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 {
+    SDL_assert(_this != NULL);
+
     if (_this->GetWindowSizeInPixels) {
         _this->GetWindowSizeInPixels(window, w, h);
     } else {
@@ -3040,12 +3051,16 @@ void SDL_OnWindowLeave(SDL_Window *window)
 
 void SDL_OnWindowFocusGained(SDL_Window *window)
 {
-    SDL_Mouse *mouse = SDL_GetMouse();
+    SDL_Mouse *mouse;
+
+    SDL_assert(_this != NULL);
+    // TODO: CHECK_WINDOW_MAGIC(window, ); ?
 
     if (window->gamma && _this->SetWindowGammaRamp) {
         _this->SetWindowGammaRamp(window, window->gamma);
     }
 
+    mouse = SDL_GetMouse();
     if (mouse && mouse->relative_mode) {
         SDL_SetMouseFocus(window);
         if (mouse->relative_mode_warp) {
@@ -3096,6 +3111,9 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
 
 void SDL_OnWindowFocusLost(SDL_Window *window)
 {
+    SDL_assert(_this != NULL);
+    // TODO: CHECK_WINDOW_MAGIC(window, ); ?
+
     if (window->gamma && _this->SetWindowGammaRamp) {
         _this->SetWindowGammaRamp(window, window->saved_gamma);
     }
@@ -3127,7 +3145,9 @@ SDL_Window *SDL_GetFocusWindow(void)
 SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned int y, unsigned int w, unsigned int h, Uint32 flags)
 {
     SDL_Window *result = NULL;
-    if (_this->CreateShaper != NULL) {
+    if (!_this) {
+        SDL_UninitializedVideo();
+    } else if (_this->CreateShaper != NULL) {
         result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
         if (result) {
             result->shaper = _this->CreateShaper(result);
