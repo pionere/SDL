@@ -2285,16 +2285,10 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
     hint = SDL_GetHint(SDL_HINT_RENDER_LOGICAL_SIZE_MODE);
     if (hint && (*hint == '1' || SDL_strcasecmp(hint, "overscan") == 0)) {
 #ifdef SDL_VIDEO_RENDER_D3D
-        SDL_bool overscan_supported = SDL_TRUE;
         /* Unfortunately, Direct3D 9 doesn't support negative viewport numbers
            which the overscan implementation relies on.
         */
-        if (SDL_strcasecmp(SDL_GetCurrentVideoDriver(), "direct3d") == 0) {
-            overscan_supported = SDL_FALSE;
-        }
-        if (overscan_supported) {
-            scale_policy = 1;
-        }
+        scale_policy = SDL_strcasecmp(renderer->info.name, "direct3d") == 0 ? 0 : 1;
 #else
         scale_policy = 1;
 #endif
@@ -2328,7 +2322,7 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
         SDL_zero(viewport);
         SDL_GetRendererOutputSize(renderer, &viewport.w, &viewport.h);
     } else if (want_aspect > real_aspect) {
-        if (scale_policy == 1) {
+        if (scale_policy) {
             /* We want a wider aspect ratio than is available -
              zoom so logical height matches the real height
              and the width will grow off the screen
@@ -2347,7 +2341,7 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
             viewport.y = (h - viewport.h) / 2;
         }
     } else {
-        if (scale_policy == 1) {
+        if (scale_policy) {
             /* We want a narrower aspect ratio than is available -
              zoom so logical width matches the real width
              and the height will grow off the screen
