@@ -56,7 +56,7 @@ struct SDL_Texture
     int access;              /**< SDL_TextureAccess */
     int w;                   /**< The width of the texture */
     int h;                   /**< The height of the texture */
-    int modMode;             /**< The texture modulation mode */
+    // int modMode;             /**< The texture modulation mode */
     SDL_BlendMode blendMode; /**< The texture blend mode */
     SDL_ScaleMode scaleMode; /**< The texture scale mode */
     SDL_Color color;         /**< Texture modulation values */

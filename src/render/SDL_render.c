@@ -1525,12 +1525,13 @@ int SDL_QueryTexture(SDL_Texture *texture, Uint32 *format, int *access,
 int SDL_SetTextureColorMod(SDL_Texture *texture, Uint8 r, Uint8 g, Uint8 b)
 {
     CHECK_TEXTURE_MAGIC(texture, -1);
-
+#if 0
     if (r < 255 || g < 255 || b < 255) {
         texture->modMode |= SDL_TEXTUREMODULATE_COLOR;
     } else {
         texture->modMode &= ~SDL_TEXTUREMODULATE_COLOR;
     }
+#endif
     texture->color.r = r;
     texture->color.g = g;
     texture->color.b = b;
@@ -1560,12 +1561,13 @@ int SDL_GetTextureColorMod(SDL_Texture *texture, Uint8 *r, Uint8 *g,
 int SDL_SetTextureAlphaMod(SDL_Texture *texture, Uint8 alpha)
 {
     CHECK_TEXTURE_MAGIC(texture, -1);
-
+#if 0
     if (alpha < 255) {
         texture->modMode |= SDL_TEXTUREMODULATE_ALPHA;
     } else {
         texture->modMode &= ~SDL_TEXTUREMODULATE_ALPHA;
     }
+#endif
     texture->color.a = alpha;
     if (texture->native) {
         return SDL_SetTextureAlphaMod(texture->native, alpha);
