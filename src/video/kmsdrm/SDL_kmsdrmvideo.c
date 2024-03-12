@@ -212,12 +212,7 @@ static int KMSDRM_Available(void)
     (void)SDL_snprintf(kmsdrm_dri_cardpath, sizeof(kmsdrm_dri_cardpath), "%s%s",
                        kmsdrm_dri_path, kmsdrm_dri_devname);
 
-    ret = get_driindex();
-    if (ret >= 0) {
-        return 1;
-    }
-
-    return ret;
+    return get_driindex();
 }
 
 static void KMSDRM_DeleteDevice(_THIS)
@@ -234,11 +229,7 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     int devindex;
 
-    if (!KMSDRM_Available()) {
-        return NULL;
-    }
-
-    devindex = get_driindex();
+    devindex = KMSDRM_Available();
     if (devindex < 0) {
         SDL_SetError("devindex (%d) must not be negative.", devindex);
         return NULL;
