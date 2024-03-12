@@ -1597,7 +1597,6 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->DestroyRenderer = D3D_DestroyRenderer;
     renderer->SetVSync = D3D_SetVSync;
     renderer->info = D3D_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
 
     SDL_VERSION(&windowinfo.version);
@@ -1673,7 +1672,11 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
     IDirect3DSwapChain9_Release(chain);
     if (pparams.PresentationInterval == D3DPRESENT_INTERVAL_ONE) {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+        SDL_assert(renderer->info.flags & SDL_RENDERER_PRESENTVSYNC);
+        // renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        SDL_assert(renderer->info.flags == (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE));
+        renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
     data->pparams = pparams;
 

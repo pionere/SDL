@@ -1961,21 +1961,24 @@ static int GLES2_RenderPresent(SDL_Renderer *renderer)
 
 static int GLES2_SetVSync(SDL_Renderer *renderer, const int vsync)
 {
-    int retval;
-    if (vsync) {
-        retval = SDL_GL_SetSwapInterval(1);
-    } else {
-        retval = SDL_GL_SetSwapInterval(0);
+#ifdef __WINRT__
+    // see GLES2_CreateRenderer
+    return 0;
+#else
+    int val;
+    SDL_assert(vsync == 0 || vsync == 1);
+    val = SDL_GL_SetSwapInterval(vsync);
+    if (val != 0) {
+        return val;
     }
-    if (retval != 0) {
-        return retval;
-    }
-    if (SDL_GL_GetSwapInterval() != 0) {
+    val = SDL_GL_GetSwapInterval() != 0 ? 1 : 0;
+    if (val) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     } else {
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
-    return retval;
+    return val == vsync ? 0 : -1; // TODO: is this necessary? SetSwapInterval succeeds, but GetSwapInterval fails? update GL_CreateRenderer if this is resolved
+#endif
 }
 
 /*************************************************************************************************
@@ -2074,7 +2077,6 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
         goto error;
     }
     renderer->info = GLES2_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
     renderer->window = window;
 
@@ -2093,13 +2095,14 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
      * is turned on.  Not doing so will freeze the screen's contents to that
      * of the first drawn frame.
      */
-    flags |= SDL_RENDERER_PRESENTVSYNC;
+    SDL_GL_SetSwapInterval(1);
+    renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+#else
+    if (GLES2_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0) < 0) {
+        renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
+    }
 #endif
 
-    SDL_GL_SetSwapInterval((flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
-    if (SDL_GL_GetSwapInterval() != 0) {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
-    }
 #ifdef DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&

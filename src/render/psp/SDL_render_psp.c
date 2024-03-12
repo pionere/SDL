@@ -1281,6 +1281,11 @@ static int PSP_SetVSync(SDL_Renderer *renderer, const int vsync)
 {
     PSP_RenderData *data = renderer->driverdata;
     data->vsync = vsync;
+    if (vsync) {
+        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
+    }
     return 0;
 }
 
@@ -1323,18 +1328,13 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->DestroyRenderer = PSP_DestroyRenderer;
     renderer->SetVSync = PSP_SetVSync;
     renderer->info = PSP_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
     renderer->window = window;
 
     // data->most_recent_target = NULL;
     // data->least_recent_target = NULL;
 
-    if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        data->vsync = SDL_TRUE;
-    } else {
-        data->vsync = SDL_FALSE;
-    }
+    PSP_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
 
     pixelformat = PixelFormatToPSPFMT(SDL_GetWindowPixelFormat(window));
     switch (pixelformat) {

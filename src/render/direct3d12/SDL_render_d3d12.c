@@ -2999,14 +2999,17 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->RenderPresent = D3D12_RenderPresent;
     renderer->DestroyTexture = D3D12_DestroyTexture;
     renderer->DestroyRenderer = D3D12_DestroyRenderer;
+    renderer->SetVSync = D3D12_SetVSync;
     renderer->info = D3D12_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
 
     if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+        SDL_assert(renderer->info.flags & SDL_RENDERER_PRESENTVSYNC);
+        // renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        SDL_assert(renderer->info.flags == (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE));
+        renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
-    renderer->SetVSync = D3D12_SetVSync;
 
     /* HACK: make sure the SDL_Renderer references the SDL_Window data now, in
      * order to give init functions access to the underlying window handle:

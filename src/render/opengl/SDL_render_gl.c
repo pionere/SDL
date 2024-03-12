@@ -1658,21 +1658,19 @@ static int GL_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
 static int GL_SetVSync(SDL_Renderer *renderer, const int vsync)
 {
-    int retval;
-    if (vsync) {
-        retval = SDL_GL_SetSwapInterval(1);
-    } else {
-        retval = SDL_GL_SetSwapInterval(0);
+    int val;
+    SDL_assert(vsync == 0 || vsync == 1);
+    val = SDL_GL_SetSwapInterval(vsync);
+    if (val != 0) {
+        return val;
     }
-    if (retval != 0) {
-        return retval;
-    }
-    if (SDL_GL_GetSwapInterval() != 0) {
+    val = SDL_GL_GetSwapInterval() != 0 ? 1 : 0;
+    if (val) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     } else {
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
-    return retval;
+    return val == vsync ? 0 : -1; // TODO: is this necessary? SetSwapInterval succeeds, but GetSwapInterval fails? update GL_CreateRenderer if this is resolved
 }
 
 static SDL_bool GL_IsProbablyAccelerated(const GL_RenderData *data)
@@ -1789,14 +1787,10 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
      */
 #endif
 
-    if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        SDL_GL_SetSwapInterval(1);
-    } else {
-        SDL_GL_SetSwapInterval(0);
+    if (GL_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0) < 0) {
+        renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
-    if (SDL_GL_GetSwapInterval() != 0) {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
-    }
+
 #ifdef DEBUG_RENDER
     /* Check for debug output support */
     if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_FLAGS, &value) == 0 &&

@@ -1532,25 +1532,20 @@ static void *METAL_GetMetalCommandEncoder(SDL_Renderer * renderer)
     data = (__bridge METAL_RenderData *) renderer->driverdata;
     return (__bridge void*)data.mtlcmdencoder;
 }}
-
+#if (defined(__MACOSX__) && defined(MAC_OS_X_VERSION_10_13)) || TARGET_OS_MACCATALYST
 static int METAL_SetVSync(SDL_Renderer * renderer, const int vsync)
 {
-#if (defined(__MACOSX__) && defined(MAC_OS_X_VERSION_10_13)) || TARGET_OS_MACCATALYST
-    if (@available(macOS 10.13, *)) {
-        METAL_RenderData *data = (__bridge METAL_RenderData *) renderer->driverdata;
-        if (vsync) {
-            data.mtllayer.displaySyncEnabled = YES;
-            renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
-        } else {
-            data.mtllayer.displaySyncEnabled = NO;
-            renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
-        }
-        return 0;
+    METAL_RenderData *data = (__bridge METAL_RenderData *) renderer->driverdata;
+    if (vsync) {
+        data.mtllayer.displaySyncEnabled = YES;
+        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        data.mtllayer.displaySyncEnabled = NO;
+        renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
-#endif
-    return SDL_SetError("This Apple OS does not support displaySyncEnabled!");
+    return 0;
 }
-
+#endif
 static SDL_MetalView GetWindowView(SDL_Window *window)
 {
     SDL_SysWMinfo info;
@@ -1816,25 +1811,23 @@ static SDL_Renderer *METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
     renderer->RenderPresent = METAL_RenderPresent;
     renderer->DestroyTexture = METAL_DestroyTexture;
     renderer->DestroyRenderer = METAL_DestroyRenderer;
-    renderer->SetVSync = METAL_SetVSync;
     renderer->GetMetalLayer = METAL_GetMetalLayer;
     renderer->GetMetalCommandEncoder = METAL_GetMetalCommandEncoder;
 
     renderer->info = METAL_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 
     renderer->always_batch = SDL_TRUE;
 
 #if (defined(__MACOSX__) && defined(MAC_OS_X_VERSION_10_13)) || TARGET_OS_MACCATALYST
     if (@available(macOS 10.13, *)) {
-        data.mtllayer.displaySyncEnabled = (flags & SDL_RENDERER_PRESENTVSYNC) != 0;
-        if (data.mtllayer.displaySyncEnabled) {
-            renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
-        }
+        renderer->SetVSync = METAL_SetVSync;
+
+        METAL_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
     } else
 #endif
     {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+        SDL_assert(renderer->info.flags == (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE));
+        renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
 
     /* https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf */

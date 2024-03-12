@@ -250,15 +250,10 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->SetVSync = VITA_GXM_SetVSync;
 
     renderer->info = VITA_GXM_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
     renderer->window = window;
 
-    if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        data->displayData.wait_vblank = SDL_TRUE;
-    } else {
-        data->displayData.wait_vblank = SDL_FALSE;
-    }
+    VITA_GXM_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
 
 #ifdef DEBUG_RAZOR
     sceSysmoduleLoadModule(SCE_SYSMODULE_RAZOR_HUD);

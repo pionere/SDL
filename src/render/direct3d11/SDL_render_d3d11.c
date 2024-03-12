@@ -2294,19 +2294,19 @@ static int D3D11_RenderPresent(SDL_Renderer *renderer)
     return 0;
 }
 
-#if SDL_WINAPI_FAMILY_PHONE
-/* no-op. */
-#else
 static int D3D11_SetVSync(SDL_Renderer *renderer, const int vsync)
 {
+#if SDL_WINAPI_FAMILY_PHONE
+    // see D3D11_CreateRenderer
+#else
     if (vsync) {
         renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
     } else {
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
+#endif
     return 0;
 }
-#endif
 
 SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
@@ -2349,8 +2349,8 @@ SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->RenderPresent = D3D11_RenderPresent;
     renderer->DestroyTexture = D3D11_DestroyTexture;
     renderer->DestroyRenderer = D3D11_DestroyRenderer;
+    renderer->SetVSync = D3D11_SetVSync;
     renderer->info = D3D11_RenderDriver.info;
-    renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
 
 #if SDL_WINAPI_FAMILY_PHONE
@@ -2365,12 +2365,16 @@ SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
      *
      *    DXGI ERROR: IDXGISwapChain::Present: Interval 0 is not supported, changed to Interval 1. [ UNKNOWN ERROR #1024: ]
      */
-    renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    SDL_assert(renderer->info.flags & SDL_RENDERER_PRESENTVSYNC);
+    // renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
 #else
     if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+        SDL_assert(renderer->info.flags & SDL_RENDERER_PRESENTVSYNC);
+        // renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        SDL_assert(renderer->info.flags == (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE));
+        renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     }
-    renderer->SetVSync = D3D11_SetVSync;
 #endif
 
     /* HACK: make sure the SDL_Renderer references the SDL_Window data now, in

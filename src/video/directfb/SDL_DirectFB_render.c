@@ -1075,6 +1075,18 @@ static void DirectFB_DestroyRenderer(SDL_Renderer * renderer)
     SDL_free(renderer);
 }
 
+static int DirectFB_SetVSync(SDL_Renderer *renderer, const int vsync)
+{
+    if (vsync) {
+        data->flipflags |= DSFLIP_WAITFORSYNC;
+        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        data->flipflags &= ~DSFLIP_WAITFORSYNC;
+        renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
+    }
+    return 0;
+}
+
 static int DirectFB_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * rect,
                      Uint32 format, void * pixels, int pitch)
 {
@@ -1166,25 +1178,26 @@ SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
 
     renderer->DestroyTexture = DirectFB_DestroyTexture;
     renderer->DestroyRenderer = DirectFB_DestroyRenderer;
+    renderer->SetVSync = DirectFB_SetVSync;
     renderer->SetRenderTarget = DirectFB_SetRenderTarget;
 
     renderer->info = DirectFB_RenderDriver.info;
     renderer->window = window;      /* SDL window */
     renderer->driverdata = data;
 
-    renderer->info.flags =
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
-
     data->window = window;
     data->target = winsurf;
 
-    data->flipflags = DSFLIP_PIPELINE | DSFLIP_BLIT;
+    data->flipflags = DSFLIP_PIPELINE | DSFLIP_BLIT | DSFLIP_ONSYNC;
 
     if (flags & SDL_RENDERER_PRESENTVSYNC) {
-        data->flipflags |= DSFLIP_WAITFORSYNC | DSFLIP_ONSYNC;
-        renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
-    } else
-        data->flipflags |= DSFLIP_ONSYNC;
+        data->flipflags |= DSFLIP_WAITFORSYNC;
+        SDL_assert(renderer->info.flags & SDL_RENDERER_PRESENTVSYNC);
+        // renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
+    } else {
+        SDL_assert(renderer->info.flags == (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE));
+        renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+    }
 
     SDL_DFB_CHECKERR(winsurf->GetCapabilities(winsurf, &scaps));
 
