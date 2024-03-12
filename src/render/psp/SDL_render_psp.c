@@ -87,7 +87,6 @@ typedef struct
     void *frontbuffer;         /**< main screen buffer */
     void *backbuffer;          /**< buffer presented to display */
     SDL_Texture *boundTarget;  /**< currently bound rendertarget */
-    SDL_bool initialized;      /**< is driver initialized */
     SDL_bool displayListAvail; /**< is the display list already initialized for this frame */
     unsigned int psm;          /**< format of the display buffers */
     unsigned int bpp;          /**< bits per pixel of the main display */
@@ -1263,10 +1262,6 @@ static void PSP_DestroyRenderer(SDL_Renderer *renderer)
 {
     PSP_RenderData *data = (PSP_RenderData *)renderer->driverdata;
     if (data) {
-        if (!data->initialized) {
-            return;
-        }
-
         StartDrawing(renderer);
 
         sceKernelDisableSubIntr(PSP_VBLANK_INT, 0);
@@ -1277,8 +1272,6 @@ static void PSP_DestroyRenderer(SDL_Renderer *renderer)
         vfree(data->backbuffer);
         vfree(data->frontbuffer);
 
-        data->initialized = SDL_FALSE;
-        data->displayListAvail = SDL_FALSE;
         SDL_free(data);
     }
     SDL_free(renderer);
@@ -1300,14 +1293,10 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     void *doublebuffer = NULL;
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data = (PSP_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
-        PSP_DestroyRenderer(renderer);
+    if (!renderer || !data) {
+        SDL_free(data);
+        SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
     }
@@ -1338,9 +1327,8 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->driverdata = data;
     renderer->window = window;
 
-    data->initialized = SDL_TRUE;
-    data->most_recent_target = NULL;
-    data->least_recent_target = NULL;
+    // data->most_recent_target = NULL;
+    // data->least_recent_target = NULL;
 
     if (flags & SDL_RENDERER_PRESENTVSYNC) {
         data->vsync = SDL_TRUE;
@@ -1404,7 +1392,7 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     return renderer;
 }
 
-SDL_RenderDriver PSP_RenderDriver = {
+const SDL_RenderDriver PSP_RenderDriver = {
     .CreateRenderer = PSP_CreateRenderer,
     .info = {
         .name = "PSP",

@@ -146,9 +146,9 @@ typedef struct
 typedef struct GLES2_RenderData
 {
     SDL_GLContext *context;
-
+#ifdef DEBUG_RENDER
     SDL_bool debug_enabled;
-
+#endif
     SDL_bool GL_EXT_blend_minmax_supported;
 
 #define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
@@ -2038,23 +2038,17 @@ static int GLES2_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
 static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
-    SDL_Renderer *renderer;
-    GLES2_RenderData *data;
-    Uint32 window_flags = 0; /* -Wconditional-uninitialized */
+    SDL_Renderer *renderer = NULL;
+    GLES2_RenderData *data = NULL;
+    Uint32 window_flags;
     GLint window_framebuffer;
     GLint value;
     int profile_mask = 0, major = 0, minor = 0;
     SDL_bool changed_window = SDL_FALSE;
 
-    if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile_mask) < 0) {
-        goto error;
-    }
-    if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major) < 0) {
-        goto error;
-    }
-    if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor) < 0) {
-        goto error;
-    }
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile_mask);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
 
     window_flags = window->flags;
 
@@ -2074,14 +2068,8 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
 
     /* Create the renderer struct */
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(SDL_Renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        goto error;
-    }
-
     data = (GLES2_RenderData *)SDL_calloc(1, sizeof(GLES2_RenderData));
-    if (!data) {
-        SDL_free(renderer);
+    if (!renderer ||!data) {
         SDL_OutOfMemory();
         goto error;
     }
@@ -2097,8 +2085,6 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
      || GLES2_LoadFunctions(data) < 0
      || GLES2_CacheShaders(data) < 0) {
         SDL_GL_DeleteContext(data->context);
-        SDL_free(renderer);
-        SDL_free(data);
         goto error;
     }
 
@@ -2208,6 +2194,8 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     return renderer;
 
 error:
+    SDL_free(data);
+    SDL_free(renderer);
     if (changed_window) {
         /* Uh oh, better try to put it back... */
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profile_mask);
@@ -2218,7 +2206,7 @@ error:
     return NULL;
 }
 
-SDL_RenderDriver GLES2_RenderDriver = {
+const SDL_RenderDriver GLES2_RenderDriver = {
     GLES2_CreateRenderer,
     { "opengles2",
       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE),

@@ -1877,7 +1877,7 @@ static SDL_Renderer *METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
     return renderer;
 }}
 
-SDL_RenderDriver METAL_RenderDriver = {
+const SDL_RenderDriver METAL_RenderDriver = {
     METAL_CreateRenderer,
     {
         "metal",

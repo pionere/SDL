@@ -2966,13 +2966,9 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
     D3D12_RenderData *data;
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data = (D3D12_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
+    if (!renderer || !data) {
+        SDL_free(data);
         SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
@@ -3018,26 +3014,21 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->window = window;
 
     /* Initialize Direct3D resources */
-    if (FAILED(D3D12_CreateDeviceResources(renderer))) {
+    if (FAILED(D3D12_CreateDeviceResources(renderer))
+     || FAILED(D3D12_CreateWindowSizeDependentResources(renderer))) {
         D3D12_DestroyRenderer(renderer);
-        return NULL;
-    }
-    if (FAILED(D3D12_CreateWindowSizeDependentResources(renderer))) {
-        D3D12_DestroyRenderer(renderer);
-        return NULL;
+        renderer = NULL;
     }
 
     return renderer;
 }
 
-SDL_RenderDriver D3D12_RenderDriver = {
+const SDL_RenderDriver D3D12_RenderDriver = {
     D3D12_CreateRenderer,
     {
         "direct3d12",
         (
-            SDL_RENDERER_ACCELERATED |
-            SDL_RENDERER_PRESENTVSYNC |
-            SDL_RENDERER_TARGETTEXTURE), /* flags.  see SDL_RendererFlags */
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE), /* flags.  see SDL_RendererFlags */
         6,                               /* num_texture_formats */
         {                                /* texture_formats */
           SDL_PIXELFORMAT_ARGB8888,

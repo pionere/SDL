@@ -613,14 +613,10 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_bool dynamicVsync;
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data = (PS2_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
-        PS2_DestroyRenderer(renderer);
+    if (!renderer || !data) {
+        SDL_free(data);
+        SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
     }
@@ -691,7 +687,7 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     return renderer;
 }
 
-SDL_RenderDriver PS2_RenderDriver = {
+const SDL_RenderDriver PS2_RenderDriver = {
     .CreateRenderer = PS2_CreateRenderer,
     .info = {
         .name = "PS2 gsKit",

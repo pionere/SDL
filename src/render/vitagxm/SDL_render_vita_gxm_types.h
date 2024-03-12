@@ -125,7 +125,6 @@ typedef struct
 
 typedef struct
 {
-    SDL_bool initialized;
     SDL_bool drawing;
 
     unsigned int psm;

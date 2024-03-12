@@ -1215,11 +1215,11 @@ SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
 }
 
 
-SDL_RenderDriver DirectFB_RenderDriver = {
+const SDL_RenderDriver DirectFB_RenderDriver = {
     DirectFB_CreateRenderer,
     {
      "directfb",
-     (SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE),
+     (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE),
      0,
      {
              /* formats filled in later */

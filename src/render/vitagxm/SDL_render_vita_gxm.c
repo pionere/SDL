@@ -100,7 +100,7 @@ static int VITA_GXM_RenderPresent(SDL_Renderer *renderer);
 static void VITA_GXM_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture);
 static void VITA_GXM_DestroyRenderer(SDL_Renderer *renderer);
 
-SDL_RenderDriver VITA_GXM_RenderDriver = {
+const SDL_RenderDriver VITA_GXM_RenderDriver = {
     .CreateRenderer = VITA_GXM_CreateRenderer,
     .info = {
         .name = "VITA gxm",
@@ -217,13 +217,9 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
     VITA_GXM_RenderData *data;
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data = (VITA_GXM_RenderData *)SDL_calloc(1, sizeof(VITA_GXM_RenderData));
-    if (!data) {
+    if (!renderer || !data) {
+        SDL_free(data);
         SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
@@ -257,8 +253,6 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info.flags = (SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
     renderer->driverdata = data;
     renderer->window = window;
-
-    data->initialized = SDL_TRUE;
 
     if (flags & SDL_RENDERER_PRESENTVSYNC) {
         data->displayData.wait_vblank = SDL_TRUE;
@@ -1212,14 +1206,8 @@ static void VITA_GXM_DestroyRenderer(SDL_Renderer *renderer)
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
     if (data) {
-        if (!data->initialized) {
-            return;
-        }
-
         gxm_finish(renderer);
 
-        data->initialized = SDL_FALSE;
-        data->drawing = SDL_FALSE;
         SDL_free(data);
     }
     SDL_free(renderer);

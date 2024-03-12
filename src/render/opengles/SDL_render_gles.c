@@ -1078,14 +1078,10 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        goto error;
-    }
-
     data = (GLES_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
-        GLES_DestroyRenderer(renderer);
+    if (!renderer || !data) {
+        SDL_free(data);
+        SDL_free(renderer);
         SDL_OutOfMemory();
         goto error;
     }
@@ -1118,16 +1114,9 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->window = window;
 
     data->context = SDL_GL_CreateContext(window);
-    if (!data->context) {
-        GLES_DestroyRenderer(renderer);
-        goto error;
-    }
-    if (SDL_GL_MakeCurrent(window, data->context) < 0) {
-        GLES_DestroyRenderer(renderer);
-        goto error;
-    }
-
-    if (GLES_LoadFunctions(data) < 0) {
+    if (!data->context
+     || SDL_GL_MakeCurrent(window, data->context) < 0
+     || GLES_LoadFunctions(data) < 0) {
         GLES_DestroyRenderer(renderer);
         goto error;
     }
@@ -1201,7 +1190,7 @@ error:
     return NULL;
 }
 
-SDL_RenderDriver GLES_RenderDriver = {
+const SDL_RenderDriver GLES_RenderDriver = {
     GLES_CreateRenderer,
     { "opengles",
       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC),

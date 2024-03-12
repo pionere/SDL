@@ -1539,11 +1539,7 @@ static int D3D_SetVSync(SDL_Renderer *renderer, const int vsync)
         data->pparams.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
-    if (D3D_Reset(renderer) < 0) {
-        /* D3D_Reset will call SDL_SetError() */
-        return -1;
-    }
-    return 0;
+    return D3D_Reset(renderer);
 }
 
 SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
@@ -1562,13 +1558,9 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     int displayIndex;
 
     renderer = (SDL_Renderer *) SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data = (D3D_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
+    if (!renderer || !data) {
+        SDL_free(data);
         SDL_free(renderer);
         SDL_OutOfMemory();
         return NULL;
@@ -1722,7 +1714,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     return renderer;
 }
 
-SDL_RenderDriver D3D_RenderDriver = {
+const SDL_RenderDriver D3D_RenderDriver = {
     D3D_CreateRenderer,
     { "direct3d",
       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE),

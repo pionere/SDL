@@ -1703,8 +1703,8 @@ static SDL_bool GL_IsProbablyAccelerated(const GL_RenderData *data)
 
 static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
-    SDL_Renderer *renderer;
-    GL_RenderData *data;
+    SDL_Renderer *renderer = NULL;
+    GL_RenderData *data = NULL;
     GLint value;
     Uint32 window_flags;
     int profile_mask = 0, major = 0, minor = 0;
@@ -1733,14 +1733,8 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
 #endif
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
-    if (!renderer) {
-        SDL_OutOfMemory();
-        goto error;
-    }
-
     data = (GL_RenderData *)SDL_calloc(1, sizeof(*data));
-    if (!data) {
-        SDL_free(renderer);
+    if (!renderer || !data) {
         SDL_OutOfMemory();
         goto error;
     }
@@ -1777,22 +1771,10 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->window = window;
 
     data->context = SDL_GL_CreateContext(window);
-    if (!data->context) {
-        SDL_free(renderer);
-        SDL_free(data);
-        goto error;
-    }
-    if (SDL_GL_MakeCurrent(window, data->context) < 0) {
+    if (!data->context
+     || SDL_GL_MakeCurrent(window, data->context) < 0
+     || GL_LoadFunctions(data) < 0) {
         SDL_GL_DeleteContext(data->context);
-        SDL_free(renderer);
-        SDL_free(data);
-        goto error;
-    }
-
-    if (GL_LoadFunctions(data) < 0) {
-        SDL_GL_DeleteContext(data->context);
-        SDL_free(renderer);
-        SDL_free(data);
         goto error;
     }
 
@@ -1941,6 +1923,8 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     return renderer;
 
 error:
+    SDL_free(data);
+    SDL_free(renderer);
     if (changed_window) {
         /* Uh oh, better try to put it back... */
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, profile_mask);
@@ -1951,7 +1935,7 @@ error:
     return NULL;
 }
 
-SDL_RenderDriver GL_RenderDriver = {
+const SDL_RenderDriver GL_RenderDriver = {
     GL_CreateRenderer,
     { "opengl",
       (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE),
