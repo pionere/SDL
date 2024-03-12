@@ -975,25 +975,33 @@ SDL_VideoDisplay *SDL_GetDisplay(int displayIndex)
 }
 
 /**
- * If x, y are outside of rect, snaps them to the closest point inside rect
- * (between rect->x, rect->y, inclusive, and rect->x + w, rect->y + h, exclusive)
+ * Get the distance between the point and the rectangle. If the point is inside
+ * the rectangle, the distance is zero, otherwise the result is the
+ * Manhattan-distance to avoid overflow.
  */
-static void SDL_GetClosestPointOnRect(const SDL_Rect *rect, SDL_Point *point)
+static int SDL_GetDistanceFromRect(const SDL_Point *point, const SDL_Rect *rect)
 {
     const int right = rect->x + rect->w - 1;
     const int bottom = rect->y + rect->h - 1;
+    int dx, dy;
 
-    if (point->x < rect->x) {
-        point->x = rect->x;
-    } else if (point->x > right) {
-        point->x = right;
+    dx = rect->x - point->x;
+    if (dx < 0) {
+        dx = point->x - right;
+        if (dx < 0) {
+            dx = 0;
+        }
     }
 
-    if (point->y < rect->y) {
-        point->y = rect->y;
-    } else if (point->y > bottom) {
-        point->y = bottom;
+    dy = rect->y - point->y;
+    if (dy < 0) {
+        dy = point->y - bottom;
+        if (dy < 0) {
+            dy = 0;
+        }
     }
+
+    return dx + dy;
 }
 
 static int GetPointDisplayIndex(int x, int y)
@@ -1001,7 +1009,7 @@ static int GetPointDisplayIndex(int x, int y)
     int i, dist;
     int closest = -1;
     int closest_dist = 0x7FFFFFFF;
-    SDL_Point center, delta, closest_point_on_display;
+    SDL_Point center;
 
     center.x = x;
     center.y = y;
@@ -1012,19 +1020,7 @@ static int GetPointDisplayIndex(int x, int y)
             SDL_VideoDisplay *display = &_this->displays[i];
             SDL_PrivateGetDisplayBounds(display, &display_rect);
 
-            /* Check if the window is fully enclosed */
-            if (SDL_PointInRect(&center, &display_rect)) {
-                return i;
-            }
-
-            /* Snap window center to the display rect */
-            closest_point_on_display = center;
-            SDL_GetClosestPointOnRect(&display_rect, &closest_point_on_display);
-
-            delta.x = center.x - closest_point_on_display.x;
-            delta.y = center.y - closest_point_on_display.y;
-            // dist = (delta.x * delta.x + delta.y * delta.y); -- use Manhattan distance to avoid possible overflow
-            dist = SDL_abs(delta.x) + SDL_abs(delta.y);
+            dist = SDL_GetDistanceFromRect(&center, &display_rect);
             if (dist < closest_dist) {
                 closest = i;
                 closest_dist = dist;
@@ -1052,7 +1048,7 @@ int SDL_GetRectDisplayIndex(const SDL_Rect *rect)
     if (!rect) {
         return SDL_InvalidParamError("rect");
     }
-    return GetPointDisplayIndex(rect->x + rect->w / 2, rect->y + rect->h / 2);
+    return GetPointDisplayIndex(rect->x + (rect->w >> 1), rect->y + (rect->h >> 1));
 }
 
 int SDL_GetWindowDisplayIndex(SDL_Window *window)
