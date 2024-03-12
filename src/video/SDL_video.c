@@ -96,15 +96,15 @@ static const VideoBootStrap *const bootstrap[] = {
 
 static SDL_VideoDevice current_video;
 
-#define TEST_VIDEO(...)                    \
+#define TEST_VIDEO(...)                       \
     if (current_video.vdriver_name == NULL) { \
-        return __VA_ARGS__;                        \
+        return __VA_ARGS__;                   \
     }
 
-#define CHECK_VIDEO(...)                   \
+#define CHECK_VIDEO(...)                      \
     if (current_video.vdriver_name == NULL) { \
         SDL_UninitializedVideo();             \
-        return __VA_ARGS__;                        \
+        return __VA_ARGS__;                   \
     }
 
 #define CHECK_WINDOW_MAGIC(window, retval)                         \
@@ -462,7 +462,7 @@ void SDL_PrivatePumpEvents(void)
 
 SDL_bool SDL_HasWaitTimeoutSupport(void)
 {
-    TEST_VIDEO(SDL_FALSE)
+    // TEST_VIDEO(SDL_FALSE)
     return current_video.SendWakeupEvent != NULL /*&& current_video.WaitEventTimeout != NULL*/;
 }
 
@@ -1019,7 +1019,7 @@ static int GetPointDisplayIndex(int x, int y)
     center.x = x;
     center.y = y;
 
-    if (SDL_HasVideoDevice()) {
+    // if (SDL_HasVideoDevice()) {
         for (i = 0; i < current_video.num_displays; ++i) {
             SDL_Rect display_rect;
             SDL_VideoDisplay *display = &current_video.displays[i];
@@ -1031,7 +1031,7 @@ static int GetPointDisplayIndex(int x, int y)
                 closest_dist = dist;
             }
         }
-    }
+    // }
 
     if (closest < 0) {
         SDL_SetError("Couldn't find any displays");
@@ -1430,7 +1430,7 @@ static SDL_INLINE void PrepareDragAndDropSupport(SDL_Window *window)
 /* toggle d'n'd for all existing windows. */
 void SDL_ToggleDragAndDropSupport(void)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (current_video.AcceptDragAndDrop) {
         const SDL_bool enable = IsAcceptingDragAndDrop();
@@ -1908,7 +1908,7 @@ int SDL_CheckWindow(SDL_Window *window)
 
 SDL_bool SDL_HasWindows(void)
 {
-    TEST_VIDEO(SDL_FALSE)
+    // TEST_VIDEO(SDL_FALSE)
 
     return current_video.windows != NULL;
 }
@@ -1930,7 +1930,7 @@ SDL_Window *SDL_GetWindowFromID(Uint32 id)
 {
     SDL_Window *window;
 
-    TEST_VIDEO(NULL)
+    // TEST_VIDEO(NULL)
 
     for (window = current_video.windows; window; window = window->next) {
         if (window->id == id) {
@@ -3116,7 +3116,7 @@ SDL_Window *SDL_GetFocusWindow(void)
 {
     SDL_Window *window;
 
-    TEST_VIDEO(NULL)
+    // TEST_VIDEO(NULL)
 
     for (window = current_video.windows; window; window = window->next) {
         if (window->flags & SDL_WINDOW_INPUT_FOCUS) {
@@ -3288,14 +3288,14 @@ void SDL_DestroyWindow(SDL_Window *window)
 
 SDL_bool SDL_IsScreenSaverEnabled(void)
 {
-    TEST_VIDEO(SDL_TRUE)
+    // TEST_VIDEO(SDL_TRUE)
 
     return current_video.suspend_screensaver ? SDL_FALSE : SDL_TRUE;
 }
 
 void SDL_EnableScreenSaver(void)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (!current_video.suspend_screensaver) {
         return;
@@ -3382,24 +3382,24 @@ void *SDL_GL_GetProcAddress(const char *proc)
 {
     void *func;
 
-    CHECK_VIDEO(NULL)
+    // CHECK_VIDEO(NULL)
 
     func = NULL;
-    if (current_video.GL_GetProcAddress) {
-        if (current_video.gl_config.driver_loaded) {
+    if (current_video.gl_config.driver_loaded) {
+        if (current_video.GL_GetProcAddress) {
             func = current_video.GL_GetProcAddress(proc);
         } else {
-            SDL_SetError("No GL driver has been loaded");
+            SDL_SetError("No dynamic GL support in current SDL video driver (%s)", current_video.vdriver_name);
         }
     } else {
-        SDL_SetError("No dynamic GL support in current SDL video driver (%s)", current_video.vdriver_name);
+        SDL_SetError("No GL driver has been loaded");
     }
     return func;
 }
 
 void SDL_GL_UnloadLibrary(void)
 {
-    CHECK_VIDEO( )
+    // CHECK_VIDEO( )
 
     if (current_video.gl_config.driver_loaded > 0) {
         if (--current_video.gl_config.driver_loaded > 0) {
@@ -3526,7 +3526,7 @@ void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor)
 
 void SDL_GL_ResetAttributes(void)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     current_video.gl_config.red_size = 3;
     current_video.gl_config.green_size = 3;
@@ -3989,7 +3989,7 @@ int SDL_GL_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 {
     int retval;
 
-    CHECK_VIDEO(-1)
+    // CHECK_VIDEO(-1)
 
     if (!current_video.gl_config.driver_loaded) {
         return SDL_SetError("No GL driver has been loaded");
@@ -4110,7 +4110,7 @@ void SDL_GL_SwapWindow(SDL_Window *window)
 
 void SDL_GL_DeleteContext(SDL_GLContext context)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (!context || !current_video.gl_config.driver_loaded) {
         return;
@@ -4350,7 +4350,7 @@ void SDL_StopTextInput(void)
     SDL_Window *window;
 
     /* Stop the text input system */
-    if (SDL_HasVideoDevice()) {
+    // if (SDL_HasVideoDevice()) {
         if (current_video.StopTextInput) {
             current_video.StopTextInput();
         }
@@ -4362,7 +4362,7 @@ void SDL_StopTextInput(void)
                 current_video.HideScreenKeyboard(window);
             }
         }
-    }
+    // }
 
     /* Finally disable text events */
     (void)SDL_EventState(SDL_TEXTINPUT, SDL_DISABLE);
@@ -4404,7 +4404,7 @@ SDL_bool SDL_IsScreenKeyboardShown(SDL_Window *window)
 
 void SDL_TextInputInit(void)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (current_video.StartTextInput) {
         current_video.StartTextInput();
@@ -4413,7 +4413,7 @@ void SDL_TextInputInit(void)
 
 void SDL_TextInputQuit(void)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (current_video.StopTextInput) {
         current_video.StopTextInput();
@@ -4803,13 +4803,13 @@ void SDL_OnApplicationDidReceiveMemoryWarning(void)
 
 void SDL_OnApplicationWillResignActive(void)
 {
-    if (SDL_HasVideoDevice()) {
+    // if (SDL_HasVideoDevice()) {
         SDL_Window *window;
         for (window = current_video.windows; window; window = window->next) {
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_FOCUS_LOST, 0, 0);
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
         }
-    }
+    // }
     SDL_SendAppEvent(SDL_APP_WILLENTERBACKGROUND);
 }
 
@@ -4825,15 +4825,16 @@ void SDL_OnApplicationWillEnterForeground(void)
 
 void SDL_OnApplicationDidBecomeActive(void)
 {
+    SDL_Window *window;
+
     SDL_SendAppEvent(SDL_APP_DIDENTERFOREGROUND);
 
-    if (SDL_HasVideoDevice()) {
-        SDL_Window *window;
+    // if (SDL_HasVideoDevice()) {
         for (window = current_video.windows; window; window = window->next) {
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_FOCUS_GAINED, 0, 0);
             SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESTORED, 0, 0);
         }
-    }
+    // }
 }
 
 #ifdef SDL_VIDEO_VULKAN
@@ -4861,7 +4862,7 @@ int SDL_Vulkan_LoadLibrary(const char *path)
 
 void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
 {
-    CHECK_VIDEO(NULL)
+    // CHECK_VIDEO(NULL)
 
     if (!current_video.vulkan_config.loader_loaded) {
         SDL_SetError("No Vulkan loader has been loaded");
@@ -4872,7 +4873,7 @@ void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
 
 void SDL_Vulkan_UnloadLibrary(void)
 {
-    CHECK_VIDEO( )
+    // CHECK_VIDEO( )
 
     if (current_video.vulkan_config.loader_loaded > 0) {
         if (--current_video.vulkan_config.loader_loaded > 0) {
@@ -5009,7 +5010,7 @@ SDL_MetalView SDL_Metal_CreateView(SDL_Window *window)
 
 void SDL_Metal_DestroyView(SDL_MetalView view)
 {
-    TEST_VIDEO( )
+    // TEST_VIDEO( )
 
     if (view && current_video.Metal_DestroyView) {
         current_video.Metal_DestroyView(view);
