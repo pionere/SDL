@@ -218,31 +218,23 @@ static int KMSDRM_Available(void)
 static void KMSDRM_DeleteDevice(_THIS)
 {
     SDL_zero(kmsdrmVideoData);
-    SDL_free(_this);
 
     SDL_KMSDRM_UnloadSymbols();
 }
 
-static SDL_VideoDevice *KMSDRM_CreateDevice(void)
+static SDL_bool KMSDRM_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     int devindex;
 
     devindex = KMSDRM_Available();
     if (devindex < 0) {
         SDL_SetError("devindex (%d) must not be negative.", devindex);
-        return NULL;
+        return SDL_FALSE;
     }
 
     if (!SDL_KMSDRM_LoadSymbols()) {
-        return NULL;
-    }
-
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
+        return SDL_FALSE;
     }
 
     viddata->devindex = devindex;
@@ -367,7 +359,7 @@ static SDL_VideoDevice *KMSDRM_CreateDevice(void)
 
     device->DeleteDevice = KMSDRM_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "KMS/DRM Video Driver" */
 const VideoBootStrap KMSDRM_bootstrap = {

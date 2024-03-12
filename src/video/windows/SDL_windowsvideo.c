@@ -100,23 +100,15 @@ static void WIN_DeleteDevice(_THIS)
         SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(winVideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *WIN_CreateDevice(void)
+static SDL_bool WIN_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
     WIN_VideoData *data = &winVideoData;
 
     SDL_RegisterApp(NULL, 0, NULL);
 
     /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->wakeup_lock = SDL_CreateMutex();
 
@@ -268,7 +260,7 @@ static SDL_VideoDevice *WIN_CreateDevice(void)
 
     device->DeleteDevice = WIN_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 
 /* "SDL Windows video driver"*/

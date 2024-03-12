@@ -49,23 +49,11 @@ static void UIKit_VideoQuit(_THIS);
 
 static void UIKit_DeleteDevice(_THIS)
 {
-    @autoreleasepool {
-        SDL_free(_this);
-    }
 }
 
-static SDL_VideoDevice *UIKit_CreateDevice(void)
+static SDL_bool UIKit_CreateDevice(SDL_VideoDevice *device)
 {
     @autoreleasepool {
-        SDL_VideoDevice *device;
-
-        /* Initialize all variables that we clean on shutdown */
-        device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-        if (!device) {
-            SDL_OutOfMemory();
-            return (0);
-        }
-
         /* Set the function pointers */
         /* Initialization/Query functions */
         device->VideoInit = UIKit_VideoInit;
@@ -189,7 +177,7 @@ static SDL_VideoDevice *UIKit_CreateDevice(void)
 
         device->DeleteDevice = UIKit_DeleteDevice;
 
-        return device;
+        return SDL_TRUE;
     }
 }
 /* "SDL UIKit video driver" */

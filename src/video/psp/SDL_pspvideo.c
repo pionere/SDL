@@ -55,20 +55,10 @@ static void PSP_DeleteDevice(_THIS)
 #ifdef SDL_VIDEO_OPENGL
     SDL_zero(pspVideoData);
 #endif
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *PSP_CreateDevice(void)
+static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = PSP_VideoInit;
@@ -193,7 +183,7 @@ static SDL_VideoDevice *PSP_CreateDevice(void)
 
     device->DeleteDevice = PSP_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "PSP Video Driver" */
 const VideoBootStrap PSP_bootstrap = {

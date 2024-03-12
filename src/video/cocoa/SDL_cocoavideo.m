@@ -59,28 +59,21 @@ static void Cocoa_DeleteDevice(_THIS)
     CFBridgingRelease((__bridge void *)cocoaVideoData);
     // CFRelease((__bridge CFTypeRef)cocoaVideoData);
     cocoaVideoData = nil;
-    SDL_free(_this);
 }}
 
-static SDL_VideoDevice *Cocoa_CreateDevice(void)
+static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
 { @autoreleasepool
 {
-    SDL_VideoDevice *device;
     Cocoa_VideoData *data;
 
     Cocoa_RegisterApp();
 
     /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device) {
-        data = [[Cocoa_VideoData alloc] init];
-    } else {
-        data = nil;
-    }
+    data = [[Cocoa_VideoData alloc] init];
+
     if (!data) {
         SDL_OutOfMemory();
-        SDL_free(device);
-        return NULL;
+        return SDL_FALSE;
     }
     cocoaVideoData = (__bridge Cocoa_VideoData *)CFBridgingRetain(data);
     device->wakeup_lock = SDL_CreateMutex();
@@ -197,7 +190,7 @@ static SDL_VideoDevice *Cocoa_CreateDevice(void)
 
     device->DeleteDevice = Cocoa_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }}
 /* "SDL Cocoa video driver" */
 const VideoBootStrap COCOA_bootstrap = {

@@ -52,21 +52,10 @@ Vivante_VideoData vivanteVideoData;
 static void VIVANTE_DeleteDevice(_THIS)
 {
     SDL_zero(vivanteVideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *VIVANTE_CreateDevice(void)
+static SDL_bool VIVANTE_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-    Vivante_VideoData *data = &vivanteVideoData;
-
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = VIVANTE_VideoInit;
@@ -188,8 +177,7 @@ static SDL_VideoDevice *VIVANTE_CreateDevice(void)
 
     device->DeleteDevice = VIVANTE_DeleteDevice;
 
-
-    return device;
+    return SDL_TRUE;
 }
 /* "Vivante EGL Video Driver" */
 const VideoBootStrap VIVANTE_bootstrap = {

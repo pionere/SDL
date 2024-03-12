@@ -54,16 +54,8 @@ static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
 }
 
-static SDL_VideoDevice * HAIKU_CreateDevice(void)
+static SDL_bool HAIKU_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device == NULL) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
 /* TODO: Figure out if any initialization needs to go here */
 
     /* Set the function pointers */
@@ -187,7 +179,7 @@ static SDL_VideoDevice * HAIKU_CreateDevice(void)
 
     device->DeleteDevice = HAIKU_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "Haiku graphics" */
 const VideoBootStrap HAIKU_bootstrap = {
@@ -196,7 +188,6 @@ const VideoBootStrap HAIKU_bootstrap = {
 
 void HAIKU_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
 static SDL_Cursor * HAIKU_CreateSystemCursor(SDL_SystemCursor id)

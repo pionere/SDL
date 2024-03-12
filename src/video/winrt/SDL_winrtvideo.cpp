@@ -102,21 +102,10 @@ SDL_Window *WINRT_GlobalSDLWindow = NULL;
 static void WINRT_DeleteDevice(_THIS)
 {
     SDL_zero(winrtVideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *WINRT_CreateDevice(void)
+static SDL_bool WINRT_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-    WinRT_VideoData *data = &winrtVideoData;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = WINRT_VideoInit;
@@ -242,7 +231,7 @@ static SDL_VideoDevice *WINRT_CreateDevice(void)
 
     device->DeleteDevice = WINRT_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL WinRT video driver" */
 const VideoBootStrap WINRT_bootstrap = {

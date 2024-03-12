@@ -69,25 +69,14 @@ static void VITA_DeleteDevice(_THIS)
     VITA_GLES_UnloadLibrary(_this);
 #endif
     SDL_zero(vitaVideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *VITA_CreateDevice(void)
+static SDL_bool VITA_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-    // Vita_VideoData *phdata = &vitaVideoData;
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Initialize internal VITA specific data */
 #ifdef SDL_VIDEO_VITA_PIB
     if (VITA_GLES_LoadLibrary(device, NULL) < 0) {
-        SDL_free(device);
-        return NULL;
+        return SDL_FALSE;
     }
     device->gl_config.driver_loaded = 1;
 #endif
@@ -226,7 +215,7 @@ static SDL_VideoDevice *VITA_CreateDevice(void)
 
     device->DeleteDevice = VITA_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "VITA Video Driver" */
 const VideoBootStrap VITA_bootstrap = {

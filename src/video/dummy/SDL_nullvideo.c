@@ -59,20 +59,10 @@ static void DUMMY_EVDEV_Poll(_THIS);
 
 static void DUMMY_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *DUMMY_CreateDevice(void)
+static SDL_bool DUMMY_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return 0;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = DUMMY_VideoInit;
@@ -190,7 +180,7 @@ static SDL_VideoDevice *DUMMY_CreateDevice(void)
 
     device->DeleteDevice = DUMMY_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL dummy video driver" */
 const VideoBootStrap DUMMY_bootstrap = {
@@ -198,15 +188,14 @@ const VideoBootStrap DUMMY_bootstrap = {
 };
 
 #ifdef SDL_INPUT_LINUXEV
-static SDL_VideoDevice *DUMMY_CreateDeviceEvdev(void)
+static SDL_bool DUMMY_CreateDeviceEvdev(_THIS)
 {
-    SDL_VideoDevice *device = DUMMY_CreateDevice();
-
-    if (device) {
-        device->PumpEvents = DUMMY_EVDEV_Poll;
+    SDL_bool result = DUMMY_CreateDevice(_this);
+    if (result) {
+        _this->PumpEvents = DUMMY_EVDEV_Poll;
     }
 
-    return device;
+    return result;
 }
 
 const VideoBootStrap DUMMY_evdev_bootstrap = {

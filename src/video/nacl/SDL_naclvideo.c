@@ -85,11 +85,11 @@ static int NACL_Available(void) {
     return PSGetInstanceId() != 0;
 }
 
-static void NACL_DeleteDevice(_THIS) {
+static void NACL_DeleteDevice(_THIS)
+{
     NACL_VideoData *driverdata = &naclVideoData;
     driverdata->ppb_core->ReleaseResource((PP_Resource) driverdata->ppb_message_loop);
     // SDL_zero(naclVideoData); -- do not clear, to remember the window width and height
-    SDL_free(_this);
 }
 
 static int NACL_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mode)
@@ -97,18 +97,10 @@ static int NACL_SetDisplayMode(SDL_VideoDisplay * display, SDL_DisplayMode * mod
     return 0;
 }
 
-static SDL_VideoDevice *NACL_CreateDevice(void) {
-    SDL_VideoDevice *device;
-
+static SDL_bool NACL_CreateDevice(SDL_VideoDevice *device)
+{
     if (!NACL_Available()) {
-        return NULL;
-    }
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
+        return SDL_FALSE;
     }
 
     /* Set the function pointers */
@@ -231,7 +223,7 @@ static SDL_VideoDevice *NACL_CreateDevice(void) {
     device->DeleteDevice = NACL_DeleteDevice;
 
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL Native Client Video Driver" */
 const VideoBootStrap NACL_bootstrap = {

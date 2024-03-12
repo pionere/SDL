@@ -54,21 +54,10 @@ static void RISCOS_VideoQuit(_THIS);
 static void RISCOS_DeleteDevice(_THIS)
 {
     SDL_zero(riscosVideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *RISCOS_CreateDevice(void)
+static SDL_bool RISCOS_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-    RiscOS_VideoData *phdata = &riscosVideoData;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = RISCOS_VideoInit;
@@ -190,7 +179,7 @@ static SDL_VideoDevice *RISCOS_CreateDevice(void)
 
     device->DeleteDevice = RISCOS_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL RISC OS video driver" */
 const VideoBootStrap RISCOS_bootstrap = {

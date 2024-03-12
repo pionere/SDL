@@ -67,20 +67,10 @@ static void PND_DeleteDevice(_THIS)
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_zero(pandoraVideoData);
 #endif
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *PND_CreateDevice(void)
+static SDL_bool PND_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = PND_VideoInit;
@@ -204,7 +194,7 @@ static SDL_VideoDevice *PND_CreateDevice(void)
 
     device->DeleteDevice = PND_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL Wiz Video Driver" / "SDL Pandora Video Driver" */
 const VideoBootStrap PND_bootstrap = {

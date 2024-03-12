@@ -170,13 +170,11 @@ static void Wayland_DeleteDevice(_THIS)
         SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(waylandVideoData);
-    SDL_free(_this);
     SDL_WAYLAND_UnloadSymbols();
 }
 
-static SDL_VideoDevice *Wayland_CreateDevice(void)
+static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
     Wayland_VideoData *data = &waylandVideoData;
     struct SDL_WaylandInput *input;
     struct wl_display *display;
@@ -185,18 +183,18 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     if (!getenv("WAYLAND_DISPLAY")) {
         const char *session = getenv("XDG_SESSION_TYPE");
         if (session && SDL_strcasecmp(session, "wayland")) {
-            return NULL;
+            return SDL_FALSE;
         }
     }
 
     if (!SDL_WAYLAND_LoadSymbols()) {
-        return NULL;
+        return SDL_FALSE;
     }
 
     display = WAYLAND_wl_display_connect(NULL);
     if (!display) {
         SDL_WAYLAND_UnloadSymbols();
-        return NULL;
+        return SDL_FALSE;
     }
 
     input = SDL_calloc(1, sizeof(*input));
@@ -204,7 +202,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
         WAYLAND_wl_display_disconnect(display);
         SDL_WAYLAND_UnloadSymbols();
         SDL_OutOfMemory();
-        return NULL;
+        return SDL_FALSE;
     }
 
     input->sx_w = wl_fixed_from_int(0);
@@ -216,15 +214,6 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     data->input = input;
 
     /* Initialize all variables that we clean on shutdown */
-    device = SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_free(input);
-        WAYLAND_wl_display_disconnect(display);
-        SDL_WAYLAND_UnloadSymbols();
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
@@ -351,7 +340,7 @@ static SDL_VideoDevice *Wayland_CreateDevice(void)
     device->quirk_flags = VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING |
                           VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL Wayland video driver" */
 const VideoBootStrap Wayland_bootstrap = {

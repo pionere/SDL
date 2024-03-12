@@ -1588,20 +1588,10 @@ static int OS2_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 static void OS2_DeleteDevice(_THIS)
 {
     SDL_zero(os2VideoData);
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *OS2_CreateDevice(void)
+static SDL_bool OS2_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = OS2_VideoInit;
@@ -1723,29 +1713,29 @@ static SDL_VideoDevice *OS2_CreateDevice(void)
 
     device->DeleteDevice = OS2_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 
-static SDL_VideoDevice *OS2DIVE_CreateDevice(void)
+static SDL_bool OS2DIVE_CreateDevice(_THIS)
 {
     OS2_VideoData *pVData = &os2VideoData;
     VIDEOOUTPUTINFO stVOInfo;
     if (!voDive.QueryInfo(&stVOInfo)) {
-        return NULL;
+        return SDL_FALSE;
     }
     pVData->pOutput = &voDive;
-    return OS2_CreateDevice();
+    return OS2_CreateDevice(_this);
 }
 
-static SDL_VideoDevice *OS2VMAN_CreateDevice(void)
+static SDL_bool OS2VMAN_CreateDevice(_THIS)
 {
     OS2_VideoData *pVData = &os2VideoData;
     VIDEOOUTPUTINFO stVOInfo;
     if (!voVMan.QueryInfo(&stVOInfo)) {
-          return NULL;
+          return SDL_FALSE;
     }
     pVData->pOutput = &voVMan;
-    return OS2_CreateDevice();
+    return OS2_CreateDevice(_this);
 }
 
 

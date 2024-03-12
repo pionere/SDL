@@ -112,7 +112,6 @@ static void X11_DeleteDevice(_THIS)
         SDL_DestroyMutex(_this->wakeup_lock);
     }
     SDL_zero(x11VideoData);
-    SDL_free(_this);
 
     SDL_X11_UnloadSymbols();
 }
@@ -144,15 +143,14 @@ static int X11_SafetyNetErrHandler(Display *d, XErrorEvent *e)
     return 0;
 }
 
-static SDL_VideoDevice *X11_CreateDevice(void)
+static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
     X11_VideoData *data = &x11VideoData;
     const char *display = NULL; /* Use the DISPLAY environment variable */
     Display *x11_display = NULL;
 
     if (!SDL_X11_LoadSymbols()) {
-        return NULL;
+        return SDL_FALSE;
     }
 
     /* Need for threading gl calls. This is also required for the proprietary
@@ -165,18 +163,10 @@ static SDL_VideoDevice *X11_CreateDevice(void)
     if (!x11_display) {
         SDL_X11_UnloadSymbols();
         SDL_SetError("Couldn't open display");
-        return NULL;
+        return SDL_FALSE;
     }
 
     /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        X11_XCloseDisplay(x11_display);
-        SDL_X11_UnloadSymbols();
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     data->global_mouse_changed = SDL_TRUE;
 
 #ifdef SDL_VIDEO_DRIVER_X11_XFIXES
@@ -185,11 +175,10 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 
     data->request_display = X11_XOpenDisplay(display);
     if (!data->request_display) {
-        SDL_free(device);
         X11_XCloseDisplay(x11_display);
         SDL_X11_UnloadSymbols();
         SDL_SetError("Couldn't open display (request)");
-        return NULL;
+        return SDL_FALSE;
     }
     data->display = x11_display;
 
@@ -332,7 +321,7 @@ static SDL_VideoDevice *X11_CreateDevice(void)
 
     device->DeleteDevice = X11_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL X11 video driver" */
 const VideoBootStrap X11_bootstrap = {

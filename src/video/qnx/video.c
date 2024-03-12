@@ -318,22 +318,14 @@ static void QNX_DestroyWindow(SDL_Window *window)
  */
 static void QNX_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
 /**
  * Creates the QNX video plugin used by SDL.
  * @return  Initialized device if successful, NULL otherwise
  */
-static SDL_VideoDevice *QNX_CreateDevice(void)
+static SDL_bool QNX_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = QNX_VideoInit;
@@ -455,7 +447,7 @@ static SDL_VideoDevice *QNX_CreateDevice(void)
 
     device->DeleteDevice = QNX_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "QNX Screen" */
 const VideoBootStrap QNX_bootstrap = {

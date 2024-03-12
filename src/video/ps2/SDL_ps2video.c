@@ -112,17 +112,8 @@ static void PS2_PumpEvents(_THIS)
     /* do nothing. */
 }
 
-static SDL_VideoDevice *PS2_CreateDevice(void)
+static SDL_bool PS2_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return 0;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = PS2_VideoInit;
@@ -244,7 +235,7 @@ static SDL_VideoDevice *PS2_CreateDevice(void)
 
     device->DeleteDevice = PS2_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 // "PS2 Video Driver"
 const VideoBootStrap PS2_bootstrap = {

@@ -62,7 +62,6 @@
 
 static void RPI_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
 static int RPI_GetRefreshRate()
@@ -79,17 +78,8 @@ static int RPI_GetRefreshRate()
     return 60; /* Failed to get display state, default to 60 */
 }
 
-static SDL_VideoDevice *RPI_CreateDevice(void)
+static SDL_bool RPI_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = RPI_VideoInit;
@@ -213,7 +203,7 @@ static SDL_VideoDevice *RPI_CreateDevice(void)
 
     device->DeleteDevice = RPI_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "RPI Video Driver"*/
 const VideoBootStrap RPI_bootstrap = {

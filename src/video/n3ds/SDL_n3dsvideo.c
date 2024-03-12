@@ -56,17 +56,10 @@ typedef struct
 
 static void N3DS_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *N3DS_CreateDevice(void)
+static SDL_bool N3DS_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return 0;
-    }
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = N3DS_VideoInit;
@@ -184,7 +177,7 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
 
     device->DeleteDevice = N3DS_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 // "N3DS Video Driver"
 const VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };

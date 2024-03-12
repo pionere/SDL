@@ -68,7 +68,7 @@ DFB_VideoData dfbVideoData;
 static int DirectFB_VideoInit(_THIS);
 static void DirectFB_VideoQuit(_THIS);
 
-static SDL_VideoDevice *DirectFB_CreateDevice(void);
+static SDL_bool DirectFB_CreateDevice(SDL_VideoDevice *device);
 /* "DirectFB" */
 const VideoBootStrap DirectFB_bootstrap = {
     "directfb", DirectFB_CreateDevice
@@ -83,22 +83,12 @@ static void DirectFB_DeleteDevice(_THIS)
 {
     SDL_DirectFB_UnLoadLibrary();
     SDL_zero(dfbVideoData);
-    SDL_DFB_FREE(_this);
 }
 
-static SDL_VideoDevice *DirectFB_CreateDevice(void)
+static SDL_bool DirectFB_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
     if (!SDL_DirectFB_LoadLibrary()) {
-        return NULL;
-    }
-
-    /* Initialize all variables that we clean on shutdown */
-    device = SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_DirectFB_UnLoadLibrary();
-        return NULL;
+        return SDL_FALSE;
     }
 
     /* Set the function pointers */
@@ -220,7 +210,7 @@ static SDL_VideoDevice *DirectFB_CreateDevice(void)
 
     device->DeleteDevice = DirectFB_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 
 static void DirectFB_DeviceInformation(IDirectFB * dfb)

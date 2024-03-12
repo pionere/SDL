@@ -62,20 +62,10 @@ static void Emscripten_SetWindowTitle(SDL_Window *window);
 
 static void Emscripten_DeleteDevice(_THIS)
 {
-    SDL_free(_this);
 }
 
-static SDL_VideoDevice *Emscripten_CreateDevice(void)
+static SDL_bool Emscripten_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize all variables that we clean on shutdown */
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (!device) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     /* Firefox sends blur event which would otherwise prevent full screen
      * when the user clicks to allow full screen.
      * See https://bugzilla.mozilla.org/show_bug.cgi?id=1144964
@@ -203,7 +193,7 @@ static SDL_VideoDevice *Emscripten_CreateDevice(void)
 
     device->DeleteDevice = Emscripten_DeleteDevice;
 
-    return device;
+    return SDL_TRUE;
 }
 /* "SDL emscripten video driver" */
 const VideoBootStrap Emscripten_bootstrap = {
