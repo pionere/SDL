@@ -1955,6 +1955,9 @@ static int GLES2_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
 static int GLES2_RenderPresent(SDL_Renderer *renderer)
 {
+    // if (!renderer->batching) {
+    //    GLES_ActivateRenderer(renderer);
+    // }
     /* Tell the video driver to swap buffers */
     return SDL_GL_SwapWindowWithResult(renderer->window);
 }

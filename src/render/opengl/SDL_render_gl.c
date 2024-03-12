@@ -1485,8 +1485,9 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
 static int GL_RenderPresent(SDL_Renderer *renderer)
 {
-    GL_ActivateRenderer(renderer);
-
+    // if (!renderer->batching) {
+    //    GL_ActivateRenderer(renderer);
+    // }
     return SDL_GL_SwapWindowWithResult(renderer->window);
 }
 

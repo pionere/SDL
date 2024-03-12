@@ -946,8 +946,9 @@ static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
 static int GLES_RenderPresent(SDL_Renderer *renderer)
 {
-    GLES_ActivateRenderer(renderer);
-
+    // if (!renderer->batching) {
+    //    GLES_ActivateRenderer(renderer);
+    // }
     return SDL_GL_SwapWindowWithResult(renderer->window);
 }
 
