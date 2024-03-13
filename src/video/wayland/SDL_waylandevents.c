@@ -347,7 +347,7 @@ int Wayland_WaitEventTimeout(int timeout)
     }
 }
 
-void Wayland_PumpEvents(_THIS)
+void Wayland_PumpEvents(void)
 {
     Wayland_VideoData *d = &waylandVideoData;
     struct SDL_WaylandInput *input = d->input;
@@ -392,7 +392,7 @@ void Wayland_PumpEvents(_THIS)
          *
          * Try to recover once, then quit.
          */
-        if (!Wayland_VideoReconnect(_this)) {
+        if (!Wayland_VideoReconnect()) {
             d->display_disconnected = 1;
 
             /* Only send a single quit message, as application shutdown might call

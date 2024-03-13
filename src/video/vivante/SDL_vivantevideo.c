@@ -448,7 +448,7 @@ SDL_bool VIVANTE_GetWindowWMInfo(SDL_Window *window, struct SDL_SysWMinfo *info)
 /*****************************************************************************/
 /* SDL event functions                                                       */
 /*****************************************************************************/
-void VIVANTE_PumpEvents(_THIS)
+void VIVANTE_PumpEvents(void)
 {
 #ifdef SDL_INPUT_LINUXEV
     SDL_EVDEV_Poll();

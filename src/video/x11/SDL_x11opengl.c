@@ -483,7 +483,7 @@ static void X11_GL_InitExtensions(_THIS)
     if (w) {
         X11_XDestroyWindow(display, w);
     }
-    X11_PumpEvents(_this);
+    X11_PumpEvents();
 }
 
 /* glXChooseVisual and glXChooseFBConfig have some small differences in

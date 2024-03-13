@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 extern void WINRT_InitTouch(void);
-extern void WINRT_PumpEvents(_THIS);
+extern void WINRT_PumpEvents(void);
 
 #ifdef __cplusplus
 }

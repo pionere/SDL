@@ -55,7 +55,7 @@ static int Emscripten_CreateSDLWindow(_THIS, SDL_Window *window);
 static void Emscripten_SetWindowSize(SDL_Window *window);
 static void Emscripten_DestroyWindow(SDL_Window *window);
 static void Emscripten_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen);
-static void Emscripten_PumpEvents(_THIS);
+static void Emscripten_PumpEvents(void);
 static void Emscripten_SetWindowTitle(SDL_Window *window);
 
 /* Emscripten driver bootstrap functions */
@@ -276,7 +276,7 @@ static int Emscripten_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi_out, 
     return 0;
 }
 
-static void Emscripten_PumpEvents(_THIS)
+static void Emscripten_PumpEvents(void)
 {
     /* do nothing. */
 }

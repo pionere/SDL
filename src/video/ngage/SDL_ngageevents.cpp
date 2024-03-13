@@ -23,9 +23,6 @@
 
 #ifdef SDL_VIDEO_DRIVER_NGAGE
 
-/* Being a ngage driver, there's no event stream. We just define stubs for
-   most of the API. */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,9 +37,9 @@ extern "C" {
 #include "SDL_ngagevideo.h"
 #include "SDL_ngageevents_c.h"
 
-static int HandleWsEvent(_THIS, const TWsEvent &aWsEvent);
+static int HandleWsEvent(const TWsEvent &aWsEvent);
 
-void NGAGE_PumpEvents(_THIS)
+void NGAGE_PumpEvents(void)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
 

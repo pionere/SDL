@@ -22,12 +22,9 @@
 
 #ifdef SDL_VIDEO_DRIVER_PANDORA
 
-/* Being a null driver, there's no event stream. We just define stubs for
-   most of the API. */
-
 #include "../../events/SDL_events_c.h"
 
-void PND_PumpEvents(_THIS)
+void PND_PumpEvents(void)
 {
     /* Not implemented. */
 }

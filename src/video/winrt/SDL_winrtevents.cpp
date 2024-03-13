@@ -49,7 +49,7 @@ static void WINRT_YieldXAMLThread(void);
 
 /* Global event management */
 
-void WINRT_PumpEvents(_THIS)
+void WINRT_PumpEvents(void)
 {
     if (SDL_WinRTGlobalApp) {
         SDL_WinRTGlobalApp->PumpEvents();

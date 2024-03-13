@@ -514,7 +514,7 @@ int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
         return WIN_SetError("Couldn't create window");
     }
 
-    WIN_PumpEvents(_this);
+    WIN_PumpEvents();
 
     if (SetupWindowData(window, hwnd, parent) < 0) {
         DestroyWindow(hwnd);

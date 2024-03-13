@@ -320,7 +320,8 @@ static SDL_Scancode SDL_NACL_translate_keycode(int keycode)
     return scancode;
 }
 
-void NACL_PumpEvents(_THIS) {
+void NACL_PumpEvents(void)
+{
   PSEvent* ps_event;
   PP_Resource event;
   PP_InputEvent_Type type;

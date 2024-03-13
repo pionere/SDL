@@ -464,7 +464,7 @@ static void WIN_GL_InitExtensions(_THIS)
     if (!hwnd) {
         return;
     }
-    WIN_PumpEvents(_this);
+    WIN_PumpEvents();
 
     hdc = GetDC(hwnd);
 
@@ -547,7 +547,7 @@ static void WIN_GL_InitExtensions(_THIS)
     wgl_data->wglDeleteContext(hglrc);
     ReleaseDC(hwnd, hdc);
     DestroyWindow(hwnd);
-    WIN_PumpEvents(_this);
+    WIN_PumpEvents();
 }
 
 static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
@@ -566,7 +566,7 @@ static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
     hwnd =
         CreateWindow(SDL_Appname, SDL_Appname, (WS_POPUP | WS_DISABLED), 0, 0,
                      10, 10, NULL, NULL, SDL_Instance, NULL);
-    WIN_PumpEvents(_this);
+    WIN_PumpEvents();
 
     hdc = GetDC(hwnd);
 
@@ -593,7 +593,7 @@ static int WIN_GL_ChoosePixelFormatARB(_THIS, int *iAttribs, float *fAttribs)
     }
     ReleaseDC(hwnd, hdc);
     DestroyWindow(hwnd);
-    WIN_PumpEvents(_this);
+    WIN_PumpEvents();
 
     return pixel_format;
 }

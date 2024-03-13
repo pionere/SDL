@@ -23,7 +23,7 @@
 #ifndef SDL_x11events_h_
 #define SDL_x11events_h_
 
-extern void X11_PumpEvents(_THIS);
+extern void X11_PumpEvents(void);
 extern int X11_WaitEventTimeout(int timeout);
 extern void X11_SendWakeupEvent(SDL_Window *window);
 extern void X11_SuspendScreenSaver(_THIS);

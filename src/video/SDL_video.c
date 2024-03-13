@@ -457,7 +457,7 @@ void SDL_PrivatePumpEvents(void)
     TEST_VIDEO( )
     SDL_assert(current_video.PumpEvents != NULL);
 
-    current_video.PumpEvents(&current_video);
+    current_video.PumpEvents();
 }
 
 SDL_bool SDL_HasWaitTimeoutSupport(void)

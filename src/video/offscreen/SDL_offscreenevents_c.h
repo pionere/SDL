@@ -20,6 +20,6 @@
 */
 #include "../../SDL_internal.h"
 
-extern void OFFSCREEN_PumpEvents(_THIS);
+extern void OFFSCREEN_PumpEvents(void);
 
 /* vi: set ts=4 sw=4 expandtab: */

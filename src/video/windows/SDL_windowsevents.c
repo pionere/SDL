@@ -1820,7 +1820,7 @@ void WIN_SendWakeupEvent(SDL_Window *window)
     PostMessage(data->hwnd, videodata->_SDL_WAKEUP, 0, 0);
 }
 #endif
-void WIN_PumpEvents(_THIS)
+void WIN_PumpEvents(void)
 {
     MSG msg;
     DWORD end_ticks = GetTickCount() + 1;

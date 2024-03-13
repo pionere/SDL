@@ -22,7 +22,7 @@
 
 #include "SDL_androidvideo.h"
 
-extern void Android_PumpEvents_Blocking(_THIS);
-extern void Android_PumpEvents_NonBlocking(_THIS);
+extern void Android_PumpEvents_Blocking(void);
+extern void Android_PumpEvents_NonBlocking(void);
 
 /* vi: set ts=4 sw=4 expandtab: */

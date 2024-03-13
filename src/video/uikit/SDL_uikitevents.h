@@ -23,7 +23,7 @@
 
 #include "../SDL_sysvideo.h"
 
-extern void UIKit_PumpEvents(_THIS);
+extern void UIKit_PumpEvents(void);
 
 extern void SDL_InitGCKeyboard(void);
 extern SDL_bool SDL_HasGCKeyboard(void);

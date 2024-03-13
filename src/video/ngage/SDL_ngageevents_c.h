@@ -23,6 +23,6 @@
 
 #include "SDL_ngagevideo.h"
 
-extern void NGAGE_PumpEvents(_THIS);
+extern void NGAGE_PumpEvents(void);
 
 /* vi: set ts=4 sw=4 expandtab: */

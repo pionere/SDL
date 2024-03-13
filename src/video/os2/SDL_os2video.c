@@ -711,7 +711,7 @@ static MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
  *  ------------
  */
 
-static void OS2_PumpEvents(_THIS)
+static void OS2_PumpEvents(void)
 {
     OS2_VideoData *pVData = &os2VideoData;
     QMSG  qmsg;

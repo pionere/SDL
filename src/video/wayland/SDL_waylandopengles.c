@@ -41,7 +41,7 @@ int Wayland_GLES_LoadLibrary(_THIS, const char *path)
 
     ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
 
-    Wayland_PumpEvents(_this);
+    Wayland_PumpEvents();
     WAYLAND_wl_display_flush(data->display);
 
     return ret;

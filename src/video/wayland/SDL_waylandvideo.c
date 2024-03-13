@@ -1174,9 +1174,10 @@ static void Wayland_VideoCleanup()
     }
 }
 
-SDL_bool Wayland_VideoReconnect(_THIS)
+SDL_bool Wayland_VideoReconnect(void)
 {
 #if 0 /* TODO RECONNECT: Uncomment all when https://invent.kde.org/plasma/kwin/-/wikis/Restarting is completed */
+    SDL_VideoDevice *device = SDL_GetVideoDevice();
     Wayland_VideoData *data = &waylandVideoData;
 
     SDL_Window *window = NULL;
@@ -1193,7 +1194,7 @@ SDL_bool Wayland_VideoReconnect(_THIS)
         return SDL_FALSE;
     }
 
-    Wayland_VideoInit(_this);
+    Wayland_VideoInit(device);
 
     window = SDL_GetWindows();
     while (window) {

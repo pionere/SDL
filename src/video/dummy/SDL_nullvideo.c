@@ -52,7 +52,7 @@ static int DUMMY_VideoInit(_THIS);
 static void DUMMY_VideoQuit(_THIS);
 
 #ifdef SDL_INPUT_LINUXEV
-static void DUMMY_EVDEV_Poll(_THIS);
+static void DUMMY_EVDEV_Poll(void);
 #endif
 
 /* DUMMY driver bootstrap functions */
@@ -204,9 +204,8 @@ const VideoBootStrap DUMMY_evdev_bootstrap = {
 void SDL_EVDEV_Init(void);
 void SDL_EVDEV_Poll();
 void SDL_EVDEV_Quit(void);
-static void DUMMY_EVDEV_Poll(_THIS)
+static void DUMMY_EVDEV_Poll(void)
 {
-    (void)_this;
     SDL_EVDEV_Poll();
 }
 #endif

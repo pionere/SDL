@@ -162,7 +162,7 @@ int RISCOS_InitEvents(void)
     return 0;
 }
 
-void RISCOS_PumpEvents(_THIS)
+void RISCOS_PumpEvents(void)
 {
     RISCOS_PollMouse();
     RISCOS_PollKeyboard();

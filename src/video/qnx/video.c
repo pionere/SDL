@@ -224,9 +224,8 @@ static void QNX_DestroyWindowFramebuffer(SDL_Window * window)
 
 /**
  * Runs the main event loop.
- * @param   _THIS
  */
-static void QNX_PumpEvents(_THIS)
+static void QNX_PumpEvents(void)
 {
     int             type;
 

@@ -72,8 +72,8 @@ void VIVANTE_VideoQuit(_THIS);
 int VIVANTE_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int VIVANTE_CreateSDLWindow(_THIS, SDL_Window *window);
 void VIVANTE_SetWindowTitle(SDL_Window *window);
-void VIVANTE_SetWindowPosition(SDL_Window *window);
-void VIVANTE_SetWindowSize(SDL_Window *window);
+// void VIVANTE_SetWindowPosition(SDL_Window *window);
+// void VIVANTE_SetWindowSize(SDL_Window *window);
 void VIVANTE_ShowWindow(SDL_Window *window);
 void VIVANTE_HideWindow(SDL_Window *window);
 void VIVANTE_DestroyWindow(SDL_Window *window);
@@ -83,7 +83,7 @@ SDL_bool VIVANTE_GetWindowWMInfo(SDL_Window * window,
                              struct SDL_SysWMinfo *info);
 
 /* Event functions */
-void VIVANTE_PumpEvents(_THIS);
+void VIVANTE_PumpEvents(void);
 
 #endif /* SDL_vivantevideo_h_ */
 

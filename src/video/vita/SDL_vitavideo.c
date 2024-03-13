@@ -611,13 +611,13 @@ SDL_bool VITA_IsScreenKeyboardShown(SDL_Window *window)
 #endif
 }
 
-void VITA_PumpEvents(_THIS)
+void VITA_PumpEvents(void)
 {
 #if !defined(SDL_VIDEO_VITA_PVR)
     Vita_VideoData *videodata = &vitaVideoData;
 #endif
 
-    if (_this->suspend_screensaver) {
+    if (!SDL_IsScreenSaverEnabled()) {
         // cancel all idle timers to prevent vita going to sleep
         sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DEFAULT);
     }

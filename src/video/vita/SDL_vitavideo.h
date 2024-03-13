@@ -90,7 +90,7 @@ void VITA_ShowScreenKeyboard(SDL_Window *window);
 void VITA_HideScreenKeyboard(SDL_Window *window);
 SDL_bool VITA_IsScreenKeyboardShown(SDL_Window *window);
 
-void VITA_PumpEvents(_THIS);
+void VITA_PumpEvents(void);
 
 #endif /* _SDL_pspvideo_h */
 

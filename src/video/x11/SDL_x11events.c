@@ -1720,7 +1720,7 @@ int X11_WaitEventTimeout(int timeout)
     return 1;
 }
 
-void X11_PumpEvents(_THIS)
+void X11_PumpEvents(void)
 {
     X11_VideoData *data = &x11VideoData;
     XEvent xevent;
@@ -1733,7 +1733,7 @@ void X11_PumpEvents(_THIS)
     }
 
     /* Update activity every 30 seconds to prevent screensaver */
-    if (_this->suspend_screensaver) {
+    if (!SDL_IsScreenSaverEnabled()) {
         const Uint32 now = SDL_GetTicks();
         if (!data->screensaver_activity ||
             SDL_TICKS_PASSED(now, data->screensaver_activity + 30000)) {

@@ -145,7 +145,7 @@ struct SDL_WaylandInput
     SDL_bool keyboard_is_virtual;
 };
 
-extern void Wayland_PumpEvents(_THIS);
+extern void Wayland_PumpEvents(void);
 extern void Wayland_SendWakeupEvent(SDL_Window *window);
 extern int Wayland_WaitEventTimeout(int timeout);
 

@@ -75,7 +75,7 @@ int EventUpdate(void *data)
     return 0;
 }
 
-void PSP_PumpEvents(_THIS)
+void PSP_PumpEvents(void)
 {
     int i;
     enum PspHprmKeys keys;

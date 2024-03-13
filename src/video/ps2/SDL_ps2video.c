@@ -107,7 +107,7 @@ static void PS2_VideoQuit(_THIS)
 {
 }
 
-static void PS2_PumpEvents(_THIS)
+static void PS2_PumpEvents(void)
 {
     /* do nothing. */
 }

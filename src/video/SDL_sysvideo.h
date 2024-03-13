@@ -307,7 +307,7 @@ struct SDL_VideoDevice
      */
     int (*WaitEventTimeout)(int timeout);
     void (*SendWakeupEvent)(SDL_Window *window);
-    void (*PumpEvents)(_THIS);
+    void (*PumpEvents)(void);
 
     /* Suspend the screensaver */
     void (*SuspendScreenSaver)(_THIS);

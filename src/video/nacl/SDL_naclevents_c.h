@@ -25,6 +25,6 @@
 
 #include "SDL_naclvideo.h"
 
-extern void NACL_PumpEvents(_THIS);
+extern void NACL_PumpEvents(void);
 
 #endif /* SDL_naclevents_c_h_ */

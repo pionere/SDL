@@ -53,7 +53,6 @@ extern "C" int WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, in
      */
     return SDL_SetError("SDL_messagebox support is not available for Windows Phone 8.0");
 #else
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
 
 #if SDL_WINAPI_FAMILY_PHONE
     const int maxbuttons = 2;
@@ -93,7 +92,7 @@ extern "C" int WINRT_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, in
     /* TODO, WinRT: Find a way to redraw MessageDialog instances if a GPU device-reset occurs during the following event-loop */
     auto operation = dialog->ShowAsync();
     while (operation->Status == Windows::Foundation::AsyncStatus::Started) {
-        WINRT_PumpEvents(_this);
+        WINRT_PumpEvents();
     }
 
     /* Retrieve results from the MessageDialog and process them accordingly */

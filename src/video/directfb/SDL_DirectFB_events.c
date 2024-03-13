@@ -398,7 +398,7 @@ static void ProcessInputEvent(DFBInputEvent * ievt)
     }
 }
 
-void DirectFB_PumpEvents(_THIS)
+void DirectFB_PumpEvents(void)
 {
     DFB_VideoData *devdata = &dfbVideoData;
     DFBInputEvent ievt;

@@ -20,6 +20,6 @@
 */
 #include "../../SDL_internal.h"
 
-extern void PND_PumpEvents(_THIS);
+extern void PND_PumpEvents(void);
 
 /* vi: set ts=4 sw=4 expandtab: */

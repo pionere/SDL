@@ -557,7 +557,7 @@ int Cocoa_WaitEventTimeout(int timeout)
     return 1;
 }}
 
-void Cocoa_PumpEvents(_THIS)
+void Cocoa_PumpEvents(void)
 { @autoreleasepool
 {
     Cocoa_PumpEventsUntilDate([NSDate distantPast], true);
