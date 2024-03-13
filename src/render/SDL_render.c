@@ -3718,6 +3718,7 @@ int SDL_RenderGeometry(SDL_Renderer *renderer,
     }
 }
 
+#if SDL_VIDEO_RENDER_SW
 static int remap_one_indice(
     int prev,
     int k,
@@ -4084,6 +4085,7 @@ end:
 
     return retval;
 }
+#endif /* SDL_VIDEO_RENDER_SW */
 
 int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
                           SDL_Texture *texture,
@@ -4182,11 +4184,13 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
     }
 
     /* For the software renderer, try to reinterpret triangles as SDL_Rect */
+#if SDL_VIDEO_RENDER_SW
     if (renderer->info.flags & SDL_RENDERER_SOFTWARE) {
         return SDL_SW_RenderGeometryRaw(renderer, texture,
                                         xy, xy_stride, color, color_stride, uv, uv_stride, num_vertices,
                                         indices, num_indices, size_indices);
     }
+#endif
 
     retval = QueueCmdGeometry(renderer, texture,
                               xy, xy_stride, color, color_stride, uv, uv_stride,
