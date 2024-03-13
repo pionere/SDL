@@ -24,17 +24,24 @@
 
 #if defined(SDL_VIDEO_DRIVER_RPI) && defined(SDL_VIDEO_OPENGL_EGL)
 
+#if defined(SDL_VIDEO_OPENGL)
+#error "Raspberry expects an OPENGL_EGL configuration"
+#endif
+#if !defined(SDL_VIDEO_OPENGL_ES2)
+#error "Raspberry expects an explicit SDL_VIDEO_OPENGL_ES2 configuration"
+#endif
+
 #include "SDL_rpivideo.h"
 #include "SDL_rpiopengles.h"
 
 /* EGL implementation of SDL OpenGL support */
 
-void RPI_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
+/*void RPI_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
 {
     *mask = SDL_GL_CONTEXT_PROFILE_ES;
     *major = 2;
     *minor = 0;
-}
+}*/
 
 int RPI_GLES_LoadLibrary(_THIS, const char *path)
 {

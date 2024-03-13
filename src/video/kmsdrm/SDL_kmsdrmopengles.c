@@ -23,6 +23,15 @@
 
 #ifdef SDL_VIDEO_DRIVER_KMSDRM
 
+#ifdef SDL_VIDEO_DRIVER_RPI
+#if defined(SDL_VIDEO_OPENGL)
+#error "KMSDRM expects an OPENGL_EGL configuration"
+#endif
+#if !defined(SDL_VIDEO_OPENGL_ES2)
+#error "KMSDRM expects an explicit SDL_VIDEO_OPENGL_ES2 configuration"
+#endif
+#endif // SDL_VIDEO_DRIVER_RPI
+
 #include "SDL_log.h"
 #include "SDL_timer.h"
 
@@ -36,17 +45,6 @@
 #endif
 
 /* EGL implementation of SDL OpenGL support */
-
-void KMSDRM_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
-{
-    /* if SDL was _also_ built with the Raspberry Pi driver (so we're
-       definitely a Pi device), default to GLES2. */
-#ifdef SDL_VIDEO_DRIVER_RPI
-    *mask = SDL_GL_CONTEXT_PROFILE_ES;
-    *major = 2;
-    *minor = 0;
-#endif
-}
 
 int KMSDRM_GLES_LoadLibrary(_THIS, const char *path)
 {

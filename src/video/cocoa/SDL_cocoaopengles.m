@@ -40,7 +40,6 @@ void Cocoa_GLES_InitDevice(_THIS)
     _this->GL_GetSwapInterval = Cocoa_GLES_GetSwapInterval;
     _this->GL_SwapWindow = Cocoa_GLES_SwapWindow;
     _this->GL_DeleteContext = Cocoa_GLES_DeleteContext;
-    // _this->GL_DefaultProfileConfig = Cocoa_GLES_DefaultProfileConfig;
 }
 
 int Cocoa_GLES_LoadLibrary(_THIS, const char *path)

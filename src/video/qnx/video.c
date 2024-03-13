@@ -389,7 +389,6 @@ static SDL_bool QNX_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = QNX_GL_GetSwapInterval;
     device->GL_SwapWindow = QNX_GL_SwapWindow;
     device->GL_DeleteContext = QNX_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = QNX_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

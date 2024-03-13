@@ -55,7 +55,7 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for kmsdrm."
 #endif
-#ifndef SDL_VIDEO_OPENGL_ANY
+#ifndef SDL_VIDEO_OPENGL_EGL
 #error "OpenGL must be configured for kmsdrm."
 #endif
 
@@ -308,7 +308,6 @@ static SDL_bool KMSDRM_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = KMSDRM_GLES_GetSwapInterval;
     device->GL_SwapWindow = KMSDRM_GLES_SwapWindow;
     device->GL_DeleteContext = KMSDRM_GLES_DeleteContext;
-    device->GL_DefaultProfileConfig = KMSDRM_GLES_DefaultProfileConfig;
 
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN

@@ -118,7 +118,6 @@ static SDL_bool UIKit_CreateDevice(SDL_VideoDevice *device)
         device->GL_GetSwapInterval = UIKit_GL_GetSwapInterval;
         device->GL_SwapWindow = UIKit_GL_SwapWindow;
         device->GL_DeleteContext = UIKit_GL_DeleteContext;
-        // device->GL_DefaultProfileConfig = UIKit_GL_DefaultProfileConfig;
 #endif
 
         /* Vulkan support */

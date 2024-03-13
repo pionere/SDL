@@ -136,7 +136,6 @@ static SDL_bool Emscripten_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = Emscripten_GLES_GetSwapInterval;
     device->GL_SwapWindow = Emscripten_GLES_SwapWindow;
     device->GL_DeleteContext = Emscripten_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = Emscripten_GLES_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

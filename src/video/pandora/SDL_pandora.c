@@ -137,7 +137,6 @@ static SDL_bool PND_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = PND_GL_GetSwapInterval;
     device->GL_SwapWindow = PND_GL_SwapWindow;
     device->GL_DeleteContext = PND_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = PND_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

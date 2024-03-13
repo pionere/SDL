@@ -280,7 +280,6 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = Wayland_GLES_GetSwapInterval;
     device->GL_SwapWindow = Wayland_GLES_SwapWindow;
     device->GL_DeleteContext = Wayland_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = Wayland_GLES_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

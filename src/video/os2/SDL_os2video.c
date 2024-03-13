@@ -1655,7 +1655,6 @@ static SDL_bool OS2_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = OS2_GL_GetSwapInterval;
     // device->GL_SwapWindow = OS2_GL_SwapWindow;
     // device->GL_DeleteContext = OS2_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = OS2_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

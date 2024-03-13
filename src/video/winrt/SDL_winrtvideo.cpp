@@ -170,7 +170,6 @@ static SDL_bool WINRT_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = WINRT_GLES_GetSwapInterval;
     device->GL_SwapWindow = WINRT_GLES_SwapWindow;
     device->GL_DeleteContext = WINRT_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = WINRT_GLES_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

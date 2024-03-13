@@ -176,7 +176,6 @@ void X11_GL_InitDevice(_THIS)
     _this->GL_GetSwapInterval = X11_GL_GetSwapInterval;
     _this->GL_SwapWindow = X11_GL_SwapWindow;
     _this->GL_DeleteContext = X11_GL_DeleteContext;
-    // _this->GL_DefaultProfileConfig = X11_GL_DefaultProfileConfig;
 }
 
 int X11_GL_LoadLibrary(_THIS, const char *path)

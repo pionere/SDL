@@ -126,7 +126,6 @@ static SDL_bool DUMMY_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = DUMMY_GL_GetSwapInterval;
     // device->GL_SwapWindow = DUMMY_GL_SwapWindow;
     // device->GL_DeleteContext = DUMMY_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = DUMMY_GL_DefaultProfileConfig;
 #endif
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN

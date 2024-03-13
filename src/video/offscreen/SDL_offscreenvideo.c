@@ -115,7 +115,6 @@ static SDL_bool OFFSCREEN_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = OFFSCREEN_GL_GetSwapInterval;
     device->GL_SwapWindow = OFFSCREEN_GL_SwapWindow;
     device->GL_DeleteContext = OFFSCREEN_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = OFFSCREEN_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

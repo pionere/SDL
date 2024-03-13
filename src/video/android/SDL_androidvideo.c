@@ -143,7 +143,6 @@ static SDL_bool Android_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = Android_GLES_GetSwapInterval;
     device->GL_SwapWindow = Android_GLES_SwapWindow;
     device->GL_DeleteContext = Android_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = Android_GLES_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

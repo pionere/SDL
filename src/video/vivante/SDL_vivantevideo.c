@@ -120,7 +120,6 @@ static SDL_bool VIVANTE_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = VIVANTE_GL_GetSwapInterval;
     device->GL_SwapWindow = VIVANTE_GL_SwapWindow;
     device->GL_DeleteContext = VIVANTE_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = VIVANTE_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

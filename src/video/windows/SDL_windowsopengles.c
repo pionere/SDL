@@ -41,7 +41,6 @@ void WIN_GLES_InitDevice(_THIS)
     _this->GL_GetSwapInterval = WIN_GLES_GetSwapInterval;
     _this->GL_SwapWindow = WIN_GLES_SwapWindow;
     _this->GL_DeleteContext = WIN_GLES_DeleteContext;
-    // _this->GL_DefaultProfileConfig = WIN_GLES_DefaultProfileConfig;
 }
 
 int WIN_GLES_LoadLibrary(_THIS, const char *path)

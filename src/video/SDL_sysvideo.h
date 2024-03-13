@@ -278,7 +278,6 @@ struct SDL_VideoDevice
     int (*GL_GetSwapInterval) (void);
     int (*GL_SwapWindow) (_THIS, SDL_Window * window);
     void (*GL_DeleteContext) (SDL_GLContext context);
-    void (*GL_DefaultProfileConfig) (int *mask, int *major, int *minor);
 #endif
 #ifdef SDL_VIDEO_VULKAN
     /* * * */

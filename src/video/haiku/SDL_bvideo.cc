@@ -122,7 +122,6 @@ static SDL_bool HAIKU_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = HAIKU_GL_GetSwapInterval;
     device->GL_SwapWindow = HAIKU_GL_SwapWindow;
     device->GL_DeleteContext = HAIKU_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = HAIKU_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

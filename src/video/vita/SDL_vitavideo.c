@@ -158,7 +158,6 @@ static SDL_bool VITA_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = VITA_GLES_GetSwapInterval;
     device->GL_SwapWindow = VITA_GLES_SwapWindow;
     device->GL_DeleteContext = VITA_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = VITA_GLES_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

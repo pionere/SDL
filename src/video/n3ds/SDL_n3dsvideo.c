@@ -123,7 +123,6 @@ static SDL_bool N3DS_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = N3DS_GL_GetSwapInterval;
     // device->GL_SwapWindow = N3DS_GL_SwapWindow;
     // device->GL_DeleteContext = N3DS_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = N3DS_GL_DefaultProfileConfig;
 #endif
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN

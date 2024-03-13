@@ -121,7 +121,6 @@ void WIN_GL_InitDevice(_THIS)
     _this->GL_GetSwapInterval = WIN_GL_GetSwapInterval;
     _this->GL_SwapWindow = WIN_GL_SwapWindow;
     _this->GL_DeleteContext = WIN_GL_DeleteContext;
-    // _this->GL_DefaultProfileConfig = WIN_GL_DefaultProfileConfig;
 }
 
 int WIN_GL_LoadLibrary(_THIS, const char *path)

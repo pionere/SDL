@@ -126,7 +126,6 @@ static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = PSP_GL_GetSwapInterval;
     device->GL_SwapWindow = PSP_GL_SwapWindow;
     device->GL_DeleteContext = PSP_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = PSP_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

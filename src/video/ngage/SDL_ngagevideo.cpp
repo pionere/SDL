@@ -166,7 +166,6 @@ static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = NGAGE_GL_GetSwapInterval;
     // device->GL_SwapWindow = NGAGE_GL_SwapWindow;
     // device->GL_DeleteContext = NGAGE_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = NGAGE_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

@@ -122,7 +122,6 @@ static SDL_bool RISCOS_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = RISCOS_GL_GetSwapInterval;
     // device->GL_SwapWindow = RISCOS_GL_SwapWindow;
     // device->GL_DeleteContext = RISCOS_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = RISCOS_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

@@ -166,7 +166,6 @@ static SDL_bool NACL_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = NACL_GLES_GetSwapInterval;
     device->GL_SwapWindow = NACL_GLES_SwapWindow;
     device->GL_DeleteContext = NACL_GLES_DeleteContext;
-    // device->GL_DefaultProfileConfig = NACL_GLES_DefaultProfileConfig;
 
     /* Vulkan support */
 #ifdef SDL_VIDEO_VULKAN

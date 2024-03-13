@@ -41,7 +41,6 @@ void X11_GLES_InitDevice(_THIS)
     _this->GL_GetSwapInterval = X11_GLES_GetSwapInterval;
     _this->GL_SwapWindow = X11_GLES_SwapWindow;
     _this->GL_DeleteContext = X11_GLES_DeleteContext;
-    // _this->GL_DefaultProfileConfig = X11_GLES_DefaultProfileConfig;
 }
 
 int X11_GLES_LoadLibrary(_THIS, const char *path)

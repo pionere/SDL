@@ -178,7 +178,6 @@ static SDL_bool PS2_CreateDevice(SDL_VideoDevice *device)
     // device->GL_GetSwapInterval = PS2_GL_GetSwapInterval;
     // device->GL_SwapWindow = PS2_GL_SwapWindow;
     // device->GL_DeleteContext = PS2_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = PS2_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

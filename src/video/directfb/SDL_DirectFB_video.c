@@ -154,7 +154,6 @@ static SDL_bool DirectFB_CreateDevice(SDL_VideoDevice *device)
     device->GL_GetSwapInterval = DirectFB_GL_GetSwapInterval;
     device->GL_SwapWindow = DirectFB_GL_SwapWindow;
     device->GL_DeleteContext = DirectFB_GL_DeleteContext;
-    // device->GL_DefaultProfileConfig = DirectFB_GL_DefaultProfileConfig;
 #endif
 
     /* Vulkan support */

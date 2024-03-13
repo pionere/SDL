@@ -34,7 +34,6 @@
 #define KMSDRM_GLES_GetDrawableSize SDL_PrivateGetWindowSizeInPixels
 #define KMSDRM_GLES_GetSwapInterval SDL_EGL_GetSwapInterval
 
-extern void KMSDRM_GLES_DefaultProfileConfig(int *mask, int *major, int *minor);
 extern int KMSDRM_GLES_SetSwapInterval(int interval);
 extern int KMSDRM_GLES_LoadLibrary(_THIS, const char *path);
 extern void KMSDRM_GLES_UnloadLibrary(_THIS);

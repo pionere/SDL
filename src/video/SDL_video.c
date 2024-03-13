@@ -3576,12 +3576,6 @@ void SDL_GL_ResetAttributes(void)
     current_video.gl_config.minor_version = 1;
     current_video.gl_config.profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
 #endif
-
-    if (current_video.GL_DefaultProfileConfig) {
-        current_video.GL_DefaultProfileConfig(&current_video.gl_config.profile_mask,
-                                       &current_video.gl_config.major_version,
-                                       &current_video.gl_config.minor_version);
-    }
 }
 
 int SDL_GL_SetAttribute(SDL_GLattr attr, int value)
