@@ -126,8 +126,7 @@ static void WINRT_HandleGameBarIsInputRedirected_MainThread()
                in case Windows does not (it does not in either Win10
                10.0.10240.0 or 10.0.10586.0, maybe later version(s) too.
             */
-            SDL_Cursor *cursor = SDL_GetCursor();
-            SDL_SetCursor(cursor);
+            SDL_SetCursor(NULL);
         }
     }
     gameBar->Release();
