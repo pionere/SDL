@@ -412,6 +412,11 @@ static SDL_vidpid_list zero_centered_devices = {
         return retval;                                     \
     }
 
+#define TEST_JOYSTICK_MAGIC(joystick, retval)                  \
+    if (!joystick || joystick->magic != &SDL_joystick_magic) { \
+        return retval;                                         \
+    }
+
 SDL_bool SDL_JoysticksInitialized(void)
 {
     return SDL_joysticks_initialized;
@@ -1015,7 +1020,8 @@ int SDL_JoystickSetVirtualHat(SDL_Joystick *joystick, int hat, Uint8 value)
 SDL_bool SDL_PrivateJoystickValid(SDL_Joystick *joystick)
 {
     SDL_AssertJoysticksLocked();
-    return (joystick && joystick->magic == &SDL_joystick_magic);
+    TEST_JOYSTICK_MAGIC(joystick, SDL_FALSE);
+    return SDL_TRUE;
 }
 
 SDL_bool SDL_PrivateJoystickGetAutoGamepadMapping(int device_index, SDL_GamepadMapping *out)

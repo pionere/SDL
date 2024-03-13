@@ -101,6 +101,11 @@ static SDL_bool SDL_HIDAPI_combine_joycons = SDL_TRUE;
 static SDL_bool initialized = SDL_FALSE;
 static SDL_bool shutting_down = SDL_FALSE;
 
+#define TEST_HID_DEV_MAGIC(device, retval)                           \
+    if (!(device) || (device)->magic != &SDL_HIDAPI_device_magic) { \
+        return retval;                                              \
+    }
+
 static char *HIDAPI_ConvertString(const wchar_t *wide_string)
 {
     char *string = NULL;
@@ -1479,7 +1484,8 @@ static SDL_bool HIDAPI_GetJoystickDevice(SDL_Joystick *joystick, SDL_HIDAPI_Devi
 
     if (joystick && joystick->hwdata) {
         *device = joystick->hwdata->device;
-        if (*device && (*device)->magic == &SDL_HIDAPI_device_magic && (*device)->driver != NULL) {
+        TEST_HID_DEV_MAGIC(*device, SDL_FALSE)
+        if ((*device)->driver != NULL) {
             return SDL_TRUE;
         }
     }

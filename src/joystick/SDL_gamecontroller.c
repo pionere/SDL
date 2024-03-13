@@ -159,6 +159,12 @@ struct _SDL_GameController
         return retval;                                                       \
     }
 
+#define TEST_GAMECONTROLLER_MAGIC(gamecontroller, retval)                    \
+    if (!gamecontroller || gamecontroller->magic != &gamecontroller_magic) { \
+        SDL_UnlockJoysticks();                                               \
+        return retval;                                                       \
+    }
+
 static SDL_vidpid_list SDL_allowed_controllers = {
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT, 0, 0, NULL,
     NULL, 0, 0, NULL,
@@ -3077,10 +3083,7 @@ void SDL_GameControllerClose(SDL_GameController *gamecontroller)
 
     SDL_LockJoysticks();
 
-    if (!gamecontroller || gamecontroller->magic != &gamecontroller_magic) {
-        SDL_UnlockJoysticks();
-        return;
-    }
+    TEST_GAMECONTROLLER_MAGIC(gamecontroller, )
 
     /* First decrement ref count */
     if (--gamecontroller->ref_count > 0) {
