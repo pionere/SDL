@@ -25,6 +25,7 @@
 #define __SDL_KMSDRMVIDEO_H__
 
 #include "../SDL_sysvideo.h"
+#include "../../events/SDL_mouse_c.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -78,7 +79,8 @@ typedef struct SDL_DisplayData
     int cursor_bo_drm_fd;
     uint64_t cursor_w, cursor_h;
 
-    SDL_bool default_cursor_init;
+    int cursor_loaded;
+    SDL_Cursor *display_cursor;
 } SDL_DisplayData;
 
 typedef struct SDL_WindowData

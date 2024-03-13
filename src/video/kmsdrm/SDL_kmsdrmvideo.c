@@ -1398,7 +1398,8 @@ int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 void KMSDRM_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *windata = (SDL_WindowData *)window->driverdata;
-    SDL_DisplayData *dispdata = (SDL_DisplayData *)SDL_GetDisplayForWindow(window)->driverdata;
+    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
+    SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_bool is_vulkan = window->flags & SDL_WINDOW_VULKAN; /* Is this a VK window? */
     unsigned int i, j;
@@ -1411,15 +1412,16 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
     KMSDRM_CrtcSetVrr(viddata->drm_fd, dispdata->crtc->crtc_id, dispdata->saved_vrr);
 
     if (!is_vulkan && viddata->gbm_init) {
-
-        /* Destroy cursor GBM BO of the display of this window. */
-        KMSDRM_DestroyCursorBO(SDL_GetDisplayForWindow(window));
+        /* Destroy the cursor.
+           FIXME: does this mean the window can not be moved to an another display?
+        */
+        KMSDRM_QuitMouse(display);
 
         /* Destroy GBM surface and buffers. */
         KMSDRM_DestroySurfaces(window);
 
         /* Unload library and deinit GBM, but only if this is the last window.
-           Note that this is the right comparision because num_windows could be 1
+           Note that this is the right comparison because num_windows could be 1
            if there is a complete window, or 0 if we got here from SDL_CreateWindow()
            because KMSDRM_CreateSDLWindow() returned an error so the window wasn't
            added to the windows list. */
@@ -1542,10 +1544,6 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
 
             _this->gl_config.driver_loaded = 1;
         }
-
-        /* Create the cursor BO for the display of this window,
-           now that we know this is not a VK window. */
-        KMSDRM_CreateCursorBO(display);
 
         /* Create and set the default cursor for the display
            of this window, now that we know this is not a VK window. */

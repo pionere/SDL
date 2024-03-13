@@ -30,6 +30,25 @@
 #include "../../events/SDL_mouse_c.h"
 #include "../../events/default_cursor.h"
 
+#include <gbm.h>
+
+#define MAX_CURSOR_W 512
+#define MAX_CURSOR_H 512
+
+typedef struct _KMSDRM_CursorData
+{
+    int hot_x, hot_y;
+    int w, h;
+
+    /* The buffer where we store the mouse bitmap ready to be used.
+       We get it ready and filled in CreateCursor(), and copy it
+       to a GBM BO in ShowCursor().*/
+    uint32_t *buffer;
+    size_t buffer_size;
+    size_t buffer_pitch;
+
+} KMSDRM_CursorData;
+
 static SDL_Cursor *KMSDRM_CreateDefaultCursor(void);
 static SDL_Cursor *KMSDRM_CreateCursor(SDL_Surface *surface, int hot_x, int hot_y);
 static int KMSDRM_ShowCursor(SDL_Cursor *cursor);
@@ -61,10 +80,8 @@ static SDL_Cursor *KMSDRM_CreateDefaultCursor(void)
 /* Given a display's driverdata, destroy the cursor BO for it.
    To be called from KMSDRM_DestroyWindow(), as that's where we
    destroy the driverdata for the window's display. */
-void KMSDRM_DestroyCursorBO(SDL_VideoDisplay *display)
+static void KMSDRM_DestroyCursorBO(SDL_DisplayData *dispdata)
 {
-    SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
-
     /* Destroy the curso GBM BO. */
     if (dispdata->cursor_bo) {
         KMSDRM_gbm_bo_destroy(dispdata->cursor_bo);
@@ -76,10 +93,9 @@ void KMSDRM_DestroyCursorBO(SDL_VideoDisplay *display)
 /* Given a display's driverdata, create the cursor BO for it.
    To be called from KMSDRM_CreateWindow(), as that's where we
    build a window and assign a display to it. */
-void KMSDRM_CreateCursorBO(SDL_VideoDisplay *display)
+static void KMSDRM_CreateCursorBO(SDL_DisplayData *dispdata)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
 
     if (!KMSDRM_gbm_device_is_format_supported(viddata->gbm_dev,
                                                GBM_FORMAT_ARGB8888,
@@ -397,15 +413,38 @@ void KMSDRM_InitMouse(SDL_VideoDisplay *display)
 
     /* Only create the default cursor for this display if we haven't done so before,
        we don't want several cursors to be created for the same display. */
-    if (!dispdata->default_cursor_init) {
-        SDL_SetDefaultCursor(KMSDRM_CreateDefaultCursor());
-        dispdata->default_cursor_init = SDL_TRUE;
+    if (dispdata->cursor_loaded == 0) {
+        dispdata->display_cursor = KMSDRM_CreateDefaultCursor();
+        SDL_SetDefaultCursor(dispdata->display_cursor);
+
+        /* Create the cursor BO for the display of this window,
+           now that we know this is not a VK window. */
+        KMSDRM_CreateCursorBO(dispdata);
     }
+    dispdata->cursor_loaded++;
 }
 
-void KMSDRM_QuitMouse(void)
+void KMSDRM_QuitMouse(SDL_VideoDisplay *display)
 {
-    /* TODO: ? */
+    SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
+    SDL_Cursor *cursor = dispdata->display_cursor;
+
+    if (dispdata->cursor_loaded > 0) {
+        if (--dispdata->cursor_loaded > 0) {
+            return;
+        }
+        if (cursor) {
+            if (SDL_GetDefaultCursor() == cursor) {
+                SDL_SetDefaultCursor(NULL);
+                SDL_SetCursor(NULL);
+            }
+            SDL_FreeCursor(cursor);
+            dispdata->display_cursor = NULL;
+
+            /* Destroy cursor GBM BO of the display of this window. */
+            KMSDRM_DestroyCursorBO(dispdata);
+        }
+    }
 }
 
 /* This is called when a mouse motion event occurs */
