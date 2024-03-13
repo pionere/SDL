@@ -236,15 +236,13 @@
 - (SDL_Window*)findSDLWindow
 {
     /* !!! FIXME: is there a better way to do this? */
-    if (SDL_HasWindows()) {
         SDL_Window *sdlwindow;
-        for (sdlwindow = SDL_GetWindows(); sdlwindow; sdlwindow = sdlwindow->next) {
+        for (sdlwindow = SDL_GetWindowsOptional(); sdlwindow; sdlwindow = sdlwindow->next) {
             NSWindow *nswindow = ((__bridge SDL_WindowData *) sdlwindow->driverdata).nswindow;
             if (nswindow == self) {
                 return sdlwindow;
             }
         }
-    }
 
     return NULL;
 }

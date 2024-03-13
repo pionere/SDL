@@ -41,15 +41,13 @@
 
 static SDL_Window *FindSDLWindowForNSWindow(NSWindow *win)
 {
-    SDL_Window *sdlwindow = NULL;
-    if (SDL_HasWindows()) {
-        for (sdlwindow = SDL_GetWindows(); sdlwindow; sdlwindow = sdlwindow->next) {
+    SDL_Window *sdlwindow;
+        for (sdlwindow = SDL_GetWindowsOptional(); sdlwindow; sdlwindow = sdlwindow->next) {
             NSWindow *nswindow = ((__bridge SDL_WindowData *) sdlwindow->driverdata).nswindow;
             if (win == nswindow) {
                 return sdlwindow;
             }
         }
-    }
 
     return sdlwindow;
 }
@@ -250,7 +248,7 @@ static void Cocoa_DispatchEvent(NSEvent *theEvent)
         return;
     }
 
-    if (SDL_HasWindows()) {
+    if (SDL_GetWindowsOptional()) {
         SDL_Window *window;
         int i, num_displays;
         SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);

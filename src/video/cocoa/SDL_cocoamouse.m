@@ -212,9 +212,8 @@ static void Cocoa_FreeCursor(SDL_Cursor * cursor)
 static int Cocoa_ShowCursor(SDL_Cursor * cursor)
 { @autoreleasepool
 {
-    if (SDL_HasWindows()) {
         SDL_Window *window;
-        for (window = SDL_GetWindows(); window != NULL; window = window->next) {
+        for (window = SDL_GetWindowsOptional(); window != NULL; window = window->next) {
             SDL_WindowData *driverdata = (__bridge SDL_WindowData *)window->driverdata;
             if (driverdata) {
                 [driverdata.nswindow performSelectorOnMainThread:@selector(invalidateCursorRectsForView:)
@@ -222,7 +221,6 @@ static int Cocoa_ShowCursor(SDL_Cursor * cursor)
                                                    waitUntilDone:NO];
             }
         }
-    }
     return 0;
 }}
 
@@ -397,11 +395,11 @@ static void Cocoa_HandleTitleButtonEvent(NSEvent *event)
 
     /* You might land in this function before SDL_Init if showing a message box.
        Don't derefence a NULL pointer if that happens. */
-    if (!SDL_HasWindows()) {
-        return;
-    }
+    // if (!SDL_HasWindows()) {
+    //    return;
+    // }
 
-    for (window = SDL_GetWindows(); window; window = window->next) {
+    for (window = SDL_GetWindowsOptional(); window; window = window->next) {
         SDL_WindowData *data = (__bridge SDL_WindowData *)window->driverdata;
         if (data && data.nswindow == nswindow) {
             switch ([event type]) {

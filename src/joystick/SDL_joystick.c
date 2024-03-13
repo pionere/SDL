@@ -1672,7 +1672,7 @@ static SDL_bool SDL_PrivateJoystickShouldIgnoreEvent(void)
         return SDL_FALSE;
     }
 
-    if (SDL_HasWindows() && SDL_GetKeyboardFocus() == NULL) {
+    if (SDL_GetWindowsOptional() != NULL && SDL_GetKeyboardFocus() == NULL) {
         /* We have windows but we don't have focus, ignore the event. */
         return SDL_TRUE;
     }

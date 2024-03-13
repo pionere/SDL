@@ -285,12 +285,10 @@ static void UpdateScrollDirection(void)
 
 static void UpdatePointerLock(void)
 {
-    if (SDL_HasWindows()) {
         SDL_Window *window;
-        for (window = SDL_GetWindows(); window; window = window->next) {
+        for (window = SDL_GetWindowsOptional(); window; window = window->next) {
             UIKit_UpdatePointerLock(window);
         }
-    }
 }
 
 static int SetGCMouseRelativeMode(SDL_bool enabled)

@@ -1907,11 +1907,11 @@ int SDL_CheckWindow(SDL_Window *window)
     return 0;
 }
 
-SDL_bool SDL_HasWindows(void)
+SDL_Window *SDL_GetWindowsOptional(void)
 {
-    // TEST_VIDEO(SDL_FALSE)
+    // TEST_VIDEO(NULL)
 
-    return current_video.windows != NULL;
+    return current_video.windows;
 }
 
 SDL_Window *SDL_GetWindows(void)

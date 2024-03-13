@@ -456,7 +456,7 @@ extern void SDL_GL_DeduceMaxSupportedESProfile(int *major, int *minor);
 extern int SDL_CheckWindow(SDL_Window *window);
 extern int SDL_RecreateWindow(SDL_Window *window, Uint32 flags);
 extern SDL_Window *SDL_GetWindows(void);
-extern SDL_bool SDL_HasWindows(void);
+extern SDL_Window *SDL_GetWindowsOptional(void);
 extern void SDL_PrivateGetWindowSizeInPixels(SDL_Window *window, int *w, int *h);
 extern void SDL_OnWindowShown(SDL_Window *window);
 extern void SDL_OnWindowHidden(SDL_Window *window);

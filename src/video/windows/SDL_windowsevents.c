@@ -604,15 +604,13 @@ static SDL_MOUSE_EVENT_SOURCE GetMouseMessageSource(void)
 
 static SDL_WindowData *WIN_GetWindowDataFromHWND(HWND hwnd)
 {
-    if (SDL_HasWindows()) {
         SDL_Window *window;
-        for (window = SDL_GetWindows(); window; window = window->next) {
+        for (window = SDL_GetWindowsOptional(); window; window = window->next) {
             SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
             if (data && data->hwnd == hwnd) {
                 return data;
             }
         }
-    }
     return NULL;
 }
 
