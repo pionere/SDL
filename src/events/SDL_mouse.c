@@ -883,7 +883,7 @@ void SDL_MouseQuit(void)
         SDL_UpdateMouseCapture(SDL_TRUE);
     }
     SDL_SetRelativeMouseMode(SDL_FALSE);
-    SDL_ShowCursor(1);
+    SDL_ShowCursor(SDL_ENABLE);
 
     cursor = mouse->cursors;
     while (cursor) {
@@ -1362,14 +1362,11 @@ void SDL_SetCursor(SDL_Cursor *cursor)
         }
     }
 
-    if (cursor && mouse->cursor_shown && !mouse->relative_mode) {
-        if (mouse->ShowCursor) {
-            mouse->ShowCursor(cursor);
-        }
-    } else {
-        if (mouse->ShowCursor) {
-            mouse->ShowCursor(NULL);
-        }
+    if (!mouse->cursor_shown || mouse->relative_mode) {
+        cursor = NULL;
+    }
+    if (mouse->ShowCursor) {
+        mouse->ShowCursor(cursor);
     }
 }
 

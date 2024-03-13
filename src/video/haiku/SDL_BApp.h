@@ -256,7 +256,7 @@ class SDL_BLooper : public BLooper
                 be_app->HideCursor();
         } else {
             SDL_SendMouseMotion(win, 0, 0, x, y);
-            if (SDL_ShowCursor(-1) && be_app->IsCursorHidden())
+            if (SDL_ShowCursor(SDL_QUERY) && be_app->IsCursorHidden())
                 be_app->ShowCursor();
         }
     }

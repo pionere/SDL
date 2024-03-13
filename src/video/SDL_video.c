@@ -4612,7 +4612,7 @@ int SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     relative_mode = SDL_GetRelativeMouseMode();
     SDL_UpdateMouseCapture(SDL_FALSE);
     SDL_SetRelativeMouseMode(SDL_FALSE);
-    show_cursor_prev = SDL_ShowCursor(1);
+    show_cursor_prev = SDL_ShowCursor(SDL_ENABLE);
     SDL_ResetKeyboard();
 
     if (!buttonid) {
