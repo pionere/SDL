@@ -681,6 +681,25 @@ static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, int 
     *scale = renderer->target ? renderer->scale_backup : renderer->scale;
     SDL_UnlockMutex(renderer->target_mutex);
 }
+// TODO: move to SDL_GetWindowSize in SDL_video.c?
+static void SDL_PrivateGetWindowSize(SDL_Window *window, int *w, int *h)
+{
+    SDL_assert(window != NULL);
+    *w = window->w;
+    *h = window->h;
+}
+
+static void UpdateDPIScale(SDL_Renderer *renderer)
+{
+    if (renderer->GetOutputSize) {
+        int window_w, window_h;
+        int output_w, output_h;
+        renderer->GetOutputSize(renderer, &output_w, &output_h);
+        SDL_PrivateGetWindowSize(renderer->window, &window_w, &window_h);
+        renderer->dpi_scale.x = (float)window_w / output_w;
+        renderer->dpi_scale.y = (float)window_h / output_h;
+    }
+}
 
 static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
 {
@@ -700,20 +719,13 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
             if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                 event->window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
                 /* Make sure we're operating on the default render target */
-                SDL_Texture *saved_target = SDL_GetRenderTarget(renderer);
+                SDL_Texture *saved_target = renderer->target;
                 if (saved_target) {
                     SDL_SetRenderTarget(renderer, NULL);
                 }
 
                 /* Update the DPI scale if the window has been resized. */
-                if (window && renderer->GetOutputSize) {
-                    int window_w, window_h;
-                    int output_w, output_h;
-                    renderer->GetOutputSize(renderer, &output_w, &output_h);
-                    SDL_GetWindowSize(renderer->window, &window_w, &window_h);
-                    renderer->dpi_scale.x = (float)window_w / output_w;
-                    renderer->dpi_scale.y = (float)window_h / output_h;
-                }
+                UpdateDPIScale(renderer);
 
                 if (renderer->logical_w) {
 #if defined(__ANDROID__)
@@ -731,7 +743,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                     if (renderer->GetOutputSize) {
                         renderer->GetOutputSize(renderer, &w, &h);
                     } else {
-                        SDL_GetWindowSize(renderer->window, &w, &h);
+                        SDL_PrivateGetWindowSize(renderer->window, &w, &h);
                     }
 
                     renderer->viewport.x = (double)0;
@@ -829,7 +841,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
             physical_h = (float)h;
         } else {
             int w, h;
-            SDL_GetWindowSize(renderer->window, &w, &h);
+            SDL_PrivateGetWindowSize(renderer->window, &w, &h);
             physical_w = ((float)w) * renderer->dpi_scale.x;
             physical_h = ((float)h) * renderer->dpi_scale.y;
         }
@@ -1065,14 +1077,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     /* new textures start at zero, so we start at 1 so first render doesn't flush by accident. */
     renderer->render_command_generation = 1;
 
-    if (renderer->GetOutputSize) {
-        int window_w, window_h;
-        int output_w, output_h;
-        renderer->GetOutputSize(renderer, &output_w, &output_h);
-        SDL_GetWindowSize(renderer->window, &window_w, &window_h);
-        renderer->dpi_scale.x = (float)window_w / output_w;
-        renderer->dpi_scale.y = (float)window_h / output_h;
-    }
+    UpdateDPIScale(renderer);
 
     renderer->relative_scaling = SDL_GetHintBoolean(SDL_HINT_MOUSE_RELATIVE_SCALING, SDL_TRUE);
 
@@ -1165,22 +1170,38 @@ const SDL_RendererInfo *SDL_PrivateGetRendererInfo(const SDL_Renderer *renderer)
     return &renderer->info;
 }
 
-int SDL_GetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
+void SDL_PrivateGetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
-    CHECK_RENDERER_MAGIC(renderer, -1);
-
-    if (renderer->target) {
-        return SDL_QueryTexture(renderer->target, NULL, NULL, w, h);
+    SDL_Texture *texture = renderer->target;
+    if (texture) {
+        // SDL_QueryTexture(texture, NULL, NULL, w, h);
+        *w = texture->w;
+        *h = texture->h;
     } else if (renderer->GetOutputSize) {
         renderer->GetOutputSize(renderer, w, h);
-        return 0;
-    } else if (renderer->window) {
-        SDL_GetWindowSize(renderer->window, w, h);
-        return 0;
     } else {
-        SDL_assert(0 && "This should never happen");
-        return SDL_SetError("Renderer doesn't support querying output size");
+        SDL_Window *window = renderer->window;
+        SDL_assert(window != NULL);
+        SDL_PrivateGetWindowSize(window, w, h);
     }
+}
+
+int SDL_GetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
+{
+    int filter;
+
+    CHECK_RENDERER_MAGIC(renderer, -1);
+
+    if (!w) {
+        w = &filter;
+    }
+
+    if (!h) {
+        h = &filter;
+    }
+
+    SDL_PrivateGetRendererOutputSize(renderer, w, h);
+    return 0;
 }
 
 static SDL_bool IsSupportedBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
@@ -2266,98 +2287,105 @@ SDL_Texture *SDL_GetRenderTarget(SDL_Renderer *renderer)
 
 static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd)
 {
-    int w = 1, h = 1;
+    int w, h;
     float want_aspect;
     float real_aspect;
     float scale;
     SDL_Rect viewport;
-    /* 0 is for letterbox, 1 is for overscan */
-    int scale_policy = 0;
-    const char *hint;
 
     if (!renderer->logical_w || !renderer->logical_h) {
         return 0;
     }
-    if (SDL_GetRendererOutputSize(renderer, &w, &h) < 0) {
-        return -1;
-    }
 
-    hint = SDL_GetHint(SDL_HINT_RENDER_LOGICAL_SIZE_MODE);
-    if (hint && (*hint == '1' || SDL_strcasecmp(hint, "overscan") == 0)) {
-#ifdef SDL_VIDEO_RENDER_D3D
-        /* Unfortunately, Direct3D 9 doesn't support negative viewport numbers
-           which the overscan implementation relies on.
-        */
-        scale_policy = SDL_strcasecmp(renderer->info.name, "direct3d") == 0 ? 0 : 1;
-#else
-        scale_policy = 1;
-#endif
-    }
+    SDL_PrivateGetRendererOutputSize(renderer, &w, &h);
 
     want_aspect = (float)renderer->logical_w / renderer->logical_h;
     real_aspect = (float)w / h;
 
     /* Clear the scale because we're setting viewport in output coordinates */
-    SDL_RenderSetScale(renderer, 1.0f, 1.0f);
+    // SDL_RenderSetScale(renderer, 1.0f, 1.0f);
+    renderer->scale.x = 1.0f;
+    renderer->scale.y = 1.0f;
 
     if (renderer->integer_scale) {
+        int int_scale;
         if (want_aspect > real_aspect) {
-            scale = (float)(w / renderer->logical_w); /* This an integer division! */
+            int_scale = (w / renderer->logical_w); /* This an integer division! */
         } else {
-            scale = (float)(h / renderer->logical_h); /* This an integer division! */
+            int_scale = (h / renderer->logical_h); /* This an integer division! */
         }
 
-        if (scale < 1.0f) {
-            scale = 1.0f;
+        if (int_scale == 0) {
+            int_scale = 1;
         }
 
-        viewport.w = (int)SDL_floor(renderer->logical_w * scale);
+        viewport.w = renderer->logical_w * int_scale; // (int)SDL_floor(renderer->logical_w * scale);
         viewport.x = (w - viewport.w) / 2;
-        viewport.h = (int)SDL_floor(renderer->logical_h * scale);
+        viewport.h = renderer->logical_h * int_scale; // (int)SDL_floor(renderer->logical_h * scale);
         viewport.y = (h - viewport.h) / 2;
+        scale = (float)int_scale;
     } else if (SDL_fabs(want_aspect - real_aspect) < 0.0001) {
         /* The aspect ratios are the same, just scale appropriately */
         scale = (float)w / renderer->logical_w;
 
-        SDL_zero(viewport);
-        SDL_GetRendererOutputSize(renderer, &viewport.w, &viewport.h);
-    } else if (want_aspect > real_aspect) {
-        if (scale_policy) {
-            /* We want a wider aspect ratio than is available -
-             zoom so logical height matches the real height
-             and the width will grow off the screen
-             */
-            scale = (float)h / renderer->logical_h;
-            viewport.y = 0;
-            viewport.h = h;
-            viewport.w = (int)SDL_floor(renderer->logical_w * scale);
-            viewport.x = (w - viewport.w) / 2;
-        } else {
-            /* We want a wider aspect ratio than is available - letterbox it */
-            scale = (float)w / renderer->logical_w;
-            viewport.x = 0;
-            viewport.w = w;
-            viewport.h = (int)SDL_floor(renderer->logical_h * scale);
-            viewport.y = (h - viewport.h) / 2;
-        }
+        // SDL_PrivateGetRendererOutputSize(renderer, &viewport.w, &viewport.h);
+        viewport.w = w;
+        viewport.h = h;
+        viewport.x = 0;
+        viewport.y = 0;
     } else {
-        if (scale_policy) {
-            /* We want a narrower aspect ratio than is available -
-             zoom so logical width matches the real width
-             and the height will grow off the screen
-             */
-            scale = (float)w / renderer->logical_w;
-            viewport.x = 0;
-            viewport.w = w;
-            viewport.h = (int)SDL_floor(renderer->logical_h * scale);
-            viewport.y = (h - viewport.h) / 2;
+        const char *hint = SDL_GetHint(SDL_HINT_RENDER_LOGICAL_SIZE_MODE);
+        /* 0 is for letterbox, 1 is for overscan */
+        int scale_policy = 0;
+        if (hint && (*hint == '1' || SDL_strcasecmp(hint, "overscan") == 0)) {
+#ifdef SDL_VIDEO_RENDER_D3D
+            /* Unfortunately, Direct3D 9 doesn't support negative viewport numbers
+               which the overscan implementation relies on.
+            */
+            scale_policy = SDL_strcasecmp(renderer->info.name, "direct3d") == 0 ? 0 : 1;
+#else
+            scale_policy = 1;
+#endif
+        }
+
+        if (want_aspect > real_aspect) {
+            if (scale_policy) {
+                /* We want a wider aspect ratio than is available -
+                 zoom so logical height matches the real height
+                 and the width will grow off the screen
+                 */
+                scale = (float)h / renderer->logical_h;
+                viewport.y = 0;
+                viewport.h = h;
+                viewport.w = (int)SDL_floor(renderer->logical_w * scale);
+                viewport.x = (w - viewport.w) / 2;
+            } else {
+                /* We want a wider aspect ratio than is available - letterbox it */
+                scale = (float)w / renderer->logical_w;
+                viewport.x = 0;
+                viewport.w = w;
+                viewport.h = (int)SDL_floor(renderer->logical_h * scale);
+                viewport.y = (h - viewport.h) / 2;
+            }
         } else {
-            /* We want a narrower aspect ratio than is available - use side-bars */
-            scale = (float)h / renderer->logical_h;
-            viewport.y = 0;
-            viewport.h = h;
-            viewport.w = (int)SDL_floor(renderer->logical_w * scale);
-            viewport.x = (w - viewport.w) / 2;
+            if (scale_policy) {
+                /* We want a narrower aspect ratio than is available -
+                 zoom so logical width matches the real width
+                 and the height will grow off the screen
+                 */
+                scale = (float)w / renderer->logical_w;
+                viewport.x = 0;
+                viewport.w = w;
+                viewport.h = (int)SDL_floor(renderer->logical_h * scale);
+                viewport.y = (h - viewport.h) / 2;
+            } else {
+                /* We want a narrower aspect ratio than is available - use side-bars */
+                scale = (float)h / renderer->logical_h;
+                viewport.y = 0;
+                viewport.h = h;
+                viewport.w = (int)SDL_floor(renderer->logical_w * scale);
+                viewport.x = (w - viewport.w) / 2;
+            }
         }
     }
 
@@ -2372,7 +2400,9 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
     }
 
     /* Set the new scale */
-    SDL_RenderSetScale(renderer, scale, scale);
+    // SDL_RenderSetScale(renderer, scale, scale);
+    renderer->scale.x = scale;
+    renderer->scale.y = scale;
 
     return 0;
 }
@@ -2386,7 +2416,10 @@ int SDL_RenderSetLogicalSize(SDL_Renderer *renderer, int w, int h)
         renderer->logical_w = 0;
         renderer->logical_h = 0;
         SDL_RenderSetViewport(renderer, NULL);
-        SDL_RenderSetScale(renderer, 1.0f, 1.0f);
+        // SDL_RenderSetScale(renderer, 1.0f, 1.0f);
+        renderer->scale.x = 1.0f;
+        renderer->scale.y = 1.0f;
+
         return 0;
     }
 
@@ -2436,12 +2469,11 @@ int SDL_RenderSetViewport(SDL_Renderer *renderer, const SDL_Rect *rect)
         renderer->viewport.h = (double)rect->h * renderer->scale.y;
     } else {
         int w, h;
-        if (SDL_GetRendererOutputSize(renderer, &w, &h) < 0) {
-            return -1;
-        }
+        SDL_PrivateGetRendererOutputSize(renderer, &w, &h);
+
         renderer->viewport.x = 0.0;
         renderer->viewport.y = 0.0;
-        /* NOLINTBEGIN(clang-analyzer-core.uninitialized.Assign): SDL_GetRendererOutputSize cannot fail */
+        /* NOLINTBEGIN(clang-analyzer-core.uninitialized.Assign): SDL_PrivateGetRendererOutputSize cannot fail */
         renderer->viewport.w = (double)w;
         renderer->viewport.h = (double)h;
         /* NOLINTEND(clang-analyzer-core.uninitialized.Assign) */
@@ -3769,7 +3801,9 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
     SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
 
     if (texture) {
-        SDL_QueryTexture(texture, NULL, NULL, &texw, &texh);
+        // SDL_QueryTexture(texture, NULL, NULL, &texw, &texh);
+        texw = texture->w;
+        texh = texture->h;
     }
 
     prev[0] = -1;

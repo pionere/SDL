@@ -490,12 +490,8 @@ static void METAL_WindowEvent(SDL_Renderer * renderer, const SDL_WindowEvent *ev
 static void METAL_GetOutputSize(SDL_Renderer * renderer, int *w, int *h)
 { @autoreleasepool {
     METAL_RenderData *data = (__bridge METAL_RenderData *) renderer->driverdata;
-    if (w) {
-        *w = (int)data.mtllayer.drawableSize.width;
-    }
-    if (h) {
-        *h = (int)data.mtllayer.drawableSize.height;
-    }
+    *w = (int)data.mtllayer.drawableSize.width;
+    *h = (int)data.mtllayer.drawableSize.height;
 }}
 
 static SDL_bool METAL_SupportsBlendMode(SDL_Renderer * renderer, SDL_BlendMode blendMode)

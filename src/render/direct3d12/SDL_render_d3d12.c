@@ -31,7 +31,7 @@
 #define SDL_D3D12_NUM_UPLOAD_BUFFERS 32
 
 #include "../../core/windows/SDL_windows.h"
-#include "../../video/windows/SDL_windowswindow.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
 #include "SDL_syswm.h"
@@ -507,7 +507,7 @@ static void D3D12_DestroyRenderer(SDL_Renderer *renderer)
 
 static void D3D12_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
-    SDL_GetWindowSizeInPixels(renderer->window, w, h);
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static D3D12_BLEND GetBlendFunc(SDL_BlendFactor factor)

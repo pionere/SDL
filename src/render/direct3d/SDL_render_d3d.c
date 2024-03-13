@@ -26,13 +26,12 @@
 #if defined(SDL_VIDEO_RENDER_D3D) && !defined(SDL_RENDER_DISABLED)
 
 #include "../../core/windows/SDL_windows.h"
-
+#include "../../video/windows/SDL_windowsvideo.h" /* For D3D_LoadDLL and SDL_PrivateGetWindowSizeInPixels */
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
 #include "SDL_syswm.h"
 #include "../SDL_sysrender.h"
 #include "../SDL_d3dmath.h"
-#include "../../video/windows/SDL_windowsvideo.h"
 
 #ifdef SDL_VIDEO_RENDER_D3D
 #define D3D_DEBUG_INFO
@@ -342,7 +341,7 @@ static void D3D_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event
 
 static void D3D_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
-    SDL_GetWindowSizeInPixels(renderer->window, w, h);
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static D3DBLEND GetBlendFunc(SDL_BlendFactor factor)

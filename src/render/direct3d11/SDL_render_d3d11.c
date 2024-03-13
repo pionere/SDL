@@ -28,7 +28,7 @@
 #define COBJMACROS
 #include "../../core/windows/SDL_windows.h"
 #if !defined(__WINRT__)
-#include "../../video/windows/SDL_windowswindow.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
 #endif
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
@@ -1033,7 +1033,7 @@ static void D3D11_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *eve
 #if !defined(__WINRT__)
 static void D3D11_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
-    SDL_GetWindowSizeInPixels(renderer->window, w, h);
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 #endif
 

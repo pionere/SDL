@@ -23,6 +23,7 @@
 #if SDL_VIDEO_RENDER_SW && !defined(SDL_RENDER_DISABLED)
 
 #include "../SDL_sysrender.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
 #include "SDL_render_sw_c.h"
 #include "SDL_hints.h"
 
@@ -81,26 +82,12 @@ static void SW_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
     SW_RenderData *data = (SW_RenderData *)renderer->driverdata;
 
     if (data->surface) {
-        if (w) {
-            *w = data->surface->w;
-        }
-        if (h) {
-            *h = data->surface->h;
-        }
+        *w = data->surface->w;
+        *h = data->surface->h;
         return;
     }
 
-    if (renderer->window) {
-        SDL_GetWindowSizeInPixels(renderer->window, w, h);
-        return;
-    }
-
-    if (w) {
-        *w = 0;
-    }
-    if (h) {
-        *h = 0;
-    }
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static int SW_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
