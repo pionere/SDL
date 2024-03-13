@@ -101,10 +101,11 @@ static SDL_bool SDL_HIDAPI_combine_joycons = SDL_TRUE;
 static SDL_bool initialized = SDL_FALSE;
 static SDL_bool shutting_down = SDL_FALSE;
 
-#define TEST_HID_DEV_MAGIC(device, retval)                           \
-    if (!(device) || (device)->magic != &SDL_HIDAPI_device_magic) { \
-        return retval;                                              \
-    }
+#define TEST_HID_DEV_MAGIC(device, retval)                  \
+    if (!(device)) {                                        \
+        return retval;                                      \
+    }                                                       \
+    SDL_assert((device)->magic == &SDL_HIDAPI_device_magic);
 
 static char *HIDAPI_ConvertString(const wchar_t *wide_string)
 {

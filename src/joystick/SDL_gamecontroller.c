@@ -151,19 +151,21 @@ struct _SDL_GameController
 
 #undef _guarded
 
-#define CHECK_GAMECONTROLLER_MAGIC(gamecontroller, retval)                   \
-    if (!gamecontroller || gamecontroller->magic != &gamecontroller_magic || \
-        !SDL_PrivateJoystickValid(gamecontroller->joystick)) {               \
-        SDL_InvalidParamError("gamecontroller");                             \
-        SDL_UnlockJoysticks();                                               \
-        return retval;                                                       \
-    }
+#define CHECK_GAMECONTROLLER_MAGIC(gamecontroller, retval)     \
+    if (!gamecontroller ||                                     \
+        !SDL_PrivateJoystickValid(gamecontroller->joystick)) { \
+        SDL_InvalidParamError("gamecontroller");               \
+        SDL_UnlockJoysticks();                                 \
+        return retval;                                         \
+    }                                                          \
+    SDL_assert(gamecontroller->magic == &gamecontroller_magic);
 
-#define TEST_GAMECONTROLLER_MAGIC(gamecontroller, retval)                    \
-    if (!gamecontroller || gamecontroller->magic != &gamecontroller_magic) { \
-        SDL_UnlockJoysticks();                                               \
-        return retval;                                                       \
-    }
+#define TEST_GAMECONTROLLER_MAGIC(gamecontroller, retval)      \
+    if (!gamecontroller) {                                     \
+        SDL_UnlockJoysticks();                                 \
+        return retval;                                         \
+    }                                                          \
+    SDL_assert(gamecontroller->magic == &gamecontroller_magic);
 
 static SDL_vidpid_list SDL_allowed_controllers = {
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT, 0, 0, NULL,

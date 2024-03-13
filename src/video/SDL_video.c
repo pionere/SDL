@@ -107,12 +107,13 @@ static SDL_VideoDevice current_video;
         return __VA_ARGS__;                   \
     }
 
-#define CHECK_WINDOW_MAGIC(window, retval)                         \
-    CHECK_VIDEO(retval)                                            \
-    if (!window || window->magic != &current_video.window_magic) { \
-        SDL_SetError("Invalid window");                            \
-        return retval;                                             \
-    }
+#define CHECK_WINDOW_MAGIC(window, retval)                   \
+    CHECK_VIDEO(retval)                                      \
+    if (!window) {                                           \
+        SDL_SetError("Invalid window");                      \
+        return retval;                                       \
+    }                                                        \
+    SDL_assert(window->magic == &current_video.window_magic);
 
 #define CHECK_DISPLAY_INDEX(displayIndex, retval)                         \
     CHECK_VIDEO(retval)                                                   \

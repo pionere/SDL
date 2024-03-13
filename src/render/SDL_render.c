@@ -49,17 +49,19 @@ this should probably be removed at some point in the future.  --ryan. */
 
 #define SDL_WINDOWRENDERDATA "_SDL_WindowRenderData"
 
-#define CHECK_RENDERER_MAGIC(renderer, retval)             \
-    if (!renderer || renderer->magic != &renderer_magic) { \
-        SDL_InvalidParamError("renderer");                 \
-        return retval;                                     \
-    }
+#define CHECK_RENDERER_MAGIC(renderer, retval)     \
+    if (!renderer) {                               \
+        SDL_InvalidParamError("renderer");         \
+        return retval;                             \
+    }                                              \
+    SDL_assert(renderer->magic == &renderer_magic);
 
-#define CHECK_TEXTURE_MAGIC(texture, retval)            \
-    if (!texture || texture->magic != &texture_magic) { \
-        SDL_InvalidParamError("texture");               \
-        return retval;                                  \
-    }
+#define CHECK_TEXTURE_MAGIC(texture, retval)     \
+    if (!texture) {                              \
+        SDL_InvalidParamError("texture");        \
+        return retval;                           \
+    }                                            \
+    SDL_assert(texture->magic == &texture_magic);
 
 /* Predefined blend modes */
 #define SDL_COMPOSE_BLENDMODE(srcColorFactor, dstColorFactor, colorOperation, \

@@ -405,17 +405,19 @@ static SDL_vidpid_list zero_centered_devices = {
     SDL_FALSE
 };
 
-#define CHECK_JOYSTICK_MAGIC(joystick, retval)             \
-    if (!joystick || joystick->magic != &SDL_joystick_magic) { \
-        SDL_InvalidParamError("joystick");                 \
-        SDL_UnlockJoysticks();                             \
-        return retval;                                     \
-    }
+#define CHECK_JOYSTICK_MAGIC(joystick, retval)         \
+    if (!joystick) {                                   \
+        SDL_InvalidParamError("joystick");             \
+        SDL_UnlockJoysticks();                         \
+        return retval;                                 \
+    }                                                  \
+    SDL_assert(joystick->magic == &SDL_joystick_magic);
 
-#define TEST_JOYSTICK_MAGIC(joystick, retval)                  \
-    if (!joystick || joystick->magic != &SDL_joystick_magic) { \
-        return retval;                                         \
-    }
+#define TEST_JOYSTICK_MAGIC(joystick, retval)          \
+    if (!joystick) {                                   \
+        return retval;                                 \
+    }                                                  \
+    SDL_assert(joystick->magic == &SDL_joystick_magic);
 
 SDL_bool SDL_JoysticksInitialized(void)
 {
