@@ -3302,7 +3302,7 @@ void SDL_EnableScreenSaver(void)
     }
     current_video.suspend_screensaver = SDL_FALSE;
     if (current_video.SuspendScreenSaver) {
-        current_video.SuspendScreenSaver(&current_video);
+        current_video.SuspendScreenSaver(SDL_FALSE);
     }
 }
 
@@ -3315,7 +3315,7 @@ void SDL_DisableScreenSaver(void)
     }
     current_video.suspend_screensaver = SDL_TRUE;
     if (current_video.SuspendScreenSaver) {
-        current_video.SuspendScreenSaver(&current_video);
+        current_video.SuspendScreenSaver(SDL_TRUE);
     }
 }
 

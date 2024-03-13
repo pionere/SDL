@@ -1773,7 +1773,7 @@ void X11_PumpEvents(void)
     }
 }
 
-void X11_SuspendScreenSaver(_THIS)
+void X11_SuspendScreenSaver(SDL_bool suspend)
 {
 #ifdef SDL_VIDEO_DRIVER_X11_XSCRNSAVER
     X11_VideoData *data = &x11VideoData;
@@ -1782,11 +1782,11 @@ void X11_SuspendScreenSaver(_THIS)
 #endif /* SDL_VIDEO_DRIVER_X11_XSCRNSAVER */
 
 #ifdef SDL_USE_LIBDBUS
-    if (SDL_DBus_ScreensaverInhibit(_this->suspend_screensaver)) {
+    if (SDL_DBus_ScreensaverInhibit(suspend)) {
         return;
     }
 
-    if (_this->suspend_screensaver) {
+    if (suspend) {
         SDL_DBus_ScreensaverTickle();
     }
 #endif
@@ -1801,7 +1801,7 @@ void X11_SuspendScreenSaver(_THIS)
             return;
         }
 
-        X11_XScreenSaverSuspend(data->display, _this->suspend_screensaver);
+        X11_XScreenSaverSuspend(data->display, suspend);
         X11_XResetScreenSaver(data->display);
     }
 #endif

@@ -579,7 +579,7 @@ void Cocoa_SendWakeupEvent(SDL_Window *window)
     [NSApp postEvent: event atStart: YES];
 }}
 
-void Cocoa_SuspendScreenSaver(_THIS)
+void Cocoa_SuspendScreenSaver(SDL_bool suspend)
 { @autoreleasepool
 {
     Cocoa_VideoData *data = cocoaVideoData;
@@ -589,7 +589,7 @@ void Cocoa_SuspendScreenSaver(_THIS)
         data.screensaver_assertion = kIOPMNullAssertionID;
     }
 
-    if (_this->suspend_screensaver) {
+    if (suspend) {
         /* FIXME: this should ideally describe the real reason why the game
          * called SDL_DisableScreenSaver. Note that the name is only meant to be
          * seen by OS X power users. there's an additional optional human-readable

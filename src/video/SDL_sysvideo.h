@@ -310,7 +310,7 @@ struct SDL_VideoDevice
     void (*PumpEvents)(void);
 
     /* Suspend the screensaver */
-    void (*SuspendScreenSaver)(_THIS);
+    void (*SuspendScreenSaver)(SDL_bool suspend);
 
     /* Text input */
     void (*StartTextInput)(void);

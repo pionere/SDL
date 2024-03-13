@@ -211,7 +211,7 @@ void UIKit_VideoQuit(_THIS)
     // UIKit_GL_UnloadLibrary(_this);
 }
 
-void UIKit_SuspendScreenSaver(_THIS)
+void UIKit_SuspendScreenSaver(SDL_bool suspend)
 {
     @autoreleasepool {
         /* Ignore ScreenSaver API calls if the idle timer hint has been set. */
@@ -220,7 +220,7 @@ void UIKit_SuspendScreenSaver(_THIS)
             UIApplication *app = [UIApplication sharedApplication];
 
             /* Prevent the display from dimming and going to sleep. */
-            app.idleTimerDisabled = (_this->suspend_screensaver != SDL_FALSE);
+            app.idleTimerDisabled = (suspend != SDL_FALSE);
         }
     }
 }

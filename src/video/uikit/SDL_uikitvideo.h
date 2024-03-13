@@ -31,7 +31,7 @@ CGRect UIKit_ComputeViewFrame(SDL_Window *window, UIScreen *screen);
 
 #endif /* __OBJC__ */
 
-void UIKit_SuspendScreenSaver(_THIS);
+void UIKit_SuspendScreenSaver(SDL_bool suspend);
 
 void UIKit_ForceUpdateHomeIndicator(void);
 

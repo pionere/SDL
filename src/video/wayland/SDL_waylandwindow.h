@@ -139,7 +139,7 @@ extern void Wayland_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h);
 extern int Wayland_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *parent_window);
 extern void Wayland_SetWindowTitle(SDL_Window *window);
 extern void Wayland_DestroyWindow(SDL_Window *window);
-extern void Wayland_SuspendScreenSaver(_THIS);
+extern void Wayland_SuspendScreenSaver(SDL_bool suspend);
 extern SDL_bool
 Wayland_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info);
 extern int Wayland_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);

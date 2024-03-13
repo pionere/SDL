@@ -2090,7 +2090,7 @@ int Wayland_CreateSDLWindow(_THIS, SDL_Window *window)
     WAYLAND_wl_display_flush(c->display);
 
     /* We may need to create an idle inhibitor for this new window */
-    Wayland_SuspendScreenSaver(_this);
+    Wayland_SuspendScreenSaver(!SDL_IsScreenSaverEnabled());
 
 #define IS_POPUP(window) \
     (window->flags & (SDL_WINDOW_TOOLTIP | SDL_WINDOW_POPUP_MENU))
@@ -2213,12 +2213,12 @@ void Wayland_SetWindowTitle(SDL_Window *window)
     WAYLAND_wl_display_flush(viddata->display);
 }
 
-void Wayland_SuspendScreenSaver(_THIS)
+void Wayland_SuspendScreenSaver(SDL_bool suspend)
 {
     Wayland_VideoData *data = &waylandVideoData;
 
 #ifdef SDL_USE_LIBDBUS
-    if (SDL_DBus_ScreensaverInhibit(_this->suspend_screensaver)) {
+    if (SDL_DBus_ScreensaverInhibit(suspend)) {
         return;
     }
 #endif
@@ -2236,11 +2236,11 @@ void Wayland_SuspendScreenSaver(_THIS)
         while (window) {
             SDL_WindowData *win_data = window->driverdata;
 
-            if (_this->suspend_screensaver && !win_data->idle_inhibitor) {
+            if (suspend && !win_data->idle_inhibitor) {
                 win_data->idle_inhibitor =
                     zwp_idle_inhibit_manager_v1_create_inhibitor(data->idle_inhibit_manager,
                                                                  win_data->surface);
-            } else if (!_this->suspend_screensaver && win_data->idle_inhibitor) {
+            } else if (!suspend && win_data->idle_inhibitor) {
                 zwp_idle_inhibitor_v1_destroy(win_data->idle_inhibitor);
                 win_data->idle_inhibitor = NULL;
             }

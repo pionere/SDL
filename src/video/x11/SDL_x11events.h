@@ -26,7 +26,7 @@
 extern void X11_PumpEvents(void);
 extern int X11_WaitEventTimeout(int timeout);
 extern void X11_SendWakeupEvent(SDL_Window *window);
-extern void X11_SuspendScreenSaver(_THIS);
+extern void X11_SuspendScreenSaver(SDL_bool suspend);
 extern void X11_ReconcileKeyboardState(void);
 extern void X11_GetBorderValues(void /*SDL_WindowData*/ *data);
 

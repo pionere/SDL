@@ -92,7 +92,7 @@ static SDL_bool WINRT_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)
 
 /* Misc functions */
 static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest();
-extern void WINRT_SuspendScreenSaver(_THIS);
+static void WINRT_SuspendScreenSaver(SDL_bool suspend);
 
 /* Instance */
 WinRT_VideoData winrtVideoData;
@@ -901,12 +901,12 @@ done:
     return pDisplayRequest;
 }
 
-void WINRT_SuspendScreenSaver(_THIS)
+static void WINRT_SuspendScreenSaver(SDL_bool suspend)
 {
     WinRT_VideoData *driverdata = &winrtVideoData;
     if (driverdata->displayRequest) {
         ABI::Windows::System::Display::IDisplayRequest *displayRequest = (ABI::Windows::System::Display::IDisplayRequest *)driverdata->displayRequest;
-        if (_this->suspend_screensaver) {
+        if (suspend) {
             displayRequest->RequestActive();
         } else {
             displayRequest->RequestRelease();
