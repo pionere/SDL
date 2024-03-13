@@ -73,7 +73,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         } else {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
                 info = SDL_PrivateGetRenderDriverInfo(i);
-                if (SDL_strcmp(info->name, "software") != 0) {
+                if (info->flags & SDL_RENDERER_ACCELERATED) {
                     renderer = SDL_CreateRenderer(window, i, 0);
                     if (renderer) {
                         info = SDL_PrivateGetRendererInfo(renderer);
