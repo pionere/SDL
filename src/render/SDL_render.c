@@ -4526,19 +4526,18 @@ SDL_BlendOperation SDL_GetBlendModeAlphaOperation(SDL_BlendMode blendMode)
     return (SDL_BlendOperation)(((Uint32)blendMode >> 16) & 0xF);
 }
 
+SDL_COMPILE_TIME_ASSERT(vsync_bool, SDL_TRUE == 1 && SDL_FALSE == 0);
 int SDL_RenderSetVSync(SDL_Renderer *renderer, int vsync)
 {
     CHECK_RENDERER_MAGIC(renderer, -1);
 
-    if (vsync != 0 && vsync != 1) {
-        return SDL_Unsupported();
-    }
+    vsync = vsync ? 1 : 0;
 
-    renderer->wanted_vsync = vsync ? SDL_TRUE : SDL_FALSE;
+    renderer->wanted_vsync = vsync;
 
     if (!renderer->SetVSync ||
         renderer->SetVSync(renderer, vsync) != 0) {
-        renderer->simulate_vsync = vsync ? SDL_TRUE : SDL_FALSE;
+        renderer->simulate_vsync = vsync;
         if (renderer->simulate_vsync) {
             renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
         } else {
