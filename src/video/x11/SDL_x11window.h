@@ -81,7 +81,7 @@ typedef struct
 extern Uint32 X11_GetNetWMState(SDL_Window *window, Window xwindow);
 
 extern int X11_CreateSDLWindow(_THIS, SDL_Window *window);
-extern int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data);
+// extern int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data);
 extern char *X11_GetWindowTitle(Window xwindow);
 extern void X11_SetWindowTitle(SDL_Window * window);
 extern void X11_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);

@@ -75,7 +75,7 @@ typedef struct
 } SDL_WindowData;
 
 extern int WIN_CreateSDLWindow(_THIS, SDL_Window * window);
-extern int WIN_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data);
+// extern int WIN_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data);
 extern void WIN_SetWindowTitle(SDL_Window * window);
 extern void WIN_SetWindowIcon(SDL_Window * window, SDL_Surface * icon);
 extern void WIN_SetWindowPosition(SDL_Window * window);

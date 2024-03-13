@@ -69,7 +69,7 @@ static SDL_bool HAIKU_CreateDevice(SDL_VideoDevice *device)
 
     /* Window functions */
     device->CreateSDLWindow = HAIKU_CreateSDLWindow;
-    device->CreateSDLWindowFrom = HAIKU_CreateSDLWindowFrom;
+//    device->CreateSDLWindowFrom = HAIKU_CreateSDLWindowFrom;
     device->SetWindowTitle = HAIKU_SetWindowTitle;
     device->SetWindowIcon = HAIKU_SetWindowIcon;
     device->SetWindowPosition = HAIKU_SetWindowPosition;

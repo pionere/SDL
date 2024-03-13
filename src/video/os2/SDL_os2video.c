@@ -804,7 +804,7 @@ static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
 
     return 0;
 }
-
+#if 0
 static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     OS2_VideoData   *pVData = &os2VideoData;
@@ -915,7 +915,7 @@ static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     return 0;
 }
-
+#endif
 static void OS2_DestroyWindow(SDL_Window * window)
 {
     OS2_VideoData *pVData = &os2VideoData;
@@ -935,14 +935,13 @@ static void OS2_DestroyWindow(SDL_Window * window)
         SDL_free(window->shaper);
         window->shaper = NULL;
     }
-
-    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
         /* Window was created by SDL (OS2_CreateSDLWindow()),
          * not by user (OS2_CreateSDLWindowFrom()) */
         WinDestroyWindow(pWinData->hwndFrame);
-    } else {
-        WinSetWindowULong(pWinData->hwnd, 0, 0);
-    }
+//    } else {
+//        WinSetWindowULong(pWinData->hwnd, 0, 0);
+//    }
 
     if ((pVData) && (pWinData->pVOData)) {
         pVData->pOutput->Close(pWinData->pVOData);
@@ -1603,7 +1602,7 @@ static SDL_bool OS2_CreateDevice(SDL_VideoDevice *device)
 
     /* Window functions */
     device->CreateSDLWindow = OS2_CreateSDLWindow;
-    device->CreateSDLWindowFrom = OS2_CreateSDLWindowFrom;
+//    device->CreateSDLWindowFrom = OS2_CreateSDLWindowFrom;
     device->SetWindowTitle = OS2_SetWindowTitle;
     device->SetWindowIcon = OS2_SetWindowIcon;
     device->SetWindowPosition = OS2_SetWindowPosition;

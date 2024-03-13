@@ -208,7 +208,7 @@ static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
 
     /* Window functions */
     device->CreateSDLWindow = X11_CreateSDLWindow;
-    device->CreateSDLWindowFrom = X11_CreateSDLWindowFrom;
+//    device->CreateSDLWindowFrom = X11_CreateSDLWindowFrom;
     device->SetWindowTitle = X11_SetWindowTitle;
     device->SetWindowIcon = X11_SetWindowIcon;
     device->SetWindowPosition = X11_SetWindowPosition;

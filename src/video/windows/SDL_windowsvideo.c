@@ -148,7 +148,7 @@ static SDL_bool WIN_CreateDevice(SDL_VideoDevice *device)
 #endif
     /* Window functions */
     device->CreateSDLWindow = WIN_CreateSDLWindow;
-    device->CreateSDLWindowFrom = WIN_CreateSDLWindowFrom;
+//    device->CreateSDLWindowFrom = WIN_CreateSDLWindowFrom;
     device->SetWindowTitle = WIN_SetWindowTitle;
     device->SetWindowIcon = WIN_SetWindowIcon;
     device->SetWindowPosition = WIN_SetWindowPosition;

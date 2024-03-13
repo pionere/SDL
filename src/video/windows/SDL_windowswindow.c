@@ -470,6 +470,7 @@ static int SetupGLWindow(_THIS, SDL_Window *window)
 #endif /* SDL_VIDEO_OPENGL_EGL */
 
 #ifdef SDL_VIDEO_OPENGL_WGL
+#if 0
     if (window->flags & SDL_WINDOW_FOREIGN) {
         const char *hint = SDL_GetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT);
         if (hint) {
@@ -484,7 +485,7 @@ static int SetupGLWindow(_THIS, SDL_Window *window)
             }
         }
     }
-
+#endif
     return WIN_GL_SetupWindow(_this, window);
 #elif !defined(SDL_VIDEO_OPENGL_EGL)
     SDL_assert(!"Should not happen");
@@ -533,7 +534,7 @@ int WIN_CreateSDLWindow(_THIS, SDL_Window *window)
 
     return SetupGLWindow(_this, window);
 }
-
+#if 0
 int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
@@ -566,7 +567,7 @@ int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
     return SetupGLWindow(_this, window);
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 }
-
+#endif
 void WIN_SetWindowTitle(SDL_Window *window)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -1131,13 +1132,13 @@ void WIN_DestroyWindow(SDL_Window *window)
 #ifdef SDL_VIDEO_OPENGL_EGL
         SDL_EGL_DestroySurface(data->egl_surface);
 #endif
-        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             DestroyWindow(data->hwnd);
             if (data->parent) {
                 DestroyWindow(data->parent);
             }
-        } else {
-            /* Restore any original event handler... */
+/*        } else {
+            // Restore any original event handler...
             if (data->wndproc) {
 #ifdef GWLP_WNDPROC
                 SetWindowLongPtr(data->hwnd, GWLP_WNDPROC,
@@ -1147,7 +1148,7 @@ void WIN_DestroyWindow(SDL_Window *window)
                               (LONG_PTR)data->wndproc);
 #endif
             }
-        }
+        }*/
         SDL_free(data);
     }
 

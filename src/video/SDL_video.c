@@ -1679,6 +1679,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
 
 SDL_Window *SDL_CreateWindowFrom(const void *data)
 {
+#if 0
     SDL_Window *window;
     Uint32 flags = SDL_WINDOW_FOREIGN;
 
@@ -1752,6 +1753,10 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
     PrepareDragAndDropSupport(window);
 
     return window;
+#else
+    SDL_Unsupported();
+    return NULL;
+#endif
 }
 
 int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
@@ -1788,7 +1793,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
         SDL_assert(0);
 #endif
     }
-
+#if 0
     foreign_win = (window->flags & SDL_WINDOW_FOREIGN) ? SDL_TRUE : SDL_FALSE;
     if (foreign_win) {
         /* Can't destroy and re-create foreign windows, hrm */
@@ -1796,7 +1801,10 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     } else {
         flags &= ~SDL_WINDOW_FOREIGN;
     }
-
+#else
+    SDL_assert(!(flags & SDL_WINDOW_FOREIGN));
+    foreign_win = SDL_FALSE;
+#endif
     /* Restore video mode, etc. */
     if (!foreign_win) { // (!(window->flags & SDL_WINDOW_FOREIGN)) {
         SDL_HideWindow(window);
@@ -3211,9 +3219,9 @@ void SDL_DestroyWindow(SDL_Window *window)
     window->is_destroying = SDL_TRUE;
 
     /* Restore video mode, etc. */
-    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
         SDL_HideWindow(window);
-    }
+//    }
 
     /* Make sure this window no longer has focus */
     if (SDL_GetKeyboardFocus() == window) {

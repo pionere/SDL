@@ -668,7 +668,7 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
 
     return 0;
 }
-
+#if 0
 int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 {
     Window w = (Window)data;
@@ -677,7 +677,7 @@ int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     return SetupWindowData(window, w);
 }
-
+#endif
 char *X11_GetWindowTitle(Window xwindow)
 {
     X11_VideoData *data = &x11VideoData;
@@ -1147,9 +1147,9 @@ void X11_ShowWindow(SDL_Window *window)
         /* Blocking wait for "MapNotify" event.
          * We use X11_XIfEvent because pXWindowEvent takes a mask rather than a type,
          * and XCheckTypedWindowEvent doesn't block */
-        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             X11_XIfEvent(display, &event, &isMapNotify, (XPointer)&data->xwindow);
-        }
+//        }
         X11_XFlush(display);
     }
 
@@ -1176,9 +1176,9 @@ void X11_HideWindow(SDL_Window *window)
     if (X11_IsWindowMapped(window)) {
         X11_XWithdrawWindow(display, data->xwindow, displaydata->screen);
         /* Blocking wait for "UnmapNotify" event */
-        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             X11_XIfEvent(display, &event, &isUnmapNotify, (XPointer)&data->xwindow);
-        }
+//        }
         X11_XFlush(display);
     }
 }
@@ -1776,10 +1776,10 @@ void X11_DestroyWindow(SDL_Window *window)
             X11_XDestroyIC(data->ic);
         }
 #endif
-        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             X11_XDestroyWindow(display, data->xwindow);
             X11_XFlush(display);
-        }
+//        }
 #ifdef SDL_VIDEO_DRIVER_X11_XFIXES
         /* If the pointer barriers are active for this, deactivate it.*/
         if (videodata->active_cursor_confined_window == window) {

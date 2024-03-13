@@ -1819,7 +1819,7 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
 #endif /* SDL_VIDEO_OPENGL_EGL */
     return 0;
 }}
-
+#if 0
 int Cocoa_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 { @autoreleasepool
 {
@@ -1859,7 +1859,7 @@ int Cocoa_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data)
 
     return SetupWindowData(window, nswindow, nsview);
 }}
-
+#endif
 void Cocoa_SetWindowTitle(SDL_Window * window)
 { @autoreleasepool
 {
@@ -2330,11 +2330,11 @@ void Cocoa_DestroyWindow(SDL_Window * window)
         }
         [data.listener close];
         data.listener = nil;
-        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+//        if (!(window->flags & SDL_WINDOW_FOREIGN)) {
             /* Release the content view to avoid further updateLayer callbacks */
             [data.nswindow setContentView:nil];
             [data.nswindow close];
-        }
+//        }
 
 #ifdef SDL_VIDEO_OPENGL_CGL
 

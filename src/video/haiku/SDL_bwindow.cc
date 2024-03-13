@@ -87,7 +87,7 @@ int HAIKU_CreateSDLWindow(_THIS, SDL_Window *window) {
     _ToBeWin(window)->Show();
     return 0;
 }
-
+#if 0
 int HAIKU_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data) {
 
     SDL_BWin *otherBWin = (SDL_BWin*)data;
@@ -120,7 +120,7 @@ int HAIKU_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data) {
     otherBWin->UnlockLooper();
     return 0;
 }
-
+#endif
 void HAIKU_SetWindowTitle(SDL_Window * window) {
     BMessage msg(BWIN_SET_TITLE);
     msg.AddString("window-title", window->title);

@@ -89,7 +89,7 @@ static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
 
     /* Window functions */
     device->CreateSDLWindow = Cocoa_CreateSDLWindow;
-    device->CreateSDLWindowFrom = Cocoa_CreateSDLWindowFrom;
+//    device->CreateSDLWindowFrom = Cocoa_CreateSDLWindowFrom;
     device->SetWindowTitle = Cocoa_SetWindowTitle;
     device->SetWindowIcon = Cocoa_SetWindowIcon;
     device->SetWindowPosition = Cocoa_SetWindowPosition;
