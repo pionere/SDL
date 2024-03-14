@@ -45,10 +45,6 @@ typedef struct KMSDRM_VideoData
     int vulkan_loaded;               /* Are we in Vulkan mode? One VK window is enough to be. */
     SDL_bool async_pageflip_support; /* Does the hardware support async. pageflips? */
 
-    SDL_Window **windows;
-    int max_windows;
-    int num_windows;
-
     /* Even if we have several displays, we only have to
        open 1 FD and create 1 gbm device. */
     int gbm_loaded;

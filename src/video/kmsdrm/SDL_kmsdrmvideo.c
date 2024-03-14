@@ -1282,10 +1282,9 @@ cleanup:
 static void KMSDRM_ReleaseVT(void *userdata)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    int i;
+    SDL_Window *window;
 
-    for (i = 0; i < viddata->num_windows; i++) {
-        SDL_Window *window = viddata->windows[i];
+    for (window = SDL_GetWindows(); window; window = window->next) {
         if (!(window->flags & SDL_WINDOW_VULKAN)) {
             KMSDRM_DestroySurfaces(window);
         }
@@ -1297,11 +1296,10 @@ static void KMSDRM_AcquireVT(void *userdata)
 {
     SDL_VideoDevice *_this = (SDL_VideoDevice *)userdata;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    int i;
+    SDL_Window *window;
 
     KMSDRM_drmSetMaster(viddata->drm_fd);
-    for (i = 0; i < viddata->num_windows; i++) {
-        SDL_Window *window = viddata->windows[i];
+    for (window = SDL_GetWindows(); window; window = window->next) {
         if (!(window->flags & SDL_WINDOW_VULKAN)) {
             KMSDRM_CreateSurfaces(_this, window);
         }
@@ -1339,8 +1337,6 @@ int KMSDRM_VideoInit(_THIS)
    are freed by SDL internals, so not our job. */
 void KMSDRM_VideoQuit(_THIS)
 {
-    KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-
     KMSDRM_DeinitDisplays();
 
 #ifdef SDL_INPUT_LINUXEV
@@ -1349,12 +1345,6 @@ void KMSDRM_VideoQuit(_THIS)
 #elif defined(SDL_INPUT_WSCONS)
     SDL_WSCONS_Quit();
 #endif
-
-    /* Clear out the window list */
-    SDL_free(viddata->windows);
-    viddata->windows = NULL;
-    viddata->max_windows = 0;
-    viddata->num_windows = 0;
 }
 
 /* Read modes from the connector modes, and store them in display->display_modes. */
@@ -1399,7 +1389,7 @@ int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     SDL_DisplayModeData *modedata = (SDL_DisplayModeData *)mode->driverdata;
     drmModeConnector *conn = dispdata->connector;
-    int i;
+    SDL_Window *window;
 
     /* Don't do anything if we are in Vulkan mode. */
     if (viddata->vulkan_loaded) {
@@ -1414,8 +1404,8 @@ int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
        so it's done in SwapWindow. */
     dispdata->fullscreen_mode = conn->modes[modedata->mode_index];
 
-    for (i = 0; i < viddata->num_windows; i++) {
-        KMSDRM_DirtySurfaces(viddata->windows[i]);
+    for (window = SDL_GetWindows(); window; window = window->next) {
+        KMSDRM_DirtySurfaces(window);
     }
 
     return 0;
@@ -1427,7 +1417,6 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    unsigned int i, j;
 
     if (!windata) {
         return;
@@ -1451,22 +1440,6 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
         if (viddata->gbm_loaded > 0 && --viddata->gbm_loaded <= 0) {
             /* Free display plane, and destroy GBM device. */
             KMSDRM_GBMDeinit();
-        }
-    }
-
-    /********************************************/
-    /* Remove from the internal SDL window list */
-    /********************************************/
-
-    for (i = 0; i < viddata->num_windows; i++) {
-        if (viddata->windows[i] == window) {
-            viddata->num_windows--;
-
-            for (j = i; j < viddata->num_windows; j++) {
-                viddata->windows[j] = viddata->windows[j + 1];
-            }
-
-            break;
         }
     }
 
@@ -1562,21 +1535,8 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
         windata->double_buffer = SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE);
     } /* NON-Vulkan block ends. */
 
-    /* Add window to the internal list of tracked windows. Note, while it may
-       seem odd to support multiple fullscreen windows, some apps create an
+    /* Note, while it may seem odd to support multiple fullscreen windows, some apps create an
        extra window as a dummy surface when working with multiple contexts */
-    if (viddata->num_windows >= viddata->max_windows) {
-        unsigned int new_max_windows = viddata->max_windows + 1;
-        void *newWindows = SDL_realloc(viddata->windows,
-                                                      new_max_windows * sizeof(SDL_Window *));
-        if (!newWindows) {
-            return SDL_OutOfMemory();
-        }
-        viddata->windows = (SDL_Window **)newWindows;
-        viddata->max_windows = new_max_windows;
-    }
-
-    viddata->windows[viddata->num_windows++] = window;
 
     /* Focus on the newly created window.
        SDL_SetMouseFocus() also takes care of calling KMSDRM_ShowCursor() if necessary. */
