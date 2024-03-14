@@ -456,7 +456,7 @@ static void HIDAPI_UpdateDiscovery(void)
             while (remain > 0) {
                 if (buf.event.len > 0) {
                     if (StrHasPrefix(buf.event.name, "hidraw") &&
-                        StrIsInteger(buf.event.name + SDL_strlen("hidraw"))) {
+                        StrIsInteger(buf.event.name + sizeof("hidraw") - 1)) {
                         ++SDL_HIDAPI_discovery.m_unDeviceChangeCounter;
                         /* We found an hidraw change. We still continue to
                          * drain the inotify fd to avoid leaving old

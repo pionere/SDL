@@ -1374,9 +1374,6 @@ SDL_Cursor *SDL_GetCursor(void)
 {
     SDL_Mouse *mouse = _this;
 
-    if (!mouse) {
-        return NULL;
-    }
     return mouse->cur_cursor;
 }
 
@@ -1384,9 +1381,6 @@ SDL_Cursor *SDL_GetDefaultCursor(void)
 {
     SDL_Mouse *mouse = _this;
 
-    if (!mouse) {
-        return NULL;
-    }
     return mouse->def_cursor;
 }
 
@@ -1427,10 +1421,6 @@ int SDL_ShowCursor(int toggle)
 {
     SDL_Mouse *mouse = _this;
     SDL_bool shown;
-
-    if (!mouse) {
-        return 0;
-    }
 
     shown = mouse->cursor_shown;
     if (toggle >= 0) {
