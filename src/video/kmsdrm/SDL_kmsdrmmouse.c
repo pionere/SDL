@@ -429,10 +429,7 @@ void KMSDRM_QuitMouse(SDL_VideoDisplay *display)
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     SDL_Cursor *cursor = dispdata->display_cursor;
 
-    if (dispdata->cursor_loaded > 0) {
-        if (--dispdata->cursor_loaded > 0) {
-            return;
-        }
+    if (dispdata->cursor_loaded > 0 && --dispdata->cursor_loaded <= 0) {
         if (cursor) {
             if (SDL_GetDefaultCursor() == cursor) {
                 SDL_SetDefaultCursor(NULL);

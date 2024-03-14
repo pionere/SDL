@@ -82,6 +82,7 @@ static int kmsdrm_dri_devnamesize = kmsdrm_modern_dri_devnamesize;
 #endif
 
 static void KMSDRM_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
+static void KMSDRM_GBMDeinit(void);
 
 static int get_driindex(void)
 {
@@ -1023,8 +1024,9 @@ cleanup:
    These things are incompatible with Vulkan, which accesses the same resources
    internally so they must be free when trying to build a Vulkan surface.
 */
-static int KMSDRM_GBMInit(SDL_DisplayData *dispdata)
+static int KMSDRM_GBMInit(void)
 {
+    SDL_VideoDevice *_this = SDL_GetVideoDevice();
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
 
     /* Reopen the FD! */
@@ -1039,20 +1041,45 @@ static int KMSDRM_GBMInit(SDL_DisplayData *dispdata)
     /* Create the GBM device. */
     viddata->gbm_dev = KMSDRM_gbm_create_device(viddata->drm_fd);
     if (!viddata->gbm_dev) {
-        close(viddata->drm_fd);
-        viddata->drm_fd = -1;
+        KMSDRM_GBMDeinit();
         return SDL_SetError("Couldn't create gbm device.");
     }
 
-    viddata->gbm_init = SDL_TRUE;
+    /* Manually load the GL library. KMSDRM_EGL_LoadLibrary() has already
+       been called by SDL_CreateWindow() but we don't do anything there,
+       our KMSDRM_EGL_LoadLibrary() is a dummy precisely to be able to load it here.
+       If we let SDL_CreateWindow() load the lib, it would be loaded
+       before we call KMSDRM_GBMInit(), causing all GLES programs to fail. */
+    if (_this->gl_config.gl_type == 0) {
+        NativeDisplayType egl_display = (NativeDisplayType)kmsdrmVideoData.gbm_dev;
+        if (SDL_EGL_LoadLibrary(_this, NULL, egl_display, EGL_PLATFORM_GBM_MESA) < 0) {
+            /* Try again with OpenGL ES 2.0 */
+            _this->gl_config.profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
+            _this->gl_config.major_version = 2;
+            _this->gl_config.minor_version = 0;
+            if (SDL_EGL_LoadLibrary(_this, NULL, egl_display, EGL_PLATFORM_GBM_MESA) < 0) {
+                KMSDRM_GBMDeinit();
+                return SDL_SetError("Can't load EGL/GL library on window creation.");
+            }
+        }
+
+        _this->gl_config.driver_loaded = 1;
+    }
 
     return 0;
 }
 
 /* Deinit the Vulkan-incompatible KMSDRM stuff. */
-static void KMSDRM_GBMDeinit(SDL_DisplayData *dispdata)
+static void KMSDRM_GBMDeinit(void)
 {
+    SDL_VideoDevice *_this = SDL_GetVideoDevice();
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
+
+    /* Unload EGL/GL library and free egl_data.  */
+    if (_this->gl_config.gl_type != 0) {
+        SDL_EGL_UnloadLibrary(_this);
+        _this->gl_config.driver_loaded = 0;
+    }
 
     /* Destroy GBM device. GBM surface is destroyed by DestroySurfaces(),
        already called when we get here. */
@@ -1066,8 +1093,6 @@ static void KMSDRM_GBMDeinit(SDL_DisplayData *dispdata)
         close(viddata->drm_fd);
         viddata->drm_fd = -1;
     }
-
-    viddata->gbm_init = SDL_FALSE;
 }
 
 static void KMSDRM_DestroySurfaces(SDL_Window *window)
@@ -1291,7 +1316,8 @@ int KMSDRM_VideoInit(_THIS)
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_LogDebug(SDL_LOG_CATEGORY_VIDEO, "KMSDRM_VideoInit()");
 
-    viddata->gbm_init = SDL_FALSE;
+    SDL_assert(viddata->vulkan_loaded == 0);
+    SDL_assert(viddata->gbm_loaded == 0);
 
     /* Get KMSDRM resources info and store what we need. Getting and storing
        this info isn't a problem for VK compatibility.
@@ -1376,7 +1402,7 @@ int KMSDRM_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     int i;
 
     /* Don't do anything if we are in Vulkan mode. */
-    if (viddata->vulkan_mode) {
+    if (viddata->vulkan_loaded) {
         return 0;
     }
 
@@ -1401,7 +1427,6 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData *dispdata = (SDL_DisplayData *)display->driverdata;
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    SDL_bool is_vulkan = window->flags & SDL_WINDOW_VULKAN; /* Is this a VK window? */
     unsigned int i, j;
 
     if (!windata) {
@@ -1411,7 +1436,9 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
     /* restore vrr state */
     KMSDRM_CrtcSetVrr(viddata->drm_fd, dispdata->crtc->crtc_id, dispdata->saved_vrr);
 
-    if (!is_vulkan && viddata->gbm_init) {
+    if (window->flags & SDL_WINDOW_VULKAN) {
+        viddata->vulkan_loaded--;
+    } else if (!viddata->vulkan_loaded) {
         /* Destroy the cursor.
            FIXME: does this mean the window can not be moved to an another display?
         */
@@ -1420,29 +1447,10 @@ void KMSDRM_DestroyWindow(SDL_Window *window)
         /* Destroy GBM surface and buffers. */
         KMSDRM_DestroySurfaces(window);
 
-        /* Unload library and deinit GBM, but only if this is the last window.
-           Note that this is the right comparison because num_windows could be 1
-           if there is a complete window, or 0 if we got here from SDL_CreateWindow()
-           because KMSDRM_CreateSDLWindow() returned an error so the window wasn't
-           added to the windows list. */
-        if (viddata->num_windows <= 1) {
-
-            /* Unload EGL/GL library and free egl_data.  */
-            SDL_VideoDevice *_this = SDL_GetVideoDevice();
-            if (_this->gl_config.gl_type != 0) {
-                SDL_EGL_UnloadLibrary(_this);
-                _this->gl_config.driver_loaded = 0;
-            }
-
+        /* Unload library and deinit GBM, but only if this is the last window. */
+        if (viddata->gbm_loaded > 0 && --viddata->gbm_loaded <= 0) {
             /* Free display plane, and destroy GBM device. */
-            KMSDRM_GBMDeinit(dispdata);
-        }
-
-    } else {
-
-        /* If we were in Vulkan mode, get out of it. */
-        if (viddata->vulkan_mode) {
-            viddata->vulkan_mode = SDL_FALSE;
+            KMSDRM_GBMDeinit();
         }
     }
 
@@ -1480,9 +1488,6 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
     SDL_DisplayData *dispdata = display->driverdata;
-    SDL_bool is_vulkan = window->flags & SDL_WINDOW_VULKAN; /* Is this a VK window? */
-    SDL_bool vulkan_mode = viddata->vulkan_mode;            /* Do we have any Vulkan windows? */
-    NativeDisplayType egl_display;
     drmModeModeInfo *mode;
     int ret = 0;
 
@@ -1495,14 +1500,18 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
     /* Setup driver data for this window */
     window->driverdata = windata;
 
-    if (!is_vulkan && !vulkan_mode) { /* NON-Vulkan block. */
+    if (window->flags & SDL_WINDOW_VULKAN) {
+        /* If we have just created a Vulkan window, establish that we are in Vulkan mode now. */
+        viddata->vulkan_loaded++;
+    }
+
+    if (!viddata->vulkan_loaded) { /* NON-Vulkan block. */
 
         /* Maybe you didn't ask for an OPENGL window, but that's what you will get.
            See following comments on why. */
         window->flags |= SDL_WINDOW_OPENGL;
 
-        if (!(viddata->gbm_init)) {
-
+        if (viddata->gbm_loaded == 0) {
             /* After SDL_CreateWindow, most SDL2 programs will do SDL_CreateRenderer(),
                which will in turn call GL_CreateRenderer() or GLES2_CreateRenderer().
                In order for the GL_CreateRenderer() or GLES2_CreateRenderer() call to
@@ -1519,31 +1528,12 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
             /* Reopen FD, create gbm dev, setup display plane, etc,.
                but only when we come here for the first time,
                and only if it's not a VK window. */
-            ret = KMSDRM_GBMInit(dispdata);
-            if (ret != 0) {
-                return SDL_SetError("Can't init GBM on window creation.");
+            ret = KMSDRM_GBMInit();
+            if (ret < 0) {
+                return ret;
             }
         }
-
-        /* Manually load the GL library. KMSDRM_EGL_LoadLibrary() has already
-           been called by SDL_CreateWindow() but we don't do anything there,
-           our KMSDRM_EGL_LoadLibrary() is a dummy precisely to be able to load it here.
-           If we let SDL_CreateWindow() load the lib, it would be loaded
-           before we call KMSDRM_GBMInit(), causing all GLES programs to fail. */
-        if (_this->gl_config.gl_type == 0) {
-            egl_display = (NativeDisplayType)kmsdrmVideoData.gbm_dev;
-            if (SDL_EGL_LoadLibrary(_this, NULL, egl_display, EGL_PLATFORM_GBM_MESA) < 0) {
-                /* Try again with OpenGL ES 2.0 */
-                _this->gl_config.profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
-                _this->gl_config.major_version = 2;
-                _this->gl_config.minor_version = 0;
-                if (SDL_EGL_LoadLibrary(_this, NULL, egl_display, EGL_PLATFORM_GBM_MESA) < 0) {
-                    return SDL_SetError("Can't load EGL/GL library on window creation.");
-                }
-            }
-
-            _this->gl_config.driver_loaded = 1;
-        }
+        viddata->gbm_loaded++;
 
         /* Create and set the default cursor for the display
            of this window, now that we know this is not a VK window. */
@@ -1566,7 +1556,7 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
         /* Create the window surfaces with the size we have just chosen.
            Needs the window diverdata in place. */
         ret = KMSDRM_CreateSurfaces(_this, window);
-        if (ret != 0) {
+        if (ret < 0) {
             return ret;
         }
         windata->double_buffer = SDL_GetHintBoolean(SDL_HINT_VIDEO_DOUBLE_BUFFER, SDL_FALSE);
@@ -1587,9 +1577,6 @@ int KMSDRM_CreateSDLWindow(_THIS, SDL_Window *window)
     }
 
     viddata->windows[viddata->num_windows++] = window;
-
-    /* If we have just created a Vulkan window, establish that we are in Vulkan mode now. */
-    viddata->vulkan_mode = is_vulkan;
 
     /* Focus on the newly created window.
        SDL_SetMouseFocus() also takes care of calling KMSDRM_ShowCursor() if necessary. */
@@ -1654,14 +1641,14 @@ void KMSDRM_SetWindowPosition(SDL_Window *window)
 void KMSDRM_SetWindowSize(SDL_Window *window)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    if (!viddata->vulkan_mode) {
+    if (!viddata->vulkan_loaded) {
         KMSDRM_DirtySurfaces(window);
     }
 }
 void KMSDRM_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_bool fullscreen)
 {
     KMSDRM_VideoData *viddata = &kmsdrmVideoData;
-    if (!viddata->vulkan_mode) {
+    if (!viddata->vulkan_loaded) {
         KMSDRM_DirtySurfaces(window);
     }
 }
