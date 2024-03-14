@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if defined(SDL_VIDEO_RENDER_OGL_ES) && !defined(SDL_RENDER_DISABLED)
+#if SDL_VIDEO_RENDER_OGL_ES
 
 #include "SDL_hints.h"
 #include "../../video/SDL_sysvideo.h" /* For SDL_GL_SwapWindowWithResult, SDL_RecreateWindow and window->flags TODO: SDL_PrivateGetWindowFlags? */
@@ -1194,6 +1194,6 @@ const SDL_RenderDriver GLES_RenderDriver = {
       0 }
 };
 
-#endif /* SDL_VIDEO_RENDER_OGL_ES && !SDL_RENDER_DISABLED */
+#endif /* SDL_VIDEO_RENDER_OGL_ES */
 
 /* vi: set ts=4 sw=4 expandtab: */

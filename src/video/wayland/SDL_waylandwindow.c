@@ -1157,7 +1157,7 @@ static void handle_surface_enter(void *data, struct wl_surface *surface,
 static void handle_surface_leave(void *data, struct wl_surface *surface,
                                  struct wl_output *output)
 {
-    SDL_WindowData *window = data;
+    SDL_WindowData *window = (SDL_WindowData *)data;
 
     if (!SDL_WAYLAND_own_output(output) || !SDL_WAYLAND_own_surface(surface)) {
         return;
@@ -1999,6 +1999,13 @@ int Wayland_CreateSDLWindow(_THIS, SDL_Window *window)
     }
 
     window->driverdata = data;
+
+    if (!(window->flags & SDL_WINDOW_VULKAN)) {
+        if (!(window->flags & SDL_WINDOW_OPENGL)) {
+            SDL_GL_LoadLibrary(NULL);
+            window->flags |= SDL_WINDOW_OPENGL;
+        }
+    }
 
     data->sdlwindow = window;
 

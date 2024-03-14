@@ -57,6 +57,7 @@
 #include "viewporter-client-protocol.h"
 #include "primary-selection-unstable-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
+#include "cursor-shape-v1-client-protocol.h"
 
 #ifdef HAVE_LIBDECOR_H
 #include <libdecor.h>
@@ -510,17 +511,8 @@ static void display_handle_geometry(void *data,
 
 {
     SDL_WaylandOutputData *driverdata = data;
-    SDL_VideoDisplay *display;
-    int i;
 
     if (driverdata->wl_output_done_count) {
-        /* Clear the wl_output ref so Reset doesn't free it */
-        display = SDL_GetDisplay(driverdata->index);
-        for (i = 0; i < display->num_display_modes; i += 1) {
-            display->display_modes[i].driverdata = NULL;
-        }
-
-        /* Okay, now it's safe to reset */
         SDL_ResetDisplayModes(driverdata->index);
 
         /* The display has officially started over. */
@@ -631,7 +623,6 @@ static void display_handle_done(void *data,
         native_mode.h = driverdata->native_height;
     }
     native_mode.refresh_rate = (int)SDL_round(driverdata->refresh / 1000.0); /* mHz to Hz */
-    native_mode.driverdata = driverdata->output;
 
     /* The scaled desktop mode */
     desktop_mode.format = SDL_PIXELFORMAT_RGB888;
@@ -652,7 +643,6 @@ static void display_handle_done(void *data,
         desktop_mode.h = driverdata->width;
     }
     desktop_mode.refresh_rate = (int)SDL_round(driverdata->refresh / 1000.0); /* mHz to Hz */
-    desktop_mode.driverdata = driverdata->output;
 
     /* Calculate the display DPI */
     if (driverdata->transform & WL_OUTPUT_TRANSFORM_90) {
@@ -765,7 +755,7 @@ static void Wayland_add_display(uint32_t id)
 static void Wayland_free_display(uint32_t id)
 {
     Wayland_VideoData *d = &waylandVideoData;
-    int num_displays, i, j;
+    int num_displays, i;
     SDL_VideoDisplay *displays = SDL_GetDisplays(&num_displays);
     SDL_WaylandOutputData *data;
     struct wl_output *output;
@@ -796,10 +786,6 @@ static void Wayland_free_display(uint32_t id)
             }
             wl_output_destroy(output);
 
-            /* Clear the wl_output ref so Reset doesn't free it */
-            for (j = 0; j < displays[i].num_display_modes; j += 1) {
-                displays[i].display_modes[j].driverdata = NULL;
-            }
             SDL_DelVideoDisplay(i);
 
             /* Update the index for all remaining displays */
@@ -911,6 +897,11 @@ static void display_handle_global(void *data, struct wl_registry *registry, uint
         d->viewporter = wl_registry_bind(d->registry, id, &wp_viewporter_interface, 1);
     } else if (SDL_strcmp(interface, "wp_fractional_scale_manager_v1") == 0) {
         d->fractional_scale_manager = wl_registry_bind(d->registry, id, &wp_fractional_scale_manager_v1_interface, 1);
+    } else if (SDL_strcmp(interface, "wp_cursor_shape_manager_v1") == 0) {
+        d->cursor_shape_manager = wl_registry_bind(d->registry, id, &wp_cursor_shape_manager_v1_interface, 1);
+        if (d->input) {
+            Wayland_CreateCursorShapeDevice(d->input);
+        }
 #ifdef SDL_VIDEO_DRIVER_WAYLAND_QT_TOUCH
     } else if (SDL_strcmp(interface, "qt_touch_extension") == 0) {
         Wayland_touch_create(id);
@@ -1049,7 +1040,7 @@ static int Wayland_GetDisplayDPI(SDL_VideoDisplay *sdl_display, float *ddpi, flo
 static void Wayland_VideoCleanup()
 {
     Wayland_VideoData *data = &waylandVideoData;
-    int num_displays, i, j;
+    int num_displays, i;
     SDL_VideoDisplay *displays;
 
     Wayland_QuitWin();
@@ -1065,10 +1056,6 @@ static void Wayland_VideoCleanup()
 
         wl_output_destroy(((SDL_WaylandOutputData *)display->driverdata)->output);
 
-        /* Clear the wl_output ref so Reset doesn't free it */
-        for (j = 0; j < display->num_display_modes; j += 1) {
-            display->display_modes[j].driverdata = NULL;
-        }
         SDL_DelVideoDisplay(i);
     }
     data->output_list = NULL;
@@ -1160,6 +1147,11 @@ static void Wayland_VideoCleanup()
     if (data->fractional_scale_manager) {
         wp_fractional_scale_manager_v1_destroy(data->fractional_scale_manager);
         data->fractional_scale_manager = NULL;
+    }
+
+    if (data->cursor_shape_manager) {
+        wp_cursor_shape_manager_v1_destroy(data->cursor_shape_manager);
+        data->cursor_shape_manager = NULL;
     }
 
     if (data->compositor) {

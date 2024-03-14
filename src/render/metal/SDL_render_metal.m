@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if defined(SDL_VIDEO_RENDER_METAL) && !defined(SDL_RENDER_DISABLED)
+#if SDL_VIDEO_RENDER_METAL
 
 #include "SDL_hints.h"
 #include "SDL_syswm.h"
@@ -1884,6 +1884,6 @@ const SDL_RenderDriver METAL_RenderDriver = {
     }
 };
 
-#endif /* SDL_VIDEO_RENDER_METAL && !SDL_RENDER_DISABLED */
+#endif /* SDL_VIDEO_RENDER_METAL */
 
 /* vi: set ts=4 sw=4 expandtab: */
