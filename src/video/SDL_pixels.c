@@ -928,18 +928,18 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, int *ident
     Uint8 *map;
     int i;
 
-    if (identical) {
-        if (src->ncolors <= dst->ncolors) {
-            /* If an identical palette, no need to map */
-            if (src == dst ||
-                (SDL_memcmp(src->colors, dst->colors,
-                            src->ncolors * sizeof(SDL_Color)) == 0)) {
-                *identical = 1;
-                return NULL;
-            }
+    SDL_assert(identical != NULL);
+    if (src->ncolors <= dst->ncolors) {
+        /* If an identical palette, no need to map */
+        if (src == dst ||
+            (SDL_memcmp(src->colors, dst->colors,
+                src->ncolors * sizeof(SDL_Color)) == 0)) {
+            *identical = 1;
+            return NULL;
         }
-        *identical = 0;
     }
+    *identical = 0;
+
     map = (Uint8 *)SDL_calloc(256, sizeof(Uint8));
     if (!map) {
         SDL_OutOfMemory();

@@ -195,13 +195,14 @@ struct SDL_Renderer
     void (*DestroyRenderer)(SDL_Renderer *renderer);
 
     int (*SetVSync)(SDL_Renderer *renderer, int vsync);
-
+#if (SDL_VIDEO_RENDER_OGL || SDL_VIDEO_RENDER_OGL_ES2 || SDL_VIDEO_RENDER_OGL_ES)
     int (*GL_BindTexture)(SDL_Renderer *renderer, SDL_Texture *texture, float *texw, float *texh);
     int (*GL_UnbindTexture)(SDL_Renderer *renderer, SDL_Texture *texture);
-
+#endif
+#if SDL_VIDEO_RENDER_METAL
     void *(*GetMetalLayer)(SDL_Renderer *renderer);
     void *(*GetMetalCommandEncoder)(SDL_Renderer *renderer);
-
+#endif
     /* The current renderer info */
     SDL_RendererInfo info;
 

@@ -2000,11 +2000,9 @@ int Wayland_CreateSDLWindow(_THIS, SDL_Window *window)
 
     window->driverdata = data;
 
-    if (!(window->flags & SDL_WINDOW_VULKAN)) {
-        if (!(window->flags & SDL_WINDOW_OPENGL)) {
-            SDL_GL_LoadLibrary(NULL);
-            window->flags |= SDL_WINDOW_OPENGL;
-        }
+    if (!(window->flags & (SDL_WINDOW_VULKAN | SDL_WINDOW_OPENGL))) {
+        SDL_GL_LoadLibrary(NULL);
+        window->flags |= SDL_WINDOW_OPENGL;
     }
 
     data->sdlwindow = window;

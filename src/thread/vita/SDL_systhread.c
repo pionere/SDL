@@ -54,11 +54,12 @@ int SDL_SYS_CreateThread(SDL_Thread *thread)
 {
     char thread_name[VITA_THREAD_NAME_MAX];
     size_t stack_size = VITA_THREAD_STACK_SIZE_DEFAULT;
+    const char* tname = "SDL thread";
 
-    SDL_strlcpy(thread_name, "SDL thread", VITA_THREAD_NAME_MAX);
     if (thread->name) {
-        SDL_strlcpy(thread_name, thread->name, VITA_THREAD_NAME_MAX);
+        tname = thread->name;
     }
+    SDL_strlcpy(thread_name, tname, VITA_THREAD_NAME_MAX);
 
     if (thread->stacksize) {
         if (thread->stacksize < VITA_THREAD_STACK_SIZE_MIN) {

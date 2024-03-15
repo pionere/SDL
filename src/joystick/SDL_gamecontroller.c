@@ -3306,11 +3306,10 @@ const char *SDL_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
     }
     SDL_UnlockJoysticks();
 
-    if (retval && *retval) {
-        return retval;
-    }
-#endif
+    return retval;
+#else
     return NULL;
+#endif
 }
 
 const char *SDL_GameControllerGetAppleSFSymbolsNameForAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis)
@@ -3327,11 +3326,10 @@ const char *SDL_GameControllerGetAppleSFSymbolsNameForAxis(SDL_GameController *g
     }
     SDL_UnlockJoysticks();
 
-    if (retval && *retval) {
-        return retval;
-    }
-#endif
+    return retval;
+#else
     return NULL;
+#endif
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

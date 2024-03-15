@@ -2085,8 +2085,8 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
                     GCControllerDirectionPad *dpad = GetDirectionalPadForController(controller);
                     if (dpad) {
                         GetAppleSFSymbolsNameForElement(dpad.up, elementName);
-                        if (SDL_strlen(elementName) == 0) {
-                            SDL_strlcpy(elementName, "dpad.up.fill", sizeof(elementName));
+                        if (*elementName == '\0') {
+                            SDL_memcpy(elementName, "dpad.up.fill", sizeof("dpad.up.fill"));
                         }
                     }
                     break;
@@ -2096,8 +2096,8 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
                     GCControllerDirectionPad *dpad = GetDirectionalPadForController(controller);
                     if (dpad) {
                         GetAppleSFSymbolsNameForElement(dpad.down, elementName);
-                        if (SDL_strlen(elementName) == 0) {
-                            SDL_strlcpy(elementName, "dpad.down.fill", sizeof(elementName));
+                        if (*elementName == '\0') {
+                            SDL_memcpy(elementName, "dpad.down.fill", sizeof("dpad.down.fill"));
                         }
                     }
                     break;
@@ -2107,8 +2107,8 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
                     GCControllerDirectionPad *dpad = GetDirectionalPadForController(controller);
                     if (dpad) {
                         GetAppleSFSymbolsNameForElement(dpad.left, elementName);
-                        if (SDL_strlen(elementName) == 0) {
-                            SDL_strlcpy(elementName, "dpad.left.fill", sizeof(elementName));
+                        if (*elementName == '\0') {
+                            SDL_memcpy(elementName, "dpad.left.fill", sizeof("dpad.left.fill"));
                         }
                     }
                     break;
@@ -2118,8 +2118,8 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
                     GCControllerDirectionPad *dpad = GetDirectionalPadForController(controller);
                     if (dpad) {
                         GetAppleSFSymbolsNameForElement(dpad.right, elementName);
-                        if (SDL_strlen(elementName) == 0) {
-                            SDL_strlcpy(elementName, "dpad.right.fill", sizeof(elementName));
+                        if (*elementName == '\0') {
+                            SDL_memcpy(elementName, "dpad.right.fill", sizeof("dpad.right.fill"));
                         }
                     }
                     break;
@@ -2149,7 +2149,7 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
         }
     }
 #endif
-    return elementName;
+    return *elementName ? elementName : NULL;
 }
 
 const char *IOS_GameControllerGetAppleSFSymbolsNameForAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis)

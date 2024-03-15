@@ -50,7 +50,7 @@ int RISCOS_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttoni
     regs.r[3] = 0;
     regs.r[4] = 0;
 
-    SDL_strlcpy(buttonstring, "", 1024);
+    buttonstring[0] = '\0';
     for (i = 0; i < messageboxdata->numbuttons; i++) {
         SDL_strlcat(buttonstring, messageboxdata->buttons[i].text, 1024);
         if (i + 1 < messageboxdata->numbuttons) {

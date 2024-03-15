@@ -286,17 +286,11 @@ static char *WIN_GetDisplayNameVista(const WCHAR *deviceName)
         }
     }
 
+WIN_GetDisplayNameVista_failed:
     SDL_free(paths);
     SDL_free(modes);
     SDL_UnloadObject(dll);
     return retval;
-
-WIN_GetDisplayNameVista_failed:
-    SDL_free(retval);
-    SDL_free(paths);
-    SDL_free(modes);
-    SDL_UnloadObject(dll);
-    return NULL;
 }
 
 static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *display_index, SDL_bool send_event)

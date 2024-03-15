@@ -1781,6 +1781,7 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
                       const void *pixels, int pitch)
 {
     SDL_Rect real_rect;
+    SDL_Renderer *renderer;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -1810,10 +1811,10 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
     } else if (texture->native) {
         return SDL_UpdateTextureNative(texture, &real_rect, pixels, pitch);
     } else {
-        SDL_Renderer *renderer = texture->renderer;
         if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
             return -1;
         }
+        renderer = texture->renderer;
         return renderer->UpdateTexture(renderer, texture, &real_rect, pixels, pitch);
     }
 }
@@ -2072,6 +2073,7 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
                     void **pixels, int *pitch)
 {
     SDL_Rect full_rect;
+    SDL_Renderer *renderer;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2099,10 +2101,10 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         /* Calls a real SDL_LockTexture/SDL_UnlockTexture on unlock, flushing then. */
         return SDL_LockTextureNative(texture, rect, pixels, pitch);
     } else {
-        SDL_Renderer *renderer = texture->renderer;
         if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
             return -1;
         }
+        renderer = texture->renderer;
         return renderer->LockTexture(renderer, texture, rect, pixels, pitch);
     }
 }
@@ -4402,6 +4404,7 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
 
 int SDL_GL_BindTexture(SDL_Texture *texture, float *texw, float *texh)
 {
+#if (SDL_VIDEO_RENDER_OGL || SDL_VIDEO_RENDER_OGL_ES2 || SDL_VIDEO_RENDER_OGL_ES)
     SDL_Renderer *renderer;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
@@ -4411,13 +4414,14 @@ int SDL_GL_BindTexture(SDL_Texture *texture, float *texw, float *texh)
     } else if (renderer && renderer->GL_BindTexture) {
         FlushRenderCommandsIfTextureNeeded(texture); /* in case the app is going to mess with it. */
         return renderer->GL_BindTexture(renderer, texture, texw, texh);
-    } else {
-        return SDL_Unsupported();
     }
+#endif
+    return SDL_Unsupported();
 }
 
 int SDL_GL_UnbindTexture(SDL_Texture *texture)
 {
+#if (SDL_VIDEO_RENDER_OGL || SDL_VIDEO_RENDER_OGL_ES2 || SDL_VIDEO_RENDER_OGL_ES)
     SDL_Renderer *renderer;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
@@ -4428,29 +4432,33 @@ int SDL_GL_UnbindTexture(SDL_Texture *texture)
         FlushRenderCommandsIfTextureNeeded(texture); /* in case the app messed with it. */
         return renderer->GL_UnbindTexture(renderer, texture);
     }
-
+#endif
     return SDL_Unsupported();
 }
 
 void *SDL_RenderGetMetalLayer(SDL_Renderer *renderer)
 {
+#if SDL_VIDEO_RENDER_METAL
     CHECK_RENDERER_MAGIC(renderer, NULL);
 
     if (renderer->GetMetalLayer) {
         FlushRenderCommands(renderer); /* in case the app is going to mess with it. */
         return renderer->GetMetalLayer(renderer);
     }
+#endif
     return NULL;
 }
 
 void *SDL_RenderGetMetalCommandEncoder(SDL_Renderer *renderer)
 {
+#if SDL_VIDEO_RENDER_METAL
     CHECK_RENDERER_MAGIC(renderer, NULL);
 
     if (renderer->GetMetalCommandEncoder) {
         FlushRenderCommands(renderer); /* in case the app is going to mess with it. */
         return renderer->GetMetalCommandEncoder(renderer);
     }
+#endif
     return NULL;
 }
 

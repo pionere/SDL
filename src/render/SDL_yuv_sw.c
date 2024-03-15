@@ -59,13 +59,13 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
     {
         size_t dst_size;
         if (SDL_CalculateYUVSize(format, w, h, &dst_size, NULL) < 0) {
-            SDL_SW_DestroyYUVTexture(swdata);
+            SDL_free(swdata);
             SDL_OutOfMemory();
             return NULL;
         }
         swdata->pixels = (Uint8 *)SDL_SIMDAlloc(dst_size);
         if (!swdata->pixels) {
-            SDL_SW_DestroyYUVTexture(swdata);
+            SDL_free(swdata);
             SDL_OutOfMemory();
             return NULL;
         }

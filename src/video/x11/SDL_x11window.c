@@ -1616,7 +1616,7 @@ void *X11_GetWindowICCProfile(SDL_Window *window, size_t *size)
     if (X11_XScreenNumberOfScreen(attributes.screen) > 0) {
         (void)SDL_snprintf(icc_atom_string, sizeof("_ICC_PROFILE_") + 12, "%s%d", "_ICC_PROFILE_", X11_XScreenNumberOfScreen(attributes.screen));
     } else {
-        SDL_strlcpy(icc_atom_string, "_ICC_PROFILE", sizeof("_ICC_PROFILE"));
+        SDL_memcpy(icc_atom_string, "_ICC_PROFILE", sizeof("_ICC_PROFILE"));
     }
     X11_XGetWindowAttributes(display, RootWindowOfScreen(attributes.screen), &attributes);
 
