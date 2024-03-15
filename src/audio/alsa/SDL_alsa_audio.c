@@ -720,7 +720,7 @@ typedef struct ALSA_Device
     struct ALSA_Device *next;
 } ALSA_Device;
 
-static void add_device(const int iscapture, const char *name, void *hint, ALSA_Device **pSeen)
+static void add_device(const SDL_bool iscapture, const char *name, void *hint, ALSA_Device **pSeen)
 {
     ALSA_Device *dev = SDL_malloc(sizeof(ALSA_Device));
     char *desc;

@@ -979,7 +979,7 @@ static void DeleteHIDDeviceWrapper(SDL_hid_device *device)
 
 #define CHECK_DEVICE_MAGIC(device, retval)           \
     if (!device || device->magic != &device_magic) { \
-        SDL_SetError("Invalid device");              \
+        SDL_InvalidParamError("device");             \
         return retval;                               \
     }
 

@@ -247,7 +247,7 @@ static char *WIN_GetDisplayNameVista(const WCHAR *deviceName)
             goto WIN_GetDisplayNameVista_failed;
         }
 
-        rc = pQueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, paths, &modeCount, modes, 0);
+        rc = pQueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, paths, &modeCount, modes, NULL);
     } while (rc == ERROR_INSUFFICIENT_BUFFER);
 
     if (rc == ERROR_SUCCESS) {
@@ -257,9 +257,9 @@ static char *WIN_GetDisplayNameVista(const WCHAR *deviceName)
 
             SDL_zero(sourceName);
             sourceName.header.adapterId = paths[i].targetInfo.adapterId;
+            sourceName.header.id = paths[i].sourceInfo.id;
             sourceName.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
             sourceName.header.size = sizeof(sourceName);
-            sourceName.header.id = paths[i].sourceInfo.id;
             rc = pDisplayConfigGetDeviceInfo(&sourceName.header);
             if (rc != ERROR_SUCCESS) {
                 break;

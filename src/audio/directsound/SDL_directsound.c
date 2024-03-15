@@ -169,7 +169,7 @@ static int DSOUND_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int isca
 
 static BOOL CALLBACK FindAllDevs(LPGUID guid, LPCWSTR desc, LPCWSTR module, LPVOID data)
 {
-    const int iscapture = (int)((size_t)data);
+    const SDL_bool iscapture = (SDL_bool)((size_t)data);
     if (guid != NULL) { /* skip default device */
         char *str = WIN_LookupAudioDeviceName(desc, guid);
         if (str) {
@@ -194,8 +194,8 @@ static void DSOUND_DetectDevices(void)
         SDL_IMMDevice_EnumerateEndpoints(SDL_TRUE);
     } else {
 #endif /* HAVE_MMDEVICEAPI_H */
-        pDirectSoundCaptureEnumerateW(FindAllDevs, (void *)((size_t)1));
-        pDirectSoundEnumerateW(FindAllDevs, (void *)((size_t)0));
+        pDirectSoundCaptureEnumerateW(FindAllDevs, (void *)((size_t)SDL_TRUE));
+        pDirectSoundEnumerateW(FindAllDevs, (void *)((size_t)SDL_FALSE));
 #ifdef HAVE_MMDEVICEAPI_H
     }
 #endif /* HAVE_MMDEVICEAPI_H*/

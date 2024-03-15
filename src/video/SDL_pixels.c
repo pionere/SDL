@@ -923,7 +923,7 @@ void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
 }
 
 /* Map from Palette to Palette */
-static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, int *identical)
+static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *identical)
 {
     Uint8 *map;
     int i;
@@ -934,11 +934,11 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, int *ident
         if (src == dst ||
             (SDL_memcmp(src->colors, dst->colors,
                 src->ncolors * sizeof(SDL_Color)) == 0)) {
-            *identical = 1;
+            *identical = SDL_TRUE;
             return NULL;
         }
     }
-    *identical = 0;
+    *identical = SDL_FALSE;
 
     map = (Uint8 *)SDL_calloc(256, sizeof(Uint8));
     if (!map) {
@@ -985,7 +985,7 @@ static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, cons
 }
 
 /* Map from BitField to Dithered-Palette to Palette */
-static Uint8 *MapNto1(const SDL_Palette *dst, int *identical)
+static Uint8 *MapNto1(const SDL_Palette *dst, SDL_bool *identical)
 {
     /* Generate a 256 color dither palette */
     SDL_Palette dithered;
@@ -1062,7 +1062,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     SDL_InvalidateMap(map);
 
     /* Figure out what kind of mapping we're doing */
-    map->identity = 0;
+    map->identity = SDL_FALSE;
     srcfmt = src->format;
     dstfmt = dst->format;
     if (srcfmt->palette) {
@@ -1078,7 +1078,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
                 }
             }
             if (srcfmt->BitsPerPixel != dstfmt->BitsPerPixel) {
-                map->identity = 0;
+                map->identity = SDL_FALSE;
             }
         } else {
             /* Palette --> BitField */
@@ -1098,11 +1098,11 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
                     return -1;
                 }
             }
-            map->identity = 0; /* Don't optimize to copy */
+            map->identity = SDL_FALSE; /* Don't optimize to copy */
         } else {
             /* BitField --> BitField */
             if (srcfmt == dstfmt) {
-                map->identity = 1;
+                map->identity = SDL_TRUE;
             }
         }
     }

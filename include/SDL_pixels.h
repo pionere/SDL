@@ -169,7 +169,7 @@ typedef enum
 
 /* The flag is set to 1 because 0x1? is not in the printable ASCII range */
 #define SDL_ISPIXELFORMAT_FOURCC(format)    \
-    ((format) && (SDL_PIXELFLAG(format) != 1))
+    ((format != SDL_PIXELFORMAT_UNKNOWN) && (SDL_PIXELFLAG(format) != 1))
 
 /* Note: If you modify this list, update SDL_GetPixelFormatName() */
 typedef enum

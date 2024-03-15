@@ -110,7 +110,7 @@ static SDL_VideoDevice current_video;
 #define CHECK_WINDOW_MAGIC(window, retval)                   \
     CHECK_VIDEO(retval)                                      \
     if (!window) {                                           \
-        SDL_SetError("Invalid window");                      \
+        SDL_InvalidParamError("window");                     \
         return retval;                                       \
     }                                                        \
     SDL_assert(window->magic == &current_video.window_magic);

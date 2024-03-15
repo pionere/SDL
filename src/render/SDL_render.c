@@ -1292,7 +1292,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
 
     CHECK_RENDERER_MAGIC(renderer, NULL);
 
-    if (!format) {
+    if (format == SDL_PIXELFORMAT_UNKNOWN) {
         format = renderer->info.texture_formats[0];
     }
     if (SDL_BYTESPERPIXEL(format) == 0) {
@@ -4231,7 +4231,7 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     FlushRenderCommands(renderer); /* we need to render before we read the results. */
 
-    if (!format) {
+    if (format == SDL_PIXELFORMAT_UNKNOWN) {
         if (!renderer->target) {
             format = SDL_GetWindowPixelFormat(renderer->window);
         } else {

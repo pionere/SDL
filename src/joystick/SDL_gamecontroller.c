@@ -1574,7 +1574,7 @@ int SDL_GameControllerAddMappingsFromRW(SDL_RWops *rw, int freerw)
     size_t db_size, platform_len;
 
     if (!rw) {
-        return SDL_SetError("Invalid RWops");
+        return SDL_InvalidParamError("rw");
     }
     db_size = (size_t)SDL_RWsize(rw);
 
@@ -1690,7 +1690,7 @@ static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_Co
         }
     }
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     { /* Extract and verify the SDK version */
         const char *tmp;
         int sdkver, ver;

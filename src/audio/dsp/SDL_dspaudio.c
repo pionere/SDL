@@ -164,7 +164,7 @@ static int DSP_OpenDevice(_THIS, const char *devname)
             test_format = SDL_NextAudioFormat();
         }
     }
-    if (format == 0) {
+    if (!format) {
         return SDL_SetError("Couldn't find any hardware audio formats");
     }
     this->spec.format = test_format;

@@ -92,7 +92,7 @@ typedef struct
 struct SDL_BlitMap
 {
     SDL_Surface *dst;
-    int identity;
+    SDL_bool identity;
     SDL_blit blit;
     void *data;
     SDL_BlitInfo info;

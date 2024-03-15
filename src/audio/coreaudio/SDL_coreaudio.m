@@ -75,7 +75,7 @@ static const AudioObjectPropertyAddress devlist_address = {
     kAudioObjectPropertyElementMain
 };
 
-typedef void (*addDevFn)(const char *name, SDL_AudioSpec *spec, const int iscapture, AudioDeviceID devId, void *data);
+typedef void (*addDevFn)(const char *name, SDL_AudioSpec *spec, const SDL_bool iscapture, AudioDeviceID devId, void *data);
 
 typedef struct AudioDeviceList
 {
@@ -87,7 +87,7 @@ typedef struct AudioDeviceList
 static AudioDeviceList *output_devs = NULL;
 static AudioDeviceList *capture_devs = NULL;
 
-static SDL_bool add_to_internal_dev_list(const int iscapture, AudioDeviceID devId)
+static SDL_bool add_to_internal_dev_list(const SDL_bool iscapture, AudioDeviceID devId)
 {
     AudioDeviceList *item = (AudioDeviceList *)SDL_malloc(sizeof(AudioDeviceList));
     if (item == NULL) {
@@ -105,14 +105,14 @@ static SDL_bool add_to_internal_dev_list(const int iscapture, AudioDeviceID devI
     return SDL_TRUE;
 }
 
-static void addToDevList(const char *name, SDL_AudioSpec *spec, const int iscapture, AudioDeviceID devId, void *data)
+static void addToDevList(const char *name, SDL_AudioSpec *spec, const SDL_bool iscapture, AudioDeviceID devId, void *data)
 {
     if (add_to_internal_dev_list(iscapture, devId)) {
         SDL_AddAudioDevice(iscapture, name, spec, (void *)((size_t)devId));
     }
 }
 
-static void build_device_list(int iscapture, addDevFn addfn, void *addfndata)
+static void build_device_list(SDL_bool iscapture, addDevFn addfn, void *addfndata)
 {
     OSStatus result = noErr;
     UInt32 size = 0;
@@ -251,7 +251,7 @@ static void COREAUDIO_DetectDevices(void)
     build_device_list(SDL_FALSE, addToDevList, NULL);
 }
 
-static void build_device_change_list(const char *name, SDL_AudioSpec *spec, const int iscapture, AudioDeviceID devId, void *data)
+static void build_device_change_list(const char *name, SDL_AudioSpec *spec, const SDL_bool iscapture, AudioDeviceID devId, void *data)
 {
     AudioDeviceList **list = (AudioDeviceList **)data;
     AudioDeviceList *item;
@@ -266,7 +266,7 @@ static void build_device_change_list(const char *name, SDL_AudioSpec *spec, cons
     SDL_AddAudioDevice(iscapture, name, spec, (void *)((size_t)devId));
 }
 
-static void reprocess_device_list(const int iscapture, AudioDeviceList **list)
+static void reprocess_device_list(const SDL_bool iscapture, AudioDeviceList **list)
 {
     AudioDeviceList *item;
     AudioDeviceList *prev = NULL;
@@ -888,7 +888,7 @@ static int assign_device_to_audioqueue(_THIS)
 static int prepare_audioqueue(_THIS)
 {
     const AudioStreamBasicDescription *strdesc = &this->hidden->strdesc;
-    const int iscapture = this->iscapture;
+    const SDL_bool iscapture = this->iscapture;
     OSStatus result;
     int i, numAudioBuffers = 2;
     AudioChannelLayout layout;

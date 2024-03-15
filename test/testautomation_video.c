@@ -20,6 +20,44 @@
 
 /* Private helpers */
 
+/* Helper function that checks for an 'Parameter 'window' is invalid' error */
+static void _checkInvalidWindowError()
+{
+    const char *invalidWindowError = "Parameter 'window' is invalid";
+    char *lastError;
+
+    lastError = (char *)SDL_GetError();
+    SDLTest_AssertPass("SDL_GetError()");
+    SDLTest_AssertCheck(lastError != NULL, "Verify error message is not NULL");
+    if (lastError != NULL) {
+        SDLTest_AssertCheck(SDL_strcmp(lastError, invalidWindowError) == 0,
+                            "SDL_GetError(): expected message '%s', was message: '%s'",
+                            invalidWindowError,
+                            lastError);
+        SDL_ClearError();
+        SDLTest_AssertPass("Call to SDL_ClearError()");
+    }
+}
+
+/* Helper function that checks for an 'Invalid parameter' error */
+static void _checkInvalidParameterError()
+{
+    const char *invalidParameterError = "Parameter";
+    char *lastError;
+
+    lastError = (char *)SDL_GetError();
+    SDLTest_AssertPass("SDL_GetError()");
+    SDLTest_AssertCheck(lastError != NULL, "Verify error message is not NULL");
+    if (lastError != NULL) {
+        SDLTest_AssertCheck(SDL_strncmp(lastError, invalidParameterError, SDL_strlen(invalidParameterError)) == 0,
+                            "SDL_GetError(): expected message starts with '%s', was message: '%s'",
+                            invalidParameterError,
+                            lastError);
+        SDL_ClearError();
+        SDLTest_AssertPass("Call to SDL_ClearError()");
+    }
+}
+
 /*
  * Create a test window
  */
@@ -568,23 +606,13 @@ video_getWindowBrightness(void *arg)
 int
 video_getWindowBrightnessNegative(void *arg)
 {
-  const char *invalidWindowError = "Invalid window";
-  char *lastError;
   float result;
 
   /* Call against invalid window */
   result = SDL_GetWindowBrightness(NULL);
   SDLTest_AssertPass("Call to SDL_GetWindowBrightness(window=NULL)");
   SDLTest_AssertCheck(result == 1.0, "Validate result value; expected: 1.0, got: %f", result);
-  lastError = (char *)SDL_GetError();
-  SDLTest_AssertPass("SDL_GetError()");
-  SDLTest_AssertCheck(lastError != NULL, "Verify error message is not NULL");
-  if (lastError != NULL) {
-      SDLTest_AssertCheck(SDL_strcmp(lastError, invalidWindowError) == 0,
-         "SDL_GetError(): expected message '%s', was message: '%s'",
-         invalidWindowError,
-         lastError);
-  }
+  _checkInvalidWindowError();
 
   return TEST_COMPLETED;
 }
@@ -621,25 +649,6 @@ int video_getWindowDisplayMode(void *arg)
     _destroyVideoSuiteTestWindow(window);
 
     return TEST_COMPLETED;
-}
-
-/* Helper function that checks for an 'Invalid window' error */
-void _checkInvalidWindowError()
-{
-    const char *invalidWindowError = "Invalid window";
-    char *lastError;
-
-    lastError = (char *)SDL_GetError();
-    SDLTest_AssertPass("SDL_GetError()");
-    SDLTest_AssertCheck(lastError != NULL, "Verify error message is not NULL");
-    if (lastError != NULL) {
-        SDLTest_AssertCheck(SDL_strcmp(lastError, invalidWindowError) == 0,
-                            "SDL_GetError(): expected message '%s', was message: '%s'",
-                            invalidWindowError,
-                            lastError);
-        SDL_ClearError();
-        SDLTest_AssertPass("Call to SDL_ClearError()");
-    }
 }
 
 /**
@@ -1297,25 +1306,6 @@ int video_getSetWindowPosition(void *arg)
     _checkInvalidWindowError();
 
     return TEST_COMPLETED;
-}
-
-/* Helper function that checks for an 'Invalid parameter' error */
-void _checkInvalidParameterError()
-{
-    const char *invalidParameterError = "Parameter";
-    char *lastError;
-
-    lastError = (char *)SDL_GetError();
-    SDLTest_AssertPass("SDL_GetError()");
-    SDLTest_AssertCheck(lastError != NULL, "Verify error message is not NULL");
-    if (lastError != NULL) {
-        SDLTest_AssertCheck(SDL_strncmp(lastError, invalidParameterError, SDL_strlen(invalidParameterError)) == 0,
-                            "SDL_GetError(): expected message starts with '%s', was message: '%s'",
-                            invalidParameterError,
-                            lastError);
-        SDL_ClearError();
-        SDLTest_AssertPass("Call to SDL_ClearError()");
-    }
 }
 
 /**
