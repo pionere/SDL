@@ -190,6 +190,22 @@ extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
 #   error Unknown assertion level.
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+#define SDL_assume(x) \
+    SDL_assert(x); \
+    if (!(x)) { \
+        __builtin_unreachable(); \
+    }
+#elif defined(_MSC_VER)
+#define SDL_assume(x) \
+    SDL_assert(x); \
+    if (!(x)) { \
+        __assume(0); \
+    }
+#else
+#define SDL_assume(x) SDL_assert(x);
+#endif
+
 /**
  * A callback that fires when an SDL assertion fails.
  *

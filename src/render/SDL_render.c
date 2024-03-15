@@ -2697,9 +2697,7 @@ static int RenderDrawPointsWithRects(SDL_Renderer *renderer,
     SDL_FRect *frects;
     int i;
 
-    if (count < 1) {
-        return 0;
-    }
+    SDL_assume(count > 0);
 
     frects = SDL_small_alloc(SDL_FRect, count, &isstack);
     if (!frects) {
@@ -2733,7 +2731,7 @@ int SDL_RenderDrawPoints(SDL_Renderer *renderer,
     if (!points) {
         return SDL_InvalidParamError("SDL_RenderDrawPoints(): points");
     }
-    if (count < 1) {
+    if (count <= 0) {
         return 0;
     }
 
@@ -2771,9 +2769,7 @@ static int RenderDrawPointsWithRectsF(SDL_Renderer *renderer,
     SDL_FRect *frects;
     int i;
 
-    if (count < 1) {
-        return 0;
-    }
+    SDL_assume(count > 0);
 
     frects = SDL_small_alloc(SDL_FRect, count, &isstack);
     if (!frects) {
@@ -2804,7 +2800,7 @@ int SDL_RenderDrawPointsF(SDL_Renderer *renderer,
     if (!points) {
         return SDL_InvalidParamError("SDL_RenderDrawPointsF(): points");
     }
-    if (count < 1) {
+    if (count <= 0) {
         return 0;
     }
 
@@ -2902,6 +2898,9 @@ static int RenderDrawLineBresenham(SDL_Renderer *renderer, int x1, int y1, int x
 
     if (!draw_last) {
         --numpixels;
+        if (numpixels == 0) {
+            return 0;
+        }
     }
 
     points = SDL_small_alloc(SDL_FPoint, numpixels, &isstack);
@@ -2946,6 +2945,8 @@ static int RenderDrawLinesWithRectsF(SDL_Renderer *renderer,
     SDL_bool isstack;
     SDL_bool drew_line = SDL_FALSE;
     SDL_bool draw_last = SDL_FALSE;
+
+    SDL_assert(count > 1);
 
     frects = SDL_small_alloc(SDL_FRect, count - 1, &isstack);
     if (!frects) {
@@ -3346,7 +3347,7 @@ int SDL_RenderFillRects(SDL_Renderer *renderer,
     if (!rects) {
         return SDL_InvalidParamError("SDL_RenderFillRects(): rects");
     }
-    if (count < 1) {
+    if (count <= 0) {
         return 0;
     }
 
@@ -3388,7 +3389,7 @@ int SDL_RenderFillRectsF(SDL_Renderer *renderer,
     if (!rects) {
         return SDL_InvalidParamError("SDL_RenderFillRectsF(): rects");
     }
-    if (count < 1) {
+    if (count <= 0) {
         return 0;
     }
 

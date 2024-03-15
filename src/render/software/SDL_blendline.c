@@ -826,9 +826,8 @@ int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
     SDL_bool draw_end;
     BlendLineFunc func;
 
-    if (!dst) {
-        return SDL_InvalidParamError("SDL_BlendLines(): dst");
-    }
+    SDL_assert(dst != NULL);
+    SDL_assert(count > 0);
 
     func = SDL_CalculateBlendLineFunc(dst->format);
     if (!func) {

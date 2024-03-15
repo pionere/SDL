@@ -165,9 +165,8 @@ int SDL_DrawLines(SDL_Surface *dst, const SDL_Point *points, int count,
     SDL_bool draw_end;
     DrawLineFunc func;
 
-    if (!dst) {
-        return SDL_InvalidParamError("SDL_DrawLines(): dst");
-    }
+    SDL_assert(dst != NULL);
+    SDL_assert(count > 0);
 
     func = SDL_CalculateDrawLineFunc(dst->format);
     if (!func) {
