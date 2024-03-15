@@ -267,9 +267,8 @@ static int FlushRenderCommands(SDL_Renderer *renderer)
     return retval;
 }
 
-static int FlushRenderCommandsIfTextureNeeded(SDL_Texture *texture)
+static SDL_INLINE int FlushRenderCommandsIfTextureNeeded(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    SDL_Renderer *renderer = texture->renderer;
     if (texture->last_command_generation == renderer->render_command_generation) {
         /* the current command queue depends on this texture, flush the queue now before it changes */
         return FlushRenderCommands(renderer);
@@ -1781,7 +1780,6 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
                       const void *pixels, int pitch)
 {
     SDL_Rect real_rect;
-    SDL_Renderer *renderer;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -1811,10 +1809,10 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
     } else if (texture->native) {
         return SDL_UpdateTextureNative(texture, &real_rect, pixels, pitch);
     } else {
-        if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
+        SDL_Renderer *renderer = texture->renderer;
+        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
             return -1;
         }
-        renderer = texture->renderer;
         return renderer->UpdateTexture(renderer, texture, &real_rect, pixels, pitch);
     }
 }
@@ -1977,7 +1975,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         renderer = texture->renderer;
         SDL_assert(renderer->UpdateTextureYUV);
         if (renderer->UpdateTextureYUV) {
-            if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
+            if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
                 return -1;
             }
             return renderer->UpdateTextureYUV(renderer, texture, &real_rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch);
@@ -2037,7 +2035,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         renderer = texture->renderer;
         SDL_assert(renderer->UpdateTextureNV);
         if (renderer->UpdateTextureNV) {
-            if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
+            if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
                 return -1;
             }
             return renderer->UpdateTextureNV(renderer, texture, &real_rect, Yplane, Ypitch, UVplane, UVpitch);
@@ -2089,9 +2087,10 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         rect = &full_rect;
     }
 
+    renderer = texture->renderer;
 #if SDL_HAVE_YUV
     if (texture->yuv) {
-        if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
+        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
             return -1;
         }
         return SDL_LockTextureYUV(texture, rect, pixels, pitch);
@@ -2101,10 +2100,9 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         /* Calls a real SDL_LockTexture/SDL_UnlockTexture on unlock, flushing then. */
         return SDL_LockTextureNative(texture, rect, pixels, pitch);
     } else {
-        if (FlushRenderCommandsIfTextureNeeded(texture) < 0) {
+        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
             return -1;
         }
-        renderer = texture->renderer;
         return renderer->LockTexture(renderer, texture, rect, pixels, pitch);
     }
 }
@@ -4320,7 +4318,7 @@ void SDL_DestroyTexture(SDL_Texture *texture)
     if (texture == renderer->target) {
         SDL_SetRenderTarget(renderer, NULL); /* implies command queue flush */
     } else {
-        FlushRenderCommandsIfTextureNeeded(texture);
+        FlushRenderCommandsIfTextureNeeded(renderer, texture);
     }
 
     texture->magic = NULL;
@@ -4412,7 +4410,7 @@ int SDL_GL_BindTexture(SDL_Texture *texture, float *texw, float *texh)
     if (texture->native) {
         return SDL_GL_BindTexture(texture->native, texw, texh);
     } else if (renderer && renderer->GL_BindTexture) {
-        FlushRenderCommandsIfTextureNeeded(texture); /* in case the app is going to mess with it. */
+        FlushRenderCommandsIfTextureNeeded(renderer, texture); /* in case the app is going to mess with it. */
         return renderer->GL_BindTexture(renderer, texture, texw, texh);
     }
 #endif
@@ -4429,7 +4427,7 @@ int SDL_GL_UnbindTexture(SDL_Texture *texture)
     if (texture->native) {
         return SDL_GL_UnbindTexture(texture->native);
     } else if (renderer && renderer->GL_UnbindTexture) {
-        FlushRenderCommandsIfTextureNeeded(texture); /* in case the app messed with it. */
+        FlushRenderCommandsIfTextureNeeded(renderer, texture); /* in case the app messed with it. */
         return renderer->GL_UnbindTexture(renderer, texture);
     }
 #endif
