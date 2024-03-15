@@ -132,7 +132,7 @@ static DrawLineFunc SDL_CalculateDrawLineFunc(const SDL_PixelFormat *fmt)
     }
     return NULL;
 }
-
+#if 0
 int SDL_DrawLine(SDL_Surface *dst, int x1, int y1, int x2, int y2, Uint32 color)
 {
     DrawLineFunc func;
@@ -155,7 +155,7 @@ int SDL_DrawLine(SDL_Surface *dst, int x1, int y1, int x2, int y2, Uint32 color)
     func(dst, x1, y1, x2, y2, color, SDL_TRUE);
     return 0;
 }
-
+#endif
 int SDL_DrawLines(SDL_Surface *dst, const SDL_Point *points, int count,
                   Uint32 color)
 {
