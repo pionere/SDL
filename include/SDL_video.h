@@ -131,6 +131,13 @@ typedef enum
 } SDL_WindowFlags;
 
 /**
+ * The SDL_*Stretch functions are limited to 0xFFFF.
+ * Most renderers are limited to 16384.
+ * Some platforms blow up if the windows are too large. Raise it later?
+ */
+#define SDL_WINDOW_MAX_SIZE 16384
+
+/**
  *  \brief Used to indicate that you don't care what the window position is.
  */
 #define SDL_WINDOWPOS_UNDEFINED_MASK    0x1FFF0000u
@@ -751,7 +758,7 @@ extern DECLSPEC Uint32 SDLCALL SDL_GetWindowPixelFormat(SDL_Window * window);
  * If the window is set fullscreen, the width and height parameters `w` and
  * `h` will not be used. However, invalid size parameters (e.g. too large) may
  * still fail. Window size is actually limited to 16384 x 16384 for all
- * platforms at window creation.
+ * platforms at window creation (see SDL_WINDOW_MAX_SIZE).
  *
  * If the window is created with any of the SDL_WINDOW_OPENGL or
  * SDL_WINDOW_VULKAN flags, then the corresponding LoadLibrary function
@@ -773,8 +780,10 @@ extern DECLSPEC Uint32 SDLCALL SDL_GetWindowPixelFormat(SDL_Window * window);
  *          `SDL_WINDOWPOS_UNDEFINED`
  * \param y the y position of the window, `SDL_WINDOWPOS_CENTERED`, or
  *          `SDL_WINDOWPOS_UNDEFINED`
- * \param w the width of the window, in screen coordinates
- * \param h the height of the window, in screen coordinates
+ * \param w the width of the window in screen coordinates, must be
+ *          > 0, see SDL_WINDOW_MAX_SIZE
+ * \param h the height of the window in screen coordinates, must be
+ *          > 0, see SDL_WINDOW_MAX_SIZE
  * \param flags 0, or one or more SDL_WindowFlags OR'd together
  * \returns the window that was created or NULL on failure; call
  *          SDL_GetError() for more information.
@@ -977,10 +986,10 @@ extern DECLSPEC void SDLCALL SDL_GetWindowPosition(SDL_Window * window,
  * you should use SDL_SetWindowDisplayMode() to change their size.
  *
  * \param window the window to change
- * \param w the width of the window in pixels, in screen coordinates, must be
- *          > 0
- * \param h the height of the window in pixels, in screen coordinates, must be
- *          > 0
+ * \param w the width of the window in screen coordinates, must be
+ *          > 0, see SDL_WINDOW_MAX_SIZE
+ * \param h the height of the window in screen coordinates, must be
+ *          > 0, see SDL_WINDOW_MAX_SIZE
  *
  * \since This function is available since SDL 2.0.0.
  *
@@ -1058,8 +1067,7 @@ extern DECLSPEC int SDLCALL SDL_GetWindowBordersSize(SDL_Window * window,
  *
  * This may differ from SDL_GetWindowSize() if we're rendering to a high-DPI
  * drawable, i.e. the window was created with `SDL_WINDOW_ALLOW_HIGHDPI` on a
- * platform with high-DPI support (Apple calls this "Retina"), and not
- * disabled by the `SDL_HINT_VIDEO_HIGHDPI_DISABLED` hint.
+ * platform with high-DPI support (Apple calls this "Retina").
  *
  * \param window the window from which the drawable size should be queried
  * \param w a pointer to variable for storing the width in pixels, may be NULL
@@ -1078,8 +1086,10 @@ extern DECLSPEC void SDLCALL SDL_GetWindowSizeInPixels(SDL_Window * window,
  * Set the minimum size of a window's client area.
  *
  * \param window the window to change
- * \param min_w the minimum width of the window in pixels
- * \param min_h the minimum height of the window in pixels
+ * \param min_w the minimum width of the window in screen coordinates,
+ *          must be > 0, see SDL_WINDOW_MAX_SIZE
+ * \param min_h the minimum height of the window in screen coordinates,
+ *          must be > 0, see SDL_WINDOW_MAX_SIZE
  *
  * \since This function is available since SDL 2.0.0.
  *

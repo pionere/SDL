@@ -1505,19 +1505,19 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
 
     /* Some platforms can't create zero-sized windows */
-    if (w < 1) {
+    if (w <= 0) {
         w = 1;
     }
-    if (h < 1) {
+    if (h <= 0) {
         h = 1;
     }
 
     /* Some platforms blow up if the windows are too large. Raise it later? */
-    if (w > 16384) {
-        w = 16384;
+    if (w > SDL_WINDOW_MAX_SIZE) {
+        w = SDL_WINDOW_MAX_SIZE;
     }
-    if (h > 16384) {
-        h = 16384;
+    if (h > SDL_WINDOW_MAX_SIZE) {
+        h = SDL_WINDOW_MAX_SIZE;
     }
 
     /* ensure no more than one of these flags is set */

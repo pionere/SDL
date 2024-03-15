@@ -247,6 +247,18 @@ typedef uint64_t Uint64;
 #define SDL_FLT_EPSILON 1.1920928955078125e-07F /* 0x0.000002p0 */
 #endif
 
+#ifdef FLT_MAX
+#define SDL_FLT_MAX FLT_MAX
+#else
+#define SDL_FLT_MAX 3.402823466e+38F
+#endif
+
+#ifdef FLT_MIN
+#define SDL_FLT_MIN FLT_MIN
+#else
+#define SDL_FLT_MIN 1.175494351e-38F
+#endif
+
 /* @} *//* Floating-point constants */
 
 /* Make sure we have macros for printing width-based integers.
