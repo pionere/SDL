@@ -238,20 +238,22 @@ typedef struct
     WORD numbuttons;
 } WIN_DialogData;
 
-static SDL_bool GetButtonIndex(const SDL_MessageBoxData *messageboxdata, Uint32 flags, size_t *i)
+static int GetButtonIndex(const SDL_MessageBoxData *messageboxdata, Uint32 flags)
 {
-    for (*i = 0; *i < (size_t)messageboxdata->numbuttons; ++*i) {
-        if (messageboxdata->buttons[*i].flags & flags) {
-            return SDL_TRUE;
+    int i;
+
+    for (i = 0; i < messageboxdata->numbuttons; ++i) {
+        if (messageboxdata->buttons[i].flags & flags) {
+            return i;
         }
     }
-    return SDL_FALSE;
+    return -1;
 }
 
 static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
     const SDL_MessageBoxData *messageboxdata;
-    size_t buttonindex;
+    int buttonindex;
 
     switch (iMessage) {
     case WM_INITDIALOG:
@@ -262,7 +264,8 @@ static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wP
         messageboxdata = (const SDL_MessageBoxData *)lParam;
         SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
 
-        if (GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, &buttonindex)) {
+        buttonindex = GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT);
+        if (buttonindex >= 0) {
             /* Focus on the first default return-key button */
             HWND buttonctl = GetDlgItem(hDlg, (int)(IDBUTTONINDEX0 + buttonindex));
             if (!buttonctl) {
@@ -282,10 +285,8 @@ static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wP
         }
 
         /* Let the default button be focused if there is one. Otherwise, prevent any initial focus. */
-        if (GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, &buttonindex)) {
-            return FALSE;
-        }
-        return TRUE;
+        buttonindex = GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT);
+        return buttonindex < 0 ? TRUE : FALSE;
     case WM_COMMAND:
         messageboxdata = (const SDL_MessageBoxData *)GetWindowLongPtr(hDlg, GWLP_USERDATA);
         if (!messageboxdata) {
@@ -295,11 +296,13 @@ static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wP
 
         /* Return the ID of the button that was pushed */
         if (wParam == IDOK) {
-            if (GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, &buttonindex)) {
+            buttonindex = GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT);
+            if (buttonindex >= 0) {
                 EndDialog(hDlg, IDBUTTONINDEX0 + buttonindex);
             }
         } else if (wParam == IDCANCEL) {
-            if (GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, &buttonindex)) {
+            buttonindex = GetButtonIndex(messageboxdata, SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT);
+            if (buttonindex >= 0) {
                 EndDialog(hDlg, IDBUTTONINDEX0 + buttonindex);
             } else {
                 /* Closing of window was requested by user or system. It would be rude not to comply. */
