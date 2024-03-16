@@ -33,10 +33,17 @@ static SDL_YUV_CONVERSION_MODE SDL_YUV_ConversionMode = SDL_YUV_CONVERSION_BT601
 
 #if SDL_HAVE_YUV
 static SDL_bool IsPlanar2x2Format(Uint32 format);
-#endif
 
 void SDL_SetYUVConversionMode(SDL_YUV_CONVERSION_MODE mode)
 {
+    if (mode != SDL_YUV_CONVERSION_JPEG &&
+        mode != SDL_YUV_CONVERSION_BT601 &&
+        mode != SDL_YUV_CONVERSION_BT709 &&
+        mode != SDL_YUV_CONVERSION_AUTOMATIC) {
+        SDL_InvalidParamError("mode");
+        return;
+    }
+
     SDL_YUV_ConversionMode = mode;
 }
 
@@ -57,6 +64,22 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int hei
     }
     return mode;
 }
+#else
+void SDL_SetYUVConversionMode(SDL_YUV_CONVERSION_MODE mode)
+{
+    SDL_Unsupported();
+}
+
+SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionMode(void)
+{
+    return SDL_Unsupported();
+}
+
+SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int height)
+{
+    return SDL_Unsupported();
+}
+#endif
 
 /*
  * Calculate YUV size and pitch. Check for overflow.
