@@ -175,7 +175,7 @@ static const char *GetLegacyCursorName(SDL_SystemCursor system_cursor)
         case SDL_NUM_SYSTEM_CURSORS: break;  /* so the compiler might notice if an enum value is missing here. */
     }
 
-    SDL_assert(0);
+    SDL_assert(!"Unknown system cursor");
     return NULL;
 }
 
@@ -569,7 +569,7 @@ static void Wayland_SetSystemCursorShape(struct SDL_WaylandInput *input, SDL_Sys
         shape = WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_POINTER;
         break;
     default:
-        SDL_assert(0); /* Should never be here... */
+        SDL_assert(!"Unknown system cursor"); /* Should never be here... */
         shape = WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT;
     }
 

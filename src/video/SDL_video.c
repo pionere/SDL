@@ -1776,21 +1776,21 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 #ifdef SDL_VIDEO_OPENGL_ANY
         SDL_assert(current_video.GL_CreateContext != NULL);
 #else
-        SDL_assert(0);
+        SDL_assert(!"Invalid (OPENGL) window flag in SDL_RecreateWindow.");
 #endif
     }
     if (flags & SDL_WINDOW_VULKAN) {
 #ifdef SDL_VIDEO_VULKAN
         SDL_assert(current_video.Vulkan_CreateSurface != NULL);
 #else
-        SDL_assert(0);
+        SDL_assert(!"Invalid (VULKAN) window flag in SDL_RecreateWindow.");
 #endif
     }
     if (flags & SDL_WINDOW_METAL) {
 #ifdef SDL_VIDEO_METAL
         SDL_assert(current_video.Metal_CreateView != NULL);
 #else
-        SDL_assert(0);
+        SDL_assert(!"Invalid (METAL) window flag in SDL_RecreateWindow.");
 #endif
     }
 #if 0
@@ -5164,7 +5164,7 @@ const char *SDL_GetCSSCursorName(SDL_SystemCursor id, const char **fallback_name
 #endif
 
     default:
-        SDL_assert(0);
+        SDL_assert(!"Unknown system cursor");
         return "default";
     }
 }
