@@ -187,7 +187,7 @@ static SDL_Cursor *Cocoa_CreateSystemCursor(SDL_SystemCursor id)
         nscursor = [NSCursor pointingHandCursor];
         break;
     default:
-        SDL_assert(!"Unknown system cursor");
+        SDL_assume(!"Unknown system cursor");
         return NULL;
     }
 

@@ -77,7 +77,7 @@ static SDL_Cursor* OS2_CreateSystemCursor(SDL_SystemCursor id)
     case SDL_SYSTEM_CURSOR_HAND:      lSysId = SPTR_ARROW;    break;
     default:
         debug_os2("Unknown cursor id: %u", id);
-        SDL_assert(!"Unknown system cursor");
+        SDL_assume(!"Unknown system cursor");
         return NULL;
     }
 

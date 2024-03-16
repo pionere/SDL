@@ -197,7 +197,7 @@ static SDL_Cursor * HAIKU_CreateSystemCursor(SDL_SystemCursor id)
     switch(id)
     {
     default:
-        SDL_assert(!"Unknown system cursor");
+        SDL_assume(!"Unknown system cursor");
         return NULL;
     case SDL_SYSTEM_CURSOR_ARROW:     cursorId = B_CURSOR_ID_SYSTEM_DEFAULT; break;
     case SDL_SYSTEM_CURSOR_IBEAM:     cursorId = B_CURSOR_ID_I_BEAM; break;

@@ -224,6 +224,7 @@ static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
         *yuv_type = YCBCR_709;
         break;
     default:
+        SDL_assume(!"Unsupported YUV conversion mode");
         return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
     }
     return 0;

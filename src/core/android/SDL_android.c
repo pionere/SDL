@@ -1562,7 +1562,7 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
         }
     } break;
     default:
-        SDL_assert(!"Unexpected audio format from Java: %d");
+        SDL_assume(!"Unexpected audio format from Java: %d");
     }
 
     if (!jbufobj) {
@@ -1592,7 +1592,7 @@ int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spe
             audioBufferPinned = (*env)->GetFloatArrayElements(env, (jfloatArray)audioBuffer, &isCopy);
             break;
         default:
-            SDL_assert(!"Unexpected audio format from Java: %d");
+            SDL_assume(!"Unexpected audio format from Java: %d");
         }
     }
     return 0;

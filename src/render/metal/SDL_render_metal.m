@@ -614,7 +614,7 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
             case SDL_YUV_CONVERSION_JPEG: offset = CONSTANTS_OFFSET_DECODE_JPEG; break;
             case SDL_YUV_CONVERSION_BT601: offset = CONSTANTS_OFFSET_DECODE_BT601; break;
             case SDL_YUV_CONVERSION_BT709: offset = CONSTANTS_OFFSET_DECODE_BT709; break;
-            default: offset = 0; break;
+            default: SDL_assume(!"Unsupported YUV conversion mode"); break;
         }
         texturedata.conversionBufferOffset = offset;
     }

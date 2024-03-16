@@ -488,7 +488,7 @@ static int SetupGLWindow(_THIS, SDL_Window *window)
 #endif
     return WIN_GL_SetupWindow(_this, window);
 #elif !defined(SDL_VIDEO_OPENGL_EGL)
-    SDL_assert(!"Should not happen");
+    SDL_assume(!"Should not happen");
     return SDL_SetError("Could not create GL window (GL support is not configured)");
 #endif // SDL_VIDEO_OPENGL_WGL
 }

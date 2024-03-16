@@ -2040,7 +2040,7 @@ static void HandleInputEvents(SDL_Joystick *joystick)
 
                 switch (event->type) {
                 case EV_KEY:
-                    SDL_assert(!"Unexpected event-type (EV_KEY)");
+                    SDL_assume(!"Unexpected event-type (EV_KEY)");
                     break;
                 case EV_ABS:
                     switch (code) {

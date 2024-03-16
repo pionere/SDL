@@ -964,6 +964,7 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
             *shader = data->shaders[SHADER_YUV_BT709];
             break;
         default:
+            SDL_assume(!"Unsupported YUV conversion mode");
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 

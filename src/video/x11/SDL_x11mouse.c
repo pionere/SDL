@@ -240,7 +240,7 @@ static unsigned int GetLegacySystemCursorShape(SDL_SystemCursor id)
         case SDL_NUM_SYSTEM_CURSORS: break;  /* so the compiler might notice if an enum value is missing here. */
     }
 
-    SDL_assert(!"Unknown system cursor");
+    SDL_assume(!"Unknown system cursor");
     return 0;
 }
 

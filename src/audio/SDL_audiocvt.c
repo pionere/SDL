@@ -314,7 +314,7 @@ static void SDLCALL SDL_Convert_Byteswap(SDL_AudioCVT *cvt, SDL_AudioFormat form
 #undef CASESWAP
 
     default:
-        SDL_assert(!"unhandled byteswap datatype!");
+        SDL_assume(!"unhandled byteswap datatype!");
         break;
     }
 
@@ -373,7 +373,7 @@ static int SDL_BuildAudioTypeCVTToFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat
             filter = SDL_Convert_S32_to_F32;
             break;
         default:
-            SDL_assert(!"Unexpected audio format!");
+            SDL_assume(!"Unexpected audio format!");
             break;
         }
 
@@ -424,7 +424,7 @@ static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt, const SDL_AudioForm
             filter = SDL_Convert_F32_to_S32;
             break;
         default:
-            SDL_assert(!"Unexpected audio format!");
+            SDL_assume(!"Unexpected audio format!");
             break;
         }
 

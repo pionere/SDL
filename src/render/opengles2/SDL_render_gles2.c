@@ -642,7 +642,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_YUV_BT709;
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
+            SDL_assume(!"Unsupported YUV conversion mode");
             goto fault;
         }
         break;
@@ -667,7 +667,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             }
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
+            SDL_assume(!"Unsupported YUV conversion mode");
             goto fault;
         }
         break;
@@ -684,7 +684,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV21_BT709;
             break;
         default:
-            SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
+            SDL_assume(!"Unsupported YUV conversion mode");
             goto fault;
         }
         break;

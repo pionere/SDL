@@ -53,7 +53,7 @@ static SDL_Cursor *WINRT_CreateSystemCursor(SDL_SystemCursor id)
 
     switch (id) {
     default:
-        SDL_assert(!"Unknown system cursor");
+        SDL_assume(!"Unknown system cursor");
         return NULL;
     case SDL_SYSTEM_CURSOR_ARROW:
         cursorType = CoreCursorType::Arrow;

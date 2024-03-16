@@ -685,7 +685,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             }
             break;
         default:
-            SDL_assert(!"unsupported YUV conversion mode");
+            SDL_assume(!"unsupported YUV conversion mode");
             break;
         }
     }

@@ -2526,6 +2526,7 @@ static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             shader = SHADER_YUV_BT709;
             break;
         default:
+            SDL_assume(!"Unsupported YUV conversion mode");
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
@@ -2558,6 +2559,7 @@ static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
             shader = texture->format == SDL_PIXELFORMAT_NV12 ? SHADER_NV12_BT709 : SHADER_NV21_BT709;
             break;
         default:
+            SDL_assume(!"Unsupported YUV conversion mode");
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 

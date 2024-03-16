@@ -351,7 +351,7 @@ static void swizzle_alsa_channels(_THIS, void *buffer, Uint32 bufferlen)
             swizzle_alsa_channels_##chans##_Uint64(buffer, bufferlen); \
             break;                                                     \
         default:                                                       \
-            SDL_assert(!"unhandled bitsize");                          \
+            SDL_assume(!"unhandled bitsize");                          \
             break;                                                     \
         }                                                              \
         return;

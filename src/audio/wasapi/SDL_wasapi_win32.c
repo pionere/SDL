@@ -145,7 +145,7 @@ int WASAPI_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int iscapture)
 void WASAPI_PlatformDeleteActivationHandler(void *handler)
 {
     /* not asynchronous. */
-    SDL_assert(!"This function should have only been called on WinRT.");
+    SDL_assume(!"This function should have only been called on WinRT.");
 }
 
 #endif /* SDL_AUDIO_DRIVER_WASAPI && !defined(__WINRT__) */
