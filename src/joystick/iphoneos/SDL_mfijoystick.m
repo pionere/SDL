@@ -2041,9 +2041,12 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForButton(SDL_GameController 
 {
     elementName[0] = '\0';
 #if defined(SDL_JOYSTICK_MFI) && defined(ENABLE_PHYSICAL_INPUT_PROFILE)
-    if (gamecontroller && SDL_GameControllerGetJoystick(gamecontroller)->driver == &SDL_IOS_JoystickDriver) {
+    SDL_AssertJoysticksLocked();
+    SDL_assert(gamecontroller != NULL);
+
+    if (SDL_PrivateGameControllerGetJoystick(gamecontroller)->driver == &SDL_IOS_JoystickDriver) {
         if (@available(macOS 10.16, iOS 14.0, tvOS 14.0, *)) {
-            GCController *controller = SDL_GameControllerGetJoystick(gamecontroller)->hwdata->controller;
+            GCController *controller = SDL_PrivateGameControllerGetJoystick(gamecontroller)->hwdata->controller;
             if ([controller respondsToSelector:@selector(physicalInputProfile)]) {
                 NSDictionary<NSString *, GCControllerElement *> *elements = controller.physicalInputProfile.elements;
                 switch (button) {
@@ -2156,9 +2159,12 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForAxis(SDL_GameController *g
 {
     elementName[0] = '\0';
 #if defined(SDL_JOYSTICK_MFI) && defined(ENABLE_PHYSICAL_INPUT_PROFILE)
-    if (gamecontroller && SDL_GameControllerGetJoystick(gamecontroller)->driver == &SDL_IOS_JoystickDriver) {
+    SDL_AssertJoysticksLocked();
+    SDL_assert(gamecontroller != NULL);
+
+    if (SDL_PrivateGameControllerGetJoystick(gamecontroller)->driver == &SDL_IOS_JoystickDriver) {
         if (@available(macOS 10.16, iOS 14.0, tvOS 14.0, *)) {
-            GCController *controller = SDL_GameControllerGetJoystick(gamecontroller)->hwdata->controller;
+            GCController *controller = SDL_PrivateGameControllerGetJoystick(gamecontroller)->hwdata->controller;
             if ([controller respondsToSelector:@selector(physicalInputProfile)]) {
                 NSDictionary<NSString *, GCControllerElement *> *elements = controller.physicalInputProfile.elements;
                 switch (axis) {

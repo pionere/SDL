@@ -40,6 +40,7 @@ extern char SDL_joystick_magic;
 /* Initialization and shutdown functions */
 extern int SDL_JoystickInit(void);
 extern void SDL_JoystickQuit(void);
+extern void SDL_PrivateJoystickClose(SDL_Joystick *joystick);
 
 /* Return whether the joystick system is currently initialized */
 extern SDL_bool SDL_JoysticksInitialized(void);
@@ -53,6 +54,9 @@ extern SDL_bool SDL_JoysticksLocked(void);
 /* Make sure we currently have the joysticks locked */
 extern void SDL_AssertJoysticksLocked(void) SDL_ASSERT_CAPABILITY(SDL_joystick_lock);
 
+/* Function to get the number of available joysticks */
+extern int SDL_PrivateNumJoysticks(void);
+
 /* Function to get the next available joystick instance ID */
 extern SDL_JoystickID SDL_GetNextJoystickInstanceID(void);
 
@@ -62,8 +66,44 @@ extern void SDL_GameControllerQuitMappings(void);
 extern int SDL_GameControllerInit(void);
 extern void SDL_GameControllerQuit(void);
 
+/* Function to return the implementation dependent name for a device index, or NULL if not found */
+extern const char *SDL_PrivateJoystickNameForIndex(int device_index);
+
+/* Get the friendly name of this joystick */
+extern const char *SDL_PrivateJoystickName(SDL_Joystick *joystick);
+
+/* Get the implementation dependent path of a joystick */
+extern const char *SDL_PrivateJoystickPathForIndex(int device_index);
+
+/* Get the implementation dependent path of this joystick */
+extern const char *SDL_PrivateJoystickPath(SDL_Joystick *joystick);
+
+/* Function to return the joystick ID for a device index, or -1 if not found */
+extern SDL_JoystickID SDL_PrivateJoystickGetDeviceInstanceID(int device_index);
+
+/* Function to return the GUID of a (joystick) device index, or -1 if not found */
+extern SDL_JoystickGUID SDL_PrivateJoystickGetDeviceGUID(int device_index);
+
 /* Function to return the device index for a joystick ID, or -1 if not found */
 extern int SDL_JoystickGetDeviceIndexFromInstanceID(SDL_JoystickID instance_id);
+
+extern int SDL_GetPlayerIndexForJoystickID(SDL_JoystickID instance_id);
+
+/* Return the SDL_Joystick associated with a player index. */
+extern SDL_Joystick *SDL_PrivateJoystickFromPlayerIndex(int player_index);
+
+extern SDL_bool SDL_SetJoystickIDForPlayerIndex(int player_index, SDL_JoystickID instance_id);
+
+extern Uint16 SDL_PrivateJoystickGetVendor(SDL_Joystick *joystick);
+extern Uint16 SDL_PrivateJoystickGetProduct(SDL_Joystick *joystick);
+extern Uint16 SDL_PrivateJoystickGetProductVersion(SDL_Joystick *joystick);
+extern SDL_bool SDL_PrivateJoystickHasLED(SDL_Joystick *joystick);
+extern SDL_bool SDL_PrivateJoystickHasRumble(SDL_Joystick *joystick);
+extern SDL_bool SDL_PrivateJoystickHasRumbleTriggers(SDL_Joystick *joystick);
+extern int SDL_PrivateJoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
+extern int SDL_PrivateJoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble, Uint32 duration_ms);
+extern int SDL_PrivateJoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue);
+extern int SDL_PrivateJoystickSendEffect(SDL_Joystick *joystick, const void *data, int size);
 
 /* Function to standardize the name for a controller
    This should be freed with SDL_free() when no longer needed
@@ -151,7 +191,7 @@ extern SDL_bool SDL_IsJoystickVirtual(SDL_JoystickGUID guid);
 extern SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid);
 
 /* Function to return whether a joystick name and GUID is a game controller  */
-extern SDL_bool SDL_IsGameControllerNameAndGUID(const char *name, SDL_JoystickGUID guid);
+// extern SDL_bool SDL_IsGameControllerNameAndGUID(const char *name, SDL_JoystickGUID guid);
 
 /* Function to return whether a game controller should be ignored */
 extern SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid);
@@ -263,6 +303,8 @@ extern SDL_bool SDL_VIDPIDInList(Uint16 vendor_id, Uint16 product_id, const SDL_
 extern void SDL_FreeVIDPIDList(SDL_vidpid_list *list);
 
 /* This is in SDL_gamecontroller.c */
+extern SDL_Joystick *SDL_PrivateGameControllerGetJoystick(SDL_GameController *gamecontroller);
+extern SDL_bool SDL_PrivateIsGameController(int joystick_index);
 extern SDL_GameControllerType SDL_GetGameControllerTypeFromString(const char *str);
 
 /* Ends C function definitions when using C++ */

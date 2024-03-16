@@ -2334,7 +2334,7 @@ static SDL_bool LINUX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMap
     /* We have a gamepad, start filling out the mappings */
 
 #ifdef DEBUG_GAMEPAD_MAPPING
-    SDL_Log("Mapping %s (VID/PID 0x%.4x/0x%.4x)", item->name, SDL_JoystickGetVendor(joystick), SDL_JoystickGetProduct(joystick));
+    SDL_Log("Mapping %s (VID/PID 0x%.4x/0x%.4x)", item->name, SDL_PrivateJoystickGetVendor(joystick), SDL_PrivateJoystickGetProduct(joystick));
 #endif
 
     if (joystick->hwdata->has_key[BTN_A]) {
@@ -2354,7 +2354,7 @@ static SDL_bool LINUX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMap
     }
 
     /* Xbox controllers use BTN_X and BTN_Y, and PS4 controllers use BTN_WEST and BTN_NORTH */
-    if (SDL_JoystickGetVendor(joystick) == USB_VENDOR_SONY) {
+    if (SDL_PrivateJoystickGetVendor(joystick) == USB_VENDOR_SONY) {
         if (joystick->hwdata->has_key[BTN_WEST]) {
             out->x.kind = EMappingKind_Button;
             out->x.target = joystick->hwdata->key_map[BTN_WEST];
@@ -2692,7 +2692,7 @@ static SDL_bool LINUX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMap
 #endif
     }
 
-    if (SDL_JoystickGetVendor(joystick) == USB_VENDOR_MICROSOFT) {
+    if (SDL_PrivateJoystickGetVendor(joystick) == USB_VENDOR_MICROSOFT) {
         /* The Xbox Elite controllers have the paddles as BTN_TRIGGER_HAPPY5 - BTN_TRIGGER_HAPPY8 */
         if (joystick->hwdata->has_key[BTN_TRIGGER_HAPPY5] &&
             joystick->hwdata->has_key[BTN_TRIGGER_HAPPY6] &&
