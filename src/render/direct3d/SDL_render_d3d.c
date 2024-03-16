@@ -200,11 +200,13 @@ static D3DFORMAT PixelFormatToD3DFMT(Uint32 format)
         return D3DFMT_X8R8G8B8;
     case SDL_PIXELFORMAT_ARGB8888:
         return D3DFMT_A8R8G8B8;
+#if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_NV12:
     case SDL_PIXELFORMAT_NV21:
         return D3DFMT_L8;
+#endif
     default:
         return D3DFMT_UNKNOWN;
     }

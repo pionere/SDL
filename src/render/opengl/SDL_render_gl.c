@@ -425,6 +425,7 @@ convert_format(GL_RenderData *renderdata, Uint32 pixel_format,
         *format = GL_RGBA;
         *type = GL_UNSIGNED_INT_8_8_8_8_REV;
         break;
+#if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_NV12:
@@ -440,6 +441,7 @@ convert_format(GL_RenderData *renderdata, Uint32 pixel_format,
         *type = GL_UNSIGNED_SHORT_8_8_APPLE;
         break;
 #endif
+#endif // SDL_HAVE_YUV
     default:
         return SDL_FALSE;
     }
@@ -481,6 +483,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         size_t size;
         data->pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
         size = (size_t)texture->h * data->pitch;
+#if SDL_HAVE_YUV
         if (texture->format == SDL_PIXELFORMAT_YV12 ||
             texture->format == SDL_PIXELFORMAT_IYUV) {
             /* Need to add size for the U and V planes */
@@ -491,6 +494,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             /* Need to add size for the U/V plane */
             size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
         }
+#endif
         data->pixels = SDL_calloc(1, size);
         if (!data->pixels) {
             SDL_free(data);

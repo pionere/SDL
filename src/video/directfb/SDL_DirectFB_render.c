@@ -361,12 +361,14 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
             DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT | DSDESC_CAPS;
         dsc.width = texture->w;
         dsc.height = texture->h;
+#if SDL_HAVE_YUV
         if(texture->format == SDL_PIXELFORMAT_YV12 ||
            texture->format == SDL_PIXELFORMAT_IYUV) {
            /* dfb has problems with odd sizes -make them even internally */
            dsc.width += (dsc.width % 2);
            dsc.height += (dsc.height % 2);
         }
+#endif
         /* <1.2 Never use DSCAPS_VIDEOONLY here. It kills performance
          * No DSCAPS_SYSTEMONLY either - let dfb decide
          * 1.2: DSCAPS_SYSTEMONLY boosts performance by factor ~8
@@ -407,11 +409,14 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     data->render_options = DSRO_NONE;
 #endif
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+#if SDL_HAVE_YUV
         /* 3 plane YUVs return 1 bpp, but we need more space for other planes */
-        if(texture->format == SDL_PIXELFORMAT_YV12 ||
+        if (texture->format == SDL_PIXELFORMAT_YV12 ||
            texture->format == SDL_PIXELFORMAT_IYUV) {
             SDL_DFB_ALLOC_CLEAR(data->pixels, (texture->h * data->pitch  + ((texture->h + texture->h % 2) * (data->pitch + data->pitch % 2) * 2) / 4));
-        } else {
+        } else
+#endif
+        {
             SDL_DFB_ALLOC_CLEAR(data->pixels, texture->h * data->pitch);
         }
     }
@@ -467,12 +472,12 @@ static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     /* FIXME: SDL_BYTESPERPIXEL(texture->format) broken for yuv yv12 3 planes */
 
     DirectFB_ActivateRenderer(renderer);
-
+#if SDL_HAVE_YUV
     if ((texture->format == SDL_PIXELFORMAT_YV12) ||
         (texture->format == SDL_PIXELFORMAT_IYUV)) {
         bpp = 1;
     }
-
+#endif
     SDL_DFB_CHECKERR(data->surface->Lock(data->surface,
                                          DSLF_WRITE | DSLF_READ,
                                          ((void **) &dpixels), &dpitch));
@@ -484,6 +489,7 @@ static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture
         src += pitch;
         dst += dpitch;
     }
+#if SDL_HAVE_YUV
     /* copy other planes for 3 plane formats */
     if ((texture->format == SDL_PIXELFORMAT_YV12) ||
         (texture->format == SDL_PIXELFORMAT_IYUV)) {
@@ -502,6 +508,7 @@ static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture
             dst += dpitch / 2;
         }
     }
+#endif
     SDL_DFB_CHECKERR(data->surface->Unlock(data->surface));
     data->isDirty = 0;
     return 0;

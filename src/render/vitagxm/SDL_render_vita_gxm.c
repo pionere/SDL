@@ -105,16 +105,22 @@ const SDL_RenderDriver VITA_GXM_RenderDriver = {
     .info = {
         .name = "VITA gxm",
         .flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE,
+#if SDL_HAVE_YUV
         .num_texture_formats = 8,
+#else
+        .num_texture_formats = 4,
+#endif
         .texture_formats = {
             [0] = SDL_PIXELFORMAT_ABGR8888,
             [1] = SDL_PIXELFORMAT_ARGB8888,
             [2] = SDL_PIXELFORMAT_RGB565,
             [3] = SDL_PIXELFORMAT_BGR565,
+#if SDL_HAVE_YUV
             [4] = SDL_PIXELFORMAT_YV12,
             [5] = SDL_PIXELFORMAT_IYUV,
             [6] = SDL_PIXELFORMAT_NV12,
             [7] = SDL_PIXELFORMAT_NV21,
+#endif
         },
         .max_texture_width = 4096,
         .max_texture_height = 4096,
@@ -136,6 +142,7 @@ static int PixelFormatToVITAFMT(Uint32 format)
         return SCE_GXM_TEXTURE_FORMAT_U5U6U5_RGB;
     case SDL_PIXELFORMAT_BGR565:
         return SCE_GXM_TEXTURE_FORMAT_U5U6U5_BGR;
+#if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
         return SCE_GXM_TEXTURE_FORMAT_YVU420P3_CSC0;
     case SDL_PIXELFORMAT_IYUV:
@@ -145,6 +152,7 @@ static int PixelFormatToVITAFMT(Uint32 format)
         return SCE_GXM_TEXTURE_FORMAT_YVU420P2_CSC0;
     case SDL_PIXELFORMAT_NV21:
         return SCE_GXM_TEXTURE_FORMAT_YUV420P2_CSC0;
+#endif
     default:
         return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR;
     }

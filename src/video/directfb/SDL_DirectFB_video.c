@@ -366,10 +366,12 @@ static const struct {
     { DSPF_ARGB1555, SDL_PIXELFORMAT_ARGB1555 },        /* 16 bit ARGB (2 byte, alpha 1@15, red 5@10, green 5@5, blue 5@0) */
     { DSPF_RGB24, SDL_PIXELFORMAT_RGB24 },              /* 24 bit RGB (3 byte, red 8@16, green 8@8, blue 8@0) */
     { DSPF_RGB444, SDL_PIXELFORMAT_RGB444 },            /* 16 bit RGB (2 byte, nothing @12, red 4@8, green 4@4, blue 4@0) */
+#if SDL_HAVE_YUV
     { DSPF_YV12, SDL_PIXELFORMAT_YV12 },                /* 12 bit YUV (8 bit Y plane followed by 8 bit quarter size V/U planes) */
     { DSPF_I420,SDL_PIXELFORMAT_IYUV },                 /* 12 bit YUV (8 bit Y plane followed by 8 bit quarter size U/V planes) */
     { DSPF_YUY2, SDL_PIXELFORMAT_YUY2 },                /* 16 bit YUV (4 byte/ 2 pixel, macropixel contains CbYCrY [31:0]) */
     { DSPF_UYVY, SDL_PIXELFORMAT_UYVY },                /* 16 bit YUV (4 byte/ 2 pixel, macropixel contains YCbYCr [31:0]) */
+#endif
     { DSPF_RGB555, SDL_PIXELFORMAT_RGB555 },            /* 16 bit RGB (2 byte, nothing @15, red 5@10, green 5@5, blue 5@0) */
 #if (DFB_VERSION_ATLEAST(1,5,0))
     { DSPF_ABGR, SDL_PIXELFORMAT_ABGR8888 },            /* 32 bit ABGR (4  byte, alpha 8@24, blue 8@16, green 8@8, red 8@0) */
@@ -390,11 +392,15 @@ static const struct {
     { DSPF_A8, SDL_PIXELFORMAT_UNKNOWN },               /*  8 bit alpha (1 byte, alpha 8@0), e.g. anti-aliased glyphs */
     { DSPF_AiRGB, SDL_PIXELFORMAT_UNKNOWN },            /*  32 bit ARGB (4 byte, inv. alpha 8@24, red 8@16, green 8@8, blue 8@0) */
     { DSPF_A1, SDL_PIXELFORMAT_UNKNOWN },               /*  1 bit alpha (1 byte/ 8 pixel, most significant bit used first) */
+#if SDL_HAVE_YUV
     { DSPF_NV12, SDL_PIXELFORMAT_UNKNOWN },             /*  12 bit YUV (8 bit Y plane followed by one 16 bit quarter size CbCr [15:0] plane) */
     { DSPF_NV16, SDL_PIXELFORMAT_UNKNOWN },             /*  16 bit YUV (8 bit Y plane followed by one 16 bit half width CbCr [15:0] plane) */
+#endif
     { DSPF_ARGB2554, SDL_PIXELFORMAT_UNKNOWN },         /*  16 bit ARGB (2 byte, alpha 2@14, red 5@9, green 5@4, blue 4@0) */
+#if SDL_HAVE_YUV
     { DSPF_NV21, SDL_PIXELFORMAT_UNKNOWN },             /*  12 bit YUV (8 bit Y plane followed by one 16 bit quarter size CrCb [15:0] plane) */
     { DSPF_AYUV, SDL_PIXELFORMAT_UNKNOWN },             /*  32 bit AYUV (4 byte, alpha 8@24, Y 8@16, Cb 8@8, Cr 8@0) */
+#endif
     { DSPF_A4, SDL_PIXELFORMAT_UNKNOWN },               /*  4 bit alpha (1 byte/ 2 pixel, more significant nibble used first) */
     { DSPF_ARGB1666, SDL_PIXELFORMAT_UNKNOWN },         /*  1 bit alpha (3 byte/ alpha 1@18, red 6@16, green 6@6, blue 6@0) */
     { DSPF_ARGB6666, SDL_PIXELFORMAT_UNKNOWN },         /*  6 bit alpha (3 byte/ alpha 6@18, red 6@16, green 6@6, blue 6@0) */
@@ -407,11 +413,15 @@ static const struct {
 
 #if (DFB_VERSION_ATLEAST(1,4,3))
     { DSPF_RGBA5551, SDL_PIXELFORMAT_UNKNOWN },         /*  16 bit RGBA (2 byte, red 5@11, green 5@6, blue 5@1, alpha 1@0) */
+#if SDL_HAVE_YUV
     { DSPF_YUV444P, SDL_PIXELFORMAT_UNKNOWN },          /*  24 bit full YUV planar (8 bit Y plane followed by an 8 bit Cb and an 8 bit Cr plane) */
+#endif
     { DSPF_ARGB8565, SDL_PIXELFORMAT_UNKNOWN },         /*  24 bit ARGB (3 byte, alpha 8@16, red 5@11, green 6@5, blue 5@0) */
+#if SDL_HAVE_YUV
     { DSPF_AVYU, SDL_PIXELFORMAT_UNKNOWN },             /*  32 bit AVYU 4:4:4 (4 byte, alpha 8@24, Cr 8@16, Y 8@8, Cb 8@0) */
     { DSPF_VYU, SDL_PIXELFORMAT_UNKNOWN },              /*  24 bit VYU 4:4:4 (3 byte, Cr 8@16, Y 8@8, Cb 8@0)  */
 #endif
+#endif // V1.4.3
 
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_INDEX1LSB },
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_INDEX1MSB },
@@ -425,7 +435,9 @@ static const struct {
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_ABGR4444 },
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_ABGR1555 },
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_BGR565 },
+#if SDL_HAVE_YUV
     { DSPF_UNKNOWN, SDL_PIXELFORMAT_YVYU },                        /**< Packed mode: Y0+V0+Y1+U0 (1 pla */
+#endif
 };
 
 Uint32 DirectFB_DFBToSDLPixelFormat(DFBSurfacePixelFormat pixelformat)

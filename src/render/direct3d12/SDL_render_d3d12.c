@@ -295,11 +295,13 @@ static DXGI_FORMAT SDLPixelFormatToDXGIFormat(Uint32 sdlFormat)
         return DXGI_FORMAT_B8G8R8A8_UNORM;
     case SDL_PIXELFORMAT_RGB888:
         return DXGI_FORMAT_B8G8R8X8_UNORM;
+#if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_NV12: /* For the Y texture */
     case SDL_PIXELFORMAT_NV21: /* For the Y texture */
         return DXGI_FORMAT_R8_UNORM;
+#endif
     default:
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -3033,14 +3035,21 @@ const SDL_RenderDriver D3D12_RenderDriver = {
         "direct3d12",
         (
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE), /* flags.  see SDL_RendererFlags */
+#if SDL_HAVE_YUV
         6,                               /* num_texture_formats */
+#else
+        2,                               /* num_texture_formats */
+#endif
         {                                /* texture_formats */
           SDL_PIXELFORMAT_ARGB8888,
           SDL_PIXELFORMAT_RGB888,
+#if SDL_HAVE_YUV
           SDL_PIXELFORMAT_YV12,
           SDL_PIXELFORMAT_IYUV,
           SDL_PIXELFORMAT_NV12,
-          SDL_PIXELFORMAT_NV21 },
+          SDL_PIXELFORMAT_NV21
+#endif
+        },
         16384, /* max_texture_width */
         16384  /* max_texture_height */
     }

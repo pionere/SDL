@@ -2399,14 +2399,21 @@ const SDL_RenderDriver D3D11_RenderDriver = {
         "direct3d11",
         (
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE), /* flags.  see SDL_RendererFlags */
+#if SDL_HAVE_YUV
         6,                               /* num_texture_formats */
+#else
+        2,                               /* num_texture_formats */
+#endif
         {                                /* texture_formats */
           SDL_PIXELFORMAT_ARGB8888,
           SDL_PIXELFORMAT_RGB888,
+#if SDL_HAVE_YUV
           SDL_PIXELFORMAT_YV12,
           SDL_PIXELFORMAT_IYUV,
           SDL_PIXELFORMAT_NV12,
-          SDL_PIXELFORMAT_NV21 },
+          SDL_PIXELFORMAT_NV21
+#endif
+        },
         0, /* max_texture_width: will be filled in later */
         0  /* max_texture_height: will be filled in later */
     }

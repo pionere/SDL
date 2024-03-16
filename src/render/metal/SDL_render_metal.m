@@ -530,12 +530,14 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
         case SDL_PIXELFORMAT_ARGB8888:
             pixfmt = MTLPixelFormatBGRA8Unorm;
             break;
+#if SDL_HAVE_YUV
         case SDL_PIXELFORMAT_IYUV:
         case SDL_PIXELFORMAT_YV12:
         case SDL_PIXELFORMAT_NV12:
         case SDL_PIXELFORMAT_NV21:
             pixfmt = MTLPixelFormatR8Unorm;
             break;
+#endif
         default:
             return SDL_SetError("Texture format %s not supported by Metal", SDL_GetPixelFormatName(texture->format));
     }
@@ -1871,14 +1873,20 @@ const SDL_RenderDriver METAL_RenderDriver = {
     {
         "metal",
         (SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE),
+#if SDL_HAVE_YUV
         6,
+#else
+        2,
+#endif
         {
             SDL_PIXELFORMAT_ARGB8888,
             SDL_PIXELFORMAT_ABGR8888,
+#if SDL_HAVE_YUV
             SDL_PIXELFORMAT_YV12,
             SDL_PIXELFORMAT_IYUV,
             SDL_PIXELFORMAT_NV12,
             SDL_PIXELFORMAT_NV21
+#endif
         },
     0, 0,
     }
