@@ -33,7 +33,7 @@
 /* #define DEBUG_MODES */
 /* #define HIGHDPI_DEBUG_VERBOSE */
 
-// SDL_bool setting_display_mode; -- what was the point of this???
+static SDL_bool setting_display_mode = SDL_FALSE;
 
 static void WIN_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *desktop_mode);
 
@@ -43,9 +43,9 @@ static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMo
     HDC hdc;
     Uint32 format = SDL_PIXELFORMAT_UNKNOWN; // mode->format;
 
-    data->DeviceMode.dmFields =
-        (DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY |
-         DM_DISPLAYFLAGS);
+    // data->DeviceMode.dmFields =
+    //    (DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY |
+    //     DM_DISPLAYFLAGS);
 
     /* NOLINTNEXTLINE(bugprone-assignment-in-if-condition): No simple way to extract the assignment */
     if (index == ENUM_CURRENT_SETTINGS && (hdc = CreateDC(deviceName, NULL, NULL, NULL)) != NULL) {
@@ -97,6 +97,7 @@ static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMo
         }
     } else { // if (mode->format == SDL_PIXELFORMAT_UNKNOWN) {
         /* FIXME: Can we tell what this will be? */
+        if (data->DeviceMode.dmFields & DM_BITSPERPEL) {
             switch (data->DeviceMode.dmBitsPerPel) {
             case 32:
                 format = SDL_PIXELFORMAT_RGB888;
@@ -117,6 +118,7 @@ static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMo
                 format = SDL_PIXELFORMAT_INDEX4LSB;
                 break;
             }
+        }
     }
     if (mode->format == SDL_PIXELFORMAT_UNKNOWN) {
         mode->format = format;
@@ -357,6 +359,9 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
     if (!displaydata) {
         SDL_free(mode.driverdata);
         return;
+    }
+    {
+        SDL_COMPILE_TIME_ASSERT(win_device_name, CCHDEVICENAME == SDL_arraysize(displaydata->DeviceName));
     }
     SDL_memcpy(displaydata->DeviceName, info->szDevice, sizeof(displaydata->DeviceName));
     displaydata->MonitorHandle = hMonitor;
@@ -735,14 +740,44 @@ static void WIN_LogMonitor(HMONITOR mon)
 }
 #endif
 
+static const char* WIN_DisplayFailReason(LONG status)
+{
+    const char *reason;
+    switch (status) {
+    case DISP_CHANGE_BADDUALVIEW:
+        reason = "DISP_CHANGE_BADDUALVIEW";
+        break;
+    case DISP_CHANGE_BADFLAGS:
+        reason = "DISP_CHANGE_BADFLAGS";
+        break;
+    case DISP_CHANGE_BADMODE:
+        reason = "DISP_CHANGE_BADMODE";
+        break;
+    case DISP_CHANGE_BADPARAM:
+        reason = "DISP_CHANGE_BADPARAM";
+        break;
+    case DISP_CHANGE_FAILED:
+        reason = "DISP_CHANGE_FAILED";
+        break;
+    case DISP_CHANGE_RESTART:
+        reason = "DISP_CHANGE_RESTART";
+        break;
+    case DISP_CHANGE_NOTUPDATED:
+        reason = "DISP_CHANGE_NOTUPDATED";
+        break;
+    default:
+        reason = "Unknown reason";
+        break;
+    }
+    return reason;
+}
+
 int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     SDL_DisplayData *displaydata = (SDL_DisplayData *)display->driverdata;
     SDL_DisplayModeData *data = (SDL_DisplayModeData *)mode->driverdata;
     DEVMODE *devmode;
     LONG status;
-
-    // setting_display_mode = SDL_TRUE;
 
 #ifdef DEBUG_MODES
     SDL_Log("WIN_SetDisplayMode: monitor state before mode change:");
@@ -770,24 +805,11 @@ int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 #endif
         devmode = &data->DeviceMode;
     }
+    setting_display_mode = SDL_TRUE; // suppress WM_DISPLAYCHANGE messages triggered by ChangeDisplaySettings
     status = ChangeDisplaySettingsExW(displaydata->DeviceName, devmode, NULL, CDS_FULLSCREEN, NULL);
+    setting_display_mode = SDL_FALSE;
     if (status != DISP_CHANGE_SUCCESSFUL) {
-        const char *reason = "Unknown reason";
-        switch (status) {
-        case DISP_CHANGE_BADFLAGS:
-            reason = "DISP_CHANGE_BADFLAGS";
-            break;
-        case DISP_CHANGE_BADMODE:
-            reason = "DISP_CHANGE_BADMODE";
-            break;
-        case DISP_CHANGE_BADPARAM:
-            reason = "DISP_CHANGE_BADPARAM";
-            break;
-        case DISP_CHANGE_FAILED:
-            reason = "DISP_CHANGE_FAILED";
-            break;
-        }
-        return SDL_SetError("ChangeDisplaySettingsEx() failed: %s", reason);
+        return SDL_SetError("ChangeDisplaySettingsEx() failed: %s", WIN_DisplayFailReason(status));
     }
 
 #ifdef DEBUG_MODES
@@ -797,7 +819,6 @@ int WIN_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
     EnumDisplaySettingsW(displaydata->DeviceName, ENUM_CURRENT_SETTINGS, &data->DeviceMode);
     WIN_UpdateDisplayMode(displaydata->DeviceName, ENUM_CURRENT_SETTINGS, mode);
-    // setting_display_mode = SDL_FALSE;
     return 0;
 }
 
@@ -805,6 +826,10 @@ void WIN_RefreshDisplays(void)
 {
     int num_displays, i;
     SDL_VideoDisplay *displays;
+
+    if (setting_display_mode) {
+        return;
+    }
 
     // Mark all displays as potentially invalid to detect
     // entries that have actually been removed

@@ -1235,7 +1235,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
     SDL_Window *other;
     SDL_bool resized = SDL_FALSE;
 
-    CHECK_WINDOW_MAGIC(window, -1);
+    SDL_assert(window != NULL);
 
     /* if we are in the process of hiding don't go back to fullscreen */
     if (window->is_hiding && fullscreen) {
@@ -1612,13 +1612,13 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
          * from closest supported mode and use that instead of current resolution
          */
         if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP && (bounds.w != w || bounds.h != h)) {
-            SDL_DisplayMode fullscreen_mode, closest_mode;
+            SDL_DisplayMode fullscreen_mode;
             SDL_zero(fullscreen_mode);
             fullscreen_mode.w = w;
             fullscreen_mode.h = h;
-            if (SDL_GetClosestDisplayModeForDisplay(display, &fullscreen_mode, &closest_mode) != NULL) {
-                bounds.w = closest_mode.w;
-                bounds.h = closest_mode.h;
+            if (SDL_GetClosestDisplayModeForDisplay(display, &fullscreen_mode, &fullscreen_mode) != NULL) {
+                bounds.w = fullscreen_mode.w;
+                bounds.h = fullscreen_mode.h;
             }
         }
         window->fullscreen_mode.w = bounds.w;
