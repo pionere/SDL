@@ -1251,9 +1251,8 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
     HPS            hps;
 
     debug_os2("Enter");
-    if (!shaper || !shape) {
-        return SDL_INVALID_SHAPE_ARGUMENT;
-    }
+    SDL_assert(shaper != NULL);
+    SDL_assert(shape != NULL);
 
     if (shaper->driverdata)
         SDL_FreeShapeTree((SDL_ShapeTree **)&shaper->driverdata);

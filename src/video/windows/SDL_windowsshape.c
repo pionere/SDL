@@ -71,12 +71,11 @@ int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     SDL_ShapeData *data;
     HRGN mask_region = NULL;
 
-    if ((!shaper) ||
-        (!shape)) {
-        return SDL_INVALID_SHAPE_ARGUMENT;
-    }
+    SDL_assert(shaper != NULL);
+    SDL_assert(shape != NULL);
 
     data = (SDL_ShapeData *)shaper->driverdata;
+    SDL_assert(data != NULL);
     if (data->mask_tree) {
         SDL_FreeShapeTree(&data->mask_tree);
     }

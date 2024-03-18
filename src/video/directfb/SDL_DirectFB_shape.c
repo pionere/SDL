@@ -72,9 +72,10 @@ int DirectFB_ResizeWindowShape(SDL_Window* window)
 
 int DirectFB_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
 {
-
-    if(!shaper || !shape || !shaper->driverdata)
-        return -1;
+    SDL_assert(shaper != NULL);
+    SDL_assert(shape != NULL);
+    data = shaper->driverdata;
+    SDL_assert(data != NULL);
 
     {
         DFB_VideoData *devdata = &dfbVideoData;
