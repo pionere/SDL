@@ -113,7 +113,7 @@ int X11_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     data = shaper->driverdata;
 
     /* Assume that shaper->alphacutoff already has a value, because SDL_SetWindowShape() should have given it one. */
-    SDL_CalculateShapeBitmap(&shaper->mode, shape, data->bitmap, 8);
+    SDL_CalculateShapeBitmap(shape_mode, shape, data->bitmap, 8);
 
     windowdata = (SDL_WindowData *)(shaper->window->driverdata);
     shapemask = X11_XCreateBitmapFromData(x11VideoData.display, windowdata->xwindow, data->bitmap, shaper->window->w, shaper->window->h);

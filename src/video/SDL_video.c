@@ -3174,40 +3174,44 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 
-    if (shape_mode) {
-        window->shaper->mode = *shape_mode;
+    if (!shape_mode) {
+        shape_mode = &window->shaper->mode;
     }
     result = current_video.SetWindowShape(window->shaper, shape, shape_mode);
-    window->shaper->hasshape = SDL_TRUE;
-    if (window->shaper->userx != 0 && window->shaper->usery != 0) {
-        int x = window->shaper->userx;
-        int y = window->shaper->usery;
+    if (result == 0) {
+        window->shaper->mode = *shape_mode;
 
-        if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
-            SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
-            int displayIndex;
-            SDL_Rect bounds;
+        window->shaper->hasshape = SDL_TRUE;
+        if (window->shaper->userx != 0 && window->shaper->usery != 0) {
+            int x = window->shaper->userx;
+            int y = window->shaper->usery;
 
-            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
-                displayIndex = (x & 0xFFFF);
-            } else {
-                displayIndex = (y & 0xFFFF);
-            }
-            if (displayIndex >= current_video.num_displays) {
-                displayIndex = 0;
-            }
+            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
+                SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
+                int displayIndex;
+                SDL_Rect bounds;
 
-            SDL_GetDisplayBounds(displayIndex, &bounds);
-            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
-                window->x = bounds.x + (bounds.w - window->w) / 2;
+                if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
+                    displayIndex = (x & 0xFFFF);
+                } else {
+                    displayIndex = (y & 0xFFFF);
+                }
+                if (displayIndex >= current_video.num_displays) {
+                    displayIndex = 0;
+                }
+
+                SDL_GetDisplayBounds(displayIndex, &bounds);
+                if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
+                    window->x = bounds.x + (bounds.w - window->w) / 2;
+                }
+                if (SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y)) {
+                    window->y = bounds.y + (bounds.h - window->h) / 2;
+                }
             }
-            if (SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y)) {
-                window->y = bounds.y + (bounds.h - window->h) / 2;
-            }
+            SDL_SetWindowPosition(window, x, y);
+            window->shaper->userx = 0;
+            window->shaper->usery = 0;
         }
-        SDL_SetWindowPosition(window, x, y);
-        window->shaper->userx = 0;
-        window->shaper->usery = 0;
     }
     return result;
 }
