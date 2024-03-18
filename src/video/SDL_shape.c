@@ -160,8 +160,8 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
                 last_opaque = pixel_opaque;
             }
             if (last_opaque != pixel_opaque) {
-                const int halfwidth = dimensions.w / 2;
-                const int halfheight = dimensions.h / 2;
+                const int halfwidth = (dimensions.w >> 1);
+                const int halfheight = (dimensions.h >> 1);
 
                 result->kind = QuadShape;
 
@@ -169,21 +169,21 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
                 next.y = dimensions.y;
                 next.w = halfwidth;
                 next.h = halfheight;
-                result->data.children.upleft = (struct SDL_ShapeTree *)RecursivelyCalculateShapeTree(mode, mask, next);
+                result->data.children.upleft = RecursivelyCalculateShapeTree(mode, mask, next);
 
                 next.x = dimensions.x + halfwidth;
                 next.w = dimensions.w - halfwidth;
-                result->data.children.upright = (struct SDL_ShapeTree *)RecursivelyCalculateShapeTree(mode, mask, next);
+                result->data.children.upright = RecursivelyCalculateShapeTree(mode, mask, next);
 
                 next.x = dimensions.x;
                 next.w = halfwidth;
                 next.y = dimensions.y + halfheight;
                 next.h = dimensions.h - halfheight;
-                result->data.children.downleft = (struct SDL_ShapeTree *)RecursivelyCalculateShapeTree(mode, mask, next);
+                result->data.children.downleft = RecursivelyCalculateShapeTree(mode, mask, next);
 
                 next.x = dimensions.x + halfwidth;
                 next.w = dimensions.w - halfwidth;
-                result->data.children.downright = (struct SDL_ShapeTree *)RecursivelyCalculateShapeTree(mode, mask, next);
+                result->data.children.downright = RecursivelyCalculateShapeTree(mode, mask, next);
 
                 return result;
             }
@@ -220,10 +220,10 @@ void SDL_TraverseShapeTree(SDL_ShapeTree *tree, SDL_TraversalFunction function, 
 {
     SDL_assert(tree != NULL);
     if (tree->kind == QuadShape) {
-        SDL_TraverseShapeTree((SDL_ShapeTree *)tree->data.children.upleft, function, closure);
-        SDL_TraverseShapeTree((SDL_ShapeTree *)tree->data.children.upright, function, closure);
-        SDL_TraverseShapeTree((SDL_ShapeTree *)tree->data.children.downleft, function, closure);
-        SDL_TraverseShapeTree((SDL_ShapeTree *)tree->data.children.downright, function, closure);
+        SDL_TraverseShapeTree(tree->data.children.upleft, function, closure);
+        SDL_TraverseShapeTree(tree->data.children.upright, function, closure);
+        SDL_TraverseShapeTree(tree->data.children.downleft, function, closure);
+        SDL_TraverseShapeTree(tree->data.children.downright, function, closure);
     } else {
         function(tree, closure);
     }
@@ -232,10 +232,10 @@ void SDL_TraverseShapeTree(SDL_ShapeTree *tree, SDL_TraversalFunction function, 
 void SDL_FreeShapeTree(SDL_ShapeTree **shape_tree)
 {
     if ((*shape_tree)->kind == QuadShape) {
-        SDL_FreeShapeTree((SDL_ShapeTree **)(char *)&(*shape_tree)->data.children.upleft);
-        SDL_FreeShapeTree((SDL_ShapeTree **)(char *)&(*shape_tree)->data.children.upright);
-        SDL_FreeShapeTree((SDL_ShapeTree **)(char *)&(*shape_tree)->data.children.downleft);
-        SDL_FreeShapeTree((SDL_ShapeTree **)(char *)&(*shape_tree)->data.children.downright);
+        SDL_FreeShapeTree(&(*shape_tree)->data.children.upleft);
+        SDL_FreeShapeTree(&(*shape_tree)->data.children.upright);
+        SDL_FreeShapeTree(&(*shape_tree)->data.children.downleft);
+        SDL_FreeShapeTree(&(*shape_tree)->data.children.downright);
     }
     SDL_free(*shape_tree);
     *shape_tree = NULL;
