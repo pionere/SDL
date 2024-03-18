@@ -401,6 +401,11 @@ foreach(_SUB ${SDL_SUBSYSTEMS})
   option(SDL_${_OPT} "Enable the ${_SUB} subsystem" ${SDL_${_OPT}_ENABLED_BY_DEFAULT})
 endforeach()
 
+set(OPT_DEF_VULKAN OFF)
+if((ANDROID OR LINUX OR WINDOWS OR APPLE) AND NOT (SDL_STATIC OR (NOT DEFINED SDL_STATIC AND SDL_STATIC_ENABLED_BY_DEFAULT)))
+  set(OPT_DEF_VULKAN ON)
+endif()
+
 # Allow some projects to be built conditionally.
 set_option(SDL2_DISABLE_SDL2MAIN   "Disable building/installation of SDL2main" OFF)
 set_option(SDL2_DISABLE_INSTALL    "Disable installation of SDL2" ${SDL2_SUBPROJECT})
@@ -481,7 +486,7 @@ set_option(SDL_RENDER_D3D          "Enable the Direct3D render driver" ${WINDOWS
 set_option(SDL_RENDER_METAL        "Enable the Metal render driver" ${APPLE})
 set_option(SDL_RENDER_SW           "Enable the software render driver" ON)
 set_option(SDL_VIVANTE             "Use Vivante EGL video driver" ${UNIX_SYS})
-dep_option(SDL_VULKAN              "Enable Vulkan support" ON "ANDROID OR APPLE OR LINUX OR WINDOWS" OFF)
+set_option(SDL_VULKAN              "Enable Vulkan support" ${OPT_DEF_VULKAN})
 set_option(SDL_METAL               "Enable Metal support" ${APPLE})
 set_option(SDL_KMSDRM              "Use KMS DRM video driver" ${UNIX_SYS})
 dep_option(SDL_KMSDRM_SHARED       "Dynamically load KMS DRM support" ON "SDL_KMSDRM" OFF)
