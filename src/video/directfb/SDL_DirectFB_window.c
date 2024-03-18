@@ -416,10 +416,8 @@ void DirectFB_DestroyWindow(SDL_Window * window)
     DirectFB_GL_DestroyWindowContexts(window);
 #endif
 
-    if (window->shaper)
-    {
+    if (window->shaper) {
         SDL_ShapeData *data = window->shaper->driverdata;
-        SDL_DFB_CHECK(data->surface->ReleaseSource(data->surface));
         SDL_DFB_RELEASE(data->surface);
         SDL_DFB_FREE(data);
         SDL_DFB_FREE(window->shaper);

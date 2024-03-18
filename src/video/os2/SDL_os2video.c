@@ -934,6 +934,9 @@ static void OS2_DestroyWindow(SDL_Window * window)
     }
 
     if (window->shaper) {
+        if (window->shaper->driverdata)
+            SDL_FreeShapeTree((SDL_ShapeTree **)window->shaper->driverdata);
+
         SDL_free(window->shaper);
         window->shaper = NULL;
     }
