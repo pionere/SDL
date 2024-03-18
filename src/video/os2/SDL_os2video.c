@@ -448,6 +448,7 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
 {
     HWND    hwndClient = WinQueryWindow(hwnd, QW_BOTTOM);
     WINDATA * pWinData = (WINDATA *)WinQueryWindowULong(hwndClient, 0);
+    SDL_Window *window;
 
     if (!pWinData)
         return WinDefWindowProc(hwnd, msg, mp1, mp2);
@@ -466,19 +467,20 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
         SDL_SendSysWMEvent(&wmmsg);
     }
 
+    window = pWinData->window;
     switch (msg) {
     case WM_MINMAXFRAME:
         if ((((PSWP)mp1)->fl & SWP_RESTORE) != 0) {
             pWinData->lSkipWMMove += 2;
-            SDL_SendWindowEvent(pWinData->window, SDL_WINDOWEVENT_RESTORED, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESTORED, 0, 0);
         }
         if ((((PSWP)mp1)->fl & SWP_MINIMIZE) != 0) {
             pWinData->lSkipWMSize++;
             pWinData->lSkipWMMove += 2;
-            SDL_SendWindowEvent(pWinData->window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MINIMIZED, 0, 0);
         }
         if ((((PSWP)mp1)->fl & SWP_MAXIMIZE) != 0) {
-            SDL_SendWindowEvent(pWinData->window, SDL_WINDOWEVENT_MAXIMIZED, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MAXIMIZED, 0, 0);
         }
         break;
 
@@ -487,7 +489,7 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
             pWinData->lSkipWMAdjustFramePos++;
             break;
         }
-        if ((pWinData->window->flags & SDL_WINDOW_FULLSCREEN) != 0 &&
+        if ((window->flags & SDL_WINDOW_FULLSCREEN) != 0 &&
             (((PSWP)mp1)->fl & SWP_RESTORE) != 0) {
             /* Keep fullscreen window size on restore. */
             RECTL rectl;
@@ -503,26 +505,26 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
             ((PSWP)mp1)->cy = rectl.yTop - rectl.yBottom;
         }
         if ((((PSWP)mp1)->fl & (SWP_SIZE | SWP_MINIMIZE)) == SWP_SIZE) {
-            if ((pWinData->window->flags & SDL_WINDOW_FULLSCREEN) != 0) {
+            if ((window->flags & SDL_WINDOW_FULLSCREEN) != 0) {
                 /* SDL_WINDOW_FULLSCREEN_DESKTOP have flag SDL_WINDOW_FULLSCREEN... */
-                if (SDL_IsShapedWindow(pWinData->window))
-                    OS2_ResizeWindowShape(pWinData->window);
+                if (SDL_IsShapedWindow(window))
+                    OS2_ResizeWindowShape(window);
                 break;
             }
-            if ((pWinData->window->flags & SDL_WINDOW_RESIZABLE) != 0) {
+            if ((window->flags & SDL_WINDOW_RESIZABLE) != 0) {
                 RECTL   rectl;
                 int     iMinW, iMinH, iMaxW, iMaxH;
                 int     iWinW, iWinH;
 
                 rectl.xLeft = 0;
                 rectl.yBottom = 0;
-                SDL_GetWindowSize(pWinData->window,
+                SDL_GetWindowSize(window,
                                   (int *)&rectl.xRight, (int *)&rectl.yTop);
                 iWinW = rectl.xRight;
                 iWinH = rectl.yTop;
 
-                SDL_GetWindowMinimumSize(pWinData->window, &iMinW, &iMinH);
-                SDL_GetWindowMaximumSize(pWinData->window, &iMaxW, &iMaxH);
+                SDL_GetWindowMinimumSize(window, &iMinW, &iMinH);
+                SDL_GetWindowMaximumSize(window, &iMaxW, &iMaxH);
 
                 if (iWinW < iMinW)
                     rectl.xRight = iMinW;
@@ -535,8 +537,8 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
                     rectl.yTop = iMaxH;
 
                 if (rectl.xRight == iWinW && rectl.yTop == iWinH) {
-                    if (SDL_IsShapedWindow(pWinData->window))
-                        OS2_ResizeWindowShape(pWinData->window);
+                    if (SDL_IsShapedWindow(window))
+                        OS2_ResizeWindowShape(window);
                     break;
                 }
 
