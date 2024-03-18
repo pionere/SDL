@@ -101,7 +101,9 @@ int WIN_ResizeWindowShape(SDL_Window *window)
     if (data->mask_tree) {
         SDL_FreeShapeTree(&data->mask_tree);
     }
-    if (window->shaper->hasshape == SDL_TRUE) {
+    if (window->shaper->hasshape) {
+        window->shaper->hasshape = SDL_FALSE;
+
         window->shaper->userx = window->x;
         window->shaper->usery = window->y;
         SDL_SetWindowPosition(window, -1000, -1000);

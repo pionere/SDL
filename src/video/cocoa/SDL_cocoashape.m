@@ -121,6 +121,17 @@ int Cocoa_ResizeWindowShape(SDL_Window *window)
 { @autoreleasepool {
     SDL_ShapeData* data = (__bridge SDL_ShapeData*)window->shaper->driverdata;
     SDL_assert(data != NULL);
+
+    // TODO: CFBridgingRelease(data); ?
+
+    if (window->shaper->hasshape) {
+        window->shaper->hasshape = SDL_FALSE;
+
+        window->shaper->userx = window->x;
+        window->shaper->usery = window->y;
+        SDL_SetWindowPosition(window, -1000, -1000);
+    }
+
     return 0;
 }}
 

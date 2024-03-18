@@ -86,9 +86,13 @@ int X11_ResizeWindowShape(SDL_Window *window)
     }
     SDL_memset(data->bitmap, 0, data->bitmapsize);
 
-    window->shaper->userx = window->x;
-    window->shaper->usery = window->y;
-    SDL_SetWindowPosition(window, -1000, -1000);
+    if (window->shaper->hasshape) {
+        window->shaper->hasshape = SDL_FALSE;
+
+        window->shaper->userx = window->x;
+        window->shaper->usery = window->y;
+        SDL_SetWindowPosition(window, -1000, -1000);
+    }
 
     return 0;
 }

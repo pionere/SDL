@@ -1289,15 +1289,15 @@ static int OS2_ResizeWindowShape(SDL_Window *window)
     SDL_assert(window != NULL);
     SDL_assert(window->shaper != NULL);
 
-    if (window->x != -1000) {
-        if (window->shaper->driverdata)
-            SDL_FreeShapeTree((SDL_ShapeTree **)window->shaper->driverdata);
+    if (window->shaper->driverdata)
+        SDL_FreeShapeTree((SDL_ShapeTree **)window->shaper->driverdata);
 
-        if (window->shaper->hasshape == SDL_TRUE) {
-            window->shaper->userx = window->x;
-            window->shaper->usery = window->y;
-            SDL_SetWindowPosition(window, -1000, -1000);
-        }
+    if (window->shaper->hasshape) {
+        window->shaper->hasshape = SDL_FALSE;
+
+        window->shaper->userx = window->x;
+        window->shaper->usery = window->y;
+        SDL_SetWindowPosition(window, -1000, -1000);
     }
 
     return 0;

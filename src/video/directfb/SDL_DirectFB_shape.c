@@ -59,10 +59,13 @@ int DirectFB_ResizeWindowShape(SDL_Window* window)
     SDL_assert(window != NULL);
     SDL_assert(window->shaper != NULL);
 
-    if (window->x != -1000) {
+    SDL_DFB_RELEASE(data->surface);
+
+    if (window->shaper->hasshape) {
+        window->shaper->hasshape = SDL_FALSE;
+
         window->shaper->userx = window->x;
         window->shaper->usery = window->y;
-
         SDL_SetWindowPosition(window, -1000, -1000);
     }
 
