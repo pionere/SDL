@@ -46,7 +46,7 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     SDL_ShapeData* data;
     SDL_WindowData* windata = (__bridge SDL_WindowData*)window->driverdata;
 
-    result = (SDL_WindowShaper *)SDL_malloc(sizeof(SDL_WindowShaper));
+    result = (SDL_WindowShaper *)SDL_calloc(1, sizeof(SDL_WindowShaper));
     if (!result) {
         SDL_OutOfMemory();
         return NULL;
@@ -57,10 +57,13 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     [windata.nswindow setStyleMask:NSWindowStyleMaskBorderless];
 
     result->window = window;
-    result->mode.mode = ShapeModeDefault;
+    {
+        SDL_COMPILE_TIME_ASSERT(cocoa_shape_mode, ShapeModeDefault == 0);
+    }
+    // result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
-    result->userx = result->usery = 0;
-    result->hasshape = SDL_FALSE;
+    // result->userx = result->usery = 0;
+    // result->hasshape = SDL_FALSE;
 
     data = [[SDL_ShapeData alloc] init];
     data.context = [windata.nswindow graphicsContext];

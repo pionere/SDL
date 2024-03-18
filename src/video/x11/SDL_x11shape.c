@@ -32,7 +32,7 @@ SDL_WindowShaper *X11_CreateShaper(SDL_Window *window)
     SDL_WindowShaper *result;
     SDL_ShapeData *data;
 
-    result = SDL_malloc(sizeof(SDL_WindowShaper));
+    result = SDL_calloc(1, sizeof(SDL_WindowShaper));
     data = SDL_malloc(sizeof(SDL_ShapeData));
     if (!result || !data) {
         SDL_free(data);
@@ -41,10 +41,13 @@ SDL_WindowShaper *X11_CreateShaper(SDL_Window *window)
         return NULL;
     }
     result->window = window;
-    result->mode.mode = ShapeModeDefault;
+    {
+        SDL_COMPILE_TIME_ASSERT(x11_shape_mode, ShapeModeDefault == 0);
+    }
+    // result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
-    result->userx = result->usery = 0;
-    result->hasshape = SDL_FALSE;
+    // result->userx = result->usery = 0;
+    // result->hasshape = SDL_FALSE;
     result->driverdata = data;
     data->bitmapsize = 0;
     data->bitmap = NULL;

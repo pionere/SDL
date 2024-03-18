@@ -27,7 +27,7 @@
 
 SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
 {
-    SDL_WindowShaper *result = (SDL_WindowShaper *)SDL_malloc(sizeof(SDL_WindowShaper));
+    SDL_WindowShaper *result = (SDL_WindowShaper *)SDL_calloc(1, sizeof(SDL_WindowShaper));
     SDL_ShapeData *data = (SDL_ShapeData *)SDL_calloc(1, sizeof(SDL_ShapeData));
 
     if (!result || !data) {
@@ -37,10 +37,13 @@ SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
         return NULL;
     }
     result->window = window;
-    result->mode.mode = ShapeModeDefault;
+    {
+        SDL_COMPILE_TIME_ASSERT(win_shape_mode, ShapeModeDefault == 0);
+    }
+    // result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
-    result->userx = result->usery = 0;
-    result->hasshape = SDL_FALSE;
+    // result->userx = result->usery = 0;
+    // result->hasshape = SDL_FALSE;
     result->driverdata = data;
     window->shaper = result;
     // WIN_ResizeWindowShape(window);

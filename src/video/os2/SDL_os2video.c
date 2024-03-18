@@ -1218,7 +1218,7 @@ static void _combineRectRegions(SDL_ShapeTree *node, void *closure)
 
 static SDL_WindowShaper* OS2_CreateShaper(SDL_Window * window)
 {
-    SDL_WindowShaper* result = SDL_malloc(sizeof(SDL_WindowShaper));
+    SDL_WindowShaper* result = SDL_calloc(1, sizeof(SDL_WindowShaper));
 
     debug_os2("Enter");
 
@@ -1228,11 +1228,14 @@ static SDL_WindowShaper* OS2_CreateShaper(SDL_Window * window)
     }
 
     result->window = window;
-    result->mode.mode = ShapeModeDefault;
+    {
+        SDL_COMPILE_TIME_ASSERT(os2_shape_mode, ShapeModeDefault == 0);
+    }
+    // result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
-    result->userx = result->usery = 0;
-    result->hasshape = SDL_FALSE;
-    result->driverdata = (SDL_ShapeTree *)NULL;
+    // result->userx = result->usery = 0;
+    // result->hasshape = SDL_FALSE;
+    // result->driverdata = (SDL_ShapeTree *)NULL;
     window->shaper = result;
     // OS2_ResizeWindowShape(window);
 
