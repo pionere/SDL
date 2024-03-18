@@ -443,58 +443,49 @@ void WIN_InitModes(void)
     WIN_AddDisplays(SDL_FALSE);
 }
 
-/**
- * Convert the monitor rect and work rect from pixels to the SDL coordinate system (monitor origins are in pixels,
- * monitor size in DPI-scaled points).
- *
- * No-op if DPI scaling is not enabled.
- */
-static void WIN_MonitorInfoToSDL(HMONITOR monitor, MONITORINFO *info)
+static int WIN_GetMonitorInfo(SDL_VideoDisplay *display, MONITORINFO *info)
 {
+    const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
+    HMONITOR hMonitor = data->MonitorHandle;
     const WIN_VideoData *videodata = &winVideoData;
     UINT xdpi, ydpi;
+    BOOL rc;
 
-    if (!videodata->dpi_scaling_enabled) {
-        return;
+    SDL_zero(*info);
+    info->cbSize = sizeof(MONITORINFO);
+    rc = GetMonitorInfo(hMonitor, info);
+
+    if (!rc) {
+        return SDL_SetError("Couldn't find monitor data");
     }
 
-    /* Check for Windows < 8.1*/
-    if (!videodata->GetDpiForMonitor) {
-        return;
-    }
-    if (videodata->GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &xdpi, &ydpi) != S_OK) {
-        /* Shouldn't happen? */
-        return;
-    }
+    // Convert the monitor rect and work rect from pixels to the SDL coordinate system (monitor origins are in pixels,
+    // monitor size in DPI-scaled points)
+    if (videodata->dpi_scaling_enabled && videodata->GetDpiForMonitor) {
+        HRESULT res = videodata->GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &xdpi, &ydpi);
+        SDL_assert(res == S_OK);
 
-    /* Convert monitor size to points, leaving the monitor position in pixels */
-    info->rcMonitor.right = info->rcMonitor.left + MulDiv(info->rcMonitor.right - info->rcMonitor.left, 96, xdpi);
-    info->rcMonitor.bottom = info->rcMonitor.top + MulDiv(info->rcMonitor.bottom - info->rcMonitor.top, 96, ydpi);
+        /* Convert monitor size to points, leaving the monitor position in pixels */
+        info->rcMonitor.right = info->rcMonitor.left + MulDiv(info->rcMonitor.right - info->rcMonitor.left, 96, xdpi);
+        info->rcMonitor.bottom = info->rcMonitor.top + MulDiv(info->rcMonitor.bottom - info->rcMonitor.top, 96, ydpi);
 
-    /* Convert monitor work rect to points */
-    info->rcWork.left = info->rcMonitor.left + MulDiv(info->rcWork.left - info->rcMonitor.left, 96, xdpi);
-    info->rcWork.right = info->rcMonitor.left + MulDiv(info->rcWork.right - info->rcMonitor.left, 96, xdpi);
-    info->rcWork.top = info->rcMonitor.top + MulDiv(info->rcWork.top - info->rcMonitor.top, 96, ydpi);
-    info->rcWork.bottom = info->rcMonitor.top + MulDiv(info->rcWork.bottom - info->rcMonitor.top, 96, ydpi);
+        /* Convert monitor work rect to points */
+        info->rcWork.left = info->rcMonitor.left + MulDiv(info->rcWork.left - info->rcMonitor.left, 96, xdpi);
+        info->rcWork.right = info->rcMonitor.left + MulDiv(info->rcWork.right - info->rcMonitor.left, 96, xdpi);
+        info->rcWork.top = info->rcMonitor.top + MulDiv(info->rcWork.top - info->rcMonitor.top, 96, ydpi);
+        info->rcWork.bottom = info->rcMonitor.top + MulDiv(info->rcWork.bottom - info->rcMonitor.top, 96, ydpi);
+    }
+    return 0;
 }
 
 int WIN_GetDisplayBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
-    const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
-    HMONITOR hMonitor = data->MonitorHandle;
     MONITORINFO minfo;
-    BOOL rc;
 
-    SDL_zero(minfo);
-    minfo.cbSize = sizeof(MONITORINFO);
-    rc = GetMonitorInfo(hMonitor, &minfo);
-
-    if (!rc) {
-        SDL_SetError("Couldn't find monitor data");
-        return -1; // because compilers are 'smart'...
+    if (WIN_GetMonitorInfo(display, &minfo) < 0) {
+        return -1;
     }
 
-    WIN_MonitorInfoToSDL(hMonitor, &minfo);
     rect->x = minfo.rcMonitor.left;
     rect->y = minfo.rcMonitor.top;
     rect->w = minfo.rcMonitor.right - minfo.rcMonitor.left;
@@ -563,19 +554,11 @@ int WIN_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi_out, float *hdpi_ou
 
 int WIN_GetDisplayUsableBounds(SDL_VideoDisplay *display, SDL_Rect *rect)
 {
-    const SDL_DisplayData *data = (const SDL_DisplayData *)display->driverdata;
     MONITORINFO minfo;
-    BOOL rc;
 
-    SDL_zero(minfo);
-    minfo.cbSize = sizeof(MONITORINFO);
-    rc = GetMonitorInfo(data->MonitorHandle, &minfo);
-
-    if (!rc) {
-        return SDL_SetError("Couldn't find monitor data");
+    if (WIN_GetMonitorInfo(display, &minfo) < 0) {
+        return -1;
     }
-
-    WIN_MonitorInfoToSDL(data->MonitorHandle, &minfo);
     rect->x = minfo.rcWork.left;
     rect->y = minfo.rcWork.top;
     rect->w = minfo.rcWork.right - minfo.rcWork.left;
