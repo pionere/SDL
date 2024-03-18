@@ -684,6 +684,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static SDL_bool s_ModalMoveResizeLoop;
     SDL_WindowData *data;
+    SDL_Window *window;
     WIN_VideoData *videodata = &winVideoData;
     LRESULT returnCode = -1;
 
@@ -730,14 +731,14 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
 #endif
 
+    window = data->window;
     switch (msg) {
-
     case WM_SHOWWINDOW:
     {
         if (wParam) {
-            SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_SHOWN, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SHOWN, 0, 0);
         } else {
-            SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
         }
     } break;
 
@@ -750,26 +751,26 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         /* Update the focus here, since it's possible to get WM_ACTIVATE and WM_SETFOCUS without
            actually being the foreground window, but this appears to get called in all cases where
            the global foreground window changes to and from this window. */
-        WIN_UpdateFocus(data->window, !!wParam);
+        WIN_UpdateFocus(window, !!wParam);
     } break;
 
     case WM_ACTIVATE:
     {
         /* Update the focus in case we changed focus to a child window and then away from the application */
-        WIN_UpdateFocus(data->window, !!LOWORD(wParam));
+        WIN_UpdateFocus(window, !!LOWORD(wParam));
     } break;
 
     case WM_SETFOCUS:
     {
         /* Update the focus in case it's changing between top-level windows in the same application */
-        WIN_UpdateFocus(data->window, SDL_TRUE);
+        WIN_UpdateFocus(window, SDL_TRUE);
     } break;
 
     case WM_KILLFOCUS:
     case WM_ENTERIDLE:
     {
         /* Update the focus in case it's changing between top-level windows in the same application */
-        WIN_UpdateFocus(data->window, SDL_FALSE);
+        WIN_UpdateFocus(window, SDL_FALSE);
     } break;
 
     case WM_POINTERUPDATE:
@@ -801,9 +802,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 int x = GET_X_LPARAM(lParam);
                 int y = GET_Y_LPARAM(lParam);
 
-                WIN_ClientPointToSDL(data->window, &x, &y);
+                WIN_ClientPointToSDL(window, &x, &y);
 
-                SDL_SendMouseMotion(data->window, 0, 0, x, y);
+                SDL_SendMouseMotion(window, 0, 0, x, y);
             }
         }
     } break;
@@ -843,7 +844,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         /* Relative mouse motion is delivered to the window with keyboard focus */
-        if (data->window != SDL_GetKeyboardFocus()) {
+        if (window != SDL_GetKeyboardFocus()) {
             break;
         }
 
@@ -865,7 +866,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             rawmouse = &inp.data.mouse;
 
             if ((rawmouse->usFlags & 0x01) == MOUSE_MOVE_RELATIVE) {
-                SDL_SendMouseMotion(data->window, mouseID, 1, (int)rawmouse->lLastX, (int)rawmouse->lLastY);
+                SDL_SendMouseMotion(window, mouseID, 1, (int)rawmouse->lLastX, (int)rawmouse->lLastY);
             } else if (rawmouse->lLastX || rawmouse->lLastY) {
                 /* This is absolute motion, either using a tablet or mouse over RDP
 
@@ -921,7 +922,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                             const int MAX_RELATIVE_MOTION = (h / 6);
                             if (SDL_abs(relX) < MAX_RELATIVE_MOTION &&
                                 SDL_abs(relY) < MAX_RELATIVE_MOTION) {
-                                SDL_SendMouseMotion(data->window, mouseID, 1, relX, relY);
+                                SDL_SendMouseMotion(window, mouseID, 1, relX, relY);
                             }
                         }
                     }
@@ -931,7 +932,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                         SDL_abs(relY) > MAXIMUM_TABLET_RELATIVE_MOTION) {
                         /* Ignore this motion, probably a pen lift and drop */
                     } else {
-                        SDL_SendMouseMotion(data->window, mouseID, 1, relX, relY);
+                        SDL_SendMouseMotion(window, mouseID, 1, relX, relY);
                     }
                 }
 
@@ -948,15 +949,15 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         short amount = GET_WHEEL_DELTA_WPARAM(wParam);
         float fAmount = (float)amount / WHEEL_DELTA;
         if (msg == WM_MOUSEWHEEL) {
-            SDL_SendMouseWheel(data->window, 0, 0.0f, fAmount, SDL_MOUSEWHEEL_NORMAL);
+            SDL_SendMouseWheel(window, 0, 0.0f, fAmount, SDL_MOUSEWHEEL_NORMAL);
         } else {
-            SDL_SendMouseWheel(data->window, 0, fAmount, 0.0f, SDL_MOUSEWHEEL_NORMAL);
+            SDL_SendMouseWheel(window, 0, fAmount, 0.0f, SDL_MOUSEWHEEL_NORMAL);
         }
     } break;
 
     case WM_MOUSELEAVE:
-        if (!(data->window->flags & SDL_WINDOW_MOUSE_CAPTURE)) {
-            if (SDL_GetMouseFocus() == data->window && !SDL_GetMouse()->relative_mode && !IsIconic(hwnd)) {
+        if (!(window->flags & SDL_WINDOW_MOUSE_CAPTURE)) {
+            if (SDL_GetMouseFocus() == window && !SDL_GetMouse()->relative_mode && !IsIconic(hwnd)) {
                 SDL_Mouse *mouse;
                 POINT cursorPos;
                 SDL_Point point;
@@ -964,16 +965,16 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 ScreenToClient(hwnd, &cursorPos);
                 point.x = cursorPos.x;
                 point.y = cursorPos.y;
-                WIN_ClientPointToSDL(data->window, &point.x, &point.y);
+                WIN_ClientPointToSDL(window, &point.x, &point.y);
                 mouse = SDL_GetMouse();
                 if (!mouse->was_touch_mouse_events) { /* we're not a touch handler causing a mouse leave? */
-                    SDL_SendMouseMotion(data->window, 0, 0, point.x, point.y);
+                    SDL_SendMouseMotion(window, 0, 0, point.x, point.y);
                 } else {                                       /* touch handling? */
                     mouse->was_touch_mouse_events = SDL_FALSE; /* not anymore */
                     if (mouse->touch_mouse_events) {           /* convert touch to mouse events */
-                        SDL_SendMouseMotion(data->window, SDL_TOUCH_MOUSEID, 0, point.x, point.y);
+                        SDL_SendMouseMotion(window, SDL_TOUCH_MOUSEID, 0, point.x, point.y);
                     } else { /* normal handling */
-                        SDL_SendMouseMotion(data->window, 0, 0, point.x, point.y);
+                        SDL_SendMouseMotion(window, 0, 0, point.x, point.y);
                     }
                 }
             }
@@ -1001,7 +1002,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (keyboardState[SDL_SCANCODE_LALT] == SDL_PRESSED || keyboardState[SDL_SCANCODE_RALT] == SDL_PRESSED) {
             /* ALT+F4: Close window */
             if (code == SDL_SCANCODE_F4 && ShouldGenerateWindowCloseOnAltF4()) {
-                SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_CLOSE, 0, 0);
+                SDL_SendWindowEvent(window, SDL_WINDOWEVENT_CLOSE, 0, 0);
             }
         }
 
@@ -1105,8 +1106,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         int max_w, max_h;
         BOOL constrain_max_size;
 
-        if (SDL_IsShapedWindow(data->window)) {
-            WIN_ResizeWindowShape(data->window);
+        if (SDL_IsShapedWindow(window)) {
+            WIN_ResizeWindowShape(window);
         }
 
         /* If this is an expected size change, allow it */
@@ -1120,15 +1121,15 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         y = size.top;
 
         /* Calculate current size of our window */
-        SDL_GetWindowSize(data->window, &w, &h);
-        SDL_GetWindowMinimumSize(data->window, &min_w, &min_h);
-        SDL_GetWindowMaximumSize(data->window, &max_w, &max_h);
+        SDL_GetWindowSize(window, &w, &h);
+        SDL_GetWindowMinimumSize(window, &min_w, &min_h);
+        SDL_GetWindowMaximumSize(window, &max_w, &max_h);
 
         /* Convert w, h, min_w, min_h, max_w, max_h from dpi-scaled points to pixels,
            treating them as coordinates within the client area. */
-        WIN_ClientPointFromSDL(data->window, &w, &h);
-        WIN_ClientPointFromSDL(data->window, &min_w, &min_h);
-        WIN_ClientPointFromSDL(data->window, &max_w, &max_h);
+        WIN_ClientPointFromSDL(window, &w, &h);
+        WIN_ClientPointFromSDL(window, &min_w, &min_h);
+        WIN_ClientPointFromSDL(window, &max_w, &max_h);
 
         /* Store in min_w and min_h difference between current size and minimal
            size so we don't need to call AdjustWindowRectEx twice */
@@ -1142,7 +1143,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             constrain_max_size = FALSE;
         }
 
-        if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
+        if (!(window->flags & SDL_WINDOW_BORDERLESS)) {
             LONG style = GetWindowLong(hwnd, GWL_STYLE);
             /* DJM - according to the docs for GetMenu(), the
                return value is undefined if hwnd is a child window.
@@ -1173,8 +1174,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         /* Fix our size to the current size */
         info = (MINMAXINFO *)lParam;
-        if (data->window->flags & SDL_WINDOW_RESIZABLE) {
-            if (data->window->flags & SDL_WINDOW_BORDERLESS) {
+        if (window->flags & SDL_WINDOW_RESIZABLE) {
+            if (window->flags & SDL_WINDOW_BORDERLESS) {
                 int screenW = GetSystemMetrics(SM_CXSCREEN);
                 int screenH = GetSystemMetrics(SM_CYSCREEN);
                 info->ptMaxSize.x = SDL_max(w, screenW);
@@ -1215,7 +1216,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         RECT rect;
         int x, y;
         int w, h;
-        int display_index = data->window->display_index;
+        int display_index = window->display_index;
 
         if (data->initializing || data->in_border_change) {
             break;
@@ -1232,20 +1233,20 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ClientToScreen(hwnd, (LPPOINT)&rect);
         ClientToScreen(hwnd, (LPPOINT)&rect + 1);
 
-        WIN_UpdateClipCursor(data->window);
+        WIN_UpdateClipCursor(window);
 
         x = rect.left;
         y = rect.top;
         WIN_ScreenPointToSDL(&x, &y);
 
-        SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_MOVED, x, y);
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, x, y);
 
         /* Convert client area width/height from pixels to dpi-scaled points */
         w = rect.right - rect.left;
         h = rect.bottom - rect.top;
-        WIN_ClientPointToSDL(data->window, &w, &h);
+        WIN_ClientPointToSDL(window, &w, &h);
 
-        SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_RESIZED, w, h);
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
 
 #ifdef HIGHDPI_DEBUG
         SDL_Log("WM_WINDOWPOSCHANGED: Windows client rect (pixels): (%d, %d) (%d x %d)\tSDL client rect (points): (%d, %d) (%d x %d) cached dpi %d, windows reported dpi %d",
@@ -1256,9 +1257,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         /* Forces a WM_PAINT event */
         InvalidateRect(hwnd, NULL, FALSE);
 
-        if (data->window->display_index != display_index) {
+        if (window->display_index != display_index) {
             /* Display changed, check ICC profile */
-            WIN_UpdateWindowICCProfile(data->window, SDL_TRUE);
+            WIN_UpdateWindowICCProfile(window, SDL_TRUE);
         }
     } break;
 
@@ -1272,7 +1273,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         if (wParam == (UINT_PTR)&s_ModalMoveResizeLoop) {
             // Send an expose event so the application can redraw
-            SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_EXPOSED, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_EXPOSED, 0, 0);
             return 0;
         }
     } break;
@@ -1287,17 +1288,17 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         switch (wParam) {
         case SIZE_MAXIMIZED:
-            SDL_SendWindowEvent(data->window,
+            SDL_SendWindowEvent(window,
                                 SDL_WINDOWEVENT_RESTORED, 0, 0);
-            SDL_SendWindowEvent(data->window,
+            SDL_SendWindowEvent(window,
                                 SDL_WINDOWEVENT_MAXIMIZED, 0, 0);
             break;
         case SIZE_MINIMIZED:
-            SDL_SendWindowEvent(data->window,
+            SDL_SendWindowEvent(window,
                                 SDL_WINDOWEVENT_MINIMIZED, 0, 0);
             break;
         case SIZE_RESTORED:
-            SDL_SendWindowEvent(data->window,
+            SDL_SendWindowEvent(window,
                                 SDL_WINDOWEVENT_RESTORED, 0, 0);
             break;
         default:
@@ -1325,7 +1326,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         RECT rect;
         if (GetUpdateRect(hwnd, &rect, FALSE)) {
             ValidateRect(hwnd, NULL);
-            SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_EXPOSED, 0, 0);
+            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_EXPOSED, 0, 0);
         }
     }
         returnCode = 0;
@@ -1365,7 +1366,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CLOSE:
     {
-        SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_CLOSE, 0, 0);
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_CLOSE, 0, 0);
     }
         returnCode = 0;
         break;
@@ -1409,13 +1410,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     y = (float)(input->y - rect.top) / (rect.bottom - rect.top);
 
                     if (input->dwFlags & TOUCHEVENTF_DOWN) {
-                        SDL_SendTouch(touchId, input->dwID, data->window, SDL_TRUE, x, y, 1.0f);
+                        SDL_SendTouch(touchId, input->dwID, window, SDL_TRUE, x, y, 1.0f);
                     }
                     if (input->dwFlags & TOUCHEVENTF_MOVE) {
-                        SDL_SendTouchMotion(touchId, input->dwID, data->window, x, y, 1.0f);
+                        SDL_SendTouchMotion(touchId, input->dwID, window, x, y, 1.0f);
                     }
                     if (input->dwFlags & TOUCHEVENTF_UP) {
-                        SDL_SendTouch(touchId, input->dwID, data->window, SDL_FALSE, x, y, 1.0f);
+                        SDL_SendTouch(touchId, input->dwID, window, SDL_FALSE, x, y, 1.0f);
                     }
                 }
             }
@@ -1452,13 +1453,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if (buffer) {
                 if (DragQueryFile(drop, i, buffer, size)) {
                     char *file = WIN_StringToUTF8(buffer);
-                    SDL_SendDropFile(data->window, file);
+                    SDL_SendDropFile(window, file);
                     SDL_free(file);
                 }
                 SDL_small_free(buffer, isstack);
             }
         }
-        SDL_SendDropComplete(data->window);
+        SDL_SendDropComplete(window);
         DragFinish(drop);
         return 0;
     } break;
@@ -1471,15 +1472,15 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_NCCALCSIZE:
     {
-        Uint32 window_flags = data->window->flags;
+        Uint32 window_flags = window->flags;
         if (wParam == TRUE && (window_flags & SDL_WINDOW_BORDERLESS) && !(window_flags & SDL_WINDOW_FULLSCREEN)) {
             /* When borderless, need to tell windows that the size of the non-client area is 0 */
             if (!(window_flags & SDL_WINDOW_RESIZABLE)) {
                 int w, h;
                 NCCALCSIZE_PARAMS *params = (NCCALCSIZE_PARAMS *)lParam;
-                w = data->window->windowed.w;
-                h = data->window->windowed.h;
-                WIN_ClientPointFromSDL(data->window, &w, &h);
+                w = window->windowed.w;
+                h = window->windowed.h;
+                WIN_ClientPointFromSDL(window, &w, &h);
                 params->rgrc[0].right = params->rgrc[0].left + w;
                 params->rgrc[0].bottom = params->rgrc[0].top + h;
             }
@@ -1489,7 +1490,6 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_NCHITTEST:
     {
-        SDL_Window *window = data->window;
         if (window->hit_test) {
             POINT winpoint;
             winpoint.x = GET_X_LPARAM(lParam);
@@ -1499,12 +1499,12 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 SDL_HitTestResult rc;
                 point.x = winpoint.x;
                 point.y = winpoint.y;
-                WIN_ClientPointToSDL(data->window, &point.x, &point.y);
+                WIN_ClientPointToSDL(window, &point.x, &point.y);
                 rc = window->hit_test(window, &point, window->hit_test_data);
                 switch (rc) {
 #define POST_HIT_TEST(ret)                                                 \
     {                                                                      \
-        SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_HIT_TEST, 0, 0); \
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0); \
         return ret;                                                        \
     }
                 case SDL_HITTEST_DRAGGABLE:
@@ -1571,7 +1571,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
                 RECT rect = { 0 };
 
-                if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
+                if (!(window->flags & SDL_WINDOW_BORDERLESS)) {
                     videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, prevDPI);
                 }
 
@@ -1596,7 +1596,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 rect.right = query_client_w_win;
                 rect.bottom = query_client_h_win;
 
-                if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
+                if (!(window->flags & SDL_WINDOW_BORDERLESS)) {
                     videodata->AdjustWindowRectExForDpi(&rect, style, menu, 0, nextDPI);
                 }
 
@@ -1640,9 +1640,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                        want for SDL3 is a new event to notify that the DPI changed and then watch for
                        that in the renderer directly.
                      */
-                    data->window->w = 0;
-                    data->window->h = 0;
-                    SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_SIZE_CHANGED, data->window->w, data->window->h);
+                    window->w = 0;
+                    window->h = 0;
+                    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
                 }
 
 #ifdef HIGHDPI_DEBUG
@@ -1669,8 +1669,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 const BOOL menu = (style & WS_CHILDWINDOW) ? FALSE : (GetMenu(hwnd) != NULL);
 
                 RECT rect = { 0 };
-                rect.right = data->window->w;
-                rect.bottom = data->window->h;
+                rect.right = window->w;
+                rect.bottom = window->h;
 
                 if (videodata->dpi_scaling_enabled) {
                     /* scale client size to from points to the new DPI */
@@ -1678,7 +1678,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     rect.bottom = MulDiv(rect.bottom, newDPI, 96);
                 }
 
-                if (!(data->window->flags & SDL_WINDOW_BORDERLESS)) {
+                if (!(window->flags & SDL_WINDOW_BORDERLESS)) {
                     AdjustWindowRectEx(&rect, style, menu, 0);
                 }
 
@@ -1688,7 +1688,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 #ifdef HIGHDPI_DEBUG
             SDL_Log("WM_DPICHANGED: current SDL window size: (%dx%d)\tcalling SetWindowPos: (%d, %d), (%dx%d)\n",
-                    data->window->w, data->window->h,
+                    window->w, window->h,
                     suggestedRect->left, suggestedRect->top, w, h);
 #endif
 
@@ -1708,7 +1708,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 /* Send a SDL_WINDOWEVENT_SIZE_CHANGED saying that the client size (in dpi-scaled points) is unchanged.
                    Renderers need to get this to know that the framebuffer size changed. */
-                SDL_SendWindowEvent(data->window, SDL_WINDOWEVENT_SIZE_CHANGED, data->window->w, data->window->h);
+                SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
             }
 
             return 0;
@@ -1767,17 +1767,18 @@ static void WIN_UpdateMouseCapture()
             if (GetCursorPos(&cursorPos) && ScreenToClient(data->hwnd, &cursorPos)) {
                 SDL_bool swapButtons = GetSystemMetrics(SM_SWAPBUTTON) != 0;
                 SDL_MouseID mouseID = SDL_GetMouse()->mouseID;
+                SDL_Window *window = data->window;
                 SDL_Point point;
                 point.x = cursorPos.x;
                 point.y = cursorPos.y;
-                WIN_ClientPointToSDL(data->window, &point.x, &point.y);
+                WIN_ClientPointToSDL(window, &point.x, &point.y);
 
-                SDL_SendMouseMotion(data->window, mouseID, 0, point.x, point.y);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_LBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_RBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_MBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_MIDDLE);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_XBUTTON1) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X1);
-                SDL_SendMouseButton(data->window, mouseID, GetAsyncKeyState(VK_XBUTTON2) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X2);
+                SDL_SendMouseMotion(window, mouseID, 0, point.x, point.y);
+                SDL_SendMouseButton(window, mouseID, GetAsyncKeyState(VK_LBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT);
+                SDL_SendMouseButton(window, mouseID, GetAsyncKeyState(VK_RBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, !swapButtons ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT);
+                SDL_SendMouseButton(window, mouseID, GetAsyncKeyState(VK_MBUTTON) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_MIDDLE);
+                SDL_SendMouseButton(window, mouseID, GetAsyncKeyState(VK_XBUTTON1) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X1);
+                SDL_SendMouseButton(window, mouseID, GetAsyncKeyState(VK_XBUTTON2) & 0x8000 ? SDL_PRESSED : SDL_RELEASED, SDL_BUTTON_X2);
             }
         }
     }
