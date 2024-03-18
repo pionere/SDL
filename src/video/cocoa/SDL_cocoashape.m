@@ -104,7 +104,11 @@ int Cocoa_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Windo
 
     [[NSColor clearColor] set];
     NSRectFill([windata.sdlContentView frame]);
+    SDL_FreeShapeTree(data.shape);
     data.shape = SDL_CalculateShapeTree(shape_mode, shape);
+    if (data.shape == NULL) {
+        return -1;
+    }
 
     closure = [[SDL_CocoaClosure alloc] init];
 
@@ -122,7 +126,8 @@ int Cocoa_ResizeWindowShape(SDL_Window *window)
     SDL_ShapeData* data = (__bridge SDL_ShapeData*)window->shaper->driverdata;
     SDL_assert(data != NULL);
 
-    // TODO: CFBridgingRelease(data); ?
+    SDL_FreeShapeTree(data.shape);
+    data.shape = NULL;
 
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;

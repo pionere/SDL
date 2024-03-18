@@ -76,10 +76,11 @@ int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowS
 
     data = (SDL_ShapeData *)shaper->driverdata;
     SDL_assert(data != NULL);
-    if (data->mask_tree) {
-        SDL_FreeShapeTree(&data->mask_tree);
-    }
+    SDL_FreeShapeTree(data->mask_tree);
     data->mask_tree = SDL_CalculateShapeTree(shape_mode, shape);
+    if (data->mask_tree == NULL) {
+        return -1;
+    }
 
     SDL_TraverseShapeTree(data->mask_tree, &CombineRectRegions, &mask_region);
     SDL_assert(mask_region != NULL);
@@ -98,9 +99,9 @@ int WIN_ResizeWindowShape(SDL_Window *window)
     data = (SDL_ShapeData *)window->shaper->driverdata;
     SDL_assert(data != NULL);
 
-    if (data->mask_tree) {
-        SDL_FreeShapeTree(&data->mask_tree);
-    }
+    SDL_FreeShapeTree(data->mask_tree);
+    data->mask_tree = NULL;
+
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;
 

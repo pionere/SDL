@@ -229,16 +229,18 @@ void SDL_TraverseShapeTree(SDL_ShapeTree *tree, SDL_TraversalFunction function, 
     }
 }
 
-void SDL_FreeShapeTree(SDL_ShapeTree **shape_tree)
+void SDL_FreeShapeTree(SDL_ShapeTree *shape_tree)
 {
-    if ((*shape_tree)->kind == QuadShape) {
-        SDL_FreeShapeTree(&(*shape_tree)->data.children.upleft);
-        SDL_FreeShapeTree(&(*shape_tree)->data.children.upright);
-        SDL_FreeShapeTree(&(*shape_tree)->data.children.downleft);
-        SDL_FreeShapeTree(&(*shape_tree)->data.children.downright);
+    if (shape_tree == NULL) {
+        return;
     }
-    SDL_free(*shape_tree);
-    *shape_tree = NULL;
+    if (shape_tree->kind == QuadShape) {
+        SDL_FreeShapeTree(shape_tree->data.children.upleft);
+        SDL_FreeShapeTree(shape_tree->data.children.upright);
+        SDL_FreeShapeTree(shape_tree->data.children.downleft);
+        SDL_FreeShapeTree(shape_tree->data.children.downright);
+    }
+    SDL_free(shape_tree);
 }
 
 int SDL_GetShapedWindowMode(SDL_Window *window, SDL_WindowShapeMode *shape_mode)

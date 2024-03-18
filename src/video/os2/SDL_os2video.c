@@ -934,8 +934,7 @@ static void OS2_DestroyWindow(SDL_Window * window)
     }
 
     if (window->shaper) {
-        if (window->shaper->driverdata)
-            SDL_FreeShapeTree((SDL_ShapeTree **)window->shaper->driverdata);
+        SDL_FreeShapeTree((SDL_ShapeTree *)window->shaper->driverdata);
 
         SDL_free(window->shaper);
         window->shaper = NULL;
@@ -1248,7 +1247,6 @@ static int OS2_SetWindowShape(SDL_Window *window, SDL_Surface *shape,
                               const SDL_WindowShapeMode *shape_mode)
 {
     SDL_WindowShaper *shaper = window->shaper;
-    SDL_ShapeTree *pShapeTree;
     WINDATA       *pWinData;
     SHAPERECTS     stShapeRects;
     HPS            hps;
@@ -1257,15 +1255,16 @@ static int OS2_SetWindowShape(SDL_Window *window, SDL_Surface *shape,
     SDL_assert(shaper != NULL);
     SDL_assert(shape != NULL);
 
-    if (shaper->driverdata)
-        SDL_FreeShapeTree((SDL_ShapeTree **)&shaper->driverdata);
+    SDL_FreeShapeTree((SDL_ShapeTree *)shaper->driverdata);
 
-    pShapeTree = SDL_CalculateShapeTree(shape_mode, shape);
-    shaper->driverdata = pShapeTree;
+    shaper->driverdata = SDL_CalculateShapeTree(shape_mode, shape);
+    if (shaper->driverdata == NULL) {
+        return -1;
+    }
 
     SDL_zero(stShapeRects);
     stShapeRects.ulWinHeight = window->h;
-    SDL_TraverseShapeTree(pShapeTree, &_combineRectRegions, &stShapeRects);
+    SDL_TraverseShapeTree(shaper->driverdata, &_combineRectRegions, &stShapeRects);
 
     pWinData = (WINDATA *)window->driverdata;
     hps = WinGetPS(pWinData->hwnd);
@@ -1289,8 +1288,8 @@ static int OS2_ResizeWindowShape(SDL_Window *window)
     SDL_assert(window != NULL);
     SDL_assert(window->shaper != NULL);
 
-    if (window->shaper->driverdata)
-        SDL_FreeShapeTree((SDL_ShapeTree **)window->shaper->driverdata);
+    SDL_FreeShapeTree((SDL_ShapeTree *)window->shaper->driverdata);
+    window->shaper->driverdata = NULL;
 
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;
