@@ -39,7 +39,6 @@ SDL_WindowShaper *DirectFB_CreateShaper(SDL_Window* window)
         SDL_OutOfMemory();
         return NULL;
     }
-    result->window = window;
     {
         SDL_COMPILE_TIME_ASSERT(directfb_shape_mode, ShapeModeDefault == 0);
     }

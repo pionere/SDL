@@ -56,7 +56,6 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
 
     [windata.nswindow setStyleMask:NSWindowStyleMaskBorderless];
 
-    result->window = window;
     {
         SDL_COMPILE_TIME_ASSERT(cocoa_shape_mode, ShapeModeDefault == 0);
     }
@@ -92,7 +91,7 @@ int Cocoa_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Windo
 {
     SDL_WindowShaper *shaper = window->shaper;
     SDL_ShapeData* data = (__bridge SDL_ShapeData*)shaper->driverdata;
-    SDL_WindowData* windata = (__bridge SDL_WindowData*)shaper->window->driverdata;
+    SDL_WindowData* windata = (__bridge SDL_WindowData*)window->driverdata;
     SDL_CocoaClosure* closure;
     if(data.saved == SDL_TRUE) {
         [data.context restoreGraphicsState];

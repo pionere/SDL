@@ -43,9 +43,6 @@ typedef struct SDL_VideoDevice SDL_VideoDevice;
 /* Define the SDL window-shaper structure */
 struct SDL_WindowShaper
 {
-    /* The window associated with the shaper */
-    SDL_Window *window;
-
     /* The user's specified coordinates for the window, for once we give it a shape. */
     Uint32 userx, usery;
 

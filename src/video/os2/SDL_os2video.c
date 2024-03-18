@@ -1230,7 +1230,6 @@ static SDL_WindowShaper* OS2_CreateShaper(SDL_Window * window)
         return NULL;
     }
 
-    result->window = window;
     {
         SDL_COMPILE_TIME_ASSERT(os2_shape_mode, ShapeModeDefault == 0);
     }

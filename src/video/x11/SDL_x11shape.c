@@ -40,7 +40,6 @@ SDL_WindowShaper *X11_CreateShaper(SDL_Window *window)
         SDL_OutOfMemory();
         return NULL;
     }
-    result->window = window;
     {
         SDL_COMPILE_TIME_ASSERT(x11_shape_mode, ShapeModeDefault == 0);
     }
