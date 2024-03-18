@@ -238,7 +238,7 @@ void SDL_FreeShapeTree(SDL_ShapeTree **shape_tree)
 
 int SDL_GetShapedWindowMode(SDL_Window *window, SDL_WindowShapeMode *shape_mode)
 {
-    if (SDL_IsShapedWindow(window)) {
+    if (window && window->shaper) {
         if (!shape_mode) {
             if (window->shaper->hasshape) {
                 return 0; /* The window given has a shape. */
