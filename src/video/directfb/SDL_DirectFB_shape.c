@@ -75,6 +75,13 @@ int DirectFB_ResizeWindowShape(SDL_Window* window)
 int DirectFB_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode)
 {
     SDL_WindowShaper *shaper = window->shaper;
+    DFB_VideoData *devdata = &dfbVideoData;
+    SDL_ShapeData *data;
+    Uint32 *pixels;
+    Sint32 pitch;
+    Uint32 h, w;
+    Uint8  *src, *bitmap = NULL;
+    DFBSurfaceDescription dsc;
 
     SDL_assert(shaper != NULL);
     SDL_assert(shape != NULL);
@@ -82,15 +89,6 @@ int DirectFB_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Wi
     SDL_assert(data != NULL);
 
     {
-        DFB_VideoData *devdata = &dfbVideoData;
-        Uint32 *pixels;
-        Sint32 pitch;
-        Uint32 h,w;
-        Uint8  *src, *bitmap;
-        DFBSurfaceDescription dsc;
-
-        SDL_ShapeData *data = shaper->driverdata;
-
         SDL_DFB_RELEASE(data->surface);
 
         dsc.flags = DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT | DSDESC_CAPS;
@@ -100,7 +98,7 @@ int DirectFB_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Wi
         dsc.pixelformat = DSPF_ARGB;
 
         SDL_DFB_CHECKERR(devdata->dfb->CreateSurface(devdata->dfb, &dsc, &data->surface));
-        SDL_DFB_CALLOC(bitmap, shape->w * shape->h, 1);
+        SDL_DFB_ALLOC_CLEAR(bitmap, shape->w * shape->h);
         /* Assume that shaper->alphacutoff already has a value, because SDL_SetWindowShape() should have given it one. */
         SDL_CalculateShapeBitmap(shape_mode, shape, bitmap, 1);
 

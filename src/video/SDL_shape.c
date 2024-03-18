@@ -54,8 +54,8 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
 
     SDL_memset(bitmap, 0, shape->h * bytes_per_scanline);
 
+    bitmap_scanline = bitmap;
     for (y = 0; y < shape->h; y++) {
-        bitmap_scanline = bitmap + y * bytes_per_scanline;
         for (x = 0; x < shape->w; x++) {
             alpha = 0;
             pixel_value = 0;
@@ -95,6 +95,7 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
             }
             bitmap_scanline[x / ppb] |= mask_value << (x % ppb);
         }
+        bitmap_scanline += bytes_per_scanline;
     }
 
     if (SDL_MUSTLOCK(shape)) {
