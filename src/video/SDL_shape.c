@@ -29,9 +29,8 @@
 
 SDL_bool SDL_IsShapedWindow(const SDL_Window *window)
 {
-    if (window == NULL) {
-        return SDL_FALSE;
-    }
+    SDL_assert(window != NULL);
+
     return (SDL_bool)(window->shaper != NULL);
 }
 

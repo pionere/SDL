@@ -3163,6 +3163,8 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
 {
     int result;
 
+    CHECK_WINDOW_MAGIC(window, SDL_NONSHAPEABLE_WINDOW)
+
     if (!SDL_IsShapedWindow(window)) {
         /* The window given was not a shapeable window. */
         return SDL_NONSHAPEABLE_WINDOW;
