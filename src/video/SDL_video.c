@@ -3189,9 +3189,9 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
 
     result = current_video.SetWindowShape(window, shape, shape_mode);
     if (result == 0) {
+        window->shaper->hasshape = SDL_TRUE;
         window->shaper->mode = *shape_mode;
 
-        window->shaper->hasshape = SDL_TRUE;
         if (window->shaper->userx != 0 && window->shaper->usery != 0) {
             int x = window->shaper->userx;
             int y = window->shaper->usery;
@@ -3222,6 +3222,11 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
             window->shaper->userx = 0;
             window->shaper->usery = 0;
         }
+    } else {
+        if (window->shaper->hasshape) {
+            SDL_SetWindowPosition(window, -1000, -1000);
+        }
+        window->shaper->hasshape = SDL_FALSE;
     }
     return result;
 }
