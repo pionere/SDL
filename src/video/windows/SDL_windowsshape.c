@@ -72,10 +72,7 @@ int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     HRGN mask_region = NULL;
 
     if ((!shaper) ||
-        (!shape) ||
-        ((shape->format->Amask == 0) && (shape_mode->mode != ShapeModeColorKey)) ||
-        (shape->w != shaper->window->w) ||
-        (shape->h != shaper->window->h)) {
+        (!shape)) {
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 

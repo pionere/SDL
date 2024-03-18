@@ -75,10 +75,6 @@ int DirectFB_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_Wi
 
     if(!shaper || !shape || !shaper->driverdata)
         return -1;
-    if(shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode))
-        return -2;
-    if(shape->w != shaper->window->w || shape->h != shaper->window->h)
-        return -3;
 
     {
         DFB_VideoData *devdata = &dfbVideoData;

@@ -3169,7 +3169,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
         /* The window given was not a shapeable window. */
         return SDL_NONSHAPEABLE_WINDOW;
     }
-    if (!shape) {
+    if (!shape || shape->w != window->w || shape->h != window->h) {
         /* Invalid shape argument. */
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
@@ -3177,6 +3177,11 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
     if (!shape_mode) {
         shape_mode = &window->shaper->mode;
     }
+
+    if (!shape->format || (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode))) {
+        return SDL_INVALID_SHAPE_ARGUMENT;
+    }
+
     result = current_video.SetWindowShape(window->shaper, shape, shape_mode);
     if (result == 0) {
         window->shaper->mode = *shape_mode;

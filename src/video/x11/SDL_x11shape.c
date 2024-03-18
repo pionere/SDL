@@ -104,12 +104,6 @@ int X11_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
         return -1;
     }
 
-    if (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode)) {
-        return -2;
-    }
-    if (shape->w != shaper->window->w || shape->h != shaper->window->h) {
-        return -3;
-    }
     data = shaper->driverdata;
 
     /* Assume that shaper->alphacutoff already has a value, because SDL_SetWindowShape() should have given it one. */

@@ -1251,9 +1251,7 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
     HPS            hps;
 
     debug_os2("Enter");
-    if (!shaper || !shape ||
-        (shape->format->Amask == 0 && shape_mode->mode != ShapeModeColorKey) ||
-        shape->w != shaper->window->w || shape->h != shaper->window->h) {
+    if (!shaper || !shape) {
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 
