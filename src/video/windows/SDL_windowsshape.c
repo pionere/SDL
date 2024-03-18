@@ -83,7 +83,7 @@ int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     if (data->mask_tree) {
         SDL_FreeShapeTree(&data->mask_tree);
     }
-    data->mask_tree = SDL_CalculateShapeTree(*shape_mode, shape);
+    data->mask_tree = SDL_CalculateShapeTree(shape_mode, shape);
 
     SDL_TraverseShapeTree(data->mask_tree, &CombineRectRegions, &mask_region);
     SDL_assert(mask_region != NULL);

@@ -35,7 +35,7 @@ SDL_bool SDL_IsShapedWindow(const SDL_Window *window)
 }
 
 /* REQUIRES that bitmap point to a w-by-h bitmap with ppb pixels-per-byte. */
-void SDL_CalculateShapeBitmap(SDL_WindowShapeMode mode, SDL_Surface *shape, Uint8 *bitmap, Uint8 ppb)
+void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shape, Uint8 *bitmap, Uint8 ppb)
 {
     int x = 0;
     int y = 0;
@@ -45,6 +45,9 @@ void SDL_CalculateShapeBitmap(SDL_WindowShapeMode mode, SDL_Surface *shape, Uint
     size_t bytes_per_scanline = (size_t)(shape->w + (ppb - 1)) / ppb;
     Uint8 *bitmap_scanline;
     SDL_Color key;
+    WindowShapeMode shape_mode = mode->mode;
+    Uint8 binarizationCutoff = mode->parameters.binarizationCutoff;
+    SDL_Color colorKey = mode->parameters.colorKey;
 
     if (SDL_MUSTLOCK(shape)) {
         SDL_LockSurface(shape);
@@ -73,18 +76,18 @@ void SDL_CalculateShapeBitmap(SDL_WindowShapeMode mode, SDL_Surface *shape, Uint
                 break;
             }
             SDL_GetRGBA(pixel_value, shape->format, &r, &g, &b, &alpha);
-            switch (mode.mode) {
-            case (ShapeModeDefault):
+            switch (shape_mode) {
+            case ShapeModeDefault:
                 mask_value = (alpha >= 1 ? 1 : 0);
                 break;
-            case (ShapeModeBinarizeAlpha):
-                mask_value = (alpha >= mode.parameters.binarizationCutoff ? 1 : 0);
+            case ShapeModeBinarizeAlpha:
+                mask_value = (alpha >= binarizationCutoff ? 1 : 0);
                 break;
-            case (ShapeModeReverseBinarizeAlpha):
-                mask_value = (alpha <= mode.parameters.binarizationCutoff ? 1 : 0);
+            case ShapeModeReverseBinarizeAlpha:
+                mask_value = (alpha <= binarizationCutoff ? 1 : 0);
                 break;
-            case (ShapeModeColorKey):
-                key = mode.parameters.colorKey;
+            case ShapeModeColorKey:
+                key = colorKey;
                 mask_value = ((key.r != r || key.g != g || key.b != b) ? 1 : 0);
                 break;
             }
@@ -97,7 +100,7 @@ void SDL_CalculateShapeBitmap(SDL_WindowShapeMode mode, SDL_Surface *shape, Uint
     }
 }
 
-static SDL_ShapeTree *RecursivelyCalculateShapeTree(SDL_WindowShapeMode mode, SDL_Surface *mask, SDL_Rect dimensions)
+static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *mode, SDL_Surface *mask, SDL_Rect dimensions)
 {
     int x = 0, y = 0;
     Uint8 *pixel = NULL;
@@ -133,18 +136,18 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(SDL_WindowShapeMode mode, SD
                 break;
             }
             SDL_GetRGBA(pixel_value, mask->format, &r, &g, &b, &a);
-            switch (mode.mode) {
-            case (ShapeModeDefault):
+            switch (mode->mode) {
+            case ShapeModeDefault:
                 pixel_opaque = (a >= 1 ? SDL_TRUE : SDL_FALSE);
                 break;
-            case (ShapeModeBinarizeAlpha):
-                pixel_opaque = (a >= mode.parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
+            case ShapeModeBinarizeAlpha:
+                pixel_opaque = (a >= mode->parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
                 break;
-            case (ShapeModeReverseBinarizeAlpha):
-                pixel_opaque = (a <= mode.parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
+            case ShapeModeReverseBinarizeAlpha:
+                pixel_opaque = (a <= mode->parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
                 break;
-            case (ShapeModeColorKey):
-                key = mode.parameters.colorKey;
+            case ShapeModeColorKey:
+                key = mode->parameters.colorKey;
                 pixel_opaque = ((key.r != r || key.g != g || key.b != b) ? SDL_TRUE : SDL_FALSE);
                 break;
             }
@@ -188,7 +191,7 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(SDL_WindowShapeMode mode, SD
     return result;
 }
 
-SDL_ShapeTree *SDL_CalculateShapeTree(SDL_WindowShapeMode mode, SDL_Surface *shape)
+SDL_ShapeTree *SDL_CalculateShapeTree(const SDL_WindowShapeMode *mode, SDL_Surface *shape)
 {
     SDL_Rect dimensions;
     SDL_ShapeTree *result = NULL;

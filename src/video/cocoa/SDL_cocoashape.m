@@ -104,7 +104,7 @@ int Cocoa_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_Windo
 
     [[NSColor clearColor] set];
     NSRectFill([windata.sdlContentView frame]);
-    data.shape = SDL_CalculateShapeTree(*shape_mode, shape);
+    data.shape = SDL_CalculateShapeTree(shape_mode, shape);
 
     closure = [[SDL_CocoaClosure alloc] init];
 

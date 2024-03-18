@@ -1260,7 +1260,7 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
     if (shaper->driverdata)
         SDL_FreeShapeTree((SDL_ShapeTree **)&shaper->driverdata);
 
-    pShapeTree = SDL_CalculateShapeTree(*shape_mode, shape);
+    pShapeTree = SDL_CalculateShapeTree(shape_mode, shape);
     shaper->driverdata = pShapeTree;
 
     SDL_zero(stShapeRects);
