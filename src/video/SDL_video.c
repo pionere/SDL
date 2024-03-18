@@ -3187,7 +3187,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 
-    result = current_video.SetWindowShape(window->shaper, shape, shape_mode);
+    result = current_video.SetWindowShape(window, shape, shape_mode);
     if (result == 0) {
         window->shaper->mode = *shape_mode;
 

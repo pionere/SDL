@@ -33,6 +33,6 @@ typedef struct {
 
 extern SDL_WindowShaper* DirectFB_CreateShaper(SDL_Window* window);
 extern int DirectFB_ResizeWindowShape(SDL_Window* window);
-extern int DirectFB_SetWindowShape(SDL_WindowShaper *shaper,SDL_Surface *shape,SDL_WindowShapeMode *shapeMode);
+extern int DirectFB_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shapeMode);
 
 #endif /* SDL_DirectFB_shape_h_ */

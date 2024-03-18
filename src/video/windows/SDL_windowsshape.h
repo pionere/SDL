@@ -35,7 +35,7 @@ typedef struct
 } SDL_ShapeData;
 
 extern SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window);
-extern int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode);
+extern int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode);
 
 extern int WIN_ResizeWindowShape(SDL_Window *window);
 

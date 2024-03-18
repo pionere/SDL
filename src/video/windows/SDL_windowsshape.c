@@ -66,8 +66,9 @@ static void CombineRectRegions(SDL_ShapeTree *node, void *closure)
     }
 }
 
-int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
+int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode)
 {
+    SDL_WindowShaper *shaper = window->shaper;
     SDL_ShapeData *data;
     HRGN mask_region = NULL;
 
@@ -84,7 +85,7 @@ int WIN_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowS
     SDL_TraverseShapeTree(data->mask_tree, &CombineRectRegions, &mask_region);
     SDL_assert(mask_region != NULL);
 
-    SetWindowRgn(((SDL_WindowData *)(shaper->window->driverdata))->hwnd, mask_region, TRUE);
+    SetWindowRgn(((SDL_WindowData *)(window->driverdata))->hwnd, mask_region, TRUE);
 
     return 0;
 }

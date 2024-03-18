@@ -70,8 +70,10 @@ int DirectFB_ResizeWindowShape(SDL_Window* window)
     return 0;
 }
 
-int DirectFB_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode)
+int DirectFB_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode)
 {
+    SDL_WindowShaper *shaper = window->shaper;
+
     SDL_assert(shaper != NULL);
     SDL_assert(shape != NULL);
     data = shaper->driverdata;
@@ -104,9 +106,9 @@ int DirectFB_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_Wi
 
         SDL_DFB_CHECK(data->surface->Lock(data->surface, DSLF_WRITE | DSLF_READ, (void **) &pixels, &pitch));
 
-        h = shaper->window->h;
+        h = window->h;
         while (h--) {
-            for (w = 0; w < shaper->window->w; w++) {
+            for (w = 0; w < window->w; w++) {
                 if (*src)
                     pixels[w] = 0xFFFFFFFF;
                 else
@@ -120,7 +122,7 @@ int DirectFB_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_Wi
         SDL_DFB_FREE(bitmap);
 
         /* FIXME: Need to call this here - Big ?? */
-        DirectFB_WM_RedrawLayout(shaper->window);
+        DirectFB_WM_RedrawLayout(window);
     }
 
     return 0;

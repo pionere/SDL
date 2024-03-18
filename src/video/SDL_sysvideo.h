@@ -259,7 +259,7 @@ struct SDL_VideoDevice
      * Shaped-window functions
      */
     SDL_WindowShaper *(*CreateShaper)(SDL_Window *window);
-    int (*SetWindowShape)(SDL_WindowShaper *shaper, SDL_Surface *shape, SDL_WindowShapeMode *shape_mode);
+    int (*SetWindowShape)(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode);
 
     /* Get some platform dependent window information */
     SDL_bool(*GetWindowWMInfo) (SDL_Window * window,

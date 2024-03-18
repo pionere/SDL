@@ -1242,9 +1242,10 @@ static SDL_WindowShaper* OS2_CreateShaper(SDL_Window * window)
     return result;
 }
 
-static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
-                              SDL_WindowShapeMode *shape_mode)
+static int OS2_SetWindowShape(SDL_Window *window, SDL_Surface *shape,
+                              const SDL_WindowShapeMode *shape_mode)
 {
+    SDL_WindowShaper *shaper = window->shaper;
     SDL_ShapeTree *pShapeTree;
     WINDATA       *pWinData;
     SHAPERECTS     stShapeRects;
@@ -1261,10 +1262,10 @@ static int OS2_SetWindowShape(SDL_WindowShaper *shaper, SDL_Surface *shape,
     shaper->driverdata = pShapeTree;
 
     SDL_zero(stShapeRects);
-    stShapeRects.ulWinHeight = shaper->window->h;
+    stShapeRects.ulWinHeight = window->h;
     SDL_TraverseShapeTree(pShapeTree, &_combineRectRegions, &stShapeRects);
 
-    pWinData = (WINDATA *)shaper->window->driverdata;
+    pWinData = (WINDATA *)window->driverdata;
     hps = WinGetPS(pWinData->hwnd);
 
     if (pWinData->hrgnShape != NULLHANDLE)
