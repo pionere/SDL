@@ -3176,6 +3176,11 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
 
     if (!shape_mode) {
         shape_mode = &window->shaper->mode;
+    } else if (shape_mode->mode != ShapeModeDefault &&
+        shape_mode->mode != ShapeModeBinarizeAlpha &&
+        shape_mode->mode != ShapeModeReverseBinarizeAlpha &&
+        shape_mode->mode != ShapeModeColorKey) {
+        return SDL_INVALID_SHAPE_ARGUMENT;
     }
 
     if (!shape->format || (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode))) {
