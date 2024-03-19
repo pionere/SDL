@@ -487,10 +487,12 @@ SDL_bool SDL_OnVideoThread(void)
     return SDL_ThreadID() == current_video.thread;
 }
 
+static int SDL_CalculateWindowDisplayIndex(SDL_Window *window);
 int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
 {
     SDL_VideoDisplay *displays;
-    int index = -1;
+    SDL_Window *window;
+    int index;
 
     displays =
         SDL_realloc(current_video.displays,
@@ -509,11 +511,15 @@ int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
             displays[index].name = SDL_strdup(name);
         }
 
+        for (window = current_video.windows; window; window = window->next) {
+            window->display_index = SDL_CalculateWindowDisplayIndex(window);
+        }
+
         if (send_event) {
             SDL_SendDisplayEvent(&current_video.displays[index], SDL_DISPLAYEVENT_CONNECTED, 0);
         }
     } else {
-        SDL_OutOfMemory();
+        index = SDL_OutOfMemory();
     }
     return index;
 }
@@ -535,6 +541,7 @@ void SDL_PrivateResetDisplayModes(SDL_VideoDisplay *display)
 void SDL_DelVideoDisplay(int index)
 {
     SDL_VideoDisplay *display;
+    SDL_Window *window;
     SDL_assert(index >= 0 && index < current_video.num_displays);
 
     display = &current_video.displays[index];
@@ -547,6 +554,10 @@ void SDL_DelVideoDisplay(int index)
         SDL_memmove(display, display + 1, (current_video.num_displays - index - 1) * sizeof(*display));
     }
     --current_video.num_displays;
+
+    for (window = current_video.windows; window; window = window->next) {
+        window->display_index = SDL_CalculateWindowDisplayIndex(window);
+    }
 }
 
 int SDL_GetNumVideoDisplays(void)
@@ -1057,11 +1068,12 @@ int SDL_GetRectDisplayIndex(const SDL_Rect *rect)
     return GetPointDisplayIndex(rect->x, rect->y, rect->w, rect->h);
 }
 
-int SDL_GetWindowDisplayIndex(SDL_Window *window)
+static int SDL_CalculateWindowDisplayIndex(SDL_Window *window)
 {
     int displayIndex = -1;
 
-    CHECK_WINDOW_MAGIC(window, -1);
+    SDL_assert(window != NULL);
+
     if (current_video.GetWindowDisplayIndex) {
         displayIndex = current_video.GetWindowDisplayIndex(window);
     }
@@ -1070,43 +1082,22 @@ int SDL_GetWindowDisplayIndex(SDL_Window *window)
      * (for example if the window is off-screen), but other code may expect it
      * to succeed in that situation, so we fall back to a generic position-
      * based implementation in that case. */
-    if (displayIndex >= 0) {
-        return displayIndex;
-    } else {
-        int i;
-
+    if (displayIndex < 0) {
         displayIndex = GetPointDisplayIndex(window->x, window->y, window->w, window->h);
-
-        /* Find the display containing the window if fullscreen */
-        for (i = 0; i < current_video.num_displays; ++i) {
-            SDL_VideoDisplay *display = &current_video.displays[i];
-
-            if (display->fullscreen_window == window) {
-                if (displayIndex != i) {
-                    if (displayIndex < 0) {
-                        displayIndex = i;
-                    } else {
-                        SDL_VideoDisplay *new_display = &current_video.displays[displayIndex];
-
-                        /* The window was moved to a different display */
-                        if (new_display->fullscreen_window) {
-                            /* Uh oh, there's already a fullscreen window here */
-                        } else {
-                            new_display->fullscreen_window = window;
-                        }
-                        display->fullscreen_window = NULL;
-                    }
-                }
-                break;
-            }
-        }
-        return displayIndex;
     }
+    return displayIndex;
+}
+
+int SDL_GetWindowDisplayIndex(SDL_Window *window)
+{
+    CHECK_WINDOW_MAGIC(window, -1);
+
+    return window->display_index;
 }
 
 SDL_VideoDisplay *SDL_GetDisplayForWindow(SDL_Window *window)
 {
-    int displayIndex = SDL_GetWindowDisplayIndex(window);
+    int displayIndex = window->display_index;
     if (displayIndex >= 0) {
         return &current_video.displays[displayIndex];
     } else {
@@ -1590,7 +1581,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
 
     CalculateWindowPosition(&x, &y, w, h);
-    displayIndex = GetPointDisplayIndex(x, y, w, h);
+    displayIndex = GetPointDisplayIndex(x, y, w, h); // SDL_CalculateWindowDisplayIndex
 
     window = (SDL_Window *)SDL_calloc(1, sizeof(*window));
     if (!window) {
@@ -1757,7 +1748,7 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
         return NULL;
     }
 
-    window->display_index = SDL_GetWindowDisplayIndex(window);
+    window->display_index = SDL_CalculateWindowDisplayIndex(window);
     PrepareDragAndDropSupport(window);
 
     return window;
@@ -2117,7 +2108,7 @@ void SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
 
         /* Find the window's monitor and update to the
            monitor offset. */
-        displayIndex = SDL_GetWindowDisplayIndex(window);
+        displayIndex = window->display_index;
         if (displayIndex >= 0) {
             SDL_Rect bounds;
 
@@ -2982,28 +2973,53 @@ void SDL_OnWindowHidden(SDL_Window *window)
     SDL_UpdateFullscreenMode(window, SDL_FALSE);
 }
 
+static void UpdateWindowDisplay(SDL_Window *window)
+{
+    int prev_display_index = window->display_index;
+    int new_display_index = SDL_CalculateWindowDisplayIndex(window);
+
+    if (new_display_index == prev_display_index) {
+        return;
+    }
+    window->display_index = new_display_index;
+
+    if (prev_display_index >= 0 && prev_display_index < current_video.num_displays) {
+        SDL_VideoDisplay *display = &current_video.displays[prev_display_index];
+        if (display->fullscreen_window == window) {
+            display->fullscreen_window = NULL;
+            if (new_display_index >= 0) {
+                SDL_VideoDisplay *new_display = &current_video.displays[new_display_index];
+                /* The window was moved to a different display */
+                if (new_display->fullscreen_window) {
+                    /* Uh oh, there's already a fullscreen window here */
+                } else {
+                    new_display->fullscreen_window = window;
+                }
+            }
+        }
+    }
+
+    if (new_display_index != -1) {
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_DISPLAY_CHANGED, new_display_index, 0);
+    }
+
+}
+
 void SDL_OnWindowResized(SDL_Window *window)
 {
-    int display_index = SDL_GetWindowDisplayIndex(window);
     window->surface_valid = SDL_FALSE;
 
     if (!window->is_destroying) {
         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
 
-        if (display_index != window->display_index && display_index != -1) {
-            window->display_index = display_index;
-            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_DISPLAY_CHANGED, window->display_index, 0);
-        }
+        UpdateWindowDisplay(window);
     }
 }
 
 void SDL_OnWindowMoved(SDL_Window *window)
 {
-    int display_index = SDL_GetWindowDisplayIndex(window);
-
-    if (!window->is_destroying && display_index != window->display_index && display_index != -1) {
-        window->display_index = display_index;
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_DISPLAY_CHANGED, window->display_index, 0);
+    if (!window->is_destroying) {
+        UpdateWindowDisplay(window);
     }
 }
 

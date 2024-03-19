@@ -327,10 +327,19 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
 
             if (moved) {
                 SDL_VideoDisplay tmp;
+                SDL_Window *window;
 
                 SDL_memcpy(&tmp, &displays[index], sizeof(tmp));
                 SDL_memcpy(&displays[index], &displays[i], sizeof(tmp));
                 SDL_memcpy(&displays[i], &tmp, sizeof(tmp));
+
+                for (window = SDL_GetWindows(); window; window = window->next) {
+                    if (window->display_index == i)
+                        window->display_index = index;
+                    else if (window->display_index == index)
+                        window->display_index = i;
+                }
+
                 i = index;
             }
 
