@@ -403,6 +403,11 @@ typedef uint64_t Uint64;
        typedef int SDL_compile_time_assert_ ## name[(x) * 2 - 1]
 #endif
 
+#define SDL_INLINE_COMPILE_TIME_ASSERT(name, x) \
+{ \
+    SDL_COMPILE_TIME_ASSERT(name, x); \
+}
+
 /** \cond */
 #ifndef DOXYGEN_SHOULD_IGNORE_THIS
 SDL_COMPILE_TIME_ASSERT(uint8, sizeof(Uint8) == 1);

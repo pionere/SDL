@@ -360,9 +360,7 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
         SDL_free(mode.driverdata);
         return;
     }
-    {
-        SDL_COMPILE_TIME_ASSERT(win_device_name, CCHDEVICENAME == SDL_arraysize(displaydata->DeviceName));
-    }
+    SDL_INLINE_COMPILE_TIME_ASSERT(win_device_name, CCHDEVICENAME == SDL_arraysize(displaydata->DeviceName));
     SDL_memcpy(displaydata->DeviceName, info->szDevice, sizeof(displaydata->DeviceName));
     displaydata->MonitorHandle = hMonitor;
     displaydata->IsValid = SDL_TRUE;

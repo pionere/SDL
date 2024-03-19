@@ -39,9 +39,7 @@ SDL_WindowShaper *DirectFB_CreateShaper(SDL_Window* window)
         SDL_OutOfMemory();
         return NULL;
     }
-    {
-        SDL_COMPILE_TIME_ASSERT(directfb_shape_mode, ShapeModeDefault == 0);
-    }
+    SDL_INLINE_COMPILE_TIME_ASSERT(directfb_shape_mode, ShapeModeDefault == 0);
     // result->mode.mode = ShapeModeDefault;
     result->mode.parameters.binarizationCutoff = 1;
     // result->userx = result->usery = 0;
