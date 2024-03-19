@@ -337,7 +337,7 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
             driverdata->MonitorHandle = hMonitor;
             driverdata->IsValid = SDL_TRUE;
 
-            if (1) { // if (!setting_display_mode) {
+            if (!setting_display_mode) {
                 SDL_Rect bounds;
 
                 SDL_PrivateResetDisplayModes(&displays[i]);
