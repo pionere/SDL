@@ -1215,7 +1215,7 @@ static void _combineRectRegions(SDL_ShapeTree *node, void *closure)
     /* Fill rectangle data */
     pRect->xLeft = node->data.shape.x;
     pRect->yTop = pShapeRects->ulWinHeight - node->data.shape.y;
-    pRect->xRight += node->data.shape.w;
+    pRect->xRight = pRect->xLeft + node->data.shape.w;
     pRect->yBottom = pRect->yTop - node->data.shape.h;
 }
 
