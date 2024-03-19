@@ -1104,11 +1104,6 @@ void WIN_DestroyWindow(SDL_Window *window)
     SDL_WindowData *data;
 
     if (shaper) {
-        SDL_ShapeData *shapedata = (SDL_ShapeData *)shaper->driverdata;
-        if (shapedata) {
-            SDL_FreeShapeTree(shapedata->mask_tree);
-            SDL_free(shapedata);
-        }
         SDL_free(shaper);
         window->shaper = NULL;
     }

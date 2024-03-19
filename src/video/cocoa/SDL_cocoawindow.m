@@ -2349,8 +2349,7 @@ void Cocoa_DestroyWindow(SDL_Window * window)
 #endif
 
         if (window->shaper) {
-            SDL_ShapeData* shaper_data = (SDL_ShapeData *) CFBridgingRelease(window->shaper->driverdata);
-            SDL_FreeShapeTree(shaper_data.shape);
+            CFBridgingRelease(window->shaper->driverdata);
             SDL_free(window->shaper);
             window->shaper = NULL;
         }

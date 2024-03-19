@@ -29,11 +29,6 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_shape_internals.h"
 
-typedef struct
-{
-    SDL_ShapeTree *mask_tree;
-} SDL_ShapeData;
-
 extern SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window);
 extern int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode);
 

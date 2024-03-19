@@ -28,11 +28,8 @@
 SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
 {
     SDL_WindowShaper *result = (SDL_WindowShaper *)SDL_calloc(1, sizeof(SDL_WindowShaper));
-    SDL_ShapeData *data = (SDL_ShapeData *)SDL_calloc(1, sizeof(SDL_ShapeData));
 
-    if (!result || !data) {
-        SDL_free(data);
-        SDL_free(result);
+    if (!result) {
         SDL_OutOfMemory();
         return NULL;
     }
@@ -43,7 +40,7 @@ SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
     result->mode.parameters.binarizationCutoff = 1;
     // result->userx = result->usery = 0;
     // result->hasshape = SDL_FALSE;
-    result->driverdata = data;
+    // result->driverdata = NULL;
     window->shaper = result;
     // WIN_ResizeWindowShape(window);
 
@@ -68,21 +65,19 @@ static void CombineRectRegions(SDL_ShapeTree *node, void *closure)
 int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowShapeMode *shape_mode)
 {
     SDL_WindowShaper *shaper = window->shaper;
-    SDL_ShapeData *data;
+    SDL_ShapeTree *tree;
     HRGN mask_region = NULL;
 
     SDL_assert(shaper != NULL);
     SDL_assert(shape != NULL);
 
-    data = (SDL_ShapeData *)shaper->driverdata;
-    SDL_assert(data != NULL);
-    SDL_FreeShapeTree(data->mask_tree);
-    data->mask_tree = SDL_CalculateShapeTree(shape_mode, shape);
-    if (data->mask_tree == NULL) {
+    tree = SDL_CalculateShapeTree(shape_mode, shape);
+    if (tree == NULL) {
         return -1;
     }
 
-    SDL_TraverseShapeTree(data->mask_tree, &CombineRectRegions, &mask_region);
+    SDL_TraverseShapeTree(tree, &CombineRectRegions, &mask_region);
+    SDL_FreeShapeTree(tree);
     SDL_assert(mask_region != NULL);
 
     SetWindowRgn(((SDL_WindowData *)(window->driverdata))->hwnd, mask_region, TRUE);
@@ -92,15 +87,8 @@ int WIN_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowS
 
 int WIN_ResizeWindowShape(SDL_Window *window)
 {
-    SDL_ShapeData *data;
-
     SDL_assert(window != NULL);
     SDL_assert(window->shaper != NULL);
-    data = (SDL_ShapeData *)window->shaper->driverdata;
-    SDL_assert(data != NULL);
-
-    SDL_FreeShapeTree(data->mask_tree);
-    data->mask_tree = NULL;
 
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;

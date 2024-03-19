@@ -67,7 +67,6 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     data = [[SDL_ShapeData alloc] init];
     data.context = [windata.nswindow graphicsContext];
     data.saved = SDL_FALSE;
-    data.shape = NULL;
 
     /* TODO: There's no place to release this... */
     result->driverdata = (void*) CFBridgingRetain(data);
@@ -80,7 +79,7 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
 static void ConvertRects(SDL_ShapeTree* node, void* closure)
 {
     SDL_CocoaClosure* data = (__bridge SDL_CocoaClosure*)closure;
-    if(node && node->kind == OpaqueShape) {
+    if (node && node->kind == OpaqueShape) {
         NSRect rect = NSMakeRect(node->data.shape.x, data.window->h - node->data.shape.y, node->data.shape.w, node->data.shape.h);
         [data.path appendBezierPathWithRect:[data.view convertRect:rect toView:nil]];
     }
@@ -92,8 +91,9 @@ int Cocoa_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Windo
     SDL_WindowShaper *shaper = window->shaper;
     SDL_ShapeData* data = (__bridge SDL_ShapeData*)shaper->driverdata;
     SDL_WindowData* windata = (__bridge SDL_WindowData*)window->driverdata;
+    SDL_ShapeTree* tree;
     SDL_CocoaClosure* closure;
-    if(data.saved == SDL_TRUE) {
+    if (data.saved == SDL_TRUE) {
         [data.context restoreGraphicsState];
         data.saved = SDL_FALSE;
     }
@@ -104,9 +104,9 @@ int Cocoa_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Windo
 
     [[NSColor clearColor] set];
     NSRectFill([windata.sdlContentView frame]);
-    SDL_FreeShapeTree(data.shape);
-    data.shape = SDL_CalculateShapeTree(shape_mode, shape);
-    if (data.shape == NULL) {
+
+    tree = SDL_CalculateShapeTree(shape_mode, shape);
+    if (tree == NULL) {
         return -1;
     }
 
@@ -115,7 +115,8 @@ int Cocoa_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_Windo
     closure.view = windata.sdlContentView;
     closure.path = [NSBezierPath bezierPath];
     closure.window = window;
-    SDL_TraverseShapeTree(data.shape, &ConvertRects, (__bridge void*)closure);
+    SDL_TraverseShapeTree(tree, &ConvertRects, (__bridge void*)closure);
+    SDL_FreeShapeTree(tree);
     [closure.path addClip];
 
     return 0;
@@ -125,9 +126,6 @@ int Cocoa_ResizeWindowShape(SDL_Window *window)
 { @autoreleasepool {
     SDL_ShapeData* data = (__bridge SDL_ShapeData*)window->shaper->driverdata;
     SDL_assert(data != NULL);
-
-    SDL_FreeShapeTree(data.shape);
-    data.shape = NULL;
 
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;

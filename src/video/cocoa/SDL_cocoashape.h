@@ -32,7 +32,6 @@
 @interface SDL_ShapeData : NSObject
     @property (nonatomic) NSGraphicsContext* context;
     @property (nonatomic) SDL_bool saved;
-    @property (nonatomic) SDL_ShapeTree* shape;
 @end
 
 extern SDL_WindowShaper* Cocoa_CreateShaper(SDL_Window* window);
