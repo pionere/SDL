@@ -38,7 +38,8 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     sprite_area *fb_area;
     _kernel_oserror *error;
     _kernel_swi_regs regs;
-    SDL_DisplayMode mode;
+    SDL_VideoDisplay *display;
+    SDL_DisplayMode *mode;
     int size;
     int w, h;
 
@@ -48,10 +49,11 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     RISCOS_DestroyWindowFramebuffer(window);
 
     /* Create a new one */
-    SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window), &mode);
-    if ((SDL_ISPIXELFORMAT_PACKED(mode.format) || SDL_ISPIXELFORMAT_ARRAY(mode.format))) {
-        *format = mode.format;
-        sprite_mode = (unsigned int)mode.driverdata;
+    display = SDL_GetDisplayForWindow(window);
+    mode = &display->current_mode; // SDL_GetCurrentDisplayMode(window->display_index, &mode);
+    if ((SDL_ISPIXELFORMAT_PACKED(mode->format) || SDL_ISPIXELFORMAT_ARRAY(mode->format))) {
+        *format = mode->format;
+        sprite_mode = (unsigned int)mode->driverdata;
     } else {
         *format = SDL_PIXELFORMAT_BGR888;
         sprite_mode = (1 | (90 << 1) | (90 << 14) | (6 << 27));

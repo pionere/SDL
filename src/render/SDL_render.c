@@ -950,14 +950,10 @@ static void SDL_CalculateSimulatedVSyncInterval(SDL_Renderer *renderer, SDL_Wind
 {
     /* FIXME: SDL refresh rate API should return numerator/denominator */
     int refresh_rate = 0;
-    int display_index = SDL_GetWindowDisplayIndex(window);
-    SDL_DisplayMode mode;
+    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
 
-    if (display_index < 0) {
-        display_index = 0;
-    }
-    if (SDL_GetDesktopDisplayMode(display_index, &mode) == 0) {
-        refresh_rate = mode.refresh_rate;
+    if (display != NULL) {
+        refresh_rate = display->desktop_mode.refresh_rate;
     }
     if (!refresh_rate) {
         /* Pick a good default refresh rate */

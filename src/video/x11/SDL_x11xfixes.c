@@ -145,7 +145,7 @@ int X11_ConfineCursorWithFlags(SDL_Window *window, const SDL_Rect *rect, int fla
         }
 
         /* Use the display bounds to ensure the barriers don't have corner gaps */
-        SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(window), &bounds);
+        SDL_GetDisplayBounds(window->display_index, &bounds);
 
         /** Create the left barrier */
         wdata->barrier[0] = X11_XFixesCreatePointerBarrier(data->display, wdata->xwindow,
