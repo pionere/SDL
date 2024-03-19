@@ -168,8 +168,6 @@ int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
 
     return 0;
   error:
-    SDL_DFB_RELEASE(windata->surface);
-    SDL_DFB_RELEASE(windata->dfbwin);
     return -1;
 }
 
