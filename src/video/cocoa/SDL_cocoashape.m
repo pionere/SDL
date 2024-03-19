@@ -77,11 +77,11 @@ SDL_WindowShaper *Cocoa_CreateShaper(SDL_Window* window)
     return result;
 }}
 
-static void ConvertRects(SDL_ShapeTree* tree, void* closure)
+static void ConvertRects(SDL_ShapeTree* node, void* closure)
 {
     SDL_CocoaClosure* data = (__bridge SDL_CocoaClosure*)closure;
-    if(tree->kind == OpaqueShape) {
-        NSRect rect = NSMakeRect(tree->data.shape.x, data.window->h - tree->data.shape.y, tree->data.shape.w, tree->data.shape.h);
+    if(node && node->kind == OpaqueShape) {
+        NSRect rect = NSMakeRect(node->data.shape.x, data.window->h - node->data.shape.y, node->data.shape.w, node->data.shape.h);
         [data.path appendBezierPathWithRect:[data.view convertRect:rect toView:nil]];
     }
 }

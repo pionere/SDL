@@ -53,7 +53,7 @@ SDL_WindowShaper *WIN_CreateShaper(SDL_Window *window)
 static void CombineRectRegions(SDL_ShapeTree *node, void *closure)
 {
     HRGN mask_region = *((HRGN *)closure), temp_region = NULL;
-    if (node->kind == OpaqueShape) {
+    if (node && node->kind == OpaqueShape) {
         /* Win32 API regions exclude their outline, so we widen the region by one pixel in each direction to include the real outline. */
         temp_region = CreateRectRgn(node->data.shape.x, node->data.shape.y, node->data.shape.x + node->data.shape.w + 1, node->data.shape.y + node->data.shape.h + 1);
         if (mask_region != NULL) {

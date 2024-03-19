@@ -1200,6 +1200,9 @@ static void _combineRectRegions(SDL_ShapeTree *node, void *closure)
     SHAPERECTS *pShapeRects = (SHAPERECTS *)closure;
     PRECTL      pRect;
 
+    if (!node || node->kind != OpaqueShape) {
+        return;
+    }
     /* Expand rectangles list */
     if ((pShapeRects->cRects & 0x0F) == 0) {
         pRect = SDL_realloc(pShapeRects->pRects, (pShapeRects->cRects + 0x10) * sizeof(RECTL));
