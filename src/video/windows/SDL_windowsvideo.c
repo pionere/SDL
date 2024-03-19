@@ -526,15 +526,13 @@ int SDL_Direct3D9GetAdapterIndex(int displayIndex)
     void *pD3DDLL;
     IDirect3D9 *pD3D;
     if (!D3D_LoadDLL(&pD3DDLL, &pD3D)) {
-        SDL_SetError("Unable to create Direct3D interface");
-        return D3DADAPTER_DEFAULT;
+        return SDL_SetError("Unable to create Direct3D interface");
     } else {
         SDL_DisplayData *pData = (SDL_DisplayData *)SDL_GetDisplayDriverData(displayIndex);
         int adapterIndex = D3DADAPTER_DEFAULT;
 
         if (!pData) {
-            SDL_SetError("Invalid display index");
-            adapterIndex = -1; /* make sure we return something invalid */
+            adapterIndex = SDL_SetError("Invalid display index");
         } else {
             char *displayName = WIN_StringToUTF8W(pData->DeviceName);
             unsigned int count = IDirect3D9_GetAdapterCount(pD3D);
