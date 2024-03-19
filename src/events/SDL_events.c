@@ -972,39 +972,41 @@ int SDL_PollEvent(SDL_Event *event)
 
 static Sint16 SDL_events_get_polling_interval(void)
 {
-    Sint16 poll_interval = SDL_MAX_SINT16;
+    int needs_polling = 0;
+    Sint16 poll_interval;
 
 #ifndef SDL_JOYSTICK_DISABLED
     if (SDL_WasInit(SDL_INIT_JOYSTICK) && SDL_update_joysticks) {
         if (SDL_NumJoysticks() > 0) {
             /* If we have joysticks open, we need to poll rapidly for events */
-            poll_interval = SDL_min(poll_interval, EVENT_POLL_INTERVAL_MS);
+            needs_polling = 2;
         } else {
             /* If not, just poll every few seconds to enumerate new joysticks */
-            poll_interval = SDL_min(poll_interval, ENUMERATION_POLL_INTERVAL_MS);
+            needs_polling = 1;
         }
     }
 #endif
 
 #ifndef SDL_SENSOR_DISABLED
-    if (SDL_WasInit(SDL_INIT_SENSOR) && SDL_update_sensors) {
+    if (needs_polling != 2 && SDL_WasInit(SDL_INIT_SENSOR) && SDL_update_sensors) {
         if (SDL_NumSensors() > 0) {
             /* If we have sensors open, we need to poll rapidly for events */
-            poll_interval = SDL_min(poll_interval, EVENT_POLL_INTERVAL_MS);
+            needs_polling = 2;
         } else {
             /* If not, just poll every few seconds to enumerate new sensors */
-            poll_interval = SDL_min(poll_interval, ENUMERATION_POLL_INTERVAL_MS);
+            needs_polling = 1;
         }
     }
 #endif
-
+    SDL_INLINE_COMPILE_TIME_ASSERT(poll_interval, ENUMERATION_POLL_INTERVAL_MS != 0 && EVENT_POLL_INTERVAL_MS != 0);
+    poll_interval = needs_polling == 0 ? 0 : (needs_polling == 1 ? ENUMERATION_POLL_INTERVAL_MS : EVENT_POLL_INTERVAL_MS);
     return poll_interval;
 }
 
 static int SDL_WaitEventTimeout_Device(SDL_Window *wakeup_window, SDL_Event *event, Uint32 start, int timeout)
 {
     int loop_timeout = timeout;
-    Sint16 poll_interval = SDL_events_get_polling_interval();
+    const Sint16 poll_interval = SDL_events_get_polling_interval();
     SDL_VideoDevice *_this = SDL_GetVideoDevice();
 
     for (;;) {
@@ -1049,7 +1051,7 @@ static int SDL_WaitEventTimeout_Device(SDL_Window *wakeup_window, SDL_Event *eve
         }
 
         /* Adjust the timeout for any polling requirements we currently have. */
-        if (poll_interval != SDL_MAX_SINT16) {
+        if (poll_interval != 0) {
             if (loop_timeout >= 0) {
                 loop_timeout = SDL_min(loop_timeout, poll_interval);
             } else {
@@ -1059,7 +1061,7 @@ static int SDL_WaitEventTimeout_Device(SDL_Window *wakeup_window, SDL_Event *eve
         status = SDL_PrivateWaitEventTimeout(loop_timeout);
         /* Set wakeup_window to NULL without holding the lock. */
         _this->wakeup_window = NULL;
-        if (status == 0 && poll_interval != SDL_MAX_SINT16 && loop_timeout == poll_interval) {
+        if (status == 0 && poll_interval != 0 && loop_timeout == poll_interval) {
             /* We may have woken up to poll. Try again */
             continue;
         } else if (status <= 0) {
