@@ -1152,10 +1152,10 @@ int SDL_GetWindowDisplayMode(SDL_Window *window, SDL_DisplayMode *mode)
     } else {
         fullscreen_mode = window->fullscreen_mode;
         if (!fullscreen_mode.w) {
-            fullscreen_mode.w = window->windowed.w;
+            fullscreen_mode.w = window->w;
         }
         if (!fullscreen_mode.h) {
-            fullscreen_mode.h = window->windowed.h;
+            fullscreen_mode.h = window->h;
         }        
         if (!SDL_GetClosestDisplayModeForDisplay(display,
                                                     &fullscreen_mode,
@@ -1621,8 +1621,6 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
                 bounds.h = fullscreen_mode.h;
             }
         }
-        window->fullscreen_mode.w = bounds.w;
-        window->fullscreen_mode.h = bounds.h;
         window->x = bounds.x;
         window->y = bounds.y;
         window->w = bounds.w;
