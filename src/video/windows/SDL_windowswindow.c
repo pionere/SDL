@@ -564,6 +564,9 @@ int WIN_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
         return -1;
     }
 
+    window->display_index = SDL_CalculateWindowDisplayIndex(window);
+    WIN_UpdateWindowICCProfile(window, SDL_FALSE);
+
     return SetupGLWindow(_this, window);
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 }

@@ -184,7 +184,7 @@ static SDL_DisplayMode *_getDisplayModeForSDLWindow(SDL_Window *window)
 
     if (!pSDLDisplay) {
         debug_os2("No display for the window");
-        return FALSE;
+        return NULL;
     }
 
     return &pSDLDisplay->current_mode;
@@ -817,7 +817,7 @@ static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
     ULONG            cbText;
     PSZ              pszText;
     WINDATA         *pWinData;
-    SDL_DisplayMode *pSDLDisplayMode = _getDisplayModeForSDLWindow(window);
+    SDL_DisplayMode *pSDLDisplayMode = _getDisplayModeForSDLWindow(window); // FIXME: display(_index) is not set for the window at this point!!!
     SWP              swp;
     POINTL           pointl;
 
