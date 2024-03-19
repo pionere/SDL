@@ -1010,15 +1010,15 @@ static int SDL_GetDistanceFromRect(const SDL_Point *point, const SDL_Rect *rect)
     return dx + dy;
 }
 
-static int GetPointDisplayIndex(int x, int y)
+static int GetPointDisplayIndex(int x, int y, int w, int h)
 {
     int i, dist;
     int closest = -1;
     int closest_dist = 0x7FFFFFFF;
     SDL_Point center;
 
-    center.x = x;
-    center.y = y;
+    center.x = x + (w >> 1);
+    center.y = y + (h >> 1);
 
     // if (SDL_HasVideoDevice()) {
         for (i = 0; i < current_video.num_displays; ++i) {
@@ -1046,7 +1046,7 @@ int SDL_GetPointDisplayIndex(const SDL_Point *point)
     if (!point) {
         return SDL_InvalidParamError("point");
     }
-    return GetPointDisplayIndex(point->x, point->y);
+    return GetPointDisplayIndex(point->x, point->y, 0, 0);
 }
 
 int SDL_GetRectDisplayIndex(const SDL_Rect *rect)
@@ -1054,7 +1054,7 @@ int SDL_GetRectDisplayIndex(const SDL_Rect *rect)
     if (!rect) {
         return SDL_InvalidParamError("rect");
     }
-    return GetPointDisplayIndex(rect->x + (rect->w >> 1), rect->y + (rect->h >> 1));
+    return GetPointDisplayIndex(rect->x, rect->y, rect->w, rect->h);
 }
 
 int SDL_GetWindowDisplayIndex(SDL_Window *window)
@@ -1074,24 +1074,8 @@ int SDL_GetWindowDisplayIndex(SDL_Window *window)
         return displayIndex;
     } else {
         int i;
-        if (SDL_WINDOWPOS_ISUNDEFINED(window->x) ||
-            SDL_WINDOWPOS_ISCENTERED(window->x)) {
-            displayIndex = (window->x & 0xFFFF);
-            if (displayIndex >= current_video.num_displays) {
-                displayIndex = 0;
-            }
-            return displayIndex;
-        }
-        if (SDL_WINDOWPOS_ISUNDEFINED(window->y) ||
-            SDL_WINDOWPOS_ISCENTERED(window->y)) {
-            displayIndex = (window->y & 0xFFFF);
-            if (displayIndex >= current_video.num_displays) {
-                displayIndex = 0;
-            }
-            return displayIndex;
-        }
 
-        displayIndex = GetPointDisplayIndex(window->x + (window->w >> 1), window->y + (window->h >> 1));
+        displayIndex = GetPointDisplayIndex(window->x, window->y, window->w, window->h);
 
         /* Find the display containing the window if fullscreen */
         for (i = 0; i < current_video.num_displays; ++i) {
@@ -1485,10 +1469,42 @@ static int SDL_DllNotSupported(const char *name)
     return SDL_SetError("No dynamic %s support in current SDL video driver (%s)", name, current_video.vdriver_name);
 }
 
+static void CalculateWindowPosition(int *xp, int *yp, int w, int h)
+{
+    int x = *xp;
+    int y = *yp;
+    SDL_bool undef_x = SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x);
+    SDL_bool undef_y = SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y);
+
+    if (undef_x || undef_y) {
+        int displayIndex;
+        SDL_Rect bounds;
+
+        if (undef_x) {
+            displayIndex = (x & 0xFFFF);
+        }
+        else {
+            displayIndex = (y & 0xFFFF);
+        }
+        if (displayIndex >= current_video.num_displays) {
+            displayIndex = 0;
+        }
+
+        SDL_GetDisplayBounds(displayIndex, &bounds);
+        if (undef_x) {
+            *xp = bounds.x + (bounds.w - w) / 2;
+        }
+        if (undef_y) {
+            *yp = bounds.y + (bounds.h - h) / 2;
+        }
+    }
+}
+
 SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
 {
     SDL_Window *window;
     Uint32 type_flags, graphics_flags;
+    int displayIndex;
 
     if (!SDL_HasVideoDevice()) {
         /* Initialize the video system if needed */
@@ -1573,6 +1589,9 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
         }
     }
 
+    CalculateWindowPosition(&x, &y, w, h);
+    displayIndex = GetPointDisplayIndex(x, y, w, h);
+
     window = (SDL_Window *)SDL_calloc(1, sizeof(*window));
     if (!window) {
         SDL_OutOfMemory();
@@ -1584,26 +1603,16 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     window->y = y;
     window->w = w;
     window->h = h;
-    if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
-        SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-        SDL_Rect bounds;
 
-        SDL_PrivateGetDisplayBounds(display, &bounds);
-        if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
-            window->x = bounds.x + (bounds.w - w) / 2;
-        }
-        if (SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y)) {
-            window->y = bounds.y + (bounds.h - h) / 2;
-        }
-    }
     window->windowed.x = window->x;
     window->windowed.y = window->y;
     window->windowed.w = window->w;
     window->windowed.h = window->h;
 
+    window->display_index = displayIndex;
+
     if (flags & SDL_WINDOW_FULLSCREEN) {
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
+        SDL_VideoDisplay *display = &current_video.displays[displayIndex];
         SDL_Rect bounds;
 
         SDL_PrivateGetDisplayBounds(display, &bounds);
@@ -1635,7 +1644,6 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     window->brightness = 1.0f;
     window->next = current_video.windows;
     window->is_destroying = SDL_FALSE;
-    window->display_index = SDL_GetWindowDisplayIndex(window);
 
     if (current_video.windows) {
         current_video.windows->prev = window;
@@ -2070,36 +2078,21 @@ void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
 {
     CHECK_WINDOW_MAGIC(window, );
 
-    if (SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
-        int displayIndex = (x & 0xFFFF);
-        SDL_Rect bounds;
-        if (displayIndex >= current_video.num_displays) {
-            displayIndex = 0;
-        }
-
-        SDL_GetDisplayBounds(displayIndex, &bounds);
-        if (SDL_WINDOWPOS_ISCENTERED(x)) {
-            x = bounds.x + (bounds.w - window->windowed.w) / 2;
-        }
-        if (SDL_WINDOWPOS_ISCENTERED(y)) {
-            y = bounds.y + (bounds.h - window->windowed.h) / 2;
-        }
+    if (SDL_WINDOWPOS_ISUNDEFINED(x)) {
+        x = window->windowed.x;
+    }
+    if (SDL_WINDOWPOS_ISUNDEFINED(y)) {
+        y = window->windowed.y;
     }
 
-    if ((window->flags & SDL_WINDOW_FULLSCREEN)) {
-        if (!SDL_WINDOWPOS_ISUNDEFINED(x)) {
-            window->windowed.x = x;
-        }
-        if (!SDL_WINDOWPOS_ISUNDEFINED(y)) {
-            window->windowed.y = y;
-        }
+    CalculateWindowPosition(&x, &y, window->windowed.w, window->windowed.h);
+
+    if (window->flags & SDL_WINDOW_FULLSCREEN) {
+        window->windowed.x = x;
+        window->windowed.y = y;
     } else {
-        if (!SDL_WINDOWPOS_ISUNDEFINED(x)) {
-            window->x = x;
-        }
-        if (!SDL_WINDOWPOS_ISUNDEFINED(y)) {
-            window->y = y;
-        }
+        window->x = x;
+        window->y = y;
 
         if (current_video.SetWindowPosition) {
             current_video.SetWindowPosition(window);
@@ -3198,28 +3191,8 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
             int x = window->shaper->userx;
             int y = window->shaper->usery;
 
-            if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISUNDEFINED(y) ||
-                SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISCENTERED(y)) {
-                int displayIndex;
-                SDL_Rect bounds;
+            CalculateWindowPosition(&x, &y, window->w, window->h);
 
-                if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
-                    displayIndex = (x & 0xFFFF);
-                } else {
-                    displayIndex = (y & 0xFFFF);
-                }
-                if (displayIndex >= current_video.num_displays) {
-                    displayIndex = 0;
-                }
-
-                SDL_GetDisplayBounds(displayIndex, &bounds);
-                if (SDL_WINDOWPOS_ISUNDEFINED(x) || SDL_WINDOWPOS_ISCENTERED(x)) {
-                    window->x = bounds.x + (bounds.w - window->w) / 2;
-                }
-                if (SDL_WINDOWPOS_ISUNDEFINED(y) || SDL_WINDOWPOS_ISCENTERED(y)) {
-                    window->y = bounds.y + (bounds.h - window->h) / 2;
-                }
-            }
             SDL_SetWindowPosition(window, x, y);
             window->shaper->userx = 0;
             window->shaper->usery = 0;
