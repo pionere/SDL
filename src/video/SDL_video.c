@@ -3183,7 +3183,9 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 
-    if (!shape->format || (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode))) {
+    if (!shape->format ||
+        (shape->format->BytesPerPixel == 0 || shape->format->BytesPerPixel > 4) ||
+        (shape->format->Amask == 0 && SDL_SHAPEMODEALPHA(shape_mode->mode))) {
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
 

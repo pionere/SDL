@@ -37,11 +37,10 @@ SDL_bool SDL_IsShapedWindow(const SDL_Window *window)
 /* REQUIRES that bitmap point to a w-by-h bitmap with ppb pixels-per-byte. */
 void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shape, Uint8 *bitmap, Uint8 ppb)
 {
-    int x = 0;
-    int y = 0;
-    Uint8 r = 0, g = 0, b = 0, alpha = 0;
-    Uint8 *pixel = NULL;
-    Uint32 pixel_value = 0, mask_value = 0;
+    int x, y;
+    Uint8 r, g, b, alpha;
+    Uint8 *pixel;
+    Uint32 pixel_value, mask_value;
     size_t bytes_per_scanline = (size_t)(shape->w + (ppb - 1)) / ppb;
     Uint8 *bitmap_scanline;
     SDL_Color key;
@@ -57,8 +56,6 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
     bitmap_scanline = bitmap;
     for (y = 0; y < shape->h; y++) {
         for (x = 0; x < shape->w; x++) {
-            alpha = 0;
-            pixel_value = 0;
             pixel = (Uint8 *)(shape->pixels) + (y * shape->pitch) + (x * shape->format->BytesPerPixel);
             switch (shape->format->BytesPerPixel) {
             case 1:
@@ -72,6 +69,10 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
                 break;
             case 4:
                 pixel_value = *(Uint32 *)pixel;
+                break;
+            default:
+                SDL_assume(!"Invalid BytesPerPixel");
+                pixel_value = 0;
                 break;
             }
             SDL_GetRGBA(pixel_value, shape->format, &r, &g, &b, &alpha);
@@ -91,6 +92,7 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
                 break;
             default:
                 SDL_assume(!"Invalid shape mode");
+                mask_value = 0;
                 break;
             }
             bitmap_scanline[x / ppb] |= mask_value << (x % ppb);
@@ -105,15 +107,14 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
 
 static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *mode, SDL_Surface *mask, SDL_Rect dimensions)
 {
-    int x = 0, y = 0;
-    Uint8 *pixel = NULL;
-    Uint32 pixel_value = 0;
-    Uint8 r = 0, g = 0, b = 0, a = 0;
-    SDL_bool pixel_opaque = SDL_FALSE;
+    int x, y;
+    Uint8 *pixel;
+    Uint32 pixel_value;
+    Uint8 r, g, b, a;
+    SDL_bool pixel_opaque;
     int last_opaque = -1;
     SDL_Color key;
     SDL_ShapeTree *result = (SDL_ShapeTree *)SDL_malloc(sizeof(SDL_ShapeTree));
-    SDL_Rect next = { 0, 0, 0, 0 };
 
     if (!result) {
         SDL_OutOfMemory();
@@ -122,7 +123,6 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
 
     for (y = dimensions.y; y < dimensions.y + dimensions.h; y++) {
         for (x = dimensions.x; x < dimensions.x + dimensions.w; x++) {
-            pixel_value = 0;
             pixel = (Uint8 *)(mask->pixels) + (y * mask->pitch) + (x * mask->format->BytesPerPixel);
             switch (mask->format->BytesPerPixel) {
             case 1:
@@ -136,6 +136,10 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
                 break;
             case 4:
                 pixel_value = *(Uint32 *)pixel;
+                break;
+            default:
+                SDL_assume(!"Invalid BytesPerPixel");
+                pixel_value = 0;
                 break;
             }
             SDL_GetRGBA(pixel_value, mask->format, &r, &g, &b, &a);
@@ -155,14 +159,18 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
                 break;
             default:
                 SDL_assume(!"Invalid shape mode");
+                pixel_opaque = SDL_FALSE;
                 break;
+            }
+            if (last_opaque == pixel_opaque) {
+                continue;
             }
             if (last_opaque == -1) {
                 last_opaque = pixel_opaque;
-            }
-            if (last_opaque != pixel_opaque) {
+            } else {
                 const int halfwidth = (dimensions.w >> 1);
                 const int halfheight = (dimensions.h >> 1);
+                SDL_Rect next;
 
                 result->kind = QuadShape;
 
