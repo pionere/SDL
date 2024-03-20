@@ -500,15 +500,17 @@ static void DeactivateMotionPlus(SDL_DriverWii_Context *ctx)
 
 static void UpdatePowerLevelWii(SDL_Joystick *joystick, Uint8 batteryLevelByte)
 {
+    SDL_JoystickPowerLevel ePowerLevel;
     if (batteryLevelByte > 178) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+        ePowerLevel = SDL_JOYSTICK_POWER_FULL;
     } else if (batteryLevelByte > 51) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+        ePowerLevel = SDL_JOYSTICK_POWER_MEDIUM;
     } else if (batteryLevelByte > 13) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+        ePowerLevel = SDL_JOYSTICK_POWER_LOW;
     } else {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+        ePowerLevel = SDL_JOYSTICK_POWER_EMPTY;
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, ePowerLevel);
 }
 
 static void UpdatePowerLevelWiiU(SDL_Joystick *joystick, Uint8 extensionBatteryByte)
@@ -516,6 +518,7 @@ static void UpdatePowerLevelWiiU(SDL_Joystick *joystick, Uint8 extensionBatteryB
     SDL_bool charging = extensionBatteryByte & 0x08 ? SDL_FALSE : SDL_TRUE;
     SDL_bool pluggedIn = extensionBatteryByte & 0x04 ? SDL_FALSE : SDL_TRUE;
     Uint8 batteryLevel = extensionBatteryByte >> 4;
+    SDL_JoystickPowerLevel ePowerLevel;
 
     /* Not sure if all Wii U Pro controllers act like this, but on mine
      * 4, 3, and 2 are held for about 20 hours each
@@ -524,16 +527,17 @@ static void UpdatePowerLevelWiiU(SDL_Joystick *joystick, Uint8 extensionBatteryB
      * No value above 4 has been observed.
      */
     if (pluggedIn && !charging) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_WIRED);
+        ePowerLevel = SDL_JOYSTICK_POWER_WIRED;
     } else if (batteryLevel >= 4) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+        ePowerLevel = SDL_JOYSTICK_POWER_FULL;
     } else if (batteryLevel > 1) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+        ePowerLevel = SDL_JOYSTICK_POWER_MEDIUM;
     } else if (batteryLevel == 1) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+        ePowerLevel = SDL_JOYSTICK_POWER_LOW;
     } else {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+        ePowerLevel = SDL_JOYSTICK_POWER_EMPTY;
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, ePowerLevel);
 }
 
 static EWiiInputReportIDs GetButtonPacketType(SDL_DriverWii_Context *ctx)

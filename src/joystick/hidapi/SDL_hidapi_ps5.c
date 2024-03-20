@@ -1319,7 +1319,7 @@ static void HIDAPI_DriverPS5_HandleStatePacket(SDL_Joystick *joystick, SDL_hid_d
     static const float TOUCHPAD_SCALEX = 1.0f / 1920;
     static const float TOUCHPAD_SCALEY = 1.0f / 1070;
     Uint8 touchpad_state;
-    int touchpad_x, touchpad_y;
+    int touchpad_x, touchpad_y, level;
 
     if (ctx->report_touchpad) {
         touchpad_state = !(packet->ucTouchpadCounter1 & 0x80) ? SDL_PRESSED : SDL_RELEASED;
@@ -1338,20 +1338,21 @@ static void HIDAPI_DriverPS5_HandleStatePacket(SDL_Joystick *joystick, SDL_hid_d
      */
     if (!ctx->device->is_bluetooth) {
         /* 0x20 set means fully charged */
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_WIRED);
+        level = SDL_JOYSTICK_POWER_WIRED;
     } else {
         /* Battery level ranges from 0 to 10 */
-        int level = (packet->ucBatteryLevel & 0xF);
+        level = (packet->ucBatteryLevel & 0xF);
         if (level == 0) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+            level = SDL_JOYSTICK_POWER_EMPTY;
         } else if (level <= 2) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+            level = SDL_JOYSTICK_POWER_LOW;
         } else if (level <= 7) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+            level = SDL_JOYSTICK_POWER_MEDIUM;
         } else {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+            level = SDL_JOYSTICK_POWER_FULL;
         }
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, level);
 
     SDL_memcpy(&ctx->last_state, packet, sizeof(ctx->last_state));
 }

@@ -1001,21 +1001,23 @@ static void HIDAPI_DriverPS4_HandleStatePacket(SDL_Joystick *joystick, SDL_hid_d
     SDL_PrivateJoystickAxis(joystick, SDL_CONTROLLER_AXIS_RIGHTY, axis);
 
     if (size > 9 && ctx->device->is_bluetooth && ctx->official_controller) {
+        int level;
         if (packet->ucBatteryLevel & 0x10) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_WIRED);
+            level = SDL_JOYSTICK_POWER_WIRED;
         } else {
             /* Battery level ranges from 0 to 10 */
-            int level = (packet->ucBatteryLevel & 0xF);
+            level = (packet->ucBatteryLevel & 0xF);
             if (level == 0) {
-                SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+                level = SDL_JOYSTICK_POWER_EMPTY;
             } else if (level <= 2) {
-                SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+                level = SDL_JOYSTICK_POWER_LOW;
             } else if (level <= 7) {
-                SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+                level = SDL_JOYSTICK_POWER_MEDIUM;
             } else {
-                SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+                level = SDL_JOYSTICK_POWER_FULL;
             }
         }
+        SDL_PrivateJoystickBatteryLevel(joystick, level);
     }
 
     if (size > 9 && ctx->report_touchpad) {

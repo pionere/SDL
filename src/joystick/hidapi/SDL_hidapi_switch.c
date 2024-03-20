@@ -2009,6 +2009,8 @@ static void HandleMiniControllerStateR(SDL_Joystick *joystick, SDL_DriverSwitch_
 
 static void HandleFullControllerState(SDL_Joystick *joystick, SDL_DriverSwitch_Context *ctx, SwitchStatePacket_t *packet) SDL_NO_THREAD_SAFETY_ANALYSIS /* We unlock and lock the device lock to be able to change IMU state */
 {
+    int level;
+
     if (ctx->m_eControllerType == k_eSwitchDeviceInfoControllerType_JoyConLeft) {
         if (ctx->device->parent || ctx->m_bVerticalMode) {
             HandleCombinedControllerStateL(joystick, ctx, packet);
@@ -2078,22 +2080,23 @@ static void HandleFullControllerState(SDL_Joystick *joystick, SDL_DriverSwitch_C
      * LSB of connection nibble is USB/Switch connection status
      */
     if (packet->controllerState.ucBatteryAndConnection & 0x1) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_WIRED);
+        level = SDL_JOYSTICK_POWER_WIRED;
     } else {
         /* LSB of the battery nibble is used to report charging.
          * The battery level is reported from 0(empty)-8(full)
          */
-        int level = (packet->controllerState.ucBatteryAndConnection & 0xE0) >> 4;
+        level = (packet->controllerState.ucBatteryAndConnection & 0xE0) >> 4;
         if (level == 0) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+            level = SDL_JOYSTICK_POWER_EMPTY;
         } else if (level <= 2) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+            level = SDL_JOYSTICK_POWER_LOW;
         } else if (level <= 6) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+            level = SDL_JOYSTICK_POWER_MEDIUM;
         } else {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+            level = SDL_JOYSTICK_POWER_FULL;
         }
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, level);
 
     if (ctx->m_bReportSensors) {
         SDL_bool bHasSensorData = (packet->imuState[0].sAccelZ != 0 ||

@@ -113,16 +113,18 @@ static void SDLCALL SDL_PlayerLEDHintChanged(void *userdata, const char *name, c
 static void UpdatePowerLevel(SDL_Joystick *joystick, Uint8 level)
 {
     float normalized_level = (float)level / 255.0f;
+    SDL_JoystickPowerLevel ePowerLevel;
 
     if (normalized_level <= 0.05f) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+        ePowerLevel = SDL_JOYSTICK_POWER_EMPTY;
     } else if (normalized_level <= 0.20f) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+        ePowerLevel = SDL_JOYSTICK_POWER_LOW;
     } else if (normalized_level <= 0.70f) {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+        ePowerLevel = SDL_JOYSTICK_POWER_MEDIUM;
     } else {
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+        ePowerLevel = SDL_JOYSTICK_POWER_FULL;
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, ePowerLevel);
 }
 
 static SDL_bool HIDAPI_DriverXbox360W_InitDevice(SDL_HIDAPI_Device *device)

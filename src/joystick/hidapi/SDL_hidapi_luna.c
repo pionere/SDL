@@ -270,14 +270,15 @@ static void HIDAPI_DriverLuna_HandleBluetoothStatePacket(SDL_Joystick *joystick,
         /* Battery level report */
         int level = data[1] * 100 / 0xFF;
         if (level == 0) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_EMPTY);
+            level = SDL_JOYSTICK_POWER_EMPTY;
         } else if (level <= 20) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+            level = SDL_JOYSTICK_POWER_LOW;
         } else if (level <= 70) {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+            level = SDL_JOYSTICK_POWER_MEDIUM;
         } else {
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+            level = SDL_JOYSTICK_POWER_FULL;
         }
+        SDL_PrivateJoystickBatteryLevel(joystick, level);
 
         return;
     }

@@ -1052,23 +1052,25 @@ static void HIDAPI_DriverXboxOneBluetooth_HandleBatteryPacket(SDL_Joystick *joys
 {
     Uint8 flags = data[1];
     SDL_bool on_usb = (((flags & 0x0C) >> 2) == 0);
+    SDL_JoystickPowerLevel ePowerLevel;
 
     if (on_usb) {
         /* Does this ever happen? */
-        SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_WIRED);
+        ePowerLevel = SDL_JOYSTICK_POWER_WIRED;
     } else {
         switch ((flags & 0x03)) {
         case 0:
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_LOW);
+            ePowerLevel = SDL_JOYSTICK_POWER_LOW;
             break;
         case 1:
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_MEDIUM);
+            ePowerLevel = SDL_JOYSTICK_POWER_MEDIUM;
             break;
         default: /* 2, 3 */
-            SDL_PrivateJoystickBatteryLevel(joystick, SDL_JOYSTICK_POWER_FULL);
+            ePowerLevel = SDL_JOYSTICK_POWER_FULL;
             break;
         }
     }
+    SDL_PrivateJoystickBatteryLevel(joystick, ePowerLevel);
 }
 
 #ifdef SET_SERIAL_AFTER_OPEN
