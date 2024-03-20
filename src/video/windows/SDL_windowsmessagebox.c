@@ -705,16 +705,12 @@ static int WIN_ShowOldMessageBox(const SDL_MessageBoxData *messageboxdata, int *
         return SDL_SetError("Number of butons exceeds limit of %d", MAX_BUTTONS);
     }
 
-    switch (messageboxdata->flags) {
-    case SDL_MESSAGEBOX_ERROR:
+    if (messageboxdata->flags & SDL_MESSAGEBOX_ERROR) {
         icon = (Uint16)(size_t)IDI_ERROR;
-        break;
-    case SDL_MESSAGEBOX_WARNING:
+    } else if (messageboxdata->flags & SDL_MESSAGEBOX_WARNING) {
         icon = (Uint16)(size_t)IDI_WARNING;
-        break;
-    case SDL_MESSAGEBOX_INFORMATION:
+    } else if (messageboxdata->flags & SDL_MESSAGEBOX_INFORMATION) {
         icon = (Uint16)(size_t)IDI_INFORMATION;
-        break;
     }
 
     /* Jan 25th, 2013 - dant@fleetsa.com
@@ -845,10 +841,10 @@ static int WIN_ShowOldMessageBox(const SDL_MessageBoxData *messageboxdata, int *
         /* We always have to create the dialog buttons from left to right
          * so that the tab order is correct.  Select the info to use
          * depending on which order was requested. */
-        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT) {
-            sdlButton = &messageboxdata->buttons[i];
-        } else {
+        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
             sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
+        } else {
+            sdlButton = &messageboxdata->buttons[i];
         }
 
         if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
@@ -983,10 +979,10 @@ int WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     nCancelButton = 0;
     for (i = 0; i < messageboxdata->numbuttons; i++) {
         const char *buttontext;
-        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT) {
-            pButton = &pButtons[i];
-        } else {
+        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
             pButton = &pButtons[messageboxdata->numbuttons - 1 - i];
+        } else {
+            pButton = &pButtons[i];
         }
         if (messageboxdata->buttons[i].flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
             nCancelButton = messageboxdata->buttons[i].buttonid;

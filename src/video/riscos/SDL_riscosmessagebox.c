@@ -33,27 +33,38 @@ int RISCOS_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttoni
     _kernel_swi_regs regs;
     _kernel_oserror error;
     char buttonstring[1024];
-    int i;
+    int i, numbtns;
 
     error.errnum = 0;
     SDL_strlcpy(error.errmess, messageboxdata->message, 252);
     regs.r[0] = (unsigned int)&error;
 
-    regs.r[1] = (1 << 8) | (1 << 4);
-    if (messageboxdata->flags == SDL_MESSAGEBOX_INFORMATION) {
-        regs.r[1] |= (1 << 9);
-    } else if (messageboxdata->flags == SDL_MESSAGEBOX_WARNING) {
-        regs.r[1] |= (2 << 9);
+    if (messageboxdata->flags & SDL_MESSAGEBOX_ERROR) {
+        i = 0;
+    } else if (messageboxdata->flags & SDL_MESSAGEBOX_INFORMATION) {
+        i = 1;
+    } else if (messageboxdata->flags & SDL_MESSAGEBOX_WARNING) {
+        i = 2;
+    } else {
+        i = 7;
     }
+    regs.r[1] = (1 << 8) | (1 << 4) | (i << 9);
 
     regs.r[2] = (unsigned int)messageboxdata->title;
     regs.r[3] = 0;
     regs.r[4] = 0;
 
     buttonstring[0] = '\0';
-    for (i = 0; i < messageboxdata->numbuttons; i++) {
-        SDL_strlcat(buttonstring, messageboxdata->buttons[i].text, 1024);
-        if (i + 1 < messageboxdata->numbuttons) {
+    numbtns = messageboxdata->numbuttons;
+    for (i = 0; i < numbtns; i++) {
+        int btnIdx;
+        if (!(messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
+            btnIdx = i;
+        } else {
+            btnIdx = numbtns - 1 - i;
+        }
+        SDL_strlcat(buttonstring, messageboxdata->buttons[btnIdx].text, 1024);
+        if (i + 1 < numbtns) {
             SDL_strlcat(buttonstring, ",", 1024);
         }
     }
@@ -61,7 +72,18 @@ int RISCOS_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttoni
 
     _kernel_swi(Wimp_ReportError, &regs, &regs);
 
-    *buttonid = (regs.r[1] == 0) ? -1 : messageboxdata->buttons[regs.r[1] - 3].buttonid;
+    i = -1;
+    if (regs.r[1] != 0) {
+        int btnIdx;
+        i = regs.r[1] - 3;
+        if (!(messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
+            btnIdx = i;
+        } else {
+            btnIdx = numbtns - 1 - i;
+        }
+        i = messageboxdata->buttons[btnIdx].buttonid;
+    }
+    *buttonid = i;
     return 0;
 }
 

@@ -82,24 +82,18 @@ class HAIKU_SDL_MessageBox : public BAlert
 	}
 
 	alert_type
-	ConvertMessageBoxType(const SDL_MessageBoxFlags aWindowType) const
+	ConvertMessageBoxType(const int aWindowFlags) const
 	{
-		switch (aWindowType)
-		{
-			default:
-			case SDL_MESSAGEBOX_WARNING:
-			{
-				return B_WARNING_ALERT;
-			}
-			case SDL_MESSAGEBOX_ERROR:
-			{
-				return B_STOP_ALERT;
-			}
-			case SDL_MESSAGEBOX_INFORMATION:
-			{
-				return B_INFO_ALERT;
-			}
+		if (aWindowFlags & SDL_MESSAGEBOX_ERROR) {
+			return B_STOP_ALERT;
 		}
+		if (aWindowFlags & SDL_MESSAGEBOX_WARNING) {
+			return B_WARNING_ALERT;
+		}
+		if (aWindowFlags & SDL_MESSAGEBOX_INFORMATION) {
+			return B_INFO_ALERT;
+		}
+		return B_EMPTY_ALERT;
 	}
 
 	rgb_color
@@ -141,7 +135,7 @@ class HAIKU_SDL_MessageBox : public BAlert
 		if (aMessageBoxData->numbuttons <= 0) {
 			AddButton(HAIKU_SDL_DefButton);
 		} else {
-			AddSdlButtons(aMessageBoxData->buttons, aMessageBoxData->numbuttons);
+			AddSdlButtons(aMessageBoxData);
 		}
 
 		if (aMessageBoxData->colorScheme != NULL) {
@@ -154,7 +148,7 @@ class HAIKU_SDL_MessageBox : public BAlert
 		(aMessageBoxData->message[0]) ?
 			SetMessageText(aMessageBoxData->message) : SetMessageText(HAIKU_SDL_DefMessage);
 
-		SetType(ConvertMessageBoxType(static_cast<SDL_MessageBoxFlags>(aMessageBoxData->flags)));
+		SetType(ConvertMessageBoxType(aMessageBoxData->flags));
 	}
 
 	void
@@ -254,26 +248,35 @@ class HAIKU_SDL_MessageBox : public BAlert
 	}
 
 	void
-	AddSdlButtons(const SDL_MessageBoxButtonData *aButtons, int aNumButtons)
+	AddSdlButtons(const SDL_MessageBoxData *aMessageBoxData)
 	{
+		const SDL_MessageBoxButtonData *aButtons = aMessageBoxData->buttons;
+		int aNumButtons = aMessageBoxData->numbuttons;
+
 		for (int i = 0; i < aNumButtons; ++i) {
-			fButtons.push_back(&aButtons[i]);
+			int btnIdx;
+			if (!(aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
+				btnIdx = i;
+			} else {
+				btnIdx = messageboxdata->numbuttons - 1 - i;
+			}
+			fButtons.push_back(&aButtons[btnIdx]);
 		}
 
-		std::sort(fButtons.begin(), fButtons.end(), &HAIKU_SDL_MessageBox::SortButtonsPredicate);
+		// std::sort(fButtons.begin(), fButtons.end(), &HAIKU_SDL_MessageBox::SortButtonsPredicate);
 
-		size_t countButtons = fButtons.size();
-		for (size_t i = 0; i < countButtons; ++i) {
+		// size_t countButtons = fButtons.size();
+		for (int i = 0; i < aNumButtons; ++i) {
 			switch (fButtons[i]->flags)
 			{
 				case SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT:
 				{
-					fCloseButton = static_cast<int>(i);
+					fCloseButton = i;
 					break;
 				}
 				case SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT:
 				{
-					fDefaultButton = static_cast<int>(i);
+					fDefaultButton = i;
 					break;
 				}
 				default:
@@ -348,14 +351,14 @@ extern "C" {
 
 int HAIKU_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 {
-	// Initialize button by closed or error value first.
-	*buttonid = G_CLOSE_BUTTON_ID;
+	BApplication *application = NULL;
+	HAIKU_SDL_MessageBox *SDL_MessageBox;
+	int closeButton, pushedButton, btnIdx;
 
 	// We need to check "be_app" pointer to "NULL". The "messageboxdata->window" pointer isn't appropriate here
 	// because it is possible to create a MessageBox from another thread. This fixes the following errors:
 	// "You need a valid BApplication object before interacting with the app_server."
 	// "2 BApplication objects were created. Only one is allowed."
-	BApplication *application = NULL;
 	if (!be_app) {
 		application = new(std::nothrow) BApplication(SDL_signature);
 		if (!application) {
@@ -363,12 +366,12 @@ int HAIKU_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid
 		}
 	}
 
-	HAIKU_SDL_MessageBox *SDL_MessageBox = new(std::nothrow) HAIKU_SDL_MessageBox(messageboxdata);
+	SDL_MessageBox = new(std::nothrow) HAIKU_SDL_MessageBox(messageboxdata);
 	if (!SDL_MessageBox) {
 		return SDL_SetError("Cannot create the HAIKU_SDL_MessageBox (BAlert inheritor) object. Lack of memory?");
 	}
-	const int closeButton = SDL_MessageBox->GetCloseButtonId();
-	int pushedButton = SDL_MessageBox->Go();
+	closeButton = SDL_MessageBox->GetCloseButtonId();
+	pushedButton = SDL_MessageBox->Go();
 
 	// The close button is equivalent to pressing Escape.
 	if (closeButton != G_CLOSE_BUTTON_ID && pushedButton == G_CLOSE_BUTTON_ID) {
@@ -386,6 +389,14 @@ int HAIKU_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid
 	}
 
 	// Initialize button by real pushed value then.
+	if (pushedButton != G_CLOSE_BUTTON_ID) {
+		if (!(aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
+			btnIdx = pushedButton;
+		} else {
+			btnIdx = messageboxdata->numbuttons - 1 - pushedButton;
+		}
+		pushedButton = aMessageBoxData->buttons[btnIdx].buttonid;
+	}
 	*buttonid = pushedButton;
 
 	return 0;

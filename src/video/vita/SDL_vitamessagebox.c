@@ -67,6 +67,8 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         msgParam.buttonType = SCE_MSG_DIALOG_BUTTON_TYPE_YESNO;
     } else if (messageboxdata->numbuttons == 1) {
         msgParam.buttonType = SCE_MSG_DIALOG_BUTTON_TYPE_OK;
+    } else {
+        msgParam.buttonType = SCE_MSG_DIALOG_BUTTON_TYPE_NONE;
     }
     param.userMsgParam = &msgParam;
 
@@ -84,25 +86,29 @@ int VITA_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     gxm_init_for_common_dialog();
 
     if (init_result >= 0) {
+        int btnIdx;
         while (sceMsgDialogGetStatus() == SCE_COMMON_DIALOG_STATUS_RUNNING) {
             gxm_swap_for_common_dialog();
         }
         SDL_zero(dialog_result);
         sceMsgDialogGetResult(&dialog_result);
 
+        btnIdx = -1;
         if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_BUTTON1) {
-            *buttonid = messageboxdata->buttons[0].buttonid;
+            btnIdx = 0;
         } else if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_BUTTON2) {
-            *buttonid = messageboxdata->buttons[1].buttonid;
+            btnIdx = 1;
         } else if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_BUTTON3) {
-            *buttonid = messageboxdata->buttons[2].buttonid;
+            btnIdx = 2;
         } else if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_YES) {
-            *buttonid = messageboxdata->buttons[0].buttonid;
+            btnIdx = 0;
         } else if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_NO) {
-            *buttonid = messageboxdata->buttons[1].buttonid;
+            btnIdx = 1;
         } else if (dialog_result.buttonId == SCE_MSG_DIALOG_BUTTON_ID_OK) {
-            *buttonid = messageboxdata->buttons[0].buttonid;
+            btnIdx = 0;
         }
+        *buttonid = btnIdx < 0 ? -1 : messageboxdata->buttons[btnIdx].buttonid;
+
         sceMsgDialogTerm();
     } else {
         return -1;

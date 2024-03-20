@@ -420,7 +420,7 @@ static HWND _makeDlg(const SDL_MessageBoxData *messageboxdata)
         SDL_free(pszBtnText);
 
         pDlgItem->flStyle = BS_PUSHBUTTON | WS_TABSTOP | WS_VISIBLE;
-        if (pSDLBtnData[ulIdx].flags == SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
+        if (pSDLBtnData[ulIdx].flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
             pDlgItem->flStyle |= BS_DEFAULT;
             pTemplate->iItemFocus = ulIdx + 3; /* +3 - frame, static text and icon. */
             pSDLColor = &pSDLColors[SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED];
@@ -533,7 +533,7 @@ int OS2_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         ULONG   ulIdx;
 
         for (ulIdx = 0; ulIdx < cSDLBtnData; ulIdx++, pSDLBtnData++) {
-            if (pSDLBtnData->flags == SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
+            if (pSDLBtnData->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
                 *buttonid = pSDLBtnData->buttonid;
                 fSuccess = TRUE;
                 break;
@@ -553,7 +553,7 @@ int OS2_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         WinTerminate(hab);
     }
 
-    return (fSuccess)? 0 : -1;
+    return (fSuccess) ? 0 : -1;
 }
 
 #endif /* SDL_VIDEO_DRIVER_OS2 */
