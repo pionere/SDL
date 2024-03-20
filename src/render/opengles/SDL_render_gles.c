@@ -334,7 +334,7 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
         data->pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
-        data->pixels = SDL_calloc(1, texture->h * data->pitch);
+        data->pixels = SDL_calloc(texture->h, data->pitch);
         if (!data->pixels) {
             SDL_free(data);
             return SDL_OutOfMemory();

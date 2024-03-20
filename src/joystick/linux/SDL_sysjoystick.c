@@ -2296,7 +2296,7 @@ static SDL_bool LINUX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMap
 
     /* We temporarily open the device to check how it's configured. Make
        a fake SDL_Joystick object to do so. */
-    joystick = (SDL_Joystick *)SDL_calloc(sizeof(*joystick), 1);
+    joystick = (SDL_Joystick *)SDL_calloc(1, sizeof(*joystick));
     if (!joystick) {
         SDL_OutOfMemory();
         return SDL_FALSE;

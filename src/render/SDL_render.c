@@ -1378,7 +1378,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
         } else if (access == SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
             texture->pitch = (((w * SDL_BYTESPERPIXEL(format)) + 3) & ~3);
-            texture->pixels = SDL_calloc(1, (size_t)texture->pitch * h);
+            texture->pixels = SDL_calloc(h, texture->pitch);
             if (!texture->pixels) {
                 SDL_OutOfMemory();
                 goto error;

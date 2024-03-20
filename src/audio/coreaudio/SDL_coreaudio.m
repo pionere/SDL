@@ -982,7 +982,7 @@ static int prepare_audioqueue(_THIS)
     }
 
     this->hidden->numAudioBuffers = numAudioBuffers;
-    this->hidden->audioBuffer = SDL_calloc(1, sizeof(AudioQueueBufferRef) * numAudioBuffers);
+    this->hidden->audioBuffer = SDL_calloc(numAudioBuffers, sizeof(AudioQueueBufferRef));
     if (this->hidden->audioBuffer == NULL) {
         this->hidden->error_id = SDL_COREAUDIO_ERROR_OUT_OF_MEMORY;
         return 0;

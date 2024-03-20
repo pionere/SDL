@@ -120,14 +120,10 @@ static Cursor X11_CreatePixmapCursor(SDL_Surface *surface, int hot_x, int hot_y)
     unsigned int rfg, gfg, bfg, rbg, gbg, bbg, fgBits, bgBits;
     size_t width_bytes = ((surface->w + 7) & ~((size_t)7)) / 8;
 
-    data_bits = SDL_calloc(1, surface->h * width_bytes);
-    if (!data_bits) {
-        SDL_OutOfMemory();
-        return None;
-    }
-
-    mask_bits = SDL_calloc(1, surface->h * width_bytes);
-    if (!mask_bits) {
+    data_bits = SDL_calloc(surface->h, width_bytes);
+    mask_bits = SDL_calloc(surface->h, width_bytes);
+    if (!data_bits || !mask_bits) {
+        SDL_free(mask_bits);
         SDL_free(data_bits);
         SDL_OutOfMemory();
         return None;
