@@ -182,47 +182,23 @@ static SDL_Cursor *WIN_CreateSystemCursor(SDL_SystemCursor id)
 {
     SDL_Cursor *cursor;
     LPCTSTR name;
-
+    SDL_COMPILE_TIME_ASSERT(windows_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
     switch (id) {
+    case SDL_SYSTEM_CURSOR_ARROW:     name = IDC_ARROW;    break;
+    case SDL_SYSTEM_CURSOR_IBEAM:     name = IDC_IBEAM;    break;
+    case SDL_SYSTEM_CURSOR_WAIT:      name = IDC_WAIT;     break;
+    case SDL_SYSTEM_CURSOR_CROSSHAIR: name = IDC_CROSS;    break;
+    case SDL_SYSTEM_CURSOR_WAITARROW: name = IDC_WAIT;     break;
+    case SDL_SYSTEM_CURSOR_SIZENWSE:  name = IDC_SIZENWSE; break;
+    case SDL_SYSTEM_CURSOR_SIZENESW:  name = IDC_SIZENESW; break;
+    case SDL_SYSTEM_CURSOR_SIZEWE:    name = IDC_SIZEWE;   break;
+    case SDL_SYSTEM_CURSOR_SIZENS:    name = IDC_SIZENS;   break;
+    case SDL_SYSTEM_CURSOR_SIZEALL:   name = IDC_SIZEALL;  break;
+    case SDL_SYSTEM_CURSOR_NO:        name = IDC_NO;       break;
+    case SDL_SYSTEM_CURSOR_HAND:      name = IDC_HAND;     break;
     default:
         SDL_assume(!"Unknown system cursor");
         return NULL;
-    case SDL_SYSTEM_CURSOR_ARROW:
-        name = IDC_ARROW;
-        break;
-    case SDL_SYSTEM_CURSOR_IBEAM:
-        name = IDC_IBEAM;
-        break;
-    case SDL_SYSTEM_CURSOR_WAIT:
-        name = IDC_WAIT;
-        break;
-    case SDL_SYSTEM_CURSOR_CROSSHAIR:
-        name = IDC_CROSS;
-        break;
-    case SDL_SYSTEM_CURSOR_WAITARROW:
-        name = IDC_WAIT;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENWSE:
-        name = IDC_SIZENWSE;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENESW:
-        name = IDC_SIZENESW;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZEWE:
-        name = IDC_SIZEWE;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENS:
-        name = IDC_SIZENS;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZEALL:
-        name = IDC_SIZEALL;
-        break;
-    case SDL_SYSTEM_CURSOR_NO:
-        name = IDC_NO;
-        break;
-    case SDL_SYSTEM_CURSOR_HAND:
-        name = IDC_HAND;
-        break;
     }
 
     cursor = SDL_calloc(1, sizeof(*cursor));

@@ -50,47 +50,23 @@ static SDL_Cursor *WINRT_CreateSystemCursor(SDL_SystemCursor id)
 {
     SDL_Cursor *cursor;
     CoreCursorType cursorType = CoreCursorType::Arrow;
-
+    SDL_COMPILE_TIME_ASSERT(winrt_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
     switch (id) {
+    case SDL_SYSTEM_CURSOR_ARROW:     cursorType = CoreCursorType::Arrow;                  break;
+    case SDL_SYSTEM_CURSOR_IBEAM:     cursorType = CoreCursorType::IBeam;                  break;
+    case SDL_SYSTEM_CURSOR_WAIT:      cursorType = CoreCursorType::Wait;                   break;
+    case SDL_SYSTEM_CURSOR_CROSSHAIR: cursorType = CoreCursorType::Cross;                  break;
+    case SDL_SYSTEM_CURSOR_WAITARROW: cursorType = CoreCursorType::Wait;                   break;
+    case SDL_SYSTEM_CURSOR_SIZENWSE:  cursorType = CoreCursorType::SizeNorthwestSoutheast; break;
+    case SDL_SYSTEM_CURSOR_SIZENESW:  cursorType = CoreCursorType::SizeNortheastSouthwest; break;
+    case SDL_SYSTEM_CURSOR_SIZEWE:    cursorType = CoreCursorType::SizeWestEast;           break;
+    case SDL_SYSTEM_CURSOR_SIZENS:    cursorType = CoreCursorType::SizeNorthSouth;         break;
+    case SDL_SYSTEM_CURSOR_SIZEALL:   cursorType = CoreCursorType::SizeAll;                break;
+    case SDL_SYSTEM_CURSOR_NO:        cursorType = CoreCursorType::UniversalNo;            break;
+    case SDL_SYSTEM_CURSOR_HAND:      cursorType = CoreCursorType::Hand;                   break;
     default:
         SDL_assume(!"Unknown system cursor");
         return NULL;
-    case SDL_SYSTEM_CURSOR_ARROW:
-        cursorType = CoreCursorType::Arrow;
-        break;
-    case SDL_SYSTEM_CURSOR_IBEAM:
-        cursorType = CoreCursorType::IBeam;
-        break;
-    case SDL_SYSTEM_CURSOR_WAIT:
-        cursorType = CoreCursorType::Wait;
-        break;
-    case SDL_SYSTEM_CURSOR_CROSSHAIR:
-        cursorType = CoreCursorType::Cross;
-        break;
-    case SDL_SYSTEM_CURSOR_WAITARROW:
-        cursorType = CoreCursorType::Wait;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENWSE:
-        cursorType = CoreCursorType::SizeNorthwestSoutheast;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENESW:
-        cursorType = CoreCursorType::SizeNortheastSouthwest;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZEWE:
-        cursorType = CoreCursorType::SizeWestEast;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZENS:
-        cursorType = CoreCursorType::SizeNorthSouth;
-        break;
-    case SDL_SYSTEM_CURSOR_SIZEALL:
-        cursorType = CoreCursorType::SizeAll;
-        break;
-    case SDL_SYSTEM_CURSOR_NO:
-        cursorType = CoreCursorType::UniversalNo;
-        break;
-    case SDL_SYSTEM_CURSOR_HAND:
-        cursorType = CoreCursorType::Hand;
-        break;
     }
 
     cursor = (SDL_Cursor *)SDL_calloc(1, sizeof(*cursor));

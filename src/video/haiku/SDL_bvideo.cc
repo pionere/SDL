@@ -194,11 +194,8 @@ static SDL_Cursor * HAIKU_CreateSystemCursor(SDL_SystemCursor id)
     SDL_Cursor *cursor;
     BCursorID cursorId = B_CURSOR_ID_SYSTEM_DEFAULT;
 
-    switch(id)
-    {
-    default:
-        SDL_assume(!"Unknown system cursor");
-        return NULL;
+    SDL_COMPILE_TIME_ASSERT(haiku_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
+    switch (id) {
     case SDL_SYSTEM_CURSOR_ARROW:     cursorId = B_CURSOR_ID_SYSTEM_DEFAULT; break;
     case SDL_SYSTEM_CURSOR_IBEAM:     cursorId = B_CURSOR_ID_I_BEAM; break;
     case SDL_SYSTEM_CURSOR_WAIT:      cursorId = B_CURSOR_ID_PROGRESS; break;
@@ -211,6 +208,9 @@ static SDL_Cursor * HAIKU_CreateSystemCursor(SDL_SystemCursor id)
     case SDL_SYSTEM_CURSOR_SIZEALL:   cursorId = B_CURSOR_ID_MOVE; break;
     case SDL_SYSTEM_CURSOR_NO:        cursorId = B_CURSOR_ID_NOT_ALLOWED; break;
     case SDL_SYSTEM_CURSOR_HAND:      cursorId = B_CURSOR_ID_FOLLOW_LINK; break;
+    default:
+        SDL_assume(!"Unknown system cursor");
+        return NULL;
     }
 
     cursor = (SDL_Cursor *) SDL_calloc(1, sizeof(*cursor));

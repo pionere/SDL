@@ -62,6 +62,7 @@ static SDL_Cursor* OS2_CreateSystemCursor(SDL_SystemCursor id)
     LONG        lSysId;
     HPOINTER    hptr;
 
+    SDL_COMPILE_TIME_ASSERT(os2_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
     switch (id) {
     case SDL_SYSTEM_CURSOR_ARROW:     lSysId = SPTR_ARROW;    break;
     case SDL_SYSTEM_CURSOR_IBEAM:     lSysId = SPTR_TEXT;     break;

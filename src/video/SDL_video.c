@@ -5113,89 +5113,93 @@ void SDL_Metal_GetDrawableSize(SDL_Window *window, int *w, int *h)
 #if defined(SDL_VIDEO_DRIVER_X11) || defined(SDL_VIDEO_DRIVER_WAYLAND) || defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
 const char *SDL_GetCSSCursorName(SDL_SystemCursor id, const char **fallback_name)
 {
+    const char* result;
     /* Reference: https://www.w3.org/TR/css-ui-4/#cursor */
     /* Also in: https://www.freedesktop.org/wiki/Specifications/cursor-spec/ */
+    SDL_COMPILE_TIME_ASSERT(video_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
     switch (id) {
     case SDL_SYSTEM_CURSOR_ARROW:
-        return "default";
-
+        result = "default";
+        break;
     case SDL_SYSTEM_CURSOR_IBEAM:
-        return "text";
-
+        result = "text";
+        break;
     case SDL_SYSTEM_CURSOR_WAIT:
-        return "wait";
-
+        result = "wait";
+        break;
     case SDL_SYSTEM_CURSOR_CROSSHAIR:
-        return "crosshair";
-
+        result = "crosshair";
+        break;
     case SDL_SYSTEM_CURSOR_WAITARROW:
-        return "progress";
-
+        result = "progress";
+        break;
     case SDL_SYSTEM_CURSOR_SIZENWSE:
         if (fallback_name) {
             /* only a single arrow */
             *fallback_name = "nw-resize";
         }
-        return "nwse-resize";
-
+        result = "nwse-resize";
+        break;
     case SDL_SYSTEM_CURSOR_SIZENESW:
         if (fallback_name) {
             /* only a single arrow */
             *fallback_name = "ne-resize";
         }
-        return "nesw-resize";
-
+        result = "nesw-resize";
+        break;
     case SDL_SYSTEM_CURSOR_SIZEWE:
         if (fallback_name) {
             *fallback_name = "col-resize";
         }
-        return "ew-resize";
-
+        result = "ew-resize";
+        break;
     case SDL_SYSTEM_CURSOR_SIZENS:
         if (fallback_name) {
             *fallback_name = "row-resize";
         }
-        return "ns-resize";
-
+        result = "ns-resize";
+        break;
     case SDL_SYSTEM_CURSOR_SIZEALL:
-        return "all-scroll";
-
+        result = "all-scroll";
+        break;
     case SDL_SYSTEM_CURSOR_NO:
-        return "not-allowed";
-
+        result = "not-allowed";
+        break;
     case SDL_SYSTEM_CURSOR_HAND:
-        return "pointer";
-
+        result = "pointer";
+        break;
 #if 0
     case SDL_SYSTEM_CURSOR_WINDOW_TOPLEFT:
-        return "nw-resize";
-
+        result = "nw-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_TOP:
-        return "n-resize";
-
+        result = "n-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_TOPRIGHT:
-        return "ne-resize";
-
+        result = "ne-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_RIGHT:
-        return "e-resize";
-
+        result = "e-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_BOTTOMRIGHT:
-        return "se-resize";
-
+        result = "se-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_BOTTOM:
-        return "s-resize";
-
+        result = "s-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_BOTTOMLEFT:
-        return "sw-resize";
-
+        result = "sw-resize";
+        break;
     case SDL_SYSTEM_CURSOR_WINDOW_LEFT:
-        return "w-resize";
+        result = "w-resize";
+        break;
 #endif
-
     default:
         SDL_assume(!"Unknown system cursor");
-        return "default";
+        result = "default";
+        break;
     }
+    return result;
 }
 #endif
 

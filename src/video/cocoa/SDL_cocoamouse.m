@@ -149,7 +149,8 @@ static SDL_Cursor *Cocoa_CreateSystemCursor(SDL_SystemCursor id)
     NSCursor *nscursor = NULL;
     SDL_Cursor *cursor = NULL;
 
-    switch(id) {
+    SDL_COMPILE_TIME_ASSERT(cocoa_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
+    switch (id) {
     case SDL_SYSTEM_CURSOR_ARROW:
         nscursor = [NSCursor arrowCursor];
         break;

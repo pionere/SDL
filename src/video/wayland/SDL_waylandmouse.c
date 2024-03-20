@@ -159,24 +159,26 @@ static SDL_bool wayland_dbus_read_cursor_theme(char **theme)
 
 static const char *GetLegacyCursorName(SDL_SystemCursor system_cursor)
 {
+    const char *result;
+    SDL_COMPILE_TIME_ASSERT(wayland_SystemCursors, SDL_NUM_SYSTEM_CURSORS == 12);
     switch (system_cursor) {
-        case SDL_SYSTEM_CURSOR_ARROW: return "left_ptr";
-        case SDL_SYSTEM_CURSOR_IBEAM: return "xterm";
-        case SDL_SYSTEM_CURSOR_WAIT: return "watch";
-        case SDL_SYSTEM_CURSOR_CROSSHAIR: return "tcross";
-        case SDL_SYSTEM_CURSOR_WAITARROW: return "watch";
-        case SDL_SYSTEM_CURSOR_SIZENWSE: return "top_left_corner";
-        case SDL_SYSTEM_CURSOR_SIZENESW: return "top_right_corner";
-        case SDL_SYSTEM_CURSOR_SIZEWE: return "sb_h_double_arrow";
-        case SDL_SYSTEM_CURSOR_SIZENS: return "sb_v_double_arrow";
-        case SDL_SYSTEM_CURSOR_SIZEALL: return "fleur";
-        case SDL_SYSTEM_CURSOR_NO: return "pirate";
-        case SDL_SYSTEM_CURSOR_HAND: return "hand2";
-        case SDL_NUM_SYSTEM_CURSORS: break;  /* so the compiler might notice if an enum value is missing here. */
+    case SDL_SYSTEM_CURSOR_ARROW:     result = "left_ptr";          break;
+    case SDL_SYSTEM_CURSOR_IBEAM:     result = "xterm";             break;
+    case SDL_SYSTEM_CURSOR_WAIT:      result = "watch";             break;
+    case SDL_SYSTEM_CURSOR_CROSSHAIR: result = "tcross";            break;
+    case SDL_SYSTEM_CURSOR_WAITARROW: result = "watch";             break;
+    case SDL_SYSTEM_CURSOR_SIZENWSE:  result = "top_left_corner";   break;
+    case SDL_SYSTEM_CURSOR_SIZENESW:  result = "top_right_corner";  break;
+    case SDL_SYSTEM_CURSOR_SIZEWE:    result = "sb_h_double_arrow"; break;
+    case SDL_SYSTEM_CURSOR_SIZENS:    result = "sb_v_double_arrow"; break;
+    case SDL_SYSTEM_CURSOR_SIZEALL:   result = "fleur";             break;
+    case SDL_SYSTEM_CURSOR_NO:        result = "pirate";            break;
+    case SDL_SYSTEM_CURSOR_HAND:      result = "hand2";             break;
+    default:
+        SDL_assume(!"Unknown system cursor");
+        result = NULL;
     }
-
-    SDL_assume(!"Unknown system cursor");
-    return NULL;
+    return result;
 }
 
 static SDL_bool wayland_get_system_cursor(Wayland_CursorData *cdata, float *scale)

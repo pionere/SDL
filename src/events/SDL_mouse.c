@@ -1316,6 +1316,11 @@ SDL_Cursor *SDL_CreateSystemCursor(SDL_SystemCursor id)
         return NULL;
     }
 
+    if (id < 0 || id >= SDL_NUM_SYSTEM_CURSORS) {
+        SDL_InvalidParamError("id");
+        return NULL;
+    }
+
     cursor = mouse->CreateSystemCursor(id);
     if (cursor) {
         cursor->next = mouse->cursors;
