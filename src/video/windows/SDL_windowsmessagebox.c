@@ -322,37 +322,35 @@ static INT_PTR CALLBACK MessageBoxDialogProc(HWND hDlg, UINT iMessage, WPARAM wP
 static SDL_bool ExpandDialogSpace(WIN_DialogData *dialog, size_t space)
 {
     /* Growing memory in 64 KiB steps. */
+    const size_t basesize = 0x1000;
     const size_t sizestep = 0x10000;
-    size_t size = dialog->size;
+    size_t currsize = dialog->size, reqsize = dialog->used, newsize;
+    void *data;
 
-    if (size == 0) {
-        /* Start with 4 KiB or a multiple of 64 KiB to fit the data. */
-        size = 0x1000;
-        if (SIZE_MAX - sizestep < space) {
-            size = space;
-        } else if (space > size) {
-            size = (space + sizestep) & ~(sizestep - 1);
+    // if (SIZE_MAX - reqsize < space) {
+    //    SDL_OutOfMemory();
+    //    return SDL_FALSE;
+    // }
+    reqsize += space;
+    if (currsize < reqsize) {
+        /* not enough space */
+        if (currsize == 0 && reqsize < basesize) {
+            /* first, small allocation */
+            newsize = basesize;
+        // } else if (SIZE_MAX - reqsize < sizestep) {
+        //    /* Close to the maximum. */
+        //    newsize = reqsize;
+        } else {
+            /* expansion or large allocation */
+            newsize = (reqsize + sizestep) & ~(sizestep - 1);
         }
-    } else if (SIZE_MAX - dialog->used < space) {
-        SDL_OutOfMemory();
-        return SDL_FALSE;
-    } else if (SIZE_MAX - (dialog->used + space) < sizestep) {
-        /* Close to the maximum. */
-        size = dialog->used + space;
-    } else if (size < dialog->used + space) {
-        /* Round up to the next 64 KiB block. */
-        size = dialog->used + space;
-        size += sizestep - size % sizestep;
-    }
-
-    if (size > dialog->size) {
-        void *data = SDL_realloc(dialog->data, size);
+        data = SDL_realloc(dialog->data, newsize);
         if (!data) {
             SDL_OutOfMemory();
             return SDL_FALSE;
         }
         dialog->data = data;
-        dialog->size = size;
+        dialog->size = newsize;
         dialog->lpDialog = (DLGTEMPLATEEX *)dialog->data;
     }
     return SDL_TRUE;
@@ -362,7 +360,7 @@ static SDL_bool AlignDialogData(WIN_DialogData *dialog, size_t size)
 {
     size_t padding = (dialog->used % size);
 
-    if (!ExpandDialogSpace(dialog, padding)) {
+    if (padding && !ExpandDialogSpace(dialog, padding)) {
         return SDL_FALSE;
     }
 
@@ -642,22 +640,20 @@ static const char *EscapeAmpersands(char **dst, size_t *dstlen, const char *src)
         /* Nothing to do. */
         return src;
     }
-    if (SIZE_MAX - srclen < ampcount) {
-        return NULL;
-    }
+    // if (SIZE_MAX - srclen < ampcount) {
+    //    SDL_OutOfMemory();
+    //    return NULL;
+    // }
     if (!*dst || *dstlen < srclen + ampcount) {
         /* Allocating extra space in case the next strings are a bit longer. */
-        size_t extraspace = SIZE_MAX - (srclen + ampcount);
-        if (extraspace > 512) {
-            extraspace = 512;
-        }
-        *dstlen = srclen + ampcount + extraspace;
-        SDL_free(*dst);
-        *dst = NULL;
-        newdst = SDL_malloc(*dstlen);
+        const size_t sizestep = 0x100;
+        size_t newlen = (srclen + ampcount + sizestep) & ~(sizestep - 1);
+        newdst = SDL_realloc(*dst, newlen);
         if (!newdst) {
+            SDL_OutOfMemory();
             return NULL;
         }
+        *dstlen = newlen;
         *dst = newdst;
     } else {
         newdst = *dst;
@@ -835,29 +831,29 @@ static int WIN_ShowOldMessageBox(const SDL_MessageBoxData *messageboxdata, int *
     y = Size.cy - ButtonHeight - ButtonMargin;
     for (i = 0; i < messageboxdata->numbuttons; i++) {
         SDL_bool isdefault = SDL_FALSE;
+        int btnIdx;
         const char *buttontext;
-        const SDL_MessageBoxButtonData *sdlButton;
 
         /* We always have to create the dialog buttons from left to right
          * so that the tab order is correct.  Select the info to use
          * depending on which order was requested. */
         if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
-            sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
+            btnIdx = messageboxdata->numbuttons - 1 - i;
         } else {
-            sdlButton = &messageboxdata->buttons[i];
+            btnIdx = i;
         }
 
-        if (sdlButton->flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
+        if (messageboxdata->buttons[btnIdx].flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
             defbuttoncount++;
             if (defbuttoncount == 1) {
                 isdefault = SDL_TRUE;
             }
         }
 
-        buttontext = EscapeAmpersands(&ampescape, &ampescapesize, sdlButton->text);
+        buttontext = EscapeAmpersands(&ampescape, &ampescapesize, messageboxdata->buttons[btnIdx].text);
         /* Make sure to provide the correct ID to keep buttons indexed in the
          * same order as how they are in messageboxdata. */
-        if (!buttontext || !AddDialogButton(dialog, x, y, ButtonWidth, ButtonHeight, buttontext, IDBUTTONINDEX0 + (int)(sdlButton - messageboxdata->buttons), isdefault)) {
+        if (!buttontext || !AddDialogButton(dialog, x, y, ButtonWidth, ButtonHeight, buttontext, IDBUTTONINDEX0 + btnIdx, isdefault)) {
             FreeDialogData(dialog);
             SDL_free(ampescape);
             return -1;
@@ -925,9 +921,9 @@ int WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     int nCancelButton;
     int i;
 
-    if (SIZE_MAX / sizeof(TASKDIALOG_BUTTON) < messageboxdata->numbuttons) {
-        return SDL_OutOfMemory();
-    }
+    // if (SIZE_MAX / sizeof(TASKDIALOG_BUTTON) < messageboxdata->numbuttons) {
+    //    return SDL_OutOfMemory();
+    // }
 
     /* If we cannot load comctl32.dll use the old messagebox! */
     hComctl32 = LoadLibrary(TEXT("comctl32.dll"));
@@ -974,7 +970,7 @@ int WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
 
     TaskConfig.pszContent = wmessage;
     TaskConfig.cButtons = messageboxdata->numbuttons;
-    pButtons = SDL_malloc(sizeof(TASKDIALOG_BUTTON) * messageboxdata->numbuttons);
+    pButtons = SDL_calloc(messageboxdata->numbuttons, sizeof(TASKDIALOG_BUTTON));
     TaskConfig.nDefaultButton = 0;
     nCancelButton = 0;
     for (i = 0; i < messageboxdata->numbuttons; i++) {
@@ -992,26 +988,20 @@ int WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
         }
         buttontext = EscapeAmpersands(&ampescape, &ampescapesize, messageboxdata->buttons[i].text);
         if (!buttontext) {
-            int j;
-            FreeLibrary(hComctl32);
-            SDL_free(ampescape);
-            SDL_free(wmessage);
-            SDL_free(wtitle);
-            for (j = 0; j < i; j++) {
-                SDL_free((wchar_t *)pButtons[j].pszButtonText);
-            }
-            SDL_free(pButtons);
-            return -1;
+            break;
         }
         pButton->pszButtonText = WIN_UTF8ToStringW(buttontext);
         if (messageboxdata->buttons[i].flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
             TaskConfig.nDefaultButton = pButton->nButtonID;
         }
     }
-    TaskConfig.pButtons = pButtons;
+    hr = -1; // E_OUTOFMEMORY
+    if (i >= messageboxdata->numbuttons) {
+        TaskConfig.pButtons = pButtons;
 
-    /* Show the Task Dialog */
-    hr = pfnTaskDialogIndirect(&TaskConfig, &nButton, NULL, NULL);
+        /* Show the Task Dialog */
+        hr = pfnTaskDialogIndirect(&TaskConfig, &nButton, NULL, NULL);
+    }
 
     /* Free everything */
     FreeLibrary(hComctl32);
@@ -1026,12 +1016,13 @@ int WIN_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     /* Check the Task Dialog was successful and give the result */
     if (SUCCEEDED(hr)) {
         if (nButton == IDCANCEL) {
-            *buttonid = nCancelButton;
+            i = nCancelButton;
         } else if (nButton >= IDBUTTONINDEX0 && nButton < IDBUTTONINDEX0 + messageboxdata->numbuttons) {
-            *buttonid = messageboxdata->buttons[nButton - IDBUTTONINDEX0].buttonid;
+            i = messageboxdata->buttons[nButton - IDBUTTONINDEX0].buttonid;
         } else {
-            *buttonid = -1;
+            i = -1;
         }
+        *buttonid = i;
         return 0;
     }
 
