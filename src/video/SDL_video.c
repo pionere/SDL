@@ -380,7 +380,7 @@ int SDL_VideoInit(const char *driver_name)
     SDL_assert(current_video.DeleteDevice != NULL);
 #ifdef SDL_VIDEO_OPENGL_ANY
     /* Set some very sane GL defaults */
-    current_video.gl_config.driver_loaded = 0;
+    // current_video.gl_config.driver_loaded = 0; -- do not reset. It might be already set (e.g. Vita with PIB) otherwise it should be zero anyway.
     SDL_GL_ResetAttributes();
 
     current_video.current_glwin_tls = SDL_TLSCreate();
