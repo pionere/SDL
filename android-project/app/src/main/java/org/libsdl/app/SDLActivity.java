@@ -1764,6 +1764,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             } catch (Exception e) {
                 return false;
             }
+        } else {
+            return false;
         }
         return true;
     }
