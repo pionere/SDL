@@ -36,6 +36,7 @@
 int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
 {
     DFB_VideoData *devdata = &dfbVideoData;
+    DFB_DisplayData *dispdata = (DFB_DisplayData *) SDL_GetDisplayForWindow(window)->driverdata;
     SDL_DFB_DISPLAYDATA(window);
     DFB_WindowData *windata = NULL;
     DFBWindowOptions wopts;
