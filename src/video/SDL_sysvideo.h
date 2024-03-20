@@ -36,12 +36,10 @@
 #define SDL_VIDEO_OPENGL_ANY    1
 #endif
 
-typedef struct SDL_WindowShaper SDL_WindowShaper;
-typedef struct SDL_VideoDisplay SDL_VideoDisplay;
 typedef struct SDL_VideoDevice SDL_VideoDevice;
 
 /* Define the SDL window-shaper structure */
-struct SDL_WindowShaper
+typedef struct SDL_WindowShaper
 {
     /* The user's specified coordinates for the window, for once we give it a shape. */
     Uint32 userx, usery;
@@ -53,7 +51,7 @@ struct SDL_WindowShaper
     SDL_bool hasshape;
 
     void *driverdata;
-};
+} SDL_WindowShaper;
 
 typedef struct SDL_WindowUserData
 {
@@ -63,7 +61,7 @@ typedef struct SDL_WindowUserData
 } SDL_WindowUserData;
 
 /* Define the SDL window structure, corresponding to toplevel windows */
-struct SDL_Window
+typedef struct SDL_Window
 {
     const void *magic;
     Uint32 id;
@@ -108,7 +106,7 @@ struct SDL_Window
 
     SDL_Window *prev;
     SDL_Window *next;
-};
+} SDL_Window;
 #define FULLSCREEN_VISIBLE(W)                \
     (((W)->flags & SDL_WINDOW_FULLSCREEN) && \
      ((W)->flags & SDL_WINDOW_SHOWN) &&      \
@@ -118,7 +116,7 @@ struct SDL_Window
  * Define the SDL display structure.
  * This corresponds to physical monitors attached to the system.
  */
-struct SDL_VideoDisplay
+typedef struct SDL_VideoDisplay
 {
     char *name;
     int max_display_modes;
@@ -131,7 +129,7 @@ struct SDL_VideoDisplay
     SDL_Window *fullscreen_window;
 
     void *driverdata;
-};
+} SDL_VideoDisplay;
 
 /* Forward declaration */
 struct SDL_SysWMinfo;

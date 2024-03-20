@@ -1636,7 +1636,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     window->opacity = 1.0f;
     window->brightness = 1.0f;
     window->next = current_video.windows;
-    window->is_destroying = SDL_FALSE;
+    // window->is_destroying = SDL_FALSE;
 
     if (current_video.windows) {
         current_video.windows->prev = window;
@@ -1736,7 +1736,7 @@ SDL_Window *SDL_CreateWindowFrom(const void *data)
     window->id = current_video.next_object_id++;
     window->flags = flags;
     window->last_fullscreen_flags = window->flags;
-    window->is_destroying = SDL_FALSE;
+    // window->is_destroying = SDL_FALSE;
     window->opacity = 1.0f;
     window->brightness = 1.0f;
     window->next = current_video.windows;
@@ -1868,7 +1868,7 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
 
     window->flags = ((flags & (CREATE_FLAGS | SDL_WINDOW_FOREIGN)) | SDL_WINDOW_HIDDEN);
     window->last_fullscreen_flags = window->flags;
-    window->is_destroying = SDL_FALSE;
+    // window->is_destroying = SDL_FALSE; -- there is no turn back after the SDL_DestroyWindow is called...
 
     if (current_video.CreateSDLWindow && !foreign_win) { // !(flags & SDL_WINDOW_FOREIGN)) {
         if (current_video.CreateSDLWindow(&current_video, window) < 0) {
@@ -3004,7 +3004,6 @@ static void UpdateWindowDisplay(SDL_Window *window)
     if (new_display_index != -1) {
         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_DISPLAY_CHANGED, new_display_index, 0);
     }
-
 }
 
 void SDL_OnWindowResized(SDL_Window *window)
