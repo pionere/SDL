@@ -597,6 +597,22 @@ void *SDL_GetDisplayDriverData(int displayIndex)
     return current_video.displays[displayIndex].driverdata;
 }
 
+void *SDL_GetWindowDisplayDriverData(SDL_Window *window)
+{
+    int displayIndex;
+    void *data = NULL;
+
+    SDL_assert(window != NULL);
+
+    displayIndex = window->display_index;
+
+    if (displayIndex >= 0 && displayIndex < current_video.num_displays) {
+        data = current_video.displays[displayIndex].driverdata;
+    }
+
+    return data;
+}
+
 SDL_bool SDL_IsVideoContextExternal(void)
 {
     return SDL_GetHintBoolean(SDL_HINT_VIDEO_EXTERNAL_CONTEXT, SDL_FALSE);

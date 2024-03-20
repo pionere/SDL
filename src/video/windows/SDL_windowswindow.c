@@ -968,8 +968,7 @@ int WIN_SetWindowGammaRamp(SDL_Window * window, const Uint16 * ramp)
 void WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData *displaydata = display ? (SDL_DisplayData *)display->driverdata : NULL;
+    SDL_DisplayData *displaydata = (SDL_DisplayData *)SDL_GetWindowDisplayDriverData(window);
 
     if (displaydata) {
         HDC hdc = CreateDCW(displaydata->DeviceName, NULL, NULL, NULL);

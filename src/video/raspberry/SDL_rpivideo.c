@@ -428,8 +428,7 @@ int RPI_CreateSDLWindow(_THIS, SDL_Window *window)
 void RPI_DestroyWindow(SDL_Window *window)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_DisplayData *displaydata = (SDL_DisplayData *)display->driverdata;
+    SDL_DisplayData *displaydata;
 
     if (data) {
         if (data->double_buffer) {
@@ -438,7 +437,10 @@ void RPI_DestroyWindow(SDL_Window *window)
             SDL_CondWait(data->vsync_cond, data->vsync_cond_mutex);
             SDL_UnlockMutex(data->vsync_cond_mutex);
 
-            vc_dispmanx_vsync_callback(displaydata->dispman_display, NULL, NULL);
+            displaydata = (SDL_DisplayData *)SDL_GetWindowDisplayDriverData(window);
+            if (displaydata) {
+                vc_dispmanx_vsync_callback(displaydata->dispman_display, NULL, NULL);
+            }
 
             SDL_DestroyCond(data->vsync_cond);
             SDL_DestroyMutex(data->vsync_cond_mutex);

@@ -58,8 +58,7 @@ SDL_FORCE_INLINE SDL_bool FloatEqual(float a, float b)
 static void GetFullScreenDimensions(SDL_Window *window, int *width, int *height, int *drawable_width, int *drawable_height)
 {
     SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_WaylandOutputData *output = display ? (SDL_WaylandOutputData *)display->driverdata : NULL;
+    SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
 
     int fs_width, fs_height;
     int buf_width, buf_height;
@@ -133,8 +132,7 @@ static SDL_bool NeedViewport(SDL_Window *window)
 {
     SDL_WindowData *wind = window->driverdata;
     Wayland_VideoData *video = &waylandVideoData;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_WaylandOutputData *output = display ? ((SDL_WaylandOutputData *)display->driverdata) : NULL;
+    SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
     const int output_width = wind->fs_output_width ? wind->fs_output_width : (output ? output->width : wind->window_width);
     const int output_height = wind->fs_output_height ? wind->fs_output_height : (output ? output->height : wind->window_height);
     int fs_width, fs_height;
@@ -220,8 +218,7 @@ static void ConfigureWindowGeometry(SDL_Window *window)
 {
     SDL_WindowData *data = window->driverdata;
     Wayland_VideoData *viddata = &waylandVideoData;
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
-    SDL_WaylandOutputData *output = display ? (SDL_WaylandOutputData *)display->driverdata : NULL;
+    SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
     struct wl_region *region;
     const int old_dw = data->drawable_width;
     const int old_dh = data->drawable_height;
@@ -1003,9 +1000,8 @@ static void update_scale_factor(SDL_WindowData *window)
         new_factor = old_factor;
     } else if (FULLSCREEN_VISIBLE(window->sdlwindow)) {
         /* For fullscreen, use the active display's scale factor */
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window->sdlwindow);
-        if (display) {
-            SDL_WaylandOutputData *driverdata = display->driverdata;
+        SDL_WaylandOutputData *driverdata = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window->sdlwindow);
+        if (driverdata) {
             new_factor = driverdata->scale_factor;
         } else {
             new_factor = old_factor;

@@ -179,11 +179,9 @@ static int DirectFB_ShowCursor(SDL_Cursor * cursor)
     if (!window)
         return -1;
     else {
-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
+        DFB_DisplayData *dispdata = (DFB_DisplayData *)SDL_GetWindowDisplayDriverData(window);
 
-        if (display) {
-            DFB_DisplayData *dispdata =
-                (DFB_DisplayData *) display->driverdata;
+        if (dispdata) {
             DFB_WindowData *windata = (DFB_WindowData *) window->driverdata;
 
             if (cursor)
