@@ -114,7 +114,7 @@ static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
     device->SetWindowGammaRamp = Cocoa_SetWindowGammaRamp;
     device->GetWindowGammaRamp = Cocoa_GetWindowGammaRamp;
     device->GetWindowICCProfile = Cocoa_GetWindowICCProfile;
-    device->GetWindowDisplayIndex = Cocoa_GetWindowDisplayIndex;
+//    device->GetWindowDisplayIndex = Cocoa_GetWindowDisplayIndex;
     device->SetWindowMouseRect = Cocoa_SetWindowMouseRect;
     device->SetWindowMouseGrab = Cocoa_SetWindowMouseGrab;
     device->SetWindowKeyboardGrab = Cocoa_SetWindowKeyboardGrab;

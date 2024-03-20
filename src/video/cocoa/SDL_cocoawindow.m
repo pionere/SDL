@@ -2235,7 +2235,7 @@ void *Cocoa_GetWindowICCProfile(SDL_Window * window, size_t * size)
     *size = [iccProfileData length];
     return retIccProfileData;
 }}
-
+#if 0
 int Cocoa_GetWindowDisplayIndex(SDL_Window * window)
 { @autoreleasepool
 {
@@ -2268,7 +2268,7 @@ int Cocoa_GetWindowDisplayIndex(SDL_Window * window)
      * fails. */
     return SDL_SetError("Couldn't find the display where the window is located.");
 }}
-
+#endif
 int Cocoa_GetWindowGammaRamp(SDL_Window * window, Uint16 * ramp)
 {
     SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);

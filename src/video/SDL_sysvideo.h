@@ -240,7 +240,7 @@ struct SDL_VideoDevice
     int (*SetWindowGammaRamp) (SDL_Window * window, const Uint16 * ramp);
     int (*GetWindowGammaRamp) (SDL_Window * window, Uint16 * ramp);
     void* (*GetWindowICCProfile) (SDL_Window * window, size_t* size);
-    int (*GetWindowDisplayIndex)(SDL_Window * window);
+    // int (*GetWindowDisplayIndex)(SDL_Window * window); -- only one implementation at the moment. The generic solution works fine for 99.999% of the cases.
     void (*SetWindowMouseRect)(SDL_Window * window);
     void (*SetWindowMouseGrab) (SDL_Window * window, SDL_bool grabbed);
     void (*SetWindowKeyboardGrab) (SDL_Window * window, SDL_bool grabbed);
@@ -476,8 +476,6 @@ extern SDL_bool SDL_ShouldAllowTopmost(void);
 extern float SDL_ComputeDiagonalDPI(int hpix, int vpix, float hinches, float vinches);
 
 extern void SDL_ToggleDragAndDropSupport(void);
-
-extern int SDL_GetPointDisplayIndex(const SDL_Point *point);
 
 extern int SDL_GL_SwapWindowWithResult(SDL_Window *window);
 

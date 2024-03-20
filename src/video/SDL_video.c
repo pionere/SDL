@@ -1031,8 +1031,15 @@ static int GetPointDisplayIndex(int x, int y, int w, int h)
     center.x = x + (w >> 1);
     center.y = y + (h >> 1);
 
+    i = current_video.num_displays - 1;
+    if (i <= 0) {
+        if (i != 0)
+            SDL_SetError("Couldn't find any displays");
+        return i;
+    }
+
     // if (SDL_HasVideoDevice()) {
-        for (i = 0; i < current_video.num_displays; ++i) {
+        for ( ; i >= 0; i--) {
             SDL_Rect display_rect;
             SDL_VideoDisplay *display = &current_video.displays[i];
             SDL_PrivateGetDisplayBounds(display, &display_rect);
@@ -1045,10 +1052,7 @@ static int GetPointDisplayIndex(int x, int y, int w, int h)
         }
     // }
 
-    if (closest < 0) {
-        SDL_SetError("Couldn't find any displays");
-    }
-
+    SDL_assert(closest >= 0);
     return closest;
 }
 
@@ -1073,11 +1077,11 @@ static int SDL_CalculateWindowDisplayIndex(SDL_Window *window)
     int displayIndex = -1;
 
     SDL_assert(window != NULL);
-
+#if 0
     if (current_video.GetWindowDisplayIndex) {
         displayIndex = current_video.GetWindowDisplayIndex(window);
     }
-
+#endif
     /* A backend implementation may fail to get a display index for the window
      * (for example if the window is off-screen), but other code may expect it
      * to succeed in that situation, so we fall back to a generic position-
