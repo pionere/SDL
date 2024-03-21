@@ -115,6 +115,7 @@ extern void X11_AcceptDragAndDrop(SDL_Window *window, SDL_bool accept);
 extern int X11_FlashWindow(SDL_Window *window, SDL_FlashOperation operation);
 
 int SDL_X11_SetWindowTitle(Display *display, Window xwindow, char *title);
+void SDL_X11_TranslateWindowCoordinates(SDL_Window *window, int *x, int *y);
 
 #endif /* SDL_x11window_h_ */
 

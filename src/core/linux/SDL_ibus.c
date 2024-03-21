@@ -30,7 +30,8 @@
 #include "../../events/SDL_keyboard_c.h"
 
 #ifdef SDL_VIDEO_DRIVER_X11
-    #include "../../video/x11/SDL_x11video.h"
+#include "../../video/SDL_sysvideo_c.h"
+#include "../../video/x11/SDL_x11video.h"
 #endif
 
 #include <sys/inotify.h>
@@ -703,8 +704,7 @@ SDL_bool SDL_IBus_ProcessKeyEvent(Uint32 keysym, Uint32 keycode, Uint8 state)
 void SDL_IBus_UpdateTextRect(const SDL_Rect *rect)
 {
     SDL_Window *focused_win;
-    SDL_SysWMinfo info;
-    int x = 0, y = 0;
+    int x, y;
     SDL_DBusContext *dbus;
 
     if (rect) {
@@ -716,26 +716,14 @@ void SDL_IBus_UpdateTextRect(const SDL_Rect *rect)
         return;
     }
 
-    SDL_VERSION(&info.version);
-    if (!SDL_GetWindowWMInfo(focused_win, &info)) {
-        return;
-    }
-
-    SDL_GetWindowPosition(focused_win, &x, &y);
-
 #ifdef SDL_VIDEO_DRIVER_X11
-    if (info.subsystem == SDL_SYSWM_X11) {
-        SDL_DisplayData *displaydata = (SDL_DisplayData *) SDL_GetDisplayForWindow(focused_win)->driverdata;
-
-        Display *x_disp = info.info.x11.display;
-        Window x_win = info.info.x11.window;
-        int x_screen = displaydata->screen;
-        Window unused;
-
-        X11_XTranslateCoordinates(x_disp, x_win, RootWindow(x_disp, x_screen), 0, 0, &x, &y, &unused);
-    }
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_X11) {
+        SDL_X11_TranslateWindowCoordinates(focused_win, &x, &y);
+    } else
 #endif
-
+    {
+        SDL_GetWindowPosition(focused_win, &x, &y);
+    }
     x += ibus_cursor_rect.x;
     y += ibus_cursor_rect.y;
 

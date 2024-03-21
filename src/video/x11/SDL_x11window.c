@@ -1910,6 +1910,17 @@ int SDL_X11_SetWindowTitle(Display *display, Window xwindow, char *title)
     return 0;
 }
 
+void SDL_X11_TranslateWindowCoordinates(SDL_Window *window, int *x, int *y)
+{
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    SDL_DisplayData *displaydata =
+        (SDL_DisplayData *)SDL_GetDisplayForWindow(window)->driverdata;
+    Display *display = x11VideoData.display;
+    Window childReturn;
+
+    X11_XTranslateCoordinates(display, data->xwindow, RootWindow(display, displaydata->screen), 0, 0, x, y, &childReturn);
+}
+
 #endif /* SDL_VIDEO_DRIVER_X11 */
 
 /* vi: set ts=4 sw=4 expandtab: */
