@@ -422,27 +422,35 @@ void DirectFB_DestroyWindow(SDL_Window * window)
         SDL_DFB_FREE(window->shaper);
     }
 
+    if (windata->window_surface) {
     SDL_DFB_CHECK(windata->window_surface->SetFont(windata->window_surface, NULL));
+    if (windata->surface) {
     SDL_DFB_CHECK(windata->surface->ReleaseSource(windata->surface));
+    }
     SDL_DFB_CHECK(windata->window_surface->ReleaseSource(windata->window_surface));
     SDL_DFB_RELEASE(windata->icon);
     SDL_DFB_RELEASE(windata->font);
     SDL_DFB_RELEASE(windata->eventbuffer);
     SDL_DFB_RELEASE(windata->surface);
     SDL_DFB_RELEASE(windata->window_surface);
+    }
 
     SDL_DFB_RELEASE(windata->dfbwin);
 
     /* Remove from list ... */
-
-    p = devdata->firstwin->driverdata;
-
-    while (p && p->next != window)
-        p = (p->next ? p->next->driverdata : NULL);
-    if (p)
-        p->next = windata->next;
-    else
+    if (devdata->firstwin == window) {
         devdata->firstwin = windata->next;
+    } else if (devdata->firstwin) {
+        p = devdata->firstwin->driverdata;
+
+        while (p) {
+            if (p->next == window) {
+                p->next = windata->next;
+                break;
+            }
+            p = (p->next ? p->next->driverdata : NULL);
+        }
+    }
     SDL_free(windata);
     window->driverdata = NULL;
     }
