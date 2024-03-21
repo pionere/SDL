@@ -26,6 +26,13 @@
 #include "SDL_syswm.h"
 #include "SDL_metal.h"
 #include "../SDL_sysrender.h"
+#include "../../video/SDL_sysvideo_c.h" // For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS
+#ifdef SDL_VIDEO_DRIVER_COCOA
+#include "../../video/cocoa/SDL_cocoawindow.h" // For Cocoa_GetWindowView
+#endif
+#ifdef SDL_VIDEO_DRIVER_UIKIT
+#include "../../video/uikit/SDL_uikitwindow.h" // For UIKit_GetWindowView
+#endif
 
 #include <Availability.h>
 #import <Metal/Metal.h>
@@ -159,9 +166,21 @@ typedef struct METAL_ShaderPipelines
 @implementation METAL_TextureData
 @end
 
-static int IsMetalAvailable(const SDL_SysWMinfo *syswm)
+static int IsMetalAvailable()
 {
-    if (syswm->subsystem != SDL_SYSWM_COCOA && syswm->subsystem != SDL_SYSWM_UIKIT) {
+    int videoDeviceId = SDL_GetVideoDeviceId();
+    SDL_bool metalSupport = SDL_FALSE;
+#ifdef SDL_VIDEO_DRIVER_COCOA
+    if (videoDeviceId == SDL_VIDEODRIVER_COCOA) {
+        metalSupport = SDL_TRUE;
+    }
+#endif
+#ifdef SDL_VIDEO_DRIVER_UIKIT
+    if (videoDeviceId == SDL_VIDEODRIVER_UIKit) {
+        metalSupport = SDL_TRUE;
+    }
+#endif
+    if (!metalSupport) {
         return SDL_SetError("Metal render target only supports Cocoa and UIKit video targets at the moment.");
     }
 
@@ -1546,29 +1565,26 @@ static int METAL_SetVSync(SDL_Renderer * renderer, const int vsync)
 #endif
 static SDL_MetalView GetWindowView(SDL_Window *window)
 {
-    SDL_SysWMinfo info;
-
-    SDL_VERSION(&info.version);
-    if (SDL_GetWindowWMInfo(window, &info)) {
-#ifdef __MACOSX__
-        if (info.subsystem == SDL_SYSWM_COCOA) {
-            NSView *view = info.info.cocoa.window.contentView;
-            if (view.subviews.count > 0) {
-                view = view.subviews[0];
-                if (view.tag == SDL_METALVIEW_TAG) {
-                    return (SDL_MetalView)CFBridgingRetain(view);
-                }
-            }
-        }
-#else
-        if (info.subsystem == SDL_SYSWM_UIKIT) {
-            UIView *view = info.info.uikit.window.rootViewController.view;
+    int videoDeviceId = SDL_GetVideoDeviceId();
+#ifdef SDL_VIDEO_DRIVER_COCOA
+    if (videoDeviceId == SDL_VIDEODRIVER_COCOA) {
+        NSView *view = Cocoa_GetWindowView(window);
+        if (view.subviews.count > 0) {
+            view = view.subviews[0];
             if (view.tag == SDL_METALVIEW_TAG) {
                 return (SDL_MetalView)CFBridgingRetain(view);
             }
         }
-#endif
     }
+#endif
+#ifdef SDL_VIDEO_DRIVER_UIKIT
+    if (videoDeviceId == SDL_VIDEODRIVER_UIKit) {
+        UIView *view = UIKit_GetWindowView(window);
+        if (view.tag == SDL_METALVIEW_TAG) {
+            return (SDL_MetalView)CFBridgingRetain(view);
+        }
+    }
+#endif
     return nil;
 }
 
@@ -1579,7 +1595,6 @@ static SDL_Renderer *METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
     id<MTLDevice> mtldevice = nil;
     SDL_MetalView view = NULL;
     CAMetalLayer *layer = nil;
-    SDL_SysWMinfo syswm;
     NSError *err = nil;
     dispatch_data_t mtllibdata;
     char *constantdata;
@@ -1631,12 +1646,7 @@ static SDL_Renderer *METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
         1.0000,  1.7720,  0.0000, 0.0,        /* Bcoeff */
     };
 
-    SDL_VERSION(&syswm.version);
-    if (!SDL_GetWindowWMInfo(window, &syswm)) {
-        return NULL;
-    }
-
-    if (IsMetalAvailable(&syswm) == -1) {
+    if (IsMetalAvailable() < 0) {
         return NULL;
     }
 

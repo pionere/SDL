@@ -41,6 +41,7 @@ extern SDL_bool UIKit_GetWindowWMInfo(SDL_Window * window,
                                       struct SDL_SysWMinfo * info);
 
 extern NSUInteger UIKit_GetSupportedOrientations(SDL_Window * window);
+extern UIView *UIKit_GetWindowView(SDL_Window * window);
 
 @class UIWindow;
 

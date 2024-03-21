@@ -448,6 +448,13 @@ SDL_bool SDL_HasVideoDevice(void)
     return SDL_TRUE;
 }
 
+int SDL_GetVideoDeviceId(void)
+{
+    SDL_assert(SDL_HasVideoDevice());
+
+    return current_video.vdriver_index;
+}
+
 SDL_VideoDevice *SDL_GetVideoDevice(void)
 {
     return &current_video;

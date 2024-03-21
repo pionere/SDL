@@ -472,6 +472,12 @@ NSUInteger UIKit_GetSupportedOrientations(SDL_Window * window)
 }
 #endif /* !TARGET_OS_TV */
 
+UIView *UIKit_GetWindowView(SDL_Window * window)
+{
+    SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
+    return data.uiwindow.rootViewController.view;
+}
+
 int SDL_iPhoneSetAnimationCallback(SDL_Window * window, int interval, void (*callback)(void*), void *callbackParam)
 {
     if (!window || !window->driverdata) {

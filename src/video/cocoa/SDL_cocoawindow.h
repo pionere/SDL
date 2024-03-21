@@ -168,6 +168,8 @@ extern int Cocoa_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);
 extern void Cocoa_AcceptDragAndDrop(SDL_Window * window, SDL_bool accept);
 extern int Cocoa_FlashWindow(SDL_Window * window, SDL_FlashOperation operation);
 
+extern NSView *Cocoa_GetWindowView(SDL_Window * window);
+
 #endif /* SDL_cocoawindow_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

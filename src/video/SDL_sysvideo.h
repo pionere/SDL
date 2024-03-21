@@ -427,6 +427,7 @@ typedef struct VideoBootStrap
 /* Use SDL_OnVideoThread() sparingly, to avoid regressions in use cases that currently happen to work */
 extern SDL_bool SDL_OnVideoThread(void);
 extern SDL_bool SDL_HasVideoDevice(void);
+extern int SDL_GetVideoDeviceId(void);
 extern SDL_VideoDevice *SDL_GetVideoDevice(void);
 extern void SDL_PrivatePumpEvents(void);
 extern SDL_bool SDL_HasWaitTimeoutSupport(void);

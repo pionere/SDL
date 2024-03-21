@@ -2478,6 +2478,12 @@ int Cocoa_SetWindowOpacity(SDL_Window * window, float opacity)
     return 0;
 }}
 
+NSView *Cocoa_GetWindowView(SDL_Window * window)
+{
+    SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
+    return data.nswindow.contentView;
+}
+
 #endif /* SDL_VIDEO_DRIVER_COCOA */
 
 /* vi: set ts=4 sw=4 expandtab: */
