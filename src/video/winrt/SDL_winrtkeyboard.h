@@ -18,30 +18,28 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include "../../SDL_internal.h"
+#ifndef SDL_winrtkeyboard_h_
+#define SDL_winrtkeyboard_h_
 
-#ifndef SDL_render_winrt_h_
-#define SDL_render_winrt_h_
+/*
+ * Internal-use, C++/CX functions:
+ */
+#ifdef __cplusplus_winrt
 
-#if SDL_VIDEO_RENDER_D3D11 && defined(__WINRT__)
+extern void WINRT_ProcessKeyDownEvent(Windows::UI::Core::KeyEventArgs ^ args);
+extern void WINRT_ProcessKeyUpEvent(Windows::UI::Core::KeyEventArgs ^ args);
+extern void WINRT_ProcessCharacterReceivedEvent(Windows::UI::Core::CharacterReceivedEventArgs ^ args);
 
-// #include "SDL_render.h"
+#if NTDDI_VERSION >= NTDDI_WIN10
+extern void WINTRT_InitialiseInputPaneEvents(void);
+extern SDL_bool WINRT_HasScreenKeyboardSupport(void);
+extern void WINRT_ShowScreenKeyboard(SDL_Window *window);
+extern void WINRT_HideScreenKeyboard(SDL_Window *window);
+extern SDL_bool WINRT_IsScreenKeyboardShown(SDL_Window *window);
+#endif // NTDDI_VERSION >= ...
 
-// #include <DXGI.h>
+#endif // ifdef __cplusplus_winrt
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void *D3D11_GetCoreWindowFromSDLRenderer(SDL_Renderer *renderer);
-DXGI_MODE_ROTATION D3D11_GetCurrentRotation();
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* SDL_VIDEO_RENDER_D3D11 && __WINRT__ */
-
-#endif /* SDL_render_winrt_h_ */
+#endif // SDL_winrtkeyboard_h_
 
 /* vi: set ts=4 sw=4 expandtab: */

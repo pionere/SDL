@@ -63,6 +63,8 @@ extern "C" {
 #include "SDL_winrtvideo_cpp.h"
 #include "SDL_winrtvulkan.h"
 #include "SDL_winrtevents_c.h"
+#include "SDL_winrtkeyboard.h"
+#include "SDL_winrtpointerinput.h"
 #include "SDL_winrtgamebar_cpp.h"
 #include "SDL_winrtmouse_c.h"
 #include "SDL_main.h"

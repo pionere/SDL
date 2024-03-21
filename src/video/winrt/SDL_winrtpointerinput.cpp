@@ -23,9 +23,9 @@
 #ifdef SDL_VIDEO_DRIVER_WINRT
 
 /* SDL includes */
-#include "SDL_winrtevents_c.h"
 #include "SDL_winrtmouse_c.h"
 #include "SDL_winrtvideo_cpp.h"
+#include "SDL_winrtpointerinput.h"
 #include "SDL_system.h"
 
 extern "C" {

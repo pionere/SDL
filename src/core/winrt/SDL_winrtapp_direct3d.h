@@ -18,7 +18,11 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#include <Windows.h>
+
+#ifndef SDL_winrtapp_direct3d_h_
+#define SDL_winrtapp_direct3d_h_
+
+// #include <Windows.h>
 
 extern int SDL_WinRTInitNonXAMLApp(int (*mainFunction)(int, char **));
 
@@ -56,7 +60,7 @@ ref class SDL_WinRTApp sealed : public Windows::ApplicationModel::Core::IFramewo
     void OnOrientationChanged(Platform::Object ^ sender);
 #endif
     void OnWindowSizeChanged(Windows::UI::Core::CoreWindow ^ sender, Windows::UI::Core::WindowSizeChangedEventArgs ^ args);
-    void OnLogicalDpiChanged(Platform::Object ^ sender);
+    // void OnLogicalDpiChanged(Platform::Object ^ sender);
     void OnAppActivated(Windows::ApplicationModel::Core::CoreApplicationView ^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs ^ args);
     void OnSuspending(Platform::Object ^ sender, Windows::ApplicationModel::SuspendingEventArgs ^ args);
     void OnResuming(Platform::Object ^ sender, Platform::Object ^ args);
@@ -91,3 +95,7 @@ ref class SDL_WinRTApp sealed : public Windows::ApplicationModel::Core::IFramewo
 };
 
 extern SDL_WinRTApp ^ SDL_WinRTGlobalApp;
+
+#endif /* SDL_winrtapp_direct3d_h_ */
+
+/* vi: set ts=4 sw=4 expandtab: */

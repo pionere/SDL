@@ -28,7 +28,7 @@
 
 /* SDL-specific includes */
 #include "SDL.h"
-#include "SDL_winrtevents_c.h"
+#include "SDL_winrtkeyboard.h"
 
 extern "C" {
 #include "../../events/scancodes_windows.h"

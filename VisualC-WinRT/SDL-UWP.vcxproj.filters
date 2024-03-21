@@ -402,6 +402,9 @@
     <ClInclude Include="..\src\video\winrt\SDL_winrtevents_c.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\winrt\SDL_winrtkeyboard.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\video\winrt\SDL_winrtmessagebox.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -409,6 +412,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video\winrt\SDL_winrtopengles.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\winrt\SDL_winrtpointerinput.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video\winrt\SDL_winrtvideo_cpp.h">

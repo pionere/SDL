@@ -20,9 +20,8 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_RENDER_D3D11
+#if SDL_VIDEO_RENDER_D3D11 && defined(__WINRT__)
 
-#include "SDL_syswm.h"
 #include "../../video/winrt/SDL_winrtvideo_cpp.h"
 extern "C" {
 #include "../SDL_sysrender.h"
@@ -83,6 +82,6 @@ D3D11_GetCurrentRotation()
     return DXGI_MODE_ROTATION_IDENTITY;
 }
 
-#endif /* SDL_VIDEO_RENDER_D3D11 */
+#endif /* SDL_VIDEO_RENDER_D3D11 && __WINRT__ */
 
 /* vi: set ts=4 sw=4 expandtab: */

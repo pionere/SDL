@@ -28,7 +28,7 @@
 #define COBJMACROS
 #include "../../core/windows/SDL_windows.h"
 #include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels*/
-#if !defined(__WINRT__)
+#ifndef __WINRT__
 #include "../../video/windows/SDL_windowswindow.h" /* For WIN_GetWindowHandle */
 #endif
 #include "SDL_hints.h"
@@ -662,7 +662,7 @@ done:
     return result;
 }
 
-#if defined(__WIN32__) || defined(__WINGDK__)
+#ifndef __WINRT__
 
 static DXGI_MODE_ROTATION D3D11_GetCurrentRotation()
 {
@@ -670,7 +670,7 @@ static DXGI_MODE_ROTATION D3D11_GetCurrentRotation()
     return DXGI_MODE_ROTATION_IDENTITY;
 }
 
-#endif /* defined(__WIN32__) || defined(__WINGDK__) */
+#endif /* __WINRT__ */
 
 static BOOL D3D11_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
 {

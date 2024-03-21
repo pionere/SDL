@@ -53,8 +53,10 @@ extern "C" {
 #include "../windows/SDL_windows.h"
 }
 
-#include "../../video/winrt/SDL_winrtevents_c.h"
 #include "../../video/winrt/SDL_winrtvideo_cpp.h"
+#include "../../video/winrt/SDL_winrtevents_c.h"
+#include "../../video/winrt/SDL_winrtkeyboard.h"
+#include "../../video/winrt/SDL_winrtpointerinput.h"
 #include "SDL_winrtapp_common.h"
 #include "SDL_winrtapp_direct3d.h"
 
@@ -191,9 +193,9 @@ void SDL_WinRTApp::Initialize(CoreApplicationView ^ applicationView)
 }
 
 #if NTDDI_VERSION > NTDDI_WIN8
-void SDL_WinRTApp::OnOrientationChanged(DisplayInformation ^ sender, Object ^ args)
+void SDL_WinRTApp::OnOrientationChanged(Windows::Graphics::Display::DisplayInformation ^ sender, Platform::Object ^ args)
 #else
-void SDL_WinRTApp::OnOrientationChanged(Object ^ sender)
+void SDL_WinRTApp::OnOrientationChanged(Platform::Object ^ sender)
 #endif
 {
 #if LOG_ORIENTATION_EVENTS == 1

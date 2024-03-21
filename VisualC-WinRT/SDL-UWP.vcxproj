@@ -185,9 +185,11 @@
     <ClInclude Include="..\src\video\SDL_sysvideo_c.h" />
     <ClInclude Include="..\src\video\SDL_yuv_c.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtevents_c.h" />
+    <ClInclude Include="..\src\video\winrt\SDL_winrtkeyboard.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtgamebar_cpp.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtmessagebox.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtmouse_c.h" />
+    <ClInclude Include="..\src\video\winrt\SDL_winrtpointerinput.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtopengles.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtvideo_cpp.h" />
     <ClInclude Include="..\src\video\winrt\SDL_winrtvulkan.h" />
