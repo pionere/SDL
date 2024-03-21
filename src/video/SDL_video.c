@@ -2558,7 +2558,7 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
 #endif // SDL_VIDEO_DRIVER_DUMMY
 #if defined(__LINUX__) && defined(SDL_VIDEO_DRIVER_X11)
         /* On WSL, direct X11 is faster than using OpenGL for window framebuffers, so try to detect WSL and avoid texture framebuffer. */
-        else if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_X11) {
+        if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_X11) {
             struct stat sb;
             if ((stat("/proc/sys/fs/binfmt_misc/WSLInterop", &sb) == 0) || (stat("/run/WSL", &sb) == 0)) { /* if either of these exist, we're on WSL. */
                 attempt_texture_framebuffer = SDL_FALSE;
@@ -2566,12 +2566,12 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
         }
 #endif
 #if (defined(__WIN32__) || defined(__WINGDK__)) && defined(SDL_VIDEO_DRIVER_WINDOWS) /* GDI BitBlt() is way faster than Direct3D dynamic textures right now. (!!! FIXME: is this still true?) */
-        else if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_WIN) {
+        if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_WIN) {
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #endif
 #if defined(__EMSCRIPTEN__)
-        else {
+        {
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #endif
