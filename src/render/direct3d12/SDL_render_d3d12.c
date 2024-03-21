@@ -2965,6 +2965,15 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
     SDL_Renderer *renderer;
     D3D12_RenderData *data;
+    SDL_bool d3dSupport = SDL_FALSE;
+
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
+     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN;
+#endif
+    if (!d3dSupport) {
+        SDL_SetError("Unable to create Direct3D interface");
+        return NULL;
+    }
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
     data = (D3D12_RenderData *)SDL_calloc(1, sizeof(*data));

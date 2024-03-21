@@ -27,8 +27,8 @@
 
 #define COBJMACROS
 #include "../../core/windows/SDL_windows.h"
-#if !defined(__WINRT__)
 #include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels*/
+#if !defined(__WINRT__)
 #include "../../video/windows/SDL_windowswindow.h" /* For WIN_GetWindowHandle */
 #endif
 #include "SDL_hints.h"
@@ -2315,6 +2315,18 @@ SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
     SDL_Renderer *renderer;
     D3D11_RenderData *data;
+    SDL_bool d3dSupport = SDL_FALSE;
+
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
+     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN;
+#endif
+#ifdef SDL_VIDEO_DRIVER_WINRT
+    d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WINRT;
+#endif
+    if (!d3dSupport) {
+        SDL_SetError("Unable to create Direct3D interface");
+        return NULL;
+    }
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
     data = (D3D11_RenderData *)SDL_calloc(1, sizeof(*data));

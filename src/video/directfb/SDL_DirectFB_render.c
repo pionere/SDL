@@ -1129,8 +1129,13 @@ SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
     SDL_Renderer *renderer = NULL;
     DirectFB_RenderData *data = NULL;
     DFBSurfaceCapabilities scaps;
+    SDL_bool dfbSupport = SDL_FALSE; // required by DirectFB_GetFBSurface and DirectFB_GetFBWindow
 
-    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DirectFB); // required by DirectFB_GetFBSurface and DirectFB_GetFBWindow
+     dfbSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DirectFB;
+    if (!dfbSupport) {
+        SDL_SetError("Unable to create DirectFB interface");
+        return NULL;
+    }
     winsurf = DirectFB_GetFBSurface(window);
     SDL_assert(winsurf != NULL);
 

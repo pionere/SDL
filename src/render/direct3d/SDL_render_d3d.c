@@ -1560,6 +1560,15 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     int w, h;
     SDL_DisplayMode fullscreen_mode;
     int displayIndex;
+    SDL_bool d3dSupport = SDL_FALSE;
+
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
+     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN; // required by WIN_GetWindowHandle
+#endif
+    if (!d3dSupport) {
+        SDL_SetError("Unable to create Direct3D interface");
+        return NULL;
+    }
 
     renderer = (SDL_Renderer *) SDL_calloc(1, sizeof(*renderer));
     data = (D3D_RenderData *)SDL_calloc(1, sizeof(*data));
@@ -1603,7 +1612,6 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info = D3D_RenderDriver.info;
     renderer->driverdata = data;
 
-    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
     hwnd = WIN_GetWindowHandle(window);
     SDL_assert(hwnd != NULL);
 
