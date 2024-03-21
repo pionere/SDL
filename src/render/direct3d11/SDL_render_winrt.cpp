@@ -45,35 +45,9 @@ using namespace Windows::Graphics::Display;
 extern "C" void *
 D3D11_GetCoreWindowFromSDLRenderer(SDL_Renderer *renderer)
 {
-    SDL_Window *sdlWindow = renderer->window;
-    if (!renderer->window) {
-        return NULL;
-    }
-
-    SDL_SysWMinfo sdlWindowInfo;
-    SDL_VERSION(&sdlWindowInfo.version);
-    if ( ! SDL_GetWindowWMInfo(sdlWindow, &sdlWindowInfo) ) {
-        return NULL;
-    }
-
-    if (sdlWindowInfo.subsystem != SDL_SYSWM_WINRT) {
-        return NULL;
-    }
-
-    if (!sdlWindowInfo.info.winrt.window) {
-        return NULL;
-    }
-
-    ABI::Windows::UI::Core::ICoreWindow *coreWindow = NULL;
-    if (FAILED(sdlWindowInfo.info.winrt.window->QueryInterface(&coreWindow))) {
-        return NULL;
-    }
-
-    IUnknown *coreWindowAsIUnknown = NULL;
-    coreWindow->QueryInterface(&coreWindowAsIUnknown);
-    coreWindow->Release();
-
-    return coreWindowAsIUnknown;
+    SDL_assert(renderer->window != NULL);
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WINRT);
+    return WINRT_GetCoreWindow(renderer->window);
 }
 
 extern "C" DXGI_MODE_ROTATION

@@ -62,6 +62,8 @@ typedef struct WinRT_VideoData
 extern WinRT_VideoData winrtVideoData;
 extern SDL_Window *WINRT_GlobalSDLWindow;
 
+extern void *WINRT_GetCoreWindow(SDL_Window *window);
+
 /* Updates one or more SDL_Window flags, by querying the OS' native windowing APIs.
    SDL_Window flags that can be updated should be specified in 'mask'.
 */

@@ -856,6 +856,23 @@ SDL_bool WINRT_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info)
     return SDL_FALSE;
 }
 
+void *WINRT_GetCoreWindow(SDL_Window *window)
+{
+    SDL_WindowData * data = (SDL_WindowData *) window->driverdata;
+    IInspectable *cw = reinterpret_cast<IInspectable *>(data->coreWindow.Get());
+    ABI::Windows::UI::Core::ICoreWindow *coreWindow = NULL;
+
+    if (!cw || FAILED(cw->QueryInterface(&coreWindow))) {
+        return NULL;
+    }
+
+    IUnknown *coreWindowAsIUnknown = NULL;
+    coreWindow->QueryInterface(&coreWindowAsIUnknown);
+    coreWindow->Release();
+
+    return coreWindowAsIUnknown;
+}
+
 static ABI::Windows::System::Display::IDisplayRequest *WINRT_CreateDisplayRequest()
 {
     /* Setup a WinRT DisplayRequest object, usable for enabling/disabling screensaver requests */
