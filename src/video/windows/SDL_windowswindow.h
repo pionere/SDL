@@ -111,6 +111,8 @@ extern void WIN_ClientPointFromSDL(const SDL_Window *window, int *x, int *y);
 extern void WIN_AcceptDragAndDrop(SDL_Window *window, SDL_bool accept);
 extern int WIN_FlashWindow(SDL_Window *window, SDL_FlashOperation operation);
 
+extern HWND WIN_GetWindowHandle(SDL_Window *window);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

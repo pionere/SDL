@@ -28,7 +28,8 @@
 #define COBJMACROS
 #include "../../core/windows/SDL_windows.h"
 #if !defined(__WINRT__)
-#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
+#include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels*/
+#include "../../video/windows/SDL_windowswindow.h" /* For WIN_GetWindowHandle */
 #endif
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
@@ -811,13 +812,12 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
 #endif
     } else {
 #if defined(__WIN32__) || defined(__WINGDK__)
-        SDL_SysWMinfo windowinfo;
-        SDL_VERSION(&windowinfo.version);
-        SDL_GetWindowWMInfo(renderer->window, &windowinfo);
-
+        HWND hwnd = WIN_GetWindowHandle(renderer->window);
+        SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
+        SDL_assert(hwnd != NULL);
         result = IDXGIFactory2_CreateSwapChainForHwnd(data->dxgiFactory,
                                                       (IUnknown *)data->d3dDevice,
-                                                      windowinfo.info.win.window,
+                                                      hwnd,
                                                       &swapChainDesc,
                                                       NULL,
                                                       NULL, /* Allow on all displays. */
@@ -827,7 +827,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
             goto done;
         }
 
-        IDXGIFactory_MakeWindowAssociation(data->dxgiFactory, windowinfo.info.win.window, DXGI_MWA_NO_WINDOW_CHANGES);
+        IDXGIFactory_MakeWindowAssociation(data->dxgiFactory, hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
 #else
         SDL_SetError(__FUNCTION__ ", Unable to find something to attach a swap chain to");
         goto done;

@@ -31,7 +31,8 @@
 #define SDL_D3D12_NUM_UPLOAD_BUFFERS 32
 
 #include "../../core/windows/SDL_windows.h"
-#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
+#include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels */
+#include "../../video/windows/SDL_windowswindow.h" /* For WIN_GetWindowHandle */
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
 #include "SDL_syswm.h"
@@ -1144,7 +1145,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     IDXGISwapChain1* swapChain = NULL;
     HRESULT result = S_OK;
-    SDL_SysWMinfo windowinfo;
+    HWND hwnd;
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -1166,18 +1167,13 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | /* To support SetMaximumFrameLatency */
                           DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;                  /* To support presenting with allow tearing on */
 
-    SDL_VERSION(&windowinfo.version);
-    if (!SDL_GetWindowWMInfo(renderer->window, &windowinfo) ||
-        windowinfo.subsystem != SDL_SYSWM_WINDOWS)
-    {
-        SDL_SetError("Couldn't get window handle");
-        result = E_FAIL;
-        goto done;
-    }
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
+    hwnd = WIN_GetWindowHandle(renderer->window);
+    SDL_assert(hwnd != NULL);
 
     result = D3D_CALL(data->dxgiFactory, CreateSwapChainForHwnd,
                       (IUnknown *)data->commandQueue,
-                      windowinfo.info.win.window,
+                      hwnd,
                       &swapChainDesc,
                       NULL,
                       NULL, /* Allow on all displays. */
@@ -1187,7 +1183,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         goto done;
     }
 
-    D3D_CALL(data->dxgiFactory, MakeWindowAssociation, windowinfo.info.win.window, DXGI_MWA_NO_WINDOW_CHANGES);
+    D3D_CALL(data->dxgiFactory, MakeWindowAssociation, hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
 
     result = D3D_CALL(swapChain, QueryInterface, D3D_GUID(SDL_IID_IDXGISwapChain4), (void **)&data->swapChain);
     if (FAILED(result)) {

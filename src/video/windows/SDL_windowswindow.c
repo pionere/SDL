@@ -1466,6 +1466,12 @@ int WIN_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
 }
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
+HWND WIN_GetWindowHandle(SDL_Window *window)
+{
+    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    return data->hwnd;
+}
+
 #endif /* SDL_VIDEO_DRIVER_WINDOWS */
 
 /* vi: set ts=4 sw=4 expandtab: */

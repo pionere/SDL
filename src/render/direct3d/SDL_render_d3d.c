@@ -26,7 +26,8 @@
 #if SDL_VIDEO_RENDER_D3D
 
 #include "../../core/windows/SDL_windows.h"
-#include "../../video/windows/SDL_windowsvideo.h" /* For D3D_LoadDLL and SDL_PrivateGetWindowSizeInPixels */
+#include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels*/
+#include "../../video/windows/SDL_windowsvideo.h" /* For D3D_LoadDLL + WIN_GetWindowHandle */
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
 #include "SDL_syswm.h"
@@ -1549,7 +1550,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
 {
     SDL_Renderer *renderer;
     D3D_RenderData *data;
-    SDL_SysWMinfo windowinfo;
+    HWND hwnd;
     HRESULT result;
     D3DPRESENT_PARAMETERS pparams;
     IDirect3DSwapChain9 *chain;
@@ -1602,15 +1603,16 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info = D3D_RenderDriver.info;
     renderer->driverdata = data;
 
-    SDL_VERSION(&windowinfo.version);
-    SDL_GetWindowWMInfo(window, &windowinfo);
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
+    hwnd = WIN_GetWindowHandle(window);
+    SDL_assert(hwnd != NULL);
 
     window_flags = window->flags; // TODO: SDL_PrivateGetWindowFlags?
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     SDL_GetWindowDisplayMode(window, &fullscreen_mode);
 
     SDL_zero(pparams);
-    pparams.hDeviceWindow = windowinfo.info.win.window;
+    pparams.hDeviceWindow = hwnd;
     pparams.BackBufferWidth = w;
     pparams.BackBufferHeight = h;
     pparams.BackBufferCount = 1;
