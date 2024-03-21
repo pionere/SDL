@@ -487,6 +487,18 @@ SDL_bool DirectFB_GetWindowWMInfo(SDL_Window * window,
     }
 }
 
+IDirectFBSurface *DirectFB_GetFBSurface(SDL_Window * window)
+{
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
+    return windata->surface;
+}
+
+IDirectFBWindow *DirectFB_GetFBWindow(SDL_Window * window)
+{
+    DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
+    return windata->dfbwin;
+}
+
 void DirectFB_AdjustWindowSurface(SDL_Window * window)
 {
     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;

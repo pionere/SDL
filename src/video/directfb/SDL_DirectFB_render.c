@@ -120,32 +120,6 @@ static int TextureHasAlpha(DirectFB_TextureData * data)
 #endif
 }
 
-static SDL_INLINE IDirectFBSurface *get_dfb_surface(SDL_Window *window)
-{
-    SDL_SysWMinfo wm_info;
-    SDL_memset(&wm_info, 0, sizeof(SDL_SysWMinfo));
-
-    SDL_VERSION(&wm_info.version);
-    if (!SDL_GetWindowWMInfo(window, &wm_info)) {
-        return NULL;
-    }
-
-    return wm_info.info.dfb.surface;
-}
-
-static SDL_INLINE IDirectFBWindow *get_dfb_window(SDL_Window *window)
-{
-    SDL_SysWMinfo wm_info;
-    SDL_memset(&wm_info, 0, sizeof(SDL_SysWMinfo));
-
-    SDL_VERSION(&wm_info.version);
-    if (!SDL_GetWindowWMInfo(window, &wm_info)) {
-        return NULL;
-    }
-
-    return wm_info.info.dfb.window;
-}
-
 static void SetBlendMode(DirectFB_RenderData * data, int blendMode, DirectFB_TextureData * source)
 {
     IDirectFBSurface *destsurf = data->target;
@@ -594,7 +568,7 @@ static int DirectFB_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * textu
         tex_data = (DirectFB_TextureData *) texture->driverdata;
         data->target = tex_data->surface;
     } else {
-        data->target = get_dfb_surface(data->window);
+        data->target = DirectFB_GetFBSurface(data->window);
     }
     data->lastBlendMode = 0;
     return 0;
@@ -813,7 +787,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                 if (texturedata->display) {
                     int px, py;
                     SDL_Window *window = renderer->window;
-                    IDirectFBWindow *dfbwin = get_dfb_window(window);
+                    IDirectFBWindow *dfbwin = DirectFB_GetFBWindow(window);
                     DFB_WindowData *windata = (DFB_WindowData *)window->driverdata;
                     SDL_VideoDisplay *display = texturedata->display;
                     DFB_DisplayData *dispdata = (DFB_DisplayData *) display->driverdata;
@@ -1150,15 +1124,15 @@ static int DirectFB_RenderWritePixels(SDL_Renderer * renderer, const SDL_Rect * 
 
 SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
 {
-    IDirectFBSurface *winsurf = get_dfb_surface(window);
+    IDirectFBSurface *winsurf;
     /*SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);*/
     SDL_Renderer *renderer = NULL;
     DirectFB_RenderData *data = NULL;
     DFBSurfaceCapabilities scaps;
 
-    if (!winsurf) {
-        return NULL;
-    }
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DirectFB); // required by DirectFB_GetFBSurface and DirectFB_GetFBWindow
+    winsurf = DirectFB_GetFBSurface(window);
+    SDL_assert(winsurf != NULL);
 
     SDL_DFB_ALLOC_CLEAR(renderer, sizeof(*renderer));
     SDL_DFB_ALLOC_CLEAR(data, sizeof(*data));

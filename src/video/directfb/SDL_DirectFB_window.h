@@ -75,6 +75,9 @@ extern SDL_bool DirectFB_GetWindowWMInfo(SDL_Window * window,
 extern void DirectFB_AdjustWindowSurface(SDL_Window * window);
 extern int DirectFB_SetWindowOpacity(SDL_Window * window, float opacity);
 
+IDirectFBSurface *DirectFB_GetFBSurface(SDL_Window * window);
+IDirectFBWindow *DirectFB_GetFBWindow(SDL_Window * window);
+
 #endif /* SDL_directfb_window_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
