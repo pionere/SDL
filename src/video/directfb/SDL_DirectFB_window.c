@@ -407,52 +407,52 @@ void DirectFB_DestroyWindow(SDL_Window * window)
     IDirectFBWindow *dfbwin = windata->dfbwin;
     DFB_WindowData *p;
     if (windata) {
-    /* Some cleanups */
-    SDL_DFB_CHECK(dfbwin->UngrabPointer(dfbwin));
-    SDL_DFB_CHECK(dfbwin->UngrabKeyboard(dfbwin));
+        /* Some cleanups */
+        SDL_DFB_CHECK(dfbwin->UngrabPointer(dfbwin));
+        SDL_DFB_CHECK(dfbwin->UngrabKeyboard(dfbwin));
 
 #ifdef SDL_DIRECTFB_OPENGL
-    DirectFB_GL_DestroyWindowContexts(window);
+        DirectFB_GL_DestroyWindowContexts(window);
 #endif
 
-    if (window->shaper) {
-        SDL_ShapeData *data = window->shaper->driverdata;
-        SDL_DFB_RELEASE(data->surface);
-        SDL_DFB_FREE(data);
-        SDL_DFB_FREE(window->shaper);
-    }
-
-    if (windata->window_surface) {
-    SDL_DFB_CHECK(windata->window_surface->SetFont(windata->window_surface, NULL));
-    if (windata->surface) {
-    SDL_DFB_CHECK(windata->surface->ReleaseSource(windata->surface));
-    }
-    SDL_DFB_CHECK(windata->window_surface->ReleaseSource(windata->window_surface));
-    SDL_DFB_RELEASE(windata->icon);
-    SDL_DFB_RELEASE(windata->font);
-    SDL_DFB_RELEASE(windata->eventbuffer);
-    SDL_DFB_RELEASE(windata->surface);
-    SDL_DFB_RELEASE(windata->window_surface);
-    }
-
-    SDL_DFB_RELEASE(windata->dfbwin);
-
-    /* Remove from list ... */
-    if (devdata->firstwin == window) {
-        devdata->firstwin = windata->next;
-    } else if (devdata->firstwin) {
-        p = devdata->firstwin->driverdata;
-
-        while (p) {
-            if (p->next == window) {
-                p->next = windata->next;
-                break;
-            }
-            p = (p->next ? p->next->driverdata : NULL);
+        if (window->shaper) {
+            SDL_ShapeData *data = window->shaper->driverdata;
+            SDL_DFB_RELEASE(data->surface);
+            SDL_DFB_FREE(data);
+            SDL_DFB_FREE(window->shaper);
         }
-    }
-    SDL_free(windata);
-    window->driverdata = NULL;
+
+        if (windata->window_surface) {
+            SDL_DFB_CHECK(windata->window_surface->SetFont(windata->window_surface, NULL));
+            if (windata->surface) {
+                SDL_DFB_CHECK(windata->surface->ReleaseSource(windata->surface));
+            }
+            SDL_DFB_CHECK(windata->window_surface->ReleaseSource(windata->window_surface));
+            SDL_DFB_RELEASE(windata->icon);
+            SDL_DFB_RELEASE(windata->font);
+            SDL_DFB_RELEASE(windata->eventbuffer);
+            SDL_DFB_RELEASE(windata->surface);
+            SDL_DFB_RELEASE(windata->window_surface);
+        }
+
+        SDL_DFB_RELEASE(windata->dfbwin);
+
+        /* Remove from list ... */
+        if (devdata->firstwin == window) {
+            devdata->firstwin = windata->next;
+        } else if (devdata->firstwin) {
+            p = devdata->firstwin->driverdata;
+
+            while (p) {
+                if (p->next == window) {
+                    p->next = windata->next;
+                    break;
+                }
+                p = (p->next ? p->next->driverdata : NULL);
+            }
+        }
+        SDL_free(windata);
+        window->driverdata = NULL;
     }
 }
 
