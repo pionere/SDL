@@ -404,34 +404,30 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     return -1;
 }
 
-#if 0
-static int DirectFB_SetTextureScaleMode(SDL_Renderer * renderer, SDL_Texture * texture)
+static void DirectFB_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture, SDL_ScaleMode scaleMode)
 {
 #if (DFB_VERSION_ATLEAST(1,2,0))
-
     DirectFB_TextureData *data = (DirectFB_TextureData *) texture->driverdata;
+    DFBSurfaceRenderOptions render_options = DSRO_NONE;
 
     switch (texture->scaleMode) {
-    case SDL_SCALEMODE_NONE:
-    case SDL_SCALEMODE_FAST:
-        data->render_options = DSRO_NONE;
+    // case SDL_ScaleModeNearest:
+    //    render_options = DSRO_NONE;
+    //    break;
+    case SDL_ScaleModeLinear:
+        render_options = DSRO_SMOOTH_UPSCALE | DSRO_SMOOTH_DOWNSCALE;
         break;
-    case SDL_SCALEMODE_SLOW:
-        data->render_options = DSRO_SMOOTH_UPSCALE | DSRO_SMOOTH_DOWNSCALE;
+    case SDL_ScaleModeBest:
+        render_options = DSRO_SMOOTH_UPSCALE | DSRO_SMOOTH_DOWNSCALE | DSRO_ANTIALIAS;
         break;
-    case SDL_SCALEMODE_BEST:
-        data->render_options =
-            DSRO_SMOOTH_UPSCALE | DSRO_SMOOTH_DOWNSCALE | DSRO_ANTIALIAS;
-        break;
-    default:
-        data->render_options = DSRO_NONE;
-        texture->scaleMode = SDL_SCALEMODE_NONE;
-        return SDL_Unsupported();
+    // default:
+    //    render_options = DSRO_NONE;
+    //    // SDL_Unsupported();
+    //    break;
     }
+    data->render_options = render_options;
 #endif
-    return 0;
 }
-#endif
 
 static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
                        const SDL_Rect * rect, const void *pixels, int pitch)
@@ -539,10 +535,6 @@ static void DirectFB_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * textur
         SDL_DFB_CHECK(texturedata->surface->Unlock(texturedata->surface));
         texturedata->pixels = NULL;
     }
-}
-
-static void DirectFB_SetTextureScaleMode()
-{
 }
 
 #if 0
