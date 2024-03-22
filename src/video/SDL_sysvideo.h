@@ -422,6 +422,8 @@ typedef struct VideoBootStrap
     SDL_bool (*create)(_THIS);
 } VideoBootStrap;
 
+typedef int (msgBoxFunc)(const SDL_MessageBoxData *messageboxdata, int *buttonid);
+
 #include "SDL_sysvideo_c.h"
 
 /* Use SDL_OnVideoThread() sparingly, to avoid regressions in use cases that currently happen to work */
