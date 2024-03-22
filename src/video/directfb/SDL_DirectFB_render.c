@@ -1131,7 +1131,7 @@ SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
     DFBSurfaceCapabilities scaps;
     SDL_bool dfbSupport = SDL_FALSE; // required by DirectFB_GetFBSurface and DirectFB_GetFBWindow
 
-     dfbSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DirectFB;
+    dfbSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DirectFB;
     if (!dfbSupport) {
         SDL_SetError("Unable to create DirectFB interface");
         return NULL;

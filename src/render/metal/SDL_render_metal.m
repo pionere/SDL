@@ -168,15 +168,14 @@ typedef struct METAL_ShaderPipelines
 
 static int IsMetalAvailable()
 {
-    int videoDeviceId = SDL_GetVideoDeviceId();
     SDL_bool metalSupport = SDL_FALSE;
 #ifdef SDL_VIDEO_DRIVER_COCOA
-    if (videoDeviceId == SDL_VIDEODRIVER_COCOA) {
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_COCOA) {
         metalSupport = SDL_TRUE;
     }
 #endif
 #ifdef SDL_VIDEO_DRIVER_UIKIT
-    if (videoDeviceId == SDL_VIDEODRIVER_UIKit) {
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_UIKit) {
         metalSupport = SDL_TRUE;
     }
 #endif

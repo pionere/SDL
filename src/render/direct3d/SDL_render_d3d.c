@@ -1563,7 +1563,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_bool d3dSupport = SDL_FALSE;
 
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
-     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN; // required by WIN_GetWindowHandle
+    d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN; // required by WIN_GetWindowHandle
 #endif
     if (!d3dSupport) {
         SDL_SetError("Unable to create Direct3D interface");

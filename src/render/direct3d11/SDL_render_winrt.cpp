@@ -45,6 +45,9 @@ extern "C" void *
 D3D11_GetCoreWindowFromSDLRenderer(SDL_Renderer *renderer)
 {
     SDL_assert(renderer->window != NULL);
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
+#error "VideoDeviceId must be checked in D3D11_GetCoreWindowFromSDLRenderer"
+#endif
     SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WINRT);
     return WINRT_GetCoreWindow(renderer->window);
 }

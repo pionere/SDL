@@ -93,7 +93,8 @@ static const VideoBootStrap *const bootstrap[] = {
     DUMMY_BOOTSTRAP_ENTRY
     DUMMY_evdev_BOOTSTRAP_ENTRY
 };
-
+SDL_COMPILE_TIME_ASSERT(bootstrap_count, SDL_arraysize(bootstrap) == SDL_VIDEODRIVERS_count);
+/* The current video driver instance */
 static SDL_VideoDevice current_video;
 
 #define TEST_VIDEO(...)                       \
@@ -452,7 +453,7 @@ int SDL_GetVideoDeviceId(void)
 {
     SDL_assert(SDL_HasVideoDevice());
 
-    return current_video.vdriver_index;
+    return SDL_VIDEODRIVERS_count == 1 ? 0 : current_video.vdriver_index;
 }
 
 SDL_VideoDevice *SDL_GetVideoDevice(void)
@@ -1248,7 +1249,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
     /* if the window is going away and no resolution change is necessary,
        do nothing, or else we may trigger an ugly double-transition
      */
-    if (current_video.vdriver_index == SDL_VIDEODRIVER_COCOA) { /* don't do this for X11, etc */
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_COCOA) { /* don't do this for X11, etc */
         if (window->is_destroying && (window->last_fullscreen_flags & FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             return 0;
         }
@@ -2546,27 +2547,30 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
                 attempt_texture_framebuffer = SDL_FALSE;
             }
         }
+
 #if defined(SDL_VIDEO_DRIVER_DUMMY) /* dummy driver never has GPU support, of course. */
-        if (current_video.vdriver_index == SDL_VIDEODRIVER_DUMMY) {
+        if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DUMMY) {
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #ifdef SDL_INPUT_LINUXEV
-        if (current_video.vdriver_index == SDL_VIDEODRIVER_DUMMY_evdev) {
+        if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DUMMY_evdev) {
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #endif // SDL_INPUT_LINUXEV
 #endif // SDL_VIDEO_DRIVER_DUMMY
 #if defined(__LINUX__) && defined(SDL_VIDEO_DRIVER_X11)
         /* On WSL, direct X11 is faster than using OpenGL for window framebuffers, so try to detect WSL and avoid texture framebuffer. */
-        if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_X11) {
+        if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_X11) {
             struct stat sb;
+            SDL_assert(current_video.CreateWindowFramebuffer != NULL);
             if ((stat("/proc/sys/fs/binfmt_misc/WSLInterop", &sb) == 0) || (stat("/run/WSL", &sb) == 0)) { /* if either of these exist, we're on WSL. */
                 attempt_texture_framebuffer = SDL_FALSE;
             }
         }
 #endif
-#if (defined(__WIN32__) || defined(__WINGDK__)) && defined(SDL_VIDEO_DRIVER_WINDOWS) /* GDI BitBlt() is way faster than Direct3D dynamic textures right now. (!!! FIXME: is this still true?) */
-        if (current_video.CreateWindowFramebuffer && current_video.vdriver_index == SDL_VIDEODRIVER_WIN) {
+#if (defined(__WIN32__) || defined(__WINGDK__)) && defined(SDL_VIDEO_DRIVER_WINDOWS) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__) /* GDI BitBlt() is way faster than Direct3D dynamic textures right now. (!!! FIXME: is this still true?) */
+        if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN) {
+            SDL_assert(current_video.CreateWindowFramebuffer != NULL);
             attempt_texture_framebuffer = SDL_FALSE;
         }
 #endif
@@ -3110,7 +3114,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
     }
 
 #if defined(__MACOSX__) && defined(SDL_VIDEO_DRIVER_COCOA)
-    if (current_video.vdriver_index == SDL_VIDEODRIVER_COCOA) {  /* don't do this for X11, etc */
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_COCOA) {  /* don't do this for X11, etc */
         if (Cocoa_IsWindowInFullscreenSpace(window)) {
             return SDL_FALSE;
         }

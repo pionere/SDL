@@ -812,6 +812,9 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
 #endif
     } else {
 #if defined(__WIN32__) || defined(__WINGDK__)
+#ifdef __WINRT__
+#error "VideoDeviceId must be checked in D3D11_CreateSwapChain"
+#endif
         HWND hwnd = WIN_GetWindowHandle(renderer->window);
         SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
         SDL_assert(hwnd != NULL);
@@ -2318,7 +2321,7 @@ SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_bool d3dSupport = SDL_FALSE;
 
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
-     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN;
+    d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN;
 #endif
 #ifdef SDL_VIDEO_DRIVER_WINRT
     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WINRT;

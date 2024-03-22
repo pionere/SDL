@@ -301,6 +301,7 @@ typedef enum
     OFFSCREEN_BOOTSTRAP_ENUM
     DUMMY_BOOTSTRAP_ENUM
     DUMMY_evdev_BOOTSTRAP_ENUM
+    SDL_VIDEODRIVERS_count
 } SDL_VIDEODRIVERS;
 
 /* Video driver instances */
