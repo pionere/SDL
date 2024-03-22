@@ -1204,6 +1204,10 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
 
         case SDL_RENDERCMD_NO_OP:
             break;
+
+        default:
+            SDL_assume(!"Unknown psprender-command");
+            break;
         }
 
         cmd = cmd->next;

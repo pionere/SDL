@@ -906,6 +906,10 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
 
             case SDL_RENDERCMD_NO_OP:
                 break;
+
+            default:
+                SDL_assume(!"Unknown swrender-command");
+                break;
         }
 
         cmd = cmd->next;

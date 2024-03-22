@@ -1834,6 +1834,7 @@ int X11_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     Display *display = x11VideoData.display;
     XWMHints *wmhints;
+    int result = 0;
 
     wmhints = X11_XGetWMHints(display, data->xwindow);
     if (!wmhints) {
@@ -1866,12 +1867,14 @@ int X11_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
         }
         break;
     default:
+        SDL_assume(!"Unknown flash operation");
+        result = SDL_Unsupported();
         break;
     }
 
     X11_XSetWMHints(display, data->xwindow, wmhints);
     X11_XFree(wmhints);
-    return 0;
+    return result;
 }
 
 int SDL_X11_SetWindowTitle(Display *display, Window xwindow, char *title)

@@ -1457,6 +1457,7 @@ int WIN_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
         desc.dwFlags = (FLASHW_TRAY | FLASHW_TIMERNOFG);
         break;
     default:
+        SDL_assume(!"Unknown flash operation");
         return SDL_Unsupported();
     }
 

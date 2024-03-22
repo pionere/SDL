@@ -975,6 +975,10 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
 
             case SDL_RENDERCMD_NO_OP:
                 break;
+
+        default:
+            SDL_assume(!"Unknown dfbrender-command");
+            break;
         }
 
         cmd = cmd->next;

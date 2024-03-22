@@ -961,6 +961,7 @@ static const char *map_StringForControllerButton[] = {
     "touchpad",
     NULL
 };
+SDL_COMPILE_TIME_ASSERT(map_StringForControllerButton, SDL_arraysize(map_StringForControllerButton) == SDL_CONTROLLER_BUTTON_MAX + 1);
 
 /*
  * convert a string to its enum equivalent

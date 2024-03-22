@@ -1288,6 +1288,10 @@ static int D3D_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
 
         case SDL_RENDERCMD_NO_OP:
             break;
+
+        default:
+            SDL_assume(!"Unknown d3drender-command");
+            break;
         }
 
         cmd = cmd->next;

@@ -1395,6 +1395,10 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
 
         case SDL_RENDERCMD_NO_OP:
             break;
+
+        default:
+            SDL_assume(!"Unknown glrender-command");
+            break;
         }
 
         cmd = cmd->next;

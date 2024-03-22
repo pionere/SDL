@@ -110,6 +110,10 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
         return SDL_SetError("Unsupported virtual joystick description version %d", desc->version);
     }
 
+    if (hwdata->desc.type >= SDL_JOYSTICK_TYPE_MAX) {
+        return SDL_SetError("Unsupported virtual joystick type %d", hwdata->desc.type);
+    }
+
     hwdata = SDL_calloc(1, sizeof(joystick_hwdata));
     if (!hwdata) {
         VIRTUAL_FreeHWData(hwdata);
@@ -120,7 +124,11 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
     if (hwdata->desc.name) {
         name = hwdata->desc.name;
     } else {
+        SDL_COMPILE_TIME_ASSERT(virtual_joystick_type, SDL_JOYSTICK_TYPE_MAX == 10);
         switch (hwdata->desc.type) {
+        case SDL_JOYSTICK_TYPE_UNKNOWN:
+            name = "Virtual Joystick";
+            break;
         case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
             name = "Virtual Controller";
             break;
@@ -149,6 +157,7 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
             name = "Virtual Throttle";
             break;
         default:
+            SDL_assume(!"Unknown joystick type");
             name = "Virtual Joystick";
             break;
         }

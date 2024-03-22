@@ -2499,6 +2499,7 @@ static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
         textureSampler = &rendererData->linearSampler;
         break;
     default:
+        SDL_assume(!"Unknown scale mode");
         return SDL_SetError("Unknown scale mode: %d\n", textureData->scaleMode);
     }
 #if SDL_HAVE_YUV
@@ -2703,6 +2704,10 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
         }
 
         case SDL_RENDERCMD_NO_OP:
+            break;
+
+        default:
+            SDL_assume(!"Unknown d3d12render-command");
             break;
         }
 

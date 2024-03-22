@@ -230,7 +230,9 @@ static SDL_INLINE void DebugLogRenderCommands(const SDL_RenderCommand *cmd)
                         (int) cmd->data.draw.b, (int) cmd->data.draw.a,
                         (int) cmd->data.draw.blend, cmd->data.draw.texture);
                 break;
-
+            default:
+                SDL_assume(!"Unknown render-command");
+                break;
         }
         cmd = cmd->next;
     }

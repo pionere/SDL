@@ -1046,6 +1046,10 @@ static int VITA_GXM_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *c
 
         case SDL_RENDERCMD_NO_OP:
             break;
+
+        default:
+            SDL_assume(!"Unknown vitarender-command");
+            break;
         }
         data->drawstate.last_command = cmd->command;
         cmd = cmd->next;

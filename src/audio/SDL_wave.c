@@ -1832,7 +1832,7 @@ static int WaveLoad(SDL_RWops *src, WaveFile *file, SDL_AudioSpec *spec, Uint8 *
     case RiffSizeIgnore:
         RIFFend = RIFFchunk.position + SDL_MAX_UINT32;
         break;
-    default:
+    case RiffSizeNoHint:
     case RiffSizeIgnoreZero:
         if (RIFFchunk.length == 0) {
             RIFFend = RIFFchunk.position + SDL_MAX_UINT32;
@@ -1845,6 +1845,10 @@ static int WaveLoad(SDL_RWops *src, WaveFile *file, SDL_AudioSpec *spec, Uint8 *
         break;
     case RiffSizeMaximum:
         RIFFend = SDL_MAX_SINT64;
+        break;
+    default:
+        SDL_assume(!"Unknown riffsize hint");
+        RIFFend = 0;
         break;
     }
 

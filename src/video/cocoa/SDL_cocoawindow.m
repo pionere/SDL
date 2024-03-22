@@ -2465,6 +2465,7 @@ int Cocoa_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
         data.flash_request = [NSApp requestUserAttention:NSCriticalRequest];
         break;
     default:
+        SDL_assume(!"Unknown flash operation");
         return SDL_Unsupported();
     }
     return 0;

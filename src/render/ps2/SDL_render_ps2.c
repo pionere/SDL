@@ -518,6 +518,9 @@ static int PS2_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         }
         case SDL_RENDERCMD_NO_OP:
             break;
+        default:
+            SDL_assume(!"Unknown ps2render-command");
+            break;
         }
         cmd = cmd->next;
     }

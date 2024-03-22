@@ -3016,7 +3016,7 @@ int SDL_FlashWindow(SDL_Window *window, SDL_FlashOperation operation)
 {
     CHECK_WINDOW_MAGIC(window, -1);
 
-    if (current_video.FlashWindow) {
+    if (operation >= 0 && operation < SDL_FLASH_MAX && current_video.FlashWindow) {
         return current_video.FlashWindow(window, operation);
     }
 

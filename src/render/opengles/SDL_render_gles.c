@@ -884,6 +884,10 @@ static int GLES_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
 
         case SDL_RENDERCMD_NO_OP:
             break;
+
+        default:
+            SDL_assume(!"Unknown glesrender-command");
+            break;
         }
 
         cmd = cmd->next;
