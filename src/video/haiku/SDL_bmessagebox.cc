@@ -74,13 +74,6 @@ class HAIKU_SDL_MessageBox : public BAlert
 
 	std::vector<const SDL_MessageBoxButtonData *> fButtons;
 
-	static bool
-	SortButtonsPredicate(const SDL_MessageBoxButtonData *aButtonLeft,
-	                                 const SDL_MessageBoxButtonData *aButtonRight)
-	{
-		return aButtonLeft->buttonid < aButtonRight->buttonid;
-	}
-
 	alert_type
 	ConvertMessageBoxType(const int aWindowFlags) const
 	{
@@ -255,34 +248,20 @@ class HAIKU_SDL_MessageBox : public BAlert
 
 		for (int i = 0; i < aNumButtons; ++i) {
 			int btnIdx;
-			if (!(aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
-				btnIdx = i;
-			} else {
+			if (aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
 				btnIdx = messageboxdata->numbuttons - 1 - i;
+			} else {
+				btnIdx = i;
 			}
 			fButtons.push_back(&aButtons[btnIdx]);
 		}
 
-		// std::sort(fButtons.begin(), fButtons.end(), &HAIKU_SDL_MessageBox::SortButtonsPredicate);
-
-		// size_t countButtons = fButtons.size();
 		for (int i = 0; i < aNumButtons; ++i) {
-			switch (fButtons[i]->flags)
-			{
-				case SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT:
-				{
-					fCloseButton = i;
-					break;
-				}
-				case SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT:
-				{
-					fDefaultButton = i;
-					break;
-				}
-				default:
-				{
-					break;
-				}
+			if (fButtons[i]->flags & SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT) {
+				fCloseButton = i;
+			}
+			if (fButtons[i]->flags & SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT) {
+				fDefaultButton = i;
 			}
 			AddButton(fButtons[i]->text);
 		}
@@ -390,10 +369,10 @@ int HAIKU_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid
 
 	// Initialize button by real pushed value then.
 	if (pushedButton != G_CLOSE_BUTTON_ID) {
-		if (!(aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT)) {
-			btnIdx = pushedButton;
-		} else {
+		if (aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
 			btnIdx = messageboxdata->numbuttons - 1 - pushedButton;
+		} else {
+			btnIdx = pushedButton;
 		}
 		pushedButton = aMessageBoxData->buttons[btnIdx].buttonid;
 	}
