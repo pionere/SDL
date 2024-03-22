@@ -1497,37 +1497,26 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if (ScreenToClient(hwnd, &winpoint)) {
                 SDL_Point point;
                 SDL_HitTestResult rc;
+                int ht = HTNOWHERE;
                 point.x = winpoint.x;
                 point.y = winpoint.y;
                 WIN_ClientPointToSDL(window, &point.x, &point.y);
                 rc = window->hit_test(window, &point, window->hit_test_data);
                 switch (rc) {
-#define POST_HIT_TEST(ret)                                                 \
-    {                                                                      \
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0); \
-        return ret;                                                        \
-    }
-                case SDL_HITTEST_DRAGGABLE:
-                    POST_HIT_TEST(HTCAPTION);
-                case SDL_HITTEST_RESIZE_TOPLEFT:
-                    POST_HIT_TEST(HTTOPLEFT);
-                case SDL_HITTEST_RESIZE_TOP:
-                    POST_HIT_TEST(HTTOP);
-                case SDL_HITTEST_RESIZE_TOPRIGHT:
-                    POST_HIT_TEST(HTTOPRIGHT);
-                case SDL_HITTEST_RESIZE_RIGHT:
-                    POST_HIT_TEST(HTRIGHT);
-                case SDL_HITTEST_RESIZE_BOTTOMRIGHT:
-                    POST_HIT_TEST(HTBOTTOMRIGHT);
-                case SDL_HITTEST_RESIZE_BOTTOM:
-                    POST_HIT_TEST(HTBOTTOM);
-                case SDL_HITTEST_RESIZE_BOTTOMLEFT:
-                    POST_HIT_TEST(HTBOTTOMLEFT);
-                case SDL_HITTEST_RESIZE_LEFT:
-                    POST_HIT_TEST(HTLEFT);
-#undef POST_HIT_TEST
-                case SDL_HITTEST_NORMAL:
-                    return HTCLIENT;
+                case SDL_HITTEST_DRAGGABLE:          ht = HTCAPTION;     break;
+                case SDL_HITTEST_RESIZE_TOPLEFT:     ht = HTTOPLEFT;     break;
+                case SDL_HITTEST_RESIZE_TOP:         ht = HTTOP;         break;
+                case SDL_HITTEST_RESIZE_TOPRIGHT:    ht = HTTOPRIGHT;    break;
+                case SDL_HITTEST_RESIZE_RIGHT:       ht = HTRIGHT;       break;
+                case SDL_HITTEST_RESIZE_BOTTOMRIGHT: ht = HTBOTTOMRIGHT; break;
+                case SDL_HITTEST_RESIZE_BOTTOM:      ht = HTBOTTOM;      break;
+                case SDL_HITTEST_RESIZE_BOTTOMLEFT:  ht = HTBOTTOMLEFT;  break;
+                case SDL_HITTEST_RESIZE_LEFT:        ht = HTLEFT;        break;
+                case SDL_HITTEST_NORMAL:             return HTCLIENT;
+                }
+                if (ht != HTNOWHERE) {
+                    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIT_TEST, 0, 0);
+                    return ht;
                 }
             }
             /* If we didn't return, this will call DefWindowProc below. */
