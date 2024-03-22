@@ -521,13 +521,8 @@ SDL_bool D3D_LoadDLL(void **pD3DDLL, IDirect3D9 **pDirect3D9Interface)
     return SDL_FALSE;
 }
 
-int SDL_Direct3D9GetAdapterIndex(int displayIndex)
+int SDL_Direct3D9AdapterIndex(int displayIndex, IDirect3D9 *pD3D)
 {
-    void *pD3DDLL;
-    IDirect3D9 *pD3D;
-    if (!D3D_LoadDLL(&pD3DDLL, &pD3D)) {
-        return SDL_SetError("Unable to create Direct3D interface");
-    } else {
         SDL_DisplayData *pData = (SDL_DisplayData *)SDL_GetDisplayDriverData(displayIndex);
         int adapterIndex = D3DADAPTER_DEFAULT;
 
@@ -549,12 +544,24 @@ int SDL_Direct3D9GetAdapterIndex(int displayIndex)
             SDL_free(displayName);
         }
 
+        return adapterIndex;
+}
+
+int SDL_Direct3D9GetAdapterIndex(int displayIndex)
+{
+    int result;
+    void *pD3DDLL;
+    IDirect3D9 *pD3D;
+    if (D3D_LoadDLL(&pD3DDLL, &pD3D)) {
+        result = SDL_Direct3D9AdapterIndex(displayIndex, pD3D);
+
         /* free up the D3D stuff we inited */
         IDirect3D9_Release(pD3D);
         SDL_UnloadObject(pD3DDLL);
-
-        return adapterIndex;
+    } else {
+        result = SDL_SetError("Unable to create Direct3D interface");
     }
+    return result;
 }
 #endif /* !defined(__XBOXONE__) && !defined(__XBOXSERIES__) */
 

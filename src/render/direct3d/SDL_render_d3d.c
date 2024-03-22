@@ -27,7 +27,7 @@
 
 #include "../../core/windows/SDL_windows.h"
 #include "../../video/SDL_sysvideo_c.h" /* For SDL_GetVideoDeviceId and SDL_VIDEODRIVERS + SDL_PrivateGetWindowSizeInPixels*/
-#include "../../video/windows/SDL_windowsvideo.h" /* For D3D_LoadDLL + WIN_GetWindowHandle */
+#include "../../video/windows/SDL_windowsvideo.h" /* For D3D_LoadDLL, SDL_Direct3D9AdapterIndex + WIN_GetWindowHandle */
 #include "SDL_hints.h"
 #include "SDL_loadso.h"
 #include "SDL_syswm.h"
@@ -1563,7 +1563,6 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     Uint32 window_flags;
     int w, h;
     SDL_DisplayMode fullscreen_mode;
-    int displayIndex;
     SDL_bool d3dSupport = SDL_FALSE;
 
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
@@ -1646,8 +1645,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
 
     /* Get the adapter for the display that the window is on */
-    displayIndex = SDL_GetWindowDisplayIndex(window);
-    data->adapter = SDL_Direct3D9GetAdapterIndex(displayIndex);
+    data->adapter = SDL_Direct3D9AdapterIndex(window->display_index, data->d3d);
 
     IDirect3D9_GetDeviceCaps(data->d3d, data->adapter, D3DDEVTYPE_HAL, &caps);
 
