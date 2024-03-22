@@ -77,7 +77,7 @@ static void HandleAudioProcess(_THIS)
         int got;
         while (SDL_AudioStreamAvailable(this->stream) < ((int)this->spec.size)) {
             callback(this->callbackspec.userdata, this->work_buffer, stream_len);
-            if (SDL_AudioStreamPut(this->stream, this->work_buffer, stream_len) == -1) {
+            if (SDL_AudioStreamPut(this->stream, this->work_buffer, stream_len) < 0) {
                 SDL_AudioStreamClear(this->stream);
                 SDL_AtomicSet(&this->enabled, 0);
                 break;
@@ -134,7 +134,7 @@ static void HandleCaptureProcess(_THIS)
         SDL_assert(this->spec.size == stream_len);
         callback(this->callbackspec.userdata, this->work_buffer, stream_len);
     } else { /* streaming/converting */
-        if (SDL_AudioStreamPut(this->stream, this->work_buffer, this->spec.size) == -1) {
+        if (SDL_AudioStreamPut(this->stream, this->work_buffer, this->spec.size) < 0) {
             SDL_AtomicSet(&this->enabled, 0);
         }
 

@@ -139,7 +139,7 @@ static SDL_bool RecoverWasapiDevice(_THIS)
        devices try to reinitialize whatever the new default is, so it's more
        likely to carry on here, but this handles a non-default device that
        simply had its format changed in the Windows Control Panel. */
-    if (WASAPI_ActivateDevice(this, SDL_TRUE) == -1) {
+    if (WASAPI_ActivateDevice(this, SDL_TRUE) < 0) {
         SDL_OpenedAudioDeviceDisconnected(this);
         return SDL_FALSE;
     }
@@ -567,10 +567,6 @@ static int WASAPI_OpenDevice(_THIS, const char *devname)
         }
     }
 
-    if (WASAPI_ActivateDevice(this, SDL_FALSE) == -1) {
-        return -1; /* already set error. */
-    }
-
     /* Ready, but waiting for async device activation.
        Until activation is successful, we will report silence from capture
        devices and ignore data on playback devices.
@@ -579,7 +575,7 @@ static int WASAPI_OpenDevice(_THIS, const char *devname)
        an SDL_AudioStream to convert, if necessary, once the activation
        completes. */
 
-    return 0;
+    return WASAPI_ActivateDevice(this, SDL_FALSE);
 }
 
 static void WASAPI_ThreadInit(_THIS)
@@ -599,7 +595,7 @@ static void WASAPI_Deinitialize(void)
 
 static SDL_bool WASAPI_Init(SDL_AudioDriverImpl *impl)
 {
-    if (WASAPI_PlatformInit() == -1) {
+    if (WASAPI_PlatformInit() < 0) {
         return SDL_FALSE;
     }
 

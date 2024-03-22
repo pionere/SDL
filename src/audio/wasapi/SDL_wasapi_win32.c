@@ -125,11 +125,8 @@ int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
     }
 
     SDL_assert(this->hidden->client != NULL);
-    if (WASAPI_PrepDevice(this, isrecovery) == -1) { /* not async, fire it right away. */
-        return -1;
-    }
 
-    return 0; /* good to go. */
+    return WASAPI_PrepDevice(this, isrecovery); /* good to go or not async, fire it right away.. */
 }
 
 void WASAPI_EnumerateEndpoints(void)

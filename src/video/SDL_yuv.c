@@ -1009,7 +1009,7 @@ int SDL_ConvertPixels_RGB_to_YUV(int width, int height,
 
         /* convert src/src_format to tmp/ARGB8888 */
         ret = SDL_ConvertPixels(width, height, src_format, src, src_pitch, SDL_PIXELFORMAT_ARGB8888, tmp, tmp_pitch);
-        if (ret == -1) {
+        if (ret < 0) {
             SDL_free(tmp);
             return ret;
         }

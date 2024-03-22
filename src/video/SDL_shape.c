@@ -111,8 +111,7 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
     Uint8 *pixel;
     Uint32 pixel_value;
     Uint8 r, g, b, a;
-    SDL_bool pixel_opaque;
-    int last_opaque = -1;
+    int pixel_opaque, last_opaque = -1;
     SDL_Color key;
     SDL_ShapeTree *result = (SDL_ShapeTree *)SDL_malloc(sizeof(SDL_ShapeTree));
 
@@ -145,27 +144,27 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
             SDL_GetRGBA(pixel_value, mask->format, &r, &g, &b, &a);
             switch (mode->mode) {
             case ShapeModeDefault:
-                pixel_opaque = (a >= 1 ? SDL_TRUE : SDL_FALSE);
+                pixel_opaque = (a >= 1 ? 1 : 0);
                 break;
             case ShapeModeBinarizeAlpha:
-                pixel_opaque = (a >= mode->parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
+                pixel_opaque = (a >= mode->parameters.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeReverseBinarizeAlpha:
-                pixel_opaque = (a <= mode->parameters.binarizationCutoff ? SDL_TRUE : SDL_FALSE);
+                pixel_opaque = (a <= mode->parameters.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeColorKey:
                 key = mode->parameters.colorKey;
-                pixel_opaque = ((key.r != r || key.g != g || key.b != b) ? SDL_TRUE : SDL_FALSE);
+                pixel_opaque = ((key.r != r || key.g != g || key.b != b) ? 1 : 0);
                 break;
             default:
                 SDL_assume(!"Invalid shape mode");
-                pixel_opaque = SDL_FALSE;
+                pixel_opaque = 0;
                 break;
             }
             if (last_opaque == pixel_opaque) {
                 continue;
             }
-            if (last_opaque == -1) {
+            if (last_opaque < 0) {
                 last_opaque = pixel_opaque;
             } else {
                 const int halfwidth = (dimensions.w >> 1);

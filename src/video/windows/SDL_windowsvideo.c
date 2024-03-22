@@ -615,7 +615,7 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
     SDL_DisplayData *pData = (SDL_DisplayData *)SDL_GetDisplayDriverData(displayIndex);
     void *pDXGIDLL;
     char *displayName;
-    int nAdapter, nOutput;
+    int nAdapter, nOutput, resAdapter;
     IDXGIFactory *pDXGIFactory = NULL;
     IDXGIAdapter *pDXGIAdapter;
     IDXGIOutput *pDXGIOutput;
@@ -645,15 +645,15 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
 
     displayName = WIN_StringToUTF8W(pData->DeviceName);
     nAdapter = 0;
-    while (*adapterIndex == -1 && SUCCEEDED(IDXGIFactory_EnumAdapters(pDXGIFactory, nAdapter, &pDXGIAdapter))) {
+    resAdapter = -1;
+    while (resAdapter < 0 && SUCCEEDED(IDXGIFactory_EnumAdapters(pDXGIFactory, nAdapter, &pDXGIAdapter))) {
         nOutput = 0;
-        while (*adapterIndex == -1 && SUCCEEDED(IDXGIAdapter_EnumOutputs(pDXGIAdapter, nOutput, &pDXGIOutput))) {
+        while (resAdapter < 0 && SUCCEEDED(IDXGIAdapter_EnumOutputs(pDXGIAdapter, nOutput, &pDXGIOutput))) {
             DXGI_OUTPUT_DESC outputDesc;
             if (SUCCEEDED(IDXGIOutput_GetDesc(pDXGIOutput, &outputDesc))) {
                 char *outputName = WIN_StringToUTF8W(outputDesc.DeviceName);
                 if (SDL_strcmp(outputName, displayName) == 0) {
-                    *adapterIndex = nAdapter;
-                    *outputIndex = nOutput;
+                    resAdapter = nAdapter;
                 }
                 SDL_free(outputName);
             }
@@ -669,11 +669,10 @@ SDL_bool SDL_DXGIGetOutputInfo(int displayIndex, int *adapterIndex, int *outputI
     IDXGIFactory_Release(pDXGIFactory);
     SDL_UnloadObject(pDXGIDLL);
 
-    if (*adapterIndex == -1) {
-        return SDL_FALSE;
-    } else {
-        return SDL_TRUE;
-    }
+    *adapterIndex = resAdapter;
+    *outputIndex = resAdapter < 0 ? -1 : (nOutput - 1);
+
+    return resAdapter < 0 ? SDL_FALSE : SDL_TRUE;
 #endif
 }
 

@@ -4727,18 +4727,21 @@ SDL_bool SDL_ShouldAllowTopmost(void)
 
 int SDL_SetWindowHitTest(SDL_Window *window, SDL_HitTest callback, void *callback_data)
 {
+    int result;
+
     CHECK_WINDOW_MAGIC(window, -1);
 
-    if (!current_video.SetWindowHitTest) {
-        return SDL_Unsupported();
-    } else if (current_video.SetWindowHitTest(window, callback != NULL) == -1) {
-        return -1;
+    if (current_video.SetWindowHitTest) {
+        result = current_video.SetWindowHitTest(window, callback != NULL);
+    } else {
+        result = SDL_Unsupported();
+    }
+    if (result >= 0) {
+        window->hit_test = callback;
+        window->hit_test_data = callback_data;
     }
 
-    window->hit_test = callback;
-    window->hit_test_data = callback_data;
-
-    return 0;
+    return result;
 }
 
 float SDL_ComputeDiagonalDPI(int hpix, int vpix, float hinches, float vinches)

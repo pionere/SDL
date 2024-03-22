@@ -1259,7 +1259,7 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
 
 static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
                                            const SDL_AudioSpec *desired, SDL_AudioSpec *obtained,
-                                           int allowed_changes, int min_id)
+                                           int allowed_changes, int min_idx)
 {
     SDL_AudioDeviceID id = 0;
     SDL_AudioSpec _obtained;
@@ -1444,7 +1444,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
 
     /* Find an available device ID... */
     SDL_LockMutex(current_audio.detectionLock);
-    for (id = min_id - 1; id < SDL_arraysize(open_devices); id++) {
+    for (id = min_idx; id < SDL_arraysize(open_devices); id++) {
         if (open_devices[id] == NULL) {
             break;
         }
@@ -1505,11 +1505,11 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 
     if (obtained) {
         id = open_audio_device(NULL, 0, desired, obtained,
-                               SDL_AUDIO_ALLOW_ANY_CHANGE, 1);
+                               SDL_AUDIO_ALLOW_ANY_CHANGE, 0);
     } else {
         SDL_AudioSpec _obtained;
         SDL_zero(_obtained);
-        id = open_audio_device(NULL, 0, desired, &_obtained, 0, 1);
+        id = open_audio_device(NULL, 0, desired, &_obtained, 0, 0);
         /* On successful open, copy calculated values into 'desired'. */
         if (id > 0) {
             desired->size = _obtained.size;
@@ -1526,7 +1526,7 @@ SDL_AudioDeviceID SDL_OpenAudioDevice(const char *device, int iscapture,
                     int allowed_changes)
 {
     return open_audio_device(device, iscapture, desired, obtained,
-                             allowed_changes, 2);
+                             allowed_changes, 1);
 }
 
 SDL_AudioStatus SDL_GetAudioDeviceStatus(SDL_AudioDeviceID devid)

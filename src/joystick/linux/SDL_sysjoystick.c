@@ -1604,7 +1604,7 @@ static int LINUX_JoystickOpen(SDL_Joystick *joystick, int device_index)
     }
 
     item_sensor = GetSensor(item);
-    if (PrepareJoystickHwdata(joystick, item, item_sensor) == -1) {
+    if (PrepareJoystickHwdata(joystick, item, item_sensor) < 0) {
         SDL_free(joystick->hwdata);
         joystick->hwdata = NULL;
         return -1; /* SDL_SetError will already have been called */
@@ -2314,7 +2314,7 @@ static SDL_bool LINUX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMap
 
     item->checked_mapping = SDL_TRUE;
 
-    if (PrepareJoystickHwdata(joystick, item, NULL) == -1) {
+    if (PrepareJoystickHwdata(joystick, item, NULL) < 0) {
         SDL_free(joystick->hwdata);
         SDL_free(joystick);
         return SDL_FALSE; /* SDL_SetError will already have been called */
