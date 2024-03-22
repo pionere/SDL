@@ -238,9 +238,7 @@ static HRESULT STDMETHODCALLTYPE SDLMMNotificationClient_OnDefaultDeviceChanged(
         break;
 
     default:
-#ifndef __clang__ // -- because reasons...
-        SDL_COMPILE_TIME_ASSERT(EDataFlow_count, EDataFlow_enum_count == 3);
-#endif
+        SDL_INLINE_COMPILE_TIME_ASSERT(EDataFlow_count, EDataFlow_enum_count == 3);
         SDL_assume(!"uhoh, unexpected OnDefaultDeviceChange flow!");
         break;
     }
