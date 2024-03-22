@@ -1213,9 +1213,9 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
 {
     SDL_copyp(prepared, orig);
 
-    if (orig->freq == 0) {
+    if (orig->freq <= 0) {
         const char *env = SDL_getenv("SDL_AUDIO_FREQUENCY");
-        if ((env == NULL) || ((prepared->freq = SDL_atoi(env)) == 0)) {
+        if ((env == NULL) || ((prepared->freq = SDL_atoi(env)) <= 0)) {
             prepared->freq = 22050; /* a reasonable default */
         }
     }
@@ -1241,13 +1241,8 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
         const char *env = SDL_getenv("SDL_AUDIO_SAMPLES");
         if ((env == NULL) || ((prepared->samples = (Uint16)SDL_atoi(env)) == 0)) {
             /* Pick a default of ~46 ms at desired frequency */
-            /* !!! FIXME: remove this when the non-Po2 resampling is in. */
-            const int samples = (prepared->freq / 1000) * 46;
-            int power2 = 1;
-            while (power2 < samples) {
-                power2 *= 2;
-            }
-            prepared->samples = power2;
+            const int samples = ((prepared->freq + 999) / 1000) * 46;
+            prepared->samples = samples;
         }
     }
 
@@ -1351,8 +1346,10 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
     /* For backends that require a power-of-two value for spec.samples, take the
      * value we got from 'desired' and round up to the nearest value
      */
-    if (!current_audio.impl.SupportsNonPow2Samples && device->spec.samples > 0) {
+    SDL_assert(device->spec.samples > 0);
+    if (!current_audio.impl.SupportsNonPow2Samples) {
         device->spec.samples = SDL_powerof2(device->spec.samples);
+        SDL_CalculateAudioSpec(&device->spec); /* recalc after possible change */
     }
 
     if (current_audio.impl.OpenDevice(device, devname) < 0) {
