@@ -63,6 +63,7 @@ static void nacl_audio_callback(void* stream, uint32_t buffer_size, PP_TimeDelta
             callback(_this->callbackspec.userdata, stream, len);
         } else {  /* streaming/converting */
             const int stream_len = _this->callbackspec.size;
+            int got;
             while (SDL_AudioStreamAvailable(_this->stream) < len) {
                 callback(_this->callbackspec.userdata, _this->work_buffer, stream_len);
                 if (SDL_AudioStreamPut(_this->stream, _this->work_buffer, stream_len) < 0) {
@@ -71,9 +72,8 @@ static void nacl_audio_callback(void* stream, uint32_t buffer_size, PP_TimeDelta
                     break;
                 }
             }
-
-            const int got = SDL_AudioStreamGet(_this->stream, stream, len);
-            SDL_assert((got < 0) || (got == len));
+            got = SDL_PrivateAudioStreamGet(_this->stream, stream, len);
+            SDL_assert((got == 0) || (got == len));
             if (got != len) {
                 SDL_memset(stream, _this->spec.silence, len);
             }

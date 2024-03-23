@@ -83,9 +83,8 @@ static void HandleAudioProcess(_THIS)
                 break;
             }
         }
-
-        got = SDL_AudioStreamGet(this->stream, this->work_buffer, this->spec.size);
-        SDL_assert((got < 0) || (got == this->spec.size));
+        got = SDL_PrivateAudioStreamGet(this->stream, this->work_buffer, this->spec.size);
+        SDL_assert((got == 0) || (got == this->spec.size));
         if (got != this->spec.size) {
             SDL_memset(this->work_buffer, this->spec.silence, this->spec.size);
         }
@@ -139,8 +138,8 @@ static void HandleCaptureProcess(_THIS)
         }
 
         while (SDL_AudioStreamAvailable(this->stream) >= stream_len) {
-            const int got = SDL_AudioStreamGet(this->stream, this->work_buffer, stream_len);
-            SDL_assert((got < 0) || (got == stream_len));
+            const int got = SDL_PrivateAudioStreamGet(this->stream, this->work_buffer, stream_len);
+            SDL_assert((got == 0) || (got == stream_len));
             if (got != stream_len) {
                 SDL_memset(this->work_buffer, this->callbackspec.silence, stream_len);
             }

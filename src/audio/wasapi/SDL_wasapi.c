@@ -233,8 +233,7 @@ static int WASAPI_CaptureFromDevice(_THIS, void *buffer, int buflen)
     const int avail = SDL_AudioStreamAvailable(stream);
     if (avail > 0) {
         const int cpy = SDL_min(buflen, avail);
-        SDL_AudioStreamGet(stream, buffer, cpy);
-        return cpy;
+        return SDL_PrivateAudioStreamGet(stream, buffer, cpy);
     }
 
     while (RecoverWasapiIfLost(this)) {

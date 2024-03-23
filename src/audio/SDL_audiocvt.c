@@ -1385,10 +1385,6 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
 /* get converted/resampled data from the stream */
 int SDL_AudioStreamGet(SDL_AudioStream *stream, void *buf, int len)
 {
-#if DEBUG_AUDIOSTREAM
-    SDL_Log("AUDIOSTREAM: want to get %d converted bytes\n", len);
-#endif
-
     if (!stream) {
         return SDL_InvalidParamError("stream");
     }
@@ -1401,7 +1397,16 @@ int SDL_AudioStreamGet(SDL_AudioStream *stream, void *buf, int len)
     if ((len % stream->dst_sample_frame_size) != 0) {
         return SDL_SetError("Can't request partial sample frames");
     }
+    SDL_assert(stream->queue != NULL);
+    return (int)SDL_ReadFromDataQueue(stream->queue, buf, len);
+}
 
+int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len)
+{
+#if DEBUG_AUDIOSTREAM
+    SDL_Log("AUDIOSTREAM: want to get %d converted bytes\n", len);
+#endif
+    SDL_assert(stream->queue != NULL);
     return (int)SDL_ReadFromDataQueue(stream->queue, buf, len);
 }
 

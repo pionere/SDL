@@ -733,8 +733,8 @@ static int SDLCALL SDL_RunAudio(void *userdata)
             while (SDL_AudioStreamAvailable(device->stream) >= ((int)device->spec.size)) {
                 int got;
                 data = SDL_AtomicGet(&device->enabled) ? current_audio.impl.GetDeviceBuf(device) : NULL;
-                got = SDL_AudioStreamGet(device->stream, data ? data : device->work_buffer, device->spec.size);
-                SDL_assert((got <= 0) || (got == device->spec.size));
+                got = SDL_PrivateAudioStreamGet(device->stream, data ? data : device->work_buffer, device->spec.size);
+                SDL_assert((got == 0) || (got == device->spec.size));
 
                 if (data == NULL) { /* device is having issues... */
                     const Uint32 delay = ((device->spec.samples * 1000) / device->spec.freq);
@@ -851,8 +851,8 @@ static int SDLCALL SDL_CaptureAudio(void *userdata)
             SDL_AudioStreamPut(device->stream, data, data_len);
 
             while (SDL_AudioStreamAvailable(device->stream) >= ((int)device->callbackspec.size)) {
-                const int got = SDL_AudioStreamGet(device->stream, device->work_buffer, device->callbackspec.size);
-                SDL_assert((got < 0) || (got == device->callbackspec.size));
+                int got = SDL_PrivateAudioStreamGet(device->stream, device->work_buffer, device->callbackspec.size);
+                SDL_assert((got == 0) || (got == device->callbackspec.size));
                 if (got != device->callbackspec.size) {
                     SDL_memset(device->work_buffer, device->spec.silence, device->callbackspec.size);
                 }

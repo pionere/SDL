@@ -1001,9 +1001,8 @@ static void output_callback(void *data)
                     break;
                 }
             }
-
-            got = SDL_AudioStreamGet(this->stream, dst, this->spec.size);
-            SDL_assert((got <= 0) || (got == this->spec.size));
+            got = SDL_PrivateAudioStreamGet(this->stream, dst, this->spec.size);
+            SDL_assert((got == 0) || (got == this->spec.size));
             if (got != this->spec.size) {
                 SDL_memset(dst, this->spec.silence, this->spec.size);
             }

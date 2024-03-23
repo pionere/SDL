@@ -628,8 +628,8 @@ static void outputCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBuffe
                 if (len > remaining) {
                     len = remaining;
                 }
-                got = SDL_AudioStreamGet(this->stream, ptr, len);
-                SDL_assert((got < 0) || (got == len));
+                got = SDL_PrivateAudioStreamGet(this->stream, ptr, len);
+                SDL_assert((got == 0) || (got == len));
                 if (got != len) {
                     SDL_memset(ptr, this->spec.silence, len);
                 }

@@ -64,6 +64,7 @@ static void FillSound(void *device, void *stream, size_t len,
         } else {  /* streaming/converting */
             const int stream_len = audio->callbackspec.size;
             const int ilen = (int) len;
+            int got;
             while (SDL_AudioStreamAvailable(audio->stream) < ilen) {
                 callback(audio->callbackspec.userdata, audio->work_buffer, stream_len);
                 if (SDL_AudioStreamPut(audio->stream, audio->work_buffer, stream_len) < 0) {
@@ -72,9 +73,8 @@ static void FillSound(void *device, void *stream, size_t len,
                     break;
                 }
             }
-
-            const int got = SDL_AudioStreamGet(audio->stream, stream, ilen);
-            SDL_assert((got < 0) || (got == ilen));
+            got = SDL_PrivateAudioStreamGet(audio->stream, stream, ilen);
+            SDL_assert((got == 0) || (got == ilen));
             if (got != ilen) {
                 SDL_memset(stream, audio->spec.silence, len);
             }
