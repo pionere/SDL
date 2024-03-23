@@ -591,10 +591,12 @@ int SDL_QueueAudio(SDL_AudioDeviceID devid, const void *data, Uint32 len)
 
     if (!device) {
         return -1; /* get_audio_device() will have set the error state */
-    } else if (device->iscapture) {
-        return SDL_SetError("This is a capture device, queueing not allowed");
-    } else if (device->callbackspec.callback != SDL_BufferQueueDrainCallback) {
-        return SDL_SetError("Audio device has a callback, queueing not allowed");
+    // } else if (device->iscapture) {
+    //    return SDL_SetError("This is a capture device, queueing not allowed");
+    // } else if (device->callbackspec.callback != SDL_BufferQueueDrainCallback) {
+    //    return SDL_SetError("Audio device has a callback, queueing not allowed");
+    } else if (!device->buffer_queue) {
+        return SDL_SetError("Audio device does not have a queue");
     }
 
     if (len > 0) {
@@ -613,8 +615,9 @@ Uint32 SDL_DequeueAudio(SDL_AudioDeviceID devid, void *data, Uint32 len)
 
     if ((len == 0) ||                                                     /* nothing to do? */
         (!device) ||                                                      /* called with bogus device id */
-        (!device->iscapture) ||                                           /* playback devices can't dequeue */
-        (device->callbackspec.callback != SDL_BufferQueueFillCallback)) { /* not set for queueing */
+        // (!device->iscapture) ||                                           /* playback devices can't dequeue */
+        // (device->callbackspec.callback != SDL_BufferQueueFillCallback)) { /* not set for queueing */
+        (!device->buffer_queue)) {                                        /* not set for queueing */
         return 0;                                                         /* just report zero bytes dequeued. */
     }
 
@@ -629,17 +632,17 @@ Uint32 SDL_GetQueuedAudioSize(SDL_AudioDeviceID devid)
     Uint32 retval = 0;
     SDL_AudioDevice *device = get_audio_device(devid);
 
-    if (!device) {
+    if (!device || !device->buffer_queue) {
         return 0;
     }
 
     /* Nothing to do unless we're set up for queueing. */
-    if (device->callbackspec.callback == SDL_BufferQueueDrainCallback ||
-        device->callbackspec.callback == SDL_BufferQueueFillCallback) {
+    // if (device->callbackspec.callback == SDL_BufferQueueDrainCallback ||
+    //    device->callbackspec.callback == SDL_BufferQueueFillCallback) {
         current_audio.impl.LockDevice(device);
         retval = (Uint32)SDL_CountDataQueue(device->buffer_queue);
         current_audio.impl.UnlockDevice(device);
-    }
+    // }
 
     return retval;
 }
