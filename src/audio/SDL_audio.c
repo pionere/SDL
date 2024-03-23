@@ -737,15 +737,15 @@ static int SDLCALL SDL_RunAudio(void *userdata)
                 int got;
                 data = SDL_AtomicGet(&device->enabled) ? current_audio.impl.GetDeviceBuf(device) : NULL;
                 got = SDL_PrivateAudioStreamGet(device->stream, data ? data : device->work_buffer, device->spec.size);
-                SDL_assert((got == 0) || (got == device->spec.size));
+                SDL_assert(got == device->spec.size); // -- except if there is an another user. Reading from queue without lock?
 
                 if (data == NULL) { /* device is having issues... */
                     const Uint32 delay = ((device->spec.samples * 1000) / device->spec.freq);
                     SDL_Delay(delay); /* wait for as long as this buffer would have played. Maybe device recovers later? */
                 } else {
-                    if (got != device->spec.size) {
-                        SDL_memset(data, device->spec.silence, device->spec.size);
-                    }
+                    // if (got < device->spec.size) {
+                    //     SDL_memset(data + got, device->spec.silence, device->spec.size - got);
+                    // }
                     current_audio.impl.PlayDevice(device);
                     current_audio.impl.WaitDevice(device);
                 }
@@ -855,11 +855,10 @@ static int SDLCALL SDL_CaptureAudio(void *userdata)
 
             while (SDL_AudioStreamAvailable(device->stream) >= ((int)device->callbackspec.size)) {
                 int got = SDL_PrivateAudioStreamGet(device->stream, device->work_buffer, device->callbackspec.size);
-                SDL_assert((got == 0) || (got == device->callbackspec.size));
-                if (got != device->callbackspec.size) {
-                    SDL_memset(device->work_buffer, device->spec.silence, device->callbackspec.size);
-                }
-
+                SDL_assert(got == device->spec.size); // -- except if there is an another user. Reading from queue without lock?
+                // if (got < device->callbackspec.size) {
+                //     SDL_memset(device->work_buffer + got, device->spec.silence, device->callbackspec.size - got);
+                // }
                 /* !!! FIXME: this should be LockDevice. */
                 SDL_LockMutex(device->mixer_lock);
                 if (!SDL_AtomicGet(&device->paused)) {

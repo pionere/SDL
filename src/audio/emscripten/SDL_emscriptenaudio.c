@@ -82,7 +82,7 @@ static void HandleAudioProcess(_THIS)
             }
         }
         got = SDL_PrivateAudioStreamGet(this->stream, this->work_buffer, this->spec.size);
-        SDL_assert(got <= this->spec.size);
+        SDL_assert(got <= this->spec.size); // Reading from queue without lock?
         if (got < this->spec.size) {
             SDL_memset(this->work_buffer + got, this->spec.silence, this->spec.size - got);
         }
@@ -137,10 +137,10 @@ static void HandleCaptureProcess(_THIS)
 
         while (SDL_AudioStreamAvailable(this->stream) >= stream_len) {
             const int got = SDL_PrivateAudioStreamGet(this->stream, this->work_buffer, stream_len);
-            SDL_assert((got == 0) || (got == stream_len));
-            if (got != stream_len) {
-                SDL_memset(this->work_buffer, this->callbackspec.silence, stream_len);
-            }
+            SDL_assert(got == stream_len); // -- except if there is an another user. Reading from queue without lock?
+            // if (got < stream_len) {
+            //     SDL_memset(this->work_buffer + got, this->callbackspec.silence, stream_len - got);
+            // }
             callback(this->callbackspec.userdata, this->work_buffer, stream_len); /* Send it to the app. */
         }
     }

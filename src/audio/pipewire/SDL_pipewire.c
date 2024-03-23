@@ -1059,7 +1059,11 @@ static void input_callback(void *data)
         SDL_WriteToDataQueue(data_queue, src, size);
 
         while (SDL_CountDataQueue(data_queue) >= this->callbackspec.size) {
-            SDL_ReadFromDataQueue(data_queue, this->work_buffer, this->callbackspec.size);
+            int got = SDL_ReadFromDataQueue(data_queue, this->work_buffer, this->callbackspec.size);
+            SDL_assert(got == this->callbackspec.size); // -- except if there is an another user. Reading from queue without lock?
+            // if (got < this->callbackspec.size) {
+            //     SDL_memset(this->work_buffer + got, this->callbackspec.silence, this->callbackspec.size - got);
+            // }
 
             SDL_LockMutex(this->mixer_lock);
             this->callbackspec.callback(this->callbackspec.userdata, this->work_buffer, this->callbackspec.size);
