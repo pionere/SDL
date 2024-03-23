@@ -113,6 +113,7 @@ static int (*PIPEWIRE_pw_stream_connect)(struct pw_stream *, enum pw_direction, 
 static enum pw_stream_state (*PIPEWIRE_pw_stream_get_state)(struct pw_stream *stream, const char **error);
 static struct pw_buffer *(*PIPEWIRE_pw_stream_dequeue_buffer)(struct pw_stream *);
 static int (*PIPEWIRE_pw_stream_queue_buffer)(struct pw_stream *, struct pw_buffer *);
+static int (*PIPEWIRE_pw_stream_set_error)(struct pw_stream *, int, const char *, ...);
 static struct pw_properties *(*PIPEWIRE_pw_properties_new)(const char *, ...)SPA_SENTINEL;
 static int (*PIPEWIRE_pw_properties_set)(struct pw_properties *, const char *, const char *);
 static int (*PIPEWIRE_pw_properties_setf)(struct pw_properties *, const char *, const char *, ...) SPA_PRINTF_FUNC(3, 4);
@@ -198,6 +199,7 @@ static int load_pipewire_syms()
     SDL_PIPEWIRE_SYM(pw_stream_get_state);
     SDL_PIPEWIRE_SYM(pw_stream_dequeue_buffer);
     SDL_PIPEWIRE_SYM(pw_stream_queue_buffer);
+    SDL_PIPEWIRE_SYM(pw_stream_set_error);
     SDL_PIPEWIRE_SYM(pw_properties_new);
     SDL_PIPEWIRE_SYM(pw_properties_set);
     SDL_PIPEWIRE_SYM(pw_properties_setf);
@@ -1018,6 +1020,7 @@ static void input_callback(void *data)
     Uint8 *src;
     _THIS = (SDL_AudioDevice *)data;
     struct pw_stream *stream = this->hidden->stream;
+    SDL_DataQueue *data_queue;
 
     /* Shutting down, don't do anything */
     if (SDL_AtomicGet(&this->shutdown)) {
@@ -1034,7 +1037,8 @@ static void input_callback(void *data)
     if (!src) {
         return;
     }
-
+    data_queue = this->hidden->buffer;
+    SDL_assert(data_queue != NULL);
     if (!SDL_AtomicGet(&this->paused)) {
         /* Calculate the offset and data size */
         const Uint32 offset = SPA_MIN(spa_buf->datas[0].chunk->offset, spa_buf->datas[0].maxsize);
@@ -1048,18 +1052,18 @@ static void input_callback(void *data)
         }
 
         /* Pipewire can vary the latency, so buffer all incoming data */
-        SDL_WriteToDataQueue(this->hidden->buffer, src, size);
+        SDL_WriteToDataQueue(data_queue, src, size);
 
-        while (SDL_CountDataQueue(this->hidden->buffer) >= this->callbackspec.size) {
-            SDL_ReadFromDataQueue(this->hidden->buffer, this->work_buffer, this->callbackspec.size);
+        while (SDL_CountDataQueue(data_queue) >= this->callbackspec.size) {
+            SDL_ReadFromDataQueue(data_queue, this->work_buffer, this->callbackspec.size);
 
             SDL_LockMutex(this->mixer_lock);
             this->callbackspec.callback(this->callbackspec.userdata, this->work_buffer, this->callbackspec.size);
             SDL_UnlockMutex(this->mixer_lock);
         }
-    } else if (this->hidden->buffer) { /* Flush the buffer when paused */
-        if (SDL_CountDataQueue(this->hidden->buffer) != 0) {
-            SDL_ClearDataQueue(this->hidden->buffer, this->hidden->input_buffer_packet_size);
+    } else { /* Flush the buffer when paused */
+        if (SDL_CountDataQueue(data_queue) != 0) {
+            SDL_ClearDataQueue(data_queue, this->hidden->input_buffer_packet_size);
         }
     }
 
@@ -1090,6 +1094,9 @@ static void stream_add_buffer_callback(void *data, struct pw_buffer *buffer)
          */
         this->hidden->input_buffer_packet_size = SPA_MAX(this->spec.size, buffer->buffer->datas[0].maxsize) * 2;
         this->hidden->buffer = SDL_NewDataQueue(this->hidden->input_buffer_packet_size, this->hidden->input_buffer_packet_size);
+        if (!this->hidden->buffer) {
+            PIPEWIRE_pw_stream_set_error(this->hidden->stream, -EINVAL, "Out of memory");
+        }
     }
 
     this->hidden->stream_init_status |= PW_READY_FLAG_BUFFER_ADDED;
