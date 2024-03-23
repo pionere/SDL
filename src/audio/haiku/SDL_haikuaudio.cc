@@ -68,15 +68,13 @@ static void FillSound(void *device, void *stream, size_t len,
             while (SDL_AudioStreamAvailable(audio->stream) < ilen) {
                 callback(audio->callbackspec.userdata, audio->work_buffer, stream_len);
                 if (SDL_AudioStreamPut(audio->stream, audio->work_buffer, stream_len) < 0) {
-                    SDL_AudioStreamClear(audio->stream);
-                    SDL_AtomicSet(&audio->enabled, 0);
                     break;
                 }
             }
             got = SDL_PrivateAudioStreamGet(audio->stream, stream, ilen);
-            SDL_assert((got == 0) || (got == ilen));
-            if (got != ilen) {
-                SDL_memset(stream, audio->spec.silence, len);
+            SDL_assert(got <= ilen);
+            if (got < ilen) {
+                SDL_memset(stream + got, audio->spec.silence, len - got);
             }
         }
     }

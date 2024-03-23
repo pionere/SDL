@@ -78,15 +78,13 @@ static void HandleAudioProcess(_THIS)
         while (SDL_AudioStreamAvailable(this->stream) < ((int)this->spec.size)) {
             callback(this->callbackspec.userdata, this->work_buffer, stream_len);
             if (SDL_AudioStreamPut(this->stream, this->work_buffer, stream_len) < 0) {
-                SDL_AudioStreamClear(this->stream);
-                SDL_AtomicSet(&this->enabled, 0);
                 break;
             }
         }
         got = SDL_PrivateAudioStreamGet(this->stream, this->work_buffer, this->spec.size);
-        SDL_assert((got == 0) || (got == this->spec.size));
-        if (got != this->spec.size) {
-            SDL_memset(this->work_buffer, this->spec.silence, this->spec.size);
+        SDL_assert(got <= this->spec.size);
+        if (got < this->spec.size) {
+            SDL_memset(this->work_buffer + got, this->spec.silence, this->spec.size - got);
         }
     }
 

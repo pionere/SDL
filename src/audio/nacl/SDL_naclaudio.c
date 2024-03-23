@@ -67,15 +67,13 @@ static void nacl_audio_callback(void* stream, uint32_t buffer_size, PP_TimeDelta
             while (SDL_AudioStreamAvailable(_this->stream) < len) {
                 callback(_this->callbackspec.userdata, _this->work_buffer, stream_len);
                 if (SDL_AudioStreamPut(_this->stream, _this->work_buffer, stream_len) < 0) {
-                    SDL_AudioStreamClear(_this->stream);
-                    SDL_AtomicSet(&_this->enabled, 0);
                     break;
                 }
             }
             got = SDL_PrivateAudioStreamGet(_this->stream, stream, len);
-            SDL_assert((got == 0) || (got == len));
-            if (got != len) {
-                SDL_memset(stream, _this->spec.silence, len);
+            SDL_assert(got <= len);
+            if (got < len) {
+                SDL_memset(stream + got, _this->spec.silence, len - got);
             }
         }
     }
