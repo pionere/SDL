@@ -1259,6 +1259,7 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
     }
 
     /* resamplebuf holds the final output, even if we didn't resample. */
+    SDL_assert(stream->queue != NULL);
     return buflen ? SDL_WriteToDataQueue(stream->queue, resamplebuf, buflen) : 0;
 }
 
@@ -1295,6 +1296,7 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
 #if DEBUG_AUDIOSTREAM
         SDL_Log("AUDIOSTREAM: no conversion needed at all, queueing %d bytes.\n", len);
 #endif
+        SDL_assert(stream->queue != NULL);
         return SDL_WriteToDataQueue(stream->queue, buf, len);
     }
 
@@ -1413,6 +1415,7 @@ int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len)
 /* number of converted/resampled bytes available */
 int SDL_AudioStreamAvailable(SDL_AudioStream *stream)
 {
+    SDL_assert(stream == NULL || stream->queue != NULL);
     return stream ? (int)SDL_CountDataQueue(stream->queue) : 0;
 }
 
@@ -1421,6 +1424,7 @@ void SDL_AudioStreamClear(SDL_AudioStream *stream)
     if (!stream) {
         SDL_InvalidParamError("stream");
     } else {
+        SDL_assert(stream->queue != NULL);
         SDL_ClearDataQueue(stream->queue, (size_t)stream->packetlen * 2);
         if (stream->reset_resampler_func) {
             stream->reset_resampler_func(stream);

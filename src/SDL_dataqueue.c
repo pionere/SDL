@@ -101,9 +101,7 @@ void SDL_ClearDataQueue(SDL_DataQueue *queue, const size_t slack)
     SDL_DataQueuePacket *prev = NULL;
     size_t i;
 
-    if (!queue) {
-        return;
-    }
+    SDL_assert(queue != NULL);
 
     SDL_LockMutex(queue->lock);
 
@@ -182,9 +180,7 @@ int SDL_WriteToDataQueue(SDL_DataQueue *queue, const void *_data, const size_t _
     size_t origlen;
     size_t datalen;
 
-    if (!queue) {
-        return SDL_InvalidParamError("queue");
-    }
+    SDL_assert(queue != NULL);
 
     SDL_LockMutex(queue->lock);
 
@@ -238,9 +234,7 @@ SDL_PeekIntoDataQueue(SDL_DataQueue *queue, void *_buf, const size_t _len)
     Uint8 *ptr = buf;
     SDL_DataQueuePacket *packet;
 
-    if (!queue) {
-        return 0;
-    }
+    SDL_assert(queue != NULL);
 
     SDL_LockMutex(queue->lock);
 
@@ -267,9 +261,7 @@ SDL_ReadFromDataQueue(SDL_DataQueue *queue, void *_buf, const size_t _len)
     Uint8 *ptr = buf;
     SDL_DataQueuePacket *packet;
 
-    if (!queue) {
-        return 0;
-    }
+    SDL_assert(queue != NULL);
 
     SDL_LockMutex(queue->lock);
 
@@ -307,17 +299,18 @@ size_t
 SDL_CountDataQueue(SDL_DataQueue *queue)
 {
     size_t retval = 0;
-    if (queue) {
+    SDL_assert(queue != NULL);
         SDL_LockMutex(queue->lock);
         retval = queue->queued_bytes;
         SDL_UnlockMutex(queue->lock);
-    }
+
     return retval;
 }
 
 SDL_mutex *SDL_GetDataQueueMutex(SDL_DataQueue *queue)
 {
-    return queue ? queue->lock : NULL;
+    SDL_assert(queue != NULL);
+    return queue->lock;
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

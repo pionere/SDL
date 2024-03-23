@@ -558,6 +558,7 @@ static void SDLCALL SDL_BufferQueueDrainCallback(void *userdata, Uint8 *stream, 
     SDL_assert(device != NULL);     /* this shouldn't ever happen, right?! */
     SDL_assert(!device->iscapture); /* this shouldn't ever happen, right?! */
     SDL_assert(len >= 0);           /* this shouldn't ever happen, right?! */
+    SDL_assert(device->buffer_queue != NULL); /* this shouldn't ever happen, right?! */
 
     dequeued = SDL_ReadFromDataQueue(device->buffer_queue, stream, len);
     stream += dequeued;
@@ -577,6 +578,7 @@ static void SDLCALL SDL_BufferQueueFillCallback(void *userdata, Uint8 *stream, i
     SDL_assert(device != NULL);    /* this shouldn't ever happen, right?! */
     SDL_assert(device->iscapture); /* this shouldn't ever happen, right?! */
     SDL_assert(len >= 0);          /* this shouldn't ever happen, right?! */
+    SDL_assert(device->buffer_queue != NULL); /* this shouldn't ever happen, right?! */
 
     /* note that if this needs to allocate more space and run out of memory,
        we have no choice but to quietly drop the data and hope it works out
@@ -651,7 +653,7 @@ void SDL_ClearQueuedAudio(SDL_AudioDeviceID devid)
 {
     SDL_AudioDevice *device = get_audio_device(devid);
 
-    if (!device) {
+    if (!device || !device->buffer_queue) {
         return; /* nothing to do. */
     }
 
