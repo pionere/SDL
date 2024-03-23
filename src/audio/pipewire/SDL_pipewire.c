@@ -995,11 +995,18 @@ static void output_callback(void *data)
             /* Fire the callback until we have enough to fill a buffer */
             while (SDL_AudioStreamAvailable(this->stream) < this->spec.size) {
                 this->callbackspec.callback(this->callbackspec.userdata, this->work_buffer, this->callbackspec.size);
-                SDL_AudioStreamPut(this->stream, this->work_buffer, this->callbackspec.size);
+                if (SDL_AudioStreamPut(this->stream, this->work_buffer, this->callbackspec.size) < 0) {
+                    SDL_AudioStreamClear(this->stream);
+                    SDL_AtomicSet(&this->enabled, 0);
+                    break;
+                }
             }
 
             got = SDL_AudioStreamGet(this->stream, dst, this->spec.size);
-            SDL_assert(got == this->spec.size);
+            SDL_assert((got <= 0) || (got == this->spec.size));
+            if (got != this->spec.size) {
+                SDL_memset(dst, this->spec.silence, this->spec.size);
+            }
         }
     } else {
         SDL_memset(spa_buf->datas[0].data, this->spec.silence, this->spec.size);
