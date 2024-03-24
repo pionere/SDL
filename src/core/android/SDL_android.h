@@ -53,13 +53,13 @@ extern int Android_JNI_GetDisplayDPI(float *ddpi, float *xdpi, float *ydpi);
 
 /* Audio support */
 extern void Android_DetectDevices(void);
-extern int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spec);
+extern int Android_JNI_OpenAudioDevice(SDL_bool iscapture, int device_id, SDL_AudioSpec *spec);
 extern void *Android_JNI_GetAudioBuffer(void);
 extern void Android_JNI_WriteAudioBuffer(void);
 extern int Android_JNI_CaptureAudioBuffer(void *buffer, int buflen);
 extern void Android_JNI_FlushCapturedAudio(void);
-extern void Android_JNI_CloseAudioDevice(const int iscapture);
-extern void Android_JNI_AudioSetThreadPriority(int iscapture, int device_id);
+extern void Android_JNI_CloseAudioDevice(const SDL_bool iscapture);
+extern void Android_JNI_AudioSetThreadPriority(SDL_bool iscapture, int device_id);
 
 /* Detecting device type */
 extern SDL_bool Android_IsDeXMode(void);

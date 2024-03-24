@@ -485,7 +485,7 @@ void SDL_OpenedAudioDeviceDisconnected(SDL_AudioDevice *device)
         SDL_zero(event);
         event.adevice.type = SDL_AUDIODEVICEREMOVED;
         event.adevice.which = device->id;
-        event.adevice.iscapture = device->iscapture ? 1 : 0;
+        event.adevice.iscapture = device->iscapture;
         SDL_PushEvent(&event);
     }
 }
@@ -537,7 +537,7 @@ void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle)
             SDL_zero(event);
             event.adevice.type = SDL_AUDIODEVICEREMOVED;
             event.adevice.which = 0;
-            event.adevice.iscapture = iscapture ? 1 : 0;
+            event.adevice.iscapture = iscapture;
             SDL_PushEvent(&event);
         }
     }
@@ -667,7 +667,7 @@ void SDL_ClearQueuedAudio(SDL_AudioDeviceID devid)
 }
 
 #ifdef SDL_AUDIO_DRIVER_ANDROID
-extern void Android_JNI_AudioSetThreadPriority(int, int);
+extern void Android_JNI_AudioSetThreadPriority(SDL_bool, int);
 #endif
 
 /* The general mixing thread function */
@@ -1256,7 +1256,7 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
     return 1;
 }
 
-static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
+static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscapture,
                                            const SDL_AudioSpec *desired, SDL_AudioSpec *obtained,
                                            int allowed_changes, int min_idx)
 {
@@ -1330,7 +1330,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, int iscapture,
         return 0;
     }
     device->spec = *obtained;
-    device->iscapture = iscapture ? SDL_TRUE : SDL_FALSE;
+    device->iscapture = iscapture;
     device->handle = handle;
 
     SDL_AtomicSet(&device->shutdown, 0); /* just in case. */
@@ -1505,12 +1505,12 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
     }
 
     if (obtained) {
-        id = open_audio_device(NULL, 0, desired, obtained,
+        id = open_audio_device(NULL, SDL_FALSE, desired, obtained,
                                SDL_AUDIO_ALLOW_ANY_CHANGE, 0);
     } else {
         SDL_AudioSpec _obtained;
         SDL_zero(_obtained);
-        id = open_audio_device(NULL, 0, desired, &_obtained, 0, 0);
+        id = open_audio_device(NULL, SDL_FALSE, desired, &_obtained, 0, 0);
         /* On successful open, copy calculated values into 'desired'. */
         if (id > 0) {
             desired->size = _obtained.size;
@@ -1526,7 +1526,7 @@ SDL_AudioDeviceID SDL_OpenAudioDevice(const char *device, int iscapture,
                     const SDL_AudioSpec *desired, SDL_AudioSpec *obtained,
                     int allowed_changes)
 {
-    return open_audio_device(device, iscapture, desired, obtained,
+    return open_audio_device(device, iscapture ? SDL_TRUE : SDL_FALSE, desired, obtained,
                              allowed_changes, 1);
 }
 

@@ -249,7 +249,7 @@ static void WINMM_CloseDevice(_THIS)
     SDL_free(this->hidden);
 }
 
-static SDL_bool PrepWaveFormat(_THIS, UINT devId, WAVEFORMATEX *pfmt, const int iscapture)
+static SDL_bool PrepWaveFormat(_THIS, UINT devId, WAVEFORMATEX *pfmt, const SDL_bool iscapture)
 {
     SDL_zerop(pfmt);
 

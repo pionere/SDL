@@ -1473,7 +1473,7 @@ void Android_DetectDevices(void)
     }
 }
 
-int Android_JNI_OpenAudioDevice(int iscapture, int device_id, SDL_AudioSpec *spec)
+int Android_JNI_OpenAudioDevice(SDL_bool iscapture, int device_id, SDL_AudioSpec *spec)
 {
     int audioformat, len;
     jobject jbufobj = NULL;
@@ -1752,7 +1752,7 @@ void Android_JNI_FlushCapturedAudio(void)
 #endif
 }
 
-void Android_JNI_CloseAudioDevice(const int iscapture)
+void Android_JNI_CloseAudioDevice(const SDL_bool iscapture)
 {
     JNIEnv *env = Android_JNI_GetEnv();
 
@@ -1772,7 +1772,7 @@ void Android_JNI_CloseAudioDevice(const int iscapture)
     }
 }
 
-void Android_JNI_AudioSetThreadPriority(int iscapture, int device_id)
+void Android_JNI_AudioSetThreadPriority(SDL_bool iscapture, int device_id)
 {
     JNIEnv *env = Android_JNI_GetEnv();
     (*env)->CallStaticVoidMethod(env, mAudioManagerClass, midAudioSetThreadPriority, iscapture, device_id);
