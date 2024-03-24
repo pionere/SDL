@@ -884,7 +884,7 @@ static int SDLCALL HotplugThread(void *data)
     return 0;
 }
 
-static void PULSEAUDIO_DetectDevices()
+static void PULSEAUDIO_DetectDevices(void)
 {
     SDL_sem *ready_sem = SDL_CreateSemaphore(0);
 

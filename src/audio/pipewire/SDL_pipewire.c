@@ -838,7 +838,7 @@ static void hotplug_loop_destroy()
     }
 }
 
-static void PIPEWIRE_DetectDevices()
+static void PIPEWIRE_DetectDevices(void)
 {
     struct io_node *io;
 

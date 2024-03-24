@@ -184,7 +184,8 @@ static Uint8 *WASAPI_GetDeviceBuf(_THIS)
         if (ret == AUDCLNT_E_BUFFER_TOO_LARGE) {
             WASAPI_WaitDevice(this);  /* see if we can wait on the buffer to drain some more first... */
         } else if (!WasapiFailed(this, ret)) {
-            return (Uint8 *)buffer;
+            SDL_assert(buffer != NULL);
+            break;
         }
         SDL_assert(buffer == NULL);
     }

@@ -1430,10 +1430,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
     }
 
     /* Allocate a scratch audio buffer */
-    device->work_buffer_len = build_stream ? device->callbackspec.size : 0;
-    if (device->spec.size > device->work_buffer_len) {
-        device->work_buffer_len = device->spec.size;
-    }
+    device->work_buffer_len = SDL_max(device->callbackspec.size, device->spec.size);
     SDL_assert(device->work_buffer_len > 0);
 
     device->work_buffer = (Uint8 *)SDL_malloc(device->work_buffer_len);
