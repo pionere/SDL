@@ -1325,11 +1325,15 @@ static int COREAUDIO_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int i
 
     buflist = (AudioBufferList *)SDL_malloc(size);
     if (buflist == NULL) {
-        return SDL_SetError("%s: Default Device Buffer List not found", "coreaudio");
+        return SDL_OutOfMemory();
     }
 
     result = AudioObjectGetPropertyData(devid, &bufaddr, 0, NULL,
                                         &size, buflist);
+    if (result != noErr) {
+        SDL_free(buflist);
+        return SDL_SetError("%s: Default Device Buffer List not found", "coreaudio");
+    }
 
     if (result == noErr) {
         UInt32 j;
