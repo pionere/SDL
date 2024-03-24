@@ -952,7 +952,6 @@ static void SDL_PumpEventsInternal(SDL_bool push_sentinel)
             SDL_PeepEventsInternal(&sentinel, 1, SDL_GETEVENT, SDL_POLLSENTINEL, SDL_POLLSENTINEL, SDL_TRUE);
         }
 
-        SDL_zero(sentinel);
         sentinel.type = SDL_POLLSENTINEL;
         SDL_PushEvent(&sentinel);
     }

@@ -451,7 +451,7 @@ void SDL_AddAudioDevice(const SDL_bool iscapture, const char *name, SDL_AudioSpe
         /* Post the event, if desired */
         if (SDL_GetEventState(SDL_AUDIODEVICEADDED) == SDL_ENABLE) {
             SDL_Event event;
-            SDL_zero(event);
+
             event.adevice.type = SDL_AUDIODEVICEADDED;
             event.adevice.which = device_index;
             event.adevice.iscapture = iscapture;
@@ -482,7 +482,7 @@ void SDL_OpenedAudioDeviceDisconnected(SDL_AudioDevice *device)
     /* Post the event, if desired */
     if (SDL_GetEventState(SDL_AUDIODEVICEREMOVED) == SDL_ENABLE) {
         SDL_Event event;
-        SDL_zero(event);
+
         event.adevice.type = SDL_AUDIODEVICEREMOVED;
         event.adevice.which = device->id;
         event.adevice.iscapture = device->iscapture;
@@ -534,7 +534,7 @@ void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle)
     if (!device_was_opened) {
         if (SDL_GetEventState(SDL_AUDIODEVICEREMOVED) == SDL_ENABLE) {
             SDL_Event event;
-            SDL_zero(event);
+
             event.adevice.type = SDL_AUDIODEVICEREMOVED;
             event.adevice.which = 0;
             event.adevice.iscapture = iscapture;

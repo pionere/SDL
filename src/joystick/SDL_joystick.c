@@ -2108,7 +2108,6 @@ void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance)
     }
 
 #ifndef SDL_EVENTS_DISABLED
-    SDL_zero(event);
     event.type = SDL_JOYDEVICEREMOVED;
 
     if (SDL_GetEventState(event.type) == SDL_ENABLE) {
@@ -2354,9 +2353,7 @@ static void SendSteamHandleUpdateEvents(void)
         if (changed) {
             SDL_Event event;
 
-            SDL_zero(event);
             event.type = SDL_CONTROLLERSTEAMHANDLEUPDATED;
-            event.common.timestamp = 0;
             event.cdevice.which = joystick->instance_id;
             SDL_PushEvent(&event);
         }
