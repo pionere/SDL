@@ -985,8 +985,8 @@ static void GLES_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void GLES_DestroyRenderer(SDL_Renderer *renderer)
 {
     GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
-
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         if (data->context) {
             while (data->framebuffers) {
                 GLES_FBOList *nextnode = data->framebuffers->next;

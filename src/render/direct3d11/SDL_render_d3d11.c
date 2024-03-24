@@ -243,7 +243,8 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
     }
 
     /* Release/reset everything else */
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         int i;
 
         SAFE_RELEASE(data->dxgiFactory);
@@ -301,10 +302,9 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
 static void D3D11_DestroyRenderer(SDL_Renderer *renderer)
 {
     D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
+    SDL_assert(data != NULL);
     D3D11_ReleaseAll(renderer);
-    if (data) {
-        SDL_free(data);
-    }
+    SDL_free(data);
     SDL_free(renderer);
 }
 

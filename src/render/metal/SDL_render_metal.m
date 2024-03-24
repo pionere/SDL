@@ -1517,7 +1517,8 @@ static void METAL_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 
 static void METAL_DestroyRenderer(SDL_Renderer * renderer)
 { @autoreleasepool {
-    if (renderer->driverdata) {
+    SDL_assert(renderer->driverdata != NULL);
+    if (1) {
         METAL_RenderData *data = CFBridgingRelease(renderer->driverdata);
 
         if (data.mtlcmdencoder != nil) {

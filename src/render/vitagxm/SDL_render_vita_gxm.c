@@ -1191,9 +1191,7 @@ static void VITA_GXM_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
     VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
 
-    if (!data) {
-        return;
-    }
+    SDL_assert(data != NULL);
 
     if (!vita_texture) {
         return;
@@ -1215,7 +1213,8 @@ static void VITA_GXM_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture
 static void VITA_GXM_DestroyRenderer(SDL_Renderer *renderer)
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         gxm_finish(renderer);
 
         SDL_free(data);

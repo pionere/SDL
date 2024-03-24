@@ -564,9 +564,7 @@ static void PS2_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     GSTEXTURE *ps2_texture = (GSTEXTURE *)texture->driverdata;
     PS2_RenderData *data = (PS2_RenderData *)renderer->driverdata;
 
-    if (!data) {
-        return;
-    }
+    SDL_assert(data != NULL);
 
     if (!ps2_texture) {
         return;
@@ -583,8 +581,8 @@ static void PS2_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void PS2_DestroyRenderer(SDL_Renderer *renderer)
 {
     PS2_RenderData *data = (PS2_RenderData *)renderer->driverdata;
-
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         gsKit_clear(data->gsGlobal, GS_BLACK);
         gsKit_vram_clear(data->gsGlobal);
         gsKit_deinit_global(data->gsGlobal);

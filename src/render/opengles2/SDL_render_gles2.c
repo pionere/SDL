@@ -1374,7 +1374,8 @@ static void GLES2_DestroyRenderer(SDL_Renderer *renderer)
     GLES2_RenderData *data = (GLES2_RenderData *)renderer->driverdata;
 
     /* Deallocate everything */
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         GLES2_ActivateRenderer(renderer);
 
         {

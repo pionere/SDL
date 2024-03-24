@@ -1534,8 +1534,8 @@ static void GL_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void GL_DestroyRenderer(SDL_Renderer *renderer)
 {
     GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
-
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         if (data->context) {
             /* make sure we delete the right resources! */
             GL_ActivateRenderer(renderer);

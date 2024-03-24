@@ -321,7 +321,8 @@ static void D3D12_ReleaseAll(SDL_Renderer *renderer)
     }
 
     /* Release/reset everything else */
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         int i;
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -500,11 +501,10 @@ static int D3D12_IssueBatch(D3D12_RenderData *data)
 static void D3D12_DestroyRenderer(SDL_Renderer *renderer)
 {
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
+    SDL_assert(data != NULL);
     D3D12_WaitForGPU(data);
     D3D12_ReleaseAll(renderer);
-    if (data) {
-        SDL_free(data);
-    }
+    SDL_free(data);
     SDL_free(renderer);
 }
 

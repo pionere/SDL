@@ -1249,9 +1249,7 @@ static void PSP_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     PSP_RenderData *renderdata = (PSP_RenderData *)renderer->driverdata;
     PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
 
-    if (!renderdata) {
-        return;
-    }
+    SDL_assert(renderdata != NULL);
 
     if (!psp_texture) {
         return;
@@ -1266,7 +1264,8 @@ static void PSP_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void PSP_DestroyRenderer(SDL_Renderer *renderer)
 {
     PSP_RenderData *data = (PSP_RenderData *)renderer->driverdata;
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         StartDrawing(renderer);
 
         sceKernelDisableSubIntr(PSP_VBLANK_INT, 0);

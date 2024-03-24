@@ -1416,8 +1416,8 @@ static void D3D_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void D3D_DestroyRenderer(SDL_Renderer *renderer)
 {
     D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
-
-    if (data) {
+    SDL_assert(data != NULL);
+    if (1) {
         int i;
 
         /* Release the render target */
