@@ -28,9 +28,9 @@
 int WIN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    SDL_bool isstack;
-    size_t size;
-    LPBITMAPINFO info;
+    HDC hdc = data->hdc;
+    char bmi_data[sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD)];
+    LPBITMAPINFO bmi;
     HBITMAP hbm;
     int w, h;
     Uint32 surface_format;
@@ -41,28 +41,23 @@ int WIN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     WIN_GetWindowSizeInPixels(window, &w, &h);
 
     /* Find out the format of the screen */
-    size = sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD);
-    info = (LPBITMAPINFO)SDL_small_alloc(Uint8, size, &isstack);
-    if (!info) {
-        return SDL_OutOfMemory();
-    }
+    SDL_zeroa(bmi_data);
+    bmi = (LPBITMAPINFO)bmi_data;
+    bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
-    SDL_memset(info, 0, size);
-    info->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-
+    hbm = CreateCompatibleBitmap(hdc, 1, 1);
     /* The second call to GetDIBits() fills in the bitfields */
-    hbm = CreateCompatibleBitmap(data->hdc, 1, 1);
-    GetDIBits(data->hdc, hbm, 0, 0, NULL, info, DIB_RGB_COLORS);
-    GetDIBits(data->hdc, hbm, 0, 0, NULL, info, DIB_RGB_COLORS);
+    GetDIBits(hdc, hbm, 0, 0, NULL, bmi, DIB_RGB_COLORS);
+    GetDIBits(hdc, hbm, 0, 0, NULL, bmi, DIB_RGB_COLORS);
     DeleteObject(hbm);
 
     surface_format = SDL_PIXELFORMAT_UNKNOWN;
-    if (info->bmiHeader.biCompression == BI_BITFIELDS) {
+    if (bmi->bmiHeader.biCompression == BI_BITFIELDS) {
         int bpp;
         Uint32 *masks;
 
-        bpp = info->bmiHeader.biPlanes * info->bmiHeader.biBitCount;
-        masks = (Uint32 *)((Uint8 *)info + info->bmiHeader.biSize);
+        bpp = /* bmi->bmiHeader.biPlanes * */bmi->bmiHeader.biBitCount;
+        masks = (Uint32 *)bmi->bmiColors;
         surface_format = SDL_MasksToPixelFormatEnum(bpp, masks[0], masks[1], masks[2], 0);
     }
     if (surface_format == SDL_PIXELFORMAT_UNKNOWN) {
@@ -70,23 +65,22 @@ int WIN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         surface_format = SDL_PIXELFORMAT_RGB888;
 
         /* Create a new one */
-        SDL_memset(info, 0, size);
-        info->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        info->bmiHeader.biPlanes = 1;
-        info->bmiHeader.biBitCount = 32;
-        info->bmiHeader.biCompression = BI_RGB;
+        SDL_zeroa(bmi_data);
+        bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmi->bmiHeader.biPlanes = 1;
+        bmi->bmiHeader.biBitCount = 32;
+        bmi->bmiHeader.biCompression = BI_RGB;
     }
     *format = surface_format;
 
     /* Fill in the size information */
     *pitch = (((w * SDL_BYTESPERPIXEL(surface_format)) + 3) & ~3);
-    info->bmiHeader.biWidth = w;
-    info->bmiHeader.biHeight = -h; /* negative for topdown bitmap */
-    info->bmiHeader.biSizeImage = (DWORD)h * (*pitch);
+    bmi->bmiHeader.biWidth = w;
+    bmi->bmiHeader.biHeight = -h; /* negative for topdown bitmap */
+    bmi->bmiHeader.biSizeImage = (DWORD)h * (*pitch);
 
-    data->mdc = CreateCompatibleDC(data->hdc);
-    data->hbm = CreateDIBSection(data->hdc, info, DIB_RGB_COLORS, pixels, NULL, 0);
-    SDL_small_free(info, isstack);
+    data->mdc = CreateCompatibleDC(hdc);
+    data->hbm = CreateDIBSection(hdc, bmi, DIB_RGB_COLORS, pixels, NULL, 0);
 
     if (!data->hbm) {
         return WIN_SetError("Unable to create DIB");

@@ -78,20 +78,12 @@ static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMo
         DeleteObject(hbm);
         DeleteDC(hdc);
         if (bmi->bmiHeader.biCompression == BI_BITFIELDS) {
-            switch (*(Uint32 *)bmi->bmiColors) {
-            case 0x00FF0000:
-                format = SDL_PIXELFORMAT_RGB888;
-                break;
-            case 0x000000FF:
-                format = SDL_PIXELFORMAT_BGR888;
-                break;
-            case 0xF800:
-                format = SDL_PIXELFORMAT_RGB565;
-                break;
-            case 0x7C00:
-                format = SDL_PIXELFORMAT_RGB555;
-                break;
-            }
+            int bpp;
+            Uint32 *masks;
+
+            bpp = /* bmi->bmiHeader.biPlanes * */bmi->bmiHeader.biBitCount;
+            masks = (Uint32 *)bmi->bmiColors;
+            format = SDL_MasksToPixelFormatEnum(bpp, masks[0], masks[1], masks[2], 0);
         } else if (bmi->bmiHeader.biBitCount == 8) {
             format = SDL_PIXELFORMAT_INDEX8;
         } else if (bmi->bmiHeader.biBitCount == 4) {
