@@ -1907,20 +1907,14 @@ static int GLES2_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 {
     GLES2_RenderData *data = (GLES2_RenderData *)renderer->driverdata;
     Uint32 temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_RGBA32;
-    size_t buflen;
     void *temp_pixels;
     int temp_pitch;
     Uint8 *src, *dst, *tmp;
-    int w, h, length, rows;
+    int w, h, rows;
     int status;
 
     temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
-    buflen = (size_t)rect->h * temp_pitch;
-    if (buflen == 0) {
-        return 0; /* nothing to do. */
-    }
-
-    temp_pixels = SDL_malloc(buflen);
+    temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();
     }
@@ -1935,20 +1929,17 @@ static int GLES2_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     /* Flip the rows to be top-down if necessary */
     if (!renderer->target) {
-        SDL_bool isstack;
-        length = rect->w * SDL_BYTESPERPIXEL(temp_format);
         src = (Uint8 *)temp_pixels + (rect->h - 1) * temp_pitch;
         dst = (Uint8 *)temp_pixels;
-        tmp = SDL_small_alloc(Uint8, length, &isstack);
+        tmp = src + temp_pitch;
         rows = rect->h / 2;
         while (rows--) {
-            SDL_memcpy(tmp, dst, length);
-            SDL_memcpy(dst, src, length);
-            SDL_memcpy(src, tmp, length);
+            SDL_memcpy(tmp, dst, temp_pitch);
+            SDL_memcpy(dst, src, temp_pitch);
+            SDL_memcpy(src, tmp, temp_pitch);
             dst += temp_pitch;
             src -= temp_pitch;
         }
-        SDL_small_free(tmp, isstack);
     }
 
     status = SDL_ConvertPixels(rect->w, rect->h,

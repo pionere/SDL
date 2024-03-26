@@ -926,6 +926,8 @@ static SDL_INLINE void VerifyDrawQueueFunctions(const SDL_Renderer *renderer)
     SDL_assert(renderer->QueueFillRects != NULL || renderer->QueueGeometry != NULL);
     SDL_assert(renderer->QueueCopy != NULL || renderer->QueueGeometry != NULL);
     SDL_assert(renderer->RunCommandQueue != NULL);
+    // required by SDL_RenderReadPixels
+    SDL_assert(renderer->RenderReadPixels != NULL);
 }
 
 static SDL_RenderLineMethod SDL_GetRenderLineMethod(void)
@@ -1798,7 +1800,7 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
         }
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) {
+    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
 #if SDL_HAVE_YUV
     } else if (texture->yuv) {
@@ -1962,7 +1964,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) {
+    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
     }
 
@@ -2022,7 +2024,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) {
+    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
     }
 
@@ -2124,7 +2126,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
     if (rect) {
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
-    if (real_rect.w == 0 || real_rect.h == 0) {
+    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
         *surface = NULL;
         return 0; /* nothing to do. */
     }
@@ -4227,10 +4229,6 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     CHECK_RENDERER_MAGIC(renderer, -1);
 
-    if (!renderer->RenderReadPixels) {
-        return SDL_Unsupported();
-    }
-
     FlushRenderCommands(renderer); /* we need to render before we read the results. */
 
     if (format == SDL_PIXELFORMAT_UNKNOWN) {
@@ -4255,6 +4253,10 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
         if (real_rect.x > rect->x) {
             int bpp = SDL_BYTESPERPIXEL(format);
             pixels = (Uint8 *)pixels + bpp * (real_rect.x - rect->x);
+        }
+    } else {
+        if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
+            return 0; /* nothing to do. */
         }
     }
 

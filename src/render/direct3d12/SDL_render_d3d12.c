@@ -2735,7 +2735,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTextureDesc;
     D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc;
     BYTE *textureMemory;
-    int bpp;
+    int rowPitch;
 
     if (data->textureRenderTarget) {
         backBuffer = data->textureRenderTarget->mainTexture;
@@ -2811,12 +2811,11 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     pitchedDesc.Width = (UINT)textureDesc.Width;
     pitchedDesc.Height = textureDesc.Height;
     pitchedDesc.Depth = 1;
-    if (pitchedDesc.Format == DXGI_FORMAT_R8_UNORM) {
-        bpp = 1;
-    } else {
-        bpp = 4;
+    rowPitch = pitchedDesc.Width;
+    if (pitchedDesc.Format != DXGI_FORMAT_R8_UNORM) {
+        rowPitch *= 4;
     }
-    pitchedDesc.RowPitch = D3D12_Align(pitchedDesc.Width * bpp, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+    pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
