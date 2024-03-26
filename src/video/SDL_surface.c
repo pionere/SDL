@@ -46,8 +46,9 @@ static size_t SDL_CalculatePitch(Uint32 format, size_t width, SDL_bool minimal)
 {
     size_t pitch;
 
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(format));
     if (SDL_BITSPERPIXEL(format) >= 8) {
-        if (SDL_size_mul_overflow(width, SDL_BYTESPERPIXEL(format), &pitch)) {
+        if (SDL_size_mul_overflow(width, SDL_PIXELBPP(format), &pitch)) {
             return SDL_SIZE_MAX;
         }
     } else {
@@ -1446,7 +1447,8 @@ int SDL_ConvertPixels(int width, int height,
     /* Fast path for same format copy */
     if (src_format == dst_format) {
         int i;
-        const int bpp = SDL_BYTESPERPIXEL(src_format);
+        const int bpp = SDL_PIXELBPP(src_format);
+        SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(src_format));
         width *= bpp;
         for (i = height; i--;) {
             SDL_memcpy(dst, src, width);

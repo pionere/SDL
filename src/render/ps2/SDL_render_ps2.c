@@ -22,8 +22,9 @@
 
 #if SDL_VIDEO_RENDER_PS2
 
-#include "../SDL_sysrender.h"
 #include "SDL_hints.h"
+#include "../SDL_sysrender.h"
+#include "../../video/SDL_pixels_c.h"
 
 #include <kernel.h>
 #include <malloc.h>
@@ -129,7 +130,7 @@ static int PS2_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                            const SDL_Rect *rect, void **pixels, int *pitch)
 {
     GSTEXTURE *ps2_texture = (GSTEXTURE *)texture->driverdata;
-    int texture_bpp = SDL_BYTESPERPIXEL(texture->format);
+    int texture_bpp = SDL_PIXELBPP(texture->format);
     int texture_pitch = ps2_texture->Width * texture_bpp;
 
     *pitch = texture_pitch;
@@ -156,7 +157,7 @@ static int PS2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     src = pixels;
 
     PS2_LockTexture(renderer, texture, rect, (void **)&dst, &dpitch);
-    length = rect->w * SDL_BYTESPERPIXEL(texture->format);
+    length = rect->w * SDL_PIXELBPP(texture->format);
     if (length == pitch && length == dpitch) {
         SDL_memcpy(dst, src, length * rect->h);
     } else {

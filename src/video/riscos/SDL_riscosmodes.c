@@ -51,7 +51,7 @@ static const struct
     /* { SDL_PIXELFORMAT_INDEX1LSB, 0, 1, 0 }, */
     /* { SDL_PIXELFORMAT_INDEX2LSB, 0, 3, 1 }, */
     /* { SDL_PIXELFORMAT_INDEX4LSB, 0, 15, 2 }, */
-    /* { SDL_PIXELFORMAT_INDEX8,    MODE_FLAG_565, 255, 3 }, */
+    /* { SDL_PIXELFORMAT_INDEX8,    MODE_FLAG_565, 255, 3 }, update RISCOS_CreateWindowFramebuffer if a non-PACKED and non-ARRAY format is added to the list */
     { SDL_PIXELFORMAT_XBGR1555, MODE_FLAG_TBGR, 65535, 4 },
     { SDL_PIXELFORMAT_XRGB1555, MODE_FLAG_TRGB, 65535, 4 },
     { SDL_PIXELFORMAT_ABGR1555, MODE_FLAG_ABGR, 65535, 4 },

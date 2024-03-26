@@ -481,7 +481,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
-        data->pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
+        data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
 #if SDL_HAVE_YUV
         if (texture->format == SDL_PIXELFORMAT_YV12 ||
@@ -573,7 +573,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         renderdata->glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_TRUE);
         renderdata->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH,
-                                  (data->pitch / SDL_BYTESPERPIXEL(texture->format)));
+                                  (data->pitch / SDL_PIXELFORMAT_BPP(texture->format)));
         renderdata->glTexImage2D(textype, 0, internalFormat, texture_w,
                                  texture_h, 0, format, type, data->pixels);
         renderdata->glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_FALSE);
@@ -700,7 +700,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
     const GLenum textype = renderdata->textype;
     GL_TextureData *data = (GL_TextureData *)texture->driverdata;
-    const int texturebpp = SDL_BYTESPERPIXEL(texture->format);
+    const int texturebpp = SDL_PIXELFORMAT_BPP(texture->format);
 
     SDL_assert_release(texturebpp != 0); /* otherwise, division by zero later. */
 
@@ -830,7 +830,7 @@ static int GL_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     data->locked_rect = *rect;
     *pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
-                 rect->x * SDL_BYTESPERPIXEL(texture->format));
+                 rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = data->pitch;
     return 0;
 }
@@ -844,7 +844,7 @@ static void GL_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     rect = &data->locked_rect;
     pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
-                 rect->x * SDL_BYTESPERPIXEL(texture->format));
+                 rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     GL_UpdateTexture(renderer, texture, rect, pixels, data->pitch);
 }
 
@@ -1442,7 +1442,7 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
                             SDL_GetPixelFormatName(temp_format));
     }
 
-    temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
+    temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
     temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();
@@ -1452,7 +1452,7 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     data->glPixelStorei(GL_PACK_ALIGNMENT, 1);
     data->glPixelStorei(GL_PACK_ROW_LENGTH,
-                        (temp_pitch / SDL_BYTESPERPIXEL(temp_format)));
+                        (temp_pitch / SDL_PIXELFORMAT_BPP(temp_format)));
 
     data->glReadPixels(rect->x, renderer->target ? rect->y : (h - rect->y) - rect->h,
                        rect->w, rect->h, format, type, temp_pixels);

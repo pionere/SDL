@@ -1790,7 +1790,7 @@ static int D3D12_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
-    int bpp = SDL_BYTESPERPIXEL(texture->format);
+    int bpp = SDL_PIXELFORMAT_BPP(texture->format);
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
@@ -1836,7 +1836,7 @@ static int D3D12_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
-    int bpp = SDL_BYTESPERPIXEL(texture->format);
+    int bpp = SDL_PIXELFORMAT_BPP(texture->format);
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
@@ -1866,7 +1866,7 @@ static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_BYTESPERPIXEL(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState) < 0) {
+    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState) < 0) {
         return -1;
     }
 
@@ -1907,7 +1907,7 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         textureData->lockedRect = *rect;
         *pixels =
             (void *)(textureData->pixels + rect->y * textureData->pitch +
-                     rect->x * SDL_BYTESPERPIXEL(texture->format));
+                     rect->x * SDL_PIXELFORMAT_BPP(texture->format));
         *pitch = textureData->pitch;
         return 0;
     }
@@ -2018,7 +2018,7 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         const SDL_Rect *rect = &textureData->lockedRect;
         void *pixels =
             (void *)(textureData->pixels + rect->y * textureData->pitch +
-                     rect->x * SDL_BYTESPERPIXEL(texture->format));
+                     rect->x * SDL_PIXELFORMAT_BPP(texture->format));
         D3D12_UpdateTexture(renderer, texture, rect, pixels, textureData->pitch);
         return;
     }

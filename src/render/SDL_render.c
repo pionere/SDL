@@ -1308,7 +1308,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
     if (format == SDL_PIXELFORMAT_UNKNOWN) {
         format = renderer->info.texture_formats[0];
     }
-    if (SDL_BYTESPERPIXEL(format) == 0) {
+    if (SDL_PIXELFORMAT_BPP(format) == 0) {
         SDL_SetError("Invalid texture format");
         return NULL;
     }
@@ -1393,7 +1393,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
 #endif
             if (access == SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
-            texture->pitch = (((w * SDL_BYTESPERPIXEL(format)) + 3) & ~3);
+            texture->pitch = (((w * SDL_PIXELFORMAT_BPP(format)) + 3) & ~3);
             texture->pixels = SDL_calloc(h, texture->pitch);
             if (!texture->pixels) {
                 SDL_OutOfMemory();
@@ -1736,7 +1736,7 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_UnlockTexture(native);
     } else {
         /* Use a temporary buffer for updating */
-        const int temp_pitch = (((rect->w * SDL_BYTESPERPIXEL(native->format)) + 3) & ~3);
+        const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
         if (alloclen > 0) {
             void *temp_pixels = SDL_malloc(alloclen);
@@ -1776,7 +1776,7 @@ static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_UnlockTexture(native);
     } else {
         /* Use a temporary buffer for updating */
-        const int temp_pitch = (((rect->w * SDL_BYTESPERPIXEL(native->format)) + 3) & ~3);
+        const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
         if (alloclen > 0) {
             void *temp_pixels = SDL_malloc(alloclen);
@@ -1870,7 +1870,7 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
         SDL_UnlockTexture(native);
     } else {
         /* Use a temporary buffer for updating */
-        const int temp_pitch = (((rect->w * SDL_BYTESPERPIXEL(native->format)) + 3) & ~3);
+        const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
         if (alloclen > 0) {
             void *temp_pixels = SDL_malloc(alloclen);
@@ -1920,7 +1920,7 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_UnlockTexture(native);
     } else {
         /* Use a temporary buffer for updating */
-        const int temp_pitch = (((rect->w * SDL_BYTESPERPIXEL(native->format)) + 3) & ~3);
+        const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
         if (alloclen > 0) {
             void *temp_pixels = SDL_malloc(alloclen);
@@ -2079,7 +2079,7 @@ static int SDL_LockTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
     texture->locked_rect = *rect;
     *pixels = (void *)((Uint8 *)texture->pixels +
                        rect->y * texture->pitch +
-                       rect->x * SDL_BYTESPERPIXEL(texture->format));
+                       rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = texture->pitch;
     return 0;
 }
@@ -2193,7 +2193,7 @@ static void SDL_UnlockTextureNative(SDL_Texture *texture)
     const SDL_Rect *rect = &texture->locked_rect;
     const void *pixels = (void *)((Uint8 *)texture->pixels +
                                   rect->y * texture->pitch +
-                                  rect->x * SDL_BYTESPERPIXEL(texture->format));
+                                  rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     int pitch = texture->pitch;
 
     if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
@@ -4274,7 +4274,7 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
             pixels = (Uint8 *)pixels + pitch * (real_rect.y - rect->y);
         }
         if (real_rect.x > rect->x) {
-            int bpp = SDL_BYTESPERPIXEL(format);
+            int bpp = SDL_PIXELFORMAT_BPP(format);
             pixels = (Uint8 *)pixels + bpp * (real_rect.x - rect->x);
         }
     } else {

@@ -74,7 +74,8 @@ int WIN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     *format = surface_format;
 
     /* Fill in the size information */
-    *pitch = (((w * SDL_BYTESPERPIXEL(surface_format)) + 3) & ~3);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(surface_format));
+    *pitch = (((w * SDL_PIXELBPP(surface_format)) + 3) & ~3);
     bmi->bmiHeader.biWidth = w;
     bmi->bmiHeader.biHeight = -h; /* negative for topdown bitmap */
     bmi->bmiHeader.biSizeImage = (DWORD)h * (*pitch);

@@ -845,7 +845,7 @@ static int METAL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
         return SDL_SetError("Invalid rectangle dimensions for LockTexture.");
     }
 
-    *pitch = SDL_BYTESPERPIXEL(texture->format) * rect->w;
+    *pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect->w;
 #if SDL_HAVE_YUV
     if (texturedata.yuv || texturedata.nv12) {
         buffersize = ((*pitch) * rect->h) + (2 * (*pitch + 1) / 2) * ((rect->h + 1) / 2);
@@ -873,7 +873,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     METAL_TextureData *texturedata = (__bridge METAL_TextureData *)texture->driverdata;
     id<MTLBlitCommandEncoder> blitcmd;
     SDL_Rect rect = texturedata.lockedrect;
-    int pitch = SDL_BYTESPERPIXEL(texture->format) * rect.w;
+    int pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect.w;
     SDL_Rect UVrect = {rect.x / 2, rect.y / 2, (rect.w + 1) / 2, (rect.h + 1) / 2};
 
     if (texturedata.lockedbuffer == nil) {

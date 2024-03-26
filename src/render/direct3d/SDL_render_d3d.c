@@ -492,7 +492,7 @@ static int D3D_UpdateTextureRep(IDirect3DDevice9 *device, D3D_TextureRep *textur
 
     src = (const Uint8 *)pixels;
     dst = (Uint8 *)locked.pBits;
-    length = w * SDL_BYTESPERPIXEL(texture->format);
+    length = w * SDL_PIXELFORMAT_BPP(texture->format);
     if (length == pitch && length == locked.Pitch) {
         SDL_memcpy(dst, src, (size_t)length * h);
     } else {
@@ -678,7 +678,7 @@ static int D3D_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         }
         *pixels =
             (void *)(texturedata->pixels + rect->y * texturedata->pitch +
-                     rect->x * SDL_BYTESPERPIXEL(texture->format));
+                     rect->x * SDL_PIXELFORMAT_BPP(texture->format));
         *pitch = texturedata->pitch;
     } else
 #endif
@@ -719,7 +719,7 @@ static void D3D_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         const SDL_Rect *rect = &texturedata->locked_rect;
         void *pixels =
             (void *)(texturedata->pixels + rect->y * texturedata->pitch +
-                     rect->x * SDL_BYTESPERPIXEL(texture->format));
+                     rect->x * SDL_PIXELFORMAT_BPP(texture->format));
         D3D_UpdateTexture(renderer, texture, rect, pixels, texturedata->pitch);
     } else
 #endif

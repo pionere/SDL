@@ -333,7 +333,7 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
-        data->pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
+        data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         data->pixels = SDL_calloc(texture->h, data->pitch);
         if (!data->pixels) {
             SDL_free(data);
@@ -347,8 +347,8 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             return SDL_SetError("GL_OES_framebuffer_object not supported");
         }
         data->fbo = GLES_GetFBO(renderer->driverdata, texture->w, texture->h);
-    } else {
-        data->fbo = NULL;
+    // } else {
+    //    data->fbo = NULL;
     }
 
     renderdata->glGetError();
@@ -416,7 +416,7 @@ static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     }
 
     /* Reformat the texture data into a tightly packed array */
-    srcPitch = rect->w * SDL_BYTESPERPIXEL(texture->format);
+    srcPitch = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     src = (Uint8 *)pixels;
     if (pitch != srcPitch) {
         blob = (Uint8 *)SDL_malloc(srcPitch * rect->h);
@@ -465,7 +465,7 @@ static int GLES_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
     *pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
-                 rect->x * SDL_BYTESPERPIXEL(texture->format));
+                 rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = data->pitch;
     return 0;
 }
@@ -909,7 +909,7 @@ static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     GLES_ActivateRenderer(renderer);
 
-    temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
+    temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
     temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();

@@ -1490,7 +1490,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     /* Allocate a blob for image renderdata */
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
-        data->pitch = texture->w * SDL_BYTESPERPIXEL(texture->format);
+        data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
 #if SDL_HAVE_YUV
         if (data->yuv) {
@@ -1643,7 +1643,7 @@ static int GLES2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture, con
                         rect->h,
                         tdata->pixel_format,
                         tdata->pixel_type,
-                        pixels, pitch, SDL_BYTESPERPIXEL(texture->format));
+                        pixels, pitch, SDL_PIXELFORMAT_BPP(texture->format));
 
 #if SDL_HAVE_YUV
     if (tdata->yuv) {
@@ -1797,7 +1797,7 @@ static int GLES2_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture, const
     /* Retrieve the buffer/pitch for the specified region */
     *pixels = (Uint8 *)tdata->pixel_data +
               (tdata->pitch * rect->y) +
-              (rect->x * SDL_BYTESPERPIXEL(texture->format));
+              (rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = tdata->pitch;
 
     return 0;
@@ -1913,7 +1913,7 @@ static int GLES2_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     int w, h, rows;
     int status;
 
-    temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
+    temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
     temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();

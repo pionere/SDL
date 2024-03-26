@@ -23,8 +23,10 @@
 #if SDL_VIDEO_RENDER_VITA_GXM
 
 #include "SDL_hints.h"
-#include "../SDL_sysrender.h"
 #include "SDL_log.h"
+
+#include "../SDL_sysrender.h"
+#include "../../video/SDL_pixels_c.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -363,7 +365,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 #endif
 
     VITA_GXM_LockTexture(renderer, texture, rect, (void **)&dst, &dpitch);
-    length = rect->w * SDL_BYTESPERPIXEL(texture->format);
+    length = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     if (length == pitch && length == dpitch) {
         SDL_memcpy(dst, pixels, length * rect->h);
     } else {
@@ -530,7 +532,7 @@ static int VITA_GXM_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture
     // copy Y plane
     VITA_GXM_LockTexture(renderer, texture, rect, (void **)&dst, &dpitch);
 
-    length = rect->w * SDL_BYTESPERPIXEL(texture->format);
+    length = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
 
     if (length == Ypitch && length == dpitch) {
         SDL_memcpy(dst, Yplane, length * rect->h);
@@ -579,7 +581,7 @@ static int VITA_GXM_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
 
     *pixels =
-        (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (rect->y * vita_texture->pitch) + rect->x * SDL_BYTESPERPIXEL(texture->format));
+        (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (rect->y * vita_texture->pitch) + rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = vita_texture->pitch;
 
     // make sure that rendering is finished on render target textures
@@ -1100,7 +1102,7 @@ static int VITA_GXM_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rec
         return SDL_Unsupported();
     }
 
-    temp_pitch = rect->w * SDL_BYTESPERPIXEL(temp_format);
+    temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
     temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();

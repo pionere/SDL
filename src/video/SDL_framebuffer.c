@@ -138,7 +138,8 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     }
 
     /* Create framebuffer data */
-    data->bytes_per_pixel = SDL_BYTESPERPIXEL(texture_format);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(texture_format));
+    data->bytes_per_pixel = SDL_PIXELBPP(texture_format);
     data->pitch = (((w * data->bytes_per_pixel) + 3) & ~3);
 
     {

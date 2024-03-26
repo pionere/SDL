@@ -128,6 +128,7 @@ typedef enum
 #define SDL_PIXELORDER(X)   (((X) >> 20) & 0x0F)
 #define SDL_PIXELLAYOUT(X)  (((X) >> 16) & 0x0F)
 #define SDL_BITSPERPIXEL(X) (((X) >> 8) & 0xFF)
+#define SDL_PIXELBPP(X)     (((X) >> 0) & 0xFF)
 #define SDL_BYTESPERPIXEL(X) \
     (SDL_ISPIXELFORMAT_FOURCC(X) ? \
         ((((X) == SDL_PIXELFORMAT_YUY2) || \

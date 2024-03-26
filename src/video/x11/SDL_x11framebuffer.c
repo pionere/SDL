@@ -79,7 +79,8 @@ int X11_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
     }
 
     /* Calculate pitch */
-    *pitch = (((w * SDL_BYTESPERPIXEL(*format)) + 3) & ~3);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(*format));
+    *pitch = (((w * SDL_PIXELBPP(*format)) + 3) & ~3);
 
     /* Create the actual image */
 #ifndef NO_SHARED_MEMORY

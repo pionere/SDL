@@ -315,11 +315,12 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
     }
 
     pixelformat = X11_GetPixelFormatFromVisualInfo(dpy, &vinfo);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(pixelformat));
     if (SDL_ISPIXELFORMAT_INDEXED(pixelformat)) {
         return 0; /* Palettized video modes are no longer supported, ignore this one. */
     }
 
-    scanline_pad = SDL_BYTESPERPIXEL(pixelformat) * 8;
+    scanline_pad = SDL_PIXELBPP(pixelformat) * 8;
     pixmapformats = X11_XListPixmapFormats(dpy, &n);
     if (pixmapformats) {
         for (i = 0; i < n; i++) {
@@ -576,6 +577,7 @@ static int X11_InitModes_StdXlib(void)
     }
 
     pixelformat = X11_GetPixelFormatFromVisualInfo(dpy, &vinfo);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(pixelformat));
     if (SDL_ISPIXELFORMAT_INDEXED(pixelformat)) {
         return SDL_SetError("Palettized video modes are no longer supported");
     }
@@ -607,7 +609,7 @@ static int X11_InitModes_StdXlib(void)
         displaydata->vdpi = (float)xft_dpi;
     }
 
-    scanline_pad = SDL_BYTESPERPIXEL(pixelformat) * 8;
+    scanline_pad = SDL_PIXELBPP(pixelformat) * 8;
     pixmapformats = X11_XListPixmapFormats(dpy, &n);
     if (pixmapformats) {
         for (i = 0; i < n; ++i) {

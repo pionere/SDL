@@ -29,6 +29,7 @@
 #include "SDL_thread.h"
 #include "SDL_metal.h"
 
+#include "SDL_pixels_c.h"
 #include "SDL_vulkan_internal.h"
 
 /* The SDL video driver */

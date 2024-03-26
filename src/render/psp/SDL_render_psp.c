@@ -24,6 +24,7 @@
 
 #include "SDL_hints.h"
 #include "../SDL_sysrender.h"
+#include "../../video/SDL_pixels_c.h"
 
 #include <pspkernel.h>
 #include <pspdisplay.h>
@@ -510,7 +511,7 @@ static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return -1;
     }
 
-    psp_texture->pitch = psp_texture->textureWidth * SDL_BYTESPERPIXEL(texture->format);
+    psp_texture->pitch = psp_texture->textureWidth * SDL_PIXELBPP(texture->format);
     psp_texture->size = psp_texture->textureHeight * psp_texture->pitch;
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         if (TextureSpillTargetsForSpace(renderer->driverdata, psp_texture->size) < 0) {
@@ -569,7 +570,7 @@ static int PSP_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     src = pixels;
 
     PSP_LockTexture(renderer, texture, rect, (void **)&dst, &dpitch);
-    length = rect->w * SDL_BYTESPERPIXEL(texture->format);
+    length = rect->w * SDL_PIXELBPP(texture->format);
     if (length == pitch && length == dpitch) {
         SDL_memcpy(dst, src, length * rect->h);
     } else {
@@ -591,7 +592,7 @@ static int PSP_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
     *pixels =
         (void *)((Uint8 *)psp_texture->data + rect->y * psp_texture->pitch +
-                 rect->x * SDL_BYTESPERPIXEL(texture->format));
+                 rect->x * SDL_PIXELBPP(texture->format));
     *pitch = psp_texture->pitch;
     return 0;
 }

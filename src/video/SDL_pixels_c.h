@@ -27,6 +27,13 @@
 /* Useful functions and variables from SDL_pixel.c */
 
 #include "SDL_blit.h"
+#include "SDL_pixels.h"
+
+#if SDL_HAVE_YUV
+#define SDL_PIXELFORMAT_BPP(format) SDL_BYTESPERPIXEL(format)
+#else
+#define SDL_PIXELFORMAT_BPP(format) SDL_PIXELBPP(format)
+#endif
 
 /* Pixel format functions */
 extern int SDL_InitFormat(SDL_PixelFormat *format, Uint32 pixel_format);

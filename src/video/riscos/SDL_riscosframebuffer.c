@@ -51,7 +51,9 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     /* Create a new one */
     display = SDL_GetDisplayForWindow(window);
     mode = &display->current_mode; // SDL_GetCurrentDisplayMode(window->display_index, &mode);
-    if ((SDL_ISPIXELFORMAT_PACKED(mode->format) || SDL_ISPIXELFORMAT_ARRAY(mode->format))) {
+    SDL_assert(SDL_ISPIXELFORMAT_PACKED(mode->format) || SDL_ISPIXELFORMAT_ARRAY(mode->format));
+    // if ((SDL_ISPIXELFORMAT_PACKED(mode->format) || SDL_ISPIXELFORMAT_ARRAY(mode->format))) {
+    if (1) {
         *format = mode->format;
         sprite_mode = (unsigned int)mode->driverdata;
     } else {
@@ -60,7 +62,7 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     }
 
     /* Calculate pitch */
-    *pitch = (((w * SDL_BYTESPERPIXEL(*format)) + 3) & ~3);
+    *pitch = (((w * SDL_PIXELBPP(*format)) + 3) & ~3);
 
     /* Allocate the sprite area */
     size = sizeof(sprite_area) + sizeof(sprite_header) + ((*pitch) * h);
