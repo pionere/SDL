@@ -39,7 +39,7 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL.h"
+#include "SDL_surface.h"
 #include "SDL_rotate.h"
 
 /* ---- Internally used structures */

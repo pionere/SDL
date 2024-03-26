@@ -38,7 +38,6 @@
 #include <sys/ioctl.h>
 #include <linux/input.h>
 
-#include "SDL.h"
 #include "SDL_endian.h"
 #include "SDL_scancode.h"
 #include "../../events/SDL_events_c.h"

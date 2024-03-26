@@ -24,6 +24,8 @@
 
 #include "../SDL_internal.h"
 
+#include "SDL_audio.h"
+
 #ifndef DEBUG_CONVERT
 #define DEBUG_CONVERT 0
 #endif

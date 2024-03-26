@@ -21,7 +21,6 @@
 #include "../../SDL_internal.h"
 
 #ifdef HAVE_IBUS_IBUS_H
-#include "SDL.h"
 #include "SDL_hints.h"
 #include "SDL_syswm.h"
 #include "SDL_ibus.h"

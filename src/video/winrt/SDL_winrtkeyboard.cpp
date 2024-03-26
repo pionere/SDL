@@ -27,7 +27,7 @@
 #include <agile.h>
 
 /* SDL-specific includes */
-#include "SDL.h"
+#include "SDL_system.h"
 #include "SDL_winrtkeyboard.h"
 
 extern "C" {

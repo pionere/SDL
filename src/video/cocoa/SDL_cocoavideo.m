@@ -26,7 +26,7 @@
 #error SDL must be built with Objective-C ARC (automatic reference counting) enabled
 #endif
 
-#include "SDL.h"
+#include "SDL_hints.h"
 #include "SDL_endian.h"
 #include "SDL_cocoavideo.h"
 #include "SDL_cocoashape.h"
