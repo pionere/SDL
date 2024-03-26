@@ -44,8 +44,8 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
 {
     const SDL_RendererInfo *info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
-    int i;
-    int w, h;
+    int i, w, h;
+    Uint32 texture_format;
 
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
@@ -114,17 +114,17 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
 
     /* Find the first format without an alpha channel */
     info = SDL_PrivateGetRendererInfo(data->renderer);
-    *format = info->texture_formats[0];
+    texture_format = info->texture_formats[0];
 
     for (i = 0; i < (int)info->num_texture_formats; ++i) {
         if (!SDL_ISPIXELFORMAT_FOURCC(info->texture_formats[i]) &&
             !SDL_ISPIXELFORMAT_ALPHA(info->texture_formats[i])) {
-            *format = info->texture_formats[i];
+            texture_format = info->texture_formats[i];
             break;
         }
     }
 
-    data->texture = SDL_CreateTexture(data->renderer, *format,
+    data->texture = SDL_CreateTexture(data->renderer, texture_format,
                                       SDL_TEXTUREACCESS_STREAMING,
                                       w, h);
     if (!data->texture) {
@@ -133,7 +133,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     }
 
     /* Create framebuffer data */
-    data->bytes_per_pixel = SDL_BYTESPERPIXEL(*format);
+    data->bytes_per_pixel = SDL_BYTESPERPIXEL(texture_format);
     data->pitch = (((w * data->bytes_per_pixel) + 3) & ~3);
 
     {
@@ -145,6 +145,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
     }
 
+    *format = texture_format;
     *pixels = data->pixels;
     *pitch = data->pitch;
 
