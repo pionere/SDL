@@ -4138,7 +4138,26 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
     int retval = 0;
     int count = indices ? num_indices : num_vertices;
 
+    if (num_vertices < 3) {
+        return 0;
+    }
+
+    if (count == 0) {
+        return 0; /* nothing to do */
+    }
+
+    if (count % 3 != 0) {
+        return SDL_InvalidParamError(indices ? "num_indices" : "num_vertices");
+    }
+
     CHECK_RENDERER_MAGIC(renderer, -1);
+
+#if DONT_DRAW_WHILE_HIDDEN
+    /* Don't draw while we're hidden */
+    if (renderer->hidden) {
+        return 0;
+    }
+#endif
 
     if (!renderer->QueueGeometry) {
         return SDL_Unsupported();
@@ -4164,27 +4183,12 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
         return SDL_InvalidParamError("uv");
     }
 
-    if (count % 3 != 0) {
-        return SDL_InvalidParamError(indices ? "num_indices" : "num_vertices");
-    }
-
     if (indices) {
         if (size_indices != 1 && size_indices != 2 && size_indices != 4) {
             return SDL_InvalidParamError("size_indices");
         }
     } else {
         size_indices = 0;
-    }
-
-#if DONT_DRAW_WHILE_HIDDEN
-    /* Don't draw while we're hidden */
-    if (renderer->hidden) {
-        return 0;
-    }
-#endif
-
-    if (num_vertices < 3) {
-        return 0;
     }
 
     if (texture && texture->native) {
