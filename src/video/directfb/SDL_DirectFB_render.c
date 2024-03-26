@@ -439,7 +439,7 @@ static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     int row;
     size_t length;
     int bpp = DFB_BYTES_PER_PIXEL(DirectFB_SDLToDFBPixelFormat(texture->format));
-    /* FIXME: SDL_BYTESPERPIXEL(texture->format) broken for yuv yv12 3 planes */
+    /* TODO: use SDL_BYTESPERPIXEL(texture->format) since it is supposed to work now? */
 
     DirectFB_ActivateRenderer(renderer);
 #if SDL_HAVE_YUV
@@ -1080,7 +1080,7 @@ static int DirectFB_RenderReadPixels(SDL_Renderer * renderer, const SDL_Rect * r
     sdl_format = DirectFB_DFBToSDLPixelFormat(dfb_format);
     winsurf->Lock(winsurf, DSLF_READ, (void **) &laypixels, &laypitch);
 
-    laypixels += (rect->y * laypitch + rect->x * SDL_BYTESPERPIXEL(sdl_format) );
+    laypixels += (rect->y * laypitch + rect->x * DFB_BYTES_PER_PIXEL(dfb_format) );
     SDL_ConvertPixels(rect->w, rect->h,
                       sdl_format, laypixels, laypitch,
                       format, pixels, pitch);
@@ -1106,7 +1106,7 @@ static int DirectFB_RenderWritePixels(SDL_Renderer * renderer, const SDL_Rect * 
 
     SDL_DFB_CHECK(windata->surface->Lock(windata->surface, DSLF_WRITE, (void **) &laypixels, &laypitch));
 
-    laypixels += (rect->y * laypitch + rect->x * SDL_BYTESPERPIXEL(sdl_format) );
+    laypixels += (rect->y * laypitch + rect->x * DFB_BYTES_PER_PIXEL(dfb_format) );
     SDL_ConvertPixels(rect->w, rect->h,
                       format, pixels, pitch,
                       sdl_format, laypixels, laypitch);
