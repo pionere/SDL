@@ -4148,14 +4148,6 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
         return SDL_Unsupported();
     }
 
-    if (texture) {
-        CHECK_TEXTURE_MAGIC(texture, -1);
-
-        if (renderer != texture->renderer) {
-            return SDL_SetError("Texture was not created with this renderer");
-        }
-    }
-
     if (!xy) {
         return SDL_InvalidParamError("xy");
     }
@@ -4164,11 +4156,32 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
         return SDL_InvalidParamError("color");
     }
 
-    if (texture && !uv) {
-        return SDL_InvalidParamError("uv");
+    if (texture) {
+        if (!uv) {
+            return SDL_InvalidParamError("uv");
+        }
+
+        CHECK_TEXTURE_MAGIC(texture, -1);
+
+        if (renderer != texture->renderer) {
+            return SDL_SetError("Texture was not created with this renderer");
+        }
+
+        if (texture->native) {
+            texture = texture->native;
+        }
+        for (i = 0; i < num_vertices; ++i) {
+            const float *uv_ = (const float *)((const char *)uv + i * uv_stride);
+            float u = uv_[0];
+            float v = uv_[1];
+            if (u < 0.0f || v < 0.0f || u > 1.0f || v > 1.0f) {
+                return SDL_SetError("Values of 'uv' out of bounds %f %f at %d/%d", u, v, i, num_vertices);
+            }
+        }
     }
 
     if (indices) {
+        // convert to standard indices
         if (size_indices != sizeof(int)) {
             int *temp_indices;
             if (size_indices != 1 && size_indices != 2) {
@@ -4189,25 +4202,7 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
             }
             indices = temp_indices;
         }
-    }
-
-    if (texture && texture->native) {
-        texture = texture->native;
-    }
-
-    if (texture) {
-        for (i = 0; i < num_vertices; ++i) {
-            const float *uv_ = (const float *)((const char *)uv + i * uv_stride);
-            float u = uv_[0];
-            float v = uv_[1];
-            if (u < 0.0f || v < 0.0f || u > 1.0f || v > 1.0f) {
-                retval = SDL_SetError("Values of 'uv' out of bounds %f %f at %d/%d", u, v, i, num_vertices);
-                goto done;
-            }
-        }
-    }
-
-    if (indices) {
+        // validate the indices
         for (i = 0; i < num_indices; ++i) {
             int j = ((const int *)indices)[i];
             if (j < 0 || j >= num_vertices) {
