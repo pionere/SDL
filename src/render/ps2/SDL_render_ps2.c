@@ -129,11 +129,13 @@ static int PS2_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                            const SDL_Rect *rect, void **pixels, int *pitch)
 {
     GSTEXTURE *ps2_texture = (GSTEXTURE *)texture->driverdata;
+    int texture_bpp = SDL_BYTESPERPIXEL(texture->format);
+    int texture_pitch = ps2_texture->Width * texture_bpp;
 
+    *pitch = texture_pitch;
     *pixels =
-        (void *)((Uint8 *)ps2_texture->Mem + rect->y * ps2_texture->Width * SDL_BYTESPERPIXEL(texture->format) +
-                 rect->x * SDL_BYTESPERPIXEL(texture->format));
-    *pitch = ps2_texture->Width * SDL_BYTESPERPIXEL(texture->format);
+        (void *)((Uint8 *)ps2_texture->Mem + rect->y * texture_pitch +
+                 rect->x * texture_bpp);
     return 0;
 }
 
