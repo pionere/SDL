@@ -42,7 +42,7 @@ static int GetBpp(TDisplayMode displaymode);
 static void DirectUpdate(SDL_Surface *surface, int numrects, SDL_Rect *rects);
 static void DrawBackground();
 
-int NGAGE_CreateWindowFramebuffer(, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     Ngage_VideoData *phdata = &ngageVideoData;
     SDL_Surface *surface;
