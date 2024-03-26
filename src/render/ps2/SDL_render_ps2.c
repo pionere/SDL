@@ -248,7 +248,8 @@ static int PS2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     PS2_RenderData *data = (PS2_RenderData *)renderer->driverdata;
 
     cmd->data.draw.count = count;
-    size_indices = indices ? size_indices : 0;
+    SDL_assert(indices != NULL || size_indices == 0);
+    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     if (texture) {
         GSPRIMUVPOINT *vertices = (GSPRIMUVPOINT *) SDL_AllocateRenderVertices(renderer, count * sizeof(GSPRIMUVPOINT), 4, &cmd->data.draw.first);

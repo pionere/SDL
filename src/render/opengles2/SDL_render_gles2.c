@@ -842,7 +842,8 @@ static int GLES2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
     int count = indices ? num_indices : num_vertices;
 
     cmd->data.draw.count = count;
-    size_indices = indices ? size_indices : 0;
+    SDL_assert(indices != NULL || size_indices == 0);
+    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     if (texture) {
         SDL_Vertex *verts = (SDL_Vertex *)SDL_AllocateRenderVertices(renderer, count * sizeof(*verts), 0, &cmd->data.draw.first);

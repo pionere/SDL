@@ -654,7 +654,8 @@ static int PSP_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     int count = indices ? num_indices : num_vertices;
 
     cmd->data.draw.count = count;
-    size_indices = indices ? size_indices : 0;
+    SDL_assert(indices != NULL || size_indices == 0);
+    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     if (!texture) {
         VertCV *verts;

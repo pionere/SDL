@@ -3510,7 +3510,7 @@ int SDL_RenderCopyF(SDL_Renderer *renderer, SDL_Texture *texture,
         const int num_vertices = 4;
         const int *indices = renderer->rect_index_order;
         const int num_indices = 6;
-        const int size_indices = 4;
+        const int size_indices = indices ? 4 : 0;
         float minu, minv, maxu, maxv;
         float minx, miny, maxx, maxy;
 
@@ -3656,7 +3656,7 @@ int SDL_RenderCopyExF(SDL_Renderer *renderer, SDL_Texture *texture,
         const int num_vertices = 4;
         const int *indices = renderer->rect_index_order;
         const int num_indices = 6;
-        const int size_indices = 4;
+        const int size_indices = indices ? 4 : 0;
         float minu, minv, maxu, maxv;
         float minx, miny, maxx, maxy;
         float centerx, centery;
@@ -3848,7 +3848,8 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
     prev[0] = -1;
     prev[1] = -1;
     prev[2] = -1;
-    size_indices = indices ? size_indices : 0;
+    SDL_assert(indices != NULL || size_indices == 0);
+    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     for (i = 0; i < count; i += 3) {
         int k0, k1, k2; /* Current triangle indices */

@@ -851,7 +851,8 @@ static int D3D_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     }
 
     cmd->data.draw.count = count;
-    size_indices = indices ? size_indices : 0;
+    SDL_assert(indices != NULL || size_indices == 0);
+    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     for (i = 0; i < count; i++) {
         int j;
