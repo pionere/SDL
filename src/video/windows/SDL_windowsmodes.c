@@ -72,6 +72,8 @@ static void WIN_UpdateDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayMo
         bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
         hbm = CreateCompatibleBitmap(hdc, 1, 1);
+        /* The second call to GetDIBits() fills in the bitfields */
+        GetDIBits(hdc, hbm, 0, 1, NULL, bmi, DIB_RGB_COLORS);
         GetDIBits(hdc, hbm, 0, 1, NULL, bmi, DIB_RGB_COLORS);
         DeleteObject(hbm);
         DeleteDC(hdc);
