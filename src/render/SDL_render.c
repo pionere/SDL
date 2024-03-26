@@ -1250,19 +1250,26 @@ static SDL_bool IsSupportedFormat(SDL_Renderer *renderer, Uint32 format)
 static Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
 {
     Uint32 i;
-
+#if SDL_HAVE_YUV
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
         /* Look for an exact match */
         if (IsSupportedFormat(renderer, format)) {
             return format;
         }
-    } else {
+    } else
+#endif
+    {
         SDL_bool hasAlpha = SDL_ISPIXELFORMAT_ALPHA(format);
 
         /* We just want to match the first format that has the same channels */
         for (i = 0; i < renderer->info.num_texture_formats; ++i) {
-            if (!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]) &&
-                SDL_ISPIXELFORMAT_ALPHA(renderer->info.texture_formats[i]) == hasAlpha) {
+#if SDL_HAVE_YUV
+            if (SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]))
+                continue;
+#else
+            SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]));
+#endif
+            if (SDL_ISPIXELFORMAT_ALPHA(renderer->info.texture_formats[i]) == hasAlpha) {
                 return renderer->info.texture_formats[i];
             }
         }
@@ -1288,10 +1295,16 @@ static SDL_ScaleMode SDL_GetScaleMode(void)
 SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access, int w, int h)
 {
     SDL_Texture *texture;
-    SDL_bool texture_is_fourcc_and_target;
+    SDL_bool texture_is_fourcc_and_target = SDL_FALSE;
 
     CHECK_RENDERER_MAGIC(renderer, NULL);
 
+#if !SDL_HAVE_YUV
+    if (SDL_ISPIXELFORMAT_FOURCC(format)) {
+        SDL_SetError("Invalid texture format");
+        return NULL;
+    }
+#endif
     if (format == SDL_PIXELFORMAT_UNKNOWN) {
         format = renderer->info.texture_formats[0];
     }
@@ -1335,10 +1348,10 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
         renderer->textures->prev = texture;
     }
     renderer->textures = texture;
-
+#if SDL_HAVE_YUV
     /* FOURCC format cannot be used directly by renderer back-ends for target texture */
     texture_is_fourcc_and_target = (access == SDL_TEXTUREACCESS_TARGET && SDL_ISPIXELFORMAT_FOURCC(format));
-
+#endif
     if (texture_is_fourcc_and_target == SDL_FALSE && IsSupportedFormat(renderer, format)) {
         if (renderer->CreateTexture(renderer, texture) < 0) {
             goto error;
@@ -1370,16 +1383,15 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
         texture->next = texture->native;
         renderer->textures = texture;
 
-        if (SDL_ISPIXELFORMAT_FOURCC(format)) {
 #if SDL_HAVE_YUV
+        if (SDL_ISPIXELFORMAT_FOURCC(format)) {
             texture->yuv = SDL_SW_CreateYUVTexture(format, w, h);
-#else
-            SDL_SetError("SDL not built with YUV support");
-#endif
             if (!texture->yuv) {
                 goto error;
             }
-        } else if (access == SDL_TEXTUREACCESS_STREAMING) {
+        } else
+#endif
+            if (access == SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
             texture->pitch = (((w * SDL_BYTESPERPIXEL(format)) + 3) & ~3);
             texture->pixels = SDL_calloc(h, texture->pitch);
@@ -1455,8 +1467,13 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
         /* Fallback, choose a valid pixel format */
         format = renderer->info.texture_formats[0];
         for (i = 0; i < renderer->info.num_texture_formats; ++i) {
-            if (!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]) &&
-                SDL_ISPIXELFORMAT_ALPHA(renderer->info.texture_formats[i]) == needAlpha) {
+#if SDL_HAVE_YUV
+            if (SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]))
+                continue;
+#else
+            SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(renderer->info.texture_formats[i]));
+#endif
+            if (SDL_ISPIXELFORMAT_ALPHA(renderer->info.texture_formats[i]) == needAlpha) {
                 format = renderer->info.texture_formats[i];
                 break;
             }
@@ -4228,6 +4245,12 @@ int SDL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     SDL_Rect real_rect;
 
     CHECK_RENDERER_MAGIC(renderer, -1);
+
+#if !SDL_HAVE_YUV
+    if (SDL_ISPIXELFORMAT_FOURCC(format)) {
+        return SDL_SetError("Invalid texture format");
+    }
+#endif
 
     FlushRenderCommands(renderer); /* we need to render before we read the results. */
 
