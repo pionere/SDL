@@ -2114,7 +2114,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
     int ret;
 
     if (!texture || !surface) {
-        return -1;
+        return SDL_InvalidParamError("texture/surface");
     }
 
     real_rect.x = 0;
@@ -2123,6 +2123,10 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
     real_rect.h = texture->h;
     if (rect) {
         SDL_IntersectRect(rect, &real_rect, &real_rect);
+    }
+    if (real_rect.w == 0 || real_rect.h == 0) {
+        *surface = NULL;
+        return 0; /* nothing to do. */
     }
 
     ret = SDL_LockTexture(texture, &real_rect, &pixels, &pitch);
