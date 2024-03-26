@@ -834,7 +834,7 @@ static int GLES2_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
 
 static int GLES2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                                const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                               int num_vertices, const void *indices, int num_indices, int size_indices,
+                               int num_vertices, const int *indices, int num_indices,
                                float scale_x, float scale_y)
 {
     int i;
@@ -842,8 +842,6 @@ static int GLES2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
     int count = indices ? num_indices : num_vertices;
 
     cmd->data.draw.count = count;
-    SDL_assert(indices != NULL || size_indices == 0);
-    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     if (texture) {
         SDL_Vertex *verts = (SDL_Vertex *)SDL_AllocateRenderVertices(renderer, count * sizeof(*verts), 0, &cmd->data.draw.first);
@@ -856,12 +854,8 @@ static int GLES2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
             float *xy_;
             SDL_Color col_;
             float *uv_;
-            if (size_indices == 4) {
-                j = ((const Uint32 *)indices)[i];
-            } else if (size_indices == 2) {
-                j = ((const Uint16 *)indices)[i];
-            } else if (size_indices == 1) {
-                j = ((const Uint8 *)indices)[i];
+            if (indices) {
+                j = indices[i];
             } else {
                 j = i;
             }
@@ -896,12 +890,8 @@ static int GLES2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
             float *xy_;
             SDL_Color col_;
 
-            if (size_indices == 4) {
-                j = ((const Uint32 *)indices)[i];
-            } else if (size_indices == 2) {
-                j = ((const Uint16 *)indices)[i];
-            } else if (size_indices == 1) {
-                j = ((const Uint8 *)indices)[i];
+            if (indices) {
+                j = indices[i];
             } else {
                 j = i;
             }

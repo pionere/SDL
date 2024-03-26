@@ -88,7 +88,7 @@ static int VITA_GXM_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cm
 
 static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                                   const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                                  int num_vertices, const void *indices, int num_indices, int size_indices,
+                                  int num_vertices, const int *indices, int num_indices,
                                   float scale_x, float scale_y);
 
 static int VITA_GXM_RenderClear(SDL_Renderer *renderer, SDL_RenderCommand *cmd);
@@ -717,7 +717,7 @@ static int VITA_GXM_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cm
 
 static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                                   const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                                  int num_vertices, const void *indices, int num_indices, int size_indices,
+                                  int num_vertices, const int *indices, int num_indices,
                                   float scale_x, float scale_y)
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
@@ -725,8 +725,6 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     int count = indices ? num_indices : num_vertices;
 
     cmd->data.draw.count = count;
-    SDL_assert(indices != NULL || size_indices == 0);
-    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     if (texture) {
         VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
@@ -745,12 +743,8 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             float *xy_;
             float *uv_;
             SDL_Color col_;
-            if (size_indices == 4) {
-                j = ((const Uint32 *)indices)[i];
-            } else if (size_indices == 2) {
-                j = ((const Uint16 *)indices)[i];
-            } else if (size_indices == 1) {
-                j = ((const Uint8 *)indices)[i];
+            if (indices) {
+                j = indices[i];
             } else {
                 j = i;
             }
@@ -783,12 +777,8 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             int j;
             float *xy_;
             SDL_Color col_;
-            if (size_indices == 4) {
-                j = ((const Uint32 *)indices)[i];
-            } else if (size_indices == 2) {
-                j = ((const Uint16 *)indices)[i];
-            } else if (size_indices == 1) {
-                j = ((const Uint8 *)indices)[i];
+            if (indices) {
+                j = indices[i];
             } else {
                 j = i;
             }

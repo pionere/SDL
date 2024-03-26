@@ -602,19 +602,13 @@ static int DirectFB_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     }
 
     cmd->data.draw.count = count;
-    SDL_assert(indices != NULL || size_indices == 0);
-    SDL_assert(indices == NULL || size_indices == 4 || size_indices == 2 || size_indices == 1);
 
     for (i = 0; i < count; i++) {
         int j;
         float *xy_;
         SDL_Color col_;
-        if (size_indices == 4) {
-            j = ((const Uint32 *)indices)[i];
-        } else if (size_indices == 2) {
-            j = ((const Uint16 *)indices)[i];
-        } else if (size_indices == 1) {
-            j = ((const Uint8 *)indices)[i];
+        if (indices) {
+            j = indices[i];
         } else {
             j = i;
         }
