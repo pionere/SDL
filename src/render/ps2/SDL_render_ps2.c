@@ -27,7 +27,7 @@
 #include "../../video/SDL_pixels_c.h"
 
 #include <kernel.h>
-#include <malloc.h>
+#include <malloc.h> /* memalign() */
 #include <gsKit.h>
 #include <dmaKit.h>
 #include <gsToolkit.h>

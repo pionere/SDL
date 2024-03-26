@@ -282,11 +282,13 @@ static GLES2_FBOList *GLES2_GetFBO(GLES2_RenderData *data, Uint32 w, Uint32 h)
     }
     if (!result) {
         result = SDL_malloc(sizeof(GLES2_FBOList));
+        if (result) {
         result->w = w;
         result->h = h;
         data->glGenFramebuffers(1, &result->FBO);
         result->next = data->framebuffers;
         data->framebuffers = result;
+        }
     }
     return result;
 }

@@ -677,6 +677,9 @@ static int VITA_GXM_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *c
     color_vertex *vertex = (color_vertex *)pool_malloc(
         data,
         count * sizeof(color_vertex));
+    if (!vertex) {
+        return -1;
+    }
 
     cmd->data.draw.first = (size_t)vertex;
     cmd->data.draw.count = count;
@@ -698,6 +701,9 @@ static int VITA_GXM_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cm
     color_vertex *vertex = (color_vertex *)pool_malloc(
         data,
         (count - 1) * 2 * sizeof(color_vertex));
+    if (!vertex) {
+        return -1;
+    }
 
     cmd->data.draw.first = (size_t)vertex;
     cmd->data.draw.count = (count - 1) * 2;
