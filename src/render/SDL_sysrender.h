@@ -304,6 +304,7 @@ extern const SDL_RenderDriver GLES2_RenderDriver;
 extern const SDL_RenderDriver GLES_RenderDriver;
 extern const SDL_RenderDriver DirectFB_RenderDriver;
 extern const SDL_RenderDriver METAL_RenderDriver;
+extern const SDL_RenderDriver VULKAN_RenderDriver;
 extern const SDL_RenderDriver PS2_RenderDriver;
 extern const SDL_RenderDriver PSP_RenderDriver;
 extern const SDL_RenderDriver SW_RenderDriver;

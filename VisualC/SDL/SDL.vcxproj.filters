@@ -157,6 +157,9 @@
     <Filter Include="render\software">
       <UniqueIdentifier>{1e44970f-7535-4bfb-b8a5-ea0cea0349e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="render\vulkan">
+      <UniqueIdentifier>{5115ba31-20f8-4eab-a8c5-6a572ab78ff7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="power">
       <UniqueIdentifier>{1dd91224-1176-492b-a2cb-e26153394db0}</UniqueIdentifier>
     </Filter>
@@ -771,6 +774,9 @@
     <ClInclude Include="..\..\src\render\software\SDL_triangle.h">
       <Filter>render\software</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\render\vulkan\SDL_shaders_vulkan.h">
+      <Filter>render\vulkan</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\power\SDL_syspower.h">
       <Filter>power</Filter>
     </ClInclude>
@@ -1381,6 +1387,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\render\direct3d12\SDL_shaders_d3d12.c">
       <Filter>render\direct3d12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\render\vulkan\SDL_render_vulkan.c">
+      <Filter>render\vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\render\vulkan\SDL_shaders_vulkan.c">
+      <Filter>render\vulkan</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\stdlib\SDL_mslibc.c" />
   </ItemGroup>

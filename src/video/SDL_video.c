@@ -4868,11 +4868,6 @@ SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
 {
     CHECK_WINDOW_MAGIC(window, SDL_FALSE);
 
-    if (!(window->flags & SDL_WINDOW_VULKAN)) {
-        SDL_SetError(NOT_A_VULKAN_WINDOW);
-        return SDL_FALSE;
-    }
-
     if (!instance) {
         SDL_InvalidParamError("instance");
         return SDL_FALSE;
