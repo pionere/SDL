@@ -3179,11 +3179,11 @@ static int VULKAN_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd
 
 static int VULKAN_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                                const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                               int num_vertices, const int *indices, int num_indices,
+                               int num_vertices, const int *indices,
                                float scale_x, float scale_y)
 {
     int i;
-    int count = indices ? num_indices : num_vertices;
+    int count = num_vertices;
     VertexPositionColor *verts = (VertexPositionColor *)SDL_AllocateRenderVertices(renderer, count * sizeof(VertexPositionColor), 0, &cmd->data.draw.first);
 //    SDL_bool convert_color = SDL_RenderingLinearSpace(renderer);
     VULKAN_TextureData *textureData = texture ? (VULKAN_TextureData *)texture->driverdata : NULL;

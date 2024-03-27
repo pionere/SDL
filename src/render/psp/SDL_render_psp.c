@@ -647,11 +647,11 @@ static int PSP_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd, c
 
 static int PSP_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                              const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                             int num_vertices, const int *indices, int num_indices,
+                             int num_vertices, const int *indices,
                              float scale_x, float scale_y)
 {
     int i;
-    int count = indices ? num_indices : num_vertices;
+    int count = num_vertices;
 
     cmd->data.draw.count = count;
 

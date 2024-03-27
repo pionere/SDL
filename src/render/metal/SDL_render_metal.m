@@ -1104,10 +1104,10 @@ static int METAL_QueueDrawLines(SDL_Renderer * renderer, SDL_RenderCommand *cmd,
 
 static int METAL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
         const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-        int num_vertices, const int *indices, int num_indices,
+        int num_vertices, const int *indices,
         float scale_x, float scale_y)
 {
-    int count = indices ? num_indices : num_vertices;
+    int count = num_vertices;
     const size_t vertlen = (2 * sizeof(float) + sizeof(int) + (texture ? 2 : 0) * sizeof(float)) * count;
     float *verts = (float *) SDL_AllocateRenderVertices(renderer, vertlen, DEVICE_ALIGN(8), &cmd->data.draw.first);
     if (!verts) {

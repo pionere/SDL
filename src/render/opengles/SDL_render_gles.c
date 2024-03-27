@@ -590,12 +590,12 @@ static int GLES_QueueDrawLines(SDL_Renderer *renderer, SDL_RenderCommand *cmd, c
 
 static int GLES_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                               const float *xy, int xy_stride, const SDL_Color *color, int color_stride, const float *uv, int uv_stride,
-                              int num_vertices, const int *indices, int num_indices,
+                              int num_vertices, const int *indices,
                               float scale_x, float scale_y)
 {
     GLES_TextureData *texturedata = NULL;
     int i;
-    int count = indices ? num_indices : num_vertices;
+    int count = num_vertices;
     GLfloat *verts;
     int sz = 2 + 4 + (texture ? 2 : 0);
 
