@@ -1737,9 +1737,11 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
 {
     SDL_Texture *native = texture->native;
     SDL_Rect full_rect;
+    int retval;
 
-    if (SDL_SW_UpdateYUVTexture(texture->yuv, rect, pixels, pitch) < 0) {
-        return -1;
+    retval = SDL_SW_UpdateYUVTexture(texture->yuv, rect, pixels, pitch);
+    if (retval < 0) {
+        return retval;
     }
 
     full_rect.x = 0;
@@ -1753,8 +1755,9 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
-            return -1;
+        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        if (retval < 0) {
+            return retval;
         }
         SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
                             rect->w, rect->h, native_pixels, native_pitch);
@@ -1790,10 +1793,11 @@ static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
     if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
-        int native_pitch = 0;
+        int retval, native_pitch = 0;
 
-        if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
-            return -1;
+        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        if (retval < 0) {
+            return retval;
         }
         SDL_ConvertPixels(rect->w, rect->h,
                           texture->format, pixels, pitch,
@@ -1852,8 +1856,9 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
         return SDL_UpdateTextureNative(texture, &real_rect, pixels, pitch);
     } else {
         SDL_Renderer *renderer = texture->renderer;
-        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
-            return -1;
+        int retval = FlushRenderCommandsIfTextureNeeded(renderer, texture);
+        if (retval < 0) {
+            return retval;
         }
         return renderer->UpdateTexture(renderer, texture, &real_rect, pixels, pitch);
     }
@@ -1867,9 +1872,11 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
 {
     SDL_Texture *native = texture->native;
     SDL_Rect full_rect;
+    int retval;
 
-    if (SDL_SW_UpdateYUVTexturePlanar(texture->yuv, rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch) < 0) {
-        return -1;
+    retval = SDL_SW_UpdateYUVTexturePlanar(texture->yuv, rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch);
+    if (retval < 0) {
+        return retval;
     }
 
     full_rect.x = 0;
@@ -1887,8 +1894,9 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
-            return -1;
+        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        if (retval < 0) {
+            return retval;
         }
         SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
                             rect->w, rect->h, native_pixels, native_pitch);
@@ -1917,9 +1925,11 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
 {
     SDL_Texture *native = texture->native;
     SDL_Rect full_rect;
+    int retval;
 
-    if (SDL_SW_UpdateNVTexturePlanar(texture->yuv, rect, Yplane, Ypitch, UVplane, UVpitch) < 0) {
-        return -1;
+    retval = SDL_SW_UpdateNVTexturePlanar(texture->yuv, rect, Yplane, Ypitch, UVplane, UVpitch);
+    if (retval < 0) {
+        return retval;
     }
 
     full_rect.x = 0;
@@ -1937,8 +1947,9 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
-            return -1;
+        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        if (retval < 0) {
+            return retval;
         }
         SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
                             rect->w, rect->h, native_pixels, native_pitch);
@@ -1971,6 +1982,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
 #if SDL_HAVE_YUV
     SDL_Renderer *renderer;
     SDL_Rect real_rect;
+    int retval;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2017,8 +2029,9 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         renderer = texture->renderer;
         SDL_assert(renderer->UpdateTextureYUV);
         if (renderer->UpdateTextureYUV) {
-            if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
-                return -1;
+            retval = FlushRenderCommandsIfTextureNeeded(renderer, texture);
+            if (retval < 0) {
+                return retval;
             }
             return renderer->UpdateTextureYUV(renderer, texture, &real_rect, Yplane, Ypitch, Uplane, Upitch, Vplane, Vpitch);
         } else {
@@ -2037,6 +2050,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
 #if SDL_HAVE_YUV
     SDL_Renderer *renderer;
     SDL_Rect real_rect;
+    int retval;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2077,8 +2091,9 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         renderer = texture->renderer;
         SDL_assert(renderer->UpdateTextureNV);
         if (renderer->UpdateTextureNV) {
-            if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
-                return -1;
+            retval = FlushRenderCommandsIfTextureNeeded(renderer, texture);
+            if (retval < 0) {
+                return retval;
             }
             return renderer->UpdateTextureNV(renderer, texture, &real_rect, Yplane, Ypitch, UVplane, UVpitch);
         } else {
@@ -2114,6 +2129,7 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
 {
     SDL_Rect full_rect;
     SDL_Renderer *renderer;
+    int retval;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2132,8 +2148,9 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
     renderer = texture->renderer;
 #if SDL_HAVE_YUV
     if (texture->yuv) {
-        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
-            return -1;
+        retval = FlushRenderCommandsIfTextureNeeded(renderer, texture);
+        if (retval < 0) {
+            return retval;
         }
         return SDL_LockTextureYUV(texture, rect, pixels, pitch);
     } else
@@ -2142,8 +2159,9 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         /* Calls a real SDL_LockTexture/SDL_UnlockTexture on unlock, flushing then. */
         return SDL_LockTextureNative(texture, rect, pixels, pitch);
     } else {
-        if (FlushRenderCommandsIfTextureNeeded(renderer, texture) < 0) {
-            return -1;
+        retval = FlushRenderCommandsIfTextureNeeded(renderer, texture);
+        if (retval < 0) {
+            return retval;
         }
         return renderer->LockTexture(renderer, texture, rect, pixels, pitch);
     }
@@ -2155,7 +2173,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
     SDL_Rect real_rect;
     void *pixels = NULL;
     int pitch = 0; /* fix static analysis */
-    int ret;
+    int retval;
 
     if (!texture || !surface) {
         return SDL_InvalidParamError("texture/surface");
@@ -2173,9 +2191,9 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
         return 0; /* nothing to do. */
     }
 
-    ret = SDL_LockTexture(texture, &real_rect, &pixels, &pitch);
-    if (ret < 0) {
-        return ret;
+    retval = SDL_LockTexture(texture, &real_rect, &pixels, &pitch);
+    if (retval < 0) {
+        return retval;
     }
 
     texture->locked_surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, real_rect.w, real_rect.h, 0, pitch, texture->format);
@@ -2264,6 +2282,7 @@ SDL_bool SDL_RenderTargetSupported(SDL_Renderer *renderer)
 
 int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
 {
+    int retval;
     if (!SDL_RenderTargetSupported(renderer)) {
         return SDL_Unsupported();
     }
@@ -2303,9 +2322,10 @@ int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
     renderer->target = texture;
 
-    if (renderer->SetRenderTarget(renderer, texture) < 0) {
+    retval = renderer->SetRenderTarget(renderer, texture);
+    if (retval < 0) {
         SDL_UnlockMutex(renderer->target_mutex);
-        return -1;
+        return retval;
     }
 
     if (texture) {
@@ -2330,11 +2350,13 @@ int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
 
     SDL_UnlockMutex(renderer->target_mutex);
 
-    if (QueueCmdSetViewport(renderer) < 0) {
-        return -1;
+    retval = QueueCmdSetViewport(renderer);
+    if (retval < 0) {
+        return retval;
     }
-    if (QueueCmdSetClipRect(renderer) < 0) {
-        return -1;
+    retval = QueueCmdSetClipRect(renderer);
+    if (retval < 0) {
+        return retval;
     }
 
     /* All set! */
@@ -3292,7 +3314,7 @@ int SDL_RenderDrawRectF(SDL_Renderer *renderer, const SDL_FRect *rect)
 int SDL_RenderDrawRects(SDL_Renderer *renderer,
                         const SDL_Rect *rects, int count)
 {
-    int i;
+    int i, retval;
 
     CHECK_RENDERER_MAGIC(renderer, -1);
 
@@ -3311,8 +3333,9 @@ int SDL_RenderDrawRects(SDL_Renderer *renderer,
 #endif
 
     for (i = 0; i < count; ++i) {
-        if (SDL_RenderDrawRect(renderer, &rects[i]) < 0) {
-            return -1;
+        retval = SDL_RenderDrawRect(renderer, &rects[i]);
+        if (retval < 0) {
+            return retval;
         }
     }
     return 0;
@@ -3321,7 +3344,7 @@ int SDL_RenderDrawRects(SDL_Renderer *renderer,
 int SDL_RenderDrawRectsF(SDL_Renderer *renderer,
                          const SDL_FRect *rects, int count)
 {
-    int i;
+    int i, retval;
 
     CHECK_RENDERER_MAGIC(renderer, -1);
 
@@ -3340,8 +3363,9 @@ int SDL_RenderDrawRectsF(SDL_Renderer *renderer,
 #endif
 
     for (i = 0; i < count; ++i) {
-        if (SDL_RenderDrawRectF(renderer, &rects[i]) < 0) {
-            return -1;
+        retval = SDL_RenderDrawRectF(renderer, &rects[i]);
+        if (retval < 0) {
+            return retval;
         }
     }
     return 0;
