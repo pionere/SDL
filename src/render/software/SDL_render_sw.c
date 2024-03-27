@@ -968,6 +968,11 @@ static void SW_DestroyRenderer(SDL_Renderer *renderer)
     SDL_free(renderer);
 }
 
+static int SW_SetVSync(SDL_Renderer *renderer, const int vsync)
+{
+    return -1;
+}
+
 SDL_Renderer *SW_CreateRendererForSurface(SDL_Surface *surface)
 {
     SDL_Renderer *renderer;
@@ -1010,6 +1015,7 @@ SDL_Renderer *SW_CreateRendererForSurface(SDL_Surface *surface)
     renderer->RenderPresent = SW_RenderPresent;
     renderer->DestroyTexture = SW_DestroyTexture;
     renderer->DestroyRenderer = SW_DestroyRenderer;
+    renderer->SetVSync = SW_SetVSync;
     renderer->info = SW_RenderDriver.info;
     renderer->driverdata = data;
 

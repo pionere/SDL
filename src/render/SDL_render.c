@@ -927,6 +927,14 @@ static SDL_INLINE void VerifyDrawQueueFunctions(const SDL_Renderer *renderer)
     SDL_assert(renderer->QueueFillRects != NULL || renderer->QueueGeometry != NULL);
     SDL_assert(renderer->QueueCopy != NULL || renderer->QueueGeometry != NULL);
     SDL_assert(renderer->RunCommandQueue != NULL);
+    // -- required by SDL_RenderTargetSupported
+    SDL_assert(renderer->SetRenderTarget != NULL);
+    // -- required by SDL_RenderCopyExF
+    SDL_assert(renderer->QueueCopyEx != NULL || renderer->QueueGeometry != NULL);
+    // -- required by SDL_RenderGeometryRaw
+    SDL_assert(renderer->QueueGeometry != NULL);
+    // -- required by SDL_RenderSetVSync
+    SDL_assert(renderer->SetVSync != NULL);
     // required by SDL_RenderReadPixels
     SDL_assert(renderer->RenderReadPixels != NULL);
     // ensure the 'auto'-format is supported
@@ -1987,7 +1995,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
 
     if (texture->format != SDL_PIXELFORMAT_YV12 &&
         texture->format != SDL_PIXELFORMAT_IYUV) {
-        return SDL_SetError("Texture format must by YV12 or IYUV");
+        return SDL_SetError("Texture format must be YV12 or IYUV");
     }
 
     real_rect.x = 0;
@@ -2047,7 +2055,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
 
     if (texture->format != SDL_PIXELFORMAT_NV12 &&
         texture->format != SDL_PIXELFORMAT_NV21) {
-        return SDL_SetError("Texture format must by NV12 or NV21");
+        return SDL_SetError("Texture format must be NV12 or NV21");
     }
 
     real_rect.x = 0;
@@ -2247,9 +2255,10 @@ void SDL_UnlockTexture(SDL_Texture *texture)
 
 SDL_bool SDL_RenderTargetSupported(SDL_Renderer *renderer)
 {
-    if (!renderer || !renderer->SetRenderTarget) {
+    if (!renderer) {
         return SDL_FALSE;
     }
+    SDL_assert(renderer->SetRenderTarget != NULL);
     return (renderer->info.flags & SDL_RENDERER_TARGETTEXTURE) != 0;
 }
 
@@ -3617,9 +3626,7 @@ int SDL_RenderCopyExF(SDL_Renderer *renderer, SDL_Texture *texture,
     if (renderer != texture->renderer) {
         return SDL_SetError("Texture was not created with this renderer");
     }
-    if (!renderer->QueueCopyEx && !renderer->QueueGeometry) {
-        return SDL_SetError("Renderer does not support RenderCopyEx");
-    }
+    SDL_assert(renderer->QueueCopyEx != NULL || renderer->QueueGeometry != NULL);
 
 #if DONT_DRAW_WHILE_HIDDEN
     /* Don't draw while we're hidden */
@@ -4156,9 +4163,7 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
     }
 #endif
 
-    if (!renderer->QueueGeometry) {
-        return SDL_Unsupported();
-    }
+    SDL_assert(renderer->QueueGeometry != NULL);
 
     if (!xy) {
         return SDL_InvalidParamError("xy");
@@ -4599,8 +4604,8 @@ int SDL_RenderSetVSync(SDL_Renderer *renderer, int vsync)
 
     renderer->wanted_vsync = vsync;
 
-    if (!renderer->SetVSync ||
-        renderer->SetVSync(renderer, vsync) != 0) {
+    SDL_assert(renderer->SetVSync != NULL);
+    if (renderer->SetVSync(renderer, vsync) < 0) {
         renderer->simulate_vsync = vsync;
         if (renderer->simulate_vsync) {
             renderer->info.flags |= SDL_RENDERER_PRESENTVSYNC;
