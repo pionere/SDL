@@ -1211,8 +1211,7 @@ done:
 
 static HRESULT D3D12_UpdateForWindowSizeChange(SDL_Renderer *renderer);
 
-HRESULT
-D3D12_HandleDeviceLost(SDL_Renderer *renderer)
+static void D3D12_HandleDeviceLost(SDL_Renderer *renderer)
 {
     HRESULT result = S_OK;
 
@@ -1221,13 +1220,13 @@ D3D12_HandleDeviceLost(SDL_Renderer *renderer)
     result = D3D12_CreateDeviceResources(renderer);
     if (FAILED(result)) {
         /* D3D12_CreateDeviceResources will set the SDL error */
-        return result;
+        return;
     }
 
     result = D3D12_UpdateForWindowSizeChange(renderer);
     if (FAILED(result)) {
         /* D3D12_UpdateForWindowSizeChange will set the SDL error */
-        return result;
+        return;
     }
 
     /* Let the application know that the device has been reset */
@@ -1236,8 +1235,6 @@ D3D12_HandleDeviceLost(SDL_Renderer *renderer)
         event.type = SDL_RENDER_DEVICE_RESET;
         SDL_PushEvent(&event);
     }
-
-    return S_OK;
 }
 
 /* Initialize all resources that change when the window's size changes. */
@@ -1512,9 +1509,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             D3D12_DestroyTexture(renderer, texture);
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
         }
-    }
-
-    if (texture->format == SDL_PIXELFORMAT_NV12 ||
+    } else if (texture->format == SDL_PIXELFORMAT_NV12 ||
         texture->format == SDL_PIXELFORMAT_NV21) {
         D3D12_RESOURCE_DESC nvTextureDesc = textureDesc;
 
@@ -1571,9 +1566,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                  textureData->mainTextureV,
                  &resourceViewDesc,
                  textureData->mainTextureResourceViewV);
-    }
-
-    if (textureData->nv12) {
+    } else if (textureData->nv12) {
         D3D12_SHADER_RESOURCE_VIEW_DESC nvResourceViewDesc = resourceViewDesc;
 
         nvResourceViewDesc.Format = DXGI_FORMAT_R8G8_UNORM;
@@ -1791,40 +1784,35 @@ static int D3D12_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     int bpp = SDL_PIXELFORMAT_BPP(texture->format);
+    int status;
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
     }
 
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch, &textureData->mainResourceState) < 0) {
-        return -1;
-    }
+    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch, &textureData->mainResourceState);
 #if SDL_HAVE_YUV
-    if (textureData->yuv) {
-        /* Skip to the correct offset into the next texture */
-        srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
+    if (status >= 0) {
+        if (textureData->yuv) {
+            /* Skip to the correct offset into the next texture */
+            srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-        if (D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateV : &textureData->mainResourceStateU) < 0) {
-            return -1;
-        }
+            status = D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateV : &textureData->mainResourceStateU);
 
-        /* Skip to the correct offset into the next texture */
-        srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
-        if (D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateU : &textureData->mainResourceStateV) < 0) {
-            return -1;
-        }
-    }
+            if (status >= 0) {
+                /* Skip to the correct offset into the next texture */
+                srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
+                status = D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateU : &textureData->mainResourceStateV);
+            }
+        } else if (textureData->nv12) {
+            /* Skip to the correct offset into the next texture */
+            srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-    if (textureData->nv12) {
-        /* Skip to the correct offset into the next texture */
-        srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
-
-        if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateNV) < 0) {
-            return -1;
+            status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateNV);
         }
     }
 #endif /* SDL_HAVE_YUV */
-    return 0;
+    return status;
 }
 
 #if SDL_HAVE_YUV
@@ -1837,21 +1825,20 @@ static int D3D12_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     int bpp = SDL_PIXELFORMAT_BPP(texture->format);
+    int status;
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
     }
 
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState) < 0) {
-        return -1;
+    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
+    if (status >= 0)  {
+        status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch, &textureData->mainResourceStateU);
+        if (status >= 0) {
+            status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch, &textureData->mainResourceStateV);
+        }
     }
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch, &textureData->mainResourceStateU) < 0) {
-        return -1;
-    }
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch, &textureData->mainResourceStateV) < 0) {
-        return -1;
-    }
-    return 0;
+    return status;
 }
 
 static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
@@ -1861,19 +1848,17 @@ static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
+    int status;
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
     }
 
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState) < 0) {
-        return -1;
+    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
+    if (status >= 0) {
+        status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateNV);
     }
-
-    if (D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateNV) < 0) {
-        return -1;
-    }
-    return 0;
+    return status;
 }
 #endif
 
