@@ -3199,7 +3199,7 @@ SDL_Window *SDL_CreateShapedWindow(const char *title, unsigned int x, unsigned i
 {
     SDL_Window *result = NULL;
     if (current_video.CreateShaper != NULL) {
-        result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
+        result = SDL_CreateWindow(title, -1000, -1000, w, h, (flags | SDL_WINDOW_BORDERLESS) & (~SDL_WINDOW_FULLSCREEN_MASK) & (~SDL_WINDOW_RESIZABLE) /* & (~SDL_WINDOW_SHOWN) */);
         if (result) {
             result->shaper = current_video.CreateShaper(result);
             if (result->shaper) {
