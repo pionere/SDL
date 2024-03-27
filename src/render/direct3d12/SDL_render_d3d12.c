@@ -734,10 +734,10 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         DXGI_FORMAT_B8G8R8X8_UNORM,
         DXGI_FORMAT_R8_UNORM
     };
-
+#ifdef DEBUG_RENDER
     /* See if we need debug interfaces */
     createDebug = SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D11_DEBUG, SDL_FALSE);
-
+#endif
 #ifdef __GDK__
     CreateEventExFunc = CreateEventExW;
 #else

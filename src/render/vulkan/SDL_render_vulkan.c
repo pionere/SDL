@@ -1718,7 +1718,7 @@ static int VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Propert
     };
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
     VkResult result = VK_SUCCESS;
-    SDL_bool createDebug = SDL_GetHintBoolean(SDL_HINT_RENDER_VULKAN_DEBUG, SDL_FALSE);
+    SDL_bool createDebug = SDL_FALSE;
     const char *validationLayerName[] = { SDL_VULKAN_VALIDATION_LAYER_NAME };
 
     if (SDL_Vulkan_LoadLibrary(NULL) < 0) {
@@ -1777,6 +1777,9 @@ static int VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Propert
             instanceCreateInfo.enabledExtensionCount++;
         }
         instanceCreateInfo.ppEnabledExtensionNames = (const char *const *)instanceExtensionsCopy;
+#ifdef DEBUG_RENDER
+        createDebug = SDL_GetHintBoolean(SDL_HINT_RENDER_VULKAN_DEBUG, SDL_FALSE);
+#endif
         if (createDebug && VULKAN_ValidationLayersFound()) {
             instanceCreateInfo.ppEnabledLayerNames = validationLayerName;
             instanceCreateInfo.enabledLayerCount = 1;
