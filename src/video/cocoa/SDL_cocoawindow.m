@@ -50,8 +50,6 @@
 #endif
 
 
-#define FULLSCREEN_MASK (SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_FULLSCREEN)
-
 #ifndef MAC_OS_X_VERSION_10_12
 #define NSEventModifierFlagCapsLock NSAlphaShiftKeyMask
 #endif
@@ -102,7 +100,7 @@
         SDL_Window *window = [self findSDLWindow];
         if (window == NULL) {
             return NO;
-        } else if (window->flags & (SDL_WINDOW_FULLSCREEN|SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+        } else if (window->flags & SDL_WINDOW_FULLSCREEN) {
             return NO;
         } else if ((window->flags & SDL_WINDOW_RESIZABLE) == 0) {
             return NO;
@@ -568,9 +566,9 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 
     if (!videodata.allow_spaces) {
         return NO;  /* Spaces are forcibly disabled. */
-    } else if (state && ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+    } else if (state && ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) != SDL_WINDOW_FULLSCREEN_DESKTOP)) {
         return NO;  /* we only allow you to make a Space on FULLSCREEN_DESKTOP windows. */
-    } else if (!state && ((window->last_fullscreen_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+    } else if (!state && ((window->last_fullscreen_flags & SDL_WINDOW_FULLSCREEN_MASK) != SDL_WINDOW_FULLSCREEN_DESKTOP)) {
         return NO;  /* we only handle leaving the Space on windows that were previously FULLSCREEN_DESKTOP. */
     } else if (state == isFullscreenSpace) {
         return YES;  /* already there. */
@@ -740,7 +738,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
     int x, y;
     SDL_Window *window = _data.window;
     NSWindow *nswindow = _data.nswindow;
-    BOOL fullscreen = window->flags & FULLSCREEN_MASK;
+    BOOL fullscreen = window->flags & SDL_WINDOW_FULLSCREEN;
     NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
     ConvertNSRect([nswindow screen], fullscreen, &rect);
 
@@ -792,7 +790,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
     window = _data.window;
     nswindow = _data.nswindow;
     rect = [nswindow contentRectForFrameRect:[nswindow frame]];
-    ConvertNSRect([nswindow screen], (window->flags & FULLSCREEN_MASK), &rect);
+    ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
     x = (int)rect.origin.x;
     y = (int)rect.origin.y;
     w = (int)rect.size.width;
@@ -867,7 +865,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
     /* Check to see if someone updated the clipboard */
     Cocoa_CheckClipboardUpdate();
 
-    if ((isFullscreenSpace) && ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+    if ((isFullscreenSpace) && ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP)) {
         [NSMenu setMenuBarVisible:NO];
     }
     {
@@ -968,7 +966,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
         pendingWindowOperation = PENDING_OPERATION_NONE;
         [self setFullscreenSpace:NO];
     } else {
-        if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+        if ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
             [NSMenu setMenuBarVisible:NO];
         }
 
@@ -1113,7 +1111,7 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 
 -(NSApplicationPresentationOptions)window:(NSWindow *)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
-    if ((_data.window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    if ((_data.window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
         return NSApplicationPresentationFullScreen | NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
     } else {
         return proposedOptions;
@@ -1640,7 +1638,7 @@ static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsvi
     /* Fill in the SDL window with the window data */
     {
         NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
-        ConvertNSRect([nswindow screen], (window->flags & FULLSCREEN_MASK), &rect);
+        ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
         window->x = (int)rect.origin.x;
         window->y = (int)rect.origin.y;
         window->w = (int)rect.size.width;
@@ -1727,7 +1725,7 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
     rect.origin.y = window->y;
     rect.size.width = window->w;
     rect.size.height = window->h;
-    ConvertNSRect([screens objectAtIndex:0], (window->flags & FULLSCREEN_MASK), &rect);
+    ConvertNSRect([screens objectAtIndex:0], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     style = GetWindowStyle(window);
 
@@ -1891,7 +1889,7 @@ void Cocoa_SetWindowPosition(SDL_Window * window)
     rect.origin.y = window->y;
     rect.size.width = window->w;
     rect.size.height = window->h;
-    ConvertNSRect([nswindow screen], (window->flags & FULLSCREEN_MASK), &rect);
+    ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     moveHack = s_moveHack;
     s_moveHack = 0;
@@ -1917,7 +1915,7 @@ void Cocoa_SetWindowSize(SDL_Window * window)
     rect.origin.y = window->y;
     rect.size.width = window->w;
     rect.size.height = window->h;
-    ConvertNSRect([nswindow screen], (window->flags & FULLSCREEN_MASK), &rect);
+    ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     moveHack = s_moveHack;
     s_moveHack = 0;

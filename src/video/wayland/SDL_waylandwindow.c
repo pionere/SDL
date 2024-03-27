@@ -45,8 +45,6 @@
 #include <libdecor.h>
 #endif
 
-#define FULLSCREEN_MASK (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)
-
 SDL_FORCE_INLINE SDL_bool FloatEqual(float a, float b)
 {
     const float diff = SDL_fabsf(a - b);
@@ -70,7 +68,7 @@ static void GetFullScreenDimensions(SDL_Window *window, int *width, int *height,
      * If the application is DPI aware, it will need to handle the transformations between the
      * differently sized window and backbuffer spaces on its own.
      */
-    if ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    if ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
         fs_width = output_width;
         fs_height = output_height;
 
@@ -124,8 +122,7 @@ SDL_FORCE_INLINE SDL_bool SurfaceScaleIsFractional(SDL_Window *window)
 
 SDL_FORCE_INLINE SDL_bool FullscreenModeEmulation(SDL_Window *window)
 {
-    return (window->flags & SDL_WINDOW_FULLSCREEN) &&
-           ((window->flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != SDL_WINDOW_FULLSCREEN_DESKTOP);
+    return (window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN;
 }
 
 static SDL_bool NeedViewport(SDL_Window *window)
@@ -1780,7 +1777,7 @@ void Wayland_SetWindowFullscreen(SDL_Window *window,
 
     /* Save the last fullscreen flags for future requests by the compositor. */
     if (fullscreen) {
-        wind->fullscreen_flags = window->flags & FULLSCREEN_MASK;
+        wind->fullscreen_flags = window->flags & SDL_WINDOW_FULLSCREEN_MASK;
     }
 
     /* Don't send redundant fullscreen set/unset events. */

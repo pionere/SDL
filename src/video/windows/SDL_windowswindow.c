@@ -874,7 +874,7 @@ void WIN_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, SDL_
     int x, y;
     int w, h;
 
-    if (!fullscreen && (window->flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP))) {
+    if (!fullscreen && (window->flags & SDL_WINDOW_FULLSCREEN)) {
         /* Resizing the window on hide causes problems restoring it in Wine, and it's unnecessary.
          * Also, Windows would preview the minimized window with the wrong size.
          */

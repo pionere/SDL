@@ -130,6 +130,8 @@ typedef enum
     SDL_WINDOW_INPUT_GRABBED = SDL_WINDOW_MOUSE_GRABBED /**< equivalent to SDL_WINDOW_MOUSE_GRABBED for compatibility */
 } SDL_WindowFlags;
 
+#define SDL_WINDOW_FULLSCREEN_MASK (SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_FULLSCREEN)
+
 /**
  * The SDL_*Stretch functions are limited to 0xFFFF.
  * Most renderers are limited to 16384.
