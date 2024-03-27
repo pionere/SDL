@@ -536,8 +536,12 @@ static void D3D_DestroyTextureRep(D3D_TextureRep *texture)
 static int D3D_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
+    IDirect3DDevice9 *device = data->device;
     D3D_TextureData *texturedata;
     DWORD usage;
+    Uint32 format;
+    D3DFORMAT d3dformat;
+    int w, h, result;
 
     texturedata = (D3D_TextureData *)SDL_calloc(1, sizeof(*texturedata));
     if (!texturedata) {
@@ -547,30 +551,26 @@ static int D3D_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     texture->driverdata = texturedata;
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET) {
-        usage = D3DUSAGE_RENDERTARGET;
-    } else {
-        usage = 0;
-    }
+    usage = (texture->access == SDL_TEXTUREACCESS_TARGET) ? D3DUSAGE_RENDERTARGET : 0;
 
-    if (D3D_CreateTextureRep(data->device, &texturedata->texture, usage, texture->format, PixelFormatToD3DFMT(texture->format), texture->w, texture->h) < 0) {
-        return -1;
-    }
+    format = texture->format;
+    d3dformat = PixelFormatToD3DFMT(format);
+    w = texture->w;
+    h = texture->h;
+    result = D3D_CreateTextureRep(device, &texturedata->texture, usage, format, d3dformat, w, h);
 #if SDL_HAVE_YUV
-    if (texture->format == SDL_PIXELFORMAT_YV12 ||
-        texture->format == SDL_PIXELFORMAT_IYUV) {
+    if (result >= 0 && (format == SDL_PIXELFORMAT_YV12 || format == SDL_PIXELFORMAT_IYUV)) {
         texturedata->yuv = SDL_TRUE;
 
-        if (D3D_CreateTextureRep(data->device, &texturedata->utexture, usage, texture->format, PixelFormatToD3DFMT(texture->format), (texture->w + 1) / 2, (texture->h + 1) / 2) < 0) {
-            return -1;
-        }
-
-        if (D3D_CreateTextureRep(data->device, &texturedata->vtexture, usage, texture->format, PixelFormatToD3DFMT(texture->format), (texture->w + 1) / 2, (texture->h + 1) / 2) < 0) {
-            return -1;
+        w = (w + 1) >> 1;
+        h = (h + 1) >> 1;
+        result = D3D_CreateTextureRep(device, &texturedata->utexture, usage, format, d3dformat, w, h);
+        if (result >= 0) {
+            result = D3D_CreateTextureRep(device, &texturedata->vtexture, usage, format, d3dformat, w, h);
         }
     }
 #endif
-    return 0;
+    return result;
 }
 
 static int D3D_RecreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
