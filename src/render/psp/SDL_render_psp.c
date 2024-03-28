@@ -537,7 +537,7 @@ static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
 static int TextureShouldSwizzle(PSP_TextureData *psp_texture, SDL_Texture *texture)
 {
-    return !((texture->access == SDL_TEXTUREACCESS_TARGET) && InVram(psp_texture->data)) && texture->access != SDL_TEXTUREACCESS_STREAMING && (texture->w >= 16 || texture->h >= 16);
+    return !((texture->access & SDL_TEXTUREACCESS_TARGET) && InVram(psp_texture->data)) && !(texture->access & SDL_TEXTUREACCESS_STREAMING) && (texture->w >= 16 || texture->h >= 16);
 }
 
 static void TextureActivate(SDL_Texture *texture)

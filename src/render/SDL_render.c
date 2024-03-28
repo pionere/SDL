@@ -1365,7 +1365,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
 #if SDL_HAVE_YUV
     /* FOURCC format cannot be used directly by renderer back-ends for target texture */
     format_is_fourcc = SDL_ISPIXELFORMAT_FOURCC(format);
-    texture_is_fourcc_and_target = format_is_fourcc && access == SDL_TEXTUREACCESS_TARGET;
+    texture_is_fourcc_and_target = format_is_fourcc && (access & SDL_TEXTUREACCESS_TARGET);
 #endif
     if (texture_is_fourcc_and_target == SDL_FALSE && format_is_supported) {
         if (renderer->CreateTexture(renderer, texture) < 0) {
@@ -1407,7 +1407,7 @@ SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer, Uint32 format, int access
             }
         } else
 #endif
-            if (access == SDL_TEXTUREACCESS_STREAMING) {
+            if (access & SDL_TEXTUREACCESS_STREAMING) {
             /* The pitch is 4 byte aligned */
             texture->pitch = (((w * SDL_PIXELFORMAT_BPP(format)) + 3) & ~3);
             texture->pixels = SDL_calloc(h, texture->pitch);
@@ -2251,7 +2251,7 @@ void SDL_UnlockTexture(SDL_Texture *texture)
 {
     CHECK_TEXTURE_MAGIC(texture, );
 
-    if (texture->access != SDL_TEXTUREACCESS_STREAMING) {
+    if (!(texture->access & SDL_TEXTUREACCESS_STREAMING)) {
         return;
     }
 #if SDL_HAVE_YUV
@@ -2292,7 +2292,7 @@ int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
         if (renderer != texture->renderer) {
             return SDL_SetError("Texture was not created with this renderer");
         }
-        if (texture->access != SDL_TEXTUREACCESS_TARGET) {
+        if (!(texture->access & SDL_TEXTUREACCESS_TARGET)) {
             return SDL_SetError("Texture not created with SDL_TEXTUREACCESS_TARGET");
         }
         if (texture->native) {
