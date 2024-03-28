@@ -402,12 +402,13 @@ static D3DBLENDOP GetBlendEquation(SDL_BlendOperation operation)
 static SDL_bool D3D_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
 {
     D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     if (!GetBlendFunc(srcColorFactor) || !GetBlendFunc(srcAlphaFactor) ||
         !GetBlendEquation(colorOperation) ||
@@ -1028,20 +1029,21 @@ static int SetDrawState(D3D_RenderData *data, const SDL_RenderCommand *cmd)
         if (blend == SDL_BLENDMODE_NONE) {
             IDirect3DDevice9_SetRenderState(data->device, D3DRS_ALPHABLENDENABLE, FALSE);
         } else {
+            SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blend);
             IDirect3DDevice9_SetRenderState(data->device, D3DRS_ALPHABLENDENABLE, TRUE);
             IDirect3DDevice9_SetRenderState(data->device, D3DRS_SRCBLEND,
-                                            GetBlendFunc(SDL_GetBlendModeSrcColorFactor(blend)));
+                                            GetBlendFunc(SDL_GetLongBlendModeSrcColorFactor(longBlendMode)));
             IDirect3DDevice9_SetRenderState(data->device, D3DRS_DESTBLEND,
-                                            GetBlendFunc(SDL_GetBlendModeDstColorFactor(blend)));
+                                            GetBlendFunc(SDL_GetLongBlendModeDstColorFactor(longBlendMode)));
             IDirect3DDevice9_SetRenderState(data->device, D3DRS_BLENDOP,
-                                            GetBlendEquation(SDL_GetBlendModeColorOperation(blend)));
+                                            GetBlendEquation(SDL_GetLongBlendModeColorOperation(longBlendMode)));
             if (data->enableSeparateAlphaBlend) {
                 IDirect3DDevice9_SetRenderState(data->device, D3DRS_SRCBLENDALPHA,
-                                                GetBlendFunc(SDL_GetBlendModeSrcAlphaFactor(blend)));
+                                                GetBlendFunc(SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode)));
                 IDirect3DDevice9_SetRenderState(data->device, D3DRS_DESTBLENDALPHA,
-                                                GetBlendFunc(SDL_GetBlendModeDstAlphaFactor(blend)));
+                                                GetBlendFunc(SDL_GetLongBlendModeDstAlphaFactor(longBlendMode)));
                 IDirect3DDevice9_SetRenderState(data->device, D3DRS_BLENDOPALPHA,
-                                                GetBlendEquation(SDL_GetBlendModeAlphaOperation(blend)));
+                                                GetBlendEquation(SDL_GetLongBlendModeAlphaOperation(longBlendMode)));
             }
         }
 

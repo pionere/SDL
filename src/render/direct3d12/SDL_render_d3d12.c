@@ -561,12 +561,13 @@ static D3D12_BLEND_OP GetBlendEquation(SDL_BlendOperation operation)
 
 static void D3D12_CreateBlendState(SDL_Renderer *renderer, SDL_BlendMode blendMode, D3D12_BLEND_DESC *outBlendDesc)
 {
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     SDL_zerop(outBlendDesc);
     outBlendDesc->AlphaToCoverageEnable = FALSE;
@@ -1381,12 +1382,13 @@ static void D3D12_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *eve
 
 static SDL_bool D3D12_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
 {
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     if (!GetBlendFunc(srcColorFactor) || !GetBlendFunc(srcAlphaFactor) ||
         !GetBlendEquation(colorOperation) ||

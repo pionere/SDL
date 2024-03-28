@@ -4552,7 +4552,7 @@ static SDL_BlendMode SDL_GetShortBlendMode(SDL_BlendMode blendMode)
     return blendMode;
 }
 
-static SDL_BlendMode SDL_GetLongBlendMode(SDL_BlendMode blendMode)
+SDL_BlendMode SDL_GetLongBlendMode(SDL_BlendMode blendMode)
 {
     if (blendMode == SDL_BLENDMODE_NONE) {
         return SDL_BLENDMODE_NONE_FULL;
@@ -4582,39 +4582,33 @@ SDL_BlendMode SDL_ComposeCustomBlendMode(SDL_BlendFactor srcColorFactor, SDL_Ble
     return SDL_GetShortBlendMode(blendMode);
 }
 
-SDL_BlendFactor SDL_GetBlendModeSrcColorFactor(SDL_BlendMode blendMode)
+SDL_BlendFactor SDL_GetLongBlendModeSrcColorFactor(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendFactor)(((Uint32)blendMode >> 4) & 0xF);
 }
 
-SDL_BlendFactor SDL_GetBlendModeDstColorFactor(SDL_BlendMode blendMode)
+SDL_BlendFactor SDL_GetLongBlendModeDstColorFactor(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendFactor)(((Uint32)blendMode >> 8) & 0xF);
 }
 
-SDL_BlendOperation SDL_GetBlendModeColorOperation(SDL_BlendMode blendMode)
+SDL_BlendOperation SDL_GetLongBlendModeColorOperation(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendOperation)(((Uint32)blendMode >> 0) & 0xF);
 }
 
-SDL_BlendFactor SDL_GetBlendModeSrcAlphaFactor(SDL_BlendMode blendMode)
+SDL_BlendFactor SDL_GetLongBlendModeSrcAlphaFactor(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendFactor)(((Uint32)blendMode >> 20) & 0xF);
 }
 
-SDL_BlendFactor SDL_GetBlendModeDstAlphaFactor(SDL_BlendMode blendMode)
+SDL_BlendFactor SDL_GetLongBlendModeDstAlphaFactor(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendFactor)(((Uint32)blendMode >> 24) & 0xF);
 }
 
-SDL_BlendOperation SDL_GetBlendModeAlphaOperation(SDL_BlendMode blendMode)
+SDL_BlendOperation SDL_GetLongBlendModeAlphaOperation(SDL_BlendMode blendMode)
 {
-    blendMode = SDL_GetLongBlendMode(blendMode);
     return (SDL_BlendOperation)(((Uint32)blendMode >> 16) & 0xF);
 }
 

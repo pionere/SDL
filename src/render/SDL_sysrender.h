@@ -311,12 +311,13 @@ extern const SDL_RenderDriver SW_RenderDriver;
 extern const SDL_RenderDriver VITA_GXM_RenderDriver;
 
 /* Blend mode functions */
-extern SDL_BlendFactor SDL_GetBlendModeSrcColorFactor(SDL_BlendMode blendMode);
-extern SDL_BlendFactor SDL_GetBlendModeDstColorFactor(SDL_BlendMode blendMode);
-extern SDL_BlendOperation SDL_GetBlendModeColorOperation(SDL_BlendMode blendMode);
-extern SDL_BlendFactor SDL_GetBlendModeSrcAlphaFactor(SDL_BlendMode blendMode);
-extern SDL_BlendFactor SDL_GetBlendModeDstAlphaFactor(SDL_BlendMode blendMode);
-extern SDL_BlendOperation SDL_GetBlendModeAlphaOperation(SDL_BlendMode blendMode);
+extern SDL_BlendMode SDL_GetLongBlendMode(SDL_BlendMode blendMode);
+extern SDL_BlendFactor SDL_GetLongBlendModeSrcColorFactor(SDL_BlendMode blendMode);
+extern SDL_BlendFactor SDL_GetLongBlendModeDstColorFactor(SDL_BlendMode blendMode);
+extern SDL_BlendOperation SDL_GetLongBlendModeColorOperation(SDL_BlendMode blendMode);
+extern SDL_BlendFactor SDL_GetLongBlendModeSrcAlphaFactor(SDL_BlendMode blendMode);
+extern SDL_BlendFactor SDL_GetLongBlendModeDstAlphaFactor(SDL_BlendMode blendMode);
+extern SDL_BlendOperation SDL_GetLongBlendModeAlphaOperation(SDL_BlendMode blendMode);
 
 /* drivers call this during their Queue*() methods to make space in a array that are used
    for a vertex buffer during RunCommandQueue(). Pointers returned here are only valid until

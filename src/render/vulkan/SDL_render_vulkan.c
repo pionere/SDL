@@ -1253,13 +1253,16 @@ static VULKAN_PipelineState *VULKAN_CreatePipelineState(SDL_Renderer *renderer,
     colorBlendStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlendStateCreateInfo.attachmentCount = 1;
     colorBlendStateCreateInfo.pAttachments = &colorBlendAttachment;
-    colorBlendAttachment.blendEnable = VK_TRUE;
-    colorBlendAttachment.srcColorBlendFactor = GetBlendFactor(SDL_GetBlendModeSrcColorFactor(blendMode));
-    colorBlendAttachment.srcAlphaBlendFactor = GetBlendFactor(SDL_GetBlendModeSrcAlphaFactor(blendMode));
-    colorBlendAttachment.colorBlendOp = GetBlendOp(SDL_GetBlendModeColorOperation(blendMode));
-    colorBlendAttachment.dstColorBlendFactor = GetBlendFactor(SDL_GetBlendModeDstColorFactor(blendMode));
-    colorBlendAttachment.dstAlphaBlendFactor = GetBlendFactor(SDL_GetBlendModeDstAlphaFactor(blendMode));
-    colorBlendAttachment.alphaBlendOp = GetBlendOp(SDL_GetBlendModeAlphaOperation(blendMode));
+    colorBlendAttachment.blendEnable = blendMode != SDL_BLENDMODE_NONE ? VK_TRUE : VK_FALSE;
+    if (colorBlendAttachment.blendEnable != VK_FALSE) {
+        SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+        colorBlendAttachment.srcColorBlendFactor = GetBlendFactor(SDL_GetLongBlendModeSrcColorFactor(longBlendMode));
+        colorBlendAttachment.srcAlphaBlendFactor = GetBlendFactor(SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode));
+        colorBlendAttachment.colorBlendOp = GetBlendOp(SDL_GetLongBlendModeColorOperation(longBlendMode));
+        colorBlendAttachment.dstColorBlendFactor = GetBlendFactor(SDL_GetLongBlendModeDstColorFactor(longBlendMode));
+        colorBlendAttachment.dstAlphaBlendFactor = GetBlendFactor(SDL_GetLongBlendModeDstAlphaFactor(longBlendMode));
+        colorBlendAttachment.alphaBlendOp = GetBlendOp(SDL_GetLongBlendModeAlphaOperation(longBlendMode));
+    }
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
     /* Renderpass / layout */
@@ -2534,12 +2537,13 @@ static void VULKAN_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *ev
 
 static SDL_bool VULKAN_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
 {
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     if (GetBlendFactor(srcColorFactor) == VK_BLEND_FACTOR_MAX_ENUM ||
         GetBlendFactor(srcAlphaFactor)  == VK_BLEND_FACTOR_MAX_ENUM ||

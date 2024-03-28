@@ -306,16 +306,15 @@ static id<MTLRenderPipelineState> MakePipelineState(METAL_RenderData *data, META
     rtdesc = mtlpipedesc.colorAttachments[0];
     rtdesc.pixelFormat = cache->renderTargetFormat;
 
-    if (blendmode != SDL_BLENDMODE_NONE) {
-        rtdesc.blendingEnabled = YES;
-        rtdesc.sourceRGBBlendFactor = GetBlendFactor(SDL_GetBlendModeSrcColorFactor(blendmode));
-        rtdesc.destinationRGBBlendFactor = GetBlendFactor(SDL_GetBlendModeDstColorFactor(blendmode));
-        rtdesc.rgbBlendOperation = GetBlendOperation(SDL_GetBlendModeColorOperation(blendmode));
-        rtdesc.sourceAlphaBlendFactor = GetBlendFactor(SDL_GetBlendModeSrcAlphaFactor(blendmode));
-        rtdesc.destinationAlphaBlendFactor = GetBlendFactor(SDL_GetBlendModeDstAlphaFactor(blendmode));
-        rtdesc.alphaBlendOperation = GetBlendOperation(SDL_GetBlendModeAlphaOperation(blendmode));
-    } else {
-        rtdesc.blendingEnabled = NO;
+    rtdesc.blendingEnabled = blendmode != SDL_BLENDMODE_NONE ? YES : NO;
+    if (rtdesc.blendingEnabled != NO) {
+        SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendmode);
+        rtdesc.sourceRGBBlendFactor = GetBlendFactor(SDL_GetLongBlendModeSrcColorFactor(longBlendMode));
+        rtdesc.destinationRGBBlendFactor = GetBlendFactor(SDL_GetLongBlendModeDstColorFactor(longBlendMode));
+        rtdesc.rgbBlendOperation = GetBlendOperation(SDL_GetLongBlendModeColorOperation(longBlendMode));
+        rtdesc.sourceAlphaBlendFactor = GetBlendFactor(SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode));
+        rtdesc.destinationAlphaBlendFactor = GetBlendFactor(SDL_GetLongBlendModeDstAlphaFactor(longBlendMode));
+        rtdesc.alphaBlendOperation = GetBlendOperation(SDL_GetLongBlendModeAlphaOperation(longBlendMode));
     }
 
     mtlpipedesc.label = [@(cache->label) stringByAppendingString:blendlabel];
@@ -514,12 +513,13 @@ static void METAL_GetOutputSize(SDL_Renderer * renderer, int *w, int *h)
 
 static SDL_bool METAL_SupportsBlendMode(SDL_Renderer * renderer, SDL_BlendMode blendMode)
 {
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     if (GetBlendFactor(srcColorFactor) == invalidBlendFactor ||
         GetBlendFactor(srcAlphaFactor) == invalidBlendFactor ||

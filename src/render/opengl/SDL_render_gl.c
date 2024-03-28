@@ -387,12 +387,13 @@ static GLenum GetBlendEquation(SDL_BlendOperation operation)
 
 static SDL_bool GL_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
 {
-    SDL_BlendFactor srcColorFactor = SDL_GetBlendModeSrcColorFactor(blendMode);
-    SDL_BlendFactor srcAlphaFactor = SDL_GetBlendModeSrcAlphaFactor(blendMode);
-    SDL_BlendOperation colorOperation = SDL_GetBlendModeColorOperation(blendMode);
-    SDL_BlendFactor dstColorFactor = SDL_GetBlendModeDstColorFactor(blendMode);
-    SDL_BlendFactor dstAlphaFactor = SDL_GetBlendModeDstAlphaFactor(blendMode);
-    SDL_BlendOperation alphaOperation = SDL_GetBlendModeAlphaOperation(blendMode);
+    SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
+    SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
+    SDL_BlendFactor srcAlphaFactor = SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode);
+    SDL_BlendOperation colorOperation = SDL_GetLongBlendModeColorOperation(longBlendMode);
+    SDL_BlendFactor dstColorFactor = SDL_GetLongBlendModeDstColorFactor(longBlendMode);
+    SDL_BlendFactor dstAlphaFactor = SDL_GetLongBlendModeDstAlphaFactor(longBlendMode);
+    SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     if (GetBlendFunc(srcColorFactor) == GL_INVALID_ENUM ||
         GetBlendFunc(srcAlphaFactor) == GL_INVALID_ENUM ||
@@ -1074,12 +1075,13 @@ static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const
         if (blend == SDL_BLENDMODE_NONE) {
             data->glDisable(GL_BLEND);
         } else {
+            SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blend);
             data->glEnable(GL_BLEND);
-            data->glBlendFuncSeparate(GetBlendFunc(SDL_GetBlendModeSrcColorFactor(blend)),
-                                      GetBlendFunc(SDL_GetBlendModeDstColorFactor(blend)),
-                                      GetBlendFunc(SDL_GetBlendModeSrcAlphaFactor(blend)),
-                                      GetBlendFunc(SDL_GetBlendModeDstAlphaFactor(blend)));
-            data->glBlendEquation(GetBlendEquation(SDL_GetBlendModeColorOperation(blend)));
+            data->glBlendFuncSeparate(GetBlendFunc(SDL_GetLongBlendModeSrcColorFactor(longBlendMode)),
+                                      GetBlendFunc(SDL_GetLongBlendModeDstColorFactor(longBlendMode)),
+                                      GetBlendFunc(SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode)),
+                                      GetBlendFunc(SDL_GetLongBlendModeDstAlphaFactor(longBlendMode)));
+            data->glBlendEquation(GetBlendEquation(SDL_GetLongBlendModeColorOperation(longBlendMode)));
         }
         data->drawstate.blend = blend;
     }
