@@ -565,7 +565,7 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 
     /* Not available in iOS 8. */
     if ([mtltexdesc respondsToSelector:@selector(usage)]) {
-        if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+        if (texture->access & SDL_TEXTUREACCESS_TARGET) {
             mtltexdesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
         } else {
             mtltexdesc.usage = MTLTextureUsageShaderRead;

@@ -1481,7 +1481,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
 
     /* Allocate a blob for image renderdata */
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
@@ -1568,7 +1568,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         }
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+    if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         data->fbo = GLES2_GetFBO(renderer->driverdata, texture->w, texture->h);
     } else {
         data->fbo = NULL;

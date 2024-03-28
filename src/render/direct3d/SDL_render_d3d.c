@@ -551,7 +551,7 @@ static int D3D_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     texture->driverdata = texturedata;
 
-    usage = (texture->access == SDL_TEXTUREACCESS_TARGET) ? D3DUSAGE_RENDERTARGET : 0;
+    usage = (texture->access & SDL_TEXTUREACCESS_TARGET) ? D3DUSAGE_RENDERTARGET : 0;
 
     format = texture->format;
     d3dformat = PixelFormatToD3DFMT(format);
@@ -1480,7 +1480,7 @@ static int D3D_Reset(SDL_Renderer *renderer)
 
     /* Release application render targets */
     for (texture = renderer->textures; texture; texture = texture->next) {
-        if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+        if (texture->access & SDL_TEXTUREACCESS_TARGET) {
             D3D_DestroyTexture(renderer, texture);
         } else {
             D3D_RecreateTexture(renderer, texture);
@@ -1508,7 +1508,7 @@ static int D3D_Reset(SDL_Renderer *renderer)
 
     /* Allocate application render targets */
     for (texture = renderer->textures; texture; texture = texture->next) {
-        if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+        if (texture->access & SDL_TEXTUREACCESS_TARGET) {
             D3D_CreateTexture(renderer, texture);
         }
     }

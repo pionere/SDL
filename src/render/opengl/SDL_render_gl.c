@@ -463,7 +463,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     renderdata->drawstate.texture = NULL; /* we trash this state. */
     renderdata->drawstate.texturing = SDL_FALSE; /* we trash this state. */
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET &&
+    if (texture->access & SDL_TEXTUREACCESS_TARGET &&
         !renderdata->GL_EXT_framebuffer_object_supported) {
         return SDL_SetError("Render targets not supported by OpenGL");
     }
@@ -479,7 +479,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return SDL_OutOfMemory();
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
@@ -502,7 +502,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         }
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+    if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         data->fbo = GL_GetFBO(renderdata, texture->w, texture->h);
     } else {
         data->fbo = NULL;
@@ -562,14 +562,14 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #ifndef STORAGE_SHARED_APPLE
 #define STORAGE_SHARED_APPLE 0x85BF
 #endif
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         renderdata->glTexParameteri(textype, GL_TEXTURE_STORAGE_HINT_APPLE,
                                     GL_STORAGE_SHARED_APPLE);
     } else {
         renderdata->glTexParameteri(textype, GL_TEXTURE_STORAGE_HINT_APPLE,
                                     GL_STORAGE_CACHED_APPLE);
     }
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING && texture->format == SDL_PIXELFORMAT_ARGB8888 && (texture->w % 8) == 0) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING && texture->format == SDL_PIXELFORMAT_ARGB8888 && (texture->w % 8) == 0) {
         renderdata->glPixelStorei(GL_UNPACK_CLIENT_STORAGE_APPLE, GL_TRUE);
         renderdata->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH,

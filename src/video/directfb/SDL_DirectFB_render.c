@@ -350,7 +350,7 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
          */
         dsc.caps = DSCAPS_PREMULTIPLIED;
 #if 0
-        if (texture->access == SDL_TEXTUREACCESS_STREAMING)
+        if (texture->access & SDL_TEXTUREACCESS_STREAMING)
             dsc.caps |= DSCAPS_SYSTEMONLY;
         else
             dsc.caps |= DSCAPS_VIDEOONLY;
@@ -382,7 +382,7 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
 #if (DFB_VERSION_ATLEAST(1,2,0))
     data->render_options = DSRO_NONE;
 #endif
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
 #if SDL_HAVE_YUV
         /* 3 plane YUVs return 1 bpp, but we need more space for other planes */
         if (texture->format == SDL_PIXELFORMAT_YV12 ||

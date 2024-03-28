@@ -303,7 +303,7 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         texture->w,
         texture->h,
         PixelFormatToVITAFMT(texture->format),
-        (texture->access == SDL_TEXTUREACCESS_TARGET),
+        texture->access,
         &(vita_texture->w),
         &(vita_texture->h),
         &(vita_texture->pitch),

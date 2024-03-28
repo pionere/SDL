@@ -1452,7 +1452,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+    if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     }
 

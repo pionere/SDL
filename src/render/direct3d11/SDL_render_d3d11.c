@@ -1087,7 +1087,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     textureDesc.SampleDesc.Quality = 0;
     textureDesc.MiscFlags = 0;
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         textureDesc.Usage = D3D11_USAGE_DYNAMIC;
         textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     } else {
@@ -1095,7 +1095,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         textureDesc.CPUAccessFlags = 0;
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+    if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
     } else {
         textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;

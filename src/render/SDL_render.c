@@ -1752,7 +1752,7 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
     full_rect.h = texture->h;
     rect = &full_rect;
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
         int native_pitch = 0;
@@ -1792,7 +1792,7 @@ static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
         return 0; /* nothing to do. */
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
         int retval, native_pitch = 0;
@@ -1891,7 +1891,7 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
         return 0; /* nothing to do. */
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
         int native_pitch = 0;
@@ -1944,7 +1944,7 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
         return 0; /* nothing to do. */
     }
 
-    if (texture->access == SDL_TEXTUREACCESS_STREAMING) {
+    if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
         int native_pitch = 0;
@@ -2133,7 +2133,7 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
-    if (texture->access != SDL_TEXTUREACCESS_STREAMING) {
+    if (!(texture->access & SDL_TEXTUREACCESS_STREAMING)) {
         return SDL_SetError("SDL_LockTexture(): texture must be streaming");
     }
 

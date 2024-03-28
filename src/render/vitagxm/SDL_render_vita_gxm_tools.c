@@ -982,7 +982,7 @@ static SceGxmColorFormat tex_format_to_color_format(SceGxmTextureFormat format)
     }
 }
 
-gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, unsigned int isRenderTarget, unsigned int *return_w, unsigned int *return_h, unsigned int *return_pitch, float *return_wscale)
+gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, int access, unsigned int *return_w, unsigned int *return_h, unsigned int *return_pitch, float *return_wscale)
 {
     gxm_texture *texture = SDL_calloc(1, sizeof(gxm_texture));
     int aligned_w = ALIGN(w, 8);
@@ -1046,7 +1046,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
         return NULL;
     }
 
-    if (isRenderTarget) {
+    if (access & SDL_TEXTUREACCESS_TARGET) {
         void *depthBufferData;
         const uint32_t alignedWidth = ALIGN(w, SCE_GXM_TILE_SIZEX);
         const uint32_t alignedHeight = ALIGN(h, SCE_GXM_TILE_SIZEY);

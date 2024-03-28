@@ -47,7 +47,7 @@ void unset_clip_rectangle(VITA_GXM_RenderData *data);
 int gxm_init(SDL_Renderer *renderer);
 void gxm_finish(SDL_Renderer *renderer);
 
-gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, unsigned int isRenderTarget, unsigned int *return_w, unsigned int *return_h, unsigned int *return_pitch, float *return_wscale);
+gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, int access, unsigned int *return_w, unsigned int *return_h, unsigned int *return_pitch, float *return_wscale);
 void free_gxm_texture(VITA_GXM_RenderData *data, gxm_texture *texture);
 
 void gxm_texture_set_filters(gxm_texture *texture, SceGxmTextureFilter min_filter, SceGxmTextureFilter mag_filter);
