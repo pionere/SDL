@@ -660,10 +660,7 @@ static int VITA_GXM_QueueSetDrawColor(SDL_Renderer *renderer, SDL_RenderCommand 
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
 
-    data->drawstate.color.r = cmd->data.color.r;
-    data->drawstate.color.g = cmd->data.color.g;
-    data->drawstate.color.b = cmd->data.color.b;
-    data->drawstate.color.a = cmd->data.color.a;
+    data->drawstate.color = cmd->data.color.color;
 
     return 0;
 }
@@ -810,10 +807,10 @@ static int VITA_GXM_RenderClear(SDL_Renderer *renderer, SDL_RenderCommand *cmd)
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
     unset_clip_rectangle(data);
 
-    clear_color[0] = (cmd->data.color.r) / 255.0f;
-    clear_color[1] = (cmd->data.color.g) / 255.0f;
-    clear_color[2] = (cmd->data.color.b) / 255.0f;
-    clear_color[3] = (cmd->data.color.a) / 255.0f;
+    clear_color[0] = (cmd->data.color.color.r) / 255.0f;
+    clear_color[1] = (cmd->data.color.color.g) / 255.0f;
+    clear_color[2] = (cmd->data.color.color.b) / 255.0f;
+    clear_color[3] = (cmd->data.color.color.a) / 255.0f;
 
     // set clear shaders
     data->drawstate.fragment_program = data->clearFragmentProgram;

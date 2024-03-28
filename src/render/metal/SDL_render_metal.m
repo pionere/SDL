@@ -1017,22 +1017,17 @@ static int METAL_QueueSetDrawColor(SDL_Renderer *renderer, SDL_RenderCommand *cm
     /*
      * FIXME: not needed anymore, some cleanup to do
      *
-    *(verts++) = ((float)cmd->data.color.r) / 255.0f;
-    *(verts++) = ((float)cmd->data.color.g) / 255.0f;
-    *(verts++) = ((float)cmd->data.color.b) / 255.0f;
-    *(verts++) = ((float)cmd->data.color.a) / 255.0f;
+    *(verts++) = ((float)cmd->data.color.color.r) / 255.0f;
+    *(verts++) = ((float)cmd->data.color.color.g) / 255.0f;
+    *(verts++) = ((float)cmd->data.color.color.b) / 255.0f;
+    *(verts++) = ((float)cmd->data.color.color.a) / 255.0f;
     */
     return 0;
 }
 
 static int METAL_QueueDrawPoints(SDL_Renderer * renderer, SDL_RenderCommand *cmd, const SDL_FPoint * points, int count)
 {
-    const SDL_Color color = {
-        cmd->data.draw.r,
-        cmd->data.draw.g,
-        cmd->data.draw.b,
-        cmd->data.draw.a
-    };
+    const SDL_Color color = cmd->data.draw.color;
 
     const size_t vertlen = (2 * sizeof(float) + sizeof(SDL_Color)) * count;
     float *verts = (float *) SDL_AllocateRenderVertices(renderer, vertlen, DEVICE_ALIGN(8), &cmd->data.draw.first);
@@ -1051,12 +1046,7 @@ static int METAL_QueueDrawPoints(SDL_Renderer * renderer, SDL_RenderCommand *cmd
 
 static int METAL_QueueDrawLines(SDL_Renderer * renderer, SDL_RenderCommand *cmd, const SDL_FPoint * points, int count)
 {
-    const SDL_Color color = {
-        cmd->data.draw.r,
-        cmd->data.draw.g,
-        cmd->data.draw.b,
-        cmd->data.draw.a
-    };
+    const SDL_Color color = cmd->data.draw.color;
     size_t vertlen;
     float *verts;
 
@@ -1354,10 +1344,10 @@ static int METAL_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *cmd
                 statecache.viewport_dirty = SDL_TRUE;
 
                 {
-                    const Uint8 r = cmd->data.color.r;
-                    const Uint8 g = cmd->data.color.g;
-                    const Uint8 b = cmd->data.color.b;
-                    const Uint8 a = cmd->data.color.a;
+                    const Uint8 r = cmd->data.color.color.r;
+                    const Uint8 g = cmd->data.color.color.g;
+                    const Uint8 b = cmd->data.color.color.b;
+                    const Uint8 a = cmd->data.color.color.a;
                     MTLClearColor color = MTLClearColorMake(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 
                     // get new command encoder, set up with an initial clear operation.

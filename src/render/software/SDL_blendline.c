@@ -717,7 +717,7 @@ static BlendLineFunc SDL_CalculateBlendLineFunc(const SDL_PixelFormat *fmt)
 }
 #if 0
 int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                  SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
+                  SDL_BlendMode blendMode, const SDL_Color color)
 {
     BlendLineFunc func;
     unsigned r, g, b, a;
@@ -737,10 +737,10 @@ int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
         return 0;
     }
 
-    r = _r;
-    g = _g;
-    b = _b;
-    a = _a;
+    r = color.r;
+    g = color.g;
+    b = color.b;
+    a = color.a;
     if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
         r = DRAW_MUL(r, a);
         g = DRAW_MUL(g, a);
@@ -752,7 +752,7 @@ int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
 }
 #endif
 int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
-                   SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
+                   SDL_BlendMode blendMode, const SDL_Color color)
 {
     int i;
     int x1, y1;
@@ -769,10 +769,10 @@ int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
         return SDL_SetError("Unsupported surface format");
     }
 
-    r = _r;
-    g = _g;
-    b = _b;
-    a = _a;
+    r = color.r;
+    g = color.g;
+    b = color.b;
+    a = color.a;
     if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
         r = DRAW_MUL(r, a);
         g = DRAW_MUL(g, a);
@@ -798,7 +798,7 @@ int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
     }
     if (points[0].x != points[count - 1].x || points[0].y != points[count - 1].y) {
         SDL_BlendPoint(dst, points[count - 1].x, points[count - 1].y,
-                       blendMode, _r, _g, _b, _a);
+                       blendMode, color);
     }
     return 0;
 }

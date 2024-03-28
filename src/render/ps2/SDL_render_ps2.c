@@ -225,10 +225,10 @@ static int PS2_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd, c
 
     cmd->data.draw.count = count;
 
-    colorR = cmd->data.draw.r;
-    colorG = cmd->data.draw.g;
-    colorB = cmd->data.draw.b;
-    colorA = cmd->data.draw.a;
+    colorR = cmd->data.draw.color.r;
+    colorG = cmd->data.draw.color.g;
+    colorB = cmd->data.draw.color.b;
+    colorA = cmd->data.draw.color.a;
     rgbaq = color_to_RGBAQ(colorR, colorG, colorB, colorA, 0.0f);
 
     for (i = 0; i < count; i++, vertices++, points++) {
@@ -339,10 +339,10 @@ static int PS2_RenderSetDrawColor(SDL_Renderer *renderer, SDL_RenderCommand *cmd
 
     PS2_RenderData *data = (PS2_RenderData *)renderer->driverdata;
 
-    colorR = (cmd->data.color.r);
-    colorG = (cmd->data.color.g);
-    colorB = (cmd->data.color.b);
-    colorA = (cmd->data.color.a);
+    colorR = (cmd->data.color.color.r);
+    colorG = (cmd->data.color.color.g);
+    colorB = (cmd->data.color.color.b);
+    colorA = (cmd->data.color.color.a);
     data->drawColor = GS_SETREG_RGBAQ(colorR, colorG, colorB, colorA, 0x00);
     return 0;
 }
@@ -354,10 +354,10 @@ static int PS2_RenderClear(SDL_Renderer *renderer, SDL_RenderCommand *cmd)
 
     PS2_RenderData *data = (PS2_RenderData *)renderer->driverdata;
 
-    colorR = (cmd->data.color.r);
-    colorG = (cmd->data.color.g);
-    colorB = (cmd->data.color.b);
-    colorA = (cmd->data.color.a);
+    colorR = (cmd->data.color.color.r);
+    colorG = (cmd->data.color.color.g);
+    colorB = (cmd->data.color.color.b);
+    colorA = (cmd->data.color.color.a);
 
     /* Clear the screen, so let's put default viewport */
     gsKit_set_scissor(data->gsGlobal, GS_SCISSOR_RESET);

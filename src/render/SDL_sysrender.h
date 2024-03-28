@@ -114,14 +114,14 @@ typedef struct SDL_RenderCommand
         {
             size_t first;
             size_t count;
-            Uint8 r, g, b, a;
+            SDL_Color color;
             SDL_BlendMode blend;
             SDL_Texture *texture;
         } draw;
         struct
         {
             size_t first;
-            Uint8 r, g, b, a;
+            SDL_Color color;
         } color;
     } data;
     struct SDL_RenderCommand *next;

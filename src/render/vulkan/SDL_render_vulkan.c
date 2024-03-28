@@ -3150,11 +3150,7 @@ static int VULKAN_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     VertexPositionColor *verts = (VertexPositionColor *)SDL_AllocateRenderVertices(renderer, count * sizeof(VertexPositionColor), 0, &cmd->data.draw.first);
     int i;
 //    SDL_bool convert_color = SDL_RenderingLinearSpace(renderer);
-    SDL_Color color;
-    color.r = cmd->data.draw.r;
-    color.g = cmd->data.draw.g;
-    color.b = cmd->data.draw.b;
-    color.a = cmd->data.draw.a;
+    SDL_Color color = cmd->data.draw.color;
 
     if (!verts) {
         return -1;
@@ -3856,10 +3852,10 @@ static int VULKAN_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             clearColor.float32[3] = color.a;
 #else
             VkClearColorValue clearColor;
-            clearColor.float32[0] = cmd->data.color.r / 255.0f;
-            clearColor.float32[1] = cmd->data.color.g / 255.0f;
-            clearColor.float32[2] = cmd->data.color.b / 255.0f;
-            clearColor.float32[3] = cmd->data.color.a / 255.0f;
+            clearColor.float32[0] = cmd->data.color.color.r / 255.0f;
+            clearColor.float32[1] = cmd->data.color.color.g / 255.0f;
+            clearColor.float32[2] = cmd->data.color.color.b / 255.0f;
+            clearColor.float32[3] = cmd->data.color.color.a / 255.0f;
 #endif
             VULKAN_ActivateCommandBuffer(renderer, VK_ATTACHMENT_LOAD_OP_CLEAR, &clearColor, &stateCache);
             break;

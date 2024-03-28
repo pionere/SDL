@@ -78,7 +78,7 @@ typedef struct PSP_TextureData
 typedef struct
 {
     SDL_BlendMode mode;
-    unsigned int color;
+    SDL_Color color;
     int shadeModel;
     SDL_Texture *texture;
 } PSP_BlendState;
@@ -923,7 +923,7 @@ static int PSP_QueueCopyEx(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_T
 static void ResetBlendState(PSP_BlendState *state)
 {
     sceGuColor(0xffffffff);
-    state->color = 0xffffffff;
+    state->color = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
     state->mode = SDL_BLENDMODE_INVALID;
     state->texture = NULL;
     sceGuDisable(GU_TEXTURE_2D);
@@ -993,8 +993,12 @@ static void PSP_SetBlendState(PSP_RenderData *data, PSP_BlendState *state)
         }
     }
 
-    if (state->color != current->color) {
-        sceGuColor(state->color);
+    if (!(SDL_Colors_Equal(&state->color, &current->color))) {
+        const Uint8 r = state->color.r;
+        const Uint8 g = state->color.g;
+        const Uint8 b = state->color.b;
+        const Uint8 a = state->color.a;
+        sceGuColor(GU_RGBA(r, g, b, a));
     }
 
     if (state->shadeModel != current->shadeModel) {
@@ -1062,10 +1066,10 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
 
         case SDL_RENDERCMD_CLEAR:
         {
-            const Uint8 r = cmd->data.color.r;
-            const Uint8 g = cmd->data.color.g;
-            const Uint8 b = cmd->data.color.b;
-            const Uint8 a = cmd->data.color.a;
+            const Uint8 r = cmd->data.color.color.r;
+            const Uint8 g = cmd->data.color.color.g;
+            const Uint8 b = cmd->data.color.color.b;
+            const Uint8 a = cmd->data.color.color.a;
             sceGuClearColor(GU_RGBA(r, g, b, a));
             sceGuClearStencil(a);
             sceGuClear(GU_COLOR_BUFFER_BIT | GU_STENCIL_BUFFER_BIT);
@@ -1076,12 +1080,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         {
             const size_t count = cmd->data.draw.count;
             const VertV *verts = (VertV *)(gpumem + cmd->data.draw.first);
-            const Uint8 r = cmd->data.draw.r;
-            const Uint8 g = cmd->data.draw.g;
-            const Uint8 b = cmd->data.draw.b;
-            const Uint8 a = cmd->data.draw.a;
             PSP_BlendState state = {
-                .color = GU_RGBA(r, g, b, a),
+                .color = cmd->data.draw.color,
                 .texture = NULL,
                 .mode = cmd->data.draw.blend,
                 .shadeModel = GU_FLAT
@@ -1095,12 +1095,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         {
             const size_t count = cmd->data.draw.count;
             const VertV *verts = (VertV *)(gpumem + cmd->data.draw.first);
-            const Uint8 r = cmd->data.draw.r;
-            const Uint8 g = cmd->data.draw.g;
-            const Uint8 b = cmd->data.draw.b;
-            const Uint8 a = cmd->data.draw.a;
             PSP_BlendState state = {
-                .color = GU_RGBA(r, g, b, a),
+                .color = cmd->data.draw.color,
                 .texture = NULL,
                 .mode = cmd->data.draw.blend,
                 .shadeModel = GU_FLAT
@@ -1114,12 +1110,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         {
             const size_t count = cmd->data.draw.count;
             const VertV *verts = (VertV *)(gpumem + cmd->data.draw.first);
-            const Uint8 r = cmd->data.draw.r;
-            const Uint8 g = cmd->data.draw.g;
-            const Uint8 b = cmd->data.draw.b;
-            const Uint8 a = cmd->data.draw.a;
             PSP_BlendState state = {
-                .color = GU_RGBA(r, g, b, a),
+                .color = cmd->data.draw.color,
                 .texture = NULL,
                 .mode = cmd->data.draw.blend,
                 .shadeModel = GU_FLAT
@@ -1133,12 +1125,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         {
             const size_t count = cmd->data.draw.count;
             const VertTV *verts = (VertTV *)(gpumem + cmd->data.draw.first);
-            const Uint8 a = cmd->data.draw.a;
-            const Uint8 r = cmd->data.draw.r;
-            const Uint8 g = cmd->data.draw.g;
-            const Uint8 b = cmd->data.draw.b;
             PSP_BlendState state = {
-                .color = GU_RGBA(r, g, b, a),
+                .color = cmd->data.draw.color,
                 .texture = cmd->data.draw.texture,
                 .mode = cmd->data.draw.blend,
                 .shadeModel = GU_SMOOTH
@@ -1151,12 +1139,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         case SDL_RENDERCMD_COPY_EX:
         {
             const VertTV *verts = (VertTV *)(gpumem + cmd->data.draw.first);
-            const Uint8 a = cmd->data.draw.a;
-            const Uint8 r = cmd->data.draw.r;
-            const Uint8 g = cmd->data.draw.g;
-            const Uint8 b = cmd->data.draw.b;
             PSP_BlendState state = {
-                .color = GU_RGBA(r, g, b, a),
+                .color = cmd->data.draw.color,
                 .texture = cmd->data.draw.texture,
                 .mode = cmd->data.draw.blend,
                 .shadeModel = GU_SMOOTH
@@ -1177,12 +1161,8 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
                 sceGuEnable(GU_TEXTURE_2D);
             } else {
                 const VertTCV *verts = (VertTCV *)(gpumem + cmd->data.draw.first);
-                const Uint8 a = cmd->data.draw.a;
-                const Uint8 r = cmd->data.draw.r;
-                const Uint8 g = cmd->data.draw.g;
-                const Uint8 b = cmd->data.draw.b;
                 PSP_BlendState state = {
-                    .color = GU_RGBA(r, g, b, a),
+                    .color = cmd->data.draw.color,
                     .texture = NULL,
                     .mode = cmd->data.draw.blend,
                     .shadeModel = GU_FLAT

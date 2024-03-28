@@ -37,8 +37,6 @@
  */
 #define FP_BITS 1
 
-#define COLOR_EQ(c1, c2) ((c1).r == (c2).r && (c1).g == (c2).g && (c1).b == (c2).b && (c1).a == (c2).a)
-
 static void SDL_BlitTriangle_Slow(SDL_BlitInfo *info,
                                   SDL_Point s2_x_area, SDL_Rect dstrect, int area, int bias_w0, int bias_w1, int bias_w2,
                                   int d2d1_y, int d1d2_x, int d0d2_y, int d2d0_x, int d1d0_y, int d0d1_x,
@@ -242,7 +240,7 @@ int SDL_SW_FillTriangle(SDL_Surface *dst, SDL_Point *d0, SDL_Point *d1, SDL_Poin
 
     area = cross_product(d0, d1, d2->x, d2->y);
 
-    is_uniform = COLOR_EQ(c0, c1) && COLOR_EQ(c1, c2);
+    is_uniform = SDL_Colors_Equal(&c0, &c1) && SDL_Colors_Equal(&c1, &c2);
 
     /* Flat triangle */
     if (area == 0) {
@@ -516,7 +514,7 @@ int SDL_SW_BlitTriangle(
         }
     }
 
-    is_uniform = COLOR_EQ(c0, c1) && COLOR_EQ(c1, c2);
+    is_uniform = SDL_Colors_Equal(&c0, &c1) && SDL_Colors_Equal(&c1, &c2);
 
     bounding_rect_fixedpoint(d0, d1, d2, &dstrect);
 
@@ -555,7 +553,8 @@ int SDL_SW_BlitTriangle(
 
     if (is_uniform) {
         // SDL_GetSurfaceColorMod(src, &r, &g, &b);
-        has_modulation = c0.r != 255 || c0.g != 255 || c0.b != 255 || c0.a != 255;
+        const SDL_Color mask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+        has_modulation = !SDL_Colors_Equal(&c0, &mask);
     } else {
         has_modulation = SDL_TRUE;
     }

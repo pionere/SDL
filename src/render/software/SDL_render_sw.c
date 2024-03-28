@@ -589,10 +589,10 @@ static int SW_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
 
 static void PrepTextureForCopy(const SDL_RenderCommand *cmd)
 {
-    const Uint8 r = cmd->data.draw.r;
-    const Uint8 g = cmd->data.draw.g;
-    const Uint8 b = cmd->data.draw.b;
-    const Uint8 a = cmd->data.draw.a;
+    const Uint8 r = cmd->data.draw.color.r;
+    const Uint8 g = cmd->data.draw.color.g;
+    const Uint8 b = cmd->data.draw.color.b;
+    const Uint8 a = cmd->data.draw.color.a;
     const SDL_BlendMode blend = cmd->data.draw.blend;
     SDL_Texture *texture = cmd->data.draw.texture;
     SDL_Surface *surface = (SDL_Surface *)texture->driverdata;
@@ -664,22 +664,16 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
             }
 
             case SDL_RENDERCMD_CLEAR: {
-                const Uint8 r = cmd->data.color.r;
-                const Uint8 g = cmd->data.color.g;
-                const Uint8 b = cmd->data.color.b;
-                const Uint8 a = cmd->data.color.a;
+                const SDL_Color color = cmd->data.color.color;
                 /* By definition the clear ignores the clip rect */
                 SDL_SetClipRect(surface, NULL);
-                SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, r, g, b, a));
+                SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
                 drawstate.surface_cliprect_dirty = SDL_TRUE;
                 break;
             }
 
             case SDL_RENDERCMD_DRAW_POINTS: {
-                const Uint8 r = cmd->data.draw.r;
-                const Uint8 g = cmd->data.draw.g;
-                const Uint8 b = cmd->data.draw.b;
-                const Uint8 a = cmd->data.draw.a;
+                const SDL_Color color = cmd->data.draw.color;
                 const int count = (int) cmd->data.draw.count;
                 SDL_Point *verts = (SDL_Point *) (((Uint8 *) vertices) + cmd->data.draw.first);
                 const SDL_BlendMode blend = cmd->data.draw.blend;
@@ -695,18 +689,15 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_DrawPoints(surface, verts, count, SDL_MapRGBA(surface->format, r, g, b, a));
+                    SDL_DrawPoints(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
                 } else {
-                    SDL_BlendPoints(surface, verts, count, blend, r, g, b, a);
+                    SDL_BlendPoints(surface, verts, count, blend, color);
                 }
                 break;
             }
 
             case SDL_RENDERCMD_DRAW_LINES: {
-                const Uint8 r = cmd->data.draw.r;
-                const Uint8 g = cmd->data.draw.g;
-                const Uint8 b = cmd->data.draw.b;
-                const Uint8 a = cmd->data.draw.a;
+                const SDL_Color color = cmd->data.draw.color;
                 const int count = (int) cmd->data.draw.count;
                 SDL_Point *verts = (SDL_Point *) (((Uint8 *) vertices) + cmd->data.draw.first);
                 const SDL_BlendMode blend = cmd->data.draw.blend;
@@ -722,18 +713,15 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_DrawLines(surface, verts, count, SDL_MapRGBA(surface->format, r, g, b, a));
+                    SDL_DrawLines(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
                 } else {
-                    SDL_BlendLines(surface, verts, count, blend, r, g, b, a);
+                    SDL_BlendLines(surface, verts, count, blend, color);
                 }
                 break;
             }
 
             case SDL_RENDERCMD_FILL_RECTS: {
-                const Uint8 r = cmd->data.draw.r;
-                const Uint8 g = cmd->data.draw.g;
-                const Uint8 b = cmd->data.draw.b;
-                const Uint8 a = cmd->data.draw.a;
+                const SDL_Color color = cmd->data.draw.color;
                 const int count = (int) cmd->data.draw.count;
                 SDL_Rect *verts = (SDL_Rect *) (((Uint8 *) vertices) + cmd->data.draw.first);
                 const SDL_BlendMode blend = cmd->data.draw.blend;
@@ -749,9 +737,9 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_FillRects(surface, verts, count, SDL_MapRGBA(surface->format, r, g, b, a));
+                    SDL_FillRects(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
                 } else {
-                    SDL_BlendFillRects(surface, verts, count, blend, r, g, b, a);
+                    SDL_BlendFillRects(surface, verts, count, blend, color);
                 }
                 break;
             }

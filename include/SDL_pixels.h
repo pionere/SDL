@@ -348,6 +348,18 @@ typedef struct SDL_Color
     Uint8 a;
 } SDL_Color;
 #define SDL_Colour SDL_Color
+SDL_FORCE_INLINE SDL_bool SDL_Colors_Equal(const SDL_Color *a, const SDL_Color *b)
+{
+    return (*(const Uint32*)a == *(const Uint32*)b) ? SDL_TRUE : SDL_FALSE;
+}
+SDL_FORCE_INLINE SDL_Color SDL_ColorFromInt(int r, int g, int b, int a)
+{
+    SDL_Color result;
+    Uint32 value = (r << 0) | (g << 8) | (b << 16) | (a << 24);
+    value = SDL_SwapLE32(value);
+    result = *(SDL_Color *)&value;
+    return result;
+}
 
 typedef struct SDL_Palette
 {

@@ -184,10 +184,10 @@ static int PrepareDraw(SDL_Renderer * renderer, const SDL_RenderCommand *cmd)
 {
     DirectFB_RenderData *data = (DirectFB_RenderData *) renderer->driverdata;
     IDirectFBSurface *destsurf = data->target;
-    Uint8 r = cmd->data.draw.r;
-    Uint8 g = cmd->data.draw.g;
-    Uint8 b = cmd->data.draw.b;
-    Uint8 a = cmd->data.draw.a;
+    Uint8 r = cmd->data.draw.color.r;
+    Uint8 g = cmd->data.draw.color.g;
+    Uint8 b = cmd->data.draw.color.b;
+    Uint8 a = cmd->data.draw.color.a;
 
     SetBlendMode(data, cmd->data.draw.blend, NULL);
     SDL_DFB_CHECKERR(destsurf->SetDrawingFlags(destsurf, data->drawFlags));
@@ -705,10 +705,10 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
             }
 
             case SDL_RENDERCMD_CLEAR: {
-                const Uint8 r = cmd->data.color.r;
-                const Uint8 g = cmd->data.color.g;
-                const Uint8 b = cmd->data.color.b;
-                const Uint8 a = cmd->data.color.a;
+                const Uint8 r = cmd->data.color.color.r;
+                const Uint8 g = cmd->data.color.color.g;
+                const Uint8 b = cmd->data.color.color.b;
+                const Uint8 a = cmd->data.color.color.a;
                 destsurf->Clear(destsurf, r, g, b, a);
                 break;
             }
@@ -759,10 +759,10 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
 
             case SDL_RENDERCMD_COPY: {
                 SDL_Texture *texture = cmd->data.draw.texture;
-                const Uint8 r = cmd->data.draw.r;
-                const Uint8 g = cmd->data.draw.g;
-                const Uint8 b = cmd->data.draw.b;
-                const Uint8 a = cmd->data.draw.a;
+                const Uint8 r = cmd->data.draw.color.r;
+                const Uint8 g = cmd->data.draw.color.g;
+                const Uint8 b = cmd->data.draw.color.b;
+                const Uint8 a = cmd->data.draw.color.a;
                 DFBRectangle *verts = (DFBRectangle *) (((Uint8 *) vertices) + cmd->data.draw.first);
                 DirectFB_TextureData *texturedata = (DirectFB_TextureData *) texture->driverdata;
                 DFBRectangle *sr = verts++;
@@ -826,10 +826,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                 SDL_Texture *texture = cmd->data.draw.texture;
                 const size_t count = cmd->data.draw.count;
 
-                Uint8 save_r = cmd->data.draw.r;
-                Uint8 save_g = cmd->data.draw.g;
-                Uint8 save_b = cmd->data.draw.b;
-                Uint8 save_a = cmd->data.draw.a;
+                SDL_color save_color = cmd->data.draw.color;
 
                 int j;
                 for (j = 0; j < count; j += 3)
@@ -939,10 +936,10 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                         tris.x3 = x3;
                         tris.y3 = y3;
 
-                        cmd->data.draw.r = (r1 + r2 + r3) / 3;
-                        cmd->data.draw.g = (g1 + g2 + g3) / 3;
-                        cmd->data.draw.b = (b1 + b2 + b3) / 3;
-                        cmd->data.draw.a = (a1 + a2 + a3) / 3;
+                        cmd->data.draw.color.r = (r1 + r2 + r3) / 3;
+                        cmd->data.draw.color.g = (g1 + g2 + g3) / 3;
+                        cmd->data.draw.color.b = (b1 + b2 + b3) / 3;
+                        cmd->data.draw.color.a = (a1 + a2 + a3) / 3;
 
                         PrepareDraw(renderer, cmd);
 
@@ -950,10 +947,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                     }
                 }
 
-                cmd->data.draw.r = save_r;
-                cmd->data.draw.g = save_g;
-                cmd->data.draw.b = save_b;
-                cmd->data.draw.a = save_a;
+                cmd->data.draw.color = save_color;
                 break;
             }
 

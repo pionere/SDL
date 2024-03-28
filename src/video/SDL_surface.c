@@ -135,12 +135,8 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
 #if 0
         if (palette->ncolors == 2) {
             /* Create a black and white bitmap palette */
-            palette->colors[0].r = 0xFF;
-            palette->colors[0].g = 0xFF;
-            palette->colors[0].b = 0xFF;
-            palette->colors[1].r = 0x00;
-            palette->colors[1].g = 0x00;
-            palette->colors[1].b = 0x00;
+            palette->colors[0] = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0x00);
+            palette->colors[1] = SDL_ColorFromInt(0x00, 0x00, 0x00, 0x00);
         }
 #endif
         // SDL_SetSurfacePalette(surface, palette);

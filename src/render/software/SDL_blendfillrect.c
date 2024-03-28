@@ -250,7 +250,7 @@ static BlendRectFunc SDL_CalculateBlendRectFunc(const SDL_PixelFormat *fmt)
 }
 #if 0
 int SDL_BlendFillRect(SDL_Surface *dst, const SDL_Rect *rect,
-                      SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
+                      SDL_BlendMode blendMode, const SDL_Color color)
 {
     BlendRectFunc func;
     unsigned r, g, b, a;
@@ -275,10 +275,10 @@ int SDL_BlendFillRect(SDL_Surface *dst, const SDL_Rect *rect,
         rect = &dst->clip_rect;
     }
 
-    r = _r;
-    g = _g;
-    b = _b;
-    a = _a;
+    r = color.r;
+    g = color.g;
+    b = color.b;
+    a = color.a;
     if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
         r = DRAW_MUL(r, a);
         g = DRAW_MUL(g, a);
@@ -290,7 +290,7 @@ int SDL_BlendFillRect(SDL_Surface *dst, const SDL_Rect *rect,
 }
 #endif
 int SDL_BlendFillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
-                       SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
+                       SDL_BlendMode blendMode, const SDL_Color color)
 {
     BlendRectFunc func;
     unsigned r, g, b, a;
@@ -304,10 +304,10 @@ int SDL_BlendFillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
         return SDL_SetError("Unsupported surface format");
     }
 
-    r = _r;
-    g = _g;
-    b = _b;
-    a = _a;
+    r = color.r;
+    g = color.g;
+    b = color.b;
+    a = color.a;
     if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
         r = DRAW_MUL(r, a);
         g = DRAW_MUL(g, a);
