@@ -57,7 +57,7 @@ typedef struct
     SDL_Window *window;
     DFBSurfaceFlipFlags flipflags;
     int size_changed;
-    int lastBlendMode;
+    SDL_BlendMode lastBlendMode;
     DFBSurfaceBlittingFlags blitFlags;
     DFBSurfaceDrawingFlags drawFlags;
     IDirectFBSurface* target;
@@ -120,7 +120,7 @@ static int TextureHasAlpha(DirectFB_TextureData * data)
 #endif
 }
 
-static void SetBlendMode(DirectFB_RenderData * data, int blendMode, DirectFB_TextureData * source)
+static void SetBlendMode(DirectFB_RenderData * data, SDL_BlendMode blendMode, DirectFB_TextureData * source)
 {
     IDirectFBSurface *destsurf = data->target;
 
@@ -562,7 +562,7 @@ static int DirectFB_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * textu
     } else {
         data->target = DirectFB_GetFBSurface(data->window);
     }
-    data->lastBlendMode = 0;
+    data->lastBlendMode = SDL_BLENDMODE_NONE;
     return 0;
 }
 
