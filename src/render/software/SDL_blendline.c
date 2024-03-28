@@ -27,23 +27,12 @@
 #include "SDL_blendpoint.h"
 
 static void SDL_BlendLine_RGB2(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                               SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                               SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                SDL_bool draw_end)
 {
     const SDL_PixelFormat *fmt = dst->format;
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -132,22 +121,11 @@ static void SDL_BlendLine_RGB2(SDL_Surface *dst, int x1, int y1, int x2, int y2,
 }
 
 static void SDL_BlendLine_RGB555(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                                 SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                                 SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                  SDL_bool draw_end)
 {
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -236,22 +214,11 @@ static void SDL_BlendLine_RGB555(SDL_Surface *dst, int x1, int y1, int x2, int y
 }
 
 static void SDL_BlendLine_RGB565(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                                 SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                                 SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                  SDL_bool draw_end)
 {
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -340,23 +307,12 @@ static void SDL_BlendLine_RGB565(SDL_Surface *dst, int x1, int y1, int x2, int y
 }
 
 static void SDL_BlendLine_RGB4(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                               SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                               SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                SDL_bool draw_end)
 {
     const SDL_PixelFormat *fmt = dst->format;
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -445,23 +401,12 @@ static void SDL_BlendLine_RGB4(SDL_Surface *dst, int x1, int y1, int x2, int y2,
 }
 
 static void SDL_BlendLine_RGBA4(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                                SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                                SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                 SDL_bool draw_end)
 {
     const SDL_PixelFormat *fmt = dst->format;
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -550,22 +495,11 @@ static void SDL_BlendLine_RGBA4(SDL_Surface *dst, int x1, int y1, int x2, int y2
 }
 
 static void SDL_BlendLine_RGB888(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                                 SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                                 SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                  SDL_bool draw_end)
 {
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -654,22 +588,11 @@ static void SDL_BlendLine_RGB888(SDL_Surface *dst, int x1, int y1, int x2, int y
 }
 
 static void SDL_BlendLine_ARGB8888(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                                   SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a,
+                                   SDL_BlendMode blendMode, unsigned r, unsigned g, unsigned b, unsigned a,
                                    SDL_bool draw_end)
 {
-    unsigned r, g, b, a, inva;
+    unsigned inva;
 
-    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
-        r = DRAW_MUL(_r, _a);
-        g = DRAW_MUL(_g, _a);
-        b = DRAW_MUL(_b, _a);
-        a = _a;
-    } else {
-        r = _r;
-        g = _g;
-        b = _b;
-        a = _a;
-    }
     inva = (a ^ 0xff);
 
     if (y1 == y2) {
@@ -760,7 +683,7 @@ static void SDL_BlendLine_ARGB8888(SDL_Surface *dst, int x1, int y1, int x2, int
 typedef void (*BlendLineFunc)(SDL_Surface *dst,
                               int x1, int y1, int x2, int y2,
                               SDL_BlendMode blendMode,
-                              Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                              unsigned r, unsigned g, unsigned b, unsigned a,
                               SDL_bool draw_end);
 
 static BlendLineFunc SDL_CalculateBlendLineFunc(const SDL_PixelFormat *fmt)
@@ -794,9 +717,10 @@ static BlendLineFunc SDL_CalculateBlendLineFunc(const SDL_PixelFormat *fmt)
 }
 #if 0
 int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
-                  SDL_BlendMode blendMode, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+                  SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
 {
     BlendLineFunc func;
+    unsigned r, g, b, a;
 
     if (!dst) {
         return SDL_InvalidParamError("SDL_BlendLine(): dst");
@@ -804,7 +728,7 @@ int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
 
     func = SDL_CalculateBlendLineFunc(dst->format);
     if (!func) {
-        return SDL_SetError("SDL_BlendLine(): Unsupported surface format");
+        return SDL_SetError("Unsupported surface format");
     }
 
     /* Perform clipping */
@@ -813,25 +737,46 @@ int SDL_BlendLine(SDL_Surface *dst, int x1, int y1, int x2, int y2,
         return 0;
     }
 
+    r = _r;
+    g = _g;
+    b = _b;
+    a = _a;
+    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
+        r = DRAW_MUL(r, a);
+        g = DRAW_MUL(g, a);
+        b = DRAW_MUL(b, a);
+    }
+
     func(dst, x1, y1, x2, y2, blendMode, r, g, b, a, SDL_TRUE);
     return 0;
 }
 #endif
 int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
-                   SDL_BlendMode blendMode, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+                   SDL_BlendMode blendMode, Uint8 _r, Uint8 _g, Uint8 _b, Uint8 _a)
 {
     int i;
     int x1, y1;
     int x2, y2;
     SDL_bool draw_end;
     BlendLineFunc func;
+    unsigned r, g, b, a;
 
     SDL_assert(dst != NULL);
     SDL_assert(count > 0);
 
     func = SDL_CalculateBlendLineFunc(dst->format);
     if (!func) {
-        return SDL_SetError("SDL_BlendLines(): Unsupported surface format");
+        return SDL_SetError("Unsupported surface format");
+    }
+
+    r = _r;
+    g = _g;
+    b = _b;
+    a = _a;
+    if (blendMode == SDL_BLENDMODE_BLEND || blendMode == SDL_BLENDMODE_ADD) {
+        r = DRAW_MUL(r, a);
+        g = DRAW_MUL(g, a);
+        b = DRAW_MUL(b, a);
     }
 
     for (i = 1; i < count; ++i) {
@@ -853,7 +798,7 @@ int SDL_BlendLines(SDL_Surface *dst, const SDL_Point *points, int count,
     }
     if (points[0].x != points[count - 1].x || points[0].y != points[count - 1].y) {
         SDL_BlendPoint(dst, points[count - 1].x, points[count - 1].y,
-                       blendMode, r, g, b, a);
+                       blendMode, _r, _g, _b, _a);
     }
     return 0;
 }
