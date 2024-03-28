@@ -1731,6 +1731,8 @@ void *SDL_GetTextureUserData(SDL_Texture *texture)
     return texture->userdata;
 }
 
+static int SDL_PrivateLockTexture(SDL_Texture *texture, const SDL_Rect *rect, void **pixels, int *pitch);
+
 #if SDL_HAVE_YUV
 static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
                                 const void *pixels, int pitch)
@@ -1755,7 +1757,7 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        retval = SDL_PrivateLockTexture(native, rect, &native_pixels, &native_pitch);
         if (retval < 0) {
             return retval;
         }
@@ -1795,7 +1797,7 @@ static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
         void *native_pixels = NULL;
         int retval, native_pitch = 0;
 
-        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        retval = SDL_PrivateLockTexture(native, rect, &native_pixels, &native_pitch);
         if (retval < 0) {
             return retval;
         }
@@ -1894,7 +1896,7 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        retval = SDL_PrivateLockTexture(native, rect, &native_pixels, &native_pitch);
         if (retval < 0) {
             return retval;
         }
@@ -1947,7 +1949,7 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
         void *native_pixels = NULL;
         int native_pitch = 0;
 
-        retval = SDL_LockTexture(native, rect, &native_pixels, &native_pitch);
+        retval = SDL_PrivateLockTexture(native, rect, &native_pixels, &native_pitch);
         if (retval < 0) {
             return retval;
         }
@@ -2128,8 +2130,6 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
                     void **pixels, int *pitch)
 {
     SDL_Rect full_rect;
-    SDL_Renderer *renderer;
-    int retval;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2144,6 +2144,14 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         full_rect.h = texture->h;
         rect = &full_rect;
     }
+
+    return SDL_PrivateLockTexture(texture, rect, pixels, pitch);
+}
+
+static int SDL_PrivateLockTexture(SDL_Texture *texture, const SDL_Rect *rect, void **pixels, int *pitch)
+{
+    SDL_Renderer *renderer;
+    int retval;
 
     renderer = texture->renderer;
 #if SDL_HAVE_YUV
@@ -2191,7 +2199,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
         return 0; /* nothing to do. */
     }
 
-    retval = SDL_LockTexture(texture, &real_rect, &pixels, &pitch);
+    retval = SDL_PrivateLockTexture(texture, &real_rect, &pixels, &pitch);
     if (retval < 0) {
         return retval;
     }
@@ -2219,7 +2227,7 @@ static void SDL_UnlockTextureYUV(SDL_Texture *texture)
     rect.w = texture->w;
     rect.h = texture->h;
 
-    if (SDL_LockTexture(native, &rect, &native_pixels, &native_pitch) < 0) {
+    if (SDL_PrivateLockTexture(native, &rect, &native_pixels, &native_pitch) < 0) {
         return;
     }
     SDL_SW_CopyYUVToRGB(texture->yuv, &rect, native->format,
@@ -2239,7 +2247,7 @@ static void SDL_UnlockTextureNative(SDL_Texture *texture)
                                   rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     int pitch = texture->pitch;
 
-    if (SDL_LockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
+    if (SDL_PrivateLockTexture(native, rect, &native_pixels, &native_pitch) < 0) {
         return;
     }
     SDL_ConvertPixels(rect->w, rect->h,
