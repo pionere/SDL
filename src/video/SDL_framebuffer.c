@@ -44,10 +44,9 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
 {
     const SDL_RendererInfo *info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
-    int i, w, h;
+    int i, w, h, buffer_pitch;
+    void *buffer_pixels;
     Uint32 texture_format;
-
-    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     if (!data) {
         SDL_Renderer *renderer = NULL;
@@ -129,6 +128,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
     }
 
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     data->texture = SDL_CreateTexture(data->renderer, texture_format,
                                       SDL_TEXTUREACCESS_STREAMING,
                                       w, h);
@@ -140,20 +140,19 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     /* Create framebuffer data */
     SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(texture_format));
     data->bytes_per_pixel = SDL_PIXELBPP(texture_format);
-    data->pitch = (((w * data->bytes_per_pixel) + 3) & ~3);
+    buffer_pitch = (((w * data->bytes_per_pixel) + 3) & ~3);
 
-    {
-        /* Make static analysis happy about potential SDL_malloc(0) calls. */
-        const size_t allocsize = (size_t)h * data->pitch;
-        data->pixels = SDL_malloc((allocsize > 0) ? allocsize : 1);
-        if (!data->pixels) {
-            return SDL_OutOfMemory();
-        }
+    buffer_pixels = SDL_calloc(h, buffer_pitch);
+    if (!buffer_pixels) {
+        return SDL_OutOfMemory();
     }
 
+    data->pixels = buffer_pixels;
+    data->pitch = buffer_pitch;
+
     *format = texture_format;
-    *pixels = data->pixels;
-    *pitch = data->pitch;
+    *pixels = buffer_pixels;
+    *pitch = buffer_pitch;
 
     /* Make sure we're not double-scaling the viewport */
     SDL_RenderSetViewport(data->renderer, NULL);
