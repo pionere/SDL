@@ -55,10 +55,10 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
     Uint8 *dst = info->dst;
     int dstskip = info->dst_skip;
     const int flags = info->flags;
-    const Uint32 modulateR = info->r;
-    const Uint32 modulateG = info->g;
-    const Uint32 modulateB = info->b;
-    const Uint32 modulateA = info->a;
+    const Uint32 modulateR = info->color.r;
+    const Uint32 modulateG = info->color.g;
+    const Uint32 modulateB = info->color.b;
+    const Uint32 modulateA = info->color.a;
     Uint32 srcpixel;
     Uint32 srcR, srcG, srcB, srcA;
     Uint32 dstpixel;

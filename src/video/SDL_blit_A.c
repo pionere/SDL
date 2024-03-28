@@ -43,7 +43,7 @@ static void BlitNto1SurfaceAlpha(const SDL_BlitInfo *info)
     Uint32 Pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */
@@ -135,7 +135,7 @@ static void BlitNto1SurfaceAlphaKey(const SDL_BlitInfo *info)
     Uint32 Pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */
@@ -228,7 +228,7 @@ static void BlitRGBtoRGBSurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
     SDL_PixelFormat *df = info->dst_fmt;
     Uint32 chanmask;
-    unsigned alpha = info->a;
+    unsigned alpha = info->color.a;
 
     if (alpha == 128 && (df->Rmask | df->Gmask | df->Bmask) == 0x00FFFFFF) {
         /* only call a128 version when R,G,B occupy lower bits */
@@ -499,7 +499,7 @@ static void BlitRGBtoRGBSurfaceAlpha128(const SDL_BlitInfo *info)
 /* fast RGB888->(A)RGB888 blending with surface alpha */
 static void BlitRGBtoRGBSurfaceAlpha(const SDL_BlitInfo *info)
 {
-    unsigned alpha = info->a;
+    unsigned alpha = info->color.a;
     if (alpha == 128) {
         BlitRGBtoRGBSurfaceAlpha128(info);
     } else {
@@ -856,7 +856,7 @@ static void Blit16to16SurfaceAlpha128(const SDL_BlitInfo *info, Uint16 mask)
 /* fast RGB565->RGB565 blending with surface alpha */
 static void Blit565to565SurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
-    unsigned alpha = info->a;
+    unsigned alpha = info->color.a;
     if (alpha == 128) {
         Blit16to16SurfaceAlpha128(info, 0xf7de);
     } else {
@@ -994,7 +994,7 @@ static void Blit565to565SurfaceAlphaMMX(const SDL_BlitInfo *info)
 /* fast RGB555->RGB555 blending with surface alpha */
 static void Blit555to555SurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
-    unsigned alpha = info->a;
+    unsigned alpha = info->color.a;
     if (alpha == 128) {
         Blit16to16SurfaceAlpha128(info, 0xfbde);
     } else {
@@ -1134,7 +1134,7 @@ static void Blit555to555SurfaceAlphaMMX(const SDL_BlitInfo *info)
 /* fast RGB565->RGB565 blending with surface alpha */
 static void Blit565to565SurfaceAlpha(const SDL_BlitInfo *info)
 {
-    unsigned alpha = info->a;
+    unsigned alpha = info->color.a;
     if (alpha == 128) {
         Blit16to16SurfaceAlpha128(info, 0xf7de);
     } else {
@@ -1172,7 +1172,7 @@ static void Blit565to565SurfaceAlpha(const SDL_BlitInfo *info)
 /* fast RGB555->RGB555 blending with surface alpha */
 static void Blit555to555SurfaceAlpha(const SDL_BlitInfo *info)
 {
-    unsigned alpha = info->a; /* downscale alpha to 5 bits */
+    unsigned alpha = info->color.a; /* downscale alpha to 5 bits */
     if (alpha == 128) {
         Blit16to16SurfaceAlpha128(info, 0xfbde);
     } else {
@@ -1314,7 +1314,7 @@ static void BlitNtoNSurfaceAlpha(const SDL_BlitInfo *info)
     Uint32 Pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned sA = info->a;
+    const unsigned sA = info->color.a;
 
     if (sA) {
         while (height--) {
@@ -1353,7 +1353,7 @@ static void BlitNtoNSurfaceAlphaKey(const SDL_BlitInfo *info)
     Uint32 Pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned sA = info->a;
+    const unsigned sA = info->color.a;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */

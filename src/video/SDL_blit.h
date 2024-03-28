@@ -74,7 +74,7 @@ typedef struct
     Uint8 *table;
     int flags;
     Uint32 colorkey;
-    Uint8 r, g, b, a;
+    SDL_Color color;
 } SDL_BlitInfo;
 
 typedef void (*SDL_BlitFunc)(const SDL_BlitInfo *info);

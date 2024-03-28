@@ -439,7 +439,7 @@ static void Blit1toNAlpha(const SDL_BlitInfo *info)
     Uint32 pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
 
     /* Set up some basic variables */
     dstbpp = dstfmt->BytesPerPixel;
@@ -479,7 +479,7 @@ static void Blit1toNAlphaKey(const SDL_BlitInfo *info)
     Uint32 pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
 
     /* Set up some basic variables */
     dstbpp = dstfmt->BytesPerPixel;
@@ -533,7 +533,7 @@ SDL_BlitFunc SDL_CalculateBlit1(const SDL_BlitInfo *info)
         break;
 #if SDL_HAVE_BLIT_TRANSFORM
     case SDL_COPY_COLORKEY | SDL_COPY_BLEND:  /* this is not super-robust but handles a specific case we found sdl12-compat. */
-        result = (info->a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
+        result = (info->color.a == 255) ? one_color_blit[dst_Bpp - 1] : (SDL_BlitFunc)NULL;
         break;
     case SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND:
         /* Supporting 8bpp->8bpp alpha is doable but requires lots of

@@ -559,13 +559,13 @@ __EOF__
     }
     if ( $modulate ) {
         print FILE <<__EOF__;
-    const Uint32 modulateR = info->r;
-    const Uint32 modulateG = info->g;
-    const Uint32 modulateB = info->b;
+    const Uint32 modulateR = info->color.r;
+    const Uint32 modulateG = info->color.g;
+    const Uint32 modulateB = info->color.b;
 __EOF__
         if (!$ignore_dst_alpha) {
             print FILE <<__EOF__;
-    const Uint32 modulateA = info->a;
+    const Uint32 modulateA = info->color.a;
 __EOF__
         }
     }

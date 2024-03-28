@@ -510,7 +510,7 @@ static int SDLCALL SDL_RLEBlit(SDL_Surface *surf_src, SDL_Rect *srcrect,
         }
     }
 
-    alpha = surf_src->map->info.a;
+    alpha = surf_src->map->info.color.a;
     /* if left or right edge clipping needed, call clip blit */
     if (srcrect->x || srcrect->w != surf_src->w) {
         RLEClipBlit(w, srcbuf, surf_dst, dstbuf, srcrect, alpha);

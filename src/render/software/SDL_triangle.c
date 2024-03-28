@@ -665,15 +665,9 @@ int SDL_SW_BlitTriangle(
         tmp_info.dst_fmt = dst->format;
         tmp_info.flags = info->flags;
         /*
-        tmp_info.r = info->r;
-        tmp_info.g = info->g;
-        tmp_info.b = info->b;
-        tmp_info.a = info->a;
+        tmp_info.color = info->color;
         */
-        tmp_info.r = c0.r;
-        tmp_info.g = c0.g;
-        tmp_info.b = c0.b;
-        tmp_info.a = c0.a;
+        tmp_info.color = c0;
 
         tmp_info.flags &= ~(SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA);
 
@@ -784,10 +778,10 @@ static void SDL_BlitTriangle_Slow(SDL_BlitInfo *info,
                                   SDL_Color c0, SDL_Color c1, SDL_Color c2, int is_uniform)
 {
     const int flags = info->flags;
-    Uint32 modulateR = info->r;
-    Uint32 modulateG = info->g;
-    Uint32 modulateB = info->b;
-    Uint32 modulateA = info->a;
+    Uint32 modulateR = info->color.r;
+    Uint32 modulateG = info->color.g;
+    Uint32 modulateB = info->color.b;
+    Uint32 modulateA = info->color.a;
     Uint32 srcpixel;
     Uint32 srcR, srcG, srcB, srcA;
     Uint32 dstpixel;

@@ -359,8 +359,8 @@ static void Blit_RGB565_32Altivec(const SDL_BlitInfo *info)
     vf800 = (vector unsigned short)vec_splat_u8(-7);
     vf800 = vec_sl(vf800, vec_splat_u16(8));
 
-    if (dstfmt->Amask && info->a) {
-        ((unsigned char *)&valpha)[0] = alpha = info->a;
+    if (dstfmt->Amask && info->color.a) {
+        ((unsigned char *)&valpha)[0] = alpha = info->color.a;
         valpha = vec_splat(valpha, 0);
     } else {
         alpha = 0;
@@ -497,8 +497,8 @@ static void Blit_RGB555_32Altivec(const SDL_BlitInfo *info)
     vf800 = (vector unsigned short)vec_splat_u8(-7);
     vf800 = vec_sl(vf800, vec_splat_u16(8));
 
-    if (dstfmt->Amask && info->a) {
-        ((unsigned char *)&valpha)[0] = alpha = info->a;
+    if (dstfmt->Amask && info->color.a) {
+        ((unsigned char *)&valpha)[0] = alpha = info->color.a;
         valpha = vec_splat(valpha, 0);
     } else {
         alpha = 0;
@@ -593,7 +593,7 @@ static void Blit32to32KeyAltivec(const SDL_BlitInfo *info)
     SDL_PixelFormat *dstfmt = info->dst_fmt;
     int dstbpp = dstfmt->BytesPerPixel;
     int copy_alpha = (srcfmt->Amask && dstfmt->Amask);
-    unsigned alpha = dstfmt->Amask ? info->a : 0;
+    unsigned alpha = dstfmt->Amask ? info->color.a : 0;
     Uint32 rgbmask = srcfmt->Rmask | srcfmt->Gmask | srcfmt->Bmask;
     Uint32 ckey = info->colorkey;
     vector unsigned int valpha;
@@ -715,9 +715,9 @@ static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
     vector unsigned int vzero = vec_splat_u32(0);
     vector unsigned char vpermute = calc_swizzle32(srcfmt, dstfmt);
     if (dstfmt->Amask && !srcfmt->Amask) {
-        if (info->a) {
+        if (info->color.a) {
             vector unsigned char valpha;
-            ((unsigned char *)&valpha)[0] = info->a;
+            ((unsigned char *)&valpha)[0] = info->color.a;
             vzero = (vector unsigned int)vec_splat(valpha, 0);
         }
     }
@@ -745,7 +745,7 @@ static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
             bits = *(src++);
             RGBA_FROM_8888(bits, srcfmt, r, g, b, a);
             if (!srcfmt->Amask)
-                a = info->a;
+                a = info->color.a;
             *(dst++) = MAKE8888(dstfmt, r, g, b, a);
             width--;
         }
@@ -774,7 +774,7 @@ static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
             bits = *(src++); /* max 7 pixels, don't bother with prefetch. */
             RGBA_FROM_8888(bits, srcfmt, r, g, b, a);
             if (!srcfmt->Amask)
-                a = info->a;
+                a = info->color.a;
             *(dst++) = MAKE8888(dstfmt, r, g, b, a);
             extrawidth--;
         }
@@ -801,9 +801,9 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
     vector unsigned int vzero = vec_splat_u32(0);
     vector unsigned char vpermute = calc_swizzle32(srcfmt, dstfmt);
     if (dstfmt->Amask && !srcfmt->Amask) {
-        if (info->a) {
+        if (info->color.a) {
             vector unsigned char valpha;
-            ((unsigned char *)&valpha)[0] = info->a;
+            ((unsigned char *)&valpha)[0] = info->color.a;
             vzero = (vector unsigned int)vec_splat(valpha, 0);
         }
     }
@@ -835,7 +835,7 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
             bits = *(src++);
             RGBA_FROM_8888(bits, srcfmt, r, g, b, a);
             if (!srcfmt->Amask)
-                a = info->a;
+                a = info->color.a;
             *(dst++) = MAKE8888(dstfmt, r, g, b, a);
             width--;
         }
@@ -868,7 +868,7 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
             bits = *(src++); /* max 7 pixels, don't bother with prefetch. */
             RGBA_FROM_8888(bits, srcfmt, r, g, b, a);
             if (!srcfmt->Amask)
-                a = info->a;
+                a = info->color.a;
             *(dst++) = MAKE8888(dstfmt, r, g, b, a);
             extrawidth--;
         }
@@ -2088,7 +2088,7 @@ static void Blit_RGB555_ARGB1555(const SDL_BlitInfo *info)
     int dstskip = info->dst_skip;
     SDL_PixelFormat *dstfmt = info->dst_fmt;
 
-    Uint16 mask = ((Uint32)info->a >> dstfmt->Aloss) << dstfmt->Ashift;
+    Uint16 mask = ((Uint32)info->color.a >> dstfmt->Aloss) << dstfmt->Ashift;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */
@@ -2212,7 +2212,7 @@ static void Blit4to4MaskAlpha(const SDL_BlitInfo *info)
 
     if (dstfmt->Amask) {
         /* RGB->RGBA, SET_ALPHA */
-        Uint32 mask = ((Uint32)info->a >> dstfmt->Aloss) << dstfmt->Ashift;
+        Uint32 mask = ((Uint32)info->color.a >> dstfmt->Aloss) << dstfmt->Ashift;
 
         while (height--) {
             /* *INDENT-OFF* */ /* clang-format off */
@@ -2346,7 +2346,7 @@ static void BlitNtoN(const SDL_BlitInfo *info)
     int srcbpp = srcfmt->BytesPerPixel;
     SDL_PixelFormat *dstfmt = info->dst_fmt;
     int dstbpp = dstfmt->BytesPerPixel;
-    unsigned alpha = dstfmt->Amask ? info->a : 0;
+    unsigned alpha = dstfmt->Amask ? info->color.a : 0;
 
 #if HAVE_FAST_WRITE_INT8
     /* Blit with permutation: 4->4 */
@@ -2620,7 +2620,7 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
     SDL_PixelFormat *dstfmt = info->dst_fmt;
     int srcbpp = srcfmt->BytesPerPixel;
     int dstbpp = dstfmt->BytesPerPixel;
-    unsigned alpha = dstfmt->Amask ? info->a : 0;
+    unsigned alpha = dstfmt->Amask ? info->color.a : 0;
     const Uint32 rgbmask = ~srcfmt->Amask;
     const Uint32 sfmt = srcfmt->format;
     const Uint32 dfmt = dstfmt->format;
@@ -2635,7 +2635,7 @@ static void BlitNtoNKey(const SDL_BlitInfo *info)
 
         if (dstfmt->Amask) {
             /* RGB->RGBA, SET_ALPHA */
-            Uint32 mask = ((Uint32)info->a) << dstfmt->Ashift;
+            Uint32 mask = ((Uint32)info->color.a) << dstfmt->Ashift;
             while (height--) {
                 /* *INDENT-OFF* */ /* clang-format off */
                 DUFFS_LOOP(
@@ -3051,7 +3051,7 @@ static void Blit_3or4_to_3or4__same_rgb(const SDL_BlitInfo *info)
 
     if (dstfmt->Amask) {
         /* SET_ALPHA */
-        Uint32 mask = ((Uint32)info->a) << dstfmt->Ashift;
+        Uint32 mask = ((Uint32)info->color.a) << dstfmt->Ashift;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         int i0 = 0, i1 = 1, i2 = 2;
 #else
@@ -3151,7 +3151,7 @@ static void Blit_3or4_to_3or4__inversed_rgb(const SDL_BlitInfo *info)
             }
         } else {
             /* SET_ALPHA */
-            Uint32 mask = ((Uint32)info->a) << dstfmt->Ashift;
+            Uint32 mask = ((Uint32)info->color.a) << dstfmt->Ashift;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
             int i0 = 0, i1 = 1, i2 = 2;
 #else

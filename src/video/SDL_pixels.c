@@ -960,10 +960,10 @@ static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, cons
     int i;
     int bpp, mbp;
     const SDL_Palette *pal = src->palette;
-    const Uint8 Rmod = info->r;
-    const Uint8 Gmod = info->g;
-    const Uint8 Bmod = info->b;
-    const Uint8 Amod = info->a;
+    const Uint8 Rmod = info->color.r;
+    const Uint8 Gmod = info->color.g;
+    const Uint8 Bmod = info->color.b;
+    const Uint8 Amod = info->color.a;
 
     bpp = dst->BytesPerPixel;
     mbp = (bpp == 3) ? 4 : bpp;
@@ -1007,10 +1007,7 @@ SDL_BlitMap *SDL_AllocBlitMap(void)
         SDL_OutOfMemory();
         return NULL;
     }
-    map->info.r = 0xFF;
-    map->info.g = 0xFF;
-    map->info.b = 0xFF;
-    map->info.a = 0xFF;
+    map->info.color = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
 
     /* It's ready to go */
     return map;

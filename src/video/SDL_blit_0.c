@@ -623,7 +623,7 @@ SDL_FORCE_INLINE void BlitBtoNAlpha(const SDL_BlitInfo *info, const Uint32 srcbp
     Uint32 pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
 
     /* Set up some basic variables */
     dstbpp = dstfmt->BytesPerPixel;
@@ -700,7 +700,7 @@ SDL_FORCE_INLINE void BlitBtoNAlphaKey(const SDL_BlitInfo *info, const Uint32 sr
     Uint32 pixel;
     unsigned sR, sG, sB;
     unsigned dR, dG, dB, dA;
-    const unsigned A = info->a;
+    const unsigned A = info->color.a;
     Uint32 ckey = info->colorkey;
 
     /* Set up some basic variables */

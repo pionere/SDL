@@ -476,9 +476,9 @@ int SDL_SetSurfaceColorMod(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
         return SDL_InvalidParamError("surface");
     }
 
-    surface->map->info.r = r;
-    surface->map->info.g = g;
-    surface->map->info.b = b;
+    surface->map->info.color.r = r;
+    surface->map->info.color.g = g;
+    surface->map->info.color.b = b;
 
     flags = surface->map->info.flags;
     if (r != 0xFF || g != 0xFF || b != 0xFF) {
@@ -499,13 +499,13 @@ int SDL_GetSurfaceColorMod(SDL_Surface *surface, Uint8 *r, Uint8 *g, Uint8 *b)
     }
 
     if (r) {
-        *r = surface->map->info.r;
+        *r = surface->map->info.color.r;
     }
     if (g) {
-        *g = surface->map->info.g;
+        *g = surface->map->info.color.g;
     }
     if (b) {
-        *b = surface->map->info.b;
+        *b = surface->map->info.color.b;
     }
     return 0;
 }
@@ -518,7 +518,7 @@ int SDL_SetSurfaceAlphaMod(SDL_Surface *surface, Uint8 alpha)
         return SDL_InvalidParamError("surface");
     }
 
-    surface->map->info.a = alpha;
+    surface->map->info.color.a = alpha;
 
     flags = surface->map->info.flags;
     if (alpha != 0xFF) {
@@ -539,7 +539,7 @@ int SDL_GetSurfaceAlphaMod(SDL_Surface *surface, Uint8 *alpha)
     }
 
     if (alpha) {
-        *alpha = surface->map->info.a;
+        *alpha = surface->map->info.color.a;
     }
     return 0;
 }
@@ -1163,14 +1163,8 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
 
     /* Save the original copy flags */
     copy_flags = surface->map->info.flags;
-    copy_color.r = surface->map->info.r;
-    copy_color.g = surface->map->info.g;
-    copy_color.b = surface->map->info.b;
-    copy_color.a = surface->map->info.a;
-    surface->map->info.r = 0xFF;
-    surface->map->info.g = 0xFF;
-    surface->map->info.b = 0xFF;
-    surface->map->info.a = 0xFF;
+    copy_color = surface->map->info.color;
+    surface->map->info.color = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
     surface->map->info.flags = (copy_flags & (SDL_COPY_RLE_COLORKEY | SDL_COPY_RLE_ALPHAKEY));
     SDL_InvalidateMap(surface->map);
 
@@ -1241,18 +1235,12 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
     }
 
     /* Clean up the original surface, and update converted surface */
-    convert->map->info.r = copy_color.r;
-    convert->map->info.g = copy_color.g;
-    convert->map->info.b = copy_color.b;
-    convert->map->info.a = copy_color.a;
+    convert->map->info.color = copy_color;
     convert->map->info.flags =
         (copy_flags &
          ~(SDL_COPY_COLORKEY | SDL_COPY_BLEND | SDL_COPY_RLE_DESIRED | SDL_COPY_RLE_COLORKEY |
            SDL_COPY_RLE_ALPHAKEY));
-    surface->map->info.r = copy_color.r;
-    surface->map->info.g = copy_color.g;
-    surface->map->info.b = copy_color.b;
-    surface->map->info.a = copy_color.a;
+    surface->map->info.color = copy_color;
     surface->map->info.flags = copy_flags;
     SDL_InvalidateMap(surface->map);
 
@@ -1384,10 +1372,7 @@ static SDL_INLINE SDL_bool SDL_CreateSurfaceOnStack(int width, int height, Uint3
 
     /* Allocate an empty mapping */
     SDL_zerop(blitmap);
-    blitmap->info.r = 0xFF;
-    blitmap->info.g = 0xFF;
-    blitmap->info.b = 0xFF;
-    blitmap->info.a = 0xFF;
+    blitmap->info.color = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
     surface->map = blitmap;
 
     /* The surface is ready to go */
