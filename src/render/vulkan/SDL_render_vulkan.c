@@ -356,6 +356,7 @@ typedef struct
     VkImageLayout *swapchainImageLayouts;
     VkSemaphore *imageAvailableSemaphores;
     VkSemaphore *renderingFinishedSemaphores;
+    VkSemaphore currentImageAvailableSemaphore;
     uint32_t currentSwapchainImageIndex;
 
     VkPipelineStageFlags *waitDestStageMasks;
@@ -885,14 +886,20 @@ static void VULKAN_AcquireNextSwapchainImage(SDL_Renderer *renderer)
     VULKAN_RenderData *rendererData = ( VULKAN_RenderData * )renderer->driverdata;
     VkResult result;
 
+    rendererData->currentImageAvailableSemaphore = VK_NULL_HANDLE;
     result = vkAcquireNextImageKHR(rendererData->device, rendererData->swapchain, UINT64_MAX,
         rendererData->imageAvailableSemaphores[rendererData->currentCommandBufferIndex], VK_NULL_HANDLE, &rendererData->currentSwapchainImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_ERROR_SURFACE_LOST_KHR) {
         VULKAN_CreateWindowSizeDependentResources(renderer);
-    } else if (result == VK_SUBOPTIMAL_KHR) {
-        /* Suboptimal, but we can contiue */
-    } else if (result != VK_SUCCESS) {
-        SDL_Vulkan_SetError("VULKAN_AcquireNextSwapchainImage failed", "vkAcquireNextImageKHR", result);
+    } else {
+        if (result != VK_SUCCESS) {
+            if (result != VK_SUBOPTIMAL_KHR) {
+                SDL_Vulkan_SetError("VULKAN_AcquireNextSwapchainImage failed", "vkAcquireNextImageKHR", result);
+                return;
+            }
+            /* Suboptimal, but we can contiue */
+        }
+        rendererData->currentImageAvailableSemaphore = rendererData->imageAvailableSemaphores[rendererData->currentCommandBufferIndex];
     }
 }
 
@@ -1037,6 +1044,7 @@ static VkResult VULKAN_IssueBatch(VULKAN_RenderData *rendererData)
 {
     VkResult result;
     VkSubmitInfo submitInfo;
+    VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
     if (rendererData->currentCommandBuffer == VK_NULL_HANDLE) {
         return VK_SUCCESS;
@@ -1057,12 +1065,23 @@ static VkResult VULKAN_IssueBatch(VULKAN_RenderData *rendererData)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &rendererData->currentCommandBuffer;
     if (rendererData->waitRenderSemaphoreCount > 0) {
-        submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount;
+        Uint32 additionalSemaphoreCount = (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) ? 1 : 0;
+        submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount + additionalSemaphoreCount;
+        if (additionalSemaphoreCount > 0) {
+            rendererData->waitRenderSemaphores[rendererData->waitRenderSemaphoreCount] = rendererData->currentImageAvailableSemaphore;
+            rendererData->waitDestStageMasks[rendererData->waitRenderSemaphoreCount] = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        }
         submitInfo.pWaitSemaphores = rendererData->waitRenderSemaphores;
         submitInfo.pWaitDstStageMask = rendererData->waitDestStageMasks;
         rendererData->waitRenderSemaphoreCount = 0;
+    } else if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = &rendererData->currentImageAvailableSemaphore;
+        submitInfo.pWaitDstStageMask = &waitDestStageMask;
     }
+
     result = vkQueueSubmit(rendererData->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    rendererData->currentImageAvailableSemaphore = VK_NULL_HANDLE;
 
     VULKAN_WaitForGPU(rendererData);
 
@@ -4088,7 +4107,7 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
     VkResult result = VK_SUCCESS;
     if (rendererData->currentCommandBuffer) {
-        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        VkPipelineStageFlags waitDestStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
         VkSubmitInfo submitInfo;
         VkPresentInfoKHR presentInfo;
 
@@ -4114,15 +4133,18 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
         SDL_zero(submitInfo);
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         if (rendererData->waitRenderSemaphoreCount > 0) {
-            submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount + 1;
-            rendererData->waitRenderSemaphores[rendererData->waitRenderSemaphoreCount] = rendererData->imageAvailableSemaphores[rendererData->currentCommandBufferIndex];
-            rendererData->waitDestStageMasks[rendererData->waitRenderSemaphoreCount] = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            Uint32 additionalSemaphoreCount = (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) ? 1 : 0;
+            submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount + additionalSemaphoreCount;
+            if (additionalSemaphoreCount > 0) {
+                rendererData->waitRenderSemaphores[rendererData->waitRenderSemaphoreCount] = rendererData->currentImageAvailableSemaphore;
+                rendererData->waitDestStageMasks[rendererData->waitRenderSemaphoreCount] = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+            }
             submitInfo.pWaitSemaphores = rendererData->waitRenderSemaphores;
             submitInfo.pWaitDstStageMask = rendererData->waitDestStageMasks;
             rendererData->waitRenderSemaphoreCount = 0;
-        } else {
+        } else if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
             submitInfo.waitSemaphoreCount = 1;
-            submitInfo.pWaitSemaphores = &rendererData->imageAvailableSemaphores[rendererData->currentCommandBufferIndex];
+            submitInfo.pWaitSemaphores = &rendererData->currentImageAvailableSemaphore;
             submitInfo.pWaitDstStageMask = &waitDestStageMask;
         }
         submitInfo.commandBufferCount = 1;
@@ -4141,6 +4163,7 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
             return SDL_Vulkan_SetError("VULKAN_RenderPresent", "vkQueueSubmit", result);
         }
         rendererData->currentCommandBuffer = VK_NULL_HANDLE;
+        rendererData->currentImageAvailableSemaphore = VK_NULL_HANDLE;
 
         SDL_zero(presentInfo);
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
