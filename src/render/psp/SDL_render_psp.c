@@ -481,7 +481,6 @@ static void PSP_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event
 
 static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    PSP_RenderData *data = renderer->driverdata;
     PSP_TextureData *psp_texture = (PSP_TextureData *)SDL_calloc(1, sizeof(*psp_texture));
 
     if (!psp_texture) {
@@ -515,7 +514,8 @@ static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     psp_texture->pitch = psp_texture->textureWidth * SDL_PIXELBPP(texture->format);
     psp_texture->size = psp_texture->textureHeight * psp_texture->pitch;
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
-        if (TextureSpillTargetsForSpace(renderer->driverdata, psp_texture->size) < 0) {
+        PSP_RenderData *data = renderer->driverdata;
+        if (TextureSpillTargetsForSpace(data, psp_texture->size) < 0) {
             SDL_free(psp_texture);
             return -1;
         }
@@ -1020,7 +1020,7 @@ static void PSP_SetBlendState(PSP_RenderData *data, PSP_BlendState *state)
 
 static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
-    PSP_RenderData *data = (PSP_RenderData *)renderer->driverdata;
+    PSP_RenderData *data;
     Uint8 *gpumem = NULL;
     StartDrawing(renderer);
 
@@ -1036,6 +1036,7 @@ static int PSP_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
     }
     SDL_memcpy(gpumem, vertices, vertsize);
 
+    data = (PSP_RenderData *)renderer->driverdata;
     while (cmd) {
         switch (cmd->command) {
         case SDL_RENDERCMD_SETDRAWCOLOR:
