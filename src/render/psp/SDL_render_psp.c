@@ -507,6 +507,7 @@ static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         break;
 
     default:
+        SDL_assume(!"Unknown pixel format");
         SDL_free(psp_texture);
         return -1;
     }
@@ -1270,7 +1271,6 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
 
     SDL_Renderer *renderer;
     PSP_RenderData *data;
-    int pixelformat;
     void *doublebuffer = NULL;
 
     renderer = (SDL_Renderer *)SDL_calloc(1, sizeof(*renderer));
@@ -1312,17 +1312,19 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
 
     PSP_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
 
-    pixelformat = PixelFormatToPSPFMT(SDL_GetWindowPixelFormat(window));
-    switch (pixelformat) {
-    case GU_PSM_4444:
+    data->psm = PixelFormatToPSPFMT(SDL_GetWindowPixelFormat(window));
+    switch (data->psm) {
     case GU_PSM_5650:
     case GU_PSM_5551:
+    case GU_PSM_4444:
         data->bpp = 2;
-        data->psm = pixelformat;
+        break;
+    case GU_PSM_8888:
+        data->bpp = 4;
         break;
     default:
+        SDL_assume(!"Unknown pixel format");
         data->bpp = 4;
-        data->psm = GU_PSM_8888;
         break;
     }
 
