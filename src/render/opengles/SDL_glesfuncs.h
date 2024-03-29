@@ -18,6 +18,12 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#ifndef SDL_PROC_UNUSED
+#define SDL_PROC_UNUSED(ret, func, params)
+#endif
+#ifndef SDL_PROC_OES_UNUSED
+#define SDL_PROC_OES_UNUSED(ret, func, params)
+#endif
 
 SDL_PROC(void, glBindTexture, (GLenum, GLuint))
 SDL_PROC(void, glBlendFunc, (GLenum, GLenum))
@@ -32,7 +38,7 @@ SDL_PROC(void, glDeleteTextures, (GLsizei, const GLuint *))
 SDL_PROC(void, glDisable, (GLenum))
 SDL_PROC(void, glDisableClientState, (GLenum array))
 SDL_PROC(void, glDrawArrays, (GLenum, GLint, GLsizei))
-SDL_PROC_OES(void, glDrawTexfOES, (GLfloat, GLfloat, GLfloat, GLfloat, GLfloat))
+SDL_PROC_OES_UNUSED(void, glDrawTexfOES, (GLfloat, GLfloat, GLfloat, GLfloat, GLfloat))
 SDL_PROC(void, glEnable, (GLenum))
 SDL_PROC(void, glEnableClientState, (GLenum))
 SDL_PROC(void, glFinish, (void))
@@ -47,10 +53,10 @@ SDL_PROC(void, glPixelStorei, (GLenum, GLint))
 SDL_PROC(void, glReadPixels, (GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, GLvoid *))
 SDL_PROC(void, glScissor, (GLint, GLint, GLsizei, GLsizei))
 SDL_PROC(void, glTexCoordPointer, (GLint, GLenum, GLsizei, const GLvoid *))
-SDL_PROC(void, glTexEnvf, (GLenum, GLenum, GLfloat))
+SDL_PROC_UNUSED(void, glTexEnvf, (GLenum, GLenum, GLfloat))
 SDL_PROC(void, glTexImage2D, (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *))
 SDL_PROC(void, glTexParameteri, (GLenum, GLenum, GLint))
-SDL_PROC(void, glTexParameteriv, (GLenum, GLenum, const GLint *))
+SDL_PROC_UNUSED(void, glTexParameteriv, (GLenum, GLenum, const GLint *))
 SDL_PROC(void, glTexSubImage2D, (GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const GLvoid *))
 SDL_PROC(void, glVertexPointer, (GLint, GLenum, GLsizei, const GLvoid *))
 SDL_PROC(void, glViewport, (GLint, GLint, GLsizei, GLsizei))

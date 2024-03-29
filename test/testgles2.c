@@ -34,7 +34,11 @@
 typedef struct GLES2_Context
 {
 #define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
+#define SDL_PROC_UNUSED(ret, func, params) SDL_PROC(ret, func, params)
+#define USE_VERTEX_BUFFER_OBJECTS 1
 #include "../src/render/opengles2/SDL_gles2funcs.h"
+#undef USE_VERTEX_BUFFER_OBJECTS
+#undef SDL_PROC_UNUSED
 #undef SDL_PROC
 } GLES2_Context;
 
@@ -84,8 +88,11 @@ static int LoadContext(GLES2_Context *data)
         }                                                                                      \
     } while (0);
 #endif /* __SDL_NOGETPROCADDR__ */
-
+#define SDL_PROC_UNUSED(ret, func, params) SDL_PROC(ret, func, params)
+#define USE_VERTEX_BUFFER_OBJECTS 1
 #include "../src/render/opengles2/SDL_gles2funcs.h"
+#undef USE_VERTEX_BUFFER_OBJECTS
+#undef SDL_PROC_UNUSED
 #undef SDL_PROC
     return 0;
 }
