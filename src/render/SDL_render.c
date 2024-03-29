@@ -405,24 +405,23 @@ static int QueueCmdSetClipRect(SDL_Renderer *renderer)
     return retval;
 }
 
-static int QueueCmdSetDrawColor(SDL_Renderer *renderer, SDL_Color *col)
+static int QueueCmdSetDrawColor(SDL_Renderer *renderer, const SDL_Color *color)
 {
-    const Uint32 color = (((Uint32)col->a << 24) | (col->r << 16) | (col->g << 8) | col->b);
     int retval = 0;
 
-    if (!renderer->color_queued || (color != renderer->last_queued_color)) {
+    if (!renderer->color_queued || !SDL_Colors_Equal(&renderer->last_queued_color, color)) {
         SDL_RenderCommand *cmd = AllocateRenderCommand(renderer);
         retval = -1;
 
         if (cmd) {
             cmd->command = SDL_RENDERCMD_SETDRAWCOLOR;
             cmd->data.color.first = 0; /* render backend will fill this in. */
-            cmd->data.color.color = *col;
+            cmd->data.color.color = *color;
             retval = renderer->QueueSetDrawColor(renderer, cmd);
             if (retval < 0) {
                 cmd->command = SDL_RENDERCMD_NO_OP;
             } else {
-                renderer->last_queued_color = color;
+                renderer->last_queued_color = *color;
                 renderer->color_queued = SDL_TRUE;
             }
         }

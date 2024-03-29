@@ -271,7 +271,7 @@ struct SDL_Renderer
     SDL_RenderCommand *render_commands_tail;
     SDL_RenderCommand *render_commands_pool;
     Uint32 render_command_generation;
-    Uint32 last_queued_color;
+    SDL_Color last_queued_color;
     SDL_DRect last_queued_viewport;
     SDL_DRect last_queued_cliprect;
     SDL_bool last_queued_cliprect_enabled;
