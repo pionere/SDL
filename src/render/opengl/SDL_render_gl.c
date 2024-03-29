@@ -1232,7 +1232,10 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
         {
             const SDL_Color color = cmd->data.color.color;
             if (!SDL_Colors_Equal(&color, &data->drawstate.color)) {
-                data->glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+                // data->glColor4ub((GLubyte)color.r, (GLubyte)color.g, (GLubyte)color.b, (GLubyte)color.a);
+                SDL_COMPILE_TIME_ASSERT(glcqc_color, offsetof(SDL_Color, r) == 0 && offsetof(SDL_Color, g) == 1 && offsetof(SDL_Color, b) == 2 && offsetof(SDL_Color, a) == 3);
+                data->glColor4ubv((GLubyte *)&color);
+
                 data->drawstate.color = color;
             }
             break;
@@ -1392,11 +1395,14 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 /* Restore previously set color when we're done. */
                 if (thiscmdtype != SDL_RENDERCMD_DRAW_POINTS) {
                     SDL_Color color = data->drawstate.color;
-                    GLubyte r = (GLubyte)color.r;
-                    GLubyte g = (GLubyte)color.g;
-                    GLubyte b = (GLubyte)color.b;
-                    GLubyte a = (GLubyte)color.a;
-                    data->glColor4ub(r, g, b, a);
+                    // GLubyte r = (GLubyte)color.r;
+                    // GLubyte g = (GLubyte)color.g;
+                    // GLubyte b = (GLubyte)color.b;
+                    // GLubyte a = (GLubyte)color.a;
+                    // data->glColor4ub(r, g, b, a);
+                    // data->glColor4ubv(&color);
+                    SDL_COMPILE_TIME_ASSERT(glcqg_color, offsetof(SDL_Color, r) == 0 && offsetof(SDL_Color, g) == 1 && offsetof(SDL_Color, b) == 2 && offsetof(SDL_Color, a) == 3);
+                    data->glColor4ubv((GLubyte *)&color);
                 }
             }
 
@@ -1730,7 +1736,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     SDL_Renderer *renderer = NULL;
     GL_RenderData *data = NULL;
     GLint value;
-    Uint32 window_flags;
+    Uint32 window_flags, mask = 0xFFFFFFFF;
     int profile_mask = 0, major = 0, minor = 0;
     SDL_bool changed_window = SDL_FALSE;
     const char *hint;
@@ -1931,7 +1937,8 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     data->glDisable(GL_SCISSOR_TEST);
     data->glDisable(data->textype);
     data->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    data->glColor4ub(255, 255, 255, 255);
+    // data->glColor4ub(255, 255, 255, 255);
+    data->glColor4ubv((GLubyte *)&mask);
     /* This ended up causing video discrepancies between OpenGL and Direct3D */
     /* data->glEnable(GL_LINE_SMOOTH); */
 

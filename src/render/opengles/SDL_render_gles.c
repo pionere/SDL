@@ -649,11 +649,12 @@ static void SetDrawState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
     SDL_BlendMode blend;
     const SDL_Color color = cmd->data.draw.color;
     if (!SDL_Colors_Equal(&color, &data->drawstate.color)) {
-        const GLfloat fr = ((GLfloat)color.r) * inv255f;
-        const GLfloat fg = ((GLfloat)color.g) * inv255f;
-        const GLfloat fb = ((GLfloat)color.b) * inv255f;
-        const GLfloat fa = ((GLfloat)color.a) * inv255f;
-        data->glColor4f(fr, fg, fb, fa);
+        // const GLfloat fr = ((GLfloat)color.r) * inv255f;
+        // const GLfloat fg = ((GLfloat)color.g) * inv255f;
+        // const GLfloat fb = ((GLfloat)color.b) * inv255f;
+        // const GLfloat fa = ((GLfloat)color.a) * inv255f;
+        // data->glColor4f(fr, fg, fb, fa);
+        data->glColor4ub(color.r, color.g, color.b, color.a);
         data->drawstate.color = color;
     }
 

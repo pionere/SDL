@@ -75,9 +75,9 @@ SDL_PROC_UNUSED(void, glColor4i, (GLint, GLint, GLint, GLint))
 SDL_PROC_UNUSED(void, glColor4iv, (const GLint *))
 SDL_PROC_UNUSED(void, glColor4s, (GLshort, GLshort, GLshort, GLshort))
 SDL_PROC_UNUSED(void, glColor4sv, (const GLshort *))
-SDL_PROC(void, glColor4ub,
+SDL_PROC_UNUSED(void, glColor4ub,
          (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha))
-SDL_PROC_UNUSED(void, glColor4ubv, (const GLubyte *v))
+SDL_PROC(void, glColor4ubv, (const GLubyte *v))
 SDL_PROC_UNUSED(void, glColor4ui,
                 (GLuint red, GLuint green, GLuint blue, GLuint alpha))
 SDL_PROC_UNUSED(void, glColor4uiv, (const GLuint *v))

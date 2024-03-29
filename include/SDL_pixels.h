@@ -365,6 +365,10 @@ SDL_FORCE_INLINE Uint32 SDL_ColorRGBmask(const SDL_Color *color)
     Uint32 value = *(const Uint32*)color;
     return value & SDL_SwapLE32(0xFFFFFF);
 }
+SDL_FORCE_INLINE Uint32 SDL_ColorRGBAmask(const SDL_Color *color)
+{
+    return SDL_SwapLE32(*(const Uint32*)color);
+}
 
 typedef struct SDL_Palette
 {
