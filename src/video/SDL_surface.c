@@ -1000,15 +1000,16 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             int ret;
             SDL_Rect srcrect2;
             int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
+            SDL_Color colorMod = src->map->info.color;
 
-            Uint8 r, g, b;
-            Uint8 alpha;
-            SDL_BlendMode blendMode;
+            // Uint8 r, g, b;
+            // Uint8 alpha;
+            // SDL_BlendMode blendMode;
 
             /* Save source infos */
-            SDL_GetSurfaceColorMod(src, &r, &g, &b);
-            SDL_GetSurfaceAlphaMod(src, &alpha);
-            SDL_GetSurfaceBlendMode(src, &blendMode);
+            // SDL_GetSurfaceColorMod(src, &r, &g, &b);
+            // SDL_GetSurfaceAlphaMod(src, &alpha);
+            // SDL_GetSurfaceBlendMode(src, &blendMode);
             srcrect2.x = srcrect->x;
             srcrect2.y = srcrect->y;
             srcrect2.w = srcrect->w;
@@ -1032,9 +1033,12 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
                 srcrect2.x = 0;
                 srcrect2.y = 0;
-                SDL_SetSurfaceColorMod(tmp1, r, g, b);
-                SDL_SetSurfaceAlphaMod(tmp1, alpha);
-                SDL_SetSurfaceBlendMode(tmp1, blendMode);
+                // SDL_SetSurfaceColorMod(tmp1, r, g, b);
+                // SDL_SetSurfaceAlphaMod(tmp1, alpha);
+                // SDL_SetSurfaceBlendMode(tmp1, blendMode);
+                tmp1->map->info.color = colorMod;
+                tmp1->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
+                SDL_InvalidateMap(tmp1->map);
 
                 src = tmp1;
             }
@@ -1045,9 +1049,12 @@ int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                 SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(0, dstrect->w, dstrect->h, 0, src->format->format);
                 SDL_SoftStretchLinear(src, &srcrect2, tmp2, NULL);
 
-                SDL_SetSurfaceColorMod(tmp2, r, g, b);
-                SDL_SetSurfaceAlphaMod(tmp2, alpha);
-                SDL_SetSurfaceBlendMode(tmp2, blendMode);
+                // SDL_SetSurfaceColorMod(tmp2, r, g, b);
+                // SDL_SetSurfaceAlphaMod(tmp2, alpha);
+                // SDL_SetSurfaceBlendMode(tmp2, blendMode);
+                tmp2->map->info.color = colorMod;
+                tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
+                SDL_InvalidateMap(tmp2->map);
 
                 tmprect.x = 0;
                 tmprect.y = 0;
