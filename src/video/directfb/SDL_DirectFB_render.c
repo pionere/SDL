@@ -705,11 +705,8 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
             }
 
             case SDL_RENDERCMD_CLEAR: {
-                const Uint8 r = cmd->data.color.color.r;
-                const Uint8 g = cmd->data.color.color.g;
-                const Uint8 b = cmd->data.color.color.b;
-                const Uint8 a = cmd->data.color.color.a;
-                destsurf->Clear(destsurf, r, g, b, a);
+                const SDL_Color color = cmd->data.color.color;
+                destsurf->Clear(destsurf, COLOR_EXPAND(color));
                 break;
             }
 
@@ -759,10 +756,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
 
             case SDL_RENDERCMD_COPY: {
                 SDL_Texture *texture = cmd->data.draw.texture;
-                const Uint8 r = cmd->data.draw.color.r;
-                const Uint8 g = cmd->data.draw.color.g;
-                const Uint8 b = cmd->data.draw.color.b;
-                const Uint8 a = cmd->data.draw.color.a;
+                const SDL_Color color = cmd->data.draw.color;
                 DFBRectangle *verts = (DFBRectangle *) (((Uint8 *) vertices) + cmd->data.draw.first);
                 DirectFB_TextureData *texturedata = (DirectFB_TextureData *) texture->driverdata;
                 DFBRectangle *sr = verts++;
@@ -791,15 +785,15 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                         DirectFB_UpdateTexture(renderer, texture, &rect, texturedata->pixels, texturedata->pitch);
                     }
 
-                    if (a != 0xFF) {
+                    if (color.a != 0xFF) {
                         flags |= DSBLIT_BLEND_COLORALPHA;
                     }
 
-                    if ((r & g & b) != 0xFF) {
+                    if ((color.r & color.g & color.b) != 0xFF) {
                         flags |= DSBLIT_COLORIZE;
                     }
 
-                    destsurf->SetColor(destsurf, r, g, b, a);
+                    destsurf->SetColor(destsurf, COLOR_EXPAND(color));
 
                     /* ???? flags |= DSBLIT_SRC_PREMULTCOLOR; */
 

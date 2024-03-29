@@ -921,17 +921,18 @@ static int BindTextureRep(IDirect3DDevice9 *device, D3D_TextureRep *texture, DWO
 static void UpdateTextureScaleMode(D3D_RenderData *data, D3D_TextureData *texturedata, unsigned index)
 {
     IDirect3DDevice9 *device = data->device;
+    D3DTEXTUREFILTERTYPE scaleMode = texturedata->scaleMode;
 
-    if (texturedata->scaleMode != data->scaleMode[index]) {
+    if (scaleMode != data->scaleMode[index]) {
         IDirect3DDevice9_SetSamplerState(device, index, D3DSAMP_MINFILTER,
-                                         texturedata->scaleMode);
+                                         scaleMode);
         IDirect3DDevice9_SetSamplerState(device, index, D3DSAMP_MAGFILTER,
-                                         texturedata->scaleMode);
+                                         scaleMode);
         IDirect3DDevice9_SetSamplerState(device, index, D3DSAMP_ADDRESSU,
                                          D3DTADDRESS_CLAMP);
         IDirect3DDevice9_SetSamplerState(device, index, D3DSAMP_ADDRESSV,
                                          D3DTADDRESS_CLAMP);
-        data->scaleMode[index] = texturedata->scaleMode;
+        data->scaleMode[index] = scaleMode;
     }
 }
 

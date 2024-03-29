@@ -34,8 +34,6 @@ SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
 
 SDL_COMPILE_TIME_ASSERT(can_indicate_overflow, SDL_SIZE_MAX > SDL_MAX_SINT32);
 
-/* Public routines */
-
 /*
  * Calculate the pad-aligned scanline width of a surface.
  * Return SDL_SIZE_MAX on overflow.
@@ -471,63 +469,70 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
 int SDL_SetSurfaceColorMod(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
 {
     int flags;
+    SDL_BlitMap *map;
 
     if (!surface) {
         return SDL_InvalidParamError("surface");
     }
 
-    surface->map->info.color.r = r;
-    surface->map->info.color.g = g;
-    surface->map->info.color.b = b;
+    map = surface->map;
+    map->info.color.r = r;
+    map->info.color.g = g;
+    map->info.color.b = b;
 
-    flags = surface->map->info.flags;
+    flags = map->info.flags;
     if (r != 0xFF || g != 0xFF || b != 0xFF) {
-        surface->map->info.flags |= SDL_COPY_MODULATE_COLOR;
+        map->info.flags |= SDL_COPY_MODULATE_COLOR;
     } else {
-        surface->map->info.flags &= ~SDL_COPY_MODULATE_COLOR;
+        map->info.flags &= ~SDL_COPY_MODULATE_COLOR;
     }
-    if (surface->map->info.flags != flags) {
-        SDL_InvalidateMap(surface->map);
+    if (map->info.flags != flags) {
+        SDL_InvalidateMap(map);
     }
     return 0;
 }
 
 int SDL_GetSurfaceColorMod(SDL_Surface *surface, Uint8 *r, Uint8 *g, Uint8 *b)
 {
+    SDL_BlitMap *map;
+
     if (!surface) {
         return SDL_InvalidParamError("surface");
     }
 
+    map = surface->map;
     if (r) {
-        *r = surface->map->info.color.r;
+        *r = map->info.color.r;
     }
     if (g) {
-        *g = surface->map->info.color.g;
+        *g = map->info.color.g;
     }
     if (b) {
-        *b = surface->map->info.color.b;
+        *b = map->info.color.b;
     }
     return 0;
 }
 
 int SDL_SetSurfaceAlphaMod(SDL_Surface *surface, Uint8 alpha)
 {
+    SDL_BlitMap *map;
     int flags;
 
     if (!surface) {
         return SDL_InvalidParamError("surface");
     }
 
-    surface->map->info.color.a = alpha;
+    map = surface->map;
+    map->info.color.a = alpha;
 
-    flags = surface->map->info.flags;
+    flags = map->info.flags;
     if (alpha != 0xFF) {
-        surface->map->info.flags |= SDL_COPY_MODULATE_ALPHA;
+        map->info.flags |= SDL_COPY_MODULATE_ALPHA;
     } else {
-        surface->map->info.flags &= ~SDL_COPY_MODULATE_ALPHA;
+        map->info.flags &= ~SDL_COPY_MODULATE_ALPHA;
     }
-    if (surface->map->info.flags != flags) {
-        SDL_InvalidateMap(surface->map);
+    if (map->info.flags != flags) {
+        SDL_InvalidateMap(map);
     }
     return 0;
 }
