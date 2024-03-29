@@ -429,7 +429,7 @@ __EOF__
     if ( $blend ) {
         if (!$A_is_const_FF) {
             print FILE <<__EOF__;
-            if (flags & (SDL_COPY_BLEND|SDL_COPY_ADD)) {
+            if (flags & (SDL_COPY_BLEND | SDL_COPY_ADD)) {
                 /* This goes away if we ever use premultiplied alpha */
                 if (${s}A < 255) {
                     ${s}R = (${s}R * ${s}A) / 255;
@@ -440,7 +440,7 @@ __EOF__
 __EOF__
         }
         print FILE <<__EOF__;
-            switch (flags & (SDL_COPY_BLEND|SDL_COPY_ADD|SDL_COPY_MOD|SDL_COPY_MUL)) {
+            switch (flags & SDL_COPY_BLEND_MASK) {
             case SDL_COPY_BLEND:
 __EOF__
         if ($A_is_const_FF) {
@@ -734,7 +734,7 @@ __EOF__
                                 }
                             }
                             if ( $blend ) {
-                                $flag = "SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL";
+                                $flag = "SDL_COPY_BLEND_MASK";
                                 if ( $flags eq "" ) {
                                     $flags = $flag;
                                 } else {

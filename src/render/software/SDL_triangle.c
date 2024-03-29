@@ -827,7 +827,7 @@ static void SDL_BlitTriangle_Slow(SDL_BlitInfo *info,
                 continue;
             }
         }
-        if ((flags & (SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL))) {
+        if (flags & SDL_COPY_BLEND_MASK) {
             if (FORMAT_HAS_ALPHA(dstfmt_val)) {
                 DISEMBLE_RGBA(dst, dstbpp, dst_fmt, dstpixel, dstR, dstG, dstB, dstA);
             } else if (FORMAT_HAS_NO_ALPHA(dstfmt_val)) {
@@ -867,7 +867,7 @@ static void SDL_BlitTriangle_Slow(SDL_BlitInfo *info,
                 srcB = (srcB * srcA) / 255;
             }
         }
-        switch (flags & (SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL)) {
+        switch (flags & SDL_COPY_BLEND_MASK) {
         case 0:
             dstR = srcR;
             dstG = srcG;
