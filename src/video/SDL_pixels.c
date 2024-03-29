@@ -940,7 +940,7 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *
     }
     *identical = SDL_FALSE;
 
-    map = (Uint8 *)SDL_calloc(256, sizeof(Uint8));
+    map = (Uint8 *)SDL_malloc(256 * sizeof(Uint8));
     if (!map) {
         SDL_OutOfMemory();
         return NULL;
@@ -967,7 +967,7 @@ static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, cons
 
     bpp = dst->BytesPerPixel;
     mbp = (bpp == 3) ? 4 : bpp;
-    map = (Uint8 *)SDL_calloc(256, mbp);
+    map = (Uint8 *)SDL_malloc(256 * mbp);
     if (!map) {
         SDL_OutOfMemory();
         return NULL;
