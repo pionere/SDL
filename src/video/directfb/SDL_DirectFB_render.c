@@ -780,6 +780,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                     dispdata->vidlayer->SetScreenRectangle(dispdata->vidlayer, px + dr->x, py + dr->y, dr->w, dr->h);
                 } else {
                     DFBSurfaceBlittingFlags flags = 0;
+                    const SDL_Color mask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
                     if (texturedata->isDirty) {
                         const SDL_Rect rect = { 0, 0, texture->w, texture->h };
                         DirectFB_UpdateTexture(renderer, texture, &rect, texturedata->pixels, texturedata->pitch);
@@ -789,7 +790,7 @@ static int DirectFB_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *
                         flags |= DSBLIT_BLEND_COLORALPHA;
                     }
 
-                    if ((color.r & color.g & color.b) != 0xFF) {
+                    if (SDL_ColorRGBmask(&color) != SDL_ColorRGBmask(&mask)) {
                         flags |= DSBLIT_COLORIZE;
                     }
 

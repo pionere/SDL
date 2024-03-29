@@ -469,6 +469,8 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
 int SDL_SetSurfaceColorMod(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
 {
     int flags;
+    const SDL_Color mask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+    const Uint32 maskRGB = SDL_ColorRGBmask(&mask);
     SDL_BlitMap *map;
 
     if (!surface) {
@@ -481,7 +483,7 @@ int SDL_SetSurfaceColorMod(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
     map->info.color.b = b;
 
     flags = map->info.flags;
-    if (r != 0xFF || g != 0xFF || b != 0xFF) {
+    if (SDL_ColorRGBmask(&map->info.color) != maskRGB) {
         map->info.flags |= SDL_COPY_MODULATE_COLOR;
     } else {
         map->info.flags &= ~SDL_COPY_MODULATE_COLOR;
@@ -1140,9 +1142,11 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
 #if 0
     /* Check for empty destination palette! (results in empty image) */
     if (format->palette) {
+        const SDL_Color mask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+        const Uint32 maskRGB = SDL_ColorRGBmask(&mask);
         int i;
         for (i = 0; i < format->palette->ncolors; ++i) {
-            if ((format->palette->colors[i].r != 0xFF) || (format->palette->colors[i].g != 0xFF) || (format->palette->colors[i].b != 0xFF)) {
+            if (SDL_ColorRGBmask(format->palette->colors[i]) != maskRGB) {
                 break;
             }
         }
