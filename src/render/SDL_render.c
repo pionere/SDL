@@ -3867,11 +3867,11 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
     int prev[3]; /* Previous triangle vertex indices */
     int texw = 0, texh = 0;
     SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
-    Uint8 r = 0, g = 0, b = 0, a = 0;
+    SDL_Color drawColor;
 
     /* Save */
-    SDL_GetRenderDrawBlendMode(renderer, &blendMode);
-    SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+    blendMode = renderer->blendMode; // SDL_GetRenderDrawBlendMode(renderer, &blendMode);
+    drawColor = renderer->color; // SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
 
     if (texture) {
         // SDL_QueryTexture(texture, NULL, NULL, &texw, &texh);
@@ -4091,8 +4091,8 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
                         (void *)texture, s.x, s.y, s.w, s.h, d.x, d.y, d.w, d.h);
 #endif
             } else if (d.w != 0.0f && d.h != 0.0f) { /* Rect, no texture */
-                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                SDL_SetRenderDrawColor(renderer, col0_.r, col0_.g, col0_.b, col0_.a);
+                renderer->blendMode = SDL_BLENDMODE_BLEND; // SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                renderer->color = col0_; // SDL_SetRenderDrawColor(renderer, col0_.r, col0_.g, col0_.b, col0_.a);
                 SDL_RenderFillRectF(renderer, &d);
 #if DEBUG_SW_RENDER_GEOMETRY
                 SDL_Log("Rect-FILL: RGB %d %d %d - Alpha:%d - texture=%p: dst (%f, %f, %f x %f)", col0_.r, col0_.g, col0_.b, col0_.a,
@@ -4143,8 +4143,8 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
 
 end:
     /* Restore */
-    SDL_SetRenderDrawBlendMode(renderer, blendMode);
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    renderer->blendMode = blendMode; // SDL_SetRenderDrawBlendMode(renderer, blendMode);
+    renderer->color = drawColor; // SDL_SetRenderDrawColor(renderer, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
 
     return retval;
 }
