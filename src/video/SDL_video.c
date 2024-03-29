@@ -2551,6 +2551,19 @@ int SDL_SetWindowFullscreen(SDL_Window *window, Uint32 flags)
     return -1;
 }
 
+/* See if the user or application wants to specifically disable the framebuffer */
+static SDL_bool DisableFrameBuffer()
+{
+    SDL_bool result = SDL_FALSE;
+    const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
+    if (hint) {
+        if ((*hint == '0') || (SDL_strcasecmp(hint, "false") == 0) || (SDL_strcasecmp(hint, "software") == 0)) {
+            result = SDL_TRUE;
+        }
+    }
+    return result;
+}
+
 static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
 {
     Uint32 format = 0;
@@ -2566,14 +2579,6 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
        be more efficient. This only checks once, on demand. */
     if (!current_video.checked_texture_framebuffer) {
         SDL_bool attempt_texture_framebuffer = SDL_TRUE;
-
-        /* See if the user or application wants to specifically disable the framebuffer */
-        const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
-        if (hint) {
-            if ((*hint == '0') || (SDL_strcasecmp(hint, "false") == 0) || (SDL_strcasecmp(hint, "software") == 0)) {
-                attempt_texture_framebuffer = SDL_FALSE;
-            }
-        }
 
 #if defined(SDL_VIDEO_DRIVER_DUMMY) /* dummy driver never has GPU support, of course. */
         if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_DUMMY) {
@@ -2607,7 +2612,7 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
         }
 #endif
 
-        if (attempt_texture_framebuffer) {
+        if (attempt_texture_framebuffer && !DisableFrameBuffer()) {
             if (SDL_CreateWindowFramebuffer(window, &format, &pixels, &pitch) < 0) {
                 /* !!! FIXME: if this failed halfway (made renderer, failed to make texture, etc),
                    !!! FIXME:  we probably need to clean this up so it doesn't interfere with
