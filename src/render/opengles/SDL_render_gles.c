@@ -310,7 +310,7 @@ static SDL_bool GLES_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode ble
 
 static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GLES_RenderData *renderdata = (GLES_RenderData *)renderer->driverdata;
+    GLES_RenderData *renderdata;
     GLES_TextureData *data;
     GLint internalFormat;
     GLenum format, type;
@@ -344,12 +344,13 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         }
     }
 
+    renderdata = (GLES_RenderData *)renderer->driverdata;
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         if (!renderdata->GL_OES_framebuffer_object_supported) {
             SDL_free(data);
             return SDL_SetError("GL_OES_framebuffer_object not supported");
         }
-        data->fbo = GLES_GetFBO(renderer->driverdata, texture->w, texture->h);
+        data->fbo = GLES_GetFBO(renderdata, texture->w, texture->h);
     // } else {
     //    data->fbo = NULL;
     }
@@ -404,8 +405,8 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                               const SDL_Rect *rect, const void *pixels, int pitch)
 {
-    GLES_RenderData *renderdata = (GLES_RenderData *)renderer->driverdata;
-    GLES_TextureData *data = (GLES_TextureData *)texture->driverdata;
+    GLES_RenderData *renderdata;
+    GLES_TextureData *data;
     Uint8 *blob = NULL;
     Uint8 *src;
     int srcPitch;
@@ -418,6 +419,8 @@ static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         return 0;
     }
 
+    renderdata = (GLES_RenderData *)renderer->driverdata;
+    data = (GLES_TextureData *)texture->driverdata;
     /* Reformat the texture data into a tightly packed array */
     srcPitch = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     src = (Uint8 *)pixels;
@@ -643,7 +646,7 @@ static int GLES_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SD
 
 static void SetDrawState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
 {
-    const SDL_BlendMode blend = cmd->data.draw.blend;
+    SDL_BlendMode blend;
     const SDL_Color color = cmd->data.draw.color;
     if (!SDL_Colors_Equal(&color, &data->drawstate.color)) {
         const GLfloat fr = ((GLfloat)color.r) * inv255f;
@@ -691,12 +694,17 @@ static void SetDrawState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
         data->drawstate.cliprect_dirty = SDL_FALSE;
     }
 
+    blend = cmd->data.draw.blend;
     if (blend != data->drawstate.blend) {
+        data->drawstate.blend = blend;
+
         if (blend == SDL_BLENDMODE_NONE) {
             data->glDisable(GL_BLEND);
         } else {
-            SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blend);
+            SDL_BlendMode longBlendMode;
             data->glEnable(GL_BLEND);
+
+            longBlendMode = SDL_GetLongBlendMode(blend);
             if (data->GL_OES_blend_func_separate_supported) {
                 data->glBlendFuncSeparateOES(GetBlendFunc(SDL_GetLongBlendModeSrcColorFactor(longBlendMode)),
                                              GetBlendFunc(SDL_GetLongBlendModeDstColorFactor(longBlendMode)),
@@ -713,7 +721,6 @@ static void SetDrawState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
                 data->glBlendEquationOES(GetBlendEquation(SDL_GetLongBlendModeColorOperation(longBlendMode)));
             }
         }
-        data->drawstate.blend = blend;
     }
 
     if ((cmd->data.draw.texture != NULL) != data->drawstate.texturing) {
@@ -743,12 +750,13 @@ static void SetCopyState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
 
 static int GLES_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
-    GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
+    GLES_RenderData *data;
 
     if (GLES_ActivateRenderer(renderer) < 0) {
         return -1;
     }
 
+    data = (GLES_RenderData *)renderer->driverdata;
     data->drawstate.target = renderer->target;
 
     if (!renderer->target) {
@@ -889,8 +897,8 @@ static int GLES_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
 static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
                                  Uint32 pixel_format, void *pixels, int pitch)
 {
-    GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
-    Uint32 temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_RGBA32;
+    GLES_RenderData *data;
+    Uint32 temp_format;
     void *temp_pixels;
     int temp_pitch;
     Uint8 *src, *dst, *tmp;
@@ -899,6 +907,8 @@ static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     GLES_ActivateRenderer(renderer);
 
+    data = (GLES_RenderData *)renderer->driverdata;
+    temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_RGBA32;
     temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
     temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
@@ -945,12 +955,13 @@ static int GLES_RenderPresent(SDL_Renderer *renderer)
 
 static void GLES_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GLES_RenderData *renderdata = (GLES_RenderData *)renderer->driverdata;
-
-    GLES_TextureData *data = (GLES_TextureData *)texture->driverdata;
+    GLES_RenderData *renderdata;
+    GLES_TextureData *data;
 
     GLES_ActivateRenderer(renderer);
 
+    renderdata = (GLES_RenderData *)renderer->driverdata;
+    data = (GLES_TextureData *)texture->driverdata;
     if (renderdata->drawstate.texture == texture) {
         renderdata->drawstate.texture = NULL;
     }
@@ -990,10 +1001,13 @@ static void GLES_DestroyRenderer(SDL_Renderer *renderer)
 
 static int GLES_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *texw, float *texh)
 {
-    GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
-    GLES_TextureData *texturedata = (GLES_TextureData *)texture->driverdata;
+    GLES_RenderData *data;
+    GLES_TextureData *texturedata;
+
     GLES_ActivateRenderer(renderer);
 
+    data = (GLES_RenderData *)renderer->driverdata;
+    texturedata = (GLES_TextureData *)texture->driverdata;
     data->glEnable(GL_TEXTURE_2D);
     data->glBindTexture(texturedata->type, texturedata->texture);
 
@@ -1012,9 +1026,13 @@ static int GLES_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float 
 
 static int GLES_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GLES_RenderData *data = (GLES_RenderData *)renderer->driverdata;
-    GLES_TextureData *texturedata = (GLES_TextureData *)texture->driverdata;
+    GLES_RenderData *data;
+    GLES_TextureData *texturedata;
+
     GLES_ActivateRenderer(renderer);
+
+    data = (GLES_RenderData *)renderer->driverdata;
+    texturedata = (GLES_TextureData *)texture->driverdata;
     data->glDisable(texturedata->type);
 
     data->drawstate.texture = NULL;

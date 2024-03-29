@@ -451,8 +451,8 @@ convert_format(GL_RenderData *renderdata, Uint32 pixel_format,
 
 static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
-    const GLenum textype = renderdata->textype;
+    GL_RenderData *renderdata;
+    GLenum textype;
     GL_TextureData *data;
     GLint internalFormat;
     GLenum format, type;
@@ -461,6 +461,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     GL_ActivateRenderer(renderer);
 
+    renderdata = (GL_RenderData *)renderer->driverdata;
     renderdata->drawstate.texture = NULL; /* we trash this state. */
     renderdata->drawstate.texturing = SDL_FALSE; /* we trash this state. */
 
@@ -540,6 +541,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     data->format = format;
     data->formattype = type;
     scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
+    textype = renderdata->textype;
     renderdata->glEnable(textype);
     renderdata->glBindTexture(textype, data->texture);
     renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, scaleMode);
@@ -698,19 +700,25 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                             const SDL_Rect *rect, const void *pixels, int pitch)
 {
-    GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
-    const GLenum textype = renderdata->textype;
-    GL_TextureData *data = (GL_TextureData *)texture->driverdata;
-    const int texturebpp = SDL_PIXELFORMAT_BPP(texture->format);
-
-    SDL_assert_release(texturebpp != 0); /* otherwise, division by zero later. */
+    GL_RenderData *renderdata;
+    GLenum textype;
+    GL_TextureData *data;
+    Uint32 texture_format;
+    int texturebpp;
 
     GL_ActivateRenderer(renderer);
 
+    renderdata = (GL_RenderData *)renderer->driverdata;
     renderdata->drawstate.texture = NULL; /* we trash this state. */
+
+    textype = renderdata->textype;
+    data = (GL_TextureData *)texture->driverdata;
 
     renderdata->glBindTexture(textype, data->texture);
     renderdata->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    texture_format = texture->format;
+    texturebpp = SDL_PIXELFORMAT_BPP(texture_format);
+    SDL_assert_release(texturebpp != 0);
     renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, (pitch / texturebpp));
     renderdata->glTexSubImage2D(textype, 0, rect->x, rect->y, rect->w,
                                 rect->h, data->format, data->formattype,
@@ -721,7 +729,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
-        if (texture->format == SDL_PIXELFORMAT_YV12) {
+        if (texture_format == SDL_PIXELFORMAT_YV12) {
             renderdata->glBindTexture(textype, data->vtexture);
         } else {
             renderdata->glBindTexture(textype, data->utexture);
@@ -732,7 +740,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + ((rect->h + 1) / 2) * ((pitch + 1) / 2));
-        if (texture->format == SDL_PIXELFORMAT_YV12) {
+        if (texture_format == SDL_PIXELFORMAT_YV12) {
             renderdata->glBindTexture(textype, data->utexture);
         } else {
             renderdata->glBindTexture(textype, data->vtexture);
@@ -763,11 +771,15 @@ static int GL_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
                                const Uint8 *Uplane, int Upitch,
                                const Uint8 *Vplane, int Vpitch)
 {
-    GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
-    const GLenum textype = renderdata->textype;
-    GL_TextureData *data = (GL_TextureData *)texture->driverdata;
+    GL_RenderData *renderdata;
+    GLenum textype;
+    GL_TextureData *data;
 
     GL_ActivateRenderer(renderer);
+
+    renderdata = (GL_RenderData *)renderer->driverdata;
+    textype = renderdata->textype;
+    data = (GL_TextureData *)texture->driverdata;
 
     renderdata->drawstate.texture = NULL; /* we trash this state. */
 
@@ -798,11 +810,15 @@ static int GL_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
                               const Uint8 *Yplane, int Ypitch,
                               const Uint8 *UVplane, int UVpitch)
 {
-    GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
-    const GLenum textype = renderdata->textype;
-    GL_TextureData *data = (GL_TextureData *)texture->driverdata;
+    GL_RenderData *renderdata;
+    GLenum textype;
+    GL_TextureData *data;
 
     GL_ActivateRenderer(renderer);
+
+    renderdata = (GL_RenderData *)renderer->driverdata;
+    textype = renderdata->textype;
+    data = (GL_TextureData *)texture->driverdata;
 
     renderdata->drawstate.texture = NULL; /* we trash this state. */
 
@@ -883,12 +899,13 @@ static void GL_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture,
 
 static int GL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
+    GL_RenderData *data;
     GL_TextureData *texturedata;
     GLenum status;
 
     GL_ActivateRenderer(renderer);
 
+    data = (GL_RenderData *)renderer->driverdata;
     if (!data->GL_EXT_framebuffer_object_supported) {
         return SDL_SetError("Render targets not supported by OpenGL");
     }
@@ -1030,7 +1047,7 @@ static int GL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
 
 static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const GL_Shader shader)
 {
-    const SDL_BlendMode blend = cmd->data.draw.blend;
+    SDL_BlendMode blend;
     SDL_bool vertex_array;
     SDL_bool color_array;
     SDL_bool texture_array;
@@ -1071,19 +1088,23 @@ static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const
         data->drawstate.cliprect_dirty = SDL_FALSE;
     }
 
+    blend = cmd->data.draw.blend;
     if (blend != data->drawstate.blend) {
+        data->drawstate.blend = blend;
+
         if (blend == SDL_BLENDMODE_NONE) {
             data->glDisable(GL_BLEND);
         } else {
-            SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blend);
+            SDL_BlendMode longBlendMode;
             data->glEnable(GL_BLEND);
+
+            longBlendMode = SDL_GetLongBlendMode(blend);
             data->glBlendFuncSeparate(GetBlendFunc(SDL_GetLongBlendModeSrcColorFactor(longBlendMode)),
                                       GetBlendFunc(SDL_GetLongBlendModeDstColorFactor(longBlendMode)),
                                       GetBlendFunc(SDL_GetLongBlendModeSrcAlphaFactor(longBlendMode)),
                                       GetBlendFunc(SDL_GetLongBlendModeDstAlphaFactor(longBlendMode)));
             data->glBlendEquation(GetBlendEquation(SDL_GetLongBlendModeColorOperation(longBlendMode)));
         }
-        data->drawstate.blend = blend;
     }
 
     if (data->shaders && (shader != data->drawstate.shader)) {
@@ -1091,8 +1112,9 @@ static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const
         data->drawstate.shader = shader;
     }
 
-    if ((cmd->data.draw.texture != NULL) != data->drawstate.texturing) {
-        if (!cmd->data.draw.texture) {
+    texture_array = cmd->data.draw.texture != NULL;
+    if (texture_array != data->drawstate.texturing) {
+        if (!texture_array) {
             data->glDisable(data->textype);
             data->drawstate.texturing = SDL_FALSE;
         } else {
@@ -1103,7 +1125,6 @@ static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const
 
     vertex_array = cmd->command == SDL_RENDERCMD_DRAW_POINTS || cmd->command == SDL_RENDERCMD_DRAW_LINES || cmd->command == SDL_RENDERCMD_GEOMETRY;
     color_array = cmd->command == SDL_RENDERCMD_GEOMETRY;
-    texture_array = cmd->data.draw.texture != NULL;
 
     if (vertex_array != data->drawstate.vertex_array) {
         if (vertex_array) {
@@ -1179,12 +1200,13 @@ static int SetCopyState(GL_RenderData *data, const SDL_RenderCommand *cmd)
 static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
     /* !!! FIXME: it'd be nice to use a vertex buffer instead of immediate mode... */
-    GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
+    GL_RenderData *data;
 
     if (GL_ActivateRenderer(renderer) < 0) {
         return -1;
     }
 
+    data = (GL_RenderData *)renderer->driverdata;
     data->drawstate.target = renderer->target;
     if (!data->drawstate.target) {
         int w, h;
@@ -1414,8 +1436,8 @@ static int GL_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
 static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
                                Uint32 pixel_format, void *pixels, int pitch)
 {
-    GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
-    Uint32 temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_ARGB8888;
+    GL_RenderData *data;
+    Uint32 temp_format;
     void *temp_pixels;
     int temp_pitch;
     GLint internalFormat;
@@ -1426,6 +1448,8 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     GL_ActivateRenderer(renderer);
 
+    data = (GL_RenderData *)renderer->driverdata;
+    temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_ARGB8888;
     if (!convert_format(data, temp_format, &internalFormat, &format, &type)) {
         return SDL_SetError("Texture format %s not supported by OpenGL",
                             SDL_GetPixelFormatName(temp_format));
@@ -1484,11 +1508,13 @@ static int GL_RenderPresent(SDL_Renderer *renderer)
 
 static void GL_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
-    GL_TextureData *data = (GL_TextureData *)texture->driverdata;
+    GL_RenderData *renderdata;
+    GL_TextureData *data;
 
     GL_ActivateRenderer(renderer);
 
+    renderdata = (GL_RenderData *)renderer->driverdata;
+    data = (GL_TextureData *)texture->driverdata;
     if (renderdata->drawstate.texture == texture) {
         renderdata->drawstate.texture = NULL;
     }
@@ -1553,11 +1579,15 @@ static void GL_DestroyRenderer(SDL_Renderer *renderer)
 
 static int GL_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *texw, float *texh)
 {
-    GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
-    GL_TextureData *texturedata = (GL_TextureData *)texture->driverdata;
-    const GLenum textype = data->textype;
+    GL_RenderData *data;
+    GL_TextureData *texturedata;
+    GLenum textype;
 
     GL_ActivateRenderer(renderer);
+
+    data = (GL_RenderData *)renderer->driverdata;
+    texturedata = (GL_TextureData *)texture->driverdata;
+    textype = data->textype;
 
     data->glEnable(textype);
 #if SDL_HAVE_YUV
@@ -1603,11 +1633,15 @@ static int GL_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *t
 
 static int GL_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
-    GL_RenderData *data = (GL_RenderData *)renderer->driverdata;
-    GL_TextureData *texturedata = (GL_TextureData *)texture->driverdata;
-    const GLenum textype = data->textype;
+    GL_RenderData *data;
+    GL_TextureData *texturedata;
+    GLenum textype;
 
     GL_ActivateRenderer(renderer);
+
+    data = (GL_RenderData *)renderer->driverdata;
+    texturedata = (GL_TextureData *)texture->driverdata;
+    textype = data->textype;
 
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {
