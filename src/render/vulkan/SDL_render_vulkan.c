@@ -2849,8 +2849,9 @@ static void VULKAN_DestroyTexture(SDL_Renderer *renderer,
     texture->driverdata = NULL;
 }
 
-static int VULKAN_UpdateTextureInternal(VULKAN_RenderData *rendererData, VkImage image, VkFormat format, int plane, int x, int y, int w, int h, const void *pixels, int pitch, VkImageLayout *imageLayout)
+static int VULKAN_UpdateTextureInternal(VULKAN_RenderData *rendererData, VULKAN_Image *mainImage, int plane, int x, int y, int w, int h, const void *pixels, int pitch)
 {
+    VkFormat format = mainImage->format;
     VkDeviceSize pixelSize = VULKAN_GetBytesPerPixel(format);
     VkDeviceSize length = w * pixelSize;
     VkDeviceSize uploadBufferSize = length * h;
@@ -2899,8 +2900,8 @@ static int VULKAN_UpdateTextureInternal(VULKAN_RenderData *rendererData, VkImage
         VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
         VK_PIPELINE_STAGE_TRANSFER_BIT,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        image,
-        imageLayout);
+        mainImage->image,
+        &mainImage->imageLayout);
 
     region.bufferOffset = 0;
     region.bufferRowLength = 0;
@@ -2921,7 +2922,7 @@ static int VULKAN_UpdateTextureInternal(VULKAN_RenderData *rendererData, VkImage
     region.imageExtent.height = h;
     region.imageExtent.depth = 1;
 
-    vkCmdCopyBufferToImage(rendererData->currentCommandBuffer, uploadBuffer->buffer, image, *imageLayout, 1, &region);
+    vkCmdCopyBufferToImage(rendererData->currentCommandBuffer, uploadBuffer->buffer, mainImage->image, mainImage->imageLayout, 1, &region);
 
     /* Transition the texture to be shader accessible */
     VULKAN_RecordPipelineImageBarrier(rendererData,
@@ -2930,8 +2931,8 @@ static int VULKAN_UpdateTextureInternal(VULKAN_RenderData *rendererData, VkImage
         VK_PIPELINE_STAGE_TRANSFER_BIT,
         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-        image,
-        imageLayout);
+        mainImage->image,
+        &mainImage->imageLayout);
 
     rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex]++;
 
@@ -2958,7 +2959,7 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 0, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch, &textureData->mainImage.imageLayout);
+    retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch);
     if (retval < 0) {
         return retval;
     }
@@ -2970,7 +2971,7 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     if (numPlanes == 3) {
         // YUV data
         for (Uint32 plane = 1; plane < 3; plane++) {
-            retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, plane, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, &textureData->mainImage.imageLayout);
+            retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, plane, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2);
             if (retval < 0) {
                 break; // return retval;
             }
@@ -2986,7 +2987,7 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             srcPitch = (srcPitch + 1) & ~1;
         }
 
-        retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, srcPitch, &textureData->mainImage.imageLayout);
+        retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, srcPitch);
         // if (retval < 0) {
         //    return retval;
         // }
@@ -3010,11 +3011,11 @@ static int VULKAN_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainImage.imageLayout);
+    retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
-        retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 1, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch, &textureData->mainImage.imageLayout);
+        retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 1, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch);
         if (retval >= 0) {
-            retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 2, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch, &textureData->mainImage.imageLayout);
+            retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 2, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch);
         }
     }
     return retval;
@@ -3033,9 +3034,9 @@ static int VULKAN_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainImage.imageLayout);
+    retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
-        retval = VULKAN_UpdateTextureInternal(rendererData, textureData->mainImage.image, textureData->mainImage.format, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainImage.imageLayout);
+        retval = VULKAN_UpdateTextureInternal(rendererData, &textureData->mainImage, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, UVplane, UVpitch);
     }
     return retval;
 }
