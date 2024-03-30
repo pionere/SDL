@@ -425,9 +425,8 @@ static void D3D12_WaitForGPU(D3D12_RenderData *data)
     }
 }
 
-static D3D12_CPU_DESCRIPTOR_HANDLE D3D12_GetCurrentRenderTargetView(SDL_Renderer *renderer)
+static D3D12_CPU_DESCRIPTOR_HANDLE D3D12_GetCurrentRenderTargetView(D3D12_RenderData *data)
 {
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor;
 
     if (data->textureRenderTarget) {
@@ -563,7 +562,7 @@ static D3D12_BLEND_OP GetBlendEquation(SDL_BlendOperation operation)
     }
 }
 
-static void D3D12_CreateBlendState(SDL_Renderer *renderer, SDL_BlendMode blendMode, D3D12_BLEND_DESC *outBlendDesc)
+static void D3D12_CreateBlendState(SDL_BlendMode blendMode, D3D12_BLEND_DESC *outBlendDesc)
 {
     SDL_BlendMode longBlendMode = SDL_GetLongBlendMode(blendMode);
     SDL_BlendFactor srcColorFactor = SDL_GetLongBlendModeSrcColorFactor(longBlendMode);
@@ -586,7 +585,7 @@ static void D3D12_CreateBlendState(SDL_Renderer *renderer, SDL_BlendMode blendMo
     outBlendDesc->RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 }
 
-static D3D12_PipelineState *D3D12_CreatePipelineState(SDL_Renderer *renderer,
+static D3D12_PipelineState *D3D12_CreatePipelineState(D3D12_RenderData *data,
                                                       D3D12_Shader shader,
                                                       SDL_BlendMode blendMode,
                                                       D3D12_PRIMITIVE_TOPOLOGY_TYPE topology,
@@ -597,7 +596,6 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(SDL_Renderer *renderer,
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
     };
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc;
     ID3D12PipelineState *pipelineState = NULL;
     D3D12_PipelineState *pipelineStates;
@@ -607,7 +605,7 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(SDL_Renderer *renderer,
     pipelineDesc.pRootSignature = data->rootSignatures[D3D12_GetRootSignatureType(shader)];
     D3D12_GetVertexShader(shader, &pipelineDesc.VS);
     D3D12_GetPixelShader(shader, &pipelineDesc.PS);
-    D3D12_CreateBlendState(renderer, blendMode, &pipelineDesc.BlendState);
+    D3D12_CreateBlendState(blendMode, &pipelineDesc.BlendState);
     pipelineDesc.SampleMask = 0xffffffff;
 
     pipelineDesc.RasterizerState.AntialiasedLineEnable = FALSE;
@@ -1029,7 +1027,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         for (j = 0; j < SDL_arraysize(defaultBlendModes); ++j) {
             for (k = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; k < D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH; ++k) {
                 for (l = 0; l < SDL_arraysize(defaultRTVFormats); ++l) {
-                    if (!D3D12_CreatePipelineState(renderer, (D3D12_Shader)i, defaultBlendModes[j], (D3D12_PRIMITIVE_TOPOLOGY_TYPE)k, defaultRTVFormats[l])) {
+                    if (!D3D12_CreatePipelineState(data, (D3D12_Shader)i, defaultBlendModes[j], (D3D12_PRIMITIVE_TOPOLOGY_TYPE)k, defaultRTVFormats[l])) {
                         /* D3D12_CreatePipelineState will set the SDL error, if it fails */
                         goto done;
                     }
@@ -1091,10 +1089,9 @@ static BOOL D3D12_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
     }
 }
 
-static int D3D12_GetRotationForCurrentRenderTarget(SDL_Renderer *renderer)
+static int D3D12_GetRotationForCurrentRenderTarget(D3D12_RenderData *data)
 {
 #if 0
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     if (data->textureRenderTarget) {
         return DXGI_MODE_ROTATION_IDENTITY;
     } else {
@@ -1105,10 +1102,9 @@ static int D3D12_GetRotationForCurrentRenderTarget(SDL_Renderer *renderer)
 #endif
 }
 
-static int D3D12_GetViewportAlignedD3DRect(SDL_Renderer *renderer, const SDL_Rect *sdlRect, D3D12_RECT *outRect, BOOL includeViewportOffset)
+static int D3D12_GetViewportAlignedD3DRect(D3D12_RenderData *data, const SDL_Rect *sdlRect, D3D12_RECT *outRect, BOOL includeViewportOffset)
 {
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
-    const int rotation = D3D12_GetRotationForCurrentRenderTarget(renderer);
+    const int rotation = D3D12_GetRotationForCurrentRenderTarget(data);
     const SDL_Rect *viewport = &data->currentViewport;
 
     switch (rotation) {
@@ -1360,7 +1356,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      * even before we get to SetDrawState. Without this it's possible to hit
      * null references in places like ReadPixels!
      */
-    data->currentRenderTargetView = D3D12_GetCurrentRenderTargetView(renderer);
+    data->currentRenderTargetView = D3D12_GetCurrentRenderTargetView(data);
     D3D_CALL(data->commandList, OMSetRenderTargets, 1, &data->currentRenderTargetView, FALSE, NULL);
     D3D12_TransitionResource(data,
                              data->renderTargets[data->currentBackBufferIndex],
@@ -1649,8 +1645,9 @@ static void D3D12_DestroyTexture(SDL_Renderer *renderer,
     texture->driverdata = NULL;
 }
 
-static int D3D12_UpdateTextureInternal(D3D12_RenderData *rendererData, ID3D12Resource *texture, int bpp, int x, int y, int w, int h, const void *pixels, int pitch, D3D12_RESOURCE_STATES *resourceState)
+static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *texture, int bpp, int x, int y, int w, int h, const void *pixels, int pitch, D3D12_RESOURCE_STATES *resourceState)
 {
+    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     const Uint8 *src;
     Uint8 *dst;
     int row;
@@ -1796,7 +1793,6 @@ static int D3D12_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                                const SDL_Rect *rect, const void *srcPixels,
                                int srcPitch)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     int bpp = SDL_PIXELFORMAT_BPP(texture->format);
     int status;
@@ -1805,25 +1801,25 @@ static int D3D12_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch, &textureData->mainResourceState);
+    status = D3D12_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch, &textureData->mainResourceState);
 #if SDL_HAVE_YUV
     if (status >= 0) {
         if (textureData->yuv) {
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateV : &textureData->mainResourceStateU);
+            status = D3D12_UpdateTextureInternal(renderer, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateV : &textureData->mainResourceStateU);
 
             if (status >= 0) {
                 /* Skip to the correct offset into the next texture */
                 srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
-                status = D3D12_UpdateTextureInternal(rendererData, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateU : &textureData->mainResourceStateV);
+                status = D3D12_UpdateTextureInternal(renderer, texture->format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2, texture->format == SDL_PIXELFORMAT_YV12 ? &textureData->mainResourceStateU : &textureData->mainResourceStateV);
             }
         } else if (textureData->nv12) {
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateNV);
+            status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateNV);
         }
     }
 #endif /* SDL_HAVE_YUV */
@@ -1837,7 +1833,6 @@ static int D3D12_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
                                   const Uint8 *Uplane, int Upitch,
                                   const Uint8 *Vplane, int Vpitch)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     int bpp = SDL_PIXELFORMAT_BPP(texture->format);
     int status;
@@ -1846,11 +1841,11 @@ static int D3D12_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
+    status = D3D12_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
     if (status >= 0)  {
-        status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch, &textureData->mainResourceStateU);
+        status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch, &textureData->mainResourceStateU);
         if (status >= 0) {
-            status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch, &textureData->mainResourceStateV);
+            status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch, &textureData->mainResourceStateV);
         }
     }
     return status;
@@ -1861,7 +1856,6 @@ static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
                                  const Uint8 *Yplane, int Ypitch,
                                  const Uint8 *UVplane, int UVpitch)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     int status;
 
@@ -1869,9 +1863,9 @@ static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
         return SDL_SetError("Texture is not currently available");
     }
 
-    status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
+    status = D3D12_UpdateTextureInternal(renderer, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
     if (status >= 0) {
-        status = D3D12_UpdateTextureInternal(rendererData, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateNV);
+        status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateNV);
     }
     return status;
 }
@@ -2194,10 +2188,9 @@ static int D3D12_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
     return 0;
 }
 
-static int D3D12_UpdateVertexBuffer(SDL_Renderer *renderer,
+static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
                                     const void *vertexData, size_t dataSizeInBytes)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     HRESULT result = S_OK;
     const int vbidx = rendererData->currentVertexBuffer;
     UINT8 *vertexBufferData = NULL;
@@ -2244,16 +2237,15 @@ static int D3D12_UpdateVertexBuffer(SDL_Renderer *renderer,
     return S_OK;
 }
 
-static int D3D12_UpdateViewport(SDL_Renderer *renderer)
+static int D3D12_UpdateViewport(D3D12_RenderData *data)
 {
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     const SDL_Rect *viewport = &data->currentViewport;
     Float4X4 projection;
     Float4X4 view;
     SDL_FRect orientationAlignedViewport;
     BOOL swapDimensions;
     D3D12_VIEWPORT d3dviewport;
-    const int rotation = D3D12_GetRotationForCurrentRenderTarget(renderer);
+    const int rotation = D3D12_GetRotationForCurrentRenderTarget(data);
 
     if (viewport->w == 0 || viewport->h == 0) {
         /* If the viewport is empty, assume that it is because
@@ -2337,15 +2329,14 @@ static int D3D12_UpdateViewport(SDL_Renderer *renderer)
     return 0;
 }
 
-static int D3D12_SetDrawState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, D3D12_Shader shader,
+static int D3D12_SetDrawState(D3D12_RenderData *rendererData, const SDL_RenderCommand *cmd, D3D12_Shader shader,
                               D3D12_PRIMITIVE_TOPOLOGY_TYPE topology,
                               const int numShaderResources, D3D12_CPU_DESCRIPTOR_HANDLE *shaderResources,
                               D3D12_CPU_DESCRIPTOR_HANDLE *sampler, const Float4X4 *matrix)
 
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     const Float4X4 *newmatrix = matrix ? matrix : &rendererData->identity;
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = D3D12_GetCurrentRenderTargetView(renderer);
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = D3D12_GetCurrentRenderTargetView(rendererData);
     const SDL_BlendMode blendMode = cmd->data.draw.blend;
     SDL_bool updateSubresource = SDL_FALSE;
     int i;
@@ -2383,7 +2374,7 @@ static int D3D12_SetDrawState(SDL_Renderer *renderer, const SDL_RenderCommand *c
 
         /* If we didn't find a match, create a new one -- it must mean the blend mode is non-standard */
         if (!rendererData->currentPipelineState) {
-            rendererData->currentPipelineState = D3D12_CreatePipelineState(renderer, shader, blendMode, topology, rtvFormat);
+            rendererData->currentPipelineState = D3D12_CreatePipelineState(rendererData, shader, blendMode, topology, rtvFormat);
         }
 
         if (!rendererData->currentPipelineState) {
@@ -2405,7 +2396,7 @@ static int D3D12_SetDrawState(SDL_Renderer *renderer, const SDL_RenderCommand *c
     }
 
     if (rendererData->viewportDirty) {
-        if (D3D12_UpdateViewport(renderer) == 0) {
+        if (D3D12_UpdateViewport(rendererData) == 0) {
             /* vertexShaderConstantsData.projectionAndView has changed */
             updateSubresource = SDL_TRUE;
         }
@@ -2413,7 +2404,7 @@ static int D3D12_SetDrawState(SDL_Renderer *renderer, const SDL_RenderCommand *c
 
     if (rendererData->cliprectDirty) {
         D3D12_RECT scissorRect;
-        if (D3D12_GetViewportAlignedD3DRect(renderer, &rendererData->currentCliprect, &scissorRect, TRUE) != 0) {
+        if (D3D12_GetViewportAlignedD3DRect(rendererData, &rendererData->currentCliprect, &scissorRect, TRUE) != 0) {
             /* D3D12_GetViewportAlignedD3DRect will have set the SDL error */
             return -1;
         }
@@ -2479,10 +2470,9 @@ static int D3D12_SetDrawState(SDL_Renderer *renderer, const SDL_RenderCommand *c
     return 0;
 }
 
-static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, const Float4X4 *matrix)
+static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCommand *cmd, const Float4X4 *matrix)
 {
     SDL_Texture *texture = cmd->data.draw.texture;
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
     D3D12_CPU_DESCRIPTOR_HANDLE *textureSampler;
 
@@ -2530,7 +2520,7 @@ static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
         D3D12_TransitionResource(rendererData, textureData->mainTextureV, textureData->mainResourceStateV, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         textureData->mainResourceStateV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-        return D3D12_SetDrawState(renderer, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
+        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
                                   textureSampler, matrix);
     } else if (textureData->nv12) {
         D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
@@ -2561,19 +2551,18 @@ static int D3D12_SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *c
         D3D12_TransitionResource(rendererData, textureData->mainTextureNV, textureData->mainResourceStateNV, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         textureData->mainResourceStateNV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-        return D3D12_SetDrawState(renderer, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
+        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
                                   textureSampler, matrix);
     }
 #endif /* SDL_HAVE_YUV */
     D3D12_TransitionResource(rendererData, textureData->mainTexture, textureData->mainResourceState, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-    return D3D12_SetDrawState(renderer, cmd, SHADER_RGB, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, &textureData->mainTextureResourceView,
+    return D3D12_SetDrawState(rendererData, cmd, SHADER_RGB, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, &textureData->mainTextureResourceView,
                               textureSampler, matrix);
 }
 
-static void D3D12_DrawPrimitives(SDL_Renderer *renderer, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology, const size_t vertexStart, const size_t vertexCount)
+static void D3D12_DrawPrimitives(D3D12_RenderData *rendererData, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology, const size_t vertexStart, const size_t vertexCount)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D_CALL(rendererData->commandList, IASetPrimitiveTopology, primitiveTopology);
     D3D_CALL(rendererData->commandList, DrawInstanced, (UINT)vertexCount, 1, (UINT)vertexStart, 0);
 }
@@ -2582,13 +2571,13 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
 #if 0
-    const int viewportRotation = D3D12_GetRotationForCurrentRenderTarget(renderer);
+    const int viewportRotation = D3D12_GetRotationForCurrentRenderTarget(rendererData);
     if (rendererData->currentViewportRotation != viewportRotation) {
         rendererData->currentViewportRotation = viewportRotation;
         rendererData->viewportDirty = SDL_TRUE;
     }
 #endif
-    if (D3D12_UpdateVertexBuffer(renderer, vertices, vertsize) < 0) {
+    if (D3D12_UpdateVertexBuffer(rendererData, vertices, vertsize) < 0) {
         return -1;
     }
 
@@ -2643,7 +2632,7 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
                 (cmd->data.color.color.a / 255.0f)
             };
 
-            D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = D3D12_GetCurrentRenderTargetView(renderer);
+            D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = D3D12_GetCurrentRenderTargetView(rendererData);
             D3D_CALL(rendererData->commandList, ClearRenderTargetView, rtvDescriptor, colorRGBA, 0, NULL);
             break;
         }
@@ -2653,8 +2642,8 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t count = cmd->data.draw.count;
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
-            D3D12_SetDrawState(renderer, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, 0, NULL, NULL, NULL);
-            D3D12_DrawPrimitives(renderer, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start, count);
+            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, 0, NULL, NULL, NULL);
+            D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start, count);
             break;
         }
 
@@ -2664,10 +2653,10 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
             const VertexPositionColor *verts = (VertexPositionColor *)(((Uint8 *)vertices) + first);
-            D3D12_SetDrawState(renderer, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, 0, NULL, NULL, NULL);
-            D3D12_DrawPrimitives(renderer, D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, start, count);
+            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, 0, NULL, NULL, NULL);
+            D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, start, count);
             if (verts[0].pos.x != verts[count - 1].pos.x || verts[0].pos.y != verts[count - 1].pos.y) {
-                D3D12_DrawPrimitives(renderer, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start + (count - 1), 1);
+                D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start + (count - 1), 1);
             }
             break;
         }
@@ -2689,12 +2678,12 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t start = first / sizeof(VertexPositionColor);
 
             if (texture) {
-                D3D12_SetCopyState(renderer, cmd, NULL);
+                D3D12_SetCopyState(rendererData, cmd, NULL);
             } else {
-                D3D12_SetDrawState(renderer, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 0, NULL, NULL, NULL);
+                D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 0, NULL, NULL, NULL);
             }
 
-            D3D12_DrawPrimitives(renderer, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, start, count);
+            D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, start, count);
             break;
         }
 
@@ -2789,7 +2778,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     D3D12_TransitionResource(data, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
     /* Copy the desired portion of the back buffer to the staging texture: */
-    if (D3D12_GetViewportAlignedD3DRect(renderer, rect, &srcRect, FALSE) != 0) {
+    if (D3D12_GetViewportAlignedD3DRect(data, rect, &srcRect, FALSE) != 0) {
         /* D3D12_GetViewportAlignedD3DRect will have set the SDL error */
         goto done;
     }
