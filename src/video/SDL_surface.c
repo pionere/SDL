@@ -1423,6 +1423,11 @@ int SDL_ConvertPixels(int width, int height,
         return SDL_InvalidParamError("dst_pitch");
     }
 
+    if (width <= 0 || height <= 0) {
+        /* No-op*/
+        return 0;
+    }
+
 #if SDL_HAVE_YUV
     if (SDL_ISPIXELFORMAT_FOURCC(src_format) && SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
         return SDL_ConvertPixels_YUV_to_YUV(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
@@ -1436,10 +1441,6 @@ int SDL_ConvertPixels(int width, int height,
         return SDL_SetError("SDL not built with YUV support");
     }
 #endif
-    if (width <= 0 || height <= 0) {
-        /* No-op*/
-        return 0;
-    }
 
     /* Fast path for same format copy */
     if (src_format == dst_format) {
