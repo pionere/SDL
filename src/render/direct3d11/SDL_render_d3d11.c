@@ -224,11 +224,13 @@ static DXGI_FORMAT SDLPixelFormatToDXGIFormat(Uint32 sdlFormat)
         return DXGI_FORMAT_B8G8R8A8_UNORM;
     case SDL_PIXELFORMAT_RGB888:
         return DXGI_FORMAT_B8G8R8X8_UNORM;
+#if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_NV12: /* For the Y texture */
     case SDL_PIXELFORMAT_NV21: /* For the Y texture */
         return DXGI_FORMAT_R8_UNORM;
+#endif
     default:
         return DXGI_FORMAT_UNKNOWN;
     }
@@ -239,7 +241,7 @@ static void D3D11_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture);
 static void D3D11_ReleaseAll(SDL_Renderer *renderer)
 {
     D3D11_RenderData *data;
-    SDL_Texture *texture = NULL;
+    SDL_Texture *texture;
 
     /* Release all textures */
     for (texture = renderer->textures; texture; texture = texture->next) {
