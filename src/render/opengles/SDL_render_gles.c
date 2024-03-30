@@ -84,9 +84,13 @@ typedef struct
 
 #define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
 #define SDL_PROC_OES                SDL_PROC
+#define SDL_PROC_UNUSED(ret, func, params)
+#define SDL_PROC_OES_UNUSED         SDL_PROC_UNUSED
 #include "SDL_glesfuncs.h"
 #undef SDL_PROC
 #undef SDL_PROC_OES
+#undef SDL_PROC_UNUSED
+#undef SDL_PROC_OES_UNUSED
     SDL_bool GL_OES_framebuffer_object_supported;
     GLES_FBOList *framebuffers;
     GLuint window_framebuffer;
@@ -172,10 +176,13 @@ static int GLES_LoadFunctions(GLES_RenderData *data)
         data->func = SDL_GL_GetProcAddress(#func); \
     } while (0);
 #endif /* __SDL_NOGETPROCADDR__ */
-
+#define SDL_PROC_UNUSED(ret, func, params)
+#define SDL_PROC_OES_UNUSED         SDL_PROC_UNUSED
 #include "SDL_glesfuncs.h"
 #undef SDL_PROC
 #undef SDL_PROC_OES
+#undef SDL_PROC_UNUSED
+#undef SDL_PROC_OES_UNUSED
     return 0;
 }
 

@@ -18,9 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef SDL_PROC_UNUSED
-#define SDL_PROC_UNUSED(ret, func, params)
-#endif
 
 SDL_PROC(void, glActiveTexture, (GLenum))
 SDL_PROC(void, glAttachShader, (GLuint, GLuint))

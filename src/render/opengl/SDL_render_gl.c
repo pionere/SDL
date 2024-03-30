@@ -103,8 +103,10 @@ typedef struct
 
     /* OpenGL functions */
 #define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
+#define SDL_PROC_UNUSED(ret, func, params)
 #include "SDL_glfuncs.h"
 #undef SDL_PROC
+#undef SDL_PROC_UNUSED
 
     /* Multitexture support */
     SDL_bool GL_ARB_multitexture_supported;
@@ -252,9 +254,10 @@ static int GL_LoadFunctions(GL_RenderData *data)
         }                                                                       \
     } while (0);
 #endif /* __SDL_NOGETPROCADDR__ */
-
+#define SDL_PROC_UNUSED(ret, func, params)
 #include "SDL_glfuncs.h"
 #undef SDL_PROC
+#undef SDL_PROC_UNUSED
     return 0;
 }
 

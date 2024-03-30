@@ -23,9 +23,6 @@
    If you need to use a GL function from the SDL video subsystem,
    change its entry from SDL_PROC_UNUSED to SDL_PROC and rebuild.
 */
-#ifndef SDL_PROC_UNUSED
-#define SDL_PROC_UNUSED(ret, func, params)
-#endif
 
 SDL_PROC_UNUSED(void, glAccum, (GLenum, GLfloat))
 SDL_PROC_UNUSED(void, glAlphaFunc, (GLenum, GLclampf))

@@ -18,12 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef SDL_PROC_UNUSED
-#define SDL_PROC_UNUSED(ret, func, params)
-#endif
-#ifndef SDL_PROC_OES_UNUSED
-#define SDL_PROC_OES_UNUSED(ret, func, params)
-#endif
 
 SDL_PROC(void, glBindTexture, (GLenum, GLuint))
 SDL_PROC(void, glBlendFunc, (GLenum, GLenum))
