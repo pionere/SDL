@@ -1364,16 +1364,17 @@ SDL_Surface *SDL_ConvertSurfaceFormat(SDL_Surface * surface, Uint32 pixel_format
 /*
  * Create a surface on the stack for quick blit operations
  */
-static SDL_INLINE SDL_bool SDL_CreateSurfaceOnStack(int width, int height, Uint32 pixel_format,
+static SDL_INLINE int SDL_CreateSurfaceOnStack(int width, int height, Uint32 pixel_format,
                                                     void *pixels, int pitch, SDL_Surface *surface,
                                                     SDL_PixelFormat *format, SDL_BlitMap *blitmap)
 {
+    int retval;
     if (SDL_ISPIXELFORMAT_INDEXED(pixel_format)) {
-        SDL_SetError("Indexed pixel formats not supported");
-        return SDL_FALSE;
+        return SDL_SetError("Indexed pixel formats not supported");
     }
-    if (SDL_InitFormat(format, pixel_format) < 0) {
-        return SDL_FALSE;
+    retval = SDL_InitFormat(format, pixel_format);
+    if (retval < 0) {
+        return retval;
     }
 
     SDL_zerop(surface);
@@ -1393,7 +1394,7 @@ static SDL_INLINE SDL_bool SDL_CreateSurfaceOnStack(int width, int height, Uint3
 
     /* The surface is ready to go */
     surface->refcount = 1;
-    return SDL_TRUE;
+    return 0;
 }
 
 /*
@@ -1407,8 +1408,8 @@ int SDL_ConvertPixels(int width, int height,
     SDL_PixelFormat src_fmt, dst_fmt;
     SDL_BlitMap src_blitmap, dst_blitmap;
     SDL_Rect rect;
-    void *nonconst_src = (void *)src;
-    int ret;
+    SDL_bool src_fourcc, dst_fourcc;
+    int retval;
 
     if (!src) {
         return SDL_InvalidParamError("src");
@@ -1428,16 +1429,18 @@ int SDL_ConvertPixels(int width, int height,
         return 0;
     }
 
+    src_fourcc = SDL_ISPIXELFORMAT_FOURCC(src_format);
+    dst_fourcc = SDL_ISPIXELFORMAT_FOURCC(dst_format);
 #if SDL_HAVE_YUV
-    if (SDL_ISPIXELFORMAT_FOURCC(src_format) && SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
+    if (src_fourcc && dst_fourcc) {
         return SDL_ConvertPixels_YUV_to_YUV(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
-    } else if (SDL_ISPIXELFORMAT_FOURCC(src_format)) {
+    } else if (src_fourcc) {
         return SDL_ConvertPixels_YUV_to_RGB(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
-    } else if (SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
+    } else if (dst_fourcc) {
         return SDL_ConvertPixels_RGB_to_YUV(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
     }
 #else
-    if (SDL_ISPIXELFORMAT_FOURCC(src_format) || SDL_ISPIXELFORMAT_FOURCC(dst_format)) {
+    if (src_fourcc || dst_fourcc) {
         return SDL_SetError("SDL not built with YUV support");
     }
 #endif
@@ -1446,7 +1449,7 @@ int SDL_ConvertPixels(int width, int height,
     if (src_format == dst_format) {
         int i;
         const int bpp = SDL_PIXELBPP(src_format);
-        SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(src_format));
+        SDL_assert(src_fourcc == SDL_FALSE);
         width *= bpp;
         for (i = height; i--;) {
             SDL_memcpy(dst, src, width);
@@ -1456,14 +1459,15 @@ int SDL_ConvertPixels(int width, int height,
         return 0;
     }
 
-    if (!SDL_CreateSurfaceOnStack(width, height, src_format, nonconst_src,
-                                  src_pitch,
-                                  &src_surface, &src_fmt, &src_blitmap)) {
-        return -1;
+    retval = SDL_CreateSurfaceOnStack(width, height, src_format, SDL_const_cast(void *, src), src_pitch,
+                                  &src_surface, &src_fmt, &src_blitmap);
+    if (retval < 0) {
+        return retval;
     }
-    if (!SDL_CreateSurfaceOnStack(width, height, dst_format, dst, dst_pitch,
-                                  &dst_surface, &dst_fmt, &dst_blitmap)) {
-        return -1;
+    retval = SDL_CreateSurfaceOnStack(width, height, dst_format, dst, dst_pitch,
+                                  &dst_surface, &dst_fmt, &dst_blitmap);
+    if (retval < 0) {
+        return retval;
     }
 
     /* Set up the rect and go! */
@@ -1471,12 +1475,12 @@ int SDL_ConvertPixels(int width, int height,
     rect.y = 0;
     rect.w = width;
     rect.h = height;
-    ret = SDL_LowerBlit(&src_surface, &rect, &dst_surface, &rect);
+    retval = SDL_LowerBlit(&src_surface, &rect, &dst_surface, &rect);
 
     /* Free blitmap reference, after blitting between stack'ed surfaces */
     SDL_InvalidateMap(src_surface.map);
 
-    return ret;
+    return retval;
 }
 
 /*
