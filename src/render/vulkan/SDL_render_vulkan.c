@@ -227,13 +227,12 @@ typedef struct
     VkBuffer buffer;
     VkDeviceSize size;
     void *mappedBufferPtr;
-
 } VULKAN_Buffer;
 
 /* Vulkan image */
 typedef struct
 {
-    SDL_bool allocatedImage;
+    // SDL_bool allocatedImage;
     VkImage image;
     VkImageView imageView;
     VkDeviceMemory deviceMemory;
@@ -262,7 +261,6 @@ typedef struct
     VkDescriptorSetLayout descriptorSetLayoutYcbcr;
     /* Pipeline layout with immutable sampler descriptor set layout */
     VkPipelineLayout pipelineLayoutYcbcr;
-
 } VULKAN_TextureData;
 
 /* Pipeline State Object data */
@@ -289,9 +287,9 @@ typedef struct
     // PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
     SDL_bool vulkan_loaded;
     VkInstance instance;
-    SDL_bool instance_external;
+    // SDL_bool instance_external;
     VkSurfaceKHR surface;
-    SDL_bool surface_external;
+    // SDL_bool surface_external;
     VkPhysicalDevice physicalDevice;
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
@@ -299,7 +297,7 @@ typedef struct
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkDevice device;
-    SDL_bool device_external;
+    // SDL_bool device_external;
     uint32_t graphicsQueueFamilyIndex;
     uint32_t presentQueueFamilyIndex;
     VkSwapchainKHR swapchain;
@@ -641,15 +639,15 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         rendererData->constantBuffers = NULL;
     }
 
-    if (rendererData->device != VK_NULL_HANDLE && !rendererData->device_external) {
+    if (rendererData->device != VK_NULL_HANDLE /*&& !rendererData->device_external*/) {
         vkDestroyDevice(rendererData->device, NULL);
         rendererData->device = VK_NULL_HANDLE;
     }
-    if (rendererData->surface != VK_NULL_HANDLE && !rendererData->surface_external) {
+    if (rendererData->surface != VK_NULL_HANDLE /*&& !rendererData->surface_external*/) {
         vkDestroySurfaceKHR(rendererData->instance, rendererData->surface, NULL);
         rendererData->surface = VK_NULL_HANDLE;
     }
-    if (rendererData->instance != VK_NULL_HANDLE && !rendererData->instance_external) {
+    if (rendererData->instance != VK_NULL_HANDLE /*&& !rendererData->instance_external*/) {
         vkDestroyInstance(rendererData->instance, NULL);
         rendererData->instance = VK_NULL_HANDLE;
     }
@@ -659,11 +657,11 @@ static void VULKAN_DestroyBuffer(VULKAN_RenderData *rendererData, VULKAN_Buffer 
 {
     if (vulkanBuffer->buffer != VK_NULL_HANDLE) {
         vkDestroyBuffer(rendererData->device, vulkanBuffer->buffer, NULL);
-        vulkanBuffer->buffer = VK_NULL_HANDLE;
+        // vulkanBuffer->buffer = VK_NULL_HANDLE;
     }
     if (vulkanBuffer->deviceMemory != VK_NULL_HANDLE) {
         vkFreeMemory(rendererData->device, vulkanBuffer->deviceMemory, NULL);
-        vulkanBuffer->deviceMemory = VK_NULL_HANDLE;
+        // vulkanBuffer->deviceMemory = VK_NULL_HANDLE;
     }
     SDL_memset(vulkanBuffer, 0, sizeof(VULKAN_Buffer));
 }
@@ -734,16 +732,16 @@ static void VULKAN_DestroyImage(VULKAN_RenderData *rendererData, VULKAN_Image *v
         // vulkanImage->imageView = VK_NULL_HANDLE;
     }
     if (vulkanImage->image != VK_NULL_HANDLE) {
-        if (vulkanImage->allocatedImage) {
+        // if (vulkanImage->allocatedImage) {
             vkDestroyImage(rendererData->device, vulkanImage->image, NULL);
-        }
+        // }
         // vulkanImage->image = VK_NULL_HANDLE;
     }
 
     if (vulkanImage->deviceMemory != VK_NULL_HANDLE) {
-        if (vulkanImage->allocatedImage) {
+        // if (vulkanImage->allocatedImage) {
             vkFreeMemory(rendererData->device, vulkanImage->deviceMemory, NULL);
-        }
+        // }
         // vulkanImage->deviceMemory = VK_NULL_HANDLE;
     }
     SDL_zerop(vulkanImage);
@@ -764,7 +762,7 @@ static VkResult VULKAN_AllocateImage(VULKAN_RenderData *rendererData/*, SDL_Prop
     imageOut->image = VK_NULL_HANDLE; // (VkImage)SDL_GetNumberProperty(create_props, SDL_PROP_TEXTURE_CREATE_VULKAN_TEXTURE_NUMBER, 0);
 
     if (imageOut->image == VK_NULL_HANDLE) {
-        imageOut->allocatedImage = VK_TRUE;
+        // imageOut->allocatedImage = VK_TRUE;
 
         SDL_zero(imageCreateInfo);
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1781,7 +1779,7 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     /* Create VkInstance */
     rendererData->instance = NULL; // (VkInstance)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_INSTANCE_POINTER, NULL);
     if (rendererData->instance) {
-        rendererData->instance_external = SDL_TRUE;
+        // rendererData->instance_external = SDL_TRUE;
     } else {
         VkInstanceCreateInfo instanceCreateInfo = { 0 };
         VkApplicationInfo appInfo = { 0 };
@@ -1836,7 +1834,7 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     /* Create Vulkan surface */
     rendererData->surface = 0; // (VkSurfaceKHR)SDL_GetNumberProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_SURFACE_NUMBER, 0);
     if (rendererData->surface) {
-        rendererData->surface_external = SDL_TRUE;
+        // rendererData->surface_external = SDL_TRUE;
     } else {
         if (!SDL_Vulkan_CreateSurface(renderer->window, rendererData->instance, &rendererData->surface)) {
             return SDL_VULKAN_ERROR_UNKNOWN;
@@ -1870,7 +1868,7 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     /* Create Vulkan device */
     rendererData->device = NULL; // (VkDevice)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_DEVICE_POINTER, NULL);
     if (rendererData->device) {
-        rendererData->device_external = SDL_TRUE;
+        // rendererData->device_external = SDL_TRUE;
     } else {
         VkPhysicalDeviceSamplerYcbcrConversionFeatures deviceSamplerYcbcrConversionFeatures = { 0 };
         VkDeviceQueueCreateInfo deviceQueueCreateInfo[2] = { { 0 }, { 0 } };
