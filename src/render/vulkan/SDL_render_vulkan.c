@@ -384,7 +384,7 @@ typedef struct
     SDL_bool issueBatch;
 } VULKAN_RenderData;
 
-static SDL_PixelFormatEnum VULKAN_VkFormatToSDLPixelFormat(VkFormat vkFormat)
+static Uint32 VULKAN_VkFormatToSDLPixelFormat(VkFormat vkFormat)
 {
     switch (vkFormat) {
     case VK_FORMAT_B8G8R8A8_UNORM:
