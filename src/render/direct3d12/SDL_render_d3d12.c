@@ -448,7 +448,9 @@ static void D3D12_TransitionResource(D3D12_RenderData *data,
 
     if (beforeState != afterState) {
         SDL_zero(barrier);
-        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_tr, D3D12_RESOURCE_BARRIER_TYPE_TRANSITION == 0);
+        // barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        // barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
         barrier.Transition.pResource = resource;
         barrier.Transition.StateBefore = beforeState;
         barrier.Transition.StateAfter = afterState;
@@ -573,8 +575,8 @@ static void D3D12_CreateBlendState(SDL_BlendMode blendMode, D3D12_BLEND_DESC *ou
     SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
 
     SDL_zerop(outBlendDesc);
-    outBlendDesc->AlphaToCoverageEnable = FALSE;
-    outBlendDesc->IndependentBlendEnable = FALSE;
+    // outBlendDesc->AlphaToCoverageEnable = FALSE;
+    // outBlendDesc->IndependentBlendEnable = FALSE;
     outBlendDesc->RenderTarget[0].BlendEnable = TRUE;
     outBlendDesc->RenderTarget[0].SrcBlend = GetBlendFunc(srcColorFactor);
     outBlendDesc->RenderTarget[0].DestBlend = GetBlendFunc(dstColorFactor);
@@ -605,28 +607,59 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(D3D12_RenderData *data,
     pipelineDesc.pRootSignature = data->rootSignatures[D3D12_GetRootSignatureType(shader)];
     D3D12_GetVertexShader(shader, &pipelineDesc.VS);
     D3D12_GetPixelShader(shader, &pipelineDesc.PS);
+    // D3D12_GetDomainShader(shader, &pipelineDesc.DS);
+    // D3D12_GetHullShader(shader, &pipelineDesc.HS);
+    // D3D12_GetGeometryShader(shader, &pipelineDesc.GS);
+    // pipelineDesc.StreamOutput.pSODeclaration = NULL;
+    // pipelineDesc.StreamOutput.NumEntries = 0;
+    // pipelineDesc.StreamOutput.pBufferStrides = NULL;
+    // pipelineDesc.StreamOutput.NumStrides = 0;
+    // pipelineDesc.StreamOutput.RasterizedStream = 0;
     D3D12_CreateBlendState(blendMode, &pipelineDesc.BlendState);
     pipelineDesc.SampleMask = 0xffffffff;
 
-    pipelineDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+    // pipelineDesc.RasterizerState.AntialiasedLineEnable = FALSE;
     pipelineDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    pipelineDesc.RasterizerState.DepthBias = 0;
-    pipelineDesc.RasterizerState.DepthBiasClamp = 0.0f;
+    // pipelineDesc.RasterizerState.DepthBias = 0;
+    // pipelineDesc.RasterizerState.DepthBiasClamp = 0.0f;
     pipelineDesc.RasterizerState.DepthClipEnable = TRUE;
     pipelineDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-    pipelineDesc.RasterizerState.FrontCounterClockwise = FALSE;
-    pipelineDesc.RasterizerState.MultisampleEnable = FALSE;
-    pipelineDesc.RasterizerState.SlopeScaledDepthBias = 0.0f;
+    // pipelineDesc.RasterizerState.FrontCounterClockwise = FALSE;
+    // pipelineDesc.RasterizerState.MultisampleEnable = FALSE;
+    // pipelineDesc.RasterizerState.SlopeScaledDepthBias = 0.0f;
+    // pipelineDesc.RasterizerState.ForcedSampleCount = 0;
+    // pipelineDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+    // pipelineDesc.DepthStencilState.DepthEnable = FALSE;
+    // pipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    // pipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_NONE;
+    // pipelineDesc.DepthStencilState.StencilEnable = FALSE;
+    // pipelineDesc.DepthStencilState.StencilReadMask = 0;
+    // pipelineDesc.DepthStencilState.StencilWriteMask = 0;
+    // pipelineDesc.DepthStencilState.FrontFace.StencilFailOp = 0; // D3D12_STENCIL_OP_?
+    // pipelineDesc.DepthStencilState.FrontFace.StencilFailOp;
+    // pipelineDesc.DepthStencilState.FrontFace.StencilDepthFailOp;
+    // pipelineDesc.DepthStencilState.FrontFace.StencilPassOp;
+    // pipelineDesc.DepthStencilState.StencilFunc = D3D12_COMPARISON_FUNC_NONE;
+    // pipelineDesc.DepthStencilState.BackFace.StencilFailOp = 0; // D3D12_STENCIL_OP_?
+    // pipelineDesc.DepthStencilState.BackFace.StencilFailOp;
+    // pipelineDesc.DepthStencilState.BackFace.StencilDepthFailOp;
+    // pipelineDesc.DepthStencilState.BackFace.StencilPassOp;
 
     pipelineDesc.InputLayout.pInputElementDescs = vertexDesc;
     pipelineDesc.InputLayout.NumElements = 3;
-
+    // pipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
     pipelineDesc.PrimitiveTopologyType = topology;
 
     pipelineDesc.NumRenderTargets = 1;
     pipelineDesc.RTVFormats[0] = rtvFormat;
+    // pipelineDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
     pipelineDesc.SampleDesc.Count = 1;
     pipelineDesc.SampleDesc.Quality = 0;
+    // pipelineDesc.NodeMask = 0;
+    // pipelineDesc.CachedPSO.pCachedBlob = NULL;
+    // pipelineDesc.CachedPSO.CachedBlobSizeInBytes = 0;
+    // pipelineDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     result = D3D_CALL(data->d3dDevice, CreateGraphicsPipelineState,
                       &pipelineDesc,
@@ -663,12 +696,18 @@ static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, size_t vbidx, si
 
     SAFE_RELEASE(data->vertexBuffers[vbidx].resource);
 
-    SDL_zero(vbufferHeapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(vbufferHeapProps.VisibleNodeMask));
+    // SDL_zero(vbufferHeapProps);
     vbufferHeapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp_cpp, D3D12_CPU_PAGE_PROPERTY_UNKNOWN == 0);
+    vbufferHeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp_mpp, D3D12_MEMORY_POOL_UNKNOWN == 0);
+    vbufferHeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     vbufferHeapProps.CreationNodeMask = 1;
     vbufferHeapProps.VisibleNodeMask = 1;
 
-    SDL_zero(vbufferDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_cvb_rd, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(vbufferDesc.Flags));
+    // SDL_zero(vbufferDesc);
     vbufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     vbufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
     vbufferDesc.Width = size;
@@ -873,8 +912,18 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         }
 
         SDL_zero(filter);
+        // filter.AllowList.NumCategories = 0;
+        // filter.AllowList.pCategoryList = NULL;
+        // filter.AllowList.NumSeverities = 0;
+        // filter.AllowList.pSeverityList = NULL;
+        // filter.AllowList.NumIDs = 0;
+        // filter.AllowList.pIDList = NULL;
+        // filter.DenyList.NumCategories = 0;
+        // filter.DenyList.pCategoryList = NULL;
         filter.DenyList.NumSeverities = 1;
         filter.DenyList.pSeverityList = severities;
+        // filter.DenyList.NumIDs = 0;
+        // filter.DenyList.pIDList = NULL;
         D3D_CALL(infoQueue, PushStorageFilter, &filter);
 
         D3D_CALL(infoQueue, SetBreakOnSeverity, D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -892,8 +941,10 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Create a command queue */
     SDL_zero(queueDesc);
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    // queueDesc.Priority = 0;
+    // queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    // queueDesc.NodeMask = 0;
 
     result = D3D_CALL(data->d3dDevice, CreateCommandQueue,
                       &queueDesc,
@@ -905,9 +956,13 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
     }
 
     /* Create the descriptor heaps for the render target view, texture SRVs, and samplers */
-    SDL_zero(descriptorHeapDesc);
-    descriptorHeapDesc.NumDescriptors = SDL_D3D12_NUM_BUFFERS;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_cdr_dhd, sizeof(D3D12_DESCRIPTOR_HEAP_DESC) == offsetof(D3D12_DESCRIPTOR_HEAP_DESC, NodeMask) + sizeof(descriptorHeapDesc.NodeMask));
+    // SDL_zero(descriptorHeapDesc);
     descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    descriptorHeapDesc.NumDescriptors = SDL_D3D12_NUM_BUFFERS;
+    descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    descriptorHeapDesc.NodeMask = 0;
+
     result = D3D_CALL(data->d3dDevice, CreateDescriptorHeap,
                       &descriptorHeapDesc,
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
@@ -928,10 +983,11 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         goto done;
     }
 
-    SDL_zero(descriptorHeapDesc);
-    descriptorHeapDesc.NumDescriptors = SDL_D3D12_MAX_NUM_TEXTURES;
+    // SDL_zero(descriptorHeapDesc);
     descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    descriptorHeapDesc.NumDescriptors = SDL_D3D12_MAX_NUM_TEXTURES;
     descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    descriptorHeapDesc.NodeMask = 0;
     result = D3D_CALL(data->d3dDevice, CreateDescriptorHeap,
                       &descriptorHeapDesc,
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
@@ -943,10 +999,11 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
     rootDescriptorHeaps[0] = data->srvDescriptorHeap;
     data->srvDescriptorSize = D3D_CALL(d3dDevice, GetDescriptorHandleIncrementSize, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-    SDL_zero(descriptorHeapDesc);
-    descriptorHeapDesc.NumDescriptors = 2;
+    // SDL_zero(descriptorHeapDesc);
     descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER;
+    descriptorHeapDesc.NumDescriptors = 2;
     descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    descriptorHeapDesc.NodeMask = 0;
     result = D3D_CALL(data->d3dDevice, CreateDescriptorHeap,
                       &descriptorHeapDesc,
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
@@ -1043,15 +1100,21 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Create samplers to use when drawing textures: */
     SDL_zero(samplerDesc);
-    samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_cdr_sd, D3D12_FILTER_MIN_MAG_MIP_POINT == 0);
+    // samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
     samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
     samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
     samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-    samplerDesc.MipLODBias = 0.0f;
+    // samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-    samplerDesc.MinLOD = 0.0f;
+    // samplerDesc.BorderColor[0] = 0.0f;
+    // samplerDesc.BorderColor[1] = 0.0f;
+    // samplerDesc.BorderColor[2] = 0.0f;
+    // samplerDesc.BorderColor[3] = 0.0f;
+    // samplerDesc.MinLOD = 0.0f;
     samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+
     D3D_CALL_RET(data->samplerDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &data->nearestPixelSampler);
     D3D_CALL(data->d3dDevice, CreateSampler, &samplerDesc, data->nearestPixelSampler);
 
@@ -1156,7 +1219,8 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
-    SDL_zero(swapChainDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, sizeof(DXGI_SWAP_CHAIN_DESC1) == offsetof(DXGI_SWAP_CHAIN_DESC1, Flags) + sizeof(swapChainDesc.Flags));
+    // SDL_zero(swapChainDesc);
     swapChainDesc.Width = w;
     swapChainDesc.Height = h;
     swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; /* This is the most common swap chain format. */
@@ -1171,6 +1235,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
     }
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;               /* All Windows Store apps must use this SwapEffect. */
+    swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | /* To support SetMaximumFrameLatency */
                           DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;                  /* To support presenting with allow tearing on */
 
@@ -1452,23 +1517,31 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     texture->driverdata = textureData;
     textureData->mainTextureFormat = textureFormat;
 
-    SDL_zero(textureDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_td, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(textureDesc.Flags));
+    // SDL_zero(textureDesc);
+    textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    textureDesc.Alignment = 0;
     textureDesc.Width = texture->w;
     textureDesc.Height = texture->h;
-    textureDesc.MipLevels = 1;
     textureDesc.DepthOrArraySize = 1;
+    textureDesc.MipLevels = 1;
     textureDesc.Format = textureFormat;
     textureDesc.SampleDesc.Count = 1;
     textureDesc.SampleDesc.Quality = 0;
-    textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         textureDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     }
 
-    SDL_zero(heapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(heapProps.VisibleNodeMask));
+    // SDL_zero(heapProps);
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp_cpp, D3D12_CPU_PAGE_PROPERTY_UNKNOWN == 0);
+    heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp_mpp, D3D12_MEMORY_POOL_UNKNOWN == 0);
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask = 1;
     heapProps.VisibleNodeMask = 1;
 
@@ -1549,8 +1622,10 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     resourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     resourceViewDesc.Format = textureDesc.Format;
     resourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    resourceViewDesc.Texture2D.MostDetailedMip = 0;
+    // resourceViewDesc.Texture2D.MostDetailedMip = 0;
     resourceViewDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+    // resourceViewDesc.Texture2D.PlaneSlice = 0;
+    // resourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
     textureData->mainSRVIndex = D3D12_GetAvailableSRVIndex(renderer);
     D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceView);
@@ -1597,7 +1672,8 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         SDL_zero(renderTargetViewDesc);
         renderTargetViewDesc.Format = textureDesc.Format;
         renderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-        renderTargetViewDesc.Texture2D.MipSlice = 0;
+        // renderTargetViewDesc.Texture2D.MipSlice = 0;
+        // renderTargetViewDesc.Texture2D.PlaneSlice = 0;
 
         D3D_CALL_RET(rendererData->textureRTVDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureRenderTargetView);
         textureData->mainTextureRenderTargetView.ptr += textureData->mainSRVIndex * rendererData->rtvDescriptorSize;
@@ -1669,7 +1745,8 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     textureDesc.Width = w;
     textureDesc.Height = h;
 
-    SDL_zero(uploadDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_ud, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(uploadDesc.Flags));
+    // SDL_zero(uploadDesc);
     uploadDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     uploadDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
     uploadDesc.Height = 1;
@@ -1692,8 +1769,13 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
              NULL,
              &uploadDesc.Width);
 
-    SDL_zero(heapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(heapProps.VisibleNodeMask));
+    // SDL_zero(heapProps);
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_hp_cpp, D3D12_CPU_PAGE_PROPERTY_UNKNOWN == 0);
+    heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_hp_mpp, D3D12_MEMORY_POOL_UNKNOWN == 0);
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask = 1;
     heapProps.VisibleNodeMask = 1;
 
@@ -1721,7 +1803,8 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
     }
 
-    SDL_zero(pitchedDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
+    // SDL_zero(pitchedDesc);
     pitchedDesc.Format = textureDesc.Format;
     pitchedDesc.Width = w;
     pitchedDesc.Height = h;
@@ -1729,7 +1812,8 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     length = pitchedDesc.Width * bpp;
     pitchedDesc.RowPitch = D3D12_Align(length, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
-    SDL_zero(placedTextureDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc.Footprint));
+    // SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
     placedTextureDesc.Footprint = pitchedDesc;
 
@@ -1758,12 +1842,13 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     D3D12_TransitionResource(rendererData, texture, *resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
     *resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 
-    SDL_zero(dstLocation);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_dl, sizeof(D3D12_TEXTURE_COPY_LOCATION) == offsetof(D3D12_TEXTURE_COPY_LOCATION, PlacedFootprint) + (sizeof(dstLocation.PlacedFootprint) > sizeof(srcLocation.SubresourceIndex) ? sizeof(dstLocation.PlacedFootprint) : sizeof(srcLocation.SubresourceIndex)));
+    // SDL_zero(dstLocation);
     dstLocation.pResource = texture;
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     dstLocation.SubresourceIndex = 0;
 
-    SDL_zero(srcLocation);
+    // SDL_zero(srcLocation);
     srcLocation.pResource = rendererData->uploadBuffers[rendererData->currentUploadBuffer];
     srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
     srcLocation.PlacedFootprint = placedTextureDesc;
@@ -1916,7 +2001,8 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     textureDesc.Width = rect->w;
     textureDesc.Height = rect->h;
 
-    SDL_zero(uploadDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_ud, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(uploadDesc.Flags));
+    // SDL_zero(uploadDesc);
     uploadDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     uploadDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
     uploadDesc.Height = 1;
@@ -1939,8 +2025,13 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
              NULL,
              &uploadDesc.Width);
 
-    SDL_zero(heapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(heapProps.VisibleNodeMask));
+    // SDL_zero(heapProps);
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_hp_cpp, D3D12_CPU_PAGE_PROPERTY_UNKNOWN == 0);
+    heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_hp_mpp, D3D12_MEMORY_POOL_UNKNOWN == 0);
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask = 1;
     heapProps.VisibleNodeMask = 1;
 
@@ -1967,7 +2058,8 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
     }
 
-    SDL_zero(pitchedDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
+    // SDL_zero(pitchedDesc);
     pitchedDesc.Format = textureDesc.Format;
     pitchedDesc.Width = rect->w;
     pitchedDesc.Height = rect->h;
@@ -2024,7 +2116,8 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     textureDesc.Width = textureData->lockedRect.w;
     textureDesc.Height = textureData->lockedRect.h;
 
-    SDL_zero(pitchedDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
+    // SDL_zero(pitchedDesc);
     pitchedDesc.Format = textureDesc.Format;
     pitchedDesc.Width = (UINT)textureDesc.Width;
     pitchedDesc.Height = textureDesc.Height;
@@ -2035,19 +2128,21 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
     pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
-    SDL_zero(placedTextureDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc.Footprint));
+    // SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
     placedTextureDesc.Footprint = pitchedDesc;
 
     D3D12_TransitionResource(rendererData, textureData->mainTexture, textureData->mainResourceState, D3D12_RESOURCE_STATE_COPY_DEST);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 
-    SDL_zero(dstLocation);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_dl, sizeof(D3D12_TEXTURE_COPY_LOCATION) == offsetof(D3D12_TEXTURE_COPY_LOCATION, PlacedFootprint) + (sizeof(dstLocation.PlacedFootprint) > sizeof(srcLocation.SubresourceIndex) ? sizeof(dstLocation.PlacedFootprint) : sizeof(srcLocation.SubresourceIndex)));
+    // SDL_zero(dstLocation);
     dstLocation.pResource = textureData->mainTexture;
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     dstLocation.SubresourceIndex = 0;
 
-    SDL_zero(srcLocation);
+    // SDL_zero(srcLocation);
     srcLocation.pResource = textureData->stagingBuffer;
     srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
     srcLocation.PlacedFootprint = placedTextureDesc;
@@ -2728,10 +2823,20 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     /* Create a staging texture to copy the screen's data to: */
     SDL_zero(textureDesc);
     D3D_CALL_RET(backBuffer, GetDesc, &textureDesc);
+    // textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_UNKNOWN;
+    // textureDesc.Alignment = 0;
     textureDesc.Width = rect->w;
     textureDesc.Height = rect->h;
+    // textureDesc.DepthOrArraySize = 0;
+    // textureDesc.MipLevels = 0;
+    // textureDesc.Format = DXGI_FORMAT_UNKNOWN;
+    // textureDesc.SampleDesc.Count = 0;
+    // textureDesc.SampleDesc.Quality = 0;
+    // textureDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    // textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-    SDL_zero(readbackDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_rbd, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(readbackDesc.Flags));
+    // SDL_zero(readbackDesc);
     readbackDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     readbackDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
     readbackDesc.Height = 1;
@@ -2754,8 +2859,13 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
              NULL,
              &readbackDesc.Width);
 
-    SDL_zero(heapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(heapProps.VisibleNodeMask));
+    // SDL_zero(heapProps);
     heapProps.Type = D3D12_HEAP_TYPE_READBACK;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_hp_cpp, D3D12_CPU_PAGE_PROPERTY_UNKNOWN == 0);
+    heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_hp_mpp, D3D12_MEMORY_POOL_UNKNOWN == 0);
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask = 1;
     heapProps.VisibleNodeMask = 1;
 
@@ -2788,7 +2898,8 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     srcBox.back = 1;
 
     /* Issue the copy texture region */
-    SDL_zero(pitchedDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
+    // SDL_zero(pitchedDesc);
     pitchedDesc.Format = textureDesc.Format;
     pitchedDesc.Width = (UINT)textureDesc.Width;
     pitchedDesc.Height = textureDesc.Height;
@@ -2799,16 +2910,18 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     }
     pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
-    SDL_zero(placedTextureDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc.Footprint));
+    // SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
     placedTextureDesc.Footprint = pitchedDesc;
 
-    SDL_zero(dstLocation);
+    // SDL_zero(dstLocation);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_dl, sizeof(D3D12_TEXTURE_COPY_LOCATION) == offsetof(D3D12_TEXTURE_COPY_LOCATION, PlacedFootprint) + (sizeof(dstLocation.PlacedFootprint) > sizeof(srcLocation.SubresourceIndex) ? sizeof(dstLocation.PlacedFootprint) : sizeof(srcLocation.SubresourceIndex)));
     dstLocation.pResource = readbackBuffer;
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
     dstLocation.PlacedFootprint = placedTextureDesc;
 
-    SDL_zero(srcLocation);
+    // SDL_zero(srcLocation);
     srcLocation.pResource = backBuffer;
     srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     srcLocation.SubresourceIndex = 0;
