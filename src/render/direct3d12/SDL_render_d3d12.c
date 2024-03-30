@@ -1726,7 +1726,8 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     pitchedDesc.Width = w;
     pitchedDesc.Height = h;
     pitchedDesc.Depth = 1;
-    pitchedDesc.RowPitch = D3D12_Align(w * bpp, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+    length = pitchedDesc.Width * bpp;
+    pitchedDesc.RowPitch = D3D12_Align(length, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
@@ -1734,7 +1735,6 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
 
     src = (const Uint8 *)pixels;
     dst = textureMemory;
-    length = w * bpp;
     if (length == pitch && length == pitchedDesc.RowPitch) {
         SDL_memcpy(dst, src, (size_t)length * h);
     } else {
@@ -1883,7 +1883,7 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D12_HEAP_PROPERTIES heapProps;
     D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc;
     BYTE *textureMemory;
-    int bpp;
+    UINT rowPitch;
 
     if (!textureData) {
         return SDL_SetError("Texture is not currently available");
@@ -1972,12 +1972,11 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     pitchedDesc.Width = rect->w;
     pitchedDesc.Height = rect->h;
     pitchedDesc.Depth = 1;
-    if (pitchedDesc.Format == DXGI_FORMAT_R8_UNORM) {
-        bpp = 1;
-    } else {
-        bpp = 4;
+    rowPitch = pitchedDesc.Width;
+    if (pitchedDesc.Format != DXGI_FORMAT_R8_UNORM) {
+        rowPitch *= 4;
     }
-    pitchedDesc.RowPitch = D3D12_Align(rect->w * bpp, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+    pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     /* Make note of where the staging texture will be written to
      * (on a call to SDL_UnlockTexture):
@@ -2002,7 +2001,7 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTextureDesc;
     D3D12_TEXTURE_COPY_LOCATION srcLocation;
     D3D12_TEXTURE_COPY_LOCATION dstLocation;
-    int bpp;
+    UINT rowPitch;
 
     if (!textureData) {
         return;
@@ -2030,12 +2029,11 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     pitchedDesc.Width = (UINT)textureDesc.Width;
     pitchedDesc.Height = textureDesc.Height;
     pitchedDesc.Depth = 1;
-    if (pitchedDesc.Format == DXGI_FORMAT_R8_UNORM) {
-        bpp = 1;
-    } else {
-        bpp = 4;
+    rowPitch = pitchedDesc.Width;
+    if (pitchedDesc.Format != DXGI_FORMAT_R8_UNORM) {
+        rowPitch *= 4;
     }
-    pitchedDesc.RowPitch = D3D12_Align(textureData->lockedRect.w * bpp, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+    pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     SDL_zero(placedTextureDesc);
     placedTextureDesc.Offset = 0;
@@ -2719,7 +2717,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTextureDesc;
     D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc;
     BYTE *textureMemory;
-    int rowPitch;
+    UINT rowPitch;
 
     if (data->textureRenderTarget) {
         backBuffer = data->textureRenderTarget->mainTexture;
