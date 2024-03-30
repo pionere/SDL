@@ -225,7 +225,9 @@ typedef struct
     VertexShaderConstants vertexShaderConstantsData;
 
     /* Cached renderer properties */
+#if 0
     DXGI_MODE_ROTATION rotation;
+#endif
     D3D12_TextureData *textureRenderTarget;
     D3D12_CPU_DESCRIPTOR_HANDLE currentRenderTargetView;
     D3D12_CPU_DESCRIPTOR_HANDLE currentShaderResource;
@@ -234,7 +236,9 @@ typedef struct
     SDL_bool currentCliprectEnabled;
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
+#if 0
     int currentViewportRotation;
+#endif
     SDL_bool viewportDirty;
     Float4X4 identity;
     int currentVertexBuffer;
@@ -1089,12 +1093,16 @@ static BOOL D3D12_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
 
 static int D3D12_GetRotationForCurrentRenderTarget(SDL_Renderer *renderer)
 {
+#if 0
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     if (data->textureRenderTarget) {
         return DXGI_MODE_ROTATION_IDENTITY;
     } else {
         return data->rotation;
     }
+#else
+        return DXGI_MODE_ROTATION_IDENTITY;
+#endif
 }
 
 static int D3D12_GetViewportAlignedD3DRect(SDL_Renderer *renderer, const SDL_Rect *sdlRect, D3D12_RECT *outRect, BOOL includeViewportOffset)
@@ -1135,7 +1143,9 @@ static int D3D12_GetViewportAlignedD3DRect(SDL_Renderer *renderer, const SDL_Rec
         outRect->bottom = (LONG)sdlRect->x + sdlRect->h;
         break;
     default:
-        return SDL_SetError("The physical display is in an unknown or unsupported rotation");
+        SDL_assume(!"Unknown display orientation");
+    case DXGI_MODE_ROTATION_UNSPECIFIED:
+        return SDL_SetError("An unknown DisplayOrientation is being used");
     }
     return 0;
 }
@@ -1244,6 +1254,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     HRESULT result = S_OK;
     int i, w, h;
+    DXGI_MODE_ROTATION rotation;
 
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor;
@@ -1261,13 +1272,15 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      * non-rotated size.
      */
     SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
-    data->rotation = D3D12_GetCurrentRotation();
-    if (D3D12_IsDisplayRotated90Degrees(data->rotation)) {
+    rotation = D3D12_GetCurrentRotation();
+#if 0
+    data->rotation = rotation;
+    if (D3D12_IsDisplayRotated90Degrees(rotation)) {
         int tmp = w;
         w = h;
         h = tmp;
     }
-
+#endif
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     if (data->swapChain) {
         /* If the swap chain already exists, resize it. */
@@ -1298,7 +1311,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     /* Set the proper rotation for the swap chain. */
     if (WIN_IsWindows8OrGreater()) {
         if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
-            result = D3D_CALL(data->swapChain, SetRotation, data->rotation); /* NOLINT(clang-analyzer-core.NullDereference) */
+            result = D3D_CALL(data->swapChain, SetRotation, rotation); /* NOLINT(clang-analyzer-core.NullDereference) */
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetRotation"), result);
                 goto done;
@@ -2270,6 +2283,8 @@ static int D3D12_UpdateViewport(SDL_Renderer *renderer)
             projection = MatrixRotationZ(SDL_static_cast(float, -M_PI * 0.5f));
             break;
         default:
+            SDL_assume(!"Unknown display orientation");
+        case DXGI_MODE_ROTATION_UNSPECIFIED:
             return SDL_SetError("An unknown DisplayOrientation is being used");
     }
 
@@ -2566,13 +2581,13 @@ static void D3D12_DrawPrimitives(SDL_Renderer *renderer, D3D12_PRIMITIVE_TOPOLOG
 static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
+#if 0
     const int viewportRotation = D3D12_GetRotationForCurrentRenderTarget(renderer);
-
     if (rendererData->currentViewportRotation != viewportRotation) {
         rendererData->currentViewportRotation = viewportRotation;
         rendererData->viewportDirty = SDL_TRUE;
     }
-
+#endif
     if (D3D12_UpdateVertexBuffer(renderer, vertices, vertsize) < 0) {
         return -1;
     }

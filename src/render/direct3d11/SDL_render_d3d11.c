@@ -156,7 +156,9 @@ typedef struct
     ID3D11Buffer *vertexShaderConstants;
 
     /* Cached renderer properties */
+#ifdef __WINRT__
     DXGI_MODE_ROTATION rotation;
+#endif
     ID3D11RenderTargetView *currentRenderTargetView;
     ID3D11RasterizerState *currentRasterizerState;
     ID3D11BlendState *currentBlendState;
@@ -167,7 +169,9 @@ typedef struct
     SDL_bool currentCliprectEnabled;
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
+#ifdef __WINRT__
     int currentViewportRotation;
+#endif
     SDL_bool viewportDirty;
     Float4X4 identity;
     int currentVertexBuffer;
@@ -278,7 +282,10 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
         SAFE_RELEASE(data->vertexShaderConstants);
 
         data->swapEffect = (DXGI_SWAP_EFFECT)0;
+#ifdef __WINRT__
         data->rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
+        // data->currentViewportRotation = DXGI_MODE_ROTATION_UNSPECIFIED;
+#endif
         data->currentRenderTargetView = NULL;
         data->currentRasterizerState = NULL;
         data->currentBlendState = NULL;
@@ -663,16 +670,6 @@ done:
     return result;
 }
 
-#ifndef __WINRT__
-
-static DXGI_MODE_ROTATION D3D11_GetCurrentRotation()
-{
-    /* FIXME */
-    return DXGI_MODE_ROTATION_IDENTITY;
-}
-
-#endif /* __WINRT__ */
-
 static BOOL D3D11_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
 {
     switch (rotation) {
@@ -686,11 +683,15 @@ static BOOL D3D11_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
 
 static int D3D11_GetRotationForCurrentRenderTarget(D3D11_RenderData *data)
 {
+#ifndef __WINRT__
+        return DXGI_MODE_ROTATION_IDENTITY;
+#else
     if (data->currentOffscreenRenderTargetView) {
         return DXGI_MODE_ROTATION_IDENTITY;
     } else {
         return data->rotation;
     }
+#endif
 }
 
 static int D3D11_GetViewportAlignedD3DRect(D3D11_RenderData *data, const SDL_Rect *sdlRect, D3D11_RECT *outRect, BOOL includeViewportOffset)
@@ -730,7 +731,9 @@ static int D3D11_GetViewportAlignedD3DRect(D3D11_RenderData *data, const SDL_Rec
         outRect->bottom = (LONG)sdlRect->x + sdlRect->h;
         break;
     default:
-        return SDL_SetError("The physical display is in an unknown or unsupported rotation");
+        SDL_assume(!"Unknown display orientation");
+    case DXGI_MODE_ROTATION_UNSPECIFIED:
+        return SDL_SetError("An unknown DisplayOrientation is being used");
     }
     return 0;
 }
@@ -880,10 +883,11 @@ static void D3D11_HandleDeviceLost(SDL_Renderer *renderer)
 /* Initialize all resources that change when the window's size changes. */
 static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 {
-    D3D11_RenderData *data;
+    D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
     ID3D11Texture2D *backBuffer = NULL;
     HRESULT result = S_OK;
     int w, h;
+    DXGI_MODE_ROTATION rotation;
 
     /* Release the previous render target view */
     D3D11_ReleaseMainRenderTargetView(renderer);
@@ -891,19 +895,22 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     /* The width and height of the swap chain must be based on the display's
      * non-rotated size.
      */
-#if defined(__WINRT__)
+#ifdef __WINRT__
     SDL_GetWindowSize(renderer->window, &w, &h);
-#else
-    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
-#endif
-    data = (D3D11_RenderData *)renderer->driverdata;
-    data->rotation = D3D11_GetCurrentRotation();
-    /* SDL_Log("%s: windowSize={%d,%d}, orientation=%d\n", __FUNCTION__, w, h, (int)data->rotation); */
-    if (D3D11_IsDisplayRotated90Degrees(data->rotation)) {
+
+    rotation = D3D11_GetCurrentRotation();
+    /* SDL_Log("%s: windowSize={%d,%d}, orientation=%d\n", __FUNCTION__, w, h, (int)rotation); */
+    if (D3D11_IsDisplayRotated90Degrees(rotation)) {
         int tmp = w;
         w = h;
         h = tmp;
     }
+    data->rotation = rotation;
+#else
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
+
+    rotation = DXGI_MODE_ROTATION_IDENTITY; /* FIXME */
+#endif
 
     if (data->swapChain) {
         /* IDXGISwapChain::ResizeBuffers is not available on Windows Phone 8. */
@@ -953,7 +960,7 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      */
     if (WIN_IsWindows8OrGreater()) {
         if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
-            result = IDXGISwapChain1_SetRotation(data->swapChain, data->rotation);
+            result = IDXGISwapChain1_SetRotation(data->swapChain, rotation);
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain1::SetRotation"), result);
                 goto done;
@@ -1748,6 +1755,8 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
             projection = MatrixRotationZ(SDL_static_cast(float, -M_PI * 0.5f));
             break;
         default:
+            SDL_assume(!"Unknown display orientation");
+        case DXGI_MODE_ROTATION_UNSPECIFIED:
             return SDL_SetError("An unknown DisplayOrientation is being used");
     }
 
@@ -2011,13 +2020,13 @@ static void D3D11_DrawPrimitives(SDL_Renderer *renderer, D3D11_PRIMITIVE_TOPOLOG
 static int D3D11_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
     D3D11_RenderData *rendererData = (D3D11_RenderData *)renderer->driverdata;
+#ifdef __WINRT__
     const int viewportRotation = D3D11_GetRotationForCurrentRenderTarget(rendererData);
-
     if (rendererData->currentViewportRotation != viewportRotation) {
         rendererData->currentViewportRotation = viewportRotation;
         rendererData->viewportDirty = SDL_TRUE;
     }
-
+#endif
     if (D3D11_UpdateVertexBuffer(renderer, vertices, vertsize) < 0) {
         return -1;
     }
