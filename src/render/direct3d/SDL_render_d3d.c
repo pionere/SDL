@@ -461,7 +461,7 @@ static int D3D_CreateStagingTexture(IDirect3DDevice9 *device, D3D_TextureRep *te
     return 0;
 }
 
-static int D3D_RecreateTextureRep(IDirect3DDevice9 *device, D3D_TextureRep *texture)
+static int D3D_RecreateTextureRep(D3D_TextureRep *texture)
 {
     if (texture->texture) {
         IDirect3DTexture9_Release(texture->texture);
@@ -576,10 +576,8 @@ static int D3D_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     return status;
 }
 
-static int D3D_RecreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
+static int D3D_RecreateTexture(SDL_Texture *texture)
 {
-    D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
-    IDirect3DDevice9 *device = data->device;
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     int status;
 
@@ -587,12 +585,12 @@ static int D3D_RecreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return 0;
     }
 
-    status = D3D_RecreateTextureRep(device, &texturedata->texture);
+    status = D3D_RecreateTextureRep(&texturedata->texture);
 #if SDL_HAVE_YUV
     if (status >= 0 && texturedata->yuv) {
-        status = D3D_RecreateTextureRep(device, &texturedata->utexture);
+        status = D3D_RecreateTextureRep(&texturedata->utexture);
         if (status >= 0) {
-            status = D3D_RecreateTextureRep(device, &texturedata->vtexture);
+            status = D3D_RecreateTextureRep(&texturedata->vtexture);
         }
     }
 #endif
@@ -1491,7 +1489,7 @@ static int D3D_Reset(SDL_Renderer *renderer)
         if (texture->access & SDL_TEXTUREACCESS_TARGET) {
             D3D_DestroyTexture(renderer, texture);
         } else {
-            D3D_RecreateTexture(renderer, texture);
+            D3D_RecreateTexture(texture);
         }
     }
 
