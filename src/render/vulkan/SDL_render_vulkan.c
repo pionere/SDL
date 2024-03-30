@@ -261,6 +261,7 @@ typedef struct
     VkDescriptorSetLayout descriptorSetLayoutYcbcr;
     /* Pipeline layout with immutable sampler descriptor set layout */
     VkPipelineLayout pipelineLayoutYcbcr;
+
 } VULKAN_TextureData;
 
 /* Pipeline State Object data */
@@ -399,11 +400,13 @@ static Uint32 VULKAN_VkFormatToSDLPixelFormat(VkFormat vkFormat)
 static int VULKAN_VkFormatGetNumPlanes(VkFormat vkFormat)
 {
     switch (vkFormat) {
+#if SDL_HAVE_YUV
     case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
         return 3;
     case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
     case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
         return 2;
+#endif
     default:
         return 1;
     }
