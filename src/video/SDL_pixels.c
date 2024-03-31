@@ -868,6 +868,10 @@ Uint32 SDL_MapColor(const SDL_PixelFormat *format, SDL_Color color)
 /* Find the opaque pixel value corresponding to an RGB triple */
 Uint32 SDL_MapRGB(const SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b)
 {
+    if (!format) {
+        SDL_InvalidParamError("format");
+        return 0;
+    }
     if (!format->palette) {
         return (r >> format->Rloss) << format->Rshift | (g >> format->Gloss) << format->Gshift | (b >> format->Bloss) << format->Bshift | format->Amask;
     } else {
@@ -880,6 +884,10 @@ Uint32 SDL_MapRGB(const SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b)
 Uint32 SDL_MapRGBA(const SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
     SDL_Color color = SDL_ColorFromInt(r, g, b, a);
+    if (!format) {
+        SDL_InvalidParamError("format");
+        return 0;
+    }
     return SDL_MapColor(format, color);
 }
 
