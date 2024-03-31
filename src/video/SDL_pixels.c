@@ -782,7 +782,7 @@ static void SDL_DitherColors(SDL_Color *colors)
 /*
  * Match an RGB value to a particular palette index
  */
-static Uint8 SDL_FindColor(const SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+static Uint8 SDL_FindColor(const SDL_Palette *pal, SDL_Color color)
 {
     /* Do colorspace distance matching */
     unsigned int smallest;
@@ -793,10 +793,10 @@ static Uint8 SDL_FindColor(const SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b, Ui
 
     smallest = ~0;
     for (i = 0; i < pal->ncolors; ++i) {
-        rd = pal->colors[i].r - r;
-        gd = pal->colors[i].g - g;
-        bd = pal->colors[i].b - b;
-        ad = pal->colors[i].a - a;
+        rd = pal->colors[i].r - color.r;
+        gd = pal->colors[i].g - color.g;
+        bd = pal->colors[i].b - color.b;
+        ad = pal->colors[i].a - color.a;
         distance = (rd * rd) + (gd * gd) + (bd * bd) + (ad * ad);
         if (distance < smallest) {
             pixel = i;
@@ -856,23 +856,31 @@ void SDL_DetectPalette(const SDL_Palette *pal, SDL_bool *is_opaque, SDL_bool *ha
 }
 
 /* Find the opaque pixel value corresponding to an RGB triple */
+Uint32 SDL_MapColor(const SDL_PixelFormat *format, SDL_Color color)
+{
+    if (!format->palette) {
+        return (color.r >> format->Rloss) << format->Rshift | (color.g >> format->Gloss) << format->Gshift | (color.b >> format->Bloss) << format->Bshift | ((Uint32)(color.a >> format->Aloss) << format->Ashift & format->Amask);
+    } else {
+        return SDL_FindColor(format->palette, color);
+    }
+}
+
+/* Find the opaque pixel value corresponding to an RGB triple */
 Uint32 SDL_MapRGB(const SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b)
 {
     if (!format->palette) {
         return (r >> format->Rloss) << format->Rshift | (g >> format->Gloss) << format->Gshift | (b >> format->Bloss) << format->Bshift | format->Amask;
     } else {
-        return SDL_FindColor(format->palette, r, g, b, SDL_ALPHA_OPAQUE);
+        SDL_Color color = SDL_ColorFromInt(r, g, b, SDL_ALPHA_OPAQUE);
+        return SDL_FindColor(format->palette, color);
     }
 }
 
 /* Find the pixel value corresponding to an RGBA quadruple */
 Uint32 SDL_MapRGBA(const SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-    if (!format->palette) {
-        return (r >> format->Rloss) << format->Rshift | (g >> format->Gloss) << format->Gshift | (b >> format->Bloss) << format->Bshift | ((Uint32)(a >> format->Aloss) << format->Ashift & format->Amask);
-    } else {
-        return SDL_FindColor(format->palette, r, g, b, a);
-    }
+    SDL_Color color = SDL_ColorFromInt(r, g, b, a);
+    return SDL_MapColor(format, color);
 }
 
 void SDL_GetRGB(Uint32 pixel, const SDL_PixelFormat *format, Uint8 *r, Uint8 *g,
@@ -946,9 +954,7 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *
         return NULL;
     }
     for (i = 0; i < src->ncolors; ++i) {
-        map[i] = SDL_FindColor(dst,
-                               src->colors[i].r, src->colors[i].g,
-                               src->colors[i].b, src->colors[i].a);
+        map[i] = SDL_FindColor(dst, src->colors[i]);
     }
     return map;
 }

@@ -667,7 +667,7 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 const SDL_Color color = cmd->data.color.color;
                 /* By definition the clear ignores the clip rect */
                 SDL_SetClipRect(surface, NULL);
-                SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
+                SDL_FillRect(surface, NULL, SDL_MapColor(surface->format, color));
                 drawstate.surface_cliprect_dirty = SDL_TRUE;
                 break;
             }
@@ -689,7 +689,7 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_DrawPoints(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
+                    SDL_DrawPoints(surface, verts, count, SDL_MapColor(surface->format, color));
                 } else {
                     SDL_BlendPoints(surface, verts, count, blend, color);
                 }
@@ -713,7 +713,7 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_DrawLines(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
+                    SDL_DrawLines(surface, verts, count, SDL_MapColor(surface->format, color));
                 } else {
                     SDL_BlendLines(surface, verts, count, blend, color);
                 }
@@ -737,7 +737,7 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 }
 
                 if (blend == SDL_BLENDMODE_NONE) {
-                    SDL_FillRects(surface, verts, count, SDL_MapRGBA(surface->format, color.r, color.g, color.b, color.a));
+                    SDL_FillRects(surface, verts, count, SDL_MapColor(surface->format, color));
                 } else {
                     SDL_BlendFillRects(surface, verts, count, blend, color);
                 }

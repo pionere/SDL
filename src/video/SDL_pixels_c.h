@@ -47,6 +47,7 @@ extern void SDL_FreeBlitMap(SDL_BlitMap *map);
 extern void SDL_InvalidateAllBlitMap(SDL_Surface *surface);
 
 /* Miscellaneous functions */
+extern Uint32 SDL_MapColor(const SDL_PixelFormat *format, SDL_Color color);
 extern void SDL_DetectPalette(const SDL_Palette *pal, SDL_bool *is_opaque, SDL_bool *has_alpha_channel);
 
 #endif /* SDL_pixels_c_h_ */

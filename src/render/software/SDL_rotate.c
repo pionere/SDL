@@ -42,6 +42,8 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include "SDL_surface.h"
 #include "SDL_rotate.h"
 
+#include "../../video/SDL_pixels_c.h"
+
 /* ---- Internally used structures */
 
 /* !
@@ -559,7 +561,8 @@ SDL_Surface *SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, in
         /* Without a colorkey, the target texture has to be white for the MOD and MUL blend mode so
          * that the pixels outside the rotated area don't affect the destination surface.
          */
-        colorkey = SDL_MapRGBA(rz_dst->format, 255, 255, 255, 0);
+        SDL_Color mask = SDL_ColorFromInt(255, 255, 255, 0);
+        colorkey = SDL_MapColor(rz_dst->format, mask);
         SDL_FillRect(rz_dst, NULL, colorkey);
         /* Setting a white colorkey for the destination surface makes the final blit discard
          * all pixels outside of the rotated area. This doesn't interfere with anything because

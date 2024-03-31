@@ -28,6 +28,7 @@
 #include "SDL_triangle.h"
 
 #include "../../video/SDL_blit.h"
+#include "../../video/SDL_pixels_c.h"
 
 /* fixed points bits precision
  * Set to 1, so that it can start rendering wth middle of a pixel precision.
@@ -189,7 +190,8 @@ static void bounding_rect(const SDL_Point *a, const SDL_Point *b, const SDL_Poin
     int g = (int)(((Sint64)w0 * c0.g + (Sint64)w1 * c1.g + (Sint64)w2 * c2.g) / area); \
     int b = (int)(((Sint64)w0 * c0.b + (Sint64)w1 * c1.b + (Sint64)w2 * c2.b) / area); \
     int a = (int)(((Sint64)w0 * c0.a + (Sint64)w1 * c1.a + (Sint64)w2 * c2.a) / area); \
-    int color = SDL_MapRGBA(format, r, g, b, a);
+    SDL_Color col = SDL_ColorFromInt(r, g, b, a);                                      \
+    int color = SDL_MapColor(format, col);
 
 #define TRIANGLE_GET_COLOR                                                             \
     int r = (int)(((Sint64)w0 * c0.r + (Sint64)w1 * c1.r + (Sint64)w2 * c2.r) / area); \
@@ -292,7 +294,8 @@ int SDL_SW_FillTriangle(SDL_Surface *dst, SDL_Point *d0, SDL_Point *d1, SDL_Poin
         }
 
         if (blend == SDL_BLENDMODE_MOD) {
-            Uint32 c = SDL_MapRGBA(tmp->format, 255, 255, 255, 255);
+            SDL_Color mask = SDL_ColorFromInt(255, 255, 255, 255);
+            Uint32 c = SDL_MapColor(tmp->format, mask);
             SDL_FillRect(tmp, NULL, c);
         }
 
@@ -356,12 +359,7 @@ int SDL_SW_FillTriangle(SDL_Surface *dst, SDL_Point *d0, SDL_Point *d1, SDL_Poin
     bias_w2 = (is_top_left(d0, d1, is_clockwise) ? 0 : -1);
 
     if (is_uniform) {
-        Uint32 color;
-        if (tmp) {
-            color = SDL_MapRGBA(tmp->format, c0.r, c0.g, c0.b, c0.a);
-        } else {
-            color = SDL_MapRGBA(dst->format, c0.r, c0.g, c0.b, c0.a);
-        }
+        Uint32 color = SDL_MapColor(tmp ? tmp->format : dst->format, c0);
 
         if (dstbpp == 4) {
             TRIANGLE_BEGIN_LOOP
