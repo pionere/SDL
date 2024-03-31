@@ -494,23 +494,61 @@ int SDL_SetSurfaceColorMod(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
     return 0;
 }
 
+int SDL_PrivateSetSurfaceColorMod(SDL_Surface *surface, SDL_Color colorMod)
+{
+    int old_flags, new_flags;
+    const SDL_Color mask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+    const Uint32 maskRGB = SDL_ColorRGBmask(&mask);
+    SDL_BlitMap *map;
+
+    SDL_assert(surface != NULL);
+
+    map = surface->map;
+    map->info.color = colorMod;
+
+    old_flags = new_flags = map->info.flags;
+    if (SDL_ColorRGBmask(&colorMod) != maskRGB) {
+        new_flags |= SDL_COPY_MODULATE_COLOR;
+    } else {
+        new_flags &= ~SDL_COPY_MODULATE_COLOR;
+    }
+    if (colorMod.a != 0xFF) {
+        new_flags |= SDL_COPY_MODULATE_ALPHA;
+    } else {
+        new_flags &= ~SDL_COPY_MODULATE_ALPHA;
+    }
+    if (old_flags != new_flags) {
+        map->info.flags = new_flags;
+        SDL_InvalidateMap(map);
+    }
+    return 0;
+}
+
+SDL_Color SDL_PrivateGetSurfaceColorMod(SDL_Surface *surface)
+{
+    SDL_assert(surface != NULL);
+
+    return surface->map->info.color;
+}
+
 int SDL_GetSurfaceColorMod(SDL_Surface *surface, Uint8 *r, Uint8 *g, Uint8 *b)
 {
-    SDL_BlitMap *map;
+    SDL_Color colorMod;
 
     if (!surface) {
         return SDL_InvalidParamError("surface");
     }
 
-    map = surface->map;
+    colorMod = SDL_PrivateGetSurfaceColorMod(surface);
+
     if (r) {
-        *r = map->info.color.r;
+        *r = colorMod.r;
     }
     if (g) {
-        *g = map->info.color.g;
+        *g = colorMod.g;
     }
     if (b) {
-        *b = map->info.color.b;
+        *b = colorMod.b;
     }
     return 0;
 }

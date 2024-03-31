@@ -1419,6 +1419,8 @@ error:
     return NULL;
 }
 
+static void SDL_PrivateSetTextureColorMod(SDL_Texture *texture, SDL_Color colorMod);
+
 SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *surface)
 {
     const SDL_PixelFormat *fmt;
@@ -1547,14 +1549,10 @@ SDL_Texture *SDL_CreateTextureFromSurface(SDL_Renderer *renderer, SDL_Surface *s
     }
 
     {
-        Uint8 r, g, b, a;
+        SDL_Color colorMod = SDL_PrivateGetSurfaceColorMod(surface);
         SDL_BlendMode blendMode;
 
-        SDL_GetSurfaceColorMod(surface, &r, &g, &b);
-        SDL_SetTextureColorMod(texture, r, g, b);
-
-        SDL_GetSurfaceAlphaMod(surface, &a);
-        SDL_SetTextureAlphaMod(texture, a);
+        SDL_PrivateSetTextureColorMod(texture, colorMod);
 
         if (SDL_HasColorKey(surface)) {
             /* We converted to a texture with alpha format */
@@ -1587,22 +1585,37 @@ int SDL_QueryTexture(SDL_Texture *texture, Uint32 *format, int *access,
     return 0;
 }
 
-int SDL_SetTextureColorMod(SDL_Texture *texture, Uint8 r, Uint8 g, Uint8 b)
+static void SDL_PrivateSetTextureColorMod(SDL_Texture *texture, SDL_Color colorMod)
 {
-    CHECK_TEXTURE_MAGIC(texture, -1);
+    SDL_assert(texture != NULL);
 #if 0
-    if (r < 255 || g < 255 || b < 255) {
+    if (colorMod.r < 255 || colorMod.g < 255 || colorMod.b < 255) {
         texture->modMode |= SDL_TEXTUREMODULATE_COLOR;
     } else {
         texture->modMode &= ~SDL_TEXTUREMODULATE_COLOR;
     }
-#endif
-    texture->color.r = r;
-    texture->color.g = g;
-    texture->color.b = b;
-    if (texture->native) {
-        return SDL_SetTextureColorMod(texture->native, r, g, b);
+    if (colorMod.a < 255) {
+        texture->modMode |= SDL_TEXTUREMODULATE_ALPHA;
+    } else {
+        texture->modMode &= ~SDL_TEXTUREMODULATE_ALPHA;
     }
+#endif
+    texture->color = colorMod;
+    if (texture->native) {
+        texture->native->color = colorMod;
+        // SDL_PrivateSetTextureColorMod(texture->native, colorMod);
+    }
+}
+
+int SDL_SetTextureColorMod(SDL_Texture *texture, Uint8 r, Uint8 g, Uint8 b)
+{
+    SDL_Color colorMod;
+
+    CHECK_TEXTURE_MAGIC(texture, -1);
+
+    colorMod = SDL_ColorFromInt(r, g, b, texture->color.a);
+    SDL_PrivateSetTextureColorMod(texture, colorMod);
+
     return 0;
 }
 
@@ -4067,8 +4080,7 @@ static int SDLCALL SDL_SW_RenderGeometryRaw(SDL_Renderer *renderer,
 
             /* Rect + texture */
             if (texture && s.w != 0 && s.h != 0) {
-                SDL_SetTextureAlphaMod(texture, col0_.a);
-                SDL_SetTextureColorMod(texture, col0_.r, col0_.g, col0_.b);
+                SDL_PrivateSetTextureColorMod(texture, col0_);
                 if (s.w > 0 && s.h > 0) {
                     SDL_RenderCopyF(renderer, texture, &s, &d);
                 } else {

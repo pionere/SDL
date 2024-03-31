@@ -304,7 +304,7 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
     SDL_Surface *mask = NULL, *mask_rotated = NULL;
     int retval = 0;
     SDL_BlendMode blendmode;
-    Uint8 alphaMod, rMod, gMod, bMod;
+    SDL_Color colorMod, colorMask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
     int applyModulation = SDL_FALSE;
     int blitRequired = SDL_FALSE;
     int isOpaque = SDL_FALSE;
@@ -339,8 +339,7 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
     }
 
     SDL_GetSurfaceBlendMode(src, &blendmode);
-    SDL_GetSurfaceAlphaMod(src, &alphaMod);
-    SDL_GetSurfaceColorMod(src, &rMod, &gMod, &bMod);
+    colorMod = SDL_PrivateGetSurfaceColorMod(src);
 
     /* SDLgfx_rotateSurface only accepts 32-bit surfaces with a 8888 layout. Everything else has to be converted. */
     if (src->format->BitsPerPixel != 32 || SDL_PIXELLAYOUT(src->format->format) != SDL_PACKEDLAYOUT_8888 || !src->format->Amask) {
@@ -358,14 +357,13 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
     }
 
     /* The color and alpha modulation has to be applied before the rotation when using the NONE, MOD or MUL blend modes. */
-    if ((blendmode == SDL_BLENDMODE_NONE || blendmode == SDL_BLENDMODE_MOD || blendmode == SDL_BLENDMODE_MUL) && (alphaMod & rMod & gMod & bMod) != 255) {
+    if ((blendmode == SDL_BLENDMODE_NONE || blendmode == SDL_BLENDMODE_MOD || blendmode == SDL_BLENDMODE_MUL) && !SDL_Colors_Equal(&colorMod, &colorMask)) {
         applyModulation = SDL_TRUE;
-        SDL_SetSurfaceAlphaMod(src_clone, alphaMod);
-        SDL_SetSurfaceColorMod(src_clone, rMod, gMod, bMod);
+        SDL_PrivateSetSurfaceColorMod(src_clone, colorMod);
     }
 
     /* Opaque surfaces are much easier to handle with the NONE blend mode. */
-    if (blendmode == SDL_BLENDMODE_NONE && !src->format->Amask && alphaMod == 255) {
+    if (blendmode == SDL_BLENDMODE_NONE && !src->format->Amask && colorMod.a == 255) {
         isOpaque = SDL_TRUE;
     }
 
@@ -435,8 +433,7 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
             if (blendmode != SDL_BLENDMODE_NONE || isOpaque) {
                 if (applyModulation == SDL_FALSE) {
                     /* If the modulation wasn't already applied, make it happen now. */
-                    SDL_SetSurfaceAlphaMod(src_rotated, alphaMod);
-                    SDL_SetSurfaceColorMod(src_rotated, rMod, gMod, bMod);
+                    SDL_PrivateSetSurfaceColorMod(src_rotated, colorMod);
                 }
                 /* Renderer scaling, if needed */
                 retval = Blit_to_Screen(src_rotated, NULL, surface, &tmp_rect, scale_x, scale_y, texture->scaleMode);
@@ -602,8 +599,7 @@ static void PrepTextureForCopy(const SDL_RenderCommand *cmd)
     }
 
     /* !!! FIXME: we can probably avoid some of these calls. */
-    SDL_SetSurfaceColorMod(surface, color.r, color.g, color.b);
-    SDL_SetSurfaceAlphaMod(surface, color.a);
+    SDL_PrivateSetSurfaceColorMod(surface, color);
     SDL_SetSurfaceBlendMode(surface, blend);
 }
 
