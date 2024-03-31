@@ -425,7 +425,7 @@ int SDL_VideoInit(const char *driver_name)
     /* Make sure some displays were added */
     if (current_video.num_displays == 0) {
         SDL_VideoQuit();
-        return SDL_SetError("The video driver did not add any displays");
+        return SDL_SetError("The SDL video driver did not add any displays");
     }
 
     /* Disable the screen saver by default. This is a change from <= 2.0.1,
@@ -1505,16 +1505,12 @@ static void SDL_FinishWindowCreation(SDL_Window *window, Uint32 flags)
 
 static int SDL_ContextNotSupported(const char *name)
 {
-    return SDL_SetError("%s support is either not configured in SDL "
-                        "or not available in current SDL video driver "
-                        "(%s) or platform",
-                        name,
-                        current_video.vdriver_name);
+    return SDL_SetError("%s support is not available in the current SDL video driver", name);
 }
 
 static int SDL_DllNotSupported(const char *name)
 {
-    return SDL_SetError("No dynamic %s support in current SDL video driver (%s)", name, current_video.vdriver_name);
+    return SDL_SetError("No dynamic %s support in the current SDL video driver", name);
 }
 
 static void CalculateWindowPosition(int *xp, int *yp, int w, int h)
@@ -3466,7 +3462,7 @@ void *SDL_GL_GetProcAddress(const char *proc)
         if (current_video.GL_GetProcAddress) {
             func = current_video.GL_GetProcAddress(proc);
         } else {
-            SDL_SetError("No dynamic GL support in current SDL video driver (%s)", current_video.vdriver_name);
+            SDL_DllNotSupported("GL");
         }
     } else {
         SDL_SetError("No GL driver has been loaded");
@@ -4828,7 +4824,7 @@ void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
     // CHECK_VIDEO(NULL)
 
     if (!current_video.vulkan_config.loader_loaded) {
-        SDL_SetError("No Vulkan loader has been loaded");
+        SDL_SetError("No Vulkan driver has been loaded");
         return NULL;
     }
     return current_video.vulkan_config.vkGetInstanceProcAddr;
@@ -4882,7 +4878,7 @@ SDL_bool SDL_Vulkan_CreateSurface(SDL_Window *window,
     }
 
     if (!current_video.vulkan_config.loader_loaded) {
-        SDL_SetError("No Vulkan loader has been loaded");
+        SDL_SetError("No Vulkan driver has been loaded");
         return SDL_FALSE;
     }
 
