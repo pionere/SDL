@@ -589,24 +589,21 @@ static int SW_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
 
 static void PrepTextureForCopy(const SDL_RenderCommand *cmd)
 {
-    const Uint8 r = cmd->data.draw.color.r;
-    const Uint8 g = cmd->data.draw.color.g;
-    const Uint8 b = cmd->data.draw.color.b;
-    const Uint8 a = cmd->data.draw.color.a;
+    SDL_Color color = cmd->data.draw.color;
     const SDL_BlendMode blend = cmd->data.draw.blend;
     SDL_Texture *texture = cmd->data.draw.texture;
     SDL_Surface *surface = (SDL_Surface *)texture->driverdata;
-    const SDL_bool colormod = ((r & g & b) != 0xFF);
-    const SDL_bool alphamod = (a != 0xFF);
+    SDL_Color colorMask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+    const SDL_bool colormod = !SDL_Colors_Equal(&color, &colorMask);
     const SDL_bool blending = ((blend == SDL_BLENDMODE_ADD) || (blend == SDL_BLENDMODE_MOD) || (blend == SDL_BLENDMODE_MUL));
 
-    if (colormod || alphamod || blending) {
+    if (colormod || blending) {
         SDL_SetSurfaceRLE(surface, 0);
     }
 
     /* !!! FIXME: we can probably avoid some of these calls. */
-    SDL_SetSurfaceColorMod(surface, r, g, b);
-    SDL_SetSurfaceAlphaMod(surface, a);
+    SDL_SetSurfaceColorMod(surface, color.r, color.g, color.b);
+    SDL_SetSurfaceAlphaMod(surface, color.a);
     SDL_SetSurfaceBlendMode(surface, blend);
 }
 
