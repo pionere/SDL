@@ -1306,7 +1306,6 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->SetVSync = PSP_SetVSync;
     renderer->info = PSP_RenderDriver.info;
     renderer->driverdata = data;
-    renderer->window = window;
 
     // data->most_recent_target = NULL;
     // data->least_recent_target = NULL;

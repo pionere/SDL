@@ -681,7 +681,6 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->SetVSync = PS2_SetVSync;
     renderer->info = PS2_RenderDriver.info;
     renderer->driverdata = data;
-    renderer->window = window;
 
     PS2_SetVSync(renderer, (flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0);
 

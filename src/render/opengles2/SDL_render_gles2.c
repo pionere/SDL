@@ -2091,7 +2091,6 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
     renderer->info = GLES2_RenderDriver.info;
     renderer->driverdata = data;
-    renderer->window = window;
 
     /* Create an OpenGL ES 2.0 context */
     data->context = SDL_GL_CreateContext(window);

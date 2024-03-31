@@ -1127,7 +1127,6 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info = GLES_RenderDriver.info;
     renderer->info.flags = SDL_RENDERER_ACCELERATED;
     renderer->driverdata = data;
-    renderer->window = window;
 
     data->context = SDL_GL_CreateContext(window);
     if (!data->context

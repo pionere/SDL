@@ -1696,7 +1696,6 @@ static SDL_Renderer *METAL_CreateRenderer(SDL_Window * window, Uint32 flags)
     }
 
     renderer->driverdata = (void*)CFBridgingRetain(data);
-    renderer->window = window;
 
     data.mtlview = view;
 

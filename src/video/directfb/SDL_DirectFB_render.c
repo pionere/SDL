@@ -54,7 +54,6 @@
 
 typedef struct
 {
-    SDL_Window *window;
     DFBSurfaceFlipFlags flipflags;
     int size_changed;
     SDL_BlendMode lastBlendMode;
@@ -560,7 +559,7 @@ static int DirectFB_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * textu
         tex_data = (DirectFB_TextureData *) texture->driverdata;
         data->target = tex_data->surface;
     } else {
-        data->target = DirectFB_GetFBSurface(data->window);
+        data->target = DirectFB_GetFBSurface(renderer->window);
     }
     data->lastBlendMode = SDL_BLENDMODE_NONE;
     return 0;
@@ -1026,7 +1025,7 @@ static void DirectFB_DestroyRenderer(SDL_Renderer * renderer)
 {
     DirectFB_RenderData *data = (DirectFB_RenderData *) renderer->driverdata;
 #if 0
-    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(data->window);
+    SDL_VideoDisplay *display = SDL_GetDisplayForWindow(renderer->window);
     if (display->palette) {
         SDL_DelPaletteWatch(display->palette, DisplayPaletteChanged, data);
     }
@@ -1148,10 +1147,8 @@ SDL_Renderer *DirectFB_CreateRenderer(SDL_Window * window, Uint32 flags)
     renderer->SetRenderTarget = DirectFB_SetRenderTarget;
 
     renderer->info = DirectFB_RenderDriver.info;
-    renderer->window = window;      /* SDL window */
     renderer->driverdata = data;
 
-    data->window = window;
     data->target = winsurf;
 
     data->flipflags = DSFLIP_PIPELINE | DSFLIP_BLIT | DSFLIP_ONSYNC;
