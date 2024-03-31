@@ -1903,9 +1903,9 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
         renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_NV12;
         renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_NV21;
     }
-#endif
 #ifdef __MACOSX__
     renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_UYVY;
+#endif
 #endif
 
     renderer->rect_index_order[0] = 0;
