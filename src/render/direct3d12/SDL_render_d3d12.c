@@ -1134,13 +1134,13 @@ done:
     SAFE_RELEASE(d3dDevice);
     return result;
 }
-
+#if 0
 static DXGI_MODE_ROTATION D3D12_GetCurrentRotation()
 {
     /* FIXME */
     return DXGI_MODE_ROTATION_IDENTITY;
 }
-
+#endif
 static BOOL D3D12_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
 {
     switch (rotation) {
@@ -1209,16 +1209,55 @@ static int D3D12_GetViewportAlignedD3DRect(D3D12_RenderData *data, const SDL_Rec
     return 0;
 }
 
+static HRESULT D3D12_UpdateForWindowSizeChange(SDL_Renderer *renderer);
+static void D3D12_HandleDeviceLost(SDL_Renderer *renderer);
+
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
+static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
 {
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
+    D3D12_RenderData *data;
+    int w, h;
     IDXGISwapChain1* swapChain = NULL;
     HRESULT result = S_OK;
     HWND hwnd;
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
+
+    /* The width and height of the swap chain must be based on the display's
+     * non-rotated size.
+     */
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
+
+    data = (D3D12_RenderData *)renderer->driverdata;
+#if 0
+    if (D3D12_IsDisplayRotated90Degrees(data->rotation)) {
+        int tmp = w;
+        w = h;
+        h = tmp;
+    }
+#endif
+    if (data->swapChain) {
+        /* If the swap chain already exists, resize it. */
+        result = D3D_CALL(data->swapChain, ResizeBuffers,
+                          0,
+                          w, h,
+                          DXGI_FORMAT_UNKNOWN,
+                          data->swapFlags);
+        if (FAILED(result)) {
+            if (result == DXGI_ERROR_DEVICE_REMOVED) {
+                /* If the device was removed for any reason, a new device and swap chain will need to be created. */
+                D3D12_HandleDeviceLost(renderer);
+
+                /* Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
+                 * and correctly set up the new device.
+                 */
+            } else {
+                WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::ResizeBuffers"), result);
+            }
+        }
+        return result;
+    }
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
     SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, sizeof(DXGI_SWAP_CHAIN_DESC1) == offsetof(DXGI_SWAP_CHAIN_DESC1, Flags) + sizeof(swapChainDesc.Flags));
     // SDL_zero(swapChainDesc);
     swapChainDesc.Width = w;
@@ -1281,8 +1320,6 @@ done:
 }
 #endif
 
-static HRESULT D3D12_UpdateForWindowSizeChange(SDL_Renderer *renderer);
-
 static void D3D12_HandleDeviceLost(SDL_Renderer *renderer)
 {
     HRESULT result = S_OK;
@@ -1314,8 +1351,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 {
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     HRESULT result = S_OK;
-    int i, w, h;
-    DXGI_MODE_ROTATION rotation;
+    int i;
 
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor;
@@ -1328,50 +1364,24 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     for (i = 0; i < SDL_D3D12_NUM_BUFFERS; ++i) {
         SAFE_RELEASE(data->renderTargets[i]);
     }
-
-    /* The width and height of the swap chain must be based on the display's
-     * non-rotated size.
-     */
-    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
-    rotation = D3D12_GetCurrentRotation();
 #if 0
-    data->rotation = rotation;
-    if (D3D12_IsDisplayRotated90Degrees(rotation)) {
-        int tmp = w;
-        w = h;
-        h = tmp;
-    }
+    /* Update the current rotation */
+    data->rotation = D3D12_GetCurrentRotation();
 #endif
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (data->swapChain) {
-        /* If the swap chain already exists, resize it. */
-        result = D3D_CALL(data->swapChain, ResizeBuffers,
-                          0,
-                          w, h,
-                          DXGI_FORMAT_UNKNOWN,
-                          data->swapFlags);
-        if (result == DXGI_ERROR_DEVICE_REMOVED) {
-            /* If the device was removed for any reason, a new device and swap chain will need to be created. */
-            D3D12_HandleDeviceLost(renderer);
 
-            /* Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
-             * and correctly set up the new device.
-             */
-            goto done;
-        } else if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::ResizeBuffers"), result);
-            goto done;
-        }
-    } else {
-        result = D3D12_CreateSwapChain(renderer, w, h);
-        if (FAILED(result)) {
-            goto done;
-        }
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    result = D3D12_CreateSwapChain(renderer);
+    if (FAILED(result)) {
+        goto done;
     }
 
     /* Set the proper rotation for the swap chain. */
     if (WIN_IsWindows8OrGreater()) {
         if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
+            DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
+#if 0
+            rotation = data->rotation;
+#endif
             result = D3D_CALL(data->swapChain, SetRotation, rotation); /* NOLINT(clang-analyzer-core.NullDereference) */
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetRotation"), result);
