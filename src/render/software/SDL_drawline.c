@@ -26,6 +26,8 @@
 #include "SDL_drawline.h"
 #include "SDL_drawpoint.h"
 
+#include "../../video/SDL_pixels_c.h"
+
 static void SDL_DrawLine1(SDL_Surface *dst, int x1, int y1, int x2, int y2, Uint32 color,
                           SDL_bool draw_end)
 {
@@ -63,9 +65,11 @@ static void SDL_DrawLine2(SDL_Surface *dst, int x1, int y1, int x2, int y2, Uint
     } else if (ABS(x1 - x2) == ABS(y1 - y2)) {
         DLINE(Uint16, DRAW_FASTSETPIXEL2, draw_end);
     } else {
-        Uint8 _r, _g, _b, _a;
         const SDL_PixelFormat *fmt = dst->format;
-        SDL_GetRGBA(color, fmt, &_r, &_g, &_b, &_a);
+#ifdef AA_LINES
+        const SDL_Color col = SDL_GetPixelColor(color, fmt);
+        const Uint8 _r = col.r, _g = col.g, _b = col.b, _a = col.a;
+#endif
         if (fmt->Rmask == 0x7C00) {
             AALINE(x1, y1, x2, y2,
                    DRAW_FASTSETPIXELXY2, DRAW_SETPIXELXY_BLEND_RGB555,
@@ -92,9 +96,11 @@ static void SDL_DrawLine4(SDL_Surface *dst, int x1, int y1, int x2, int y2, Uint
     } else if (ABS(x1 - x2) == ABS(y1 - y2)) {
         DLINE(Uint32, DRAW_FASTSETPIXEL4, draw_end);
     } else {
-        Uint8 _r, _g, _b, _a;
         const SDL_PixelFormat *fmt = dst->format;
-        SDL_GetRGBA(color, fmt, &_r, &_g, &_b, &_a);
+#ifdef AA_LINES
+        const SDL_Color col = SDL_GetPixelColor(color, fmt);
+        const Uint8 _r = col.r, _g = col.g, _b = col.b, _a = col.a;
+#endif
         if (fmt->Rmask == 0x00FF0000) {
             if (!fmt->Amask) {
                 AALINE(x1, y1, x2, y2,

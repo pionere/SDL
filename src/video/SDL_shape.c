@@ -35,7 +35,7 @@ SDL_bool SDL_IsShapedWindow(const SDL_Window *window)
 void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shape, Uint8 *bitmap, Uint8 ppb)
 {
     int x, y;
-    Uint8 r, g, b, alpha;
+    SDL_Color colorRGBA;
     Uint8 *pixel;
     Uint32 pixel_value, mask_value;
     size_t bytes_per_scanline = (size_t)(shape->w + (ppb - 1)) / ppb;
@@ -72,20 +72,20 @@ void SDL_CalculateShapeBitmap(const SDL_WindowShapeMode *mode, SDL_Surface *shap
                 pixel_value = 0;
                 break;
             }
-            SDL_GetRGBA(pixel_value, shape->format, &r, &g, &b, &alpha);
+            colorRGBA = SDL_GetPixelColor(pixel_value, shape->format);
             switch (shape_mode) {
             case ShapeModeDefault:
-                mask_value = (alpha >= 1 ? 1 : 0);
+                mask_value = (colorRGBA.a >= 1 ? 1 : 0);
                 break;
             case ShapeModeBinarizeAlpha:
-                mask_value = (alpha >= shape_params.binarizationCutoff ? 1 : 0);
+                mask_value = (colorRGBA.a >= shape_params.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeReverseBinarizeAlpha:
-                mask_value = (alpha <= shape_params.binarizationCutoff ? 1 : 0);
+                mask_value = (colorRGBA.a <= shape_params.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeColorKey:
                 key = shape_params.colorKey;
-                mask_value = ((key.r != r || key.g != g || key.b != b) ? 1 : 0);
+                mask_value = ((key.r != colorRGBA.r || key.g != colorRGBA.g || key.b != colorRGBA.b) ? 1 : 0);
                 break;
             default:
                 SDL_assume(!"Invalid shape mode");
@@ -107,7 +107,7 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
     int x, y;
     Uint8 *pixel;
     Uint32 pixel_value;
-    Uint8 r, g, b, a;
+    SDL_Color colorRGBA;
     int pixel_opaque, last_opaque = -1;
     SDL_Color key;
     SDL_ShapeTree *result = (SDL_ShapeTree *)SDL_malloc(sizeof(SDL_ShapeTree));
@@ -138,20 +138,20 @@ static SDL_ShapeTree *RecursivelyCalculateShapeTree(const SDL_WindowShapeMode *m
                 pixel_value = 0;
                 break;
             }
-            SDL_GetRGBA(pixel_value, mask->format, &r, &g, &b, &a);
+            colorRGBA = SDL_GetPixelColor(pixel_value, mask->format);
             switch (mode->mode) {
             case ShapeModeDefault:
-                pixel_opaque = (a >= 1 ? 1 : 0);
+                pixel_opaque = (colorRGBA.a >= 1 ? 1 : 0);
                 break;
             case ShapeModeBinarizeAlpha:
-                pixel_opaque = (a >= mode->parameters.binarizationCutoff ? 1 : 0);
+                pixel_opaque = (colorRGBA.a >= mode->parameters.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeReverseBinarizeAlpha:
-                pixel_opaque = (a <= mode->parameters.binarizationCutoff ? 1 : 0);
+                pixel_opaque = (colorRGBA.a <= mode->parameters.binarizationCutoff ? 1 : 0);
                 break;
             case ShapeModeColorKey:
                 key = mode->parameters.colorKey;
-                pixel_opaque = ((key.r != r || key.g != g || key.b != b) ? 1 : 0);
+                pixel_opaque = ((key.r != colorRGBA.r || key.g != colorRGBA.g || key.b != colorRGBA.b) ? 1 : 0);
                 break;
             default:
                 SDL_assume(!"Invalid shape mode");

@@ -913,29 +913,39 @@ void SDL_GetRGB(Uint32 pixel, const SDL_PixelFormat *format, Uint8 *r, Uint8 *g,
     }
 }
 
-void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
-                 Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
+SDL_Color SDL_GetPixelColor(Uint32 pixel, const SDL_PixelFormat *format)
 {
+    SDL_Color result;
+    SDL_assert(format != NULL);
     if (!format->palette) {
         unsigned v;
         v = (pixel & format->Rmask) >> format->Rshift;
-        *r = SDL_expand_byte[format->Rloss][v];
+        result.r = SDL_expand_byte[format->Rloss][v];
         v = (pixel & format->Gmask) >> format->Gshift;
-        *g = SDL_expand_byte[format->Gloss][v];
+        result.g = SDL_expand_byte[format->Gloss][v];
         v = (pixel & format->Bmask) >> format->Bshift;
-        *b = SDL_expand_byte[format->Bloss][v];
+        result.b = SDL_expand_byte[format->Bloss][v];
         v = (pixel & format->Amask) >> format->Ashift;
-        *a = SDL_expand_byte[format->Aloss][v];
+        result.a = SDL_expand_byte[format->Aloss][v];
     } else {
         if (pixel < (unsigned)format->palette->ncolors) {
-            *r = format->palette->colors[pixel].r;
-            *g = format->palette->colors[pixel].g;
-            *b = format->palette->colors[pixel].b;
-            *a = format->palette->colors[pixel].a;
+            result = format->palette->colors[pixel];
         } else {
-            *r = *g = *b = *a = 0;
+            result = SDL_ColorFromInt(0, 0, 0, 0);
         }
     }
+    return result;
+}
+
+void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
+                 Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
+{
+    SDL_Color color = SDL_GetPixelColor(pixel, format);
+
+    *r = color.r;
+    *g = color.g;
+    *b = color.b;
+    *a = color.a;
 }
 
 /* Map from Palette to Palette */
