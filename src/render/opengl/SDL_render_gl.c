@@ -1743,13 +1743,14 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     int profile_mask = 0, major = 0, minor = 0;
     SDL_bool changed_window = SDL_FALSE;
     const char *hint;
+    GLenum paramName;
     SDL_bool non_power_of_two_supported = SDL_FALSE;
 
+#ifndef SDL_VIDEO_VITA_PVR_OGL
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile_mask);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
 
-#ifndef SDL_VIDEO_VITA_PVR_OGL
     window_flags = window->flags;
     if (!(window_flags & SDL_WINDOW_OPENGL) ||
         profile_mask == SDL_GL_CONTEXT_PROFILE_ES || major != RENDERER_CONTEXT_MAJOR || minor != RENDERER_CONTEXT_MINOR) {
@@ -1860,21 +1861,18 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
     data->textype = GL_TEXTURE_2D;
     if (non_power_of_two_supported) {
         data->GL_ARB_texture_non_power_of_two_supported = SDL_TRUE;
-        data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
-        renderer->info.max_texture_width = value;
-        renderer->info.max_texture_height = value;
+        paramName = GL_MAX_TEXTURE_SIZE;
     } else if (SDL_GL_ExtensionSupported("GL_ARB_texture_rectangle") ||
                SDL_GL_ExtensionSupported("GL_EXT_texture_rectangle")) {
         data->GL_ARB_texture_rectangle_supported = SDL_TRUE;
         data->textype = GL_TEXTURE_RECTANGLE_ARB;
-        data->glGetIntegerv(GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB, &value);
-        renderer->info.max_texture_width = value;
-        renderer->info.max_texture_height = value;
+        paramName = GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB;
     } else {
-        data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
-        renderer->info.max_texture_width = value;
-        renderer->info.max_texture_height = value;
+        paramName = GL_MAX_TEXTURE_SIZE;
     }
+    data->glGetIntegerv(paramName, &value);
+    renderer->info.max_texture_width = value;
+    renderer->info.max_texture_height = value;
 
     /* Check for multitexture support */
     if (SDL_GL_ExtensionSupported("GL_ARB_multitexture")) {
@@ -1929,7 +1927,7 @@ static SDL_Renderer *GL_CreateRenderer(SDL_Window *window, Uint32 flags)
             SDL_GL_GetProcAddress("glCheckFramebufferStatusEXT");
         renderer->info.flags |= SDL_RENDERER_TARGETTEXTURE;
     }
-    data->framebuffers = NULL;
+    // data->framebuffers = NULL;
 
     /* Set up parameters for rendering */
     data->glMatrixMode(GL_MODELVIEW);

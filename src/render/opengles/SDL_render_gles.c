@@ -1132,6 +1132,9 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
     if (!data->context
      || SDL_GL_MakeCurrent(window, data->context) < 0
      || GLES_LoadFunctions(data) < 0) {
+        // SDL_GL_DeleteContext(data->context)
+        // SDL_free(data);
+        // SDL_free(renderer);
         GLES_DestroyRenderer(renderer);
         goto error;
     }
@@ -1140,11 +1143,8 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
         renderer->info.flags &= ~SDL_RENDERER_PRESENTVSYNC;
     }
 
-    value = 0;
     data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
     renderer->info.max_texture_width = value;
-    value = 0;
-    data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
     renderer->info.max_texture_height = value;
 
     /* Android does not report GL_OES_framebuffer_object but the functionality seems to be there anyway */
@@ -1156,20 +1156,12 @@ static SDL_Renderer *GLES_CreateRenderer(SDL_Window *window, Uint32 flags)
         data->glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &value);
         data->window_framebuffer = (GLuint)value;
     }
-    data->framebuffers = NULL;
+    // data->framebuffers = NULL;
 
-    if (SDL_GL_ExtensionSupported("GL_OES_blend_func_separate")) {
-        data->GL_OES_blend_func_separate_supported = SDL_TRUE;
-    }
-    if (SDL_GL_ExtensionSupported("GL_OES_blend_equation_separate")) {
-        data->GL_OES_blend_equation_separate_supported = SDL_TRUE;
-    }
-    if (SDL_GL_ExtensionSupported("GL_OES_blend_subtract")) {
-        data->GL_OES_blend_subtract_supported = SDL_TRUE;
-    }
-    if (SDL_GL_ExtensionSupported("GL_EXT_blend_minmax")) {
-        data->GL_EXT_blend_minmax_supported = SDL_TRUE;
-    }
+    data->GL_OES_blend_func_separate_supported = SDL_GL_ExtensionSupported("GL_OES_blend_func_separate");
+    data->GL_OES_blend_equation_separate_supported = SDL_GL_ExtensionSupported("GL_OES_blend_equation_separate");
+    data->GL_OES_blend_subtract_supported = SDL_GL_ExtensionSupported("GL_OES_blend_subtract");
+    data->GL_EXT_blend_minmax_supported = SDL_GL_ExtensionSupported("GL_EXT_blend_minmax");
 
     /* Set up parameters for rendering */
     data->glDisable(GL_DEPTH_TEST);

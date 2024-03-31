@@ -2122,11 +2122,9 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
         data->debug_enabled = SDL_TRUE;
     }
 #endif
-    value = 0;
+
     data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
     renderer->info.max_texture_width = value;
-    value = 0;
-    data->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
     renderer->info.max_texture_height = value;
 
 #if USE_VERTEX_BUFFER_OBJECTS
@@ -2134,7 +2132,7 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     data->glGenBuffers(SDL_arraysize(data->vertex_buffers), data->vertex_buffers);
 #endif
 
-    data->framebuffers = NULL;
+    // data->framebuffers = NULL;
     data->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &window_framebuffer);
     data->window_framebuffer = (GLuint)window_framebuffer;
 
@@ -2184,9 +2182,7 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->rect_index_order[4] = 3;
     renderer->rect_index_order[5] = 2;
 
-    if (SDL_GL_ExtensionSupported("GL_EXT_blend_minmax")) {
-        data->GL_EXT_blend_minmax_supported = SDL_TRUE;
-    }
+    data->GL_EXT_blend_minmax_supported = SDL_GL_ExtensionSupported("GL_EXT_blend_minmax");
 
     /* Set up parameters for rendering */
     data->glActiveTexture(GL_TEXTURE0);
