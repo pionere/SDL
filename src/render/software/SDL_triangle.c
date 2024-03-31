@@ -653,9 +653,10 @@ int SDL_SW_BlitTriangle(
 
     if (blend != SDL_BLENDMODE_NONE || src->format->format != dst->format->format || has_modulation || !is_uniform) {
         /* Use SDL_BlitTriangle_Slow */
-
         SDL_BlitInfo *info = &src->map->info;
         SDL_BlitInfo tmp_info;
+        SDL_Color colorMask = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF);
+        const Uint32 RGBmask = SDL_ColorRGBmask(&colorMask);
 
         SDL_zero(tmp_info);
 
@@ -669,9 +670,7 @@ int SDL_SW_BlitTriangle(
 
         tmp_info.flags &= ~(SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA);
 
-        if (c0.r != 255 || c1.r != 255 || c2.r != 255 ||
-            c0.g != 255 || c1.g != 255 || c2.g != 255 ||
-            c0.b != 255 || c1.b != 255 || c2.b != 255) {
+        if (SDL_ColorRGBmask(&c0) != RGBmask || SDL_ColorRGBmask(&c1) != RGBmask || SDL_ColorRGBmask(&c2) != RGBmask) {
             tmp_info.flags |= SDL_COPY_MODULATE_COLOR;
         }
 
