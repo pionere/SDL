@@ -41,6 +41,9 @@
 
 #include "SDL_shaders_d3d11.h"
 
+#define SDL_D3D11_ERROR_UNKNOWN                -1
+SDL_COMPILE_TIME_ASSERT(d3d11_error, FAILED(SDL_D3D11_ERROR_UNKNOWN));
+
 #ifdef __WINRT__
 
 #if NTDDI_VERSION > NTDDI_WIN8
@@ -739,20 +742,69 @@ static int D3D11_GetViewportAlignedD3DRect(D3D11_RenderData *data, const SDL_Rec
     return 0;
 }
 
-static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
+static HRESULT D3D11_UpdateForWindowSizeChange(SDL_Renderer *renderer);
+static void D3D11_HandleDeviceLost(SDL_Renderer *renderer);
+
+static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
 {
-    D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
-#ifdef __WINRT__
-    IUnknown *coreWindow = D3D11_GetCoreWindowFromSDLRenderer(renderer);
-    const BOOL usingXAML = (!coreWindow);
-#else
+    D3D11_RenderData *data;
     IUnknown *coreWindow = NULL;
-    const BOOL usingXAML = FALSE;
-#endif
+    BOOL usingXAML = FALSE;
+    int w, h;
+    DXGI_MODE_ROTATION rotation;
     HRESULT result = S_OK;
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
+
+#ifdef __WINRT__
+    SDL_GetWindowSize(renderer->window, &w, &h);
+#else
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
+#endif
+
+    data = (D3D11_RenderData *)renderer->driverdata;
+#ifdef __WINRT__
+    rotation = data->rotation;
+#else
+    rotation = DXGI_MODE_ROTATION_IDENTITY; /* FIXME */
+#endif
+    /* SDL_Log("%s: windowSize={%d,%d}, orientation=%d\n", __FUNCTION__, w, h, (int)rotation); */
+    if (D3D11_IsDisplayRotated90Degrees(rotation)) {
+        int tmp = w;
+        w = h;
+        h = tmp;
+    }
+
+    if (data->swapChain) {
+        /* IDXGISwapChain::ResizeBuffers is not available on Windows Phone 8. */
+#if !defined(__WINRT__) || !SDL_WINAPI_FAMILY_PHONE
+        /* If the swap chain already exists, resize it. */
+        result = IDXGISwapChain_ResizeBuffers(data->swapChain,
+                                              0,
+                                              w, h,
+                                              DXGI_FORMAT_UNKNOWN,
+                                              0);
+        if (FAILED(result)) {
+            if (result == DXGI_ERROR_DEVICE_REMOVED) {
+                /* If the device was removed for any reason, a new device and swap chain will need to be created. */
+                D3D11_HandleDeviceLost(renderer);
+
+                /* Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
+                 * and correctly set up the new device.
+                 */
+            } else {
+                WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::ResizeBuffers"), result);
+            }
+        }
+#endif
+        return result;
+    }
+
+#ifdef __WINRT__
+    coreWindow = D3D11_GetCoreWindowFromSDLRenderer(renderer);
+    usingXAML = (!coreWindow);
+#endif
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
     SDL_zero(swapChainDesc);
     swapChainDesc.Width = w;
     swapChainDesc.Height = h;
@@ -810,7 +862,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         }
 #else
         SDL_SetError(SDL_COMPOSE_ERROR("XAML support is not yet available for Windows Phone"));
-        result = E_FAIL;
+        result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
 #endif
     } else {
@@ -836,6 +888,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         IDXGIFactory_MakeWindowAssociation(data->dxgiFactory, hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
 #else
         SDL_SetError(__FUNCTION__ ", Unable to find something to attach a swap chain to");
+        result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
 #endif /* defined(__WIN32__) || defined(__WINGDK__) / else */
     }
@@ -851,8 +904,6 @@ static void D3D11_ReleaseMainRenderTargetView(D3D11_RenderData *data)
     ID3D11DeviceContext_OMSetRenderTargets(data->d3dContext, 0, NULL, NULL);
     SAFE_RELEASE(data->mainRenderTargetView);
 }
-
-static HRESULT D3D11_UpdateForWindowSizeChange(SDL_Renderer *renderer);
 
 static void D3D11_HandleDeviceLost(SDL_Renderer *renderer)
 {
@@ -886,59 +937,20 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
     ID3D11Texture2D *backBuffer = NULL;
     HRESULT result = S_OK;
-    int w, h;
-    DXGI_MODE_ROTATION rotation;
 
     /* Release the previous render target view */
     D3D11_ReleaseMainRenderTargetView(data);
 
-    /* The width and height of the swap chain must be based on the display's
-     * non-rotated size.
-     */
+    /* Update the current rotation */
 #ifdef __WINRT__
-    SDL_GetWindowSize(renderer->window, &w, &h);
-
-    rotation = D3D11_GetCurrentRotation();
-    /* SDL_Log("%s: windowSize={%d,%d}, orientation=%d\n", __FUNCTION__, w, h, (int)rotation); */
-    if (D3D11_IsDisplayRotated90Degrees(rotation)) {
-        int tmp = w;
-        w = h;
-        h = tmp;
-    }
-    data->rotation = rotation;
+    data->rotation = D3D11_GetCurrentRotation();
 #else
-    SDL_PrivateGetWindowSizeInPixels(renderer->window, &w, &h);
-
-    rotation = DXGI_MODE_ROTATION_IDENTITY; /* FIXME */
+    /* FIXME */
 #endif
 
-    if (data->swapChain) {
-        /* IDXGISwapChain::ResizeBuffers is not available on Windows Phone 8. */
-#if !defined(__WINRT__) || !SDL_WINAPI_FAMILY_PHONE
-        /* If the swap chain already exists, resize it. */
-        result = IDXGISwapChain_ResizeBuffers(data->swapChain,
-                                              0,
-                                              w, h,
-                                              DXGI_FORMAT_UNKNOWN,
-                                              0);
-        if (result == DXGI_ERROR_DEVICE_REMOVED) {
-            /* If the device was removed for any reason, a new device and swap chain will need to be created. */
-            D3D11_HandleDeviceLost(renderer);
-
-            /* Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method
-             * and correctly set up the new device.
-             */
-            goto done;
-        } else if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::ResizeBuffers"), result);
-            goto done;
-        }
-#endif
-    } else {
-        result = D3D11_CreateSwapChain(renderer, w, h);
-        if (FAILED(result) || !data->swapChain) {
-            goto done;
-        }
+    result = D3D11_CreateSwapChain(renderer);
+    if (FAILED(result)) {
+        goto done;
     }
 
 #if !SDL_WINAPI_FAMILY_PHONE
@@ -960,6 +972,12 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      */
     if (WIN_IsWindows8OrGreater()) {
         if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
+            DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
+#ifdef __WINRT__
+            rotation = data->rotation;
+#else
+            /* FIXME */
+#endif
             result = IDXGISwapChain1_SetRotation(data->swapChain, rotation);
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain1::SetRotation"), result);
