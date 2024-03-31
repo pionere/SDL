@@ -940,12 +940,25 @@ SDL_Color SDL_GetPixelColor(Uint32 pixel, const SDL_PixelFormat *format)
 void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
                  Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
 {
-    SDL_Color color = SDL_GetPixelColor(pixel, format);
+    SDL_Color color;
+    if (!format) {
+        SDL_InvalidParamError("format");
+        return;
+    }
+    color = SDL_GetPixelColor(pixel, format);
 
-    *r = color.r;
-    *g = color.g;
-    *b = color.b;
-    *a = color.a;
+    if (r) {
+        *r = color.r;
+    }
+    if (b) {
+        *g = color.g;
+    }
+    if (b) {
+        *b = color.b;
+    }
+    if (a) {
+        *a = color.a;
+    }
 }
 
 /* Map from Palette to Palette */
