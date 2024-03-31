@@ -2111,9 +2111,10 @@ static VkResult VULKAN_CreateFramebuffersAndRenderPasses(SDL_Renderer *renderer,
     return result;
 }
 
-static int VULKAN_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
+static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 {
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
+    int w, h;
     VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(rendererData->physicalDevice, rendererData->surface, &rendererData->surfaceCapabilities);
     if (result != VK_SUCCESS) {
         return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfaceCapabilitiesKHR", result);
@@ -2133,8 +2134,7 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         if (renderer->output_colorspace == SDL_COLORSPACE_SRGB_LINEAR) {
             desiredFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
             desiredColorSpace = VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT;
-        }
-        else if (renderer->output_colorspace == SDL_COLORSPACE_HDR10) {
+        } else if (renderer->output_colorspace == SDL_COLORSPACE_HDR10) {
             desiredFormat = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
             desiredColorSpace = VK_COLOR_SPACE_HDR10_ST2084_EXT;
         }
@@ -2158,6 +2158,10 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
         }
     }
 
+    /* The width and height of the swap chain must be based on the display's
+     * non-rotated size.
+     */
+    SDL_GetWindowSizeInPixels(renderer->window, &w, &h);
     rendererData->swapchainSize.width = SDL_clamp((uint32_t)w,
                                           rendererData->surfaceCapabilities.minImageExtent.width,
                                           rendererData->surfaceCapabilities.maxImageExtent.width);
@@ -2534,18 +2538,12 @@ static VkResult VULKAN_CreateWindowSizeDependentResources(SDL_Renderer *renderer
 {
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
     int result;
-    int w, h;
 
     /* Release resources in the current command list */
     VULKAN_IssueBatch(rendererData);
     VULKAN_WaitForGPU(rendererData);
 
-    /* The width and height of the swap chain must be based on the display's
-     * non-rotated size.
-     */
-    SDL_GetWindowSizeInPixels(renderer->window, &w, &h);
-
-    result = VULKAN_CreateSwapChain(renderer, w, h);
+    result = VULKAN_CreateSwapChain(renderer);
     if (result != VK_SUCCESS) {
         rendererData->recreateSwapchain = VK_TRUE;
     }
