@@ -2111,13 +2111,14 @@ static VkResult VULKAN_CreateFramebuffersAndRenderPasses(SDL_Renderer *renderer,
     return result;
 }
 
-static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
+static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 {
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
     int w, h;
     VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(rendererData->physicalDevice, rendererData->surface, &rendererData->surfaceCapabilities);
     if (result != VK_SUCCESS) {
-        return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfaceCapabilitiesKHR", result);
+        SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfaceCapabilitiesKHR", result);
+        return result;
     }
 
     // pick an image count
@@ -2172,7 +2173,7 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 
     if (rendererData->swapchainSize.width == 0 && rendererData->swapchainSize.height == 0) {
         /* Don't recreate the swapchain if size is (0,0), just fail and continue attempting creation */
-        return -1; // VK_ERROR_OUT_OF_DATE_KHR;
+        return SDL_VULKAN_ERROR_UNKNOWN; // VK_ERROR_OUT_OF_DATE_KHR;
     }
 
     /* Choose a present mode. If vsync is requested, then use VK_PRESENT_MODE_FIFO_KHR which is guaranteed to be supported */
@@ -2183,17 +2184,20 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
             uint32_t presentModeCount = 0;
             result = vkGetPhysicalDeviceSurfacePresentModesKHR(rendererData->physicalDevice, rendererData->surface, &presentModeCount, NULL);
             if (result != VK_SUCCESS) {
-                return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfacePresentModesKHR", result);
+                SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfacePresentModesKHR", result);
+                return result;
             }
             if (presentModeCount > 0) {
                 VkPresentModeKHR *presentModes = (VkPresentModeKHR *)SDL_calloc(presentModeCount, sizeof(VkPresentModeKHR));
                 if (!presentModes) {
-                    return SDL_OutOfMemory();
+                    SDL_OutOfMemory();
+                    return SDL_VULKAN_ERROR_UNKNOWN;
                 }
                 result = vkGetPhysicalDeviceSurfacePresentModesKHR(rendererData->physicalDevice, rendererData->surface, &presentModeCount, presentModes);
                 if (result != VK_SUCCESS) {
                     SDL_free(presentModes);
-                    return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfacePresentModesKHR", result);
+                    SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetPhysicalDeviceSurfacePresentModesKHR", result);
+                    return result;
                 }
 
                 /* If vsync is not requested, in favor these options in order:
@@ -2238,7 +2242,8 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 
         if (result != VK_SUCCESS) {
             rendererData->swapchain = VK_NULL_HANDLE;
-            return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateSwapchainKHR", result);
+            SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateSwapchainKHR", result);
+            return result;
         }
     }
     /* update the swapchain-images */
@@ -2250,17 +2255,20 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         rendererData->swapchainImageCount = 0;
         result = vkGetSwapchainImagesKHR(rendererData->device, rendererData->swapchain, &swapchainImageCount, NULL);
         if (result != VK_SUCCESS) {
-            return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetSwapchainImagesKHR", result);
+            SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetSwapchainImagesKHR", result);
+            return result;
         }
 
         swapchainImages = (VkImage *)SDL_malloc(sizeof(VkImage) * swapchainImageCount);
         if (!swapchainImages) {
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            return SDL_VULKAN_ERROR_UNKNOWN;
         }
         result = vkGetSwapchainImagesKHR(rendererData->device, rendererData->swapchain, &swapchainImageCount, swapchainImages);
         if (result != VK_SUCCESS) {
             SDL_free(swapchainImages);
-            return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetSwapchainImagesKHR", result);
+            SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetSwapchainImagesKHR", result);
+            return result;
         }
         rendererData->swapchainImages = swapchainImages;
         rendererData->swapchainImageCount = swapchainImageCount;
@@ -2296,15 +2304,16 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
             SDL_free(rendererData->swapchainImageLayouts);
             rendererData->swapchainImageViews = NULL;
             rendererData->swapchainImageLayouts = NULL;
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            return SDL_VULKAN_ERROR_UNKNOWN;
         }
 
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
             imageViewCreateInfo.image = rendererData->swapchainImages[i];
             result = vkCreateImageView(rendererData->device, &imageViewCreateInfo, NULL, &rendererData->swapchainImageViews[i]);
             if (result != VK_SUCCESS) {
-                VULKAN_DestroyAll(renderer);
-                return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateImageView", result);
+                SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateImageView", result);
+                goto error;
             }
             rendererData->swapchainImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
         }
@@ -2325,13 +2334,13 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         }
         rendererData->commandBuffers = (VkCommandBuffer *)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkCommandBuffer));
         if (!rendererData->commandBuffers) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto error;
         }
         result = vkAllocateCommandBuffers(rendererData->device, &commandBufferAllocateInfo, rendererData->commandBuffers);
         if (result != VK_SUCCESS) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkAllocateCommandBuffers", result);
+            SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkAllocateCommandBuffers", result);
+            goto error;
         }
     }
 
@@ -2346,8 +2355,8 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
     rendererData->fences = (VkFence *)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkFence));
     if (!rendererData->fences) {
-        VULKAN_DestroyAll(renderer);
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        goto error;
     }
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         VkFenceCreateInfo fenceCreateInfo = { 0 };
@@ -2355,8 +2364,8 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
         result = vkCreateFence(rendererData->device, &fenceCreateInfo, NULL, &rendererData->fences[i]);
         if (result != VK_SUCCESS) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateFence", result);
+            SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateFence", result);
+            goto error;
         }
     }
 
@@ -2377,8 +2386,8 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
     rendererData->framebuffers = (VkFramebuffer *)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkFramebuffer));
     if (!rendererData->framebuffers) {
-        VULKAN_DestroyAll(renderer);
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        goto error;
     }
     result = VULKAN_CreateFramebuffersAndRenderPasses(renderer,
         rendererData->swapchainSize.width,
@@ -2389,8 +2398,7 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         rendererData->framebuffers,
         rendererData->renderPasses);
     if (result != VK_SUCCESS) {
-        VULKAN_DestroyAll(renderer);
-        return -1;
+        goto error;
     }
 
     /* Create descriptor pools - start by allocating one per swapchain image, let it grow if more are needed */
@@ -2414,13 +2422,13 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         VkDescriptorPool descriptorPool;
         VkDescriptorPool *descriptorPoolPtr = (VkDescriptorPool *)SDL_calloc(1, sizeof(VkDescriptorPool));
         if (descriptorPoolPtr == NULL) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto error;
         }
         descriptorPool = VULKAN_AllocateDescriptorPool(rendererData);
         if (descriptorPool == VK_NULL_HANDLE) {
             SDL_free(descriptorPoolPtr);
-            return -1;
+            goto error;
         }
         *descriptorPoolPtr = descriptorPool;
         rendererData->numDescriptorPools[i] = 1;
@@ -2449,13 +2457,11 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         rendererData->imageAvailableSemaphores[i] = VULKAN_CreateSemaphore(rendererData);
         if (rendererData->imageAvailableSemaphores[i] == VK_NULL_HANDLE) {
-            VULKAN_DestroyAll(renderer);
-            return -1;
+            goto error;
         }
         rendererData->renderingFinishedSemaphores[i] = VULKAN_CreateSemaphore(rendererData);
         if (rendererData->renderingFinishedSemaphores[i] == VK_NULL_HANDLE) {
-            VULKAN_DestroyAll(renderer);
-            return -1;
+            goto error;
         }
     }
 
@@ -2471,21 +2477,21 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
     rendererData->uploadBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
     if (!rendererData->uploadBuffers) {
-        VULKAN_DestroyAll(renderer);
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        goto error;
     }
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         rendererData->uploadBuffers[i] = (VULKAN_Buffer *)SDL_calloc(SDL_VULKAN_NUM_UPLOAD_BUFFERS, sizeof(VULKAN_Buffer));
         if (!rendererData->uploadBuffers[i]) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto error;
         }
     }
     SDL_free(rendererData->currentUploadBuffer);
     rendererData->currentUploadBuffer = (int *)SDL_calloc(rendererData->swapchainImageCount, sizeof(int));
     if (!rendererData->currentUploadBuffer) {
-        VULKAN_DestroyAll(renderer);
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        goto error;
     }
     /* Constant buffers */
     if (rendererData->constantBuffers) {
@@ -2507,8 +2513,8 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         rendererData->numConstantBuffers[i] = 1;
         rendererData->constantBuffers[i] = (VULKAN_Buffer *)SDL_calloc(1, sizeof(VULKAN_Buffer));
         if (!rendererData->constantBuffers[i]) {
-            VULKAN_DestroyAll(renderer);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto error;
         }
         result = VULKAN_AllocateBuffer(rendererData,
             SDL_VULKAN_CONSTANT_BUFFER_DEFAULT_SIZE,
@@ -2518,8 +2524,7 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
             &rendererData->constantBuffers[i][0]);
         if (result != VK_SUCCESS) {
-            VULKAN_DestroyAll(renderer);
-            return -1;
+            goto error;
         }
     }
     rendererData->currentConstantBufferOffset = -1;
@@ -2531,6 +2536,9 @@ static int VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     SDL_SetNumberProperty(props, SDL_PROP_RENDERER_VULKAN_SWAPCHAIN_IMAGE_COUNT_NUMBER, rendererData->swapchainImageCount);
 #endif
     return 0;
+error:
+    VULKAN_DestroyAll(renderer);
+    return SDL_VULKAN_ERROR_UNKNOWN;
 }
 
 /* Initialize all resources that change when the window's size changes. */
