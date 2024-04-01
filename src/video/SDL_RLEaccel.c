@@ -1413,7 +1413,7 @@ int SDL_RLESurface(SDL_Surface *surface)
     int flags;
 
     /* Clear any previous RLE conversion */
-    if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
+    if (surface->flags & SDL_RLEACCEL) {
         SDL_UnRLESurface(surface, 1);
     }
 

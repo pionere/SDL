@@ -204,7 +204,7 @@ int SDL_CalculateBlit(SDL_Surface *surface)
 
 #if SDL_HAVE_RLE
     /* Clean everything out to start */
-    if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
+    if (surface->flags & SDL_RLEACCEL) {
         SDL_UnRLESurface(surface, 1);
     }
 #endif

@@ -1147,7 +1147,7 @@ void SDL_UnlockSurface(SDL_Surface *surface)
 
 #if SDL_HAVE_RLE
     /* Update RLE encoded surface with new data */
-    if ((surface->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
+    if (surface->flags & SDL_RLEACCEL) {
         surface->flags &= ~SDL_RLEACCEL; /* stop lying */
         SDL_RLESurface(surface);
     }

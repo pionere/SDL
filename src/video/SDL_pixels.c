@@ -1089,7 +1089,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     /* Clear out any previous mapping */
     map = src->map;
 #if SDL_HAVE_RLE
-    if ((src->flags & SDL_RLEACCEL) == SDL_RLEACCEL) {
+    if (src->flags & SDL_RLEACCEL) {
         SDL_UnRLESurface(src, 1);
     }
 #endif
