@@ -359,6 +359,7 @@
     <ClInclude Include="..\..\src\render\opengl\SDL_shaders_gl.h" />
     <ClInclude Include="..\..\src\render\SDL_d3dmath.h" />
     <ClInclude Include="..\..\src\render\SDL_sysrender.h" />
+    <ClInclude Include="..\..\src\render\SDL_sysrender_c.h" />
     <ClInclude Include="..\..\src\render\SDL_yuv_sw_c.h" />
     <ClInclude Include="..\..\src\render\software\SDL_blendfillrect.h" />
     <ClInclude Include="..\..\src\render\software\SDL_blendline.h" />

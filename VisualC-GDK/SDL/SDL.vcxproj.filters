@@ -726,6 +726,9 @@
     <ClInclude Include="..\..\src\render\SDL_sysrender.h">
       <Filter>render</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\render\SDL_sysrender_c.h">
+      <Filter>render</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\render\SDL_yuv_sw_c.h">
       <Filter>render</Filter>
     </ClInclude>

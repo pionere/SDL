@@ -96,45 +96,19 @@ this should probably be removed at some point in the future.  --ryan. */
 
 #ifndef SDL_RENDER_DISABLED
 static const SDL_RenderDriver *render_drivers[] = {
-#if SDL_VIDEO_RENDER_D3D
-    &D3D_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_D3D11
-    &D3D11_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_D3D12
-    &D3D12_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_METAL
-    &METAL_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL
-    &GL_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL_ES2
-    &GLES2_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_OGL_ES
-    &GLES_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_DIRECTFB
-    &DirectFB_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_PS2
-    &PS2_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_PSP
-    &PSP_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_VITA_GXM
-    &VITA_GXM_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_VULKAN
-    &VULKAN_RenderDriver,
-#endif
-#if SDL_VIDEO_RENDER_SW
-    &SW_RenderDriver
-#endif
+    D3D_RENDERDRIVER_ENTRY
+    D3D11_RENDERDRIVER_ENTRY
+    D3D12_RENDERDRIVER_ENTRY
+    METAL_RENDERDRIVER_ENTRY
+    GL_RENDERDRIVER_ENTRY
+    GLES2_RENDERDRIVER_ENTRY
+    GLES_RENDERDRIVER_ENTRY
+    DirectFB_RENDERDRIVER_ENTRY
+    PS2_RENDERDRIVER_ENTRY
+    PSP_RENDERDRIVER_ENTRY
+    VITA_GXM_RENDERDRIVER_ENTRY
+    VULKAN_RENDERDRIVER_ENTRY
+    SW_RENDERDRIVER_ENTRY
 };
 #endif /* !SDL_RENDER_DISABLED */
 

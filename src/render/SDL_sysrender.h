@@ -295,20 +295,7 @@ struct SDL_RenderDriver
     SDL_RendererInfo info;
 };
 
-/* Not all of these are available in a given build. Use #ifdefs, etc. */
-extern const SDL_RenderDriver D3D_RenderDriver;
-extern const SDL_RenderDriver D3D11_RenderDriver;
-extern const SDL_RenderDriver D3D12_RenderDriver;
-extern const SDL_RenderDriver GL_RenderDriver;
-extern const SDL_RenderDriver GLES2_RenderDriver;
-extern const SDL_RenderDriver GLES_RenderDriver;
-extern const SDL_RenderDriver DirectFB_RenderDriver;
-extern const SDL_RenderDriver METAL_RenderDriver;
-extern const SDL_RenderDriver VULKAN_RenderDriver;
-extern const SDL_RenderDriver PS2_RenderDriver;
-extern const SDL_RenderDriver PSP_RenderDriver;
-extern const SDL_RenderDriver SW_RenderDriver;
-extern const SDL_RenderDriver VITA_GXM_RenderDriver;
+#include "SDL_sysrender_c.h"
 
 /* Blend mode functions */
 extern SDL_BlendMode SDL_GetLongBlendMode(SDL_BlendMode blendMode);
