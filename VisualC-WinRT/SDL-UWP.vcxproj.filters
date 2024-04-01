@@ -393,6 +393,9 @@
     <ClInclude Include="..\src\video\SDL_shape_internals.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\video\SDL_surface_c.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\video\SDL_sysvideo.h">
       <Filter>Source Files</Filter>
     </ClInclude>

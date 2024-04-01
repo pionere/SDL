@@ -20,13 +20,14 @@
 */
 #include "../SDL_internal.h"
 
-#include "SDL_video.h"
-#include "SDL_sysvideo.h"
+// #include "SDL_video.h"
+// #include "SDL_sysvideo.h"
+
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 #include "SDL_yuv_c.h"
-#include "../render/SDL_sysrender.h"
+#include "SDL_surface_c.h"
 
 /* Check to make sure we can safely check multiplication of surface w and pitch and it won't overflow size_t */
 SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
@@ -34,6 +35,8 @@ SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
 
 SDL_COMPILE_TIME_ASSERT(can_indicate_overflow, SDL_SIZE_MAX > SDL_MAX_SINT32);
 
+static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
+                               SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
 /*
  * Calculate the pad-aligned scanline width of a surface.
  * Return SDL_SIZE_MAX on overflow.
@@ -995,7 +998,7 @@ int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     return SDL_PrivateLowerBlitScaled(src, srcrect, dst, dstrect, SDL_ScaleModeNearest);
 }
 
-int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
+static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                                SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode)
 {
     static const Uint32 complex_copy_flags = (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA |

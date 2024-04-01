@@ -24,6 +24,7 @@
 
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels */
+#include "../../video/SDL_surface_c.h"
 #include "SDL_render_sw_c.h"
 #include "SDL_hints.h"
 

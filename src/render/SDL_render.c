@@ -29,6 +29,7 @@
 #include "software/SDL_render_sw_c.h"
 #include "../SDL_hints_c.h"
 #include "../video/SDL_pixels_c.h"
+#include "../video/SDL_surface_c.h"
 #include "../video/SDL_sysvideo.h" /* For window->flags TODO: SDL_PrivateGetWindowFlags? */
 
 #if defined(__ANDROID__)
