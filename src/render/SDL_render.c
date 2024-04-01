@@ -663,8 +663,13 @@ int SDL_GetRenderDriverInfo(int index, SDL_RendererInfo *info)
 
 const SDL_RendererInfo *SDL_PrivateGetRenderDriverInfo(int index)
 {
+#ifndef SDL_RENDER_DISABLED
     SDL_assert(index >= 0 && index < SDL_GetNumRenderDrivers());
     return &render_drivers[index]->info;
+#else
+    SDL_SetError("SDL not built with rendering support");
+    return NULL;
+#endif
 }
 
 static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, int *logical_h, SDL_DRect *viewport, SDL_FPoint *scale)
