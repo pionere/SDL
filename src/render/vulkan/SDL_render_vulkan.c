@@ -3297,6 +3297,8 @@ static SDL_bool VULKAN_UpdateVertexBuffer(VULKAN_RenderData *rendererData,
     }
     /* If the existing vertex buffer isn't big enough, we need to recreate a big enough one */
     if (dataSizeInBytes > rendererData->vertexBuffers[vbidx].size) {
+        VULKAN_IssueBatch(rendererData);
+        VULKAN_WaitForGPU(rendererData);
         if (VULKAN_CreateVertexBuffer(rendererData, vbidx, dataSizeInBytes) != VK_SUCCESS) {
             return SDL_FALSE;
         }
