@@ -160,7 +160,7 @@ void WIN_InitKeyboard(void)
 #ifndef SDL_DISABLE_WINDOWS_IME
     WIN_ImeData *data = &winImeData;
 
-    SDL_zero(*data);
+    SDL_zerop(data);
 #if 0
     data->ime_com_initialized = SDL_FALSE;
     data->ime_threadmgr = NULL;

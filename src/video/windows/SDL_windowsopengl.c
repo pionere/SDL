@@ -197,7 +197,7 @@ int WIN_GL_PrivateLoadLibrary(_THIS, const char *path)
 #endif
     ) {
         SDL_UnloadObject(handle);
-        SDL_zero(*wgl_data);
+        SDL_zerop(wgl_data);
         return SDL_SetError("Could not retrieve OpenGL functions");
     }
 
@@ -265,7 +265,7 @@ void WIN_GL_UnloadLibrary(_THIS)
     SDL_UnloadObject(wgl_data->dll_handle);
     // wgl_data->dll_handle = NULL;
 
-    SDL_zero(*wgl_data);
+    SDL_zerop(wgl_data);
 }
 
 static void WIN_GL_SetupPixelFormat(_THIS, PIXELFORMATDESCRIPTOR *pfd)

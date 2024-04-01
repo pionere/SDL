@@ -86,7 +86,7 @@ void DirectFB_GL_UnloadLibrary(_THIS)
     GL_UnloadObject(fbgl_data->dll_handle);
     // fbgl_data->dll_handle = NULL;
 
-    SDL_zero(*fbgl_data);
+    SDL_zerop(fbgl_data);
 }
 
 void *DirectFB_GL_GetProcAddress(const char *proc)

@@ -452,7 +452,7 @@ static int WIN_GetMonitorInfo(SDL_VideoDisplay *display, MONITORINFO *info)
     UINT xdpi, ydpi;
     BOOL rc;
 
-    SDL_zero(*info);
+    SDL_zerop(info);
     info->cbSize = sizeof(MONITORINFO);
     rc = GetMonitorInfo(hMonitor, info);
 

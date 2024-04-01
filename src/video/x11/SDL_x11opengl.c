@@ -275,7 +275,7 @@ int X11_GL_PrivateLoadLibrary(_THIS, const char *path)
 
     return 0;
 error:
-    SDL_zero(*glx_data);
+    SDL_zerop(glx_data);
     // GL_UnloadObject(handle); -- see X11_GL_UnloadLibrary
     return -1;
 }
@@ -300,7 +300,7 @@ void X11_GL_UnloadLibrary(_THIS)
     GL_UnloadObject(glx_data->dll_handle);
     // glx_data->dll_handle = NULL;
 #endif
-    SDL_zero(*glx_data);
+    SDL_zerop(glx_data);
 }
 
 static SDL_bool HasExtension(const char *extension, const char *extensions)

@@ -3086,7 +3086,7 @@ SDL_GameController *SDL_GameControllerFromPlayerIndex(int player_index)
  */
 static void SDL_PrivateGameControllerGetBindForAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, SDL_GameControllerButtonBind *bind)
 {
-    // SDL_zero(*bind);
+    // SDL_zerop(bind);
 
         if (axis != SDL_CONTROLLER_AXIS_INVALID) {
             int i;
@@ -3134,7 +3134,7 @@ SDL_GameControllerButtonBind SDL_GameControllerGetBindForAxis(SDL_GameController
  */
 static void SDL_PrivateGameControllerGetBindForButton(SDL_GameController *gamecontroller, SDL_GameControllerButton button, SDL_GameControllerButtonBind *bind)
 {
-    // SDL_zero(*bind);
+    // SDL_zerop(bind);
 
         if (button != SDL_CONTROLLER_BUTTON_INVALID) {
             int i;

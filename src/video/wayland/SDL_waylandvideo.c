@@ -692,7 +692,7 @@ static void display_handle_done(void *data,
         dpy->driverdata = driverdata;
         driverdata->index = SDL_AddVideoDisplay(dpy, send_event);
         SDL_free(dpy->name);
-        SDL_zero(*dpy);
+        SDL_zerop(dpy);
     } else {
         SDL_SendDisplayEvent(dpy, SDL_DISPLAYEVENT_ORIENTATION, driverdata->orientation);
     }

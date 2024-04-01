@@ -2915,7 +2915,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     placedTextureDesc = &dstLocation.PlacedFootprint;
 
     // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_rrp_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc->Footprint));
-    // SDL_zero(*placedTextureDesc);
+    // SDL_zerop(placedTextureDesc);
     placedTextureDesc->Offset = 0;
     pitchedDesc = &placedTextureDesc->Footprint;
 
