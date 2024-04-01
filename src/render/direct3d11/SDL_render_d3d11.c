@@ -381,8 +381,8 @@ static ID3D11BlendState *D3D11_CreateBlendState(D3D11_RenderData *data, SDL_Blen
 
     D3D11_BLEND_DESC blendDesc;
     SDL_zero(blendDesc);
-    blendDesc.AlphaToCoverageEnable = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
+    // blendDesc.AlphaToCoverageEnable = FALSE;
+    // blendDesc.IndependentBlendEnable = FALSE;
     blendDesc.RenderTarget[0].BlendEnable = TRUE;
     blendDesc.RenderTarget[0].SrcBlend = GetBlendFunc(srcColorFactor);
     blendDesc.RenderTarget[0].DestBlend = GetBlendFunc(dstColorFactor);
@@ -591,6 +591,9 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
     constantBufferDesc.ByteWidth = sizeof(VertexShaderConstants);
     constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    // constantBufferDesc.CPUAccessFlags = 0;
+    // constantBufferDesc.MiscFlags = 0;
+    // constantBufferDesc.StructureByteStride = 0;
     result = ID3D11Device_CreateBuffer(data->d3dDevice,
                                        &constantBufferDesc,
                                        NULL,
@@ -602,14 +605,19 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Create samplers to use when drawing textures: */
     SDL_zero(samplerDesc);
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_cdr_sd, D3D11_FILTER_MIN_MAG_MIP_POINT == 0);
+    // samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.MipLODBias = 0.0f;
+    // samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    samplerDesc.MinLOD = 0.0f;
+    // samplerDesc.BorderColor[0] = 0.0f;
+    // samplerDesc.BorderColor[1] = 0.0f;
+    // samplerDesc.BorderColor[2] = 0.0f;
+    // samplerDesc.BorderColor[3] = 0.0f;
+    // samplerDesc.MinLOD = 0.0f;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
     result = ID3D11Device_CreateSamplerState(data->d3dDevice,
                                              &samplerDesc,
@@ -630,16 +638,16 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Setup Direct3D rasterizer states */
     SDL_zero(rasterDesc);
-    rasterDesc.AntialiasedLineEnable = FALSE;
-    rasterDesc.CullMode = D3D11_CULL_NONE;
-    rasterDesc.DepthBias = 0;
-    rasterDesc.DepthBiasClamp = 0.0f;
-    rasterDesc.DepthClipEnable = TRUE;
     rasterDesc.FillMode = D3D11_FILL_SOLID;
-    rasterDesc.FrontCounterClockwise = FALSE;
-    rasterDesc.MultisampleEnable = FALSE;
-    rasterDesc.ScissorEnable = FALSE;
-    rasterDesc.SlopeScaledDepthBias = 0.0f;
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    // rasterDesc.FrontCounterClockwise = FALSE;
+    // rasterDesc.DepthBias = 0;
+    // rasterDesc.DepthBiasClamp = 0.0f;
+    // rasterDesc.SlopeScaledDepthBias = 0.0f;
+    rasterDesc.DepthClipEnable = TRUE;
+    // rasterDesc.ScissorEnable = FALSE;
+    // rasterDesc.MultisampleEnable = FALSE;
+    // rasterDesc.AntialiasedLineEnable = FALSE;
     result = ID3D11Device_CreateRasterizerState(data->d3dDevice, &rasterDesc, &data->mainRasterizer);
     if (FAILED(result)) {
         WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateRasterizerState [main rasterizer]"), result);
@@ -805,7 +813,8 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
 #endif
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
-    SDL_zero(swapChainDesc);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, sizeof(DXGI_SWAP_CHAIN_DESC1) == offsetof(DXGI_SWAP_CHAIN_DESC1, Flags) + sizeof(swapChainDesc.Flags));
+    // SDL_zero(swapChainDesc);
     swapChainDesc.Width = w;
     swapChainDesc.Height = h;
     swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; /* This is the most common swap chain format. */
@@ -830,8 +839,8 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
     }
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; /* All Windows Store apps must use this SwapEffect. */
 #endif
+    swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     swapChainDesc.Flags = 0;
-
     if (coreWindow) {
         result = IDXGIFactory2_CreateSwapChainForCoreWindow(data->dxgiFactory,
                                                             (IUnknown *)data->d3dDevice,
@@ -1110,15 +1119,16 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     textureDesc.ArraySize = 1;
     textureDesc.Format = textureFormat;
     textureDesc.SampleDesc.Count = 1;
-    textureDesc.SampleDesc.Quality = 0;
-    textureDesc.MiscFlags = 0;
+    // textureDesc.SampleDesc.Quality = 0;
+    // textureDesc.MiscFlags = 0;
 
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         textureDesc.Usage = D3D11_USAGE_DYNAMIC;
         textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     } else {
-        textureDesc.Usage = D3D11_USAGE_DEFAULT;
-        textureDesc.CPUAccessFlags = 0;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, D3D11_USAGE_DEFAULT == 0);
+        // textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        // textureDesc.CPUAccessFlags = 0;
     }
 
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
@@ -1184,8 +1194,9 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     SDL_zero(resourceViewDesc);
     resourceViewDesc.Format = textureDesc.Format;
     resourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    resourceViewDesc.Texture2D.MostDetailedMip = 0;
+    // resourceViewDesc.Texture2D.MostDetailedMip = 0;
     resourceViewDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+    // resourceViewDesc.Texture2D.PlaneSlice = 0;
     result = ID3D11Device_CreateShaderResourceView(d3dDevice,
                                                    (ID3D11Resource *)textureData->mainTexture,
                                                    &resourceViewDesc,
@@ -1233,8 +1244,8 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         SDL_zero(renderTargetViewDesc);
         renderTargetViewDesc.Format = textureDesc.Format;
         renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-        renderTargetViewDesc.Texture2D.MipSlice = 0;
-
+        // renderTargetViewDesc.Texture2D.MipSlice = 0;
+        // renderTargetViewDesc.Texture2D.PlaneSlice = 0;
         result = ID3D11Device_CreateRenderTargetView(d3dDevice,
                                                      (ID3D11Resource *)textureData->mainTexture,
                                                      &renderTargetViewDesc,
@@ -1701,11 +1712,13 @@ static int D3D11_UpdateVertexBuffer(D3D11_RenderData *rendererData,
         vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
         vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        // constantBufferDesc.MiscFlags = 0;
+        // constantBufferDesc.StructureByteStride = 0;
 
         SDL_zero(vertexBufferData);
         vertexBufferData.pSysMem = vertexData;
-        vertexBufferData.SysMemPitch = 0;
-        vertexBufferData.SysMemSlicePitch = 0;
+        // vertexBufferData.SysMemPitch = 0;
+        // vertexBufferData.SysMemSlicePitch = 0;
 
         result = ID3D11Device_CreateBuffer(rendererData->d3dDevice,
                                            &vertexBufferDesc,
