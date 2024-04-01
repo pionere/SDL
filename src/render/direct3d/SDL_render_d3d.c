@@ -1463,7 +1463,7 @@ static void D3D_DestroyRenderer(SDL_Renderer *renderer)
 static int D3D_Reset(SDL_Renderer *renderer)
 {
     D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
-    const Float4X4 d3dmatrix = MatrixIdentity();
+    Float4X4 d3dmatrix;
     HRESULT result;
     SDL_Texture *texture;
     int i;
@@ -1528,6 +1528,7 @@ static int D3D_Reset(SDL_Renderer *renderer)
     data->drawstate.texture = NULL;
     data->drawstate.shader = NULL;
     data->drawstate.blend = SDL_BLENDMODE_INVALID;
+    MatrixIdentity(&d3dmatrix);
     IDirect3DDevice9_SetTransform(data->device, D3DTS_VIEW, (D3DMATRIX *)&d3dmatrix);
 
     /* Let the application know that render targets were reset */

@@ -2365,22 +2365,22 @@ static int D3D12_UpdateViewport(D3D12_RenderData *data)
      * direction of the DXGI_MODE_ROTATION enumeration.
      */
     switch (rotation) {
-        case DXGI_MODE_ROTATION_IDENTITY:
-            projection = MatrixIdentity();
-            break;
-        case DXGI_MODE_ROTATION_ROTATE270:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI * 0.5f));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE180:
-            projection = MatrixRotationZ(SDL_static_cast(float, M_PI));
-            break;
-        case DXGI_MODE_ROTATION_ROTATE90:
-            projection = MatrixRotationZ(SDL_static_cast(float, -M_PI * 0.5f));
-            break;
-        default:
-            SDL_assume(!"Unknown display orientation");
-        case DXGI_MODE_ROTATION_UNSPECIFIED:
-            return SDL_SetError("An unknown DisplayOrientation is being used");
+    case DXGI_MODE_ROTATION_IDENTITY:
+        MatrixIdentity(&projection);
+        break;
+    case DXGI_MODE_ROTATION_ROTATE270:
+        MatrixRotationZ(&projection, SDL_static_cast(float, M_PI * 0.5f));
+        break;
+    case DXGI_MODE_ROTATION_ROTATE180:
+        MatrixRotationZ(&projection, SDL_static_cast(float, M_PI));
+        break;
+    case DXGI_MODE_ROTATION_ROTATE90:
+        MatrixRotationZ(&projection, SDL_static_cast(float, -M_PI * 0.5f));
+        break;
+    default:
+        SDL_assume(!"Unknown display orientation");
+    case DXGI_MODE_ROTATION_UNSPECIFIED:
+        return SDL_SetError("An unknown DisplayOrientation is being used");
     }
 
     /* Update the view matrix */
@@ -2396,9 +2396,7 @@ static int D3D12_UpdateViewport(D3D12_RenderData *data)
      * set here (as of this writing, on Dec 26, 2013).  When done, store it
      * for eventual transfer to the GPU.
      */
-    data->vertexShaderConstantsData.projectionAndView = MatrixMultiply(
-        view,
-        projection);
+    MatrixMultiply(&data->vertexShaderConstantsData.projectionAndView, &view, &projection);
 
     /* Update the Direct3D viewport, which seems to be aligned to the
      * swap buffer's coordinate space, which is always in either
@@ -3093,7 +3091,7 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
         return NULL;
     }
 
-    data->identity = MatrixIdentity();
+    MatrixIdentity(&data->identity);
 
     renderer->WindowEvent = D3D12_WindowEvent;
     renderer->GetOutputSize = D3D12_GetOutputSize;

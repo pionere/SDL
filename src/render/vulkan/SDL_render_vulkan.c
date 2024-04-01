@@ -3340,7 +3340,7 @@ static int VULKAN_UpdateViewport(SDL_Renderer *renderer)
         return -1;
     }
 
-    projection = MatrixIdentity();
+    MatrixIdentity(&projection);
 
     /* Update the view matrix */
     SDL_zero(view);
@@ -3351,9 +3351,7 @@ static int VULKAN_UpdateViewport(SDL_Renderer *renderer)
     view.m[3][1] = 1.0f;
     view.m[3][3] = 1.0f;
 
-    rendererData->vertexShaderConstantsData.projectionAndView = MatrixMultiply(
-        view,
-        projection);
+    MatrixMultiply(&rendererData->vertexShaderConstantsData.projectionAndView, &view, &projection);
 
     vkViewport.x = viewport->x;
     vkViewport.y = viewport->y;
@@ -4269,7 +4267,7 @@ SDL_Renderer *VULKAN_CreateRenderer(SDL_Window *window, Uint32 flags)
 #if 0
     renderer->output_colorspace = output_colorspace;
 #endif
-    rendererData->identity = MatrixIdentity();
+    MatrixIdentity(&rendererData->identity);
     rendererData->identitySwizzle.r = VK_COMPONENT_SWIZZLE_IDENTITY;
     rendererData->identitySwizzle.g = VK_COMPONENT_SWIZZLE_IDENTITY;
     rendererData->identitySwizzle.b = VK_COMPONENT_SWIZZLE_IDENTITY;
