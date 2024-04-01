@@ -65,7 +65,9 @@ struct SDL_Texture
 
     /* Support for formats not supported directly by the renderer */
     SDL_Texture *native;
+#if SDL_HAVE_YUV
     SDL_SW_YUVTexture *yuv;
+#endif
     void *pixels;
     int pitch;
     SDL_Rect locked_rect;
