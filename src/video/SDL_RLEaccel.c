@@ -1012,15 +1012,20 @@ static int uncopy_32(Uint32 *dst, void *src, int n,
 #define ISTRANSL(pixel, fmt) \
     ((unsigned)((((pixel)&fmt->Amask) >> fmt->Ashift) - 1U) < 254U)
 
-/* convert surface to be quickly alpha-blittable onto dest, if possible */
+/*
+   convert surface to be quickly alpha-blittable onto dest, if possible
+   encode pixels with (X:N1[...])*:(X:N2[...])* duplets where:
+     N1 is the number of opaque pixels followed by the values of the opaque pixels
+     N2 is the number of translucent pixels followed by the values of the translucent pixels
+     X is the number of non-opaque/translucent pixels of the scanline
+   the transparent lines at the bottom of the surface are skipped
+ */
 static int RLEAlphaSurface(SDL_Surface *surface)
 {
     SDL_Surface *dest;
     SDL_PixelFormat *df;
-    int h = surface->h, w = surface->w;
+    unsigned h = surface->h, w = surface->w;
     size_t memsize;
-    int max_opaque_run;
-    int max_transl_run = 65535;
     unsigned masksum;
     Uint8 *rlebuf, *dst;
     int (*copy_opaque)(void *, Uint32 *, int,
@@ -1028,19 +1033,17 @@ static int RLEAlphaSurface(SDL_Surface *surface)
     int (*copy_transl)(void *, Uint32 *, int,
                        SDL_PixelFormat *, SDL_PixelFormat *);
 
-    SDL_assert(h > 0);
-
-    dest = surface->map->dst;
-    if (!dest) {
-        return -1;
-    }
-    df = dest->format;
     if (surface->format->BitsPerPixel != 32) {
         return -1; /* only 32bpp source supported */
     }
 
     /* find out whether the destination is one we support,
        and determine the max size of the encoded result */
+    dest = surface->map->dst;
+    if (!dest) {
+        return -1;
+    }
+    df = dest->format;
     masksum = df->Rmask | df->Gmask | df->Bmask;
     switch (df->BytesPerPixel) {
     case 2:
@@ -1065,7 +1068,6 @@ static int RLEAlphaSurface(SDL_Surface *surface)
         default:
             return -1;
         }
-        max_opaque_run = 255; /* runs stored as bytes */
 
         /* worst case is alternating opaque and translucent pixels,
            with room for alignment padding between lines */
@@ -1079,7 +1081,6 @@ static int RLEAlphaSurface(SDL_Surface *surface)
         }
         copy_opaque = copy_32;
         copy_transl = copy_32;
-        max_opaque_run = 255; /* runs stored as short ints */
 
         /* worst case is alternating opaque and translucent pixels */
         if (SDL_size_mul_overflow(h, 2 * 4 * (w + 1), &memsize)) {
@@ -1095,28 +1096,15 @@ static int RLEAlphaSurface(SDL_Surface *surface)
     if (!rlebuf) {
         return SDL_OutOfMemory();
     }
-    {
-        /* save the destination format so we can undo the encoding later */
-        RLEDestFormat *r = (RLEDestFormat *)rlebuf;
-        r->BytesPerPixel = df->BytesPerPixel;
-        r->Rmask = df->Rmask;
-        r->Gmask = df->Gmask;
-        r->Bmask = df->Bmask;
-        r->Amask = df->Amask;
-        r->Rloss = df->Rloss;
-        r->Gloss = df->Gloss;
-        r->Bloss = df->Bloss;
-        r->Aloss = df->Aloss;
-        r->Rshift = df->Rshift;
-        r->Gshift = df->Gshift;
-        r->Bshift = df->Bshift;
-        r->Ashift = df->Ashift;
-    }
+    /* save the destination format so we can undo the encoding later */
+    SDL_memcpy(rlebuf, df, sizeof(RLEDestFormat));
     dst = rlebuf + sizeof(RLEDestFormat);
 
     /* Do the actual encoding */
     {
-        int x, y;
+        unsigned max_opaque_run = df->BytesPerPixel == 4 ? SDL_MAX_UINT16 : SDL_MAX_UINT8;
+        unsigned max_transl_run = SDL_MAX_UINT16;
+        unsigned x, y, pitch = surface->pitch;
         SDL_PixelFormat *sf = surface->format;
         Uint32 *src = (Uint32 *)surface->pixels;
         Uint8 *lastline = dst; /* end of last non-blank line */
@@ -1138,84 +1126,99 @@ static int RLEAlphaSurface(SDL_Surface *surface)
     (((Uint16 *)dst)[0] = n, ((Uint16 *)dst)[1] = m, dst += 4)
 
         for (y = 0; y < h; y++) {
-            int runstart, skipstart;
-            int blankline = 0;
+            unsigned runstart, skipstart;
+            SDL_bool blankline = SDL_FALSE;
             /* First encode all opaque pixels of a scan line */
             x = 0;
             do {
-                int run, skip, len;
+                unsigned run, skip, len;
                 skipstart = x;
                 while (x < w && !ISOPAQUE(src[x], sf)) {
                     x++;
                 }
-                runstart = x;
+                runstart = x; // starting position of the opaque pixels
                 while (x < w && ISOPAQUE(src[x], sf)) {
                     x++;
                 }
-                skip = runstart - skipstart;
+                skip = runstart - skipstart; // length of the non-opaque pixels
                 if (skip == w) {
-                    blankline = 1;
+                    blankline = SDL_TRUE;
                 }
-                run = x - runstart;
+                run = x - runstart; // length of the opaque pixels
+                // encode segment
+                // - add non-opaque pixels without opaque pixels
                 while (skip > max_opaque_run) {
                     ADD_OPAQUE_COUNTS(max_opaque_run, 0);
                     skip -= max_opaque_run;
                 }
-                len = SDL_min(run, max_opaque_run);
+                // - add middle pair of non-opaque and opaque pixels
+                /*len = SDL_min(run, max_opaque_run);
                 ADD_OPAQUE_COUNTS(skip, len);
                 dst += copy_opaque(dst, src + runstart, len, sf, df);
                 runstart += len;
                 run -= len;
-                while (run) {
+                // - add the remaining opaque pixels
+                while (run) {*/
+                do {
                     len = SDL_min(run, max_opaque_run);
-                    ADD_OPAQUE_COUNTS(0, len);
+                    ADD_OPAQUE_COUNTS(skip, len);
                     dst += copy_opaque(dst, src + runstart, len, sf, df);
                     runstart += len;
                     run -= len;
-                }
+                    skip = 0;
+                } while (run);
             } while (x < w);
 
             /* Make sure the next output address is 32-bit aligned */
-            dst += (uintptr_t)dst & 2;
+            SDL_assert(df->BytesPerPixel == 2 || df->BytesPerPixel == 4);
+            // if (df->BytesPerPixel == 2) {
+                dst += (uintptr_t)dst & 2;
+            // }
 
             /* Next, encode all translucent pixels of the same scan line */
             x = 0;
             do {
-                int run, skip, len;
+                unsigned run, skip, len;
                 skipstart = x;
                 while (x < w && !ISTRANSL(src[x], sf)) {
                     x++;
                 }
-                runstart = x;
+                runstart = x; // starting position of the translucent pixels
                 while (x < w && ISTRANSL(src[x], sf)) {
                     x++;
                 }
-                skip = runstart - skipstart;
+                skip = runstart - skipstart; // length of the non-translucent pixels
                 blankline &= (skip == w);
-                run = x - runstart;
+                run = x - runstart; // length of the translucent pixels
+                // encode segment
+                // - add non-translucent pixels without translucent pixels
                 while (skip > max_transl_run) {
                     ADD_TRANSL_COUNTS(max_transl_run, 0);
                     skip -= max_transl_run;
                 }
-                len = SDL_min(run, max_transl_run);
+                // - add middle pair of non-translucent and translucent pixels
+                /*len = SDL_min(run, max_transl_run);
                 ADD_TRANSL_COUNTS(skip, len);
                 dst += copy_transl(dst, src + runstart, len, sf, df);
                 runstart += len;
                 run -= len;
-                while (run) {
+                // - add the remaining translucent pixels
+                while (run) {*/
+                do {
                     len = SDL_min(run, max_transl_run);
-                    ADD_TRANSL_COUNTS(0, len);
+                    ADD_TRANSL_COUNTS(skip, len);
                     dst += copy_transl(dst, src + runstart, len, sf, df);
                     runstart += len;
                     run -= len;
-                }
+                    skip = 0;
+                } while (run);
             } while (x < w);
 
             if (!blankline) {
                 lastline = dst;
             }
 
-            src += surface->pitch >> 2;
+            src = (Uint32 *)((Uint8 *)src + pitch);
         }
         if (dst != lastline) {
             dst = lastline; /* back up last trailing blank lines */
