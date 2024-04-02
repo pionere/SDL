@@ -30,7 +30,7 @@
 #include "../SDL_hints_c.h"
 #include "../video/SDL_pixels_c.h"
 #include "../video/SDL_surface_c.h"
-#include "../video/SDL_sysvideo.h" /* For window->flags TODO: SDL_PrivateGetWindowFlags? */
+#include "../video/SDL_sysvideo.h" /* For window->renderer, window->flags TODO: SDL_PrivateGetWindowFlags? */
 
 #if defined(__ANDROID__)
 #include "../core/android/SDL_android.h"
@@ -47,8 +47,6 @@ this should probably be removed at some point in the future.  --ryan. */
 #else
 #define DONT_DRAW_WHILE_HIDDEN 0
 #endif
-
-#define SDL_WINDOWRENDERDATA "_SDL_WindowRenderData"
 
 #define CHECK_RENDERER_MAGIC(renderer, retval)     \
     if (!renderer) {                               \
@@ -1088,7 +1086,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
         renderer->hidden = SDL_FALSE;
     }
 
-    SDL_SetWindowData(window, SDL_WINDOWRENDERDATA, renderer);
+    window->wrenderer = renderer;
 
     SDL_RenderSetViewport(renderer, NULL);
 
@@ -1146,7 +1144,7 @@ SDL_Renderer *SDL_CreateSoftwareRenderer(SDL_Surface *surface)
 
 SDL_Renderer *SDL_GetRenderer(SDL_Window *window)
 {
-    return (SDL_Renderer *)SDL_GetWindowData(window, SDL_WINDOWRENDERDATA);
+    return window->wrenderer;
 }
 
 SDL_Window *SDL_RenderGetWindow(SDL_Renderer *renderer)
@@ -4446,7 +4444,7 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
     }
 
     if (renderer->window) {
-        SDL_SetWindowData(renderer->window, SDL_WINDOWRENDERDATA, NULL);
+        renderer->window->wrenderer = NULL;
     }
 
     /* It's no longer magical... */

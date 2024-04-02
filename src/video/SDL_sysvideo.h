@@ -38,7 +38,7 @@
 #endif
 
 typedef struct SDL_VideoDevice SDL_VideoDevice;
-
+ 
 /* Define the SDL window-shaper structure */
 typedef struct SDL_WindowShaper
 {
@@ -102,7 +102,7 @@ typedef struct SDL_Window
     void *hit_test_data;
 
     SDL_WindowUserData *data;
-
+    struct SDL_Renderer *wrenderer;
     void *driverdata;
 
     SDL_Window *prev;
