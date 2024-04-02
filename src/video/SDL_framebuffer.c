@@ -42,6 +42,7 @@ typedef struct
 
 int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
+#ifndef SDL_RENDER_DISABLED
     const SDL_RendererInfo *info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
     int i, w, h, buffer_pitch;
@@ -158,6 +159,9 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     SDL_RenderSetViewport(data->renderer, NULL);
 
     return 0;
+#else
+    return SDL_SetError("No hardware accelerated renderers available");
+#endif // SDL_RENDER_DISABLED
 }
 
 int SDL_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
