@@ -154,8 +154,7 @@ SDL_GDKRunApp(SDL_main_func mainFunction, void *reserved)
         /* Register suspend/resume handling */
         plmSuspendComplete = CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
         if (!plmSuspendComplete) {
-            SDL_SetError("[GDK] Unable to create plmSuspendComplete event");
-            return -1;
+            return SDL_SetError("[GDK] Unable to create plmSuspendComplete event");
         }
         auto rascn = [](BOOLEAN quiesced, PVOID context) {
             SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "[GDK] in RegisterAppStateChangeNotification handler");
@@ -173,8 +172,7 @@ SDL_GDKRunApp(SDL_main_func mainFunction, void *reserved)
             }
         };
         if (RegisterAppStateChangeNotification(rascn, NULL, &hPLM)) {
-            SDL_SetError("[GDK] Unable to call RegisterAppStateChangeNotification");
-            return -1;
+            return SDL_SetError("[GDK] Unable to call RegisterAppStateChangeNotification");
         }
 
         /* Run the application main() code */
@@ -194,6 +192,9 @@ SDL_GDKRunApp(SDL_main_func mainFunction, void *reserved)
 
         XGameRuntimeUninitialize();
     } else {
+        if (!SUCCEEDED(hr)) {
+            SDL_SetError("[GDK] Could not initialize - aborting");
+        }
 #ifdef __WINGDK__
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error", "[GDK] Could not initialize - aborting", NULL);
 #else
