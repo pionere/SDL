@@ -1578,14 +1578,14 @@ void SDL_UnRLESurface(SDL_Surface *surface, int recode)
             surface->flags |= SDL_SIMD_ALIGNED;
             if (surface->map->info.flags & SDL_COPY_RLE_COLORKEY) {
                 SDL_Rect full;
-
-                /* fill the background color */
-                SDL_FillRect(surface, NULL, surface->map->info.colorkey);
-
-                /* now render the encoded surface */
                 full.x = full.y = 0;
                 full.w = surface->w;
                 full.h = surface->h;
+
+                /* fill the background color */
+                SDL_FillRect(surface, &full, surface->map->info.colorkey);
+
+                /* now render the encoded surface */
                 SDL_RLEBlit(surface, &full, surface, &full);
             } else {
                 /* fill the background with transparent pixels */
