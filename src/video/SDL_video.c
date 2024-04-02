@@ -1861,13 +1861,12 @@ int SDL_RecreateWindow(SDL_Window *window, Uint32 flags)
     }
 
     /* Tear down the old native window */
-    SDL_DestroyWindowSurface(window);
-
     if (current_video.checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (current_video.DestroyWindowFramebuffer) {
             current_video.DestroyWindowFramebuffer(window);
         }
     }
+    SDL_DestroyWindowSurface(window);
 
     if (current_video.DestroyWindow && !foreign_win) { // !(flags & SDL_WINDOW_FOREIGN)) {
         current_video.DestroyWindow(window);
@@ -2566,6 +2565,11 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
     void *pixels;
     SDL_bool created_framebuffer = SDL_FALSE;
     int w, h, pitch;
+
+    // help the retarded compilers
+#ifdef __WINRT__
+    pixels = NULL;
+#endif
 
     /* This will switch the video backend from using a software surface to
        using a GPU texture through the 2D render API, if we think this would
@@ -3300,12 +3304,12 @@ void SDL_DestroyWindow(SDL_Window *window)
         SDL_GL_MakeCurrent(NULL, NULL);
     }
 #endif
-    SDL_DestroyWindowSurface(window);
     if (current_video.checked_texture_framebuffer) { /* never checked? No framebuffer to destroy. Don't risk calling the wrong implementation. */
         if (current_video.DestroyWindowFramebuffer) {
             current_video.DestroyWindowFramebuffer(window);
         }
     }
+    SDL_DestroyWindowSurface(window);
     if (current_video.DestroyWindow) {
         current_video.DestroyWindow(window);
     }

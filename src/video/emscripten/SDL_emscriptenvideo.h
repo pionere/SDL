@@ -38,7 +38,7 @@ typedef struct SDL_WindowData
     EGLSurface egl_surface;
 #endif
     SDL_Window *window;
-    SDL_Surface *surface;
+    // SDL_Surface *surface;
 
     char *canvas_id;
 

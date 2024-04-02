@@ -26,14 +26,14 @@
 #include "SDL_n3dsframebuffer_c.h"
 #include "SDL_n3dsvideo.h"
 
-#define N3DS_SURFACE "_SDL_N3DSSurface"
+// #define N3DS_SURFACE "_SDL_N3DSSurface"
 
 typedef struct
 {
     int width, height;
 } Dimensions;
 
-SDL_FORCE_INLINE void FreePreviousWindowFramebuffer(SDL_Window *window);
+// SDL_FORCE_INLINE void FreePreviousWindowFramebuffer(SDL_Window *window);
 SDL_FORCE_INLINE SDL_Surface *CreateNewWindowFramebuffer(SDL_Window *window);
 SDL_FORCE_INLINE void CopyFramebuffertoN3DS(u32 *dest, const Dimensions dest_dim, const u32 *source, const Dimensions source_dim);
 SDL_FORCE_INLINE int GetDestOffset(int x, int y, int dest_width);
@@ -44,26 +44,28 @@ int N3DS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixe
 {
     SDL_Surface *framebuffer;
 
-    FreePreviousWindowFramebuffer(window);
+    // FreePreviousWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
     framebuffer = CreateNewWindowFramebuffer(window);
 
-    SDL_SetWindowData(window, N3DS_SURFACE, framebuffer);
+    // SDL_SetWindowData(window, N3DS_SURFACE, framebuffer);
     if (!framebuffer) {
         return SDL_OutOfMemory();
     }
 
-    *format = FRAMEBUFFER_FORMAT;
-    *pixels = framebuffer->pixels;
-    *pitch = framebuffer->pitch;
+    window->surface = framebuffer;
+    // *format = FRAMEBUFFER_FORMAT;
+    // *pixels = framebuffer->pixels;
+    // *pitch = framebuffer->pitch;
     return 0;
 }
 
-SDL_FORCE_INLINE void
+/*SDL_FORCE_INLINE void
 FreePreviousWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface = (SDL_Surface *)SDL_GetWindowData(window, N3DS_SURFACE);
     SDL_FreeSurface(surface);
-}
+}*/
 
 SDL_FORCE_INLINE SDL_Surface *
 CreateNewWindowFramebuffer(SDL_Window *window)
@@ -81,7 +83,8 @@ int N3DS_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int 
     u32 *framebuffer;
     u32 bufsize;
 
-    surface = (SDL_Surface *)SDL_GetWindowData(window, N3DS_SURFACE);
+    // surface = (SDL_Surface *)SDL_GetWindowData(window, N3DS_SURFACE);
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("%s: Unable to get the window surface.", __func__);
     }
@@ -134,7 +137,8 @@ FlushN3DSBuffer(const void *buffer, u32 bufsize, gfxScreen_t screen)
 void N3DS_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
-    surface = (SDL_Surface *)SDL_SetWindowData(window, N3DS_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, N3DS_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 

@@ -29,7 +29,7 @@
 #include "SDL_ngagevideo.h"
 #include "SDL_ngageframebuffer_c.h"
 
-#define NGAGE_SURFACE "NGAGE_FrameBuffer"
+// #define NGAGE_SURFACE "NGAGE_FrameBuffer"
 
 /* For 12 bit screen HW. Table for fast conversion from 8 bit to 12 bit
  *
@@ -50,7 +50,8 @@ int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     int w, h;
 
     /* Free the old framebuffer surface */
-    NGAGE_DestroyWindowFramebuffer(window);
+    // NGAGE_DestroyWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
 
     /* Create a new one */
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
@@ -60,10 +61,11 @@ int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     }
 
     /* Save the info and return! */
-    SDL_SetWindowData(window, NGAGE_SURFACE, surface);
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
+    window->surface = surface;
+    // SDL_SetWindowData(window, NGAGE_SURFACE, surface);
+    // *format = surface_format;
+    // *pixels = surface->pixels;
+    // *pitch = surface->pitch;
 
     /* Initialise Epoc frame buffer */
 
@@ -148,7 +150,8 @@ int NGAGE_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int
 #endif
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_GetWindowData(window, NGAGE_SURFACE);
+    // surface = (SDL_Surface *)SDL_GetWindowData(window, NGAGE_SURFACE);
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("Couldn't find ngage surface for window");
     }
@@ -170,7 +173,8 @@ void NGAGE_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_SetWindowData(window, NGAGE_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, NGAGE_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 
@@ -368,7 +372,11 @@ static void DirectUpdate(SDL_Surface *screen, int numrects, const SDL_Rect *rect
 void RedrawWindowL()
 {
     Ngage_VideoData *phdata = &ngageVideoData;
-    SDL_Surface *screen = (SDL_Surface *)SDL_GetWindowData(SDL_GetWindows(), NGAGE_SURFACE);
+    // SDL_Surface *screen = (SDL_Surface *)SDL_GetWindowData(SDL_GetWindows(), NGAGE_SURFACE);
+    SDL_Surface *screen = SDL_GetWindowSurface(SDL_GetWindows());
+    if (screen == NULL) {
+        return;
+    }
 
     int w = screen->w;
     int h = screen->h;

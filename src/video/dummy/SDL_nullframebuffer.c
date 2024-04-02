@@ -25,7 +25,7 @@
 #include "../SDL_sysvideo.h"
 #include "SDL_nullframebuffer_c.h"
 
-#define DUMMY_SURFACE "_SDL_DummySurface"
+// #define DUMMY_SURFACE "_SDL_DummySurface"
 
 int DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
@@ -34,7 +34,8 @@ int DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     int w, h;
 
     /* Free the old framebuffer surface */
-    DUMMY_DestroyWindowFramebuffer(window);
+    // DUMMY_DestroyWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
 
     /* Create a new one */
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
@@ -44,10 +45,11 @@ int DUMMY_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     }
 
     /* Save the info and return! */
-    SDL_SetWindowData(window, DUMMY_SURFACE, surface);
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
+    window->surface = surface;
+    // SDL_SetWindowData(window, DUMMY_SURFACE, surface);
+    // *format = surface_format;
+    // *pixels = surface->pixels;
+    // *pitch = surface->pitch;
     return 0;
 }
 
@@ -56,7 +58,8 @@ int DUMMY_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int
     static int frame_number;
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_GetWindowData(window, DUMMY_SURFACE);
+    // surface = (SDL_Surface *)SDL_GetWindowData(window, DUMMY_SURFACE);
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("Couldn't find dummy surface for window");
     }
@@ -75,7 +78,8 @@ void DUMMY_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_SetWindowData(window, DUMMY_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, DUMMY_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 

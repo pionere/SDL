@@ -35,32 +35,33 @@ int Emscripten_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void 
     int w, h;
 
     /* Free the old framebuffer surface */
-    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    surface = data->surface;
-    SDL_FreeSurface(surface);
+    // SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    // SDL_FreeSurface(data->surface);
+    SDL_assert(window->surface == NULL);
 
     /* Create a new one */
     Emscripten_GetWindowSizeInPixels(window, &w, &h);
 
     surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
-    data->surface = surface;
+    // data->surface = surface;
     if (!surface) {
         return -1;
     }
 
     /* Save the info and return! */
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
+    window->surface = surface;
+    // *format = surface_format;
+    // *pixels = surface->pixels;
+    // *pitch = surface->pitch;
     return 0;
 }
 
 int Emscripten_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
     SDL_Surface *surface;
-
-    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    surface = data->surface;
+    // SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    // surface = data->surface;
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("Couldn't find framebuffer surface for window");
     }
@@ -165,15 +166,16 @@ int Emscripten_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects
 
 void Emscripten_DestroyWindowFramebuffer(SDL_Window *window)
 {
-    SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    SDL_Surface *surface;
+    // SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+    // if (!data) {
+    //     return;
+    // }
+    // surface = data->surface;
+    // data->surface = NULL;
+    surface = window->surface;
 
-    if (!data) {
-        /* The window wasn't fully initialized */
-        return;
-    }
-
-    SDL_FreeSurface(data->surface);
-    data->surface = NULL;
+    SDL_FreeSurface(surface);
 }
 
 #endif /* SDL_VIDEO_DRIVER_EMSCRIPTEN */

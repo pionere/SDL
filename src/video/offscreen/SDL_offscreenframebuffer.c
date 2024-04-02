@@ -25,7 +25,7 @@
 #include "../SDL_sysvideo.h"
 #include "SDL_offscreenframebuffer_c.h"
 
-#define OFFSCREEN_SURFACE "_SDL_DummySurface"
+// #define OFFSCREEN_SURFACE "_SDL_DummySurface"
 
 int OFFSCREEN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
@@ -34,7 +34,8 @@ int OFFSCREEN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void *
     int w, h;
 
     /* Free the old framebuffer surface */
-    OFFSCREEN_DestroyWindowFramebuffer(window);
+    // OFFSCREEN_DestroyWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
 
     /* Create a new one */
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
@@ -44,11 +45,11 @@ int OFFSCREEN_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void *
     }
 
     /* Save the info and return! */
-    SDL_SetWindowData(window, OFFSCREEN_SURFACE, surface);
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
-
+    window->surface = surface;
+    // SDL_SetWindowData(window, OFFSCREEN_SURFACE, surface);
+    // *format = surface_format;
+    // *pixels = surface->pixels;
+    // *pitch = surface->pitch;
     return 0;
 }
 
@@ -57,7 +58,8 @@ int OFFSCREEN_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects,
     static int frame_number;
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_GetWindowData(window, OFFSCREEN_SURFACE);
+    // surface = (SDL_Surface *)SDL_GetWindowData(window, OFFSCREEN_SURFACE);
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("Couldn't find offscreen surface for window");
     }
@@ -76,7 +78,8 @@ void OFFSCREEN_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_SetWindowData(window, OFFSCREEN_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, OFFSCREEN_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 
