@@ -50,13 +50,16 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     Uint32 texture_format;
 
     if (!data) {
-        SDL_Renderer *renderer = NULL;
-        const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
-        const SDL_bool specific_accelerated_renderer = (hint && *hint != '0' && *hint != '1' &&
+        SDL_Renderer *renderer = SDL_GetRenderer(window);
+        if (renderer) {
+            return SDL_SetError("Renderer already associated with window");
+        }
+        {   /* stupid mixed declarations... */
+            const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
+            const SDL_bool specific_accelerated_renderer = (hint && *hint != '0' && *hint != '1' &&
                                                         SDL_strcasecmp(hint, "true") != 0 &&
                                                         SDL_strcasecmp(hint, "false") != 0 &&
                                                         SDL_strcasecmp(hint, "software") != 0);
-
         /* Check to see if there's a specific driver requested */
         if (specific_accelerated_renderer) {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
@@ -90,6 +93,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
                 return SDL_SetError("No hardware accelerated renderers available");
             }
         }
+        } /* stupid mixed declarations ends here ...*/
 
         SDL_assert(renderer != NULL); /* should have explicitly checked this above. */
 
