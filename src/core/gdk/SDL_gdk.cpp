@@ -197,7 +197,7 @@ SDL_GDKRunApp(SDL_main_func mainFunction, void *reserved)
 #ifdef __WINGDK__
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error", "[GDK] Could not initialize - aborting", NULL);
 #else
-        SDL_assert_always(0 && "[GDK] Could not initialize - aborting");
+        SDL_assert(!"[GDK] Could not initialize - aborting");
 #endif
         result = -1;
     }
