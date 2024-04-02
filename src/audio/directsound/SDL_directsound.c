@@ -569,7 +569,7 @@ static int DSOUND_OpenDevice(_THIS, const char *devname)
                         wfmt.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT | SPEAKER_FRONT_CENTER | SPEAKER_LOW_FREQUENCY | SPEAKER_BACK_LEFT | SPEAKER_BACK_RIGHT | SPEAKER_SIDE_LEFT | SPEAKER_SIDE_RIGHT;
                         break;
                     default:
-                        SDL_assert(0 && "Unsupported channel count!");
+                        SDL_assume(!"Unsupported channel count!");
                         break;
                     }
                 } else if (SDL_AUDIO_ISFLOAT(this->spec.format)) {

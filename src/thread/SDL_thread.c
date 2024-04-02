@@ -463,7 +463,7 @@ void SDL_DetachThread(SDL_Thread *thread)
         } else if (thread_state == SDL_THREAD_STATE_ZOMBIE) {
             SDL_WaitThread(thread, NULL); /* already done, clean it up. */
         } else {
-            SDL_assert(0 && "Unexpected thread state");
+            SDL_assume(!"Unknown thread state");
         }
     }
 }
