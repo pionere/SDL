@@ -54,9 +54,8 @@ int X11_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
     Display *display = x11VideoData.display;
     XGCValues gcv;
     XVisualInfo vinfo;
+    Uint32 fmt;
     int w, h;
-
-    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
 
     /* Free the old framebuffer surface */
     X11_DestroyWindowFramebuffer(window);
@@ -73,14 +72,16 @@ int X11_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format,
         return SDL_SetError("Couldn't get window visual information");
     }
 
-    *format = X11_GetPixelFormatFromVisualInfo(display, &vinfo);
-    if (*format == SDL_PIXELFORMAT_UNKNOWN) {
+    fmt = X11_GetPixelFormatFromVisualInfo(display, &vinfo);
+    if (fmt == SDL_PIXELFORMAT_UNKNOWN) {
         return SDL_SetError("Unknown window pixel format");
     }
 
     /* Calculate pitch */
-    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(*format));
-    *pitch = (((w * SDL_PIXELBPP(*format)) + 3) & ~3);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(fmt));
+    *format = fmt;
+    *pitch = (((w * SDL_PIXELBPP(fmt)) + 3) & ~3);
 
     /* Create the actual image */
 #ifndef NO_SHARED_MEMORY

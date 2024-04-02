@@ -165,9 +165,7 @@ int SDL_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int n
     SDL_WindowTextureData *data;
     SDL_Rect rect;
     void *src;
-    int w, h;
-
-    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
+    int w, h, retval;
 
     data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
     if (!data || !data->texture) {
@@ -175,16 +173,19 @@ int SDL_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int n
     }
 
     /* Update a single rect that contains subrects for best DMA performance */
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     if (SDL_GetSpanEnclosingRect(w, h, numrects, rects, &rect)) {
         src = (void *)((Uint8 *)data->pixels +
                        rect.y * data->pitch +
                        rect.x * data->bytes_per_pixel);
-        if (SDL_UpdateTexture(data->texture, &rect, src, data->pitch) < 0) {
-            return -1;
+        retval = SDL_UpdateTexture(data->texture, &rect, src, data->pitch);
+        if (retval < 0) {
+            return retval;
         }
 
-        if (SDL_RenderCopy(data->renderer, data->texture, NULL, NULL) < 0) {
-            return -1;
+        retval = SDL_RenderCopyF(data->renderer, data->texture, NULL, NULL);
+        if (retval < 0) {
+            return retval;
         }
 
         SDL_RenderPresent(data->renderer);

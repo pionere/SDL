@@ -43,8 +43,6 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     int size;
     int w, h;
 
-    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
-
     /* Free the old framebuffer surface */
     RISCOS_DestroyWindowFramebuffer(window);
 
@@ -62,6 +60,7 @@ int RISCOS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pi
     }
 
     /* Calculate pitch */
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     *pitch = (((w * SDL_PIXELBPP(*format)) + 3) & ~3);
 
     /* Allocate the sprite area */

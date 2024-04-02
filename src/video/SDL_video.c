@@ -2562,13 +2562,10 @@ static SDL_bool DisableFrameBuffer()
 
 static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
 {
-    Uint32 format = 0;
-    void *pixels = NULL;
-    int pitch = 0;
+    Uint32 format;
+    void *pixels;
     SDL_bool created_framebuffer = SDL_FALSE;
-    int w, h;
-
-    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
+    int w, h, pitch;
 
     /* This will switch the video backend from using a software surface to
        using a GPU texture through the 2D render API, if we think this would
@@ -2643,6 +2640,7 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
         return window->surface;
     }
 
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     return SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, 0, pitch, format);
 }
 
