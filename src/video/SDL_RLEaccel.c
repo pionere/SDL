@@ -1492,7 +1492,7 @@ int SDL_RLESurface(SDL_Surface *surface)
  * completely transparent pixels will be lost, and color and alpha depth
  * may have been reduced (when encoding for 16bpp targets).
  */
-static SDL_bool UnRLEAlpha(SDL_Surface *surface)
+static void UnRLEAlpha(SDL_Surface *surface)
 {
     Uint8 *srcbuf;
     Uint32 *dst;
@@ -1511,14 +1511,6 @@ static SDL_bool UnRLEAlpha(SDL_Surface *surface)
     } else {
         uncopy_opaque = uncopy_transl = uncopy_32;
     }
-
-    surface->pixels = SDL_SIMDAlloc((size_t)surface->h * surface->pitch);
-    if (!surface->pixels) {
-        return SDL_FALSE;
-    }
-    surface->flags |= SDL_SIMD_ALIGNED;
-    /* fill background with transparent pixels */
-    SDL_memset(surface->pixels, 0, (size_t)surface->h * surface->pitch);
 
     dst = surface->pixels;
     srcbuf = (Uint8 *)(df + 1);
@@ -1565,28 +1557,29 @@ static SDL_bool UnRLEAlpha(SDL_Surface *surface)
     }
 
 end_function:
-    return SDL_TRUE;
+    return;
 }
 
 void SDL_UnRLESurface(SDL_Surface *surface, int recode)
 {
-    if (surface->flags & SDL_RLEACCEL) {
+    SDL_assert(surface->flags & SDL_RLEACCEL);
+    if (1) {
         surface->flags &= ~SDL_RLEACCEL;
 
         if (recode && !(surface->flags & SDL_PREALLOC)) {
+            /* re-create the original surface */
+            size_t size = (size_t)surface->h * surface->pitch;
+            surface->pixels = SDL_SIMDAlloc(size);
+            if (!surface->pixels) {
+                /* Oh crap... */
+                surface->flags |= SDL_RLEACCEL;
+                return;
+            }
+            surface->flags |= SDL_SIMD_ALIGNED;
             if (surface->map->info.flags & SDL_COPY_RLE_COLORKEY) {
                 SDL_Rect full;
 
-                /* re-create the original surface */
-                surface->pixels = SDL_SIMDAlloc((size_t)surface->h * surface->pitch);
-                if (!surface->pixels) {
-                    /* Oh crap... */
-                    surface->flags |= SDL_RLEACCEL;
-                    return;
-                }
-                surface->flags |= SDL_SIMD_ALIGNED;
-
-                /* fill it with the background color */
+                /* fill the background color */
                 SDL_FillRect(surface, NULL, surface->map->info.colorkey);
 
                 /* now render the encoded surface */
@@ -1595,11 +1588,10 @@ void SDL_UnRLESurface(SDL_Surface *surface, int recode)
                 full.h = surface->h;
                 SDL_RLEBlit(surface, &full, surface, &full);
             } else {
-                if (!UnRLEAlpha(surface)) {
-                    /* Oh crap... */
-                    surface->flags |= SDL_RLEACCEL;
-                    return;
-                }
+                /* fill the background with transparent pixels */
+                SDL_memset(surface->pixels, 0, size);
+
+                UnRLEAlpha(surface);
             }
         }
         surface->map->info.flags &=
