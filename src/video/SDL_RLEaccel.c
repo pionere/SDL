@@ -1017,7 +1017,8 @@ static int RLEAlphaSurface(SDL_Surface *surface)
 {
     SDL_Surface *dest;
     SDL_PixelFormat *df;
-    int maxsize = 0;
+    int h = surface->h, w = surface->w;
+    size_t memsize;
     int max_opaque_run;
     int max_transl_run = 65535;
     unsigned masksum;
@@ -1026,6 +1027,8 @@ static int RLEAlphaSurface(SDL_Surface *surface)
                        SDL_PixelFormat *, SDL_PixelFormat *);
     int (*copy_transl)(void *, Uint32 *, int,
                        SDL_PixelFormat *, SDL_PixelFormat *);
+
+    SDL_assert(h > 0);
 
     dest = surface->map->dst;
     if (!dest) {
@@ -1066,7 +1069,9 @@ static int RLEAlphaSurface(SDL_Surface *surface)
 
         /* worst case is alternating opaque and translucent pixels,
            with room for alignment padding between lines */
-        maxsize = surface->h * (2 + (4 + 2) * (surface->w + 1)) + 2;
+        if (SDL_size_mul_overflow(h, 2 + (4 + 2) * (w + 1), &memsize)) {
+            return -1;
+        }
         break;
     case 4:
         if (masksum != 0x00ffffff) {
@@ -1077,14 +1082,16 @@ static int RLEAlphaSurface(SDL_Surface *surface)
         max_opaque_run = 255; /* runs stored as short ints */
 
         /* worst case is alternating opaque and translucent pixels */
-        maxsize = surface->h * 2 * 4 * (surface->w + 1) + 4;
+        if (SDL_size_mul_overflow(h, 2 * 4 * (w + 1), &memsize)) {
+            return -1;
+        }
         break;
     default:
         return -1; /* anything else unsupported right now */
     }
 
-    maxsize += sizeof(RLEDestFormat);
-    rlebuf = (Uint8 *)SDL_malloc(maxsize);
+    memsize += sizeof(RLEDestFormat);
+    rlebuf = (Uint8 *)SDL_malloc(memsize);
     if (!rlebuf) {
         return SDL_OutOfMemory();
     }
@@ -1110,7 +1117,6 @@ static int RLEAlphaSurface(SDL_Surface *surface)
     /* Do the actual encoding */
     {
         int x, y;
-        int h = surface->h, w = surface->w;
         SDL_PixelFormat *sf = surface->format;
         Uint32 *src = (Uint32 *)surface->pixels;
         Uint8 *lastline = dst; /* end of last non-blank line */
@@ -1203,15 +1209,18 @@ static int RLEAlphaSurface(SDL_Surface *surface)
                     runstart += len;
                     run -= len;
                 }
-                if (!blankline) {
-                    lastline = dst;
-                }
             } while (x < w);
+
+            if (!blankline) {
+                lastline = dst;
+            }
 
             src += surface->pitch >> 2;
         }
-        dst = lastline; /* back up past trailing blank lines */
-        ADD_OPAQUE_COUNTS(0, 0);
+        if (dst != lastline) {
+            dst = lastline; /* back up last trailing blank lines */
+            ADD_OPAQUE_COUNTS(0, 0);
+        }
     }
 
 #undef ADD_OPAQUE_COUNTS
@@ -1276,34 +1285,42 @@ static int RLEColorkeySurface(SDL_Surface *surface)
     int maxn;
     int y;
     Uint8 *srcbuf, *lastline;
-    int maxsize = 0;
+    size_t memsize;
     const int bpp = surface->format->BytesPerPixel;
     getpix_func getpix;
     Uint32 ckey, rgbmask;
-    int w, h;
+    int h = surface->h, w = surface->w;
+
+    SDL_assert(h > 0);
 
     /* calculate the worst case size for the compressed surface */
     switch (bpp) {
     case 1:
         /* worst case is alternating opaque and transparent pixels,
            starting with an opaque pixel */
-        maxsize = surface->h * 3 * (surface->w / 2 + 1) + 2;
+        if (SDL_size_mul_overflow(h, 3 * (w / 2 + 1), &memsize)) {
+            return -1;
+        }
         break;
     case 2:
     case 3:
         /* worst case is solid runs, at most 255 pixels wide */
-        maxsize = surface->h * (2 * (surface->w / 255 + 1) + surface->w * bpp) + 2;
+        if (SDL_size_mul_overflow(h, 2 * (w / 255 + 1) + w * bpp, &memsize)) {
+            return -1;
+        }
         break;
     case 4:
         /* worst case is solid runs, at most 65535 pixels wide */
-        maxsize = surface->h * (4 * (surface->w / 65535 + 1) + surface->w * 4) + 4;
+        if (SDL_size_mul_overflow(h, 4 * (w / 65535 + 1) + w * 4, &memsize)) {
+            return -1;
+        }
         break;
 
     default:
         return -1;
     }
 
-    rlebuf = (Uint8 *)SDL_malloc(maxsize);
+    rlebuf = (Uint8 *)SDL_malloc(memsize);
     if (!rlebuf) {
         return SDL_OutOfMemory();
     }
@@ -1314,10 +1331,8 @@ static int RLEColorkeySurface(SDL_Surface *surface)
     dst = rlebuf;
     rgbmask = ~surface->format->Amask;
     ckey = surface->map->info.colorkey & rgbmask;
-    lastline = dst;
+    lastline = dst; /* end of last non-blank line */
     getpix = getpixes[bpp - 1];
-    w = surface->w;
-    h = surface->h;
 
 #define ADD_COUNTS(n, m)        \
     if (bpp == 4) {             \
@@ -1372,16 +1387,18 @@ static int RLEColorkeySurface(SDL_Surface *surface)
                 runstart += len;
                 run -= len;
             }
-            if (!blankline) {
-                lastline = dst;
-            }
         } while (x < w);
+
+        if (!blankline) {
+            lastline = dst;
+        }
 
         srcbuf += surface->pitch;
     }
-    dst = lastline; /* back up bast trailing blank lines */
-    ADD_COUNTS(0, 0);
-
+    if (dst != lastline) {
+        dst = lastline; /* back up last trailing blank lines */
+        ADD_COUNTS(0, 0);
+    }
 #undef ADD_COUNTS
 
     /* Now that we have it encoded, release the original pixels */
