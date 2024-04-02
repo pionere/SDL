@@ -944,6 +944,7 @@ enable_video_vivante
 enable_video_cocoa
 enable_video_metal
 enable_render_metal
+enable_render_gl
 enable_video_directfb
 enable_directfb_shared
 enable_video_kmsdrm
@@ -20630,6 +20631,13 @@ else
 
   fi
 fi
+# Check whether --enable-render-gl was given.
+if test ${enable_render_gl+y}
+then :
+  enableval=$enable_render_gl;
+else $as_nop
+  enable_render_gl=yes
+fi
 # Check whether --enable-events was given.
 if test ${enable_events+y}
 then :
@@ -23926,9 +23934,11 @@ printf "%s\n" "#define HAVE_OPENGLES2 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
+        fi
 
         SDL_LIBS="-lppapi_simple -lppapi_gles2 $SDL_LIBS"
 
@@ -26330,8 +26340,11 @@ printf "%s\n" "$video_opengl" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
+
+            fi
 
             SUMMARY_video="${SUMMARY_video} opengl"
         fi
@@ -26370,8 +26383,11 @@ printf "%s\n" "$video_opengles_v1" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES 1" >>confdefs.h
 
+                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES 1" >>confdefs.h
+
+                fi
 
                 SUMMARY_video="${SUMMARY_video} opengl_es1"
             fi
@@ -26406,8 +26422,11 @@ printf "%s\n" "$video_opengles_v2" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
+
+                fi
 
                 SUMMARY_video="${SUMMARY_video} opengl_es2"
             fi
@@ -26424,8 +26443,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_WGL 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
+
+        fi
 
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
@@ -26499,8 +26521,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
+
+            fi
 
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
@@ -26516,8 +26541,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_HAIKU 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
+
+        fi
 
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lGL"
         SUMMARY_video="${SUMMARY_video} opengl"
@@ -26533,8 +26561,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_CGL 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
+
+        fi
 
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
@@ -26551,8 +26582,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL_EGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
+
+        fi
 
         SUMMARY_video="${SUMMARY_video} opengl_es2"
     fi
@@ -26618,8 +26652,11 @@ printf "%s\n" "$video_opengles_v2" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
+
+            fi
 
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
@@ -29579,11 +29616,13 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES 1" >>confdefs.h
 
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES 1" >>confdefs.h
 
-
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
+
+        fi
 
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
         SUMMARY_video="${SUMMARY_video} uikit"

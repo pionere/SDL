@@ -660,6 +660,9 @@ AC_ARG_ENABLE(render-sw,
 if test x$enable_render_sw = xyes; then
     AC_DEFINE(SDL_VIDEO_RENDER_SW, 1, [ ])
 fi
+AC_ARG_ENABLE(render-gl,
+[AS_HELP_STRING([--enable-render-gl], [Enable OpenGL renderer [default=yes]])],
+              , enable_render_gl=$enable_render)
 AC_ARG_ENABLE(events,
 [AS_HELP_STRING([--enable-events], [Enable the events subsystem [default=yes]])],
               , enable_events=yes)
@@ -1977,7 +1980,9 @@ CheckNativeClient()
         AC_DEFINE(HAVE_POW, 1, [ ])
         AC_DEFINE(HAVE_OPENGLES2, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        fi
 
         SDL_LIBS="-lppapi_simple -lppapi_gles2 $SDL_LIBS"
 
@@ -2715,7 +2720,9 @@ CheckOpenGL()
         AC_MSG_RESULT($video_opengl)
         if test x$video_opengl = xyes; then 
             AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
-            AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+            fi
             SUMMARY_video="${SUMMARY_video} opengl"
         fi
     fi
@@ -2735,7 +2742,9 @@ CheckOpenGLES()
             AC_MSG_RESULT($video_opengles_v1)
             if test x$video_opengles_v1 = xyes; then
                 AC_DEFINE(SDL_VIDEO_OPENGL_ES, 1, [ ])
-                AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES, 1, [ ])
+                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                    AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES, 1, [ ])
+                fi
                 SUMMARY_video="${SUMMARY_video} opengl_es1"
             fi
         fi
@@ -2750,7 +2759,9 @@ CheckOpenGLES()
             AC_MSG_RESULT($video_opengles_v2)
             if test x$video_opengles_v2 = xyes; then
                 AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-                AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                    AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+                fi
                 SUMMARY_video="${SUMMARY_video} opengl_es2"
             fi
         fi
@@ -2763,7 +2774,9 @@ CheckWINDOWSGL()
     if test x$enable_video = xyes -a x$enable_video_opengl = xyes; then
         AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_WGL, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        fi
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
 }
@@ -2795,7 +2808,9 @@ CheckWINDOWSGLES()
         if test x$video_opengles_v2 = xyes; then
             AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
             AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            fi
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
     fi
@@ -2807,7 +2822,9 @@ CheckHaikuGL()
     if test x$enable_video = xyes -a x$enable_video_opengl = xyes; then
         AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_HAIKU, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        fi
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lGL"
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
@@ -2819,7 +2836,9 @@ CheckMacGL()
     if test x$enable_video = xyes -a x$enable_video_opengl = xyes; then
         AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_CGL, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL, 1, [ ])
+        fi
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
 }
@@ -2832,7 +2851,9 @@ CheckMacGLES()
         AC_DEFINE(SDL_VIDEO_OPENGL_EGL, 1, [ ])
         video_opengles_v2=yes
         AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        fi
         SUMMARY_video="${SUMMARY_video} opengl_es2"
     fi
 }
@@ -2859,7 +2880,9 @@ CheckEmscriptenGLES()
         AC_MSG_RESULT($video_opengles_v2)
         if test x$video_opengles_v2 = xyes; then
             AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            fi
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
     fi
@@ -4483,8 +4506,10 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         AC_DEFINE(SDL_VIDEO_DRIVER_UIKIT, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_ES, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES, 1, [ ])
-        AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES, 1, [ ])
+            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+        fi
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
         SUMMARY_video="${SUMMARY_video} uikit"
         have_video=yes
