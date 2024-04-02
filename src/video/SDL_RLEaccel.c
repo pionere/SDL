@@ -1279,21 +1279,28 @@ static const getpix_func getpixes[4] = {
     getpix_8, getpix_16, getpix_24, getpix_32
 };
 
+/*
+   encode pixels with N0:N1[...] pairs where:
+     N0 is the number of colorkey pixels
+     N1 is the number of non-colorkey pixels followed by the non-colorkey pixels
+   the transparent lines (pixels with only colorkey) at the bottom of the surface are skipped
+ */
 static int RLEColorkeySurface(SDL_Surface *surface)
 {
     Uint8 *rlebuf, *dst;
-    int maxn;
-    int y;
+    unsigned maxn;
+    unsigned y, pitch;
     Uint8 *srcbuf, *lastline;
     size_t memsize;
     const int bpp = surface->format->BytesPerPixel;
     getpix_func getpix;
     Uint32 ckey, rgbmask;
-    int h = surface->h, w = surface->w;
-
-    SDL_assert(h > 0);
+    unsigned w, h;
 
     /* calculate the worst case size for the compressed surface */
+    w = surface->w;
+    h = surface->h;
+    SDL_assert(h > 0);
     switch (bpp) {
     case 1:
         /* worst case is alternating opaque and transparent pixels,
@@ -1326,8 +1333,9 @@ static int RLEColorkeySurface(SDL_Surface *surface)
     }
 
     /* Set up the conversion */
+    maxn = bpp == 4 ? SDL_MAX_UINT16 : SDL_MAX_UINT8;
     srcbuf = (Uint8 *)surface->pixels;
-    maxn = bpp == 4 ? 65535 : 255;
+    pitch = surface->pitch;
     dst = rlebuf;
     rgbmask = ~surface->format->Amask;
     ckey = surface->map->info.colorkey & rgbmask;
@@ -1346,54 +1354,59 @@ static int RLEColorkeySurface(SDL_Surface *surface)
     }
 
     for (y = 0; y < h; y++) {
-        int x = 0;
-        int blankline = 0;
+        unsigned x = 0;
+        SDL_bool blankline = SDL_FALSE;
         do {
-            int run, skip;
-            int len;
-            int runstart;
-            int skipstart = x;
+            unsigned runstart, run, len;
+            unsigned skipstart = x, skip;
 
-            /* find run of transparent, then opaque pixels */
+            // find run of colorkey, then non-colorkey pixels
             while (x < w && (getpix(srcbuf + x * bpp) & rgbmask) == ckey) {
                 x++;
             }
-            runstart = x;
+            runstart = x; // starting position of the non-colorkey pixels
             while (x < w && (getpix(srcbuf + x * bpp) & rgbmask) != ckey) {
                 x++;
             }
-            skip = runstart - skipstart;
+            skip = runstart - skipstart; // length of the colorkey pixels
             if (skip == w) {
-                blankline = 1;
+                blankline = SDL_TRUE;
             }
-            run = x - runstart;
+            run = x - runstart; // length of the non-colorkey pixels
 
-            /* encode segment */
+            // encode segment
+            // - add colorkey pixels without non-colorkey pixels
             while (skip > maxn) {
                 ADD_COUNTS(maxn, 0);
                 skip -= maxn;
             }
-            len = SDL_min(run, maxn);
+            // - add middle pair of colorkey and non-colorkey pixels
+            /*len = SDL_min(run, maxn);
             ADD_COUNTS(skip, len);
-            SDL_memcpy(dst, srcbuf + runstart * bpp, (size_t)len * bpp);
-            dst += len * bpp;
-            run -= len;
+            memsize = len * bpp;
+            SDL_memcpy(dst, srcbuf + runstart * bpp, memsize);
+            dst += memsize;
             runstart += len;
-            while (run) {
+            run -= len;
+            // - add the remaining non-colorkey pixels
+            while (run) {*/
+            do {
                 len = SDL_min(run, maxn);
-                ADD_COUNTS(0, len);
-                SDL_memcpy(dst, srcbuf + runstart * bpp, (size_t)len * bpp);
-                dst += len * bpp;
+                ADD_COUNTS(skip, len);
+                memsize = len * bpp;
+                SDL_memcpy(dst, srcbuf + runstart * bpp, memsize);
+                dst += memsize;
                 runstart += len;
                 run -= len;
-            }
+                skip = 0;
+            } while (run);
         } while (x < w);
 
         if (!blankline) {
             lastline = dst;
         }
 
-        srcbuf += surface->pitch;
+        srcbuf += pitch;
     }
     if (dst != lastline) {
         dst = lastline; /* back up last trailing blank lines */
