@@ -1212,7 +1212,7 @@ static void close_audio_device(SDL_AudioDevice *device)
  *  Fills in a sanitized copy in (prepared).
  *  Returns non-zero if okay, zero on fatal parameters in (orig).
  */
-static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
+static void prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
 {
     SDL_copyp(prepared, orig);
 
@@ -1235,9 +1235,6 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
         if ((env == NULL) || ((prepared->channels = (Uint8)SDL_atoi(env)) == 0)) {
             prepared->channels = 2; /* a reasonable default */
         }
-    } else if (orig->channels > 8) {
-        SDL_SetError("Unsupported number of audio channels.");
-        return 0;
     }
 
     if (orig->samples == 0) {
@@ -1251,8 +1248,6 @@ static int prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
 
     /* Calculate the silence and size of the audio specification */
     SDL_CalculateAudioSpec(prepared);
-
-    return 1;
 }
 
 static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscapture,
@@ -1279,7 +1274,10 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
     if (!obtained) {
         obtained = &_obtained;
     }
-    if (!prepare_audiospec(desired, obtained)) {
+    prepare_audiospec(desired, obtained);
+
+    if (obtained->channels > 8) {
+        SDL_SetError("Unsupported number of audio channels.");
         return 0;
     }
 
