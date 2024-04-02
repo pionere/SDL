@@ -1495,16 +1495,18 @@ int SDL_RLESurface(SDL_Surface *surface)
 static void UnRLEAlpha(SDL_Surface *surface)
 {
     Uint8 *srcbuf;
-    Uint32 *dst;
+    Uint32 *dst = surface->pixels;
     SDL_PixelFormat *sf = surface->format;
     RLEDestFormat *df = surface->map->data;
     int (*uncopy_opaque)(Uint32 *, void *, int,
                          RLEDestFormat *, SDL_PixelFormat *);
     int (*uncopy_transl)(Uint32 *, void *, int,
                          RLEDestFormat *, SDL_PixelFormat *);
-    int w = surface->w;
+    unsigned w = surface->w;
+    unsigned pitch = surface->pitch;
     int bpp = df->BytesPerPixel;
 
+    SDL_assert(bpp == 2 || bpp == 4);
     if (bpp == 2) {
         uncopy_opaque = uncopy_opaque_16;
         uncopy_transl = uncopy_transl_16;
@@ -1512,11 +1514,10 @@ static void UnRLEAlpha(SDL_Surface *surface)
         uncopy_opaque = uncopy_transl = uncopy_32;
     }
 
-    dst = surface->pixels;
     srcbuf = (Uint8 *)(df + 1);
     for (;;) {
         /* copy opaque pixels */
-        int ofs = 0;
+        unsigned ofs = 0;
         do {
             unsigned run;
             if (bpp == 2) {
@@ -1537,9 +1538,10 @@ static void UnRLEAlpha(SDL_Surface *surface)
         } while (ofs < w);
 
         /* skip padding if needed */
-        if (bpp == 2) {
+        SDL_assert(bpp == 2 || bpp == 4);
+        // if (bpp == 2) {
             srcbuf += (uintptr_t)srcbuf & 2;
-        }
+        // }
 
         /* copy translucent pixels */
         ofs = 0;
@@ -1553,7 +1555,7 @@ static void UnRLEAlpha(SDL_Surface *surface)
                 ofs += run;
             }
         } while (ofs < w);
-        dst += surface->pitch >> 2;
+        dst = (Uint32 *)((Uint8 *)dst + pitch);
     }
 
 end_function:
