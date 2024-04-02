@@ -339,8 +339,12 @@ void WIN_RectToRECT(const SDL_Rect *sdlrect, RECT *winrect)
 
 BOOL WIN_IsRectEmpty(const RECT *rect)
 {
+#if defined(__WINRT__) || defined(__XBOXONE__) || defined(__XBOXSERIES__)
     /* Calculating this manually because UWP and Xbox do not support Win32 IsRectEmpty. */
     return (rect->right <= rect->left) || (rect->bottom <= rect->top);
+#else
+    return IsRectEmpty(rect);
+#endif
 }
 #endif /* defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__) */
 
