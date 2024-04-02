@@ -1318,7 +1318,7 @@ static int OS2_CreateWindowFramebuffer(SDL_Window *window,
     SDL_VideoDisplay *pSDLDisplay = SDL_GetDisplayForWindow(window);
     SDL_DisplayMode  *pSDLDisplayMode;
     MODEDATA         *pModeData;
-    ULONG             ulWidth, ulHeight;
+    ULONG             ulWidth, ulHeight, ulPitch;
 
     debug_os2("Enter");
     if (!pSDLDisplay) {
@@ -1336,10 +1336,11 @@ static int OS2_CreateWindowFramebuffer(SDL_Window *window,
 
     *pixels = pWinData->pOutput->VideoBufAlloc(
                         pWinData->pVOData, ulWidth, ulHeight, pModeData->ulDepth,
-                        pModeData->fccColorEncoding, (PULONG)pitch);
+                        pModeData->fccColorEncoding, &ulPitch);
     if (!*pixels)
         return -1;
 
+    *pitch = ulPitch;
     *format = pSDLDisplayMode->format;
     debug_os2("Pitch: %u, frame buffer: 0x%X.", *pitch, *pixels);
     WinSendMsg(pWinData->hwnd, WM_VRNENABLED, 0, 0);
