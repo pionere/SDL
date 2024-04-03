@@ -3788,7 +3788,8 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
         textureSampler = rendererData->samplers[SDL_VULKAN_SAMPLER_LINEAR];
         break;
     default:
-        return SDL_SetError("Unknown scale mode: %d", textureData->scaleMode);
+        SDL_assume(!"Unknown scale mode");
+        return -1;
     }
 
     if (textureData->mainImage.imageLayout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
