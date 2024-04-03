@@ -20625,7 +20625,7 @@ else
     enable_render_sw=yes
   fi
 
-  if test x$enable_render = xyes; then
+  if test x$enable_render_sw = xyes; then
 
     printf "%s\n" "#define SDL_VIDEO_RENDER_SW 1" >>confdefs.h
 
