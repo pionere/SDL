@@ -367,7 +367,7 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
     }
 
     item->is_accelerometer = is_accelerometer;
-    if (button_mask == 0xFFFFFFFF) {
+    if (button_mask == -1) {
         item->nbuttons = ANDROID_MAX_NBUTTONS;
     } else {
         for (i = 0; i < sizeof(button_mask) * 8; ++i) {
