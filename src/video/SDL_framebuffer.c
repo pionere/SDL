@@ -105,6 +105,7 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
         SDL_SetWindowData(window, SDL_WINDOWTEXTUREDATA, data);
 
+        renderer->info.flags |= SDL_RENDERER_DONTFREE;
         data->renderer = renderer;
     }
 
@@ -213,6 +214,7 @@ void SDL_DestroyWindowFramebuffer(SDL_Window *window)
         SDL_DestroyTexture(data->texture);
     }
     if (data->renderer) {
+        data->renderer->info.flags &= ~SDL_RENDERER_DONTFREE;
         SDL_DestroyRenderer(data->renderer);
     }
     SDL_free(data->pixels);

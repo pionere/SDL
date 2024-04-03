@@ -4414,6 +4414,10 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
 
     CHECK_RENDERER_MAGIC(renderer, );
 
+    if (renderer->info.flags & SDL_RENDERER_DONTFREE) {
+        return;
+    }
+
     SDL_DelEventWatch(SDL_RendererEventWatch, renderer);
 
     if (renderer->render_commands_tail) {
