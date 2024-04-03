@@ -125,22 +125,20 @@ typedef struct
     float x, y, z;
 } VertTCV;
 
-int SDL_PSP_RenderGetProp(SDL_Renderer *r, enum SDL_PSP_RenderProps which, void** out)
+void SDL_PSP_RenderGetProp(SDL_Renderer *r, enum SDL_PSP_RenderProps which, void** out)
 {
     PSP_RenderData *rd;
-    if (r == NULL) {
-        return -1;
-    }
+    SDL_assert(r != NULL);
+    SDL_assert(out != NULL);
     rd = r->driverdata;
     switch (which) {
-        case SDL_PSP_RENDERPROPS_FRONTBUFFER:
-            *out = rd->frontbuffer;
-            return 0;
-        case SDL_PSP_RENDERPROPS_BACKBUFFER:
-            *out = rd->backbuffer;
-            return 0;
+    case SDL_PSP_RENDERPROPS_FRONTBUFFER:
+        *out = rd->frontbuffer;
+        break;
+    case SDL_PSP_RENDERPROPS_BACKBUFFER:
+        *out = rd->backbuffer;
+        break;
     }
-    return -1;
 }
 
 #define PI 3.14159265358979f

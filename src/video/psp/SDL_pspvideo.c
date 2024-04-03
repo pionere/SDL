@@ -48,115 +48,97 @@
 #error "OpenGL is configured, but not the implemented (GL) for psp."
 #endif
 
-#define SDL_WINDOWTEXTUREDATA "_SDL_WindowTextureData"
-
-typedef struct
-{
-    SDL_Renderer *renderer;
-    SDL_Texture *texture;
-    void *pixels;
-    int pitch;
-    int bytes_per_pixel;
-} SDL_WindowTextureData;
-
 int PSP_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
-    SDL_RendererInfo info;
-    SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
-    int i, w, h;
+#ifndef SDL_RENDER_DISABLED
+    void *buffer_pixels;
+    int buffer_pitch;
+    int bytes_per_pixel;
+    int w, h;
+    Uint32 texture_format;
+    SDL_Renderer *renderer = SDL_GetRenderer(window);
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
-
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     if (w != 480) {
         return SDL_SetError("Unexpected window size");
     }
 
-    if (!data) {
-        SDL_Renderer *renderer = NULL;
-        for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
-            SDL_GetRenderDriverInfo(i, &info);
-            if (SDL_strcmp(info.name, "software") != 0) {
-                renderer = SDL_CreateRenderer(window, i, 0);
-                if (renderer && (SDL_GetRendererInfo(renderer, &info) == 0) && (info.flags & SDL_RENDERER_ACCELERATED)) {
-                    break; /* this will work. */
-                }
-                if (renderer) { /* wasn't accelerated, etc, skip it. */
-                    SDL_DestroyRenderer(renderer);
-                    renderer = NULL;
-                }
-            }
+    if (renderer) {
+        if (SDL_strcmp(renderer->info.name, "PSP") != 0) {
+            return SDL_SetError("Non-PSP Renderer already associated with window");
         }
-        if (!renderer) {
-            return SDL_SetError("No hardware accelerated renderers available");
-        }
-
-        SDL_assert(renderer != NULL); /* should have explicitly checked this above. */
-
-        /* Create the data after we successfully create the renderer (bug #1116) */
-        data = (SDL_WindowTextureData *)SDL_calloc(1, sizeof(*data));
-
-        if (!data) {
-            SDL_DestroyRenderer(renderer);
-            return SDL_OutOfMemory();
-        }
-
-        SDL_SetWindowData(window, SDL_WINDOWTEXTUREDATA, data);
-        data->renderer = renderer;
     } else {
-        if (SDL_GetRendererInfo(data->renderer, &info) == -1) {
+        renderer = SDL_CreateRenderer(window, SDL_RENDERDRIVER_PSP, 0);
+        if (!renderer) {
             return -1;
         }
     }
 
     /* Find the first format without an alpha channel */
-    *format = info.texture_formats[0];
+    SDL_INLINE_COMPILE_TIME_ASSERT(framebuffer_format, !SDL_ISPIXELFORMAT_FOURCC(SDL_PIXELFORMAT_UNKNOWN));
+    SDL_INLINE_COMPILE_TIME_ASSERT(framebuffer_format, !SDL_ISPIXELFORMAT_ALPHA(SDL_PIXELFORMAT_UNKNOWN));
+    texture_format = GetClosestSupportedFormat(renderer, SDL_PIXELFORMAT_UNKNOWN);
+    /*info = SDL_PrivateGetRendererInfo(renderer);
+    texture_format = info->texture_formats[0];
 
-    for (i = 0; i < (int)info.num_texture_formats; ++i) {
-        if (!SDL_ISPIXELFORMAT_FOURCC(info.texture_formats[i]) &&
-            !SDL_ISPIXELFORMAT_ALPHA(info.texture_formats[i])) {
-            *format = info.texture_formats[i];
+    for (i = 0; i < (int)info->num_texture_formats; ++i) {
+#if SDL_HAVE_YUV
+        if (SDL_ISPIXELFORMAT_FOURCC(info->texture_formats[i]))
+            continue;
+#else
+        SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(info->texture_formats[i]));
+#endif
+        if (!SDL_ISPIXELFORMAT_ALPHA(info->texture_formats[i])) {
+            texture_format = info->texture_formats[i];
             break;
         }
-    }
+    }*/
 
     /* get the PSP renderer's "private" data */
-    SDL_PSP_RenderGetProp(data->renderer, SDL_PSP_RENDERPROPS_FRONTBUFFER, &data->pixels);
+    SDL_PSP_RenderGetProp(renderer, SDL_PSP_RENDERPROPS_FRONTBUFFER, &buffer_pixels);
 
     /* Create framebuffer data */
-    data->bytes_per_pixel = SDL_BYTESPERPIXEL(*format);
+    SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(texture_format));
+    bytes_per_pixel = SDL_PIXELBPP(texture_format);
     /* since we point directly to VRAM's frontbuffer, we have to use
        the upscaled pitch of 512 width - since PSP requires all textures to be
        powers of 2. */
-    data->pitch = 512 * data->bytes_per_pixel;
-    *pixels = data->pixels;
-    *pitch = data->pitch;
+    buffer_pitch = 512 * bytes_per_pixel;
+
+    renderer->info.flags |= SDL_RENDERER_DONTFREE;
 
     /* Make sure we're not double-scaling the viewport */
-    SDL_RenderSetViewport(data->renderer, NULL);
+    SDL_RenderSetViewport(renderer, NULL);
 
+    *format = texture_format;
+    *pixels = buffer_pixels;
+    *pitch = buffer_pitch;
     return 0;
+#else
+    return SDL_SetError("No hardware accelerated renderers available");
+#endif // SDL_RENDER_DISABLED
 }
 
 int PSP_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
-    SDL_WindowTextureData *data;
-    data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
-    if (!data || !data->renderer || !window->surface) {
-        return -1;
-    }
-    data->renderer->RenderPresent(data->renderer);
-    SDL_PSP_RenderGetProp(data->renderer, SDL_PSP_RENDERPROPS_BACKBUFFER, &window->surface->pixels);
+    SDL_Surface *surface = window->surface;
+    SDL_Renderer *renderer = SDL_GetRenderer(window);
+
+    SDL_assert(surface != NULL);
+    SDL_assert(renderer != NULL);
+
+    renderer->RenderPresent(renderer);
+    SDL_PSP_RenderGetProp(renderer, SDL_PSP_RENDERPROPS_BACKBUFFER, &surface->pixels);
     return 0;
 }
 
 void PSP_DestroyWindowFramebuffer(SDL_Window *window)
 {
-    SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
-    if (!data || !data->renderer) {
-        return;
+    SDL_Renderer *renderer = SDL_GetRenderer(window);
+    if (renderer && (renderer->info.flags & SDL_RENDERER_DONTFREE)) {
+        renderer->info.flags &= ~SDL_RENDERER_DONTFREE;
+        SDL_DestroyRenderer(renderer);
     }
-    SDL_DestroyRenderer(data->renderer);
-    data->renderer = NULL;
 }
 
 #ifdef SDL_VIDEO_OPENGL
@@ -216,7 +198,6 @@ static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
     device->DestroyWindow = PSP_DestroyWindow;
     /* backend to use VRAM directly as a framebuffer using
        SDL_GetWindowSurface() API. */
-    device->checked_texture_framebuffer = 1;
     device->CreateWindowFramebuffer = PSP_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = PSP_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = PSP_DestroyWindowFramebuffer;

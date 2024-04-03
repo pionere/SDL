@@ -28,5 +28,5 @@ enum SDL_PSP_RenderProps
     SDL_PSP_RENDERPROPS_BACKBUFFER,
 };
 
-int SDL_PSP_RenderGetProp(SDL_Renderer *r, enum SDL_PSP_RenderProps which, void** out);
+void SDL_PSP_RenderGetProp(SDL_Renderer *r, enum SDL_PSP_RenderProps which, void** out);
 
