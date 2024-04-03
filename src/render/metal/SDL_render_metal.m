@@ -985,24 +985,24 @@ static int METAL_SetRenderTarget(SDL_Renderer * renderer, SDL_Texture * texture)
 
 static int METAL_QueueSetViewport(SDL_Renderer * renderer, SDL_RenderCommand *cmd)
 {
-    float projection[4][4];    /* Prepare an orthographic projection */
+    float (*projection)[4][4];    /* Prepare an orthographic projection */
     const int w = cmd->data.viewport.rect.w;
     const int h = cmd->data.viewport.rect.h;
-    const size_t matrixlen = sizeof(projection);
+    const size_t matrixlen = sizeof(*projection);
     float *matrix = (float *) SDL_AllocateRenderVertices(renderer, matrixlen, CONSTANT_ALIGN(16), &cmd->data.viewport.first);
     if (!matrix) {
         return -1;
     }
 
-    SDL_memset(projection, '\0', matrixlen);
+    SDL_memset(matrix, '\0', matrixlen);
     if (w && h) {
-        projection[0][0] = 2.0f / w;
-        projection[1][1] = -2.0f / h;
-        projection[3][0] = -1.0f;
-        projection[3][1] = 1.0f;
-        projection[3][3] = 1.0f;
+        projection = (float (*)[4][4])matrix;
+        (*projection)[0][0] = 2.0f / w;
+        (*projection)[1][1] = -2.0f / h;
+        (*projection)[3][0] = -1.0f;
+        (*projection)[3][1] = 1.0f;
+        (*projection)[3][3] = 1.0f;
     }
-    SDL_memcpy(matrix, projection, matrixlen);
 
     return 0;
 }
