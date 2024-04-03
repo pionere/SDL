@@ -693,11 +693,14 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
             goto fault;
         }
         break;
-#endif /* SDL_HAVE_YUV */
+#ifdef GL_TEXTURE_EXTERNAL_OES
     case GLES2_IMAGESOURCE_TEXTURE_EXTERNAL_OES:
         ftype = GLES2_SHADER_FRAGMENT_TEXTURE_EXTERNAL_OES;
         break;
+#endif
+#endif /* SDL_HAVE_YUV */
     default:
+        SDL_assume(!"Unsupported gles2-imagesource");
         goto fault;
     }
 
@@ -1088,10 +1091,12 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
             case SDL_PIXELFORMAT_NV21:
                 sourceType = GLES2_IMAGESOURCE_TEXTURE_NV21;
                 break;
-#endif
+#ifdef GL_TEXTURE_EXTERNAL_OES
             case SDL_PIXELFORMAT_EXTERNAL_OES:
                 sourceType = GLES2_IMAGESOURCE_TEXTURE_EXTERNAL_OES;
                 break;
+#endif
+#endif // SDL_HAVE_YUV
             default:
                 return SDL_SetError("Unsupported texture format");
             }
@@ -1123,10 +1128,12 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
         case SDL_PIXELFORMAT_NV21:
             sourceType = GLES2_IMAGESOURCE_TEXTURE_NV21;
             break;
-#endif
+#ifdef GL_TEXTURE_EXTERNAL_OES
         case SDL_PIXELFORMAT_EXTERNAL_OES:
             sourceType = GLES2_IMAGESOURCE_TEXTURE_EXTERNAL_OES;
             break;
+#endif
+#endif // SDL_HAVE_YUV
         default:
             return SDL_SetError("Unsupported texture format");
         }
@@ -1448,20 +1455,18 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         format = GL_LUMINANCE;
         type = GL_UNSIGNED_BYTE;
         break;
-#endif
 #ifdef GL_TEXTURE_EXTERNAL_OES
     case SDL_PIXELFORMAT_EXTERNAL_OES:
+        if (texture->access != SDL_TEXTUREACCESS_STATIC) {
+            return SDL_SetError("Unsupported texture access for SDL_PIXELFORMAT_EXTERNAL_OES");
+        }
         format = GL_NONE;
         type = GL_NONE;
         break;
 #endif
+#endif // SDL_HAVE_YUV
     default:
         return SDL_SetError("Texture format not supported");
-    }
-
-    if (texture->format == SDL_PIXELFORMAT_EXTERNAL_OES &&
-        texture->access != SDL_TEXTUREACCESS_STATIC) {
-        return SDL_SetError("Unsupported texture access for SDL_PIXELFORMAT_EXTERNAL_OES");
     }
 
     /* Allocate a texture struct */
@@ -1470,19 +1475,18 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return SDL_OutOfMemory();
     }
     data->texture = 0;
-#ifdef GL_TEXTURE_EXTERNAL_OES
-    data->texture_type = (texture->format == SDL_PIXELFORMAT_EXTERNAL_OES) ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
-#else
-    data->texture_type = GL_TEXTURE_2D;
-#endif
     data->pixel_format = format;
     data->pixel_type = type;
+    data->texture_type = GL_TEXTURE_2D;
 #if SDL_HAVE_YUV
+#ifdef GL_TEXTURE_EXTERNAL_OES
+    data->texture_type = (texture->format == SDL_PIXELFORMAT_EXTERNAL_OES) ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
+#endif
     data->yuv = ((texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12));
     data->nv12 = ((texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21));
     data->texture_u = 0;
     data->texture_v = 0;
-#endif
+#endif // SDL_HAVE_YUV
     scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
 
     /* Allocate a blob for image renderdata */
@@ -1566,7 +1570,11 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MAG_FILTER, scaleMode);
     renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if SDL_HAVE_YUV && defined(GL_TEXTURE_EXTERNAL_OES)
     if (texture->format != SDL_PIXELFORMAT_EXTERNAL_OES) {
+#else
+    {
+#endif
         renderdata->glTexImage2D(data->texture_type, 0, format, texture->w, texture->h, 0, format, type, NULL);
         if (GL_CheckError("glTexImage2D()", renderer) < 0) {
             return -1;
@@ -2168,12 +2176,12 @@ static SDL_Renderer *GLES2_CreateRenderer(SDL_Window *window, Uint32 flags)
     renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_IYUV;
     renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_NV12;
     renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_NV21;
-#endif
 #ifdef GL_TEXTURE_EXTERNAL_OES
     if (GLES2_CacheShader(data, GLES2_SHADER_FRAGMENT_TEXTURE_EXTERNAL_OES, GL_FRAGMENT_SHADER)) {
         renderer->info.texture_formats[renderer->info.num_texture_formats++] = SDL_PIXELFORMAT_EXTERNAL_OES;
     }
 #endif
+#endif // SDL_HAVE_YUV
 
     renderer->rect_index_order[0] = 0;
     renderer->rect_index_order[1] = 1;

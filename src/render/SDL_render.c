@@ -1243,7 +1243,7 @@ static Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
 #endif
     {
         SDL_bool hasAlpha;
-        SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(format));
+        SDL_assume(!SDL_ISPIXELFORMAT_FOURCC(format));
         hasAlpha = SDL_ISPIXELFORMAT_ALPHA(format);
 
         /* We just want to match the first format that has the same channels */
@@ -1253,7 +1253,7 @@ static Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
             if (SDL_ISPIXELFORMAT_FOURCC(texture_format))
                 continue;
 #else
-            SDL_assert(!SDL_ISPIXELFORMAT_FOURCC(texture_format));
+            SDL_assume(!SDL_ISPIXELFORMAT_FOURCC(texture_format));
 #endif
             if (SDL_ISPIXELFORMAT_ALPHA(texture_format) == hasAlpha) {
                 return texture_format;
