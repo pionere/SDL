@@ -341,9 +341,9 @@ int VIVANTE_CreateSDLWindow(_THIS, SDL_Window *window)
     window->driverdata = data;
 
 #ifdef SDL_VIDEO_DRIVER_VIVANTE_VDK
-    data->native_window = vdkCreateWindow(displaydata->native_display, window->x, window->y, window->w, window->h);
+    data->native_window = vdkCreateWindow(displaydata->native_display, window->wrect.x, window->wrect.y, window->wrect.w, window->wrect.h);
 #else
-    data->native_window = videodata->fbCreateWindow(displaydata->native_display, window->x, window->y, window->w, window->h);
+    data->native_window = videodata->fbCreateWindow(displaydata->native_display, window->wrect.x, window->wrect.y, window->wrect.w, window->wrect.h);
 #endif
     if (!data->native_window) {
         return SDL_SetError("VIVANTE: Can't create native window");

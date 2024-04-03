@@ -188,8 +188,8 @@
     point = [sender draggingLocation];
     mouse = SDL_GetMouse();
     x = (int)point.x;
-    y = (int)(sdlwindow->h - point.y);
-    if (x >= 0 && x < sdlwindow->w && y >= 0 && y < sdlwindow->h) {
+    y = (int)(sdlwindow->wrect.h - point.y);
+    if (x >= 0 && x < sdlwindow->wrect.w && y >= 0 && y < sdlwindow->wrect.h) {
         SDL_SendMouseMotion(sdlwindow, mouse->mouseID, 0, x, y);
     }
     /* Code addon to update the mouse location */
@@ -374,13 +374,13 @@ static SDL_bool AdjustCoordinatesForGrab(SDL_Window * window, int x, int y, CGPo
 
         window_rect.x = 0;
         window_rect.y = 0;
-        window_rect.w = window->w;
-        window_rect.h = window->h;
+        window_rect.w = window->wrect.w;
+        window_rect.h = window->wrect.h;
 
         if (SDL_IntersectRect(&window->mouse_rect, &window_rect, &mouse_rect)) {
-            int left = window->x + mouse_rect.x;
+            int left = window->wrect.x + mouse_rect.x;
             int right = left + mouse_rect.w - 1;
-            int top = window->y + mouse_rect.y;
+            int top = window->wrect.y + mouse_rect.y;
             int bottom = top + mouse_rect.h - 1;
             if (x < left || x > right || y < top || y > bottom) {
                 adjusted->x = SDL_clamp(x, left, right);
@@ -392,10 +392,10 @@ static SDL_bool AdjustCoordinatesForGrab(SDL_Window * window, int x, int y, CGPo
     }
 
     if (window->flags & SDL_WINDOW_MOUSE_GRABBED) {
-        int left = window->x;
-        int right = left + window->w - 1;
-        int top = window->y;
-        int bottom = top + window->h - 1;
+        int left = window->wrect.x;
+        int right = left + window->wrect.w - 1;
+        int top = window->wrect.y;
+        int bottom = top + window->wrect.h - 1;
         if (x < left || x > right || y < top || y > bottom) {
             adjusted->x = SDL_clamp(x, left, right);
             adjusted->y = SDL_clamp(y, top, bottom);
@@ -420,8 +420,8 @@ static void Cocoa_UpdateClipCursor(SDL_Window * window)
 
             window_rect.x = 0;
             window_rect.y = 0;
-            window_rect.w = window->w;
-            window_rect.h = window->h;
+            window_rect.w = window->wrect.w;
+            window_rect.h = window->wrect.h;
 
             if (window->mouse_rect.w > 0 && window->mouse_rect.h > 0) {
                 SDL_IntersectRect(&window->mouse_rect, &window_rect, &mouse_rect);
@@ -709,8 +709,8 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
                 CGPoint cgpoint;
 
                 SDL_GetMouseState(&x, &y);
-                cgpoint.x = _data.window->x + x;
-                cgpoint.y = _data.window->y + y;
+                cgpoint.x = _data.window->wrect.x + x;
+                cgpoint.y = _data.window->wrect.y + y;
 
                 Cocoa_HandleMouseWarp(cgpoint.x, cgpoint.y);
 
@@ -765,8 +765,8 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
 
         if (blockMove) {
             /* Cocoa is adjusting the window in response to a mode change */
-            rect.origin.x = window->x;
-            rect.origin.y = window->y;
+            rect.origin.x = window->wrect.x;
+            rect.origin.y = window->wrect.y;
             ConvertNSRect([nswindow screen], fullscreen, &rect);
             [nswindow setFrameOrigin:rect.origin];
             return;
@@ -866,9 +866,9 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
 
         point = [_data.nswindow mouseLocationOutsideOfEventStream];
         x = (int)point.x;
-        y = (int)(window->h - point.y);
+        y = (int)(window->wrect.h - point.y);
 
-        if (x >= 0 && x < window->w && y >= 0 && y < window->h) {
+        if (x >= 0 && x < window->wrect.w && y >= 0 && y < window->wrect.h) {
             SDL_SendMouseMotion(window, mouse->mouseID, 0, x, y);
         }
     }
@@ -918,8 +918,8 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
 
     if ([oldscale doubleValue] != [_data.nswindow backingScaleFactor]) {
         /* Force a resize event when the backing scale factor changes. */
-        _data.window->w = 0;
-        _data.window->h = 0;
+        _data.window->wrect.w = 0;
+        _data.window->wrect.h = 0;
         [self windowDidResize:aNotification];
     }
 }
@@ -985,8 +985,8 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
         /* Force the size change event in case it was delivered earlier
            while the window was still animating into place.
          */
-        window->w = 0;
-        window->h = 0;
+        window->wrect.w = 0;
+        window->wrect.h = 0;
         [self windowDidMove:aNotification];
         [self windowDidResize:aNotification];
     }
@@ -1092,8 +1092,8 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
         /* Force the size change event in case it was delivered earlier
            while the window was still animating into place.
          */
-        window->w = 0;
-        window->h = 0;
+        window->wrect.w = 0;
+        window->wrect.h = 0;
         [self windowDidMove:aNotification];
         [self windowDidResize:aNotification];
 
@@ -1176,7 +1176,7 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
 
     if (_data.window->hit_test) {  /* if no hit-test, skip this. */
         const NSPoint location = [theEvent locationInWindow];
-        const SDL_Point point = { (int) location.x, _data.window->h - (((int) location.y)-1) };
+        const SDL_Point point = { (int) location.x, _data.window->wrect.h - (((int) location.y)-1) };
         const SDL_HitTestResult rc = _data.window->hit_test(_data.window, &point, _data.window->hit_test_data);
         if (rc == SDL_HITTEST_DRAGGABLE) {
             if (!isDragAreaRunning) {
@@ -1215,7 +1215,7 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
         const int orig_y = mouse->y;
         const NSPoint point = [theEvent locationInWindow];
         mouse->x = (int) point.x;
-        mouse->y = (int) (window->h - point.y);
+        mouse->y = (int) (window->wrect.h - point.y);
         rc = SDL_SendMouseButtonClicks(window, mouseID, state, button, clicks);
         mouse->x = orig_x;
         mouse->y = orig_y;
@@ -1365,14 +1365,14 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
     }
 
     x = (int)point.x;
-    y = (int)(window->h - point.y);
+    y = (int)(window->wrect.h - point.y);
 
     if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_13_2) {
         /* Mouse grab is taken care of by the confinement rect */
     } else {
         CGPoint cgpoint;
         if (ShouldAdjustCoordinatesForGrab(window) &&
-            AdjustCoordinatesForGrab(window, window->x + x, window->y + y, &cgpoint)) {
+            AdjustCoordinatesForGrab(window, window->wrect.x + x, window->wrect.y + y, &cgpoint)) {
             Cocoa_HandleMouseWarp(cgpoint.x, cgpoint.y);
             CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, cgpoint);
             CGAssociateMouseAndMouseCursorPosition(YES);
@@ -1653,10 +1653,10 @@ static int SetupWindowData(SDL_Window * window, NSWindow *nswindow, NSView *nsvi
     {
         NSRect rect = [nswindow contentRectForFrameRect:[nswindow frame]];
         ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
-        window->x = (int)rect.origin.x;
-        window->y = (int)rect.origin.y;
-        window->w = (int)rect.size.width;
-        window->h = (int)rect.size.height;
+        window->wrect.x = (int)rect.origin.x;
+        window->wrect.y = (int)rect.origin.y;
+        window->wrect.w = (int)rect.size.width;
+        window->wrect.h = (int)rect.size.height;
     }
 
     /* Set up the listener after we create the view */
@@ -1735,10 +1735,10 @@ int Cocoa_CreateSDLWindow(_THIS, SDL_Window * window)
     BOOL highdpi;
 
     Cocoa_GetDisplayBounds(display, &bounds);
-    rect.origin.x = window->x;
-    rect.origin.y = window->y;
-    rect.size.width = window->w;
-    rect.size.height = window->h;
+    rect.origin.x = window->wrect.x;
+    rect.origin.y = window->wrect.y;
+    rect.size.width = window->wrect.w;
+    rect.size.height = window->wrect.h;
     ConvertNSRect([screens objectAtIndex:0], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     style = GetWindowStyle(window);
@@ -1899,10 +1899,10 @@ void Cocoa_SetWindowPosition(SDL_Window * window)
     NSRect rect;
     Uint32 moveHack;
 
-    rect.origin.x = window->x;
-    rect.origin.y = window->y;
-    rect.size.width = window->w;
-    rect.size.height = window->h;
+    rect.origin.x = window->wrect.x;
+    rect.origin.y = window->wrect.y;
+    rect.size.width = window->wrect.w;
+    rect.size.height = window->wrect.h;
     ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     moveHack = s_moveHack;
@@ -1925,10 +1925,10 @@ void Cocoa_SetWindowSize(SDL_Window * window)
      * top-left when -[nswindow setContentSize:] is used, so we must set the
      * entire frame based on the new size, in order to preserve the position.
      */
-    rect.origin.x = window->x;
-    rect.origin.y = window->y;
-    rect.size.width = window->w;
-    rect.size.height = window->h;
+    rect.origin.x = window->wrect.x;
+    rect.origin.y = window->wrect.y;
+    rect.size.width = window->wrect.w;
+    rect.size.height = window->wrect.h;
     ConvertNSRect([nswindow screen], (window->flags & SDL_WINDOW_FULLSCREEN), &rect);
 
     moveHack = s_moveHack;

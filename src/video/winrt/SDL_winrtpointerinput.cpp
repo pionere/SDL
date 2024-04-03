@@ -105,8 +105,8 @@ WINRT_TransformCursorPosition(SDL_Window *window,
 #endif
 
     if (normalization == TransformToSDLWindowSize) {
-        outputPosition.X *= ((float32)window->w);
-        outputPosition.Y *= ((float32)window->h);
+        outputPosition.X *= ((float32)window->wrect.w);
+        outputPosition.Y *= ((float32)window->wrect.h);
     }
 
     return outputPosition;

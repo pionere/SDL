@@ -91,15 +91,15 @@ static SDL_Window *xinput2_get_sdlwindow(Window window)
 static void xinput2_normalize_touch_coordinates(SDL_Window *window, double in_x, double in_y, float *out_x, float *out_y)
 {
     if (window) {
-        if (window->w == 1) {
+        if (window->wrect.w == 1) {
             *out_x = 0.5f;
         } else {
-            *out_x = in_x / (window->w - 1);
+            *out_x = in_x / (window->wrect.w - 1);
         }
-        if (window->h == 1) {
+        if (window->wrect.h == 1) {
             *out_y = 0.5f;
         } else {
-            *out_y = in_y / (window->h - 1);
+            *out_y = in_y / (window->wrect.h - 1);
         }
     } else {
         // couldn't find the window...

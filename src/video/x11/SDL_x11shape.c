@@ -69,9 +69,9 @@ int X11_ResizeWindowShape(SDL_Window *window)
     data = (SDL_ShapeData *)window->shaper->driverdata;
     SDL_assert(data != NULL);
 
-    bitmapsize = (window->w + 7) >> 3; // (w + (ppb - 1)) / ppb;
+    bitmapsize = (window->wrect.w + 7) >> 3; // (w + (ppb - 1)) / ppb;
 
-    bitmapsize *= window->h;
+    bitmapsize *= window->wrect.h;
     if (data->bitmapsize != bitmapsize || !data->bitmap) {
         data->bitmapsize = bitmapsize;
         SDL_free(data->bitmap);
@@ -85,8 +85,8 @@ int X11_ResizeWindowShape(SDL_Window *window)
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;
 
-        window->shaper->userx = window->x;
-        window->shaper->usery = window->y;
+        window->shaper->userx = window->wrect.x;
+        window->shaper->usery = window->wrect.y;
         SDL_SetWindowPosition(window, -1000, -1000);
     }
 
@@ -109,7 +109,7 @@ int X11_SetWindowShape(SDL_Window *window, SDL_Surface *shape, const SDL_WindowS
     SDL_CalculateShapeBitmap(shape_mode, shape, data->bitmap, 8);
 
     windowdata = (SDL_WindowData *)(window->driverdata);
-    shapemask = X11_XCreateBitmapFromData(x11VideoData.display, windowdata->xwindow, data->bitmap, window->w, window->h);
+    shapemask = X11_XCreateBitmapFromData(x11VideoData.display, windowdata->xwindow, data->bitmap, window->wrect.w, window->wrect.h);
 
     X11_XShapeCombineMask(x11VideoData.display, windowdata->xwindow, ShapeBounding, 0, 0, shapemask, ShapeSet);
     X11_XSync(x11VideoData.display, False);

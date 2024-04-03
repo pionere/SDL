@@ -39,10 +39,10 @@ int NACL_CreateSDLWindow(_THIS, SDL_Window * window)
     driverdata->window = window;
 
     /* Adjust the window data to match the screen */
-    window->x = 0;
-    window->y = 0;
-    window->w = driverdata->w;
-    window->h = driverdata->h;
+    window->wrect.x = 0;
+    window->wrect.y = 0;
+    window->wrect.w = driverdata->w;
+    window->wrect.h = driverdata->h;
 
     window->flags &= ~SDL_WINDOW_RESIZABLE;     /* window is NEVER resizeable */
     window->flags |= SDL_WINDOW_FULLSCREEN;     /* window is always fullscreen */

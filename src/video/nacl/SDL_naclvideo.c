@@ -62,8 +62,8 @@ void NACL_SetScreenResolution(int width, int height, Uint32 format)
     naclVideoData.format = format;
 
     if (naclVideoData.window) {
-        naclVideoData.window->w = width;
-        naclVideoData.window->h = height;
+        naclVideoData.window->wrect.w = width;
+        naclVideoData.window->wrect.h = height;
         SDL_SendWindowEvent(naclVideoData.window, SDL_WINDOWEVENT_RESIZED, width, height);
     }
 

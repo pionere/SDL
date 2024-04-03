@@ -80,9 +80,9 @@ SDL_GLContext NACL_GLES_CreateContext(_THIS, SDL_Window * window)
     /* FIXME: Some ATTRIBS from PP_Graphics3DAttrib are not set here */
 
     attribs[i++] = PP_GRAPHICS3DATTRIB_WIDTH;
-    attribs[i++] = window->w;
+    attribs[i++] = window->wrect.w;
     attribs[i++] = PP_GRAPHICS3DATTRIB_HEIGHT;
-    attribs[i++] = window->h;
+    attribs[i++] = window->wrect.h;
     attribs[i++] = PP_GRAPHICS3DATTRIB_RED_SIZE;
     attribs[i++] = _this->gl_config.red_size;
     attribs[i++] = PP_GRAPHICS3DATTRIB_GREEN_SIZE;

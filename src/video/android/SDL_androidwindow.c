@@ -48,13 +48,13 @@ int Android_CreateSDLWindow(_THIS, SDL_Window *window)
     }
 
     /* Set orientation */
-    Android_JNI_SetOrientation(window->w, window->h, window->flags & SDL_WINDOW_RESIZABLE, SDL_GetHint(SDL_HINT_ORIENTATIONS));
+    Android_JNI_SetOrientation(window->wrect.w, window->wrect.h, window->flags & SDL_WINDOW_RESIZABLE, SDL_GetHint(SDL_HINT_ORIENTATIONS));
 
     /* Adjust the window data to match the screen */
-    window->x = 0;
-    window->y = 0;
-    window->w = Android_SurfaceWidth;
-    window->h = Android_SurfaceHeight;
+    window->wrect.x = 0;
+    window->wrect.y = 0;
+    window->wrect.w = Android_SurfaceWidth;
+    window->wrect.h = Android_SurfaceHeight;
 
     window->flags &= ~SDL_WINDOW_HIDDEN;
     window->flags |= SDL_WINDOW_SHOWN; /* only one window on Android */
@@ -138,8 +138,8 @@ void Android_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay *display, 
             goto endfunction;
         }
 
-        old_w = window->w;
-        old_h = window->h;
+        old_w = window->wrect.w;
+        old_h = window->wrect.h;
 
         new_w = ANativeWindow_getWidth(data->native_window);
         new_h = ANativeWindow_getHeight(data->native_window);
@@ -166,7 +166,7 @@ void Android_MinimizeWindow(SDL_Window *window)
 void Android_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
 {
     /* Set orientation */
-    Android_JNI_SetOrientation(window->w, window->h, window->flags & SDL_WINDOW_RESIZABLE, SDL_GetHint(SDL_HINT_ORIENTATIONS));
+    Android_JNI_SetOrientation(window->wrect.w, window->wrect.h, window->flags & SDL_WINDOW_RESIZABLE, SDL_GetHint(SDL_HINT_ORIENTATIONS));
 }
 
 void Android_DestroyWindow(SDL_Window *window)

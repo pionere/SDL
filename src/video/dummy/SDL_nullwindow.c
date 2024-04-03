@@ -57,7 +57,7 @@ void DUMMY_SetWindowFullscreen(SDL_Window * window, SDL_VideoDisplay * display, 
         h = window->windowed.h;
     }
 
-    if (window->w != w || window->h != h) {
+    if (window->wrect.w != w || window->wrect.h != h) {
         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
     }
 }

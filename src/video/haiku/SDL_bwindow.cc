@@ -46,10 +46,10 @@ static int _InitWindow(SDL_Window *window) {
     window_look look = B_TITLED_WINDOW_LOOK;
 
     BRect bounds(
-        window->x,
-        window->y,
-        window->x + window->w - 1,    //BeWindows have an off-by-one px w/h thing
-        window->y + window->h - 1
+        window->wrect.x,
+        window->wrect.y,
+        window->wrect.x + window->wrect.w - 1,    //BeWindows have an off-by-one px w/h thing
+        window->wrect.y + window->wrect.h - 1
     );
     
     if (window->flags & SDL_WINDOW_FULLSCREEN) {
@@ -96,10 +96,10 @@ int HAIKU_CreateSDLWindowFrom(_THIS, SDL_Window * window, const void *data) {
     }
     
     /* Create the new window and initialize its members */
-    window->x = (int)otherBWin->Frame().left;
-    window->y = (int)otherBWin->Frame().top;
-    window->w = (int)otherBWin->Frame().Width();
-    window->h = (int)otherBWin->Frame().Height();
+    window->wrect.x = (int)otherBWin->Frame().left;
+    window->wrect.y = (int)otherBWin->Frame().top;
+    window->wrect.w = (int)otherBWin->Frame().Width();
+    window->wrect.h = (int)otherBWin->Frame().Height();
     
     /* Set SDL flags */
     if (!(otherBWin->Flags() & B_NOT_RESIZABLE)) {
@@ -133,15 +133,15 @@ void HAIKU_SetWindowIcon(SDL_Window * window, SDL_Surface * icon) {
 
 void HAIKU_SetWindowPosition(SDL_Window * window) {
     BMessage msg(BWIN_MOVE_WINDOW);
-    msg.AddInt32("window-x", window->x);
-    msg.AddInt32("window-y", window->y);
+    msg.AddInt32("window-x", window->wrect.x);
+    msg.AddInt32("window-y", window->wrect.y);
     _ToBeWin(window)->PostMessage(&msg);
 }
 
 void HAIKU_SetWindowSize(SDL_Window * window) {
     BMessage msg(BWIN_RESIZE_WINDOW);
-    msg.AddInt32("window-w", window->w - 1);
-    msg.AddInt32("window-h", window->h - 1);
+    msg.AddInt32("window-w", window->wrect.w - 1);
+    msg.AddInt32("window-h", window->wrect.h - 1);
     _ToBeWin(window)->PostMessage(&msg);
 }
 

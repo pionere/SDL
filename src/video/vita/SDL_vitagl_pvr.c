@@ -98,8 +98,8 @@ SDL_GLContext VITA_GL_CreateContext(_THIS, SDL_Window *window)
     context = SDL_EGL_CreateContext(_this, ((SDL_WindowData *)window->driverdata)->egl_surface);
 
     if (context != NULL) {
-        FB_WIDTH = window->w;
-        FB_HEIGHT = window->h;
+        FB_WIDTH = window->wrect.w;
+        FB_HEIGHT = window->wrect.h;
         set_getprocaddress((void *(*)(const char *))eglGetProcAddress);
         set_getmainfbsize(getFBSize);
         SDL_snprintf(gl_version, 3, "%d%d", temp_major, temp_minor);

@@ -91,8 +91,8 @@ int WIN_ResizeWindowShape(SDL_Window *window)
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;
 
-        window->shaper->userx = window->x;
-        window->shaper->usery = window->y;
+        window->shaper->userx = window->wrect.x;
+        window->shaper->usery = window->wrect.y;
         SDL_SetWindowPosition(window, -1000, -1000);
     }
 

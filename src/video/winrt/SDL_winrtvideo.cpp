@@ -737,8 +737,8 @@ int WINRT_CreateSDLWindow(_THIS, SDL_Window *window)
 
     if (WINRT_XAMLWasEnabled) {
         /* TODO, WinRT: set SDL_Window size, maybe position too, from XAML control */
-        window->x = 0;
-        window->y = 0;
+        window->wrect.x = 0;
+        window->wrect.y = 0;
         window->flags |= SDL_WINDOW_SHOWN;
         SDL_SetMouseFocus(NULL);    // TODO: detect this
         SDL_SetKeyboardFocus(NULL); // TODO: detect this
@@ -748,28 +748,28 @@ int WINRT_CreateSDLWindow(_THIS, SDL_Window *window)
            user choice of various things.  For now, just adapt the SDL_Window to
            whatever Windows set-up as the native-window's geometry.
         */
-        window->x = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Left);
-        window->y = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Top);
+        window->wrect.x = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Left);
+        window->wrect.y = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Top);
 #if NTDDI_VERSION < NTDDI_WIN10
         /* On WinRT 8.x / pre-Win10, just use the size we were given. */
-        window->w = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Width);
-        window->h = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Height);
+        window->wrect.w = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Width);
+        window->wrect.h = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Height);
 #else
         /* On Windows 10, we occasionally get control over window size.  For windowed
            mode apps, try this.
         */
         bool didSetSize = false;
         if (!(requestedFlags & SDL_WINDOW_FULLSCREEN)) {
-            const Windows::Foundation::Size size(WINRT_PHYSICAL_PIXELS_TO_DIPS(window->w),
-                                                 WINRT_PHYSICAL_PIXELS_TO_DIPS(window->h));
+            const Windows::Foundation::Size size(WINRT_PHYSICAL_PIXELS_TO_DIPS(window->wrect.w),
+                                                 WINRT_PHYSICAL_PIXELS_TO_DIPS(window->wrect.h));
             didSetSize = data->appView->TryResizeView(size);
         }
         if (!didSetSize) {
             /* We either weren't able to set the window size, or a request for
                fullscreen was made.  Get window-size info from the OS.
             */
-            window->w = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Width);
-            window->h = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Height);
+            window->wrect.w = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Width);
+            window->wrect.h = WINRT_DIPS_TO_PHYSICAL_PIXELS(data->coreWindow->Bounds.Height);
         }
 #endif
 
@@ -798,8 +798,8 @@ void WINRT_SetWindowSize(SDL_Window *window)
 {
 #if NTDDI_VERSION >= NTDDI_WIN10
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
-    const Windows::Foundation::Size size(WINRT_PHYSICAL_PIXELS_TO_DIPS(window->w),
-                                         WINRT_PHYSICAL_PIXELS_TO_DIPS(window->h));
+    const Windows::Foundation::Size size(WINRT_PHYSICAL_PIXELS_TO_DIPS(window->wrect.w),
+                                         WINRT_PHYSICAL_PIXELS_TO_DIPS(window->wrect.h));
     data->appView->TryResizeView(size); // TODO, WinRT: return failure (to caller?) from TryResizeView()
 #endif
 }

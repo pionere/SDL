@@ -1634,9 +1634,9 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                        want for SDL3 is a new event to notify that the DPI changed and then watch for
                        that in the renderer directly.
                      */
-                    window->w = 0;
-                    window->h = 0;
-                    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
+                    window->wrect.w = 0;
+                    window->wrect.h = 0;
+                    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->wrect.w, window->wrect.h);
                 }
 
 #ifdef HIGHDPI_DEBUG
@@ -1663,8 +1663,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 const BOOL menu = (style & WS_CHILDWINDOW) ? FALSE : (GetMenu(hwnd) != NULL);
 
                 RECT rect = { 0 };
-                rect.right = window->w;
-                rect.bottom = window->h;
+                rect.right = window->wrect.w;
+                rect.bottom = window->wrect.h;
 
                 if (videodata->dpi_scaling_enabled) {
                     /* scale client size to from points to the new DPI */
@@ -1682,7 +1682,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 #ifdef HIGHDPI_DEBUG
             SDL_Log("WM_DPICHANGED: current SDL window size: (%dx%d)\tcalling SetWindowPos: (%d, %d), (%dx%d)\n",
-                    window->w, window->h,
+                    window->wrect.w, window->wrect.h,
                     suggestedRect->left, suggestedRect->top, w, h);
 #endif
 
@@ -1702,7 +1702,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 /* Send a SDL_WINDOWEVENT_SIZE_CHANGED saying that the client size (in dpi-scaled points) is unchanged.
                    Renderers need to get this to know that the framebuffer size changed. */
-                SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
+                SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->wrect.w, window->wrect.h);
             }
 
             return 0;

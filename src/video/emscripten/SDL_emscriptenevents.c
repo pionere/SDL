@@ -620,8 +620,8 @@ static EM_BOOL Emscripten_HandleMouseMove(int eventType, const EmscriptenMouseEv
     /* rescale (in case canvas is being scaled)*/
     double client_w, client_h, xscale, yscale;
     emscripten_get_element_css_size(window_data->canvas_id, &client_w, &client_h);
-    xscale = window_data->window->w / client_w;
-    yscale = window_data->window->h / client_h;
+    xscale = window_data->window->wrect.w / client_w;
+    yscale = window_data->window->wrect.h / client_h;
 
     if (isPointerLocked) {
         residualx += mouseEvent->movementX * xscale;
@@ -698,8 +698,8 @@ static EM_BOOL Emscripten_HandleMouseFocus(int eventType, const EmscriptenMouseE
         double client_w, client_h;
         emscripten_get_element_css_size(window_data->canvas_id, &client_w, &client_h);
 
-        mx = mx * (window_data->window->w / client_w);
-        my = my * (window_data->window->h / client_h);
+        mx = mx * (window_data->window->wrect.w / client_w);
+        my = my * (window_data->window->wrect.h / client_h);
         SDL_SendMouseMotion(window_data->window, 0, isPointerLocked, mx, my);
     }
 
@@ -877,8 +877,8 @@ static EM_BOOL Emscripten_HandleResize(int eventType, const EmscriptenUiEvent *u
     if (!(window_data->window->flags & SDL_WINDOW_FULLSCREEN)) {
         /* this will only work if the canvas size is set through css */
         if (window_data->window->flags & SDL_WINDOW_RESIZABLE) {
-            double w = window_data->window->w;
-            double h = window_data->window->h;
+            double w = window_data->window->wrect.w;
+            double h = window_data->window->wrect.h;
 
             if (window_data->external_size) {
                 emscripten_get_element_css_size(window_data->canvas_id, &w, &h);
@@ -893,8 +893,8 @@ static EM_BOOL Emscripten_HandleResize(int eventType, const EmscriptenUiEvent *u
 
             if (force) {
                 /* force the event to trigger, so pixel ratio changes can be handled */
-                window_data->window->w = 0;
-                window_data->window->h = 0;
+                window_data->window->wrect.w = 0;
+                window_data->window->wrect.h = 0;
             }
 
             SDL_SendWindowEvent(window_data->window, SDL_WINDOWEVENT_RESIZED, w, h);

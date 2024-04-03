@@ -59,14 +59,14 @@ int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
                                                           DLSCL_ADMINISTRATIVE));
 #endif
     /* FIXME ... ughh, ugly */
-    if (window->x == -1000 && window->y == -1000)
+    if (window->wrect.x == -1000 && window->wrect.y == -1000)
         bshaped = 1;
 
     /* Fill the window description. */
-    x = window->x;
-    y = window->y;
+    x = window->wrect.x;
+    y = window->wrect.y;
 
-    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->w, window->h);
+    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->wrect.w, window->wrect.h);
 
     /* Create Window */
     desc.caps = 0;
@@ -127,7 +127,7 @@ int DirectFB_CreateSDLWindow(_THIS, SDL_Window * window)
 
     /* See what we got */
     SDL_DFB_CHECK(DirectFB_WM_GetClientSize
-                     (window, &window->w, &window->h));
+                     (window, &window->wrect.w, &window->wrect.h));
 
     /* Get the window's surface. */
     SDL_DFB_CHECKERR(windata->dfbwin->GetSurface(windata->dfbwin,
@@ -242,10 +242,10 @@ void DirectFB_SetWindowPosition(SDL_Window * window)
     IDirectFBWindow *dfbwin = windata->dfbwin;
     int x, y;
 
-    x = window->x;
-    y = window->y;
+    x = window->wrect.x;
+    y = window->wrect.y;
 
-    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->w, window->h);
+    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->wrect.w, window->wrect.h);
     SDL_DFB_CHECK(dfbwin->MoveTo(dfbwin, x, y));
 }
 
@@ -267,16 +267,16 @@ void DirectFB_SetWindowSize(SDL_Window * window)
                                                         DWET_ALL));
         SDL_DFB_CHECKERR(DirectFB_WM_GetClientSize(window, &cw, &ch));
 
-        if (cw != window->w || ch != window->h) {
+        if (cw != window->wrect.w || ch != window->wrect.h) {
 
-            DirectFB_WM_AdjustWindowLayout(window, window->flags, window->w, window->h);
+            DirectFB_WM_AdjustWindowLayout(window, window->flags, window->wrect.w, window->wrect.h);
             SDL_DFB_CHECKERR(dfbwin->Resize(dfbwin,
                                                      windata->size.w,
                                                      windata->size.h));
         }
 
         SDL_DFB_CHECKERR(DirectFB_WM_GetClientSize
-                     (window, &window->w, &window->h));
+                     (window, &window->wrect.w, &window->wrect.h));
         DirectFB_AdjustWindowSurface(window);
 
         SDL_DFB_CHECKERR(dfbwin->EnableEvents(dfbwin,
@@ -513,7 +513,7 @@ void DirectFB_AdjustWindowSurface(SDL_Window * window)
     int adjust = windata->wm_needs_redraw;
     int cw, ch;
 
-    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->w, window->h);
+    DirectFB_WM_AdjustWindowLayout(window, window->flags, window->wrect.w, window->wrect.h);
 
     SDL_DFB_CHECKERR(windata->
                      window_surface->GetSize(windata->window_surface, &cw,

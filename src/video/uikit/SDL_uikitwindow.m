@@ -125,11 +125,11 @@ static int SetupWindowData(SDL_Window *window, UIWindow *uiwindow, SDL_bool crea
 #endif /* !TARGET_OS_TV */
 
 #if 0 /* Don't set the x/y position, it's already placed on a display */
-    window->x = 0;
-    window->y = 0;
+    window->wrect.x = 0;
+    window->wrect.y = 0;
 #endif
-    window->w = width;
-    window->h = height;
+    window->wrect.w = width;
+    window->wrect.h = height;
 
     /* The View Controller will handle rotating the view when the device
      * orientation changes. This will trigger resize events, if appropriate. */
@@ -170,7 +170,7 @@ int UIKit_CreateSDLWindow(_THIS, SDL_Window *window)
             const SDL_DisplayMode *bestmode = NULL;
             for (i = display->num_display_modes; i >= 0; i--) {
                 const SDL_DisplayMode *mode = &display->display_modes[i];
-                if ((mode->w >= window->w) && (mode->h >= window->h)) {
+                if ((mode->w >= window->wrect.w) && (mode->h >= window->wrect.h)) {
                     bestmode = mode;
                 }
             }

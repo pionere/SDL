@@ -657,8 +657,8 @@ static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, int 
 static void SDL_PrivateGetWindowSize(SDL_Window *window, int *w, int *h)
 {
     SDL_assert(window != NULL);
-    *w = window->w;
-    *h = window->h;
+    *w = window->wrect.w;
+    *h = window->wrect.h;
 }
 
 static void UpdateDPIScale(SDL_Renderer *renderer)

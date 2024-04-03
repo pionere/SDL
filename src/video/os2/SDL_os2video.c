@@ -251,13 +251,13 @@ static VOID _wmMouseMove(WINDATA *pWinData, SHORT lX, SHORT lY)
 
             if (lX < 0)
                 lX = 0;
-            else if (lX >= pWinData->window->w)
-                lX = pWinData->window->w - 1;
+            else if (lX >= pWinData->window->wrect.w)
+                lX = pWinData->window->wrect.w - 1;
 
             if (lY < 0)
                 lY = 0;
-            else if (lY >= pWinData->window->h)
-                lY = pWinData->window->h - 1;
+            else if (lY >= pWinData->window->wrect.h)
+                lY = pWinData->window->wrect.h - 1;
 
             if (lX != pointl.x || lY != pointl.x) {
                 pointl.x = lX;
@@ -269,13 +269,13 @@ static VOID _wmMouseMove(WINDATA *pWinData, SHORT lX, SHORT lY)
         }
 
         SDL_SendMouseMotion(pWinData->window, 0, 0, lX,
-                            pWinData->window->h - lY - 1);
+                            pWinData->window->wrect.h - lY - 1);
         return;
     }
 
     if (fWinActive) {
-        pointl.x = pWinData->window->w / 2;
-        pointl.y = pWinData->window->h / 2;
+        pointl.x = pWinData->window->wrect.w / 2;
+        pointl.y = pWinData->window->wrect.h / 2;
         WinMapWindowPoints(pWinData->hwnd, HWND_DESKTOP, &pointl, 1);
 
         SDL_SendMouseMotion(pWinData->window, 0, 1,
@@ -299,8 +299,8 @@ static VOID _wmMouseButton(WINDATA *pWinData, ULONG ulButton, BOOL fDown)
         if (pSDLMouse->relative_mode && !pSDLMouse->relative_mode_warp) {
             POINTL  pointl;
 
-            pointl.x = pWinData->window->w / 2;
-            pointl.y = pWinData->window->h / 2;
+            pointl.x = pWinData->window->wrect.w / 2;
+            pointl.y = pWinData->window->wrect.h / 2;
             WinMapWindowPoints(pWinData->hwnd, HWND_DESKTOP, &pointl, 1);
             pWinData->lSkipWMMouseMove++;
             WinSetPointerPos(HWND_DESKTOP, pointl.x, pointl.y);
@@ -607,7 +607,7 @@ static MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
             WinQueryPointerPos(HWND_DESKTOP, &pointl);
             WinMapWindowPoints(HWND_DESKTOP, pWinData->hwnd, &pointl, 1);
             SDL_SendMouseMotion(pWinData->window, 0, 0,
-                                pointl.x, pWinData->window->h - pointl.y - 1);
+                                pointl.x, pWinData->window->wrect.h - pointl.y - 1);
         } else {
             if (SDL_GetKeyboardFocus() == pWinData->window)
                 SDL_SetKeyboardFocus(NULL);
@@ -787,8 +787,8 @@ static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
     /* Show window */
     rectl.xLeft   = 0;
     rectl.yBottom = 0;
-    rectl.xRight  = window->w;
-    rectl.yTop    = window->h;
+    rectl.xRight  = window->wrect.w;
+    rectl.yTop    = window->wrect.h;
     WinCalcFrameRect(hwndFrame, &rectl, FALSE);
     pWinData->lSkipWMSize++;
     pWinData->lSkipWMMove++;
@@ -799,8 +799,8 @@ static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
     rectl.xLeft   = 0;
     rectl.yBottom = 0;
     WinMapWindowPoints(hwnd, HWND_DESKTOP, (PPOINTL)&rectl, 1);
-    window->x = rectl.xLeft;
-    window->y = pSDLDisplayMode->h - (rectl.yBottom + window->h);
+    window->wrect.x = rectl.xLeft;
+    window->wrect.y = pSDLDisplayMode->h - (rectl.yBottom + window->wrect.h);
 
     window->flags |= SDL_WINDOW_SHOWN;
 
@@ -896,12 +896,12 @@ static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
     pointl.x = 0;
     pointl.y = 0;
     WinMapWindowPoints(hwnd, HWND_DESKTOP, &pointl, 1);
-    window->x = pointl.x;
-    window->y = pSDLDisplayMode->h - (pointl.y + swp.cy);
+    window->wrect.x = pointl.x;
+    window->wrect.y = pSDLDisplayMode->h - (pointl.y + swp.cy);
 
     WinQueryWindowPos(hwnd, &swp);
-    window->w = swp.cx;
-    window->h = swp.cy;
+    window->wrect.w = swp.cx;
+    window->wrect.h = swp.cy;
 
     /* Setup window data and frame window procedure */
     pWinData = _setupWindow(window, hwndFrame, hwnd);
@@ -999,8 +999,8 @@ static void OS2_SetWindowPosition(SDL_Window *window)
 
     rectl.xLeft = 0;
     rectl.yBottom = 0;
-    rectl.xRight = window->w;
-    rectl.yTop = window->h;
+    rectl.xRight = window->wrect.w;
+    rectl.yTop = window->wrect.h;
     WinCalcFrameRect(pWinData->hwndFrame, &rectl, FALSE);
 
     if (SDL_ShouldAllowTopmost() &&
@@ -1013,8 +1013,8 @@ static void OS2_SetWindowPosition(SDL_Window *window)
     pWinData->lSkipWMSize++;
     pWinData->lSkipWMMove++;
     WinSetWindowPos(pWinData->hwndFrame, HWND_TOP,
-                    window->x + rectl.xLeft,
-                    (pSDLDisplayMode->h - window->y) - window->h + rectl.yBottom,
+                    window->wrect.x + rectl.xLeft,
+                    (pSDLDisplayMode->h - window->wrect.y) - window->wrect.h + rectl.yBottom,
                     rectl.xRight - rectl.xLeft, rectl.yTop - rectl.yBottom,
                     ulFlags);
 }
@@ -1261,7 +1261,7 @@ static int OS2_SetWindowShape(SDL_Window *window, SDL_Surface *shape,
     }
 
     SDL_zero(stShapeRects);
-    stShapeRects.ulWinHeight = window->h;
+    stShapeRects.ulWinHeight = window->wrect.h;
     SDL_TraverseShapeTree(tree, &_combineRectRegions, &stShapeRects);
     SDL_FreeShapeTree(tree);
 
@@ -1290,8 +1290,8 @@ static int OS2_ResizeWindowShape(SDL_Window *window)
     if (window->shaper->hasshape) {
         window->shaper->hasshape = SDL_FALSE;
 
-        window->shaper->userx = window->x;
-        window->shaper->usery = window->y;
+        window->shaper->userx = window->wrect.x;
+        window->shaper->usery = window->wrect.y;
         SDL_SetWindowPosition(window, -1000, -1000);
     }
 

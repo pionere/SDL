@@ -300,8 +300,8 @@ static int Emscripten_CreateSDLWindow(_THIS, SDL_Window *window)
         wdata->pixel_ratio = 1.0f;
     }
 
-    scaled_w = SDL_floor(window->w * wdata->pixel_ratio);
-    scaled_h = SDL_floor(window->h * wdata->pixel_ratio);
+    scaled_w = SDL_floor(window->wrect.w * wdata->pixel_ratio);
+    scaled_h = SDL_floor(window->wrect.h * wdata->pixel_ratio);
 
     /* set a fake size to check if there is any CSS sizing the canvas */
     emscripten_set_canvas_element_size(wdata->canvas_id, 1, 1);
@@ -322,7 +322,7 @@ static int Emscripten_CreateSDLWindow(_THIS, SDL_Window *window)
     if (!wdata->external_size) {
         if (wdata->pixel_ratio != 1.0f) {
             /*scale canvas down*/
-            emscripten_set_element_css_size(wdata->canvas_id, window->w, window->h);
+            emscripten_set_element_css_size(wdata->canvas_id, window->wrect.w, window->wrect.h);
         }
     }
 
@@ -360,11 +360,11 @@ static void Emscripten_SetWindowSize(SDL_Window *window)
         if (window->flags & SDL_WINDOW_ALLOW_HIGHDPI) {
             data->pixel_ratio = emscripten_get_device_pixel_ratio();
         }
-        emscripten_set_canvas_element_size(data->canvas_id, window->w * data->pixel_ratio, window->h * data->pixel_ratio);
+        emscripten_set_canvas_element_size(data->canvas_id, window->wrect.w * data->pixel_ratio, window->wrect.h * data->pixel_ratio);
 
         /*scale canvas down*/
         if (!data->external_size && data->pixel_ratio != 1.0f) {
-            emscripten_set_element_css_size(data->canvas_id, window->w, window->h);
+            emscripten_set_element_css_size(data->canvas_id, window->wrect.w, window->wrect.h);
         }
     }
 }
@@ -373,8 +373,8 @@ void Emscripten_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
 {
     SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
     if (data) {
-        *w = window->w * data->pixel_ratio;
-        *h = window->h * data->pixel_ratio;
+        *w = window->wrect.w * data->pixel_ratio;
+        *h = window->wrect.h * data->pixel_ratio;
     }
 }
 

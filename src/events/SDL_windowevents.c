@@ -113,11 +113,11 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             window->windowed.x = data1;
             window->windowed.y = data2;
         }
-        if (data1 == window->x && data2 == window->y) {
+        if (data1 == window->wrect.x && data2 == window->wrect.y) {
             return 0;
         }
-        window->x = data1;
-        window->y = data2;
+        window->wrect.x = data1;
+        window->wrect.y = data2;
         SDL_OnWindowMoved(window);
         break;
     case SDL_WINDOWEVENT_RESIZED:
@@ -125,11 +125,11 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             window->windowed.w = data1;
             window->windowed.h = data2;
         }
-        if (data1 == window->w && data2 == window->h) {
+        if (data1 == window->wrect.w && data2 == window->wrect.h) {
             return 0;
         }
-        window->w = data1;
-        window->h = data2;
+        window->wrect.w = data1;
+        window->wrect.h = data2;
         SDL_OnWindowResized(window);
         break;
     case SDL_WINDOWEVENT_MINIMIZED:

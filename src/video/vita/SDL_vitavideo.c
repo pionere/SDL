@@ -321,11 +321,11 @@ int VITA_CreateSDLWindow(_THIS, SDL_Window *window)
     win.flipChainThrdAffinity = 0x20000;
 
     /* 1088i for PSTV (Or Sharpscale) */
-    if (window->w == 1920) {
+    if (window->wrect.w == 1920) {
         win.windowSize = PSP2_WINDOW_1920X1088;
     }
     /* 725p for PSTV (Or Sharpscale) */
-    else if (window->w == 1280) {
+    else if (window->wrect.w == 1280) {
         win.windowSize = PSP2_WINDOW_1280X725;
     }
     /* 544p */

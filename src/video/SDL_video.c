@@ -1140,7 +1140,7 @@ static int SDL_CalculateWindowDisplayIndex(SDL_Window *window)
      * to succeed in that situation, so we fall back to a generic position-
      * based implementation in that case. */
     if (displayIndex < 0) {
-        displayIndex = GetPointDisplayIndex(window->x, window->y, window->w, window->h);
+        displayIndex = GetPointDisplayIndex(window->wrect.x, window->wrect.y, window->wrect.w, window->wrect.h);
     }
     return displayIndex;
 }
@@ -1209,10 +1209,10 @@ int SDL_GetWindowDisplayMode(SDL_Window *window, SDL_DisplayMode *mode)
     } else {
         fullscreen_mode = window->fullscreen_mode;
         if (!fullscreen_mode.w) {
-            fullscreen_mode.w = window->w;
+            fullscreen_mode.w = window->wrect.w;
         }
         if (!fullscreen_mode.h) {
-            fullscreen_mode.h = window->h;
+            fullscreen_mode.h = window->wrect.h;
         }        
         if (!SDL_GetClosestDisplayModeForDisplay(display,
                                                     &fullscreen_mode,
@@ -1374,7 +1374,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
             if (SDL_GetWindowDisplayMode(other, &fullscreen_mode) == 0) {
                 resized = SDL_TRUE;
 
-                if (other->w == fullscreen_mode.w && other->h == fullscreen_mode.h) {
+                if (other->wrect.w == fullscreen_mode.w && other->wrect.h == fullscreen_mode.h) {
                     resized = SDL_FALSE;
                 }
 
@@ -1643,15 +1643,12 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
     }
     window->magic = &current_video.window_magic;
     window->id = current_video.next_object_id++;
-    window->x = x;
-    window->y = y;
-    window->w = w;
-    window->h = h;
+    window->wrect.x = x;
+    window->wrect.y = y;
+    window->wrect.w = w;
+    window->wrect.h = h;
 
-    window->windowed.x = window->x;
-    window->windowed.y = window->y;
-    window->windowed.w = window->w;
-    window->windowed.h = window->h;
+    window->windowed = window->wrect;
 
     window->display_index = displayIndex;
 
@@ -1674,10 +1671,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
                 bounds.h = fullscreen_mode.h;
             }
         }
-        window->x = bounds.x;
-        window->y = bounds.y;
-        window->w = bounds.w;
-        window->h = bounds.h;
+        window->wrect = bounds;
     }
 
     window->flags = ((flags & CREATE_FLAGS) | SDL_WINDOW_HIDDEN);
@@ -2132,8 +2126,8 @@ void SDL_SetWindowPosition(SDL_Window *window, int x, int y)
         window->windowed.x = x;
         window->windowed.y = y;
     } else {
-        window->x = x;
-        window->y = y;
+        window->wrect.x = x;
+        window->wrect.y = y;
 
         if (current_video.SetWindowPosition) {
             current_video.SetWindowPosition(window);
@@ -2172,10 +2166,10 @@ void SDL_GetWindowPosition(SDL_Window *window, int *x, int *y)
         }
     } else {
         if (x) {
-            *x = window->x;
+            *x = window->wrect.x;
         }
         if (y) {
-            *y = window->y;
+            *y = window->wrect.y;
         }
     }
 }
@@ -2267,14 +2261,14 @@ void SDL_SetWindowSize(SDL_Window *window, int w, int h)
             SDL_UpdateFullscreenMode(window, SDL_TRUE);
         }
     } else {
-        int old_w = window->w;
-        int old_h = window->h;
-        window->w = w;
-        window->h = h;
+        int old_w = window->wrect.w;
+        int old_h = window->wrect.h;
+        window->wrect.w = w;
+        window->wrect.h = h;
         if (current_video.SetWindowSize) {
             current_video.SetWindowSize(window);
         }
-        if (window->w != old_w || window->h != old_h) {
+        if (window->wrect.w != old_w || window->wrect.h != old_h) {
             /* We didn't get a SDL_WINDOWEVENT_RESIZED event (by design) */
             SDL_OnWindowResized(window);
         }
@@ -2285,10 +2279,10 @@ void SDL_GetWindowSize(SDL_Window *window, int *w, int *h)
 {
     CHECK_WINDOW_MAGIC(window, );
     if (w) {
-        *w = window->w;
+        *w = window->wrect.w;
     }
     if (h) {
-        *h = window->h;
+        *h = window->wrect.h;
     }
 }
 
@@ -2327,8 +2321,8 @@ void SDL_PrivateGetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
         current_video.GetWindowSizeInPixels(window, w, h);
     } else {
         // SDL_GetWindowSize
-        *w = window->w;
-        *h = window->h;
+        *w = window->wrect.w;
+        *h = window->wrect.h;
     }
 }
 
@@ -2375,7 +2369,7 @@ void SDL_SetWindowMinimumSize(SDL_Window *window, int min_w, int min_h)
             current_video.SetWindowMinimumSize(window);
         }
         /* Ensure that window is not smaller than minimal size */
-        SDL_SetWindowSize(window, SDL_max(window->w, window->min_w), SDL_max(window->h, window->min_h));
+        SDL_SetWindowSize(window, SDL_max(window->wrect.w, window->min_w), SDL_max(window->wrect.h, window->min_h));
     }
 }
 
@@ -2415,7 +2409,7 @@ void SDL_SetWindowMaximumSize(SDL_Window *window, int max_w, int max_h)
             current_video.SetWindowMaximumSize(window);
         }
         /* Ensure that window is not larger than maximal size */
-        SDL_SetWindowSize(window, SDL_min(window->w, window->max_w), SDL_min(window->h, window->max_h));
+        SDL_SetWindowSize(window, SDL_min(window->wrect.w, window->max_w), SDL_min(window->wrect.h, window->max_h));
     }
 }
 
@@ -3059,7 +3053,7 @@ void SDL_OnWindowResized(SDL_Window *window)
     window->surface_valid = SDL_FALSE;
 
     if (!window->is_destroying) {
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->w, window->h);
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SIZE_CHANGED, window->wrect.w, window->wrect.h);
 
         UpdateWindowDisplay(window);
     }
@@ -3119,7 +3113,7 @@ void SDL_OnWindowFocusGained(SDL_Window *window)
     if (mouse && mouse->relative_mode) {
         SDL_SetMouseFocus(window);
         if (mouse->relative_mode_warp) {
-            SDL_PerformWarpMouseInWindow(window, window->w / 2, window->h / 2, SDL_TRUE);
+            SDL_PerformWarpMouseInWindow(window, window->wrect.w / 2, window->wrect.h / 2, SDL_TRUE);
         }
     }
 
@@ -3227,7 +3221,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
         /* The window given was not a shapeable window. */
         return SDL_NONSHAPEABLE_WINDOW;
     }
-    if (!shape || shape->w != window->w || shape->h != window->h) {
+    if (!shape || shape->w != window->wrect.w || shape->h != window->wrect.h) {
         /* Invalid shape argument. */
         return SDL_INVALID_SHAPE_ARGUMENT;
     }
@@ -3256,7 +3250,7 @@ int SDL_SetWindowShape(SDL_Window *window, SDL_Surface *shape, SDL_WindowShapeMo
             int x = window->shaper->userx;
             int y = window->shaper->usery;
 
-            CalculateWindowPosition(&x, &y, window->w, window->h);
+            CalculateWindowPosition(&x, &y, window->wrect.w, window->wrect.h);
 
             SDL_SetWindowPosition(window, x, y);
             window->shaper->userx = 0;

@@ -124,7 +124,7 @@ static void OS2_WarpMouse(SDL_Window * window, int x, int y)
     POINTL      pointl;
 
     pointl.x = x;
-    pointl.y = window->h - y - 1;
+    pointl.y = window->wrect.h - y - 1;
     WinMapWindowPoints(pWinData->hwnd, HWND_DESKTOP, &pointl, 1);
     WinSetPointerPos(HWND_DESKTOP, pointl.x, pointl.y);
     SDL_SendMouseMotion(window, SDL_GetMouse()->mouseID, 0, x, y);

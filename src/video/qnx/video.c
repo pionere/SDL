@@ -96,8 +96,8 @@ static int QNX_CreateSDLWindow(_THIS, SDL_Window *window)
     }
 
     // Set the native window's size to match the SDL window.
-    size[0] = window->w;
-    size[1] = window->h;
+    size[0] = window->wrect.w;
+    size[1] = window->wrect.h;
 
     if (screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE,
                                       size) < 0) {
@@ -263,8 +263,8 @@ static void QNX_SetWindowSize(SDL_Window *window)
     window_impl_t   *impl = (window_impl_t *)window->driverdata;
     int             size[2];
 
-    size[0] = window->w;
-    size[1] = window->h;
+    size[0] = window->wrect.w;
+    size[1] = window->wrect.h;
 
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SIZE, size);
     screen_set_window_property_iv(impl->window, SCREEN_PROPERTY_SOURCE_SIZE,

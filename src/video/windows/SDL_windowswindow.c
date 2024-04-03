@@ -129,10 +129,10 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 #endif
 
     /* Client rect, in SDL screen coordinates */
-    *x = (use_current ? window->x : window->windowed.x);
-    *y = (use_current ? window->y : window->windowed.y);
-    *width = (use_current ? window->w : window->windowed.w);
-    *height = (use_current ? window->h : window->windowed.h);
+    *x = (use_current ? window->wrect.x : window->windowed.x);
+    *y = (use_current ? window->wrect.y : window->windowed.y);
+    *width = (use_current ? window->wrect.w : window->windowed.w);
+    *height = (use_current ? window->wrect.h : window->windowed.h);
 
     /* Convert client rect from SDL coordinates to pixels (no-op if DPI scaling not enabled) */
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -197,10 +197,10 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 
 #ifdef HIGHDPI_DEBUG
     SDL_Log("WIN_AdjustWindowRectWithStyle: in: %d, %d, %dx%d, returning: %d, %d, %dx%d, used dpi %d for frame calculation",
-            (use_current ? window->x : window->windowed.x),
-            (use_current ? window->y : window->windowed.y),
-            (use_current ? window->w : window->windowed.w),
-            (use_current ? window->h : window->windowed.h),
+            (use_current ? window->wrect.x : window->windowed.x),
+            (use_current ? window->wrect.y : window->windowed.y),
+            (use_current ? window->wrect.w : window->windowed.w),
+            (use_current ? window->wrect.h : window->windowed.h),
             *x, *y, *width, *height, frame_dpi);
 #endif
 }
@@ -368,8 +368,8 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
                 SetWindowPos(hwnd, HWND_NOTOPMOST, x, y, w, h, SWP_NOCOPYBITS | SWP_NOZORDER | SWP_NOACTIVATE);
                 data->expected_resize = SDL_FALSE;
             } else {
-                window->w = w;
-                window->h = h;
+                window->wrect.w = w;
+                window->wrect.h = h;
             }
         }
     }
@@ -382,8 +382,8 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
             int x = point.x;
             int y = point.y;
             WIN_ScreenPointToSDL(&x, &y);
-            window->x = x;
-            window->y = y;
+            window->wrect.x = x;
+            window->wrect.y = y;
         }
     }
     WIN_UpdateWindowICCProfile(window, SDL_FALSE);
@@ -728,8 +728,8 @@ void WIN_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h)
         *w = rect.right;
         *h = rect.bottom;
     } else {
-        *w = window->w;
-        *h = window->h;
+        *w = window->wrect.w;
+        *h = window->wrect.h;
     }
 }
 

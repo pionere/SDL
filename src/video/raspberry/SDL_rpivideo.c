@@ -360,8 +360,8 @@ int RPI_CreateSDLWindow(_THIS, SDL_Window *window)
     displaydata = (SDL_DisplayData *)display->driverdata;
 
     /* Windows have one size for now */
-    window->w = display->desktop_mode.w;
-    window->h = display->desktop_mode.h;
+    window->wrect.w = display->desktop_mode.w;
+    window->wrect.h = display->desktop_mode.h;
 
     /* OpenGL ES is the law here, buddy */
     window->flags |= SDL_WINDOW_OPENGL;
@@ -369,13 +369,13 @@ int RPI_CreateSDLWindow(_THIS, SDL_Window *window)
     /* Create a dispman element and associate a window to it */
     dst_rect.x = 0;
     dst_rect.y = 0;
-    dst_rect.width = window->w;
-    dst_rect.height = window->h;
+    dst_rect.width = window->wrect.w;
+    dst_rect.height = window->wrect.h;
 
     src_rect.x = 0;
     src_rect.y = 0;
-    src_rect.width = window->w << 16;
-    src_rect.height = window->h << 16;
+    src_rect.width = window->wrect.w << 16;
+    src_rect.height = window->wrect.h << 16;
 
     env = SDL_GetHint(SDL_HINT_RPI_VIDEO_LAYER);
     if (env) {
@@ -393,8 +393,8 @@ int RPI_CreateSDLWindow(_THIS, SDL_Window *window)
                                                             &dispman_alpha /*alpha*/,
                                                             0 /*clamp*/,
                                                             0 /*transform*/);
-    wdata->dispman_window.width = window->w;
-    wdata->dispman_window.height = window->h;
+    wdata->dispman_window.width = window->wrect.w;
+    wdata->dispman_window.height = window->wrect.h;
     vc_dispmanx_update_submit_sync(dispman_update);
 
 #ifdef SDL_VIDEO_OPENGL_EGL

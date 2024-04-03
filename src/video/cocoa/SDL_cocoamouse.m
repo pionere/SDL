@@ -230,8 +230,7 @@ static SDL_Window *SDL_FindWindowAtPoint(const int x, const int y)
     const SDL_Point pt = { x, y };
     SDL_Window *i;
     for (i = SDL_GetWindows(); i; i = i->next) {
-        const SDL_Rect r = { i->x, i->y, i->w, i->h };
-        if (SDL_PointInRect(&pt, &r)) {
+        if (SDL_PointInRect(&pt, &i->wrect)) {
             return i;
         }
     }
@@ -273,7 +272,7 @@ static int Cocoa_WarpMouseGlobal(int x, int y)
         SDL_SetMouseFocus(win);
         if (win) {
             SDL_assert(win == mouse->focus);
-            SDL_SendMouseMotion(win, mouse->mouseID, 0, x - win->x, y - win->y);
+            SDL_SendMouseMotion(win, mouse->mouseID, 0, x - win->wrect.x, y - win->wrect.y);
         }
     }
 
@@ -282,7 +281,7 @@ static int Cocoa_WarpMouseGlobal(int x, int y)
 
 static void Cocoa_WarpMouse(SDL_Window * window, int x, int y)
 {
-    Cocoa_WarpMouseGlobal(window->x + x, window->y + y);
+    Cocoa_WarpMouseGlobal(window->wrect.x + x, window->wrect.y + y);
 }
 
 static int Cocoa_SetRelativeMouseMode(SDL_bool enabled)
@@ -294,7 +293,7 @@ static int Cocoa_SetRelativeMouseMode(SDL_bool enabled)
         if (window) {
             /* make sure the mouse isn't at the corner of the window, as this can confuse things if macOS thinks a window resize is happening on the first click. */
             SDL_MouseData *mousedriverdata = (SDL_MouseData*)SDL_GetMouse()->driverdata;
-            const CGPoint point = CGPointMake((float)(window->x + (window->w / 2)), (float)(window->y + (window->h / 2)));
+            const CGPoint point = CGPointMake((float)(window->wrect.x + (window->wrect.w / 2)), (float)(window->wrect.y + (window->wrect.h / 2)));
             if (mousedriverdata) {
                 mousedriverdata->justEnabledRelative = SDL_TRUE;
             }

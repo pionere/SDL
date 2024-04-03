@@ -293,10 +293,10 @@ static int SetupWindowData(SDL_Window *window, Window w)
         XWindowAttributes attrib;
 
         X11_XGetWindowAttributes(videodata->display, w, &attrib);
-        window->x = attrib.x;
-        window->y = attrib.y;
-        window->w = attrib.width;
-        window->h = attrib.height;
+        window->wrect.x = attrib.x;
+        window->wrect.y = attrib.y;
+        window->wrect.w = attrib.width;
+        window->wrect.h = attrib.height;
         if (attrib.map_state != IsUnmapped) {
             window->flags |= SDL_WINDOW_SHOWN;
         } else {
@@ -543,12 +543,12 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
     /* Setup the normal size hints */
     sizehints->flags = 0;
     if (!(window->flags & SDL_WINDOW_RESIZABLE)) {
-        sizehints->min_width = sizehints->max_width = window->w;
-        sizehints->min_height = sizehints->max_height = window->h;
+        sizehints->min_width = sizehints->max_width = window->wrect.w;
+        sizehints->min_height = sizehints->max_height = window->wrect.h;
         sizehints->flags |= (PMaxSize | PMinSize);
     }
-    sizehints->x = window->x;
-    sizehints->y = window->y;
+    sizehints->x = window->wrect.x;
+    sizehints->y = window->wrect.y;
     sizehints->flags |= USPosition;
 
     /* Setup the input hints so we get keyboard input */
@@ -788,7 +788,7 @@ void X11_SetWindowPosition(SDL_Window *window)
                               attrs.x, attrs.y, &orig_x, &orig_y, &childReturn);
 
     /*Attempt to move the window*/
-    X11_XMoveWindow(display, data->xwindow, window->x - data->border_left, window->y - data->border_top);
+    X11_XMoveWindow(display, data->xwindow, window->wrect.x - data->border_left, window->wrect.y - data->border_top);
 
     /* Wait a brief time to see if the window manager decided to let this move happen.
        If the window changes at all, even to an unexpected value, we break out. */
@@ -806,7 +806,7 @@ void X11_SetWindowPosition(SDL_Window *window)
         if (!caught_x11_error) {
             if ((x != orig_x) || (y != orig_y)) {
                 break; /* window moved, time to go. */
-            } else if ((x == window->x) && (y == window->y)) {
+            } else if ((x == window->wrect.x) && (y == window->wrect.y)) {
                 break; /* we're at the place we wanted to be anyhow, drop out. */
             }
         }
@@ -898,8 +898,8 @@ void X11_SetWindowSize(SDL_Window *window)
 
         X11_XGetWMNormalHints(display, data->xwindow, sizehints, &userhints);
 
-        sizehints->min_width = sizehints->max_width = window->w;
-        sizehints->min_height = sizehints->max_height = window->h;
+        sizehints->min_width = sizehints->max_width = window->wrect.w;
+        sizehints->min_height = sizehints->max_height = window->wrect.h;
         sizehints->flags |= PMinSize | PMaxSize;
 
         X11_XSetWMNormalHints(display, data->xwindow, sizehints);
@@ -922,11 +922,11 @@ void X11_SetWindowSize(SDL_Window *window)
            hide/show, because there are supposedly subtle problems with doing so
            and transitioning from windowed to fullscreen in Unity.
          */
-        X11_XResizeWindow(display, data->xwindow, window->w, window->h);
-        X11_XMoveWindow(display, data->xwindow, window->x - data->border_left, window->y - data->border_top);
+        X11_XResizeWindow(display, data->xwindow, window->wrect.w, window->wrect.h);
+        X11_XMoveWindow(display, data->xwindow, window->wrect.x - data->border_left, window->wrect.y - data->border_top);
         X11_XRaiseWindow(display, data->xwindow);
     } else {
-        X11_XResizeWindow(display, data->xwindow, window->w, window->h);
+        X11_XResizeWindow(display, data->xwindow, window->wrect.w, window->wrect.h);
     }
 
     X11_XSync(display, False);
@@ -943,7 +943,7 @@ void X11_SetWindowSize(SDL_Window *window)
         if (!caught_x11_error) {
             if ((attrs.width != orig_w) || (attrs.height != orig_h)) {
                 break; /* window changed, time to go. */
-            } else if ((attrs.width == window->w) && (attrs.height == window->h)) {
+            } else if ((attrs.width == window->wrect.w) && (attrs.height == window->wrect.h)) {
                 break; /* we're at the place we wanted to be anyhow, drop out. */
             }
         }
@@ -1056,7 +1056,7 @@ void X11_SetWindowBordered(SDL_Window *window, SDL_bool bordered)
     X11_XCheckIfEvent(display, &event, &isMapNotify, (XPointer)&data->xwindow);
 
     /* Make sure the window manager didn't resize our window for the difference. */
-    X11_XResizeWindow(display, data->xwindow, window->w, window->h);
+    X11_XResizeWindow(display, data->xwindow, window->wrect.w, window->wrect.h);
     X11_XSync(display, False);
 }
 
@@ -1078,10 +1078,10 @@ void X11_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
         sizehints->max_width = (window->max_w == 0) ? maxsize : window->max_w;
         sizehints->max_height = (window->max_h == 0) ? maxsize : window->max_h;
     } else {
-        sizehints->min_width = window->w;
-        sizehints->min_height = window->h;
-        sizehints->max_width = window->w;
-        sizehints->max_height = window->h;
+        sizehints->min_width = window->wrect.w;
+        sizehints->min_height = window->wrect.h;
+        sizehints->max_width = window->wrect.w;
+        sizehints->max_height = window->wrect.h;
     }
     sizehints->flags |= PMinSize | PMaxSize;
 
@@ -1090,8 +1090,8 @@ void X11_SetWindowResizable(SDL_Window *window, SDL_bool resizable)
     X11_XFree(sizehints);
 
     /* See comment in X11_SetWindowSize. */
-    X11_XResizeWindow(display, data->xwindow, window->w, window->h);
-    X11_XMoveWindow(display, data->xwindow, window->x - data->border_left, window->y - data->border_top);
+    X11_XResizeWindow(display, data->xwindow, window->wrect.w, window->wrect.h);
+    X11_XMoveWindow(display, data->xwindow, window->wrect.x - data->border_left, window->wrect.y - data->border_top);
     X11_XRaiseWindow(display, data->xwindow);
 
     X11_XFlush(display);

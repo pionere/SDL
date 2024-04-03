@@ -523,8 +523,8 @@ static void InitiateWindowMove(const SDL_WindowData *data, const SDL_Point *poin
     evt.xclient.window = data->xwindow;
     evt.xclient.message_type = X11_XInternAtom(display, "_NET_WM_MOVERESIZE", True);
     evt.xclient.format = 32;
-    evt.xclient.data.l[0] = (size_t)window->x + point->x;
-    evt.xclient.data.l[1] = (size_t)window->y + point->y;
+    evt.xclient.data.l[0] = (size_t)window->wrect.x + point->x;
+    evt.xclient.data.l[1] = (size_t)window->wrect.y + point->y;
     evt.xclient.data.l[2] = _NET_WM_MOVERESIZE_MOVE;
     evt.xclient.data.l[3] = Button1;
     evt.xclient.data.l[4] = 0;
@@ -552,8 +552,8 @@ static void InitiateWindowResize(const SDL_WindowData *data, const SDL_Point *po
     evt.xclient.window = data->xwindow;
     evt.xclient.message_type = X11_XInternAtom(display, "_NET_WM_MOVERESIZE", True);
     evt.xclient.format = 32;
-    evt.xclient.data.l[0] = (size_t)window->x + point->x;
-    evt.xclient.data.l[1] = (size_t)window->y + point->y;
+    evt.xclient.data.l[0] = (size_t)window->wrect.x + point->x;
+    evt.xclient.data.l[1] = (size_t)window->wrect.y + point->y;
     evt.xclient.data.l[2] = direction;
     evt.xclient.data.l[3] = Button1;
     evt.xclient.data.l[4] = 0;

@@ -482,8 +482,8 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
     if (mouse->mouse_touch_events) {
         if (mouseID != SDL_TOUCH_MOUSEID && !relative && track_mouse_down) {
             if (window) {
-                float fx = (float)x / (float)window->w;
-                float fy = (float)y / (float)window->h;
+                float fx = (float)x / (float)window->wrect.w;
+                float fy = (float)y / (float)window->wrect.h;
                 SDL_SendTouchMotion(SDL_MOUSE_TOUCHID, 0, window, fx, fy, 1.0f);
             }
         }
@@ -699,8 +699,8 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
                 track_mouse_down = SDL_FALSE;
             }
             if (window) {
-                float fx = (float)mouse->x / (float)window->w;
-                float fy = (float)mouse->y / (float)window->h;
+                float fx = (float)mouse->x / (float)window->wrect.w;
+                float fy = (float)mouse->y / (float)window->wrect.h;
                 SDL_SendTouch(SDL_MOUSE_TOUCHID, 0, window, track_mouse_down, fx, fy, 1.0f);
             }
         }
@@ -1108,7 +1108,7 @@ int SDL_SetRelativeMouseMode(SDL_bool enabled)
         SDL_SetMouseFocus(focusWindow);
 
         if (mouse->relative_mode_warp) {
-            SDL_PerformWarpMouseInWindow(focusWindow, focusWindow->w / 2, focusWindow->h / 2, SDL_TRUE);
+            SDL_PerformWarpMouseInWindow(focusWindow, focusWindow->wrect.w / 2, focusWindow->wrect.h / 2, SDL_TRUE);
         }
     }
 

@@ -39,7 +39,7 @@ int OFFSCREEN_CreateSDLWindow(_THIS, SDL_Window *window)
 
     if (window->flags & SDL_WINDOW_OPENGL) {
 
-        offscreen_window->egl_surface = SDL_EGL_CreateOffscreenSurface(_this, window->w, window->h);
+        offscreen_window->egl_surface = SDL_EGL_CreateOffscreenSurface(_this, window->wrect.w, window->wrect.h);
 
         if (offscreen_window->egl_surface == EGL_NO_SURFACE) {
             return -1;

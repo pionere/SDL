@@ -68,8 +68,7 @@ typedef struct SDL_Window
     Uint32 id;
     char *title;
     SDL_Surface *icon;
-    int x, y;
-    int w, h;
+    SDL_Rect wrect;
     int min_w, min_h;
     int max_w, max_h;
     Uint32 flags;

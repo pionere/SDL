@@ -850,8 +850,8 @@ static void touch_handler_down(void *data, struct wl_touch *touch, uint32_t seri
     if (window_data) {
         const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
         const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
-        const float x = dblx / window_data->sdlwindow->w;
-        const float y = dbly / window_data->sdlwindow->h;
+        const float x = dblx / window_data->sdlwindow->wrect.w;
+        const float y = dbly / window_data->sdlwindow->wrect.h;
 
         SDL_SetMouseFocus(window_data->sdlwindow);
 
@@ -875,8 +875,8 @@ static void touch_handler_up(void *data, struct wl_touch *touch, uint32_t serial
         if (window_data) {
             const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
             const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
-            const float x = dblx / window_data->sdlwindow->w;
-            const float y = dbly / window_data->sdlwindow->h;
+            const float x = dblx / window_data->sdlwindow->wrect.w;
+            const float y = dbly / window_data->sdlwindow->wrect.h;
 
             SDL_SendTouch((SDL_TouchID)(intptr_t)touch, (SDL_FingerID)id,
                           window_data->sdlwindow, SDL_FALSE, x, y, 1.0f);
@@ -905,8 +905,8 @@ static void touch_handler_motion(void *data, struct wl_touch *touch, uint32_t ti
         if (window_data) {
             const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
             const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
-            const float x = dblx / window_data->sdlwindow->w;
-            const float y = dbly / window_data->sdlwindow->h;
+            const float x = dblx / window_data->sdlwindow->wrect.w;
+            const float y = dbly / window_data->sdlwindow->wrect.h;
 
             SDL_SendTouchMotion((SDL_TouchID)(intptr_t)touch, (SDL_FingerID)id,
                                 window_data->sdlwindow, x, y, 1.0f);
