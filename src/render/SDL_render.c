@@ -970,7 +970,7 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
         goto error;
     }
 
-    if (SDL_GetRenderer(window)) {
+    if (window->wrenderer != NULL) {
         SDL_SetError("Renderer already associated with window");
         goto error;
     }
@@ -1144,7 +1144,7 @@ SDL_Renderer *SDL_CreateSoftwareRenderer(SDL_Surface *surface)
 
 SDL_Renderer *SDL_GetRenderer(SDL_Window *window)
 {
-    return window->wrenderer;
+    return window ? window->wrenderer : NULL;
 }
 
 SDL_Window *SDL_RenderGetWindow(SDL_Renderer *renderer)
