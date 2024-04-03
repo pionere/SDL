@@ -59,7 +59,7 @@ typedef struct
     int bytes_per_pixel;
 } SDL_WindowTextureData;
 
-int PSP_CreateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
+int PSP_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_RendererInfo info;
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
@@ -137,7 +137,7 @@ int PSP_CreateWindowFramebuffer(SDL_VideoDevice *_this, SDL_Window *window, Uint
     return 0;
 }
 
-int PSP_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects, int numrects)
+int PSP_UpdateWindowFramebuffer(SDL_Window *window, const SDL_Rect *rects, int numrects)
 {
     SDL_WindowTextureData *data;
     data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
@@ -149,7 +149,7 @@ int PSP_UpdateWindowFramebuffer(_THIS, SDL_Window *window, const SDL_Rect *rects
     return 0;
 }
 
-void PSP_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+void PSP_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_WindowTextureData *data = SDL_GetWindowData(window, SDL_WINDOWTEXTUREDATA);
     if (!data || !data->renderer) {
