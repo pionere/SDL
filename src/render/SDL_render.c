@@ -1229,7 +1229,7 @@ static SDL_bool IsSupportedFormat(SDL_Renderer *renderer, Uint32 format)
     return SDL_FALSE;
 }
 
-static Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
+Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format)
 {
     Uint32 i, texture_format;
 #if SDL_HAVE_YUV

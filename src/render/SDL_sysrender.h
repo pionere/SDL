@@ -261,6 +261,7 @@ struct SDL_Renderer
 
     /* The list of textures */
     SDL_Texture *textures;
+    SDL_Texture *framebuffer_texture; // texture of a framebuffer (one of the textures, separate for faster access)
     SDL_Texture *target;
     SDL_mutex *target_mutex;
 
@@ -316,6 +317,7 @@ extern void *SDL_AllocateRenderVertices(SDL_Renderer *renderer, const size_t num
 /* private helper functions */
 extern const SDL_RendererInfo *SDL_PrivateGetRenderDriverInfo(int index);
 extern const SDL_RendererInfo *SDL_PrivateGetRendererInfo(const SDL_Renderer *renderer);
+extern Uint32 GetClosestSupportedFormat(SDL_Renderer *renderer, Uint32 format);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

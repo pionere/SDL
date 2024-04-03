@@ -2610,12 +2610,7 @@ static SDL_Surface *SDL_CreateWindowSurface(SDL_Window *window)
 #endif
 
         if (attempt_texture_framebuffer && !DisableFrameBuffer()) {
-            if (SDL_CreateWindowFramebuffer(window, &format, &pixels, &pitch) < 0) {
-                /* !!! FIXME: if this failed halfway (made renderer, failed to make texture, etc),
-                   !!! FIXME:  we probably need to clean this up so it doesn't interfere with
-                   !!! FIXME:  a software fallback at the system level (can we blit to an
-                   !!! FIXME:  OpenGL window? etc). */
-            } else {
+            if (SDL_CreateWindowFramebuffer(window, &format, &pixels, &pitch) >= 0) {
                 /* future attempts will just try to use a texture framebuffer. */
                 /* !!! FIXME:  maybe we shouldn't override these but check if we used a texture
                    !!! FIXME:  framebuffer at the right places; is it feasible we could have an
