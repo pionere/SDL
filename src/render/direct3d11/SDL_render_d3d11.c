@@ -173,7 +173,7 @@ typedef struct
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
 #ifdef __WINRT__
-    int currentViewportRotation;
+    DXGI_MODE_ROTATION currentViewportRotation;
 #endif
     SDL_bool viewportDirty;
     Float4X4 identity;
@@ -693,7 +693,7 @@ static BOOL D3D11_IsDisplayRotated90Degrees(DXGI_MODE_ROTATION rotation)
     }
 }
 
-static int D3D11_GetRotationForCurrentRenderTarget(D3D11_RenderData *data)
+static DXGI_MODE_ROTATION D3D11_GetRotationForCurrentRenderTarget(D3D11_RenderData *data)
 {
 #ifndef __WINRT__
         return DXGI_MODE_ROTATION_IDENTITY;
@@ -708,7 +708,7 @@ static int D3D11_GetRotationForCurrentRenderTarget(D3D11_RenderData *data)
 
 static int D3D11_GetViewportAlignedD3DRect(D3D11_RenderData *data, const SDL_Rect *sdlRect, D3D11_RECT *outRect, BOOL includeViewportOffset)
 {
-    const int rotation = D3D11_GetRotationForCurrentRenderTarget(data);
+    const DXGI_MODE_ROTATION rotation = D3D11_GetRotationForCurrentRenderTarget(data);
     const SDL_Rect *viewport = &data->currentViewport;
 
     switch (rotation) {
@@ -1753,7 +1753,7 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
     Float4X4 view;
     BOOL swapDimensions;
     D3D11_VIEWPORT d3dviewport;
-    int rotation;
+    DXGI_MODE_ROTATION rotation;
 
     if (viewport->w == 0 || viewport->h == 0) {
         /* If the viewport is empty, assume that it is because
@@ -2043,7 +2043,7 @@ static int D3D11_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
 {
     D3D11_RenderData *rendererData = (D3D11_RenderData *)renderer->driverdata;
 #ifdef __WINRT__
-    const int viewportRotation = D3D11_GetRotationForCurrentRenderTarget(rendererData);
+    const DXGI_MODE_ROTATION viewportRotation = D3D11_GetRotationForCurrentRenderTarget(rendererData);
     if (rendererData->currentViewportRotation != viewportRotation) {
         rendererData->currentViewportRotation = viewportRotation;
         rendererData->viewportDirty = SDL_TRUE;
