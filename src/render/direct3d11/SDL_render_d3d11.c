@@ -988,14 +988,10 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      *
      * TODO, WinRT: reexamine the docs for IDXGISwapChain1::SetRotation, see if might be available, usable, and prudent-to-call on WinPhone 8.1
      */
+#ifdef __WINRT__ /* FIXME */
     if (WIN_IsWindows8OrGreater()) {
 //        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
-            DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
-#ifdef __WINRT__
-            rotation = data->rotation;
-#else
-            /* FIXME */
-#endif
+            DXGI_MODE_ROTATION rotation = data->rotation;
             result = IDXGISwapChain1_SetRotation(data->swapChain, rotation);
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain1::SetRotation"), result);
@@ -1003,7 +999,8 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
             }
 //        }
     }
-#endif
+#endif // __WINRT__
+#endif // !SDL_WINAPI_FAMILY_PHONE
 
     result = IDXGISwapChain_GetBuffer(data->swapChain,
                                       0,

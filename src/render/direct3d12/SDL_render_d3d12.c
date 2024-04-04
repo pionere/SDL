@@ -1380,12 +1380,10 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
     }
 
     /* Set the proper rotation for the swap chain. */
+#if 0
     if (WIN_IsWindows8OrGreater()) {
 //        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
-            DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
-#if 0
-            rotation = data->rotation;
-#endif
+            DXGI_MODE_ROTATION rotation = data->rotation;
             result = D3D_CALL(data->swapChain, SetRotation, rotation); /* NOLINT(clang-analyzer-core.NullDereference) */
             if (FAILED(result)) {
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetRotation"), result);
@@ -1393,6 +1391,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
             }
 //        }
     }
+#endif
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
     /* Get each back buffer render target and create render target views */
