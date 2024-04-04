@@ -377,7 +377,7 @@ typedef struct
     SDL_Rect currentViewport;
     int currentViewportRotation;
     SDL_bool viewportDirty;
-    Float4X4 identity;
+    // Float4X4 identity;
     VkComponentMapping identitySwizzle;
     int currentVertexBuffer;
     SDL_bool issueBatch;
@@ -3620,12 +3620,12 @@ static VkDescriptorSet VULKAN_AllocateDescriptorSet(VULKAN_RenderData *rendererD
 }
 
 static SDL_bool VULKAN_SetDrawState(VULKAN_RenderData *rendererData, const SDL_RenderCommand *cmd, VULKAN_Shader shader, VkPipelineLayout pipelineLayout, VkDescriptorSetLayout descriptorSetLayout,
-    const PixelShaderConstants *shader_constants, VkPrimitiveTopology topology, VkImageView imageView, VkSampler sampler, const Float4X4 *matrix, VULKAN_DrawStateCache *stateCache)
+    const PixelShaderConstants *shader_constants, VkPrimitiveTopology topology, VkImageView imageView, VkSampler sampler, VULKAN_DrawStateCache *stateCache)
 
 {
     const SDL_BlendMode blendMode = cmd->data.draw.blend;
     VkFormat format = rendererData->surfaceFormat.format;
-    const Float4X4 *newmatrix = matrix ? matrix : &rendererData->identity;
+    // const Float4X4 *newmatrix = matrix ? matrix : &rendererData->identity;
     SDL_bool updateConstants = SDL_FALSE;
     PixelShaderConstants solid_constants;
     VkDescriptorSet descriptorSet;
@@ -3685,8 +3685,8 @@ static SDL_bool VULKAN_SetDrawState(VULKAN_RenderData *rendererData, const SDL_R
         VULKAN_UpdateClipRect(rendererData);
     }
 
-    if (updateConstants == SDL_TRUE || SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0) {
-        SDL_memcpy(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix));
+    if (updateConstants == SDL_TRUE /* || SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0*/) {
+        // SDL_memcpy(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix));
         vkCmdPushConstants(rendererData->currentCommandBuffer, rendererData->currentPipelineState->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
             sizeof(rendererData->vertexShaderConstantsData),
             &rendererData->vertexShaderConstantsData);
@@ -3771,7 +3771,7 @@ static SDL_bool VULKAN_SetDrawState(VULKAN_RenderData *rendererData, const SDL_R
 }
 
 
-static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_RenderCommand *cmd, const Float4X4 *matrix, VULKAN_DrawStateCache *stateCache)
+static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_RenderCommand *cmd, VULKAN_DrawStateCache *stateCache)
 {
     SDL_Texture *texture = cmd->data.draw.texture;
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
@@ -3816,7 +3816,7 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
         }
     }
 
-    return VULKAN_SetDrawState(rendererData, cmd, textureData->shader, pipelineLayout, descriptorSetLayout, &constants, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, textureData->mainImage.imageView, textureSampler, matrix, stateCache);
+    return VULKAN_SetDrawState(rendererData, cmd, textureData->shader, pipelineLayout, descriptorSetLayout, &constants, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, textureData->mainImage.imageView, textureSampler, stateCache);
 }
 
 static void VULKAN_DrawPrimitives(VULKAN_RenderData *rendererData, VkPrimitiveTopology primitiveTopology, const size_t vertexStart, const size_t vertexCount)
@@ -3912,7 +3912,7 @@ static int VULKAN_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             const size_t count = cmd->data.draw.count;
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
-            VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, NULL, &stateCache);
+            VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, &stateCache);
             VULKAN_DrawPrimitives(rendererData, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, start, count);
             break;
         }
@@ -3923,10 +3923,10 @@ static int VULKAN_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
             const VertexPositionColor *verts = (VertexPositionColor *)(((Uint8 *)vertices) + first);
-            VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, VK_NULL_HANDLE, VK_NULL_HANDLE, NULL, &stateCache);
+            VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, VK_NULL_HANDLE, VK_NULL_HANDLE, &stateCache);
             VULKAN_DrawPrimitives(rendererData, VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, start, count);
             if (verts[0].pos[0] != verts[count - 1].pos[0] || verts[0].pos[1] != verts[count - 1].pos[1]) {
-                VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, NULL, &stateCache);
+                VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, &stateCache);
                 VULKAN_DrawPrimitives(rendererData, VK_PRIMITIVE_TOPOLOGY_POINT_LIST, start + (count - 1), 1);
             }
             break;
@@ -3949,9 +3949,9 @@ static int VULKAN_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             const size_t start = first / sizeof(VertexPositionColor);
 
             if (texture) {
-                VULKAN_SetCopyState(rendererData, cmd, NULL, &stateCache);
+                VULKAN_SetCopyState(rendererData, cmd, &stateCache);
             } else {
-                VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, NULL, &stateCache);
+                VULKAN_SetDrawState(rendererData, cmd, SHADER_SOLID, rendererData->pipelineLayout, rendererData->descriptorSetLayout, NULL, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, VK_NULL_HANDLE, VK_NULL_HANDLE, &stateCache);
             }
 
             VULKAN_DrawPrimitives(rendererData, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, start, count);
@@ -4256,7 +4256,8 @@ SDL_Renderer *VULKAN_CreateRenderer(SDL_Window *window, Uint32 flags)
 #if 0
     renderer->output_colorspace = output_colorspace;
 #endif
-    MatrixIdentity(&rendererData->identity);
+    // MatrixIdentity(&rendererData->identity);
+    MatrixIdentity(&rendererData->vertexShaderConstantsData.model);
     rendererData->identitySwizzle.r = VK_COMPONENT_SWIZZLE_IDENTITY;
     rendererData->identitySwizzle.g = VK_COMPONENT_SWIZZLE_IDENTITY;
     rendererData->identitySwizzle.b = VK_COMPONENT_SWIZZLE_IDENTITY;

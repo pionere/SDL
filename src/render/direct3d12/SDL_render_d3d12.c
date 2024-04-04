@@ -240,7 +240,7 @@ typedef struct
     DXGI_MODE_ROTATION currentViewportRotation;
 #endif
     SDL_bool viewportDirty;
-    Float4X4 identity;
+    // Float4X4 identity;
     int currentVertexBuffer;
     SDL_bool issueBatch;
 } D3D12_RenderData;
@@ -2436,10 +2436,10 @@ static int D3D12_UpdateViewport(D3D12_RenderData *data)
 static int D3D12_SetDrawState(D3D12_RenderData *rendererData, const SDL_RenderCommand *cmd, D3D12_Shader shader,
                               D3D12_PRIMITIVE_TOPOLOGY_TYPE topology,
                               const int numShaderResources, D3D12_CPU_DESCRIPTOR_HANDLE *shaderResources,
-                              D3D12_CPU_DESCRIPTOR_HANDLE *sampler, const Float4X4 *matrix)
+                              D3D12_CPU_DESCRIPTOR_HANDLE *sampler)
 
 {
-    const Float4X4 *newmatrix = matrix ? matrix : &rendererData->identity;
+    // const Float4X4 *newmatrix = matrix ? matrix : &rendererData->identity;
     D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = D3D12_GetCurrentRenderTargetView(rendererData);
     const SDL_BlendMode blendMode = cmd->data.draw.blend;
     SDL_bool updateSubresource = SDL_FALSE;
@@ -2562,8 +2562,8 @@ static int D3D12_SetDrawState(D3D12_RenderData *rendererData, const SDL_RenderCo
         rendererData->currentSampler = *sampler;
     }
 
-    if (updateSubresource == SDL_TRUE || SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0) {
-        SDL_memcpy(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix));
+    if (updateSubresource == SDL_TRUE /*|| SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0*/) {
+        // SDL_memcpy(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix));
         D3D_CALL(rendererData->commandList, SetGraphicsRoot32BitConstants,
                  0,
                  32,
@@ -2574,7 +2574,7 @@ static int D3D12_SetDrawState(D3D12_RenderData *rendererData, const SDL_RenderCo
     return 0;
 }
 
-static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCommand *cmd, const Float4X4 *matrix)
+static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCommand *cmd)
 {
     SDL_Texture *texture = cmd->data.draw.texture;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
@@ -2625,7 +2625,7 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
         textureData->mainResourceStateV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
         return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
-                                  textureSampler, matrix);
+                                  textureSampler);
     } else if (textureData->nv12) {
         D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
             textureData->mainTextureResourceView,
@@ -2656,13 +2656,13 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
         textureData->mainResourceStateNV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
         return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
-                                  textureSampler, matrix);
+                                  textureSampler);
     }
 #endif /* SDL_HAVE_YUV */
     D3D12_TransitionResource(rendererData, textureData->mainTexture, textureData->mainResourceState, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     return D3D12_SetDrawState(rendererData, cmd, SHADER_RGB, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, &textureData->mainTextureResourceView,
-                              textureSampler, matrix);
+                              textureSampler);
 }
 
 static void D3D12_DrawPrimitives(D3D12_RenderData *rendererData, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology, const size_t vertexStart, const size_t vertexCount)
@@ -2746,7 +2746,7 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t count = cmd->data.draw.count;
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
-            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, 0, NULL, NULL, NULL);
+            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, 0, NULL, NULL);
             D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start, count);
             break;
         }
@@ -2757,7 +2757,7 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
             const VertexPositionColor *verts = (VertexPositionColor *)(((Uint8 *)vertices) + first);
-            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, 0, NULL, NULL, NULL);
+            D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE, 0, NULL, NULL);
             D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, start, count);
             if (verts[0].pos.x != verts[count - 1].pos.x || verts[0].pos.y != verts[count - 1].pos.y) {
                 D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, start + (count - 1), 1);
@@ -2782,9 +2782,9 @@ static int D3D12_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t start = first / sizeof(VertexPositionColor);
 
             if (texture) {
-                D3D12_SetCopyState(rendererData, cmd, NULL);
+                D3D12_SetCopyState(rendererData, cmd);
             } else {
-                D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 0, NULL, NULL, NULL);
+                D3D12_SetDrawState(rendererData, cmd, SHADER_SOLID, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 0, NULL, NULL);
             }
 
             D3D12_DrawPrimitives(rendererData, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, start, count);
@@ -3094,7 +3094,8 @@ SDL_Renderer *D3D12_CreateRenderer(SDL_Window *window, Uint32 flags)
         return NULL;
     }
 
-    MatrixIdentity(&data->identity);
+    // MatrixIdentity(&data->identity);
+    MatrixIdentity(&data->vertexShaderConstantsData.model);
 
     renderer->WindowEvent = D3D12_WindowEvent;
     renderer->GetOutputSize = D3D12_GetOutputSize;
