@@ -355,21 +355,19 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
     {
         RECT rect;
         if (GetClientRect(hwnd, &rect)) {
-            int w = rect.right;
-            int h = rect.bottom;
-
-            WIN_ClientPointToSDL(window, &w, &h);
-            if ((window->windowed.w && window->windowed.w != w) || (window->windowed.h && window->windowed.h != h)) {
+            SDL_INLINE_COMPILE_TIME_ASSERT(win_rect_point, offsetof(RECT, bottom) == offsetof(RECT, right) + sizeof(rect.right));
+            WIN_ClientPointToSDL(window, (POINT *)&rect.right);
+            if ((window->windowed.w && window->windowed.w != rect.right) || (window->windowed.h && window->windowed.h != rect.bottom)) {
                 /* We tried to create a window larger than the desktop and Windows didn't allow it.  Override! */
-                int x, y;
+                int x, y, w, h;
                 /* Figure out what the window area will be */
                 WIN_AdjustWindowRect(window, &x, &y, &w, &h, SDL_FALSE);
                 data->expected_resize = SDL_TRUE;
                 SetWindowPos(hwnd, HWND_NOTOPMOST, x, y, w, h, SWP_NOCOPYBITS | SWP_NOZORDER | SWP_NOACTIVATE);
                 data->expected_resize = SDL_FALSE;
             } else {
-                window->wrect.w = w;
-                window->wrect.h = h;
+                window->wrect.w = rect.right;
+                window->wrect.h = rect.bottom;
             }
         }
     }
@@ -1394,7 +1392,7 @@ int WIN_SetWindowOpacity(SDL_Window *window, float opacity)
  *
  * No-op if DPI scaling is not enabled.
  */
-void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
+void WIN_ClientPointToSDL(const SDL_Window *window, POINT *point)
 {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     const SDL_WindowData *data = ((SDL_WindowData *)window->driverdata);
@@ -1404,8 +1402,8 @@ void WIN_ClientPointToSDL(const SDL_Window *window, int *x, int *y)
         return;
     }
 
-    *x = MulDiv(*x, 96, data->scaling_dpi);
-    *y = MulDiv(*y, 96, data->scaling_dpi);
+    point->x = MulDiv(point->x, 96, data->scaling_dpi);
+    point->y = MulDiv(point->y, 96, data->scaling_dpi);
 #endif
 }
 
