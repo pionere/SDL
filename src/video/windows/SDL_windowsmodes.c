@@ -628,10 +628,9 @@ void WIN_ScreenPointFromSDL(int *x, int *y, int *dpiOut)
  *
  * No-op if DPI scaling is not enabled.
  */
-void WIN_ScreenPointToSDL(int *x, int *y)
+void WIN_ScreenPointToSDL(POINT *point)
 {
     const WIN_VideoData *videodata = &winVideoData;
-    POINT point;
     HMONITOR monitor;
     SDL_Rect bounds;
     float ddpi, hdpi, vdpi;
@@ -642,9 +641,7 @@ void WIN_ScreenPointToSDL(int *x, int *y)
         return;
     }
 
-    point.x = *x;
-    point.y = *y;
-    monitor = MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
+    monitor = MonitorFromPoint(*point, MONITOR_DEFAULTTONEAREST);
 
     /* Search for the corresponding SDL monitor */
     displays = SDL_GetDisplays(&num_displays);
@@ -655,15 +652,15 @@ void WIN_ScreenPointToSDL(int *x, int *y)
             /* Get SDL display properties */
             if (WIN_GetDisplayBounds(display, &bounds) == 0 && WIN_GetDisplayDPI(display, &ddpi, &hdpi, &vdpi) == 0) {
                 /* Convert the point's offset within the monitor from pixels to DPI-scaled points */
-                x_pixels = *x;
-                y_pixels = *y;
+                x_pixels = point->x;
+                y_pixels = point->y;
 
-                *x = bounds.x + MulDiv(x_pixels - bounds.x, 96, (int)ddpi);
-                *y = bounds.y + MulDiv(y_pixels - bounds.y, 96, (int)ddpi);
+                point->x = bounds.x + MulDiv(x_pixels - bounds.x, 96, (int)ddpi);
+                point->y = bounds.y + MulDiv(y_pixels - bounds.y, 96, (int)ddpi);
 
 #ifdef HIGHDPI_DEBUG_VERBOSE
                 SDL_Log("WIN_ScreenPointToSDL: (%d, %d) pixels -> (%d x %d) points, using %d DPI monitor",
-                    x_pixels, y_pixels, *x, *y, (int)ddpi);
+                    x_pixels, y_pixels, point->x, point->y, (int)ddpi);
 #endif
             }
             break;

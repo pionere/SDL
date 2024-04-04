@@ -379,11 +379,9 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
         point.x = 0;
         point.y = 0;
         if (ClientToScreen(hwnd, &point)) {
-            int x = point.x;
-            int y = point.y;
-            WIN_ScreenPointToSDL(&x, &y);
-            window->wrect.x = x;
-            window->wrect.y = y;
+            WIN_ScreenPointToSDL(&point);
+            window->wrect.x = point.x;
+            window->wrect.y = point.y;
         }
     }
     WIN_UpdateWindowICCProfile(window, SDL_FALSE);

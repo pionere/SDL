@@ -319,9 +319,10 @@ static Uint32 WIN_GetGlobalMouseState(int *x, int *y)
     SDL_bool swapButtons = GetSystemMetrics(SM_SWAPBUTTON) != 0;
 
     GetCursorPos(&pt);
+    WIN_ScreenPointToSDL(&pt);
+
     *x = (int)pt.x;
     *y = (int)pt.y;
-    WIN_ScreenPointToSDL(x, y);
 
     retval |= GetAsyncKeyState(!swapButtons ? VK_LBUTTON : VK_RBUTTON) & 0x8000 ? SDL_BUTTON_LMASK : 0;
     retval |= GetAsyncKeyState(!swapButtons ? VK_RBUTTON : VK_LBUTTON) & 0x8000 ? SDL_BUTTON_RMASK : 0;

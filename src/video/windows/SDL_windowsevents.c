@@ -1219,7 +1219,6 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_WINDOWPOSCHANGED:
     {
         RECT rect;
-        int x, y;
         int w, h;
         int display_index = window->display_index;
 
@@ -1238,25 +1237,32 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ClientToScreen(hwnd, (LPPOINT)&rect);
         ClientToScreen(hwnd, (LPPOINT)&rect + 1);
 
+        // convert rect to (x;y)..(width;height)
+        rect.right -= rect.left;
+        rect.bottom -= rect.top;
+
+#ifdef HIGHDPI_DEBUG
+        SDL_Log("WM_WINDOWPOSCHANGED: Windows client rect (pixels): (%d, %d) (%d x %d) cached dpi %d, windows reported dpi %d",
+                rect.left, rect.top, rect.right, rect.bottom,
+                data->scaling_dpi, videodata->GetDpiForWindow ? videodata->GetDpiForWindow(data->hwnd) : 0);
+#endif
+
         WIN_UpdateClipCursor(window);
 
-        x = rect.left;
-        y = rect.top;
-        WIN_ScreenPointToSDL(&x, &y);
+        SDL_INLINE_COMPILE_TIME_ASSERT(win_rect_point, offsetof(RECT, top) - offsetof(RECT, left) == offsetof(POINT, y) && offsetof(POINT, x) == 0);
+        WIN_ScreenPointToSDL((POINT *)&rect.left);
 
-        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, x, y);
+        SDL_SendWindowEvent(window, SDL_WINDOWEVENT_MOVED, rect.left, rect.top);
 
         /* Convert client area width/height from pixels to dpi-scaled points */
-        w = rect.right - rect.left;
-        h = rect.bottom - rect.top;
+        w = rect.right;
+        h = rect.bottom;
         WIN_ClientPointToSDL(window, &w, &h);
 
         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_RESIZED, w, h);
 
 #ifdef HIGHDPI_DEBUG
-        SDL_Log("WM_WINDOWPOSCHANGED: Windows client rect (pixels): (%d, %d) (%d x %d)\tSDL client rect (points): (%d, %d) (%d x %d) cached dpi %d, windows reported dpi %d",
-                rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
-                x, y, w, h, data->scaling_dpi, videodata->GetDpiForWindow ? videodata->GetDpiForWindow(data->hwnd) : 0);
+        SDL_Log("  -- -- -- -- -- SDL client rect (points): (%d, %d) (%d x %d)", rect.left, rect.top, w, h);
 #endif
 
         /* Forces a WM_PAINT event */
