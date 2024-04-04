@@ -122,6 +122,7 @@ static DWORD GetWindowStyle(SDL_Window *window)
 static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL menu, int *x, int *y, int *width, int *height, SDL_bool use_current)
 {
     WIN_VideoData *videodata = &winVideoData;
+    SDL_Rect result;
     RECT rect;
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     int dpi = 96;
@@ -129,14 +130,11 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
 #endif
 
     /* Client rect, in SDL screen coordinates */
-    *x = (use_current ? window->wrect.x : window->windowed.x);
-    *y = (use_current ? window->wrect.y : window->windowed.y);
-    *width = (use_current ? window->wrect.w : window->windowed.w);
-    *height = (use_current ? window->wrect.h : window->windowed.h);
+    result = use_current ? window->wrect : window->windowed;
 
     /* Convert client rect from SDL coordinates to pixels (no-op if DPI scaling not enabled) */
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    WIN_ScreenPointFromSDL(x, y, &dpi);
+    WIN_ScreenPointFromSDL(&result.x, &result.y, &dpi);
 
     /* Note, use the guessed DPI returned from WIN_ScreenPointFromSDL rather than the cached one in
        data->scaling_dpi.
@@ -146,15 +144,15 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
          by GetDpiForWindow will be wrong, and would cause windows shrinking slightly when
          going from exclusive fullscreen to windowed on a HighDPI monitor with scaling if we used them.
     */
-    *width = MulDiv(*width, dpi, 96);
-    *height = MulDiv(*height, dpi, 96);
+    result.w = MulDiv(result.w, dpi, 96);
+    result.h = MulDiv(result.h, dpi, 96);
 #endif
     /* Copy the client size in pixels into this rect structure,
        which we'll then adjust with AdjustWindowRectEx */
     rect.left = 0;
     rect.top = 0;
-    rect.right = *width;
-    rect.bottom = *height;
+    rect.right = result.w;
+    rect.bottom = result.h;
 
     /* borderless windows will have WM_NCCALCSIZE return 0 for the non-client area. When this happens, it looks like windows will send a resize message
        expanding the window client area to the previous window + chrome size, so shouldn't need to adjust the window size for the set styles.
@@ -170,10 +168,10 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
             RECT screen_rect;
             HMONITOR mon;
 
-            screen_rect.left = *x;
-            screen_rect.top = *y;
-            screen_rect.right = (LONG)*x + *width;
-            screen_rect.bottom = (LONG)*y + *height;
+            screen_rect.left = result.x;
+            screen_rect.top = result.y;
+            screen_rect.right = (LONG)result.x + result.w;
+            screen_rect.bottom = (LONG)result.y + result.h;
 
             mon = MonitorFromRect(&screen_rect, MONITOR_DEFAULTTONEAREST);
 
@@ -190,10 +188,15 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
     }
 
     /* Final rect in Windows screen space, including the frame */
-    *x += rect.left;
-    *y += rect.top;
-    *width = (rect.right - rect.left);
-    *height = (rect.bottom - rect.top);
+    result.x += rect.left;
+    result.y += rect.top;
+    result.w = (rect.right - rect.left);
+    result.h = (rect.bottom - rect.top);
+
+    *x = result.x;
+    *y = result.y;
+    *width = result.w;
+    *height = result.h;
 
 #ifdef HIGHDPI_DEBUG
     SDL_Log("WIN_AdjustWindowRectWithStyle: in: %d, %d, %dx%d, returning: %d, %d, %dx%d, used dpi %d for frame calculation",
@@ -201,7 +204,7 @@ static void WIN_AdjustWindowRectWithStyle(SDL_Window *window, DWORD style, BOOL 
             (use_current ? window->wrect.y : window->windowed.y),
             (use_current ? window->wrect.w : window->windowed.w),
             (use_current ? window->wrect.h : window->windowed.h),
-            *x, *y, *width, *height, frame_dpi);
+            result.x, result.y, result.w, result.height, frame_dpi);
 #endif
 }
 

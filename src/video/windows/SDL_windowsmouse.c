@@ -278,12 +278,8 @@ static void WIN_WarpMouse(SDL_Window *window, int x, int y)
 
 static int WIN_WarpMouseGlobal(int x, int y)
 {
-    POINT pt;
-
     WIN_ScreenPointFromSDL(&x, &y, NULL);
-    pt.x = x;
-    pt.y = y;
-    SetCursorPos(pt.x, pt.y);
+    SetCursorPos(x, y);
     return 0;
 }
 
