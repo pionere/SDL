@@ -585,12 +585,14 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
         goto done;
     }
 
-    if (D3D11_CreateVertexShader(data->d3dDevice, &data->vertexShader, &data->inputLayout) < 0) {
+    result = D3D11_CreateVertexShader(data->d3dDevice, &data->vertexShader, &data->inputLayout);
+    if (FAILED(result)) {
         goto done;
     }
 
     for (i = 0; i < SDL_arraysize(data->pixelShaders); ++i) {
-        if (D3D11_CreatePixelShader(data->d3dDevice, (D3D11_Shader)i, &data->pixelShaders[i]) < 0) {
+        result = D3D11_CreatePixelShader(data->d3dDevice, (D3D11_Shader)i, &data->pixelShaders[i]);
+        if (FAILED(result)) {
             goto done;
         }
     }
@@ -676,6 +678,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
         !D3D11_CreateBlendState(data, SDL_BLENDMODE_MOD) ||
         !D3D11_CreateBlendState(data, SDL_BLENDMODE_MUL)) {
         /* D3D11_CreateBlendMode will set the SDL error, if it fails */
+        result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
     }
 

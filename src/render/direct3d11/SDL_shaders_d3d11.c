@@ -1901,7 +1901,7 @@ static struct
 #endif
 };
 
-int D3D11_CreateVertexShader(ID3D11Device1 *d3dDevice, ID3D11VertexShader **vertexShader, ID3D11InputLayout **inputLayout)
+HRESULT D3D11_CreateVertexShader(ID3D11Device1 *d3dDevice, ID3D11VertexShader **vertexShader, ID3D11InputLayout **inputLayout)
 {
     /* Declare how the input layout for SDL's vertex shader will be setup: */
     const D3D11_INPUT_ELEMENT_DESC vertexDesc[] = {
@@ -1918,7 +1918,8 @@ int D3D11_CreateVertexShader(ID3D11Device1 *d3dDevice, ID3D11VertexShader **vert
                                              NULL,
                                              vertexShader);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateVertexShader"), result);
+        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateVertexShader"), result);
+        return result;
     }
 
     /* Create an input layout for SDL's vertex shader: */
@@ -1929,12 +1930,12 @@ int D3D11_CreateVertexShader(ID3D11Device1 *d3dDevice, ID3D11VertexShader **vert
                                             sizeof(D3D11_VertexShader),
                                             inputLayout);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateInputLayout"), result);
+        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateInputLayout"), result);
     }
-    return 0;
+    return result;
 }
 
-int D3D11_CreatePixelShader(ID3D11Device1 *d3dDevice, D3D11_Shader shader, ID3D11PixelShader **pixelShader)
+HRESULT D3D11_CreatePixelShader(ID3D11Device1 *d3dDevice, D3D11_Shader shader, ID3D11PixelShader **pixelShader)
 {
     HRESULT result;
 
@@ -1944,9 +1945,9 @@ int D3D11_CreatePixelShader(ID3D11Device1 *d3dDevice, D3D11_Shader shader, ID3D1
                                             NULL,
                                             pixelShader);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreatePixelShader"), result);
+        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreatePixelShader"), result);
     }
-    return 0;
+    return result;
 }
 
 #endif /* SDL_VIDEO_RENDER_D3D11 */
