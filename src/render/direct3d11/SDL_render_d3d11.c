@@ -136,7 +136,8 @@ typedef struct
     ID3D11Device1 *d3dDevice;
     ID3D11DeviceContext1 *d3dContext;
     IDXGISwapChain1 *swapChain;
-    DXGI_SWAP_EFFECT swapEffect;
+//    DXGI_SWAP_EFFECT swapEffect;
+//    UINT swapFlags;
     ID3D11RenderTargetView *mainRenderTargetView;
     ID3D11RenderTargetView *currentOffscreenRenderTargetView;
     ID3D11InputLayout *inputLayout;
@@ -179,6 +180,13 @@ typedef struct
     Float4X4 identity;
     int currentVertexBuffer;
 } D3D11_RenderData;
+
+#if SDL_WINAPI_FAMILY_PHONE
+static const DXGI_SWAP_EFFECT D3D11_SWAP_EFFECT = DXGI_SWAP_EFFECT_DISCARD; /* On phone, no swap effects are supported. */
+#else
+static const DXGI_SWAP_EFFECT D3D11_SWAP_EFFECT = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; /* All Windows Store apps must use this SwapEffect. */
+#endif
+static const UINT D3D11_SWAP_CHAIN_FLAGS = 0;
 
 /* Define D3D GUIDs here so we don't have to include uuid.lib.
  *
@@ -286,7 +294,8 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
         SAFE_RELEASE(data->clippedRasterizer);
         SAFE_RELEASE(data->vertexShaderConstants);
 
-        data->swapEffect = (DXGI_SWAP_EFFECT)0;
+//        data->swapEffect = (DXGI_SWAP_EFFECT)0;
+//        data->swapFlags = 0;
 #ifdef __WINRT__
         data->rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
         // data->currentViewportRotation = DXGI_MODE_ROTATION_UNSPECIFIED;
@@ -790,7 +799,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
                                               0,
                                               w, h,
                                               DXGI_FORMAT_UNKNOWN,
-                                              0);
+                                              D3D11_SWAP_CHAIN_FLAGS /* data->swapFlags */);
         if (FAILED(result)) {
             if (result == DXGI_ERROR_DEVICE_REMOVED) {
                 /* If the device was removed for any reason, a new device and swap chain will need to be created. */
@@ -825,7 +834,6 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
     swapChainDesc.BufferCount = 2; /* Use double-buffering to minimize latency. */
 #if SDL_WINAPI_FAMILY_PHONE
     swapChainDesc.Scaling = DXGI_SCALING_STRETCH;        /* On phone, only stretch and aspect-ratio stretch scaling are allowed. */
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD; /* On phone, no swap effects are supported. */
     /* TODO, WinRT: see if Win 8.x DXGI_SWAP_CHAIN_DESC1 settings are available on Windows Phone 8.1, and if there's any advantage to having them on */
 #else
     if (usingXAML) {
@@ -837,10 +845,10 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
             swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         }
     }
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; /* All Windows Store apps must use this SwapEffect. */
 #endif
+    swapChainDesc.SwapEffect = D3D11_SWAP_EFFECT;
     swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    swapChainDesc.Flags = 0;
+    swapChainDesc.Flags = D3D11_SWAP_CHAIN_FLAGS;
     if (coreWindow) {
         result = IDXGIFactory2_CreateSwapChainForCoreWindow(data->dxgiFactory,
                                                             (IUnknown *)data->d3dDevice,
@@ -901,7 +909,8 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
         goto done;
 #endif /* defined(__WIN32__) || defined(__WINGDK__) / else */
     }
-    data->swapEffect = swapChainDesc.SwapEffect;
+//    data->swapEffect = swapChainDesc.SwapEffect;
+//    data->swapFlags = swapChainDesc.Flags;
 
 done:
     SAFE_RELEASE(coreWindow);
@@ -980,7 +989,7 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
      * TODO, WinRT: reexamine the docs for IDXGISwapChain1::SetRotation, see if might be available, usable, and prudent-to-call on WinPhone 8.1
      */
     if (WIN_IsWindows8OrGreater()) {
-        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
+//        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
             DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
 #ifdef __WINRT__
             rotation = data->rotation;
@@ -992,7 +1001,7 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain1::SetRotation"), result);
                 goto done;
             }
-        }
+//        }
     }
 #endif
 

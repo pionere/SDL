@@ -181,8 +181,8 @@ typedef struct
     ID3D12Debug *debugInterface;
     ID3D12CommandQueue *commandQueue;
     ID3D12GraphicsCommandList2 *commandList;
-    DXGI_SWAP_EFFECT swapEffect;
-    UINT swapFlags;
+//    DXGI_SWAP_EFFECT swapEffect;
+//    UINT swapFlags;
 
     /* Descriptor heaps */
     ID3D12DescriptorHeap *rtvDescriptorHeap;
@@ -244,6 +244,11 @@ typedef struct
     int currentVertexBuffer;
     SDL_bool issueBatch;
 } D3D12_RenderData;
+
+static const DXGI_SWAP_EFFECT D3D12_SWAP_EFFECT = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; /* All Windows Store apps must use this SwapEffect. */
+static const UINT D3D12_SWAP_CHAIN_FLAGS  = 
+                          DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | /* To support SetMaximumFrameLatency */
+                          DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;                  /* To support presenting with allow tearing on */
 
 /* Define D3D GUIDs here so we don't have to include uuid.lib. */
 
@@ -366,8 +371,8 @@ static void D3D12_ReleaseAll(SDL_Renderer *renderer)
             data->vertexBuffers[i].size = 0;
         }
 
-        data->swapEffect = (DXGI_SWAP_EFFECT)0;
-        data->swapFlags = 0;
+//        data->swapEffect = (DXGI_SWAP_EFFECT)0;
+//        data->swapFlags = 0;
         data->currentRenderTargetView.ptr = 0;
         data->currentSampler.ptr = 0;
 
@@ -1241,7 +1246,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
                           0,
                           w, h,
                           DXGI_FORMAT_UNKNOWN,
-                          data->swapFlags);
+                          D3D12_SWAP_CHAIN_FLAGS /* data->swapFlags */);
         if (FAILED(result)) {
             if (result == DXGI_ERROR_DEVICE_REMOVED) {
                 /* If the device was removed for any reason, a new device and swap chain will need to be created. */
@@ -1273,10 +1278,9 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
     } else {
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
     }
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;               /* All Windows Store apps must use this SwapEffect. */
+    swapChainDesc.SwapEffect = D3D12_SWAP_EFFECT;
     swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | /* To support SetMaximumFrameLatency */
-                          DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;                  /* To support presenting with allow tearing on */
+    swapChainDesc.Flags = D3D12_SWAP_CHAIN_FLAGS;
 
     SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN);
     hwnd = WIN_GetWindowHandle(renderer->window);
@@ -1311,8 +1315,8 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
         goto done;
     }
 
-    data->swapEffect = swapChainDesc.SwapEffect;
-    data->swapFlags = swapChainDesc.Flags;
+//    data->swapEffect = swapChainDesc.SwapEffect;
+//    data->swapFlags = swapChainDesc.Flags;
 
 done:
     SAFE_RELEASE(swapChain);
@@ -1377,7 +1381,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 
     /* Set the proper rotation for the swap chain. */
     if (WIN_IsWindows8OrGreater()) {
-        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
+//        if (data->swapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) {
             DXGI_MODE_ROTATION rotation = DXGI_MODE_ROTATION_IDENTITY;
 #if 0
             rotation = data->rotation;
@@ -1387,7 +1391,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
                 WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetRotation"), result);
                 goto done;
             }
-        }
+//        }
     }
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
