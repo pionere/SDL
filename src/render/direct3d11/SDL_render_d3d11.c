@@ -1751,7 +1751,6 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
     const SDL_Rect *viewport = &data->currentViewport;
     Float4X4 projection;
     Float4X4 view;
-    SDL_FRect orientationAlignedViewport;
     BOOL swapDimensions;
     D3D11_VIEWPORT d3dviewport;
     int rotation;
@@ -1765,31 +1764,6 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
         return -1;
     }
 
-    /* Make sure the SDL viewport gets rotated to that of the physical display's rotation.
-     * Keep in mind here that the Y-axis will be been inverted (from Direct3D's
-     * default coordinate system) so rotations will be done in the opposite
-     * direction of the DXGI_MODE_ROTATION enumeration.
-     */
-    rotation = D3D11_GetRotationForCurrentRenderTarget(data);
-    switch (rotation) {
-    case DXGI_MODE_ROTATION_IDENTITY:
-        MatrixIdentity(&projection);
-        break;
-    case DXGI_MODE_ROTATION_ROTATE270:
-        MatrixRotationZ(&projection, SDL_static_cast(float, M_PI * 0.5f));
-        break;
-    case DXGI_MODE_ROTATION_ROTATE180:
-        MatrixRotationZ(&projection, SDL_static_cast(float, M_PI));
-        break;
-    case DXGI_MODE_ROTATION_ROTATE90:
-        MatrixRotationZ(&projection, SDL_static_cast(float, -M_PI * 0.5f));
-        break;
-    default:
-        SDL_assume(!"Unknown display orientation");
-    case DXGI_MODE_ROTATION_UNSPECIFIED:
-        return SDL_SetError("An unknown DisplayOrientation is being used");
-    }
-
     /* Update the view matrix */
     SDL_zero(view);
     view.m[0][0] = 2.0f / viewport->w;
@@ -1799,11 +1773,40 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
     view.m[3][1] = 1.0f;
     view.m[3][3] = 1.0f;
 
-    /* Combine the projection + view matrix together now, as both only get
-     * set here (as of this writing, on Dec 26, 2013).  When done, store it
-     * for eventual transfer to the GPU.
+    /* Make sure the SDL viewport gets rotated to that of the physical display's rotation.
+     * Keep in mind here that the Y-axis will be been inverted (from Direct3D's
+     * default coordinate system) so rotations will be done in the opposite
+     * direction of the DXGI_MODE_ROTATION enumeration.
      */
-    MatrixMultiply(&data->vertexShaderConstantsData.projectionAndView, &view, &projection);
+    rotation = D3D11_GetRotationForCurrentRenderTarget(data);
+    if (rotation == DXGI_MODE_ROTATION_IDENTITY) {
+        data->vertexShaderConstantsData.projectionAndView = view;
+    } else {
+        switch (rotation) {
+        // case DXGI_MODE_ROTATION_IDENTITY:
+        //    MatrixIdentity(&projection);
+        //    break;
+        case DXGI_MODE_ROTATION_ROTATE270:
+            MatrixRotationZ(&projection, SDL_static_cast(float, M_PI * 0.5f));
+            break;
+        case DXGI_MODE_ROTATION_ROTATE180:
+            MatrixRotationZ(&projection, SDL_static_cast(float, M_PI));
+            break;
+        case DXGI_MODE_ROTATION_ROTATE90:
+            MatrixRotationZ(&projection, SDL_static_cast(float, -M_PI * 0.5f));
+            break;
+        default:
+            SDL_assume(!"Unknown display orientation");
+        case DXGI_MODE_ROTATION_UNSPECIFIED:
+            return SDL_SetError("An unknown DisplayOrientation is being used");
+        }
+
+        /* Combine the projection + view matrix together now, as both only get
+         * set here (as of this writing, on Dec 26, 2013).  When done, store it
+         * for eventual transfer to the GPU.
+         */
+        MatrixMultiply(&data->vertexShaderConstantsData.projectionAndView, &view, &projection);
+    }
 
     /* Update the Direct3D viewport, which seems to be aligned to the
      * swap buffer's coordinate space, which is always in either
@@ -1812,22 +1815,17 @@ static int D3D11_UpdateViewport(D3D11_RenderData *data)
      */
     swapDimensions = D3D11_IsDisplayRotated90Degrees(rotation);
     if (swapDimensions) {
-        orientationAlignedViewport.x = (float)viewport->y;
-        orientationAlignedViewport.y = (float)viewport->x;
-        orientationAlignedViewport.w = (float)viewport->h;
-        orientationAlignedViewport.h = (float)viewport->w;
+        d3dviewport.TopLeftX = (float)viewport->y;
+        d3dviewport.TopLeftY = (float)viewport->x;
+        d3dviewport.Width = (float)viewport->h;
+        d3dviewport.Height = (float)viewport->w;
     } else {
-        orientationAlignedViewport.x = (float)viewport->x;
-        orientationAlignedViewport.y = (float)viewport->y;
-        orientationAlignedViewport.w = (float)viewport->w;
-        orientationAlignedViewport.h = (float)viewport->h;
+        d3dviewport.TopLeftX = (float)viewport->x;
+        d3dviewport.TopLeftY = (float)viewport->y;
+        d3dviewport.Width = (float)viewport->w;
+        d3dviewport.Height = (float)viewport->h;
     }
     /* TODO, WinRT: get custom viewports working with non-Landscape modes (Portrait, PortraitFlipped, and LandscapeFlipped) */
-
-    d3dviewport.TopLeftX = orientationAlignedViewport.x;
-    d3dviewport.TopLeftY = orientationAlignedViewport.y;
-    d3dviewport.Width = orientationAlignedViewport.w;
-    d3dviewport.Height = orientationAlignedViewport.h;
     d3dviewport.MinDepth = 0.0f;
     d3dviewport.MaxDepth = 1.0f;
     /* SDL_Log("%s: D3D viewport = {%f,%f,%f,%f}\n", __FUNCTION__, d3dviewport.TopLeftX, d3dviewport.TopLeftY, d3dviewport.Width, d3dviewport.Height); */

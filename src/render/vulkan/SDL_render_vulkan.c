@@ -3319,8 +3319,9 @@ static SDL_bool VULKAN_UpdateVertexBuffer(VULKAN_RenderData *rendererData,
 static int VULKAN_UpdateViewport(VULKAN_RenderData *rendererData)
 {
     const SDL_Rect *viewport = &rendererData->currentViewport;
-    Float4X4 projection;
-    Float4X4 view;
+    // Float4X4 projection;
+    // Float4X4 view;
+    Float4X4 *view;
     VkViewport vkViewport;
 
     if (viewport->w == 0 || viewport->h == 0) {
@@ -3332,18 +3333,19 @@ static int VULKAN_UpdateViewport(VULKAN_RenderData *rendererData)
         return -1;
     }
 
-    MatrixIdentity(&projection);
+    // MatrixIdentity(&projection);
 
     /* Update the view matrix */
-    SDL_zero(view);
-    view.m[0][0] = 2.0f / viewport->w;
-    view.m[1][1] = -2.0f / viewport->h;
-    view.m[2][2] = 1.0f;
-    view.m[3][0] = -1.0f;
-    view.m[3][1] = 1.0f;
-    view.m[3][3] = 1.0f;
+    view = &rendererData->vertexShaderConstantsData.projectionAndView;
+    SDL_zero(*view);
+    view->m[0][0] = 2.0f / viewport->w;
+    view->m[1][1] = -2.0f / viewport->h;
+    view->m[2][2] = 1.0f;
+    view->m[3][0] = -1.0f;
+    view->m[3][1] = 1.0f;
+    view->m[3][3] = 1.0f;
 
-    MatrixMultiply(&rendererData->vertexShaderConstantsData.projectionAndView, &view, &projection);
+    // MatrixMultiply(&rendererData->vertexShaderConstantsData.projectionAndView, &view, &projection);
 
     vkViewport.x = viewport->x;
     vkViewport.y = viewport->y;
