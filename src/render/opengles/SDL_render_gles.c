@@ -330,8 +330,8 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     SDL_assert(texture->format == SDL_PIXELFORMAT_RGBA32);
     SDL_assert(texture->format == GLES_RenderDriver.info.texture_formats[0]);
     SDL_assert(renderer->info.num_texture_formats == 1);
-    // SDL_INLINE_COMPILE_TIME_ASSERT(gles_ct_format, SDL_arraysize(GLES_RenderDriver.info.texture_formats) == 1);
-    // SDL_INLINE_COMPILE_TIME_ASSERT(gles_ct_format, GLES_RenderDriver.info.num_texture_formats == 1);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(gles_ct_format_count, SDL_arraysize(GLES_RenderDriver.info.texture_formats) == 1);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(gles_ct_format_num, GLES_RenderDriver.info.num_texture_formats == 1);
     internalFormat = GL_RGBA;
     format = GL_RGBA;
     type = GL_UNSIGNED_BYTE;
