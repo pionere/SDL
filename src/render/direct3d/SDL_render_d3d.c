@@ -439,7 +439,7 @@ static int D3D_CreateTextureRep(IDirect3DDevice9 *device, D3D_TextureRep *textur
     texture->d3dfmt = d3dfmt;
 
     result = IDirect3DDevice9_CreateTexture(device, w, h, 1, usage,
-                                            PixelFormatToD3DFMT(format),
+                                            d3dfmt,
                                             D3DPOOL_DEFAULT, &texture->texture, NULL);
     if (FAILED(result)) {
         return D3D_SetError("CreateTexture(D3DPOOL_DEFAULT)", result);
@@ -784,7 +784,7 @@ static int D3D_SetRenderTargetInternal(SDL_Renderer *renderer, SDL_Texture *text
     if (texturerep->dirty && texturerep->staging) {
         if (!texturerep->texture) {
             result = IDirect3DDevice9_CreateTexture(device, texturerep->w, texturerep->h, 1, texturerep->usage,
-                                                    PixelFormatToD3DFMT(texturerep->format), D3DPOOL_DEFAULT, &texturerep->texture, NULL);
+                                                    texturerep->d3dfmt, D3DPOOL_DEFAULT, &texturerep->texture, NULL);
             if (FAILED(result)) {
                 return D3D_SetError("CreateTexture(D3DPOOL_DEFAULT)", result);
             }
@@ -904,7 +904,7 @@ static int UpdateDirtyTexture(IDirect3DDevice9 *device, D3D_TextureRep *texture)
         HRESULT result;
         if (!texture->texture) {
             result = IDirect3DDevice9_CreateTexture(device, texture->w, texture->h, 1, texture->usage,
-                                                    PixelFormatToD3DFMT(texture->format), D3DPOOL_DEFAULT, &texture->texture, NULL);
+                                                    texture->d3dfmt, D3DPOOL_DEFAULT, &texture->texture, NULL);
             if (FAILED(result)) {
                 return D3D_SetError("CreateTexture(D3DPOOL_DEFAULT)", result);
             }
