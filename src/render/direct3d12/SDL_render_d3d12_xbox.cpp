@@ -89,24 +89,26 @@ D3D12_XBOX_CreateDevice(ID3D12Device **device, SDL_bool createDebug)
     }
 
 done:
+    // FIXME: Release dxgiDevice, dxgiAdapter, dxgiOutput ?
     return result;
 }
 
 extern "C" HRESULT
 D3D12_XBOX_CreateBackBufferTarget(ID3D12Device1 *device, int width, int height, void **resource)
 {
-
     D3D12_HEAP_PROPERTIES heapProps;
     D3D12_RESOURCE_DESC resourceDesc;
 
-    SDL_zero(heapProps);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_xbox_cbbt_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(heapProps.VisibleNodeMask));
+    // SDL_zero(heapProps);
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
     heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask = 1;
     heapProps.VisibleNodeMask = 1;
 
-    SDL_zero(resourceDesc);
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_xbox_cbbt_rd, sizeof(D3D12_RESOURCE_DESC) == offsetof(D3D12_RESOURCE_DESC, Flags) + sizeof(textureDesc.Flags));
+    // SDL_zero(resourceDesc);
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment = 0;
     resourceDesc.Width = width;
