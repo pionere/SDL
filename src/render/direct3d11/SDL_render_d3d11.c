@@ -149,7 +149,7 @@ typedef struct
     D3D11_BlendMode *blendModes;
     ID3D11SamplerState *nearestPixelSampler;
     ID3D11SamplerState *linearSampler;
-    D3D_FEATURE_LEVEL featureLevel;
+//    D3D_FEATURE_LEVEL featureLevel;
 
     /* Rasterizers */
     ID3D11RasterizerState *mainRasterizer;
@@ -432,6 +432,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
     IDXGIDevice1 *dxgiDevice = NULL;
     HRESULT result = S_OK;
     UINT creationFlags;
+    D3D_FEATURE_LEVEL featureLevel;
     int i;
 
     /* This array defines the set of DirectX hardware feature levels this app will support.
@@ -520,7 +521,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
         SDL_arraysize(featureLevels),
         D3D11_SDK_VERSION,   /* Always set this to D3D11_SDK_VERSION for Windows Store apps. */
         &d3dDevice,          /* Returns the Direct3D device created. */
-        &data->featureLevel, /* Returns feature level of device created. */
+        &featureLevel,       /* Returns feature level of device created. */
         &d3dContext          /* Returns the device immediate context. */
     );
     if (FAILED(result)) {
@@ -559,7 +560,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
      * Max texture sizes are documented on MSDN, at:
      * http://msdn.microsoft.com/en-us/library/windows/apps/ff476876.aspx
      */
-    switch (data->featureLevel) {
+    switch (featureLevel) {
     case D3D_FEATURE_LEVEL_11_1:
     case D3D_FEATURE_LEVEL_11_0:
         renderer->info.max_texture_width = renderer->info.max_texture_height = 16384;
