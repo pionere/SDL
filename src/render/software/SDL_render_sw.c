@@ -480,21 +480,15 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
                 }
                 SDL_FreeSurface(mask_rotated);
             }
-            if (src_rotated) {
-                SDL_FreeSurface(src_rotated);
-            }
+            SDL_FreeSurface(src_rotated);
         }
     }
 
     if (SDL_MUSTLOCK(src)) {
         SDL_UnlockSurface(src);
     }
-    if (mask) {
-        SDL_FreeSurface(mask);
-    }
-    if (src_clone) {
-        SDL_FreeSurface(src_clone);
-    }
+    SDL_FreeSurface(mask);
+    SDL_FreeSurface(src_clone);
     return retval;
 }
 
