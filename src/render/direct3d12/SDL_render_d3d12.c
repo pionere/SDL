@@ -53,6 +53,9 @@
 
 #include "SDL_shaders_d3d12.h"
 
+#define SDL_D3D12_ERROR_UNKNOWN                -1
+SDL_COMPILE_TIME_ASSERT(d3d12_error, FAILED(SDL_D3D12_ERROR_UNKNOWN));
+
 #if defined(_MSC_VER) && !defined(__clang__)
 #define SDL_COMPOSE_ERROR(str) __FUNCTION__ ", " str
 #else
@@ -489,9 +492,9 @@ static void D3D12_ResetCommandList(D3D12_RenderData *data)
     D3D_CALL(data->commandList, SetDescriptorHeaps, 2, rootDescriptorHeaps);
 }
 
-static int D3D12_IssueBatch(D3D12_RenderData *data)
+static HRESULT D3D12_IssueBatch(D3D12_RenderData *data)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     /* Issue the command list */
     result = D3D_CALL(data->commandList, Close);
@@ -505,7 +508,7 @@ static int D3D12_IssueBatch(D3D12_RenderData *data)
 
     D3D12_ResetCommandList(data);
 
-    return result;
+    return S_OK;
 }
 
 static void D3D12_DestroyRenderer(SDL_Renderer *renderer)
@@ -606,7 +609,7 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(D3D12_RenderData *data,
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDesc;
     ID3D12PipelineState *pipelineState = NULL;
     D3D12_PipelineState *pipelineStates;
-    HRESULT result = S_OK;
+    HRESULT result;
 
     SDL_zero(pipelineDesc);
     pipelineDesc.pRootSignature = data->rootSignatures[D3D12_GetRootSignatureType(shader)];
@@ -759,7 +762,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     ID3D12Device *d3dDevice = NULL;
-    HRESULT result = S_OK;
+    HRESULT result = SDL_D3D12_ERROR_UNKNOWN;
     UINT creationFlags = 0;
     int i, j, k, l;
     SDL_bool createDebug = SDL_FALSE;
@@ -798,32 +801,27 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
     }
 #endif
     if (!CreateEventExFunc) {
-        result = E_FAIL;
         goto done;
     }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     data->hDXGIMod = SDL_LoadObject("dxgi.dll");
     if (!data->hDXGIMod) {
-        result = E_FAIL;
         goto done;
     }
 
     CreateDXGIFactoryFunc = (PFN_CREATE_DXGI_FACTORY)SDL_LoadFunction(data->hDXGIMod, "CreateDXGIFactory2");
     if (!CreateDXGIFactoryFunc) {
-        result = E_FAIL;
         goto done;
     }
 
     data->hD3D12Mod = SDL_LoadObject("D3D12.dll");
     if (!data->hD3D12Mod) {
-        result = E_FAIL;
         goto done;
     }
 
     D3D12CreateDeviceFunc = (PFN_D3D12_CREATE_DEVICE)SDL_LoadFunction(data->hD3D12Mod, "D3D12CreateDevice");
     if (!D3D12CreateDeviceFunc) {
-        result = E_FAIL;
         goto done;
     }
 
@@ -832,7 +830,6 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
         D3D12GetDebugInterfaceFunc = (PFN_D3D12_GET_DEBUG_INTERFACE)SDL_LoadFunction(data->hD3D12Mod, "D3D12GetDebugInterface");
         if (!D3D12GetDebugInterfaceFunc) {
-            result = E_FAIL;
             goto done;
         }
         D3D12GetDebugInterfaceFunc(D3D_GUID(SDL_IID_ID3D12Debug), (void **)&data->debugInterface);
@@ -855,7 +852,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         /* If the debug hint is set, also create the DXGI factory in debug mode */
         DXGIGetDebugInterfaceFunc = (PFN_CREATE_DXGI_FACTORY)SDL_LoadFunction(data->hDXGIMod, "DXGIGetDebugInterface1");
         if (!DXGIGetDebugInterfaceFunc) {
-            result = E_FAIL;
+            result = SDL_D3D12_ERROR_UNKNOWN;
             goto done;
         }
 
@@ -1063,7 +1060,8 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     data->fenceEvent = CreateEventExFunc(NULL, NULL, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
     if (!data->fenceEvent) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("CreateEventEx"), result);
+        WIN_SetError(SDL_COMPOSE_ERROR("CreateEventEx"));
+        result = SDL_D3D12_ERROR_UNKNOWN;
         goto done;
     }
 
@@ -1091,6 +1089,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                 for (l = 0; l < SDL_arraysize(defaultRTVFormats); ++l) {
                     if (!D3D12_CreatePipelineState(data, (D3D12_Shader)i, defaultBlendModes[j], (D3D12_PRIMITIVE_TOPOLOGY_TYPE)k, defaultRTVFormats[l])) {
                         /* D3D12_CreatePipelineState will set the SDL error, if it fails */
+                        result = SDL_D3D12_ERROR_UNKNOWN;
                         goto done;
                     }
                 }
@@ -1223,7 +1222,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
     D3D12_RenderData *data;
     int w, h;
     IDXGISwapChain1* swapChain = NULL;
-    HRESULT result = S_OK;
+    HRESULT result;
     HWND hwnd;
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
 
@@ -1326,7 +1325,7 @@ done:
 
 static void D3D12_HandleDeviceLost(SDL_Renderer *renderer)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
 
     D3D12_ReleaseAll(renderer);
 
@@ -1354,7 +1353,7 @@ static void D3D12_HandleDeviceLost(SDL_Renderer *renderer)
 static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 {
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
-    HRESULT result = S_OK;
+    HRESULT result;
     int i;
 
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
@@ -1446,7 +1445,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     D3D12_XBOX_StartFrame(data->d3dDevice, &data->frameToken);
 #endif
-
+    result = S_OK;
 done:
     return result;
 }
@@ -1968,7 +1967,7 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
-    HRESULT result = S_OK;
+    HRESULT result;
 
     D3D12_RESOURCE_DESC textureDesc;
     D3D12_RESOURCE_DESC uploadDesc;
@@ -2291,7 +2290,7 @@ static int D3D12_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
 static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
                                     const void *vertexData, size_t dataSizeInBytes)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
     const int vbidx = rendererData->currentVertexBuffer;
     UINT8 *vertexBufferData = NULL;
     D3D12_RANGE range;
@@ -2306,8 +2305,7 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
 
     if (rendererData->issueBatch) {
         if (FAILED(D3D12_IssueBatch(rendererData))) {
-            SDL_SetError("Failed to issue intermediate batch");
-            return E_FAIL;
+            return SDL_SetError("Failed to issue intermediate batch");
         }
     }
 
@@ -2334,7 +2332,7 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
         rendererData->issueBatch = SDL_TRUE;
     }
 
-    return S_OK;
+    return 0;
 }
 
 static int D3D12_UpdateViewport(D3D12_RenderData *data)
