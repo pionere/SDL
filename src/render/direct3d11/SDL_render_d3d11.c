@@ -132,7 +132,7 @@ typedef struct
     void *hDXGIMod;
     void *hD3D11Mod;
     IDXGIFactory2 *dxgiFactory;
-    IDXGIAdapter *dxgiAdapter;
+//    IDXGIAdapter *dxgiAdapter;
     ID3D11Device1 *d3dDevice;
     ID3D11DeviceContext1 *d3dContext;
     IDXGISwapChain1 *swapChain;
@@ -266,7 +266,7 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
         int i;
 
         SAFE_RELEASE(data->dxgiFactory);
-        SAFE_RELEASE(data->dxgiAdapter);
+//        SAFE_RELEASE(data->dxgiAdapter);
         SAFE_RELEASE(data->d3dDevice);
         SAFE_RELEASE(data->d3dContext);
         SAFE_RELEASE(data->swapChain);
@@ -485,12 +485,11 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
         goto done;
     }
 
-    /* FIXME: Should we use the default adapter? */
-    result = IDXGIFactory2_EnumAdapters(data->dxgiFactory, 0, &data->dxgiAdapter);
-    if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D11CreateDevice"), result);
-        goto done;
-    }
+//    result = IDXGIFactory2_EnumAdapters(data->dxgiFactory, 0, &data->dxgiAdapter);
+//    if (FAILED(result)) {
+//        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D11CreateDevice"), result);
+//        goto done;
+//    }
 
     /* This flag adds support for surfaces with a different color channel ordering
      * than the API default. It is required for compatibility with Direct2D.
@@ -509,7 +508,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Create the Direct3D 11 API device object and a corresponding context. */
     result = D3D11CreateDeviceFunc(
-        data->dxgiAdapter,
+        NULL /* data->dxgiAdapter */,
         D3D_DRIVER_TYPE_UNKNOWN,
         NULL,
         creationFlags, /* Set set debug and Direct2D compatibility flags. */
