@@ -29,8 +29,6 @@
 
 #include "SDL_shaders_d3d12.h"
 
-#define SDL_COMPOSE_ERROR(str) SDL_STRINGIFY_ARG(__FUNCTION__) ", " str
-
 /* Direct3D 12 shaders
 
    SDL's shaders are compiled into SDL itself, to simplify distribution.

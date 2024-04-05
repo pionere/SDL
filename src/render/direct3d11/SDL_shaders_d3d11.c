@@ -30,7 +30,11 @@
 
 #include "SDL_shaders_d3d11.h"
 
+#if defined(_MSC_VER) && !defined(__clang__)
+#define SDL_COMPOSE_ERROR(str) __FUNCTION__ ", " str
+#else
 #define SDL_COMPOSE_ERROR(str) SDL_STRINGIFY_ARG(__FUNCTION__) ", " str
+#endif
 
 /* Direct3D 11.x shaders
 

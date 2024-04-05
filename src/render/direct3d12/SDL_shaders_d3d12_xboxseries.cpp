@@ -29,8 +29,6 @@
 
 #include "SDL_shaders_d3d12.h"
 
-#define SDL_COMPOSE_ERROR(str) SDL_STRINGIFY_ARG(__FUNCTION__) ", " str
-
 /* Shader blob headers are generated with a pre-build step using buildshaders.bat */
 #include "../VisualC-GDK/shaders/D3D12_PixelShader_Colors_Series.h"
 #include "../VisualC-GDK/shaders/D3D12_PixelShader_Textures_Series.h"

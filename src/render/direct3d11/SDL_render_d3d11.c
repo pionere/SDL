@@ -580,7 +580,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
         break;
 
     default:
-        SDL_SetError("%s, Unexpected feature level: %d", __FUNCTION__, data->featureLevel);
+        SDL_SetError(SDL_COMPOSE_ERROR("Unexpected feature level: %d"), featureLevel);
         result = E_FAIL;
         goto done;
     }
@@ -907,7 +907,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
 
         IDXGIFactory_MakeWindowAssociation(data->dxgiFactory, hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
 #else
-        SDL_SetError(__FUNCTION__ ", Unable to find something to attach a swap chain to");
+        SDL_SetError(SDL_COMPOSE_ERROR("Unable to find something to attach a swap chain to"));
         result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
 #endif /* defined(__WIN32__) || defined(__WINGDK__) / else */
@@ -1056,7 +1056,7 @@ void D3D11_Trim(SDL_Renderer *renderer)
 
     result = ID3D11Device_QueryInterface(data->d3dDevice, &SDL_IID_IDXGIDevice3, &dxgiDevice);
     if (FAILED(result)) {
-        // WIN_SetErrorFromHRESULT(__FUNCTION__ ", ID3D11Device to IDXGIDevice3", result);
+        // WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device to IDXGIDevice3"), result);
         return;
     }
 
@@ -2182,13 +2182,13 @@ static int D3D11_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 
     renderTargetView = D3D11_GetCurrentRenderTargetView(data);
     if (!renderTargetView) {
-        SDL_SetError("%s, ID3D11DeviceContext::OMGetRenderTargets failed", __FUNCTION__);
+        SDL_SetError(SDL_COMPOSE_ERROR("ID3D11DeviceContext::OMGetRenderTargets failed"));
         goto done;
     }
 
     ID3D11View_GetResource(renderTargetView, (ID3D11Resource **)&backBuffer);
     if (!backBuffer) {
-        SDL_SetError("%s, ID3D11View::GetResource failed", __FUNCTION__);
+        SDL_SetError(SDL_COMPOSE_ERROR("ID3D11View::GetResource failed"));
         goto done;
     }
 
