@@ -196,23 +196,23 @@ static int D3D_SetError(const char *prefix, HRESULT result)
 
 static D3DFORMAT PixelFormatToD3DFMT(Uint32 format)
 {
+    D3DFORMAT result;
     switch (format) {
-    case SDL_PIXELFORMAT_RGB565:
-        return D3DFMT_R5G6B5;
-    case SDL_PIXELFORMAT_RGB888:
-        return D3DFMT_X8R8G8B8;
-    case SDL_PIXELFORMAT_ARGB8888:
-        return D3DFMT_A8R8G8B8;
+    case SDL_PIXELFORMAT_RGB555:   result = D3DFMT_X1R5G5B5; break;
+    case SDL_PIXELFORMAT_RGB565:   result = D3DFMT_R5G6B5;   break;
+    case SDL_PIXELFORMAT_RGB888:   result = D3DFMT_X8R8G8B8; break;
+    case SDL_PIXELFORMAT_RGB24:    result = D3DFMT_R8G8B8;   break;
+    case SDL_PIXELFORMAT_INDEX8:   result = D3DFMT_P8;       break;
+    case SDL_PIXELFORMAT_ARGB8888: result = D3DFMT_A8R8G8B8; break;
 #if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        return D3DFMT_L8;
+    case SDL_PIXELFORMAT_NV21:     result = D3DFMT_L8;       break;
 #endif
-    default:
-        return D3DFMT_UNKNOWN;
+    default:                       result = D3DFMT_UNKNOWN;  break;
     }
+    return result;
 }
 
 static Uint32 D3DFMTToPixelFormat(D3DFORMAT format)
