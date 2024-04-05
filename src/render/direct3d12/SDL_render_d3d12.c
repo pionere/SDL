@@ -2098,9 +2098,9 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     D3D12_TextureData *textureData = (D3D12_TextureData *)texture->driverdata;
 
     D3D12_RESOURCE_DESC textureDesc;
-    D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc;
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTextureDesc;
     D3D12_TEXTURE_COPY_LOCATION srcLocation;
+    D3D12_SUBRESOURCE_FOOTPRINT *pitchedDesc;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT *placedTextureDesc;
     D3D12_TEXTURE_COPY_LOCATION dstLocation;
     UINT rowPitch;
 
@@ -2122,39 +2122,37 @@ static void D3D12_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     SDL_zero(textureDesc);
     D3D_CALL_RET(textureData->mainTexture, GetDesc, &textureDesc);
-    textureDesc.Width = textureData->lockedRect.w;
-    textureDesc.Height = textureData->lockedRect.h;
-
-    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
-    // SDL_zero(pitchedDesc);
-    pitchedDesc.Format = textureDesc.Format;
-    pitchedDesc.Width = (UINT)textureDesc.Width;
-    pitchedDesc.Height = textureDesc.Height;
-    pitchedDesc.Depth = 1;
-    rowPitch = pitchedDesc.Width;
-    if (pitchedDesc.Format != DXGI_FORMAT_R8_UNORM) {
-        rowPitch *= 4;
-    }
-    pitchedDesc.RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-
-    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc.Footprint));
-    // SDL_zero(placedTextureDesc);
-    placedTextureDesc.Offset = 0;
-    placedTextureDesc.Footprint = pitchedDesc;
 
     D3D12_TransitionResource(rendererData, textureData->mainTexture, textureData->mainResourceState, D3D12_RESOURCE_STATE_COPY_DEST);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_COPY_DEST;
+
+    // SDL_zero(srcLocation);
+    srcLocation.pResource = textureData->stagingBuffer;
+    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+    placedTextureDesc = &srcLocation.PlacedFootprint;
+
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc->Footprint));
+    // SDL_zerop(placedTextureDesc);
+    placedTextureDesc->Offset = 0;
+    pitchedDesc = &placedTextureDesc->Footprint;
+
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc->RowPitch));
+    // SDL_zerop(pitchedDesc);
+    pitchedDesc->Format = textureDesc.Format;
+    pitchedDesc->Width = (UINT)textureData->lockedRect.w;
+    pitchedDesc->Height = (UINT)textureData->lockedRect.h;
+    pitchedDesc->Depth = 1;
+    rowPitch = pitchedDesc->Width;
+    if (pitchedDesc->Format != DXGI_FORMAT_R8_UNORM) {
+        rowPitch *= 4;
+    }
+    pitchedDesc->RowPitch = D3D12_Align(rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ut_dl, sizeof(D3D12_TEXTURE_COPY_LOCATION) == offsetof(D3D12_TEXTURE_COPY_LOCATION, PlacedFootprint) + (sizeof(dstLocation.PlacedFootprint) > sizeof(srcLocation.SubresourceIndex) ? sizeof(dstLocation.PlacedFootprint) : sizeof(srcLocation.SubresourceIndex)));
     // SDL_zero(dstLocation);
     dstLocation.pResource = textureData->mainTexture;
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     dstLocation.SubresourceIndex = 0;
-
-    // SDL_zero(srcLocation);
-    srcLocation.pResource = textureData->stagingBuffer;
-    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-    srcLocation.PlacedFootprint = placedTextureDesc;
 
     D3D_CALL(rendererData->commandList, CopyTextureRegion,
              &dstLocation,
