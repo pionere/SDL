@@ -170,11 +170,11 @@ typedef struct
 /* Private renderer data */
 typedef struct
 {
-    void *hDXGIMod;
-    void *hD3D12Mod;
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     UINT64 frameToken;
 #else
+    void *hDXGIMod;
+    void *hD3D12Mod;
     IDXGIFactory6 *dxgiFactory;
     IDXGIAdapter4 *dxgiAdapter;
 #ifdef DEBUG_RENDER
@@ -390,7 +390,6 @@ static void D3D12_ReleaseAll(SDL_Renderer *renderer)
             SAFE_RELEASE(data->dxgiDebug);
         }
 #endif
-#endif // !__XBOXONE__
         /* Unload the D3D libraries.  This should be done last, in order
          * to prevent IUnknown::Release() calls from crashing.
          */
@@ -402,6 +401,7 @@ static void D3D12_ReleaseAll(SDL_Renderer *renderer)
             SDL_UnloadObject(data->hDXGIMod);
             data->hDXGIMod = NULL;
         }
+#endif // !__XBOXONE__
     }
 }
 
@@ -759,6 +759,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
     typedef HRESULT(WINAPI * PFN_CREATE_DXGI_FACTORY)(UINT flags, REFIID riid, void **ppFactory);
     PFN_CREATE_DXGI_FACTORY CreateDXGIFactoryFunc;
     PFN_D3D12_CREATE_DEVICE D3D12CreateDeviceFunc;
+    UINT creationFlags = 0;
 #endif
     typedef HANDLE(WINAPI * PFN_CREATE_EVENT_EX)(LPSECURITY_ATTRIBUTES lpEventAttributes, LPCWSTR lpName, DWORD dwFlags, DWORD dwDesiredAccess);
     PFN_CREATE_EVENT_EX CreateEventExFunc;
@@ -766,7 +767,6 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
     D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
     ID3D12Device *d3dDevice = NULL;
     HRESULT result = SDL_D3D12_ERROR_UNKNOWN;
-    UINT creationFlags = 0;
     int i, j, k, l;
     SDL_bool createDebug = SDL_FALSE;
 
@@ -807,7 +807,13 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         goto done;
     }
 
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+    result = D3D12_XBOX_CreateDevice(&d3dDevice, createDebug);
+    if (FAILED(result)) {
+        /* SDL Error is set by D3D12_XBOX_CreateDevice */
+        goto done;
+    }
+#else
     data->hDXGIMod = SDL_LoadObject("dxgi.dll");
     if (!data->hDXGIMod) {
         goto done;
@@ -837,20 +843,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
         }
         D3D12GetDebugInterfaceFunc(D3D_GUID(SDL_IID_ID3D12Debug), (void **)&data->debugInterface);
         D3D_CALL(data->debugInterface, EnableDebugLayer);
-    }
-#endif // DEBUG_RENDER
-#endif // !__XBOXONE__
 
-#if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    result = D3D12_XBOX_CreateDevice(&d3dDevice, createDebug);
-    if (FAILED(result)) {
-        /* SDL Error is set by D3D12_XBOX_CreateDevice */
-        goto done;
-    }
-#else
-
-#ifdef DEBUG_RENDER
-    if (createDebug) {
 #ifdef __IDXGIInfoQueue_INTERFACE_DEFINED__
         IDXGIInfoQueue *dxgiInfoQueue = NULL;
         PFN_CREATE_DXGI_FACTORY DXGIGetDebugInterfaceFunc;
@@ -939,7 +932,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
         SAFE_RELEASE(infoQueue);
     }
-#endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
+#endif // __XBOXONE__
 
     result = D3D_CALL(d3dDevice, QueryInterface, D3D_GUID(SDL_IID_ID3D12Device1), (void **)&data->d3dDevice);
     if (FAILED(result)) {
