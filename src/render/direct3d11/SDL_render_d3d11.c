@@ -166,7 +166,7 @@ typedef struct
     ID3D11RenderTargetView *currentRenderTargetView;
     ID3D11RasterizerState *currentRasterizerState;
     ID3D11BlendState *currentBlendState;
-    ID3D11PixelShader *currentShader;
+    D3D11_Shader currentShader;
     ID3D11ShaderResourceView *currentShaderResource;
     ID3D11SamplerState *currentSampler;
     SDL_bool cliprectDirty;
@@ -303,7 +303,7 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
         data->currentRenderTargetView = NULL;
         data->currentRasterizerState = NULL;
         data->currentBlendState = NULL;
-        data->currentShader = NULL;
+        data->currentShader = NUM_SHADERS;
         data->currentShaderResource = NULL;
         data->currentSampler = NULL;
 
@@ -1843,7 +1843,7 @@ static ID3D11RenderTargetView *D3D11_GetCurrentRenderTargetView(D3D11_RenderData
     }
 }
 
-static int D3D11_SetDrawState(D3D11_RenderData *rendererData, const SDL_RenderCommand *cmd, ID3D11PixelShader *shader,
+static int D3D11_SetDrawState(D3D11_RenderData *rendererData, const SDL_RenderCommand *cmd, D3D11_Shader shader,
                               const int numShaderResources, ID3D11ShaderResourceView **shaderResources,
                               ID3D11SamplerState *sampler)
 
@@ -1929,7 +1929,7 @@ static int D3D11_SetDrawState(D3D11_RenderData *rendererData, const SDL_RenderCo
     }
 
     if (shader != rendererData->currentShader) {
-        ID3D11DeviceContext_PSSetShader(rendererData->d3dContext, shader, NULL, 0);
+        ID3D11DeviceContext_PSSetShader(rendererData->d3dContext, rendererData->pixelShaders[shader], NULL, 0);
         rendererData->currentShader = shader;
     }
     if (shaderResource != rendererData->currentShaderResource) {
@@ -1997,7 +1997,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
-        return D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[shader],
+        return D3D11_SetDrawState(rendererData, cmd, shader,
                                   SDL_arraysize(shaderResources), shaderResources, textureSampler);
 
     } else if (textureData->nv12) {
@@ -2023,11 +2023,11 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
-        return D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[shader],
+        return D3D11_SetDrawState(rendererData, cmd, shader,
                                   SDL_arraysize(shaderResources), shaderResources, textureSampler);
     }
 #endif /* SDL_HAVE_YUV */
-    return D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[SHADER_RGB],
+    return D3D11_SetDrawState(rendererData, cmd, SHADER_RGB,
                               1, &textureData->mainTextureResourceView, textureSampler);
 }
 
@@ -2100,7 +2100,7 @@ static int D3D11_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t count = cmd->data.draw.count;
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
-            D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[SHADER_SOLID], 0, NULL, NULL);
+            D3D11_SetDrawState(rendererData, cmd, SHADER_SOLID, 0, NULL, NULL);
             D3D11_DrawPrimitives(rendererData, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, start, count);
             break;
         }
@@ -2111,7 +2111,7 @@ static int D3D11_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             const size_t first = cmd->data.draw.first;
             const size_t start = first / sizeof(VertexPositionColor);
             const VertexPositionColor *verts = (VertexPositionColor *)(((Uint8 *)vertices) + first);
-            D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[SHADER_SOLID], 0, NULL, NULL);
+            D3D11_SetDrawState(rendererData, cmd, SHADER_SOLID, 0, NULL, NULL);
             D3D11_DrawPrimitives(rendererData, D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP, start, count);
             if (verts[0].pos.x != verts[count - 1].pos.x || verts[0].pos.y != verts[count - 1].pos.y) {
                 D3D11_DrawPrimitives(rendererData, D3D11_PRIMITIVE_TOPOLOGY_POINTLIST, start + (count - 1), 1);
@@ -2138,7 +2138,7 @@ static int D3D11_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
             if (texture) {
                 D3D11_SetCopyState(rendererData, cmd);
             } else {
-                D3D11_SetDrawState(rendererData, cmd, rendererData->pixelShaders[SHADER_SOLID], 0, NULL, NULL);
+                D3D11_SetDrawState(rendererData, cmd, SHADER_SOLID, 0, NULL, NULL);
             }
 
             D3D11_DrawPrimitives(rendererData, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, start, count);
