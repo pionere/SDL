@@ -301,6 +301,8 @@ Uint32 D3D12_DXGIFormatToSDLPixelFormat(DXGI_FORMAT dxgiFormat)
 static DXGI_FORMAT SDLPixelFormatToDXGIFormat(Uint32 sdlFormat)
 {
     switch (sdlFormat) {
+    default:
+        SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_ARGB8888:
         return DXGI_FORMAT_B8G8R8A8_UNORM;
     case SDL_PIXELFORMAT_RGB888:
@@ -312,8 +314,6 @@ static DXGI_FORMAT SDLPixelFormatToDXGIFormat(Uint32 sdlFormat)
     case SDL_PIXELFORMAT_NV21: /* For the Y texture */
         return DXGI_FORMAT_R8_UNORM;
 #endif
-    default:
-        return DXGI_FORMAT_UNKNOWN;
     }
 }
 
@@ -1516,9 +1516,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     D3D12_HEAP_PROPERTIES heapProps;
     D3D12_SHADER_RESOURCE_VIEW_DESC resourceViewDesc;
 
-    if (textureFormat == DXGI_FORMAT_UNKNOWN) {
-        return SDL_SetError("%s, An unsupported SDL pixel format (0x%x) was specified", __FUNCTION__, texture->format);
-    }
+    SDL_assert(textureFormat != DXGI_FORMAT_UNKNOWN);
 
     textureData = (D3D12_TextureData *)SDL_calloc(1, sizeof(*textureData));
     if (!textureData) {

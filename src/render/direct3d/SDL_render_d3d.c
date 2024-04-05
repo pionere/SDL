@@ -557,7 +557,17 @@ static int D3D_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     usage = (texture->access & SDL_TEXTUREACCESS_TARGET) ? D3DUSAGE_RENDERTARGET : 0;
 
     format = texture->format;
+#if SDL_HAVE_YUV
     d3dformat = PixelFormatToD3DFMT(format);
+    SDL_assert(PixelFormatToD3DFMT(format) != D3DFMT_UNKNOWN);
+#else
+    SDL_assert(format == D3D_RenderDriver.info.texture_formats[0]);
+    SDL_assert(renderer->info.num_texture_formats == 1);
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d_ct_format, SDL_arraysize(D3D_RenderDriver.info.texture_formats) == 1);
+    SDL_assert(PixelFormatToD3DFMT(format) == D3DFMT_A8R8G8B8);
+    d3dformat = D3DFMT_A8R8G8B8; // PixelFormatToD3DFMT(format);
+#endif
+
     w = texture->w;
     h = texture->h;
     status = D3D_CreateTextureRep(device, &texturedata->texture, usage, format, d3dformat, w, h);

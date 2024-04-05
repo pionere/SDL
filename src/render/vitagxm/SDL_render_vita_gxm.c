@@ -134,10 +134,12 @@ static int PixelFormatToVITAFMT(Uint32 format)
     switch (format) {
     case SDL_PIXELFORMAT_ARGB8888:
         return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ARGB;
-    case SDL_PIXELFORMAT_RGB888:
-        return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ARGB;
-    case SDL_PIXELFORMAT_BGR888:
-        return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR;
+    // case SDL_PIXELFORMAT_RGB888:
+    //    return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ARGB;
+    // case SDL_PIXELFORMAT_BGR888:
+    //    return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR;
+    default:
+        SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_ABGR8888:
         return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR;
     case SDL_PIXELFORMAT_RGB565:
@@ -155,8 +157,6 @@ static int PixelFormatToVITAFMT(Uint32 format)
     case SDL_PIXELFORMAT_NV21:
         return SCE_GXM_TEXTURE_FORMAT_YUV420P2_CSC0;
 #endif
-    default:
-        return SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR;
     }
 }
 

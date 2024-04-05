@@ -320,10 +320,7 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
 
     /* find the right pixelformat */
     pixelformat = DirectFB_SDLToDFBPixelFormat(texture->format);
-    if (pixelformat == DSPF_UNKNOWN) {
-        SDL_SetError("Unknown pixel format %d", data->format);
-        goto error;
-    }
+    SDL_assert(pixelformat != DSPF_UNKNOWN);
 
     data->format = texture->format;
     data->pitch = texture->w * DFB_BYTES_PER_PIXEL(pixelformat);

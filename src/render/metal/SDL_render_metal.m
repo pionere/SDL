@@ -542,22 +542,22 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     METAL_TextureData *texturedata;
 
     switch (texture->format) {
-        case SDL_PIXELFORMAT_ABGR8888:
-            pixfmt = MTLPixelFormatRGBA8Unorm;
-            break;
-        case SDL_PIXELFORMAT_ARGB8888:
-            pixfmt = MTLPixelFormatBGRA8Unorm;
-            break;
+    default:
+        SDL_assume(!"Unknown pixel format");
+    case SDL_PIXELFORMAT_ABGR8888:
+        pixfmt = MTLPixelFormatRGBA8Unorm;
+        break;
+    case SDL_PIXELFORMAT_ARGB8888:
+        pixfmt = MTLPixelFormatBGRA8Unorm;
+        break;
 #if SDL_HAVE_YUV
-        case SDL_PIXELFORMAT_IYUV:
-        case SDL_PIXELFORMAT_YV12:
-        case SDL_PIXELFORMAT_NV12:
-        case SDL_PIXELFORMAT_NV21:
-            pixfmt = MTLPixelFormatR8Unorm;
-            break;
+    case SDL_PIXELFORMAT_IYUV:
+    case SDL_PIXELFORMAT_YV12:
+    case SDL_PIXELFORMAT_NV12:
+    case SDL_PIXELFORMAT_NV21:
+        pixfmt = MTLPixelFormatR8Unorm;
+        break;
 #endif
-        default:
-            return SDL_SetError("Texture format %s not supported by Metal", SDL_GetPixelFormatName(texture->format));
     }
 
     mtltexdesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixfmt

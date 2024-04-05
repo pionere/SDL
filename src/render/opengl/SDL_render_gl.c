@@ -412,8 +412,7 @@ static SDL_bool GL_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blend
     return SDL_TRUE;
 }
 
-SDL_FORCE_INLINE SDL_bool
-convert_format(GL_RenderData *renderdata, Uint32 pixel_format,
+static SDL_bool convert_format(GL_RenderData *renderdata, Uint32 pixel_format,
                GLint *internalFormat, GLenum *format, GLenum *type)
 {
     switch (pixel_format) {
@@ -460,6 +459,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     GLint internalFormat;
     GLenum format, type;
     int texture_w, texture_h;
+    SDL_bool status;
     GLenum scaleMode;
 
     GL_ActivateRenderer(renderer);
@@ -472,12 +472,15 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         !renderdata->GL_EXT_framebuffer_object_supported) {
         return SDL_SetError("Render targets not supported by OpenGL");
     }
-
-    if (!convert_format(renderdata, texture->format, &internalFormat,
-                        &format, &type)) {
-        return SDL_SetError("Texture format %s not supported by OpenGL",
-                            SDL_GetPixelFormatName(texture->format));
-    }
+    // 'smart' compilers yay...
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER)
+    type = 0; 
+    format = 0;
+    internalFormat = 0;
+#endif
+    status = convert_format(renderdata, texture->format, &internalFormat,
+                        &format, &type);
+    SDL_assume(status != SDL_FALSE);
 
     data = (GL_TextureData *)SDL_calloc(1, sizeof(*data));
     if (!data) {

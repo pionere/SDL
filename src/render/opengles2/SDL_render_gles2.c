@@ -1440,6 +1440,8 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     /* Determine the corresponding GLES texture format params */
     switch (texture->format) {
+    default:
+        SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_BGRA32:
     case SDL_PIXELFORMAT_RGBA32:
     case SDL_PIXELFORMAT_BGRX32:
@@ -1465,8 +1467,6 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         break;
 #endif
 #endif // SDL_HAVE_YUV
-    default:
-        return SDL_SetError("Texture format not supported");
     }
 
     /* Allocate a texture struct */

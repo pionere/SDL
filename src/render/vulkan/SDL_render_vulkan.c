@@ -439,6 +439,8 @@ static VkFormat SDLPixelFormatToVkTextureFormat(Uint32 format) // , Uint32 color
         return VK_FORMAT_R16G16B16A16_SFLOAT;
     case SDL_PIXELFORMAT_XBGR2101010:
         return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
+    default:
+        SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_ARGB8888:
     case SDL_PIXELFORMAT_XRGB8888:
         // if (colorspace == SDL_COLORSPACE_SRGB_LINEAR) {
@@ -446,10 +448,10 @@ static VkFormat SDLPixelFormatToVkTextureFormat(Uint32 format) // , Uint32 color
         // }
         return VK_FORMAT_B8G8R8A8_UNORM;
 #if SDL_HAVE_YUV
-    case SDL_PIXELFORMAT_YUY2:
-        return VK_FORMAT_G8B8G8R8_422_UNORM;
-    case SDL_PIXELFORMAT_UYVY:
-        return VK_FORMAT_B8G8R8G8_422_UNORM;
+    // case SDL_PIXELFORMAT_YUY2:
+    //    return VK_FORMAT_G8B8G8R8_422_UNORM;
+    // case SDL_PIXELFORMAT_UYVY:
+    //    return VK_FORMAT_B8G8R8G8_422_UNORM;
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
         return VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
@@ -459,8 +461,6 @@ static VkFormat SDLPixelFormatToVkTextureFormat(Uint32 format) // , Uint32 color
     case SDL_PIXELFORMAT_P010:
         return VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
 #endif
-    default:
-        return VK_FORMAT_UNDEFINED;
     }
 }
 
@@ -2613,9 +2613,8 @@ static int VULKAN_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture) //
     uint32_t height = texture->h;
     VkImageUsageFlags usage;
     VkComponentMapping imageViewSwizzle = rendererData->identitySwizzle;
-    if (textureFormat == VK_FORMAT_UNDEFINED) {
-        return SDL_SetError("%s, An unsupported SDL pixel format (0x%x) was specified", __FUNCTION__, texture->format);
-    }
+
+    SDL_assert(textureFormat != VK_FORMAT_UNDEFINED);
 
     textureData = (VULKAN_TextureData *)SDL_calloc(1, sizeof(*textureData));
     if (!textureData) {

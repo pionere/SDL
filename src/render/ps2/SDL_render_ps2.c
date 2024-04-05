@@ -95,6 +95,8 @@ static int PixelFormatToPS2PSM(Uint32 format)
     case SDL_PIXELFORMAT_ABGR1555:
         return GS_PSM_CT16;
     default:
+        SDL_assume(!"Unknown pixel format");
+    case SDL_PIXELFORMAT_ABGR8888:
         return GS_PSM_CT32;
     }
 }
