@@ -1566,7 +1566,6 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                       (void **)&textureData->mainTexture);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_COPY_DEST;
     if (FAILED(result)) {
-        D3D12_DestroyTexture(renderer, texture);
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
     }
 #if SDL_HAVE_YUV
@@ -1587,7 +1586,6 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureU);
         textureData->mainResourceStateU = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            D3D12_DestroyTexture(renderer, texture);
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
         }
 
@@ -1601,7 +1599,6 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureV);
         textureData->mainResourceStateV = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            D3D12_DestroyTexture(renderer, texture);
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
         }
     } else if (texture->format == SDL_PIXELFORMAT_NV12 ||
@@ -1624,7 +1621,6 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureNV);
         textureData->mainResourceStateNV = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            D3D12_DestroyTexture(renderer, texture);
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateTexture2D"), result);
         }
     }

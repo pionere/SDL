@@ -487,6 +487,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return SDL_OutOfMemory();
     }
 
+    texture->driverdata = data;
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
@@ -505,7 +506,6 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
         data->pixels = SDL_calloc(1, size);
         if (!data->pixels) {
-            SDL_free(data);
             return SDL_OutOfMemory();
         }
     }
@@ -519,13 +519,8 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     GL_CheckError("", renderer);
     renderdata->glGenTextures(1, &data->texture);
     if (GL_CheckError("glGenTextures()", renderer) < 0) {
-        if (data->pixels) {
-            SDL_free(data->pixels);
-        }
-        SDL_free(data);
         return -1;
     }
-    texture->driverdata = data;
 
     if (renderdata->GL_ARB_texture_non_power_of_two_supported) {
         texture_w = texture->w;

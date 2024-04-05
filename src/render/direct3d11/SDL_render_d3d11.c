@@ -1264,7 +1264,6 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     return 0;
 error:
-    D3D11_DestroyTexture(renderer, texture);
     return -1;
 }
 

@@ -1184,13 +1184,11 @@ static void VITA_GXM_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture
         return;
     }
 
-    if (!vita_texture->tex) {
-        return;
+    if (vita_texture->tex) {
+        sceGxmFinish(data->gxm_context);
+
+        free_gxm_texture(data, vita_texture->tex);
     }
-
-    sceGxmFinish(data->gxm_context);
-
-    free_gxm_texture(data, vita_texture->tex);
 
     SDL_free(vita_texture);
 

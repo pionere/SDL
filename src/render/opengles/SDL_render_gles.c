@@ -341,11 +341,12 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return SDL_OutOfMemory();
     }
 
+    texture->driverdata = data;
+
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         data->pixels = SDL_calloc(texture->h, data->pitch);
         if (!data->pixels) {
-            SDL_free(data);
             return SDL_OutOfMemory();
         }
     }
@@ -353,7 +354,6 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     renderdata = (GLES_RenderData *)renderer->driverdata;
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         if (!renderdata->GL_OES_framebuffer_object_supported) {
-            SDL_free(data);
             return SDL_SetError("GL_OES_framebuffer_object not supported");
         }
         data->fbo = GLES_GetFBO(renderdata, texture->w, texture->h);
@@ -366,10 +366,6 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     renderdata->glGenTextures(1, &data->texture);
     result = renderdata->glGetError();
     if (result != GL_NO_ERROR) {
-        // if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
-            SDL_free(data->pixels);
-        // }
-        SDL_free(data);
         return GLES_SetError("glGenTextures()", result);
     }
 
@@ -397,14 +393,9 @@ static int GLES_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     result = renderdata->glGetError();
     if (result != GL_NO_ERROR) {
-        // if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
-            SDL_free(data->pixels);
-        // }
-        SDL_free(data);
         return GLES_SetError("glTexImage2D()", result);
     }
 
-    texture->driverdata = data;
     return 0;
 }
 

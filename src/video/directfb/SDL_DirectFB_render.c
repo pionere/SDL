@@ -396,7 +396,6 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
   error:
     SDL_DFB_RELEASE(data->palette);
     SDL_DFB_RELEASE(data->surface);
-    SDL_DFB_FREE(texture->driverdata);
     return -1;
 }
 

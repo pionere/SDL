@@ -1474,7 +1474,8 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     if (!data) {
         return SDL_OutOfMemory();
     }
-    data->texture = 0;
+    texture->driverdata = data;
+    // data->texture = 0;
     data->pixel_format = format;
     data->pixel_type = type;
     data->texture_type = GL_TEXTURE_2D;
@@ -1484,8 +1485,8 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
     data->yuv = ((texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12));
     data->nv12 = ((texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21));
-    data->texture_u = 0;
-    data->texture_v = 0;
+    // data->texture_u = 0;
+    // data->texture_v = 0;
 #endif // SDL_HAVE_YUV
     scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
 
@@ -1505,7 +1506,6 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #endif
         data->pixel_data = SDL_calloc(1, size);
         if (!data->pixel_data) {
-            SDL_free(data);
             return SDL_OutOfMemory();
         }
     }
@@ -1563,7 +1563,6 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     if (GL_CheckError("glGenTexures()", renderer) < 0) {
         return -1;
     }
-    texture->driverdata = data;
     renderdata->glActiveTexture(GL_TEXTURE0);
     renderdata->glBindTexture(data->texture_type, data->texture);
     renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MIN_FILTER, scaleMode);
@@ -1583,8 +1582,8 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     if (texture->access & SDL_TEXTUREACCESS_TARGET) {
         data->fbo = GLES2_GetFBO(renderdata, texture->w, texture->h);
-    } else {
-        data->fbo = NULL;
+    // } else {
+    //    data->fbo = NULL;
     }
 
     return GL_CheckError("", renderer);
