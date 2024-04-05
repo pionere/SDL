@@ -763,7 +763,7 @@ static int D3D11_GetViewportAlignedD3DRect(D3D11_RenderData *data, const SDL_Rec
     return 0;
 }
 
-static HRESULT D3D11_UpdateForWindowSizeChange(SDL_Renderer *renderer);
+static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer);
 static void D3D11_HandleDeviceLost(SDL_Renderer *renderer);
 
 static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
@@ -939,9 +939,9 @@ static void D3D11_HandleDeviceLost(SDL_Renderer *renderer)
         return;
     }
 
-    result = D3D11_UpdateForWindowSizeChange(renderer);
+    result = D3D11_CreateWindowSizeDependentResources(renderer);
     if (FAILED(result)) {
-        /* D3D11_UpdateForWindowSizeChange will set the SDL error */
+        /* D3D11_CreateWindowSizeDependentResources will set the SDL error */
         return;
     }
 
@@ -1041,12 +1041,6 @@ done:
     return result;
 }
 
-/* This method is called when the window's size changes. */
-static HRESULT D3D11_UpdateForWindowSizeChange(SDL_Renderer *renderer)
-{
-    return D3D11_CreateWindowSizeDependentResources(renderer);
-}
-
 #ifdef __WINRT__
 void D3D11_Trim(SDL_Renderer *renderer)
 {
@@ -1070,7 +1064,7 @@ void D3D11_Trim(SDL_Renderer *renderer)
 static void D3D11_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
 {
     if (event->event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-        D3D11_UpdateForWindowSizeChange(renderer);
+        D3D11_CreateWindowSizeDependentResources(renderer);
     }
 }
 
