@@ -386,7 +386,7 @@ static ID3D11BlendState *D3D11_CreateBlendState(D3D11_RenderData *data, SDL_Blen
     SDL_BlendOperation alphaOperation = SDL_GetLongBlendModeAlphaOperation(longBlendMode);
     ID3D11BlendState *blendState = NULL;
     D3D11_BlendMode *blendModes;
-    HRESULT result = S_OK;
+    HRESULT result;
 
     D3D11_BLEND_DESC blendDesc;
     SDL_zero(blendDesc);
@@ -430,7 +430,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
     ID3D11Device *d3dDevice = NULL;
     ID3D11DeviceContext *d3dContext = NULL;
     IDXGIDevice1 *dxgiDevice = NULL;
-    HRESULT result = S_OK;
+    HRESULT result = SDL_D3D11_ERROR_UNKNOWN;
     UINT creationFlags;
     D3D_FEATURE_LEVEL featureLevel;
     int i;
@@ -460,25 +460,21 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
 #else
     data->hDXGIMod = SDL_LoadObject("dxgi.dll");
     if (!data->hDXGIMod) {
-        result = E_FAIL;
         goto done;
     }
 
     CreateDXGIFactoryFunc = (PFN_CREATE_DXGI_FACTORY)SDL_LoadFunction(data->hDXGIMod, "CreateDXGIFactory");
     if (!CreateDXGIFactoryFunc) {
-        result = E_FAIL;
         goto done;
     }
 
     data->hD3D11Mod = SDL_LoadObject("d3d11.dll");
     if (!data->hD3D11Mod) {
-        result = E_FAIL;
         goto done;
     }
 
     D3D11CreateDeviceFunc = (PFN_D3D11_CREATE_DEVICE)SDL_LoadFunction(data->hD3D11Mod, "D3D11CreateDevice");
     if (!D3D11CreateDeviceFunc) {
-        result = E_FAIL;
         goto done;
     }
 #endif /* __WINRT__ */
@@ -582,7 +578,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
 
     default:
         SDL_SetError(SDL_COMPOSE_ERROR("Unexpected feature level: %d"), featureLevel);
-        result = E_FAIL;
+        result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
     }
 
@@ -688,6 +684,7 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
     ID3D11DeviceContext_VSSetShader(data->d3dContext, data->vertexShader, NULL, 0);
     ID3D11DeviceContext_VSSetConstantBuffers(data->d3dContext, 0, 1, &data->vertexShaderConstants);
 
+    result = S_OK;
 done:
     SAFE_RELEASE(d3dDevice);
     SAFE_RELEASE(d3dContext);
@@ -958,7 +955,7 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 {
     D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
     ID3D11Texture2D *backBuffer = NULL;
-    HRESULT result = S_OK;
+    HRESULT result;
 
     /* Release the previous render target view */
     D3D11_ReleaseMainRenderTargetView(data);
@@ -1036,6 +1033,7 @@ static HRESULT D3D11_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 
     data->viewportDirty = SDL_TRUE;
 
+    result = S_OK;
 done:
     SAFE_RELEASE(backBuffer);
     return result;
@@ -1046,7 +1044,7 @@ void D3D11_Trim(SDL_Renderer *renderer)
 {
 #if NTDDI_VERSION > NTDDI_WIN8
     D3D11_RenderData *data = (D3D11_RenderData *)renderer->driverdata;
-    HRESULT result = S_OK;
+    HRESULT result;
     IDXGIDevice3 *dxgiDevice = NULL;
 
     result = ID3D11Device_QueryInterface(data->d3dDevice, &SDL_IID_IDXGIDevice3, &dxgiDevice);
@@ -1455,7 +1453,7 @@ static int D3D11_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     D3D11_RenderData *rendererData = (D3D11_RenderData *)renderer->driverdata;
     D3D11_TextureData *textureData = (D3D11_TextureData *)texture->driverdata;
-    HRESULT result = S_OK;
+    HRESULT result;
     D3D11_TEXTURE2D_DESC stagingTextureDesc;
     D3D11_MAPPED_SUBRESOURCE textureMemory;
 
@@ -1679,7 +1677,7 @@ static int D3D11_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, S
 static int D3D11_UpdateVertexBuffer(D3D11_RenderData *rendererData,
                                     const void *vertexData, size_t dataSizeInBytes)
 {
-    HRESULT result = S_OK;
+    HRESULT result;
     const int vbidx = rendererData->currentVertexBuffer;
     const UINT stride = sizeof(VertexPositionColor);
     const UINT offset = 0;
