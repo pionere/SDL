@@ -1733,14 +1733,14 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     const Uint8 *src;
     Uint8 *dst;
     int row;
-    UINT length;
+    UINT length, rowPitch;
     HRESULT result;
     D3D12_RESOURCE_DESC textureDesc;
     D3D12_RESOURCE_DESC uploadDesc;
     D3D12_HEAP_PROPERTIES heapProps;
-    D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc;
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTextureDesc;
     D3D12_TEXTURE_COPY_LOCATION srcLocation;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT *placedTextureDesc;
+    D3D12_SUBRESOURCE_FOOTPRINT *pitchedDesc;
     D3D12_TEXTURE_COPY_LOCATION dstLocation;
     BYTE *textureMemory;
     ID3D12Resource *uploadBuffer;
@@ -1755,6 +1755,7 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     // SDL_zero(uploadDesc);
     uploadDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     uploadDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+    // uploadDesc.Width = 0;
     uploadDesc.Height = 1;
     uploadDesc.DepthOrArraySize = 1;
     uploadDesc.MipLevels = 1;
@@ -1809,35 +1810,24 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
     }
 
-    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
-    // SDL_zero(pitchedDesc);
-    pitchedDesc.Format = textureDesc.Format;
-    pitchedDesc.Width = w;
-    pitchedDesc.Height = h;
-    pitchedDesc.Depth = 1;
-    length = pitchedDesc.Width * bpp;
-    pitchedDesc.RowPitch = D3D12_Align(length, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-
-    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc.Footprint));
-    // SDL_zero(placedTextureDesc);
-    placedTextureDesc.Offset = 0;
-    placedTextureDesc.Footprint = pitchedDesc;
+    length = (UINT)w * bpp;
+    rowPitch = D3D12_Align(length, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 
     src = (const Uint8 *)pixels;
     dst = textureMemory;
-    if (length == pitch && length == pitchedDesc.RowPitch) {
+    if (length == pitch && length == rowPitch) {
         SDL_memcpy(dst, src, (size_t)length * h);
     } else {
         if (length > (UINT)pitch) {
             length = pitch;
         }
-        if (length > pitchedDesc.RowPitch) {
-            length = pitchedDesc.RowPitch;
+        if (length > rowPitch) {
+            length = rowPitch;
         }
         for (row = 0; row < h; ++row) {
             SDL_memcpy(dst, src, length);
             src += pitch;
-            dst += pitchedDesc.RowPitch;
+            dst += rowPitch;
         }
     }
 
@@ -1848,16 +1838,29 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
     D3D12_TransitionResource(rendererData, texture, *resourceState, D3D12_RESOURCE_STATE_COPY_DEST);
     *resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 
+    // SDL_zero(srcLocation);
+    srcLocation.pResource = rendererData->uploadBuffers[rendererData->currentUploadBuffer];
+    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+    placedTextureDesc = &srcLocation.PlacedFootprint;
+
+    // SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_ptd, sizeof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_PLACED_SUBRESOURCE_FOOTPRINT, Footprint) + sizeof(placedTextureDesc->Footprint));
+    // SDL_zerop(placedTextureDesc);
+    placedTextureDesc->Offset = 0;
+    pitchedDesc = &placedTextureDesc->Footprint;
+
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc->RowPitch));
+    // SDL_zero(pitchedDesc);
+    pitchedDesc->Format = textureDesc.Format;
+    pitchedDesc->Width = w;
+    pitchedDesc->Height = h;
+    pitchedDesc->Depth = 1;
+    pitchedDesc->RowPitch = rowPitch;
+
     SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_uti_dl, sizeof(D3D12_TEXTURE_COPY_LOCATION) == offsetof(D3D12_TEXTURE_COPY_LOCATION, PlacedFootprint) + (sizeof(dstLocation.PlacedFootprint) > sizeof(srcLocation.SubresourceIndex) ? sizeof(dstLocation.PlacedFootprint) : sizeof(srcLocation.SubresourceIndex)));
     // SDL_zero(dstLocation);
     dstLocation.pResource = texture;
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
     dstLocation.SubresourceIndex = 0;
-
-    // SDL_zero(srcLocation);
-    srcLocation.pResource = rendererData->uploadBuffers[rendererData->currentUploadBuffer];
-    srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-    srcLocation.PlacedFootprint = placedTextureDesc;
 
     D3D_CALL(rendererData->commandList, CopyTextureRegion,
              &dstLocation,
