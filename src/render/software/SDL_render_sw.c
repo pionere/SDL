@@ -98,8 +98,7 @@ static int SW_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         return -1;
     }
 
-    SDL_SetSurfaceColorMod(surface, texture->color.r, texture->color.g, texture->color.b);
-    SDL_SetSurfaceAlphaMod(surface, texture->color.a);
+    SDL_PrivateSetSurfaceColorMod(surface, texture->color);
     SDL_SetSurfaceBlendMode(surface, texture->blendMode);
 
     /* Only RLE encode textures without an alpha channel since the RLE coder
@@ -453,7 +452,8 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
                      * by modulating the source colors with 0. Since the destination is all zeros, this
                      * will effectively set the destination alpha to the source alpha.
                      */
-                    SDL_SetSurfaceColorMod(src_rotated, 0, 0, 0);
+                    // SDL_SetSurfaceColorMod(src_rotated, 0, 0, 0);
+                    SDL_PrivateSetSurfaceColorMod(src_rotated, SDL_ColorFromInt(0, 0, 0, 0xFF));
                     mask_rect = tmp_rect;
                     /* Renderer scaling, if needed */
                     retval = Blit_to_Screen(src_rotated, NULL, surface, &mask_rect, scale_x, scale_y, texture->scaleMode);
@@ -764,11 +764,10 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                         if (tmp) {
                             SDL_Rect r;
                             SDL_BlendMode blendmode;
-                            Uint8 alphaMod, rMod, gMod, bMod;
+                            SDL_Color colorMod;
 
                             SDL_GetSurfaceBlendMode(src, &blendmode);
-                            SDL_GetSurfaceAlphaMod(src, &alphaMod);
-                            SDL_GetSurfaceColorMod(src, &rMod, &gMod, &bMod);
+                            colorMod = SDL_PrivateGetSurfaceColorMod(src);
 
                             r.x = 0;
                             r.y = 0;
@@ -776,13 +775,11 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                             r.h = dstrect->h;
 
                             SDL_SetSurfaceBlendMode(src, SDL_BLENDMODE_NONE);
-                            SDL_SetSurfaceColorMod(src, 255, 255, 255);
-                            SDL_SetSurfaceAlphaMod(src, 255);
+                            SDL_PrivateSetSurfaceColorMod(src, SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0xFF));
 
                             SDL_PrivateUpperBlitScaled(src, srcrect, tmp, &r, texture->scaleMode);
 
-                            SDL_SetSurfaceColorMod(tmp, rMod, gMod, bMod);
-                            SDL_SetSurfaceAlphaMod(tmp, alphaMod);
+                            SDL_PrivateSetSurfaceColorMod(tmp, colorMod);
                             SDL_SetSurfaceBlendMode(tmp, blendmode);
 
                             SDL_BlitSurface(tmp, NULL, surface, dstrect);
