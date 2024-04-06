@@ -333,7 +333,7 @@ static int QueueCmdSetViewport(SDL_Renderer *renderer)
         retval = -1;
         if (cmd) {
             cmd->command = SDL_RENDERCMD_SETVIEWPORT;
-            cmd->data.viewport.first = 0; /* render backend will fill this in. */
+            // cmd->data.viewport.first = 0; -- render backend will fill this in (if used)
             /* Convert SDL_DRect to SDL_Rect */
             cmd->data.viewport.rect.x = (int)SDL_floor(renderer->viewport.x);
             cmd->data.viewport.rect.y = (int)SDL_floor(renderer->viewport.y);
@@ -386,7 +386,7 @@ static int QueueCmdSetDrawColor(SDL_Renderer *renderer, const SDL_Color *color)
 
         if (cmd) {
             cmd->command = SDL_RENDERCMD_SETDRAWCOLOR;
-            cmd->data.color.first = 0; /* render backend will fill this in. */
+            // cmd->data.color.first = 0; -- render backend will fill this in (if used e.g. metal)
             cmd->data.color.color = *color;
             retval = renderer->QueueSetDrawColor(renderer, cmd);
             if (retval < 0) {
@@ -408,7 +408,7 @@ static int QueueCmdClear(SDL_Renderer *renderer)
     }
 
     cmd->command = SDL_RENDERCMD_CLEAR;
-    cmd->data.color.first = 0;
+    // cmd->data.color.first = 0; -- unused
     cmd->data.color.color = renderer->color;
     return 0;
 }
@@ -446,8 +446,8 @@ static SDL_RenderCommand *PrepQueueCmdDraw(SDL_Renderer *renderer, const SDL_Ren
         cmd = AllocateRenderCommand(renderer);
         if (cmd) {
             cmd->command = cmdtype;
-            cmd->data.draw.first = 0; /* render backend will fill this in. */
-            cmd->data.draw.count = 0; /* render backend will fill this in. */
+            // cmd->data.draw.first = 0; -- render backend will fill this in.
+            // cmd->data.draw.count = 0; -- render backend will fill this in.
             cmd->data.draw.color = *color;
             cmd->data.draw.blend = blendMode;
             cmd->data.draw.texture = texture;
