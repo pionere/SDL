@@ -3786,24 +3786,10 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
 {
     SDL_Texture *texture = cmd->data.draw.texture;
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
-    VkSampler textureSampler = VK_NULL_HANDLE;
+    VkSampler textureSampler;
     PixelShaderConstants constants;
-    VkDescriptorSetLayout descriptorSetLayout = (textureData->descriptorSetLayoutYcbcr != VK_NULL_HANDLE) ? textureData->descriptorSetLayoutYcbcr : rendererData->descriptorSetLayout;
-    VkPipelineLayout pipelineLayout = (textureData->pipelineLayoutYcbcr != VK_NULL_HANDLE) ? textureData->pipelineLayoutYcbcr : rendererData->pipelineLayout;
-
-    VULKAN_SetupShaderConstants(/*renderer, cmd, */texture, &constants);
-
-    switch (textureData->scaleMode) {
-    case VK_FILTER_NEAREST:
-        textureSampler = rendererData->samplers[SDL_VULKAN_SAMPLER_NEAREST];
-        break;
-    case VK_FILTER_LINEAR:
-        textureSampler = rendererData->samplers[SDL_VULKAN_SAMPLER_LINEAR];
-        break;
-    default:
-        SDL_assume(!"Unknown scale mode");
-        return -1;
-    }
+    VkDescriptorSetLayout descriptorSetLayout;
+    VkPipelineLayout pipelineLayout;
 
     if (textureData->mainImage.imageLayout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
         SDL_bool stoppedRenderPass = SDL_FALSE;
@@ -3827,6 +3813,22 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
         }
     }
 
+    VULKAN_SetupShaderConstants(/*renderer, cmd, */texture, &constants);
+
+    switch (textureData->scaleMode) {
+    case VK_FILTER_NEAREST:
+        textureSampler = rendererData->samplers[SDL_VULKAN_SAMPLER_NEAREST];
+        break;
+    case VK_FILTER_LINEAR:
+        textureSampler = rendererData->samplers[SDL_VULKAN_SAMPLER_LINEAR];
+        break;
+    default:
+        SDL_assume(!"Unknown scale mode");
+        return -1;
+    }
+
+    descriptorSetLayout = (textureData->descriptorSetLayoutYcbcr != VK_NULL_HANDLE) ? textureData->descriptorSetLayoutYcbcr : rendererData->descriptorSetLayout;
+    pipelineLayout = (textureData->pipelineLayoutYcbcr != VK_NULL_HANDLE) ? textureData->pipelineLayoutYcbcr : rendererData->pipelineLayout;
     return VULKAN_SetDrawState(rendererData, cmd, textureData->shader, pipelineLayout, descriptorSetLayout, &constants, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, textureData->mainImage.imageView, textureSampler, stateCache);
 }
 
