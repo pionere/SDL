@@ -267,10 +267,9 @@ int SDL_RenderFlush(SDL_Renderer *renderer)
 void *SDL_AllocateRenderVertices(SDL_Renderer *renderer, const size_t numbytes, const size_t alignment, size_t *offset)
 {
     const size_t current_offset = renderer->vertex_data_used;
-    const size_t needed = current_offset + numbytes + alignment;
-
     const size_t aligner = (alignment && ((current_offset & (alignment - 1)) != 0)) ? (alignment - (current_offset & (alignment - 1))) : 0;
     const size_t aligned = current_offset + aligner;
+    const size_t needed = aligned + numbytes + alignment;
 
     if (renderer->vertex_data_allocation < needed) {
         const size_t current_allocation = renderer->vertex_data ? renderer->vertex_data_allocation : 1024;
@@ -290,11 +289,10 @@ void *SDL_AllocateRenderVertices(SDL_Renderer *renderer, const size_t numbytes, 
         renderer->vertex_data_allocation = newsize;
     }
 
-    if (offset) {
-        *offset = aligned;
-    }
+    SDL_assert(offset != NULL);
+    *offset = aligned;
 
-    renderer->vertex_data_used += aligner + numbytes;
+    renderer->vertex_data_used = aligned + numbytes;
 
     return ((Uint8 *)renderer->vertex_data) + aligned;
 }
