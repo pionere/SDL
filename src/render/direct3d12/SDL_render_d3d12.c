@@ -741,6 +741,7 @@ static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, D3D12_VertexBuff
                       (void **)&buffer->resource);
 
     if (FAILED(result)) {
+        buffer->size = 0;
         WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreatePlacedResource [vertex buffer]"), result);
         return result;
     }
