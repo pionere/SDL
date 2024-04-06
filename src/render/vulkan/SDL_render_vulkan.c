@@ -2956,9 +2956,7 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     Uint32 numPlanes;
 #endif
     int retval;
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch);
     if (retval < 0) {
@@ -3007,9 +3005,7 @@ static int VULKAN_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
     int retval;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
@@ -3029,9 +3025,7 @@ static int VULKAN_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
     int retval;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
@@ -3048,9 +3042,8 @@ static int VULKAN_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
     VkDeviceSize pixelSize, length, stagingBufferSize;
     VkResult result;
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+
+    SDL_assert(textureData != NULL);
 
     if (textureData->stagingBuffer.buffer != VK_NULL_HANDLE) {
         return SDL_SetError("texture is already locked");
@@ -3090,9 +3083,7 @@ static void VULKAN_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
     VkBufferImageCopy region;
 
-    if (!textureData) {
-        return;
-    }
+    SDL_assert(textureData != NULL);
 
     VULKAN_EnsureCommandBuffer(rendererData);
 
@@ -3141,9 +3132,7 @@ static void VULKAN_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *text
 {
     VULKAN_TextureData *textureData = (VULKAN_TextureData *)texture->driverdata;
 
-    if (!textureData) {
-        return;
-    }
+    SDL_assert(textureData != NULL);
 
     textureData->scaleMode = (scaleMode == SDL_ScaleModeNearest) ? VK_FILTER_NEAREST : VK_FILTER_LINEAR;
 }
@@ -3172,6 +3161,7 @@ static int VULKAN_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     textureData = (VULKAN_TextureData *)texture->driverdata;
+    SDL_assert(textureData != NULL);
 
     if (textureData->mainImage.imageView == VK_NULL_HANDLE) {
         return SDL_SetError("specified texture is not a render target");
@@ -3790,6 +3780,8 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
     PixelShaderConstants constants;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
+
+    SDL_assert(textureData != NULL);
 
     if (textureData->mainImage.imageLayout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
         SDL_bool stoppedRenderPass = SDL_FALSE;

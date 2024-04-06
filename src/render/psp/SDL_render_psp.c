@@ -562,7 +562,7 @@ static void TextureActivate(SDL_Texture *texture)
 {
     PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
     int scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? GU_NEAREST : GU_LINEAR;
-
+    SDL_assert(psp_texture != NULL);
     /* Swizzling is useless with small textures. */
     if (TextureShouldSwizzle(psp_texture, texture)) {
         TextureSwizzle(psp_texture, NULL);
@@ -607,7 +607,7 @@ static int PSP_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                            const SDL_Rect *rect, void **pixels, int *pitch)
 {
     PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
-
+    SDL_assert(psp_texture != NULL);
     *pixels =
         (void *)((Uint8 *)psp_texture->data + rect->y * psp_texture->pitch +
                  rect->x * SDL_PIXELBPP(texture->format));
@@ -619,7 +619,7 @@ static void PSP_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
     SDL_Rect rect;
-
+    SDL_assert(psp_texture != NULL);
     /* We do whole texture updates, at least for now */
     rect.x = 0;
     rect.y = 0;
@@ -704,6 +704,7 @@ static int PSP_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     } else {
         PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
         VertTCV *verts;
+        SDL_assert(psp_texture != NULL);
         verts = (VertTCV *)SDL_AllocateRenderVertices(renderer, count * sizeof(VertTCV), 4, &cmd->data.draw.first);
         if (!verts) {
             return -1;
@@ -965,6 +966,7 @@ static void StartDrawing(SDL_Renderer *renderer)
         SDL_Texture *texture = renderer->target;
         if (texture) {
             PSP_TextureData *psp_texture = (PSP_TextureData *)texture->driverdata;
+            SDL_assert(psp_texture != NULL);
             // Set target, registering LRU
             TextureBindAsTarget(data, psp_texture);
         } else {

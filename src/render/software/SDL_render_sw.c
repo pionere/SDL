@@ -119,7 +119,7 @@ static int SW_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     Uint8 *src, *dst;
     int row;
     size_t length;
-
+    SDL_assert(surface != NULL);
     if (SDL_MUSTLOCK(surface)) {
         SDL_LockSurface(surface);
     }
@@ -143,7 +143,7 @@ static int SW_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                           const SDL_Rect *rect, void **pixels, int *pitch)
 {
     SDL_Surface *surface = (SDL_Surface *)texture->driverdata;
-
+    SDL_assert(surface != NULL);
     *pixels =
         (void *)((Uint8 *)surface->pixels + rect->y * surface->pitch +
                  rect->x * surface->format->BytesPerPixel);
@@ -309,9 +309,8 @@ static int SW_RenderCopyEx(SDL_Renderer *renderer, SDL_Surface *surface, SDL_Tex
     int blitRequired = SDL_FALSE;
     int isOpaque = SDL_FALSE;
 
-    if (!surface) {
-        return -1;
-    }
+    SDL_assert(surface != NULL);
+    SDL_assert(src != NULL);
 
     tmp_rect.x = 0;
     tmp_rect.y = 0;
@@ -589,6 +588,8 @@ static void PrepTextureForCopy(const SDL_RenderCommand *cmd)
     const SDL_bool colormod = !SDL_Colors_Equal(&color, &colorMask);
     const SDL_bool blending = ((blend == SDL_BLENDMODE_ADD) || (blend == SDL_BLENDMODE_MOD) || (blend == SDL_BLENDMODE_MUL));
 
+    SDL_assert(surface != NULL);
+
     if (colormod || blending) {
         SDL_SetSurfaceRLE(surface, 0);
     }
@@ -738,7 +739,7 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
                 SDL_Rect *dstrect = verts + 1;
                 SDL_Texture *texture = cmd->data.draw.texture;
                 SDL_Surface *src = (SDL_Surface *) texture->driverdata;
-
+                SDL_assert(src != NULL);
                 SetDrawState(surface, &drawstate);
 
                 PrepTextureForCopy(cmd);
@@ -821,8 +822,8 @@ static int SW_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, vo
 
                 if (texture) {
                     SDL_Surface *src = (SDL_Surface *) texture->driverdata;
-
                     GeometryCopyData *ptr = (GeometryCopyData *) verts;
+                    SDL_assert(src != NULL);
 
                     PrepTextureForCopy(cmd);
 

@@ -178,6 +178,7 @@ static int PS2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 static void PS2_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture, SDL_ScaleMode scaleMode)
 {
     GSTEXTURE *ps2_texture = (GSTEXTURE *)texture->driverdata;
+    SDL_assert(ps2_texture != NULL);
     /*
      set texture filtering according to scaleMode
      suported hint values are nearest (0, default) or linear (1)
@@ -254,7 +255,7 @@ static int PS2_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     if (texture) {
         GSPRIMUVPOINT *vertices = (GSPRIMUVPOINT *) SDL_AllocateRenderVertices(renderer, count * sizeof(GSPRIMUVPOINT), 4, &cmd->data.draw.first);
         GSTEXTURE *ps2_tex = (GSTEXTURE *) texture->driverdata;
-
+        SDL_assert(ps2_tex != NULL);
         if (!vertices) {
             return -1;
         }
@@ -429,7 +430,7 @@ static int PS2_RenderGeometry(SDL_Renderer *renderer, void *vertices, SDL_Render
     if (cmd->data.draw.texture) {
         const GSPRIMUVPOINT *verts = (GSPRIMUVPOINT *) (vertices + cmd->data.draw.first);
         GSTEXTURE *ps2_tex = (GSTEXTURE *)cmd->data.draw.texture->driverdata;
-
+        SDL_assert(ps2_tex != NULL);
         gsKit_TexManager_bind(data->gsGlobal, ps2_tex);
         gsKit_prim_list_triangle_goraud_texture_uv_3d(data->gsGlobal, ps2_tex, count, verts);
     } else {

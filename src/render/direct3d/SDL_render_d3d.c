@@ -593,9 +593,7 @@ static int D3D_RecreateTexture(SDL_Texture *texture)
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     int status;
 
-    if (!texturedata) {
-        return 0;
-    }
+    SDL_assert(texturedata != NULL);
 
     status = D3D_RecreateTextureRep(&texturedata->texture);
 #if SDL_HAVE_YUV
@@ -617,9 +615,7 @@ static int D3D_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     int status;
 
-    if (!texturedata) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(texturedata != NULL);
 
     status = D3D_UpdateTextureRep(device, &texturedata->texture, rect->x, rect->y, rect->w, rect->h, pixels, pitch);
 #if SDL_HAVE_YUV
@@ -650,9 +646,7 @@ static int D3D_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     int status;
 
-    if (!texturedata) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(texturedata != NULL);
 
     status = D3D_UpdateTextureRep(device, &texturedata->texture, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
@@ -672,9 +666,8 @@ static int D3D_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     IDirect3DDevice9 *device = data->device;
 
-    if (!texturedata) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(texturedata != NULL);
+
 #if SDL_HAVE_YUV
     texturedata->locked_rect = *rect;
 
@@ -722,9 +715,8 @@ static void D3D_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     D3D_RenderData *data = (D3D_RenderData *)renderer->driverdata;
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
 
-    if (!texturedata) {
-        return;
-    }
+    SDL_assert(texturedata != NULL);
+
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {
         const SDL_Rect *rect = &texturedata->locked_rect;
@@ -750,9 +742,7 @@ static void D3D_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture
 {
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
 
-    if (!texturedata) {
-        return;
-    }
+    SDL_assert(texturedata != NULL);
 
     texturedata->scaleMode = (scaleMode == SDL_ScaleModeNearest) ? D3DTEXF_POINT : D3DTEXF_LINEAR;
 }
@@ -777,9 +767,7 @@ static int D3D_SetRenderTargetInternal(SDL_Renderer *renderer, SDL_Texture *text
     }
 
     texturedata = (D3D_TextureData *)texture->driverdata;
-    if (!texturedata) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(texturedata != NULL);
 
     /* Make sure the render target is updated if it was locked and written to */
     texturerep = &texturedata->texture;
@@ -957,9 +945,7 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
 
     SDL_assert(*shader == NULL);
 
-    if (!texturedata) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(texturedata != NULL);
 
     UpdateTextureScaleMode(data, texturedata, 0);
 
@@ -1031,6 +1017,7 @@ static int SetDrawState(D3D_RenderData *data, const SDL_RenderCommand *cmd)
         data->drawstate.texture = texture;
     } else if (texture) {
         D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
+        SDL_assert(texturedata != NULL);
         UpdateDirtyTexture(data->device, &texturedata->texture);
 #if SDL_HAVE_YUV
         if (texturedata->yuv) {
@@ -1407,7 +1394,8 @@ static void D3D_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         IDirect3DDevice9_SetPixelShader(data->device, NULL);
         IDirect3DDevice9_SetTexture(data->device, 0, NULL);
 #if SDL_HAVE_YUV
-        if (texturedata && texturedata->yuv) {
+        SDL_assert(texturedata != NULL);
+        if (texturedata->yuv) {
             IDirect3DDevice9_SetTexture(data->device, 1, NULL);
             IDirect3DDevice9_SetTexture(data->device, 2, NULL);
         }

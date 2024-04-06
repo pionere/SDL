@@ -715,6 +715,8 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     textype = renderdata->textype;
     data = (GL_TextureData *)texture->driverdata;
 
+    SDL_assert(data != NULL);
+
     renderdata->glBindTexture(textype, data->texture);
     renderdata->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     texture_format = texture->format;
@@ -782,6 +784,8 @@ static int GL_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     textype = renderdata->textype;
     data = (GL_TextureData *)texture->driverdata;
 
+    SDL_assert(data != NULL);
+
     renderdata->drawstate.texture = NULL; /* we trash this state. */
 
     renderdata->glBindTexture(textype, data->texture);
@@ -821,6 +825,8 @@ static int GL_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
     textype = renderdata->textype;
     data = (GL_TextureData *)texture->driverdata;
 
+    SDL_assert(data != NULL);
+
     renderdata->drawstate.texture = NULL; /* we trash this state. */
 
     renderdata->glBindTexture(textype, data->texture);
@@ -845,6 +851,8 @@ static int GL_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     GL_TextureData *data = (GL_TextureData *)texture->driverdata;
 
+    SDL_assert(data != NULL);
+
     data->locked_rect = *rect;
     *pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
@@ -859,6 +867,8 @@ static void GL_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     const SDL_Rect *rect;
     void *pixels;
 
+   SDL_assert(data != NULL);
+
     rect = &data->locked_rect;
     pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
@@ -870,28 +880,30 @@ static void GL_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     GL_RenderData *renderdata = (GL_RenderData *)renderer->driverdata;
     const GLenum textype = renderdata->textype;
-    GL_TextureData *data = (GL_TextureData *)texture->driverdata;
+    GL_TextureData *texturedata = (GL_TextureData *)texture->driverdata;
     GLenum glScaleMode = (scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
 
-    renderdata->glBindTexture(textype, data->texture);
+   SDL_assert(texturedata != NULL);
+
+    renderdata->glBindTexture(textype, texturedata->texture);
     renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
     renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
 
 #if SDL_HAVE_YUV
     if (texture->format == SDL_PIXELFORMAT_YV12 ||
         texture->format == SDL_PIXELFORMAT_IYUV) {
-        renderdata->glBindTexture(textype, data->utexture);
+        renderdata->glBindTexture(textype, texturedata->utexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
 
-        renderdata->glBindTexture(textype, data->vtexture);
+        renderdata->glBindTexture(textype, texturedata->vtexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
     }
 
     if (texture->format == SDL_PIXELFORMAT_NV12 ||
         texture->format == SDL_PIXELFORMAT_NV21) {
-        renderdata->glBindTexture(textype, data->utexture);
+        renderdata->glBindTexture(textype, texturedata->utexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
     }
@@ -919,6 +931,7 @@ static int GL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     texturedata = (GL_TextureData *)texture->driverdata;
+   SDL_assert(texturedata != NULL);
     data->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, texturedata->fbo->FBO);
     /* TODO: check if texture pixel format allows this operation */
     data->glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, data->textype, texturedata->texture, 0);
@@ -1014,6 +1027,7 @@ static int GL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
 
     if (texture) {
         texturedata = (GL_TextureData *)texture->driverdata;
+        SDL_assert(texturedata != NULL);
     }
 
     cmd->data.draw.count = count;
@@ -1163,6 +1177,8 @@ static int SetCopyState(GL_RenderData *data, const SDL_RenderCommand *cmd)
 {
     SDL_Texture *texture = cmd->data.draw.texture;
     const GL_TextureData *texturedata = (GL_TextureData *)texture->driverdata;
+
+   SDL_assert(texturedata != NULL);
 
     SetDrawState(data, cmd, texturedata->shader);
 
@@ -1596,6 +1612,8 @@ static int GL_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *t
     texturedata = (GL_TextureData *)texture->driverdata;
     textype = data->textype;
 
+   SDL_assert(texturedata != NULL);
+
     data->glEnable(textype);
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {
@@ -1649,6 +1667,8 @@ static int GL_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     data = (GL_RenderData *)renderer->driverdata;
     texturedata = (GL_TextureData *)texture->driverdata;
     textype = data->textype;
+
+   SDL_assert(texturedata != NULL);
 
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {

@@ -418,6 +418,7 @@ static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
     renderdata = (GLES_RenderData *)renderer->driverdata;
     data = (GLES_TextureData *)texture->driverdata;
+    SDL_assert(data != NULL);
     /* Reformat the texture data into a tightly packed array */
     srcPitch = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     src = (Uint8 *)pixels;
@@ -465,7 +466,7 @@ static int GLES_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                             const SDL_Rect *rect, void **pixels, int *pitch)
 {
     GLES_TextureData *data = (GLES_TextureData *)texture->driverdata;
-
+    SDL_assert(data != NULL);
     *pixels =
         (void *)((Uint8 *)data->pixels + rect->y * data->pitch +
                  rect->x * SDL_PIXELFORMAT_BPP(texture->format));
@@ -477,7 +478,7 @@ static void GLES_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     GLES_TextureData *data = (GLES_TextureData *)texture->driverdata;
     SDL_Rect rect;
-
+    SDL_assert(data != NULL);
     /* We do whole texture updates, at least for now */
     rect.x = 0;
     rect.y = 0;
@@ -491,7 +492,7 @@ static void GLES_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *textur
     GLES_RenderData *renderdata = (GLES_RenderData *)renderer->driverdata;
     GLES_TextureData *data = (GLES_TextureData *)texture->driverdata;
     GLenum glScaleMode = (scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
-
+    SDL_assert(data != NULL);
     renderdata->glBindTexture(data->type, data->texture);
     renderdata->glTexParameteri(data->type, GL_TEXTURE_MIN_FILTER, glScaleMode);
     renderdata->glTexParameteri(data->type, GL_TEXTURE_MAG_FILTER, glScaleMode);
@@ -515,6 +516,7 @@ static int GLES_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     texturedata = (GLES_TextureData *)texture->driverdata;
+    SDL_assert(texturedata != NULL);
     data->glBindFramebufferOES(GL_FRAMEBUFFER_OES, texturedata->fbo->FBO);
     /* TODO: check if texture pixel format allows this operation */
     data->glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, texturedata->type, texturedata->texture, 0);
@@ -607,6 +609,7 @@ static int GLES_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SD
 
     if (texture) {
         texturedata = (GLES_TextureData *)texture->driverdata;
+        SDL_assert(texturedata != NULL);
     }
 
     cmd->data.draw.count = count;
@@ -739,8 +742,10 @@ static void SetCopyState(GLES_RenderData *data, const SDL_RenderCommand *cmd)
     SDL_Texture *texture = cmd->data.draw.texture;
     SetDrawState(data, cmd);
 
+    SDL_assert(texture != NULL);
     if (texture != data->drawstate.texture) {
         GLES_TextureData *texturedata = (GLES_TextureData *)texture->driverdata;
+        SDL_assert(texturedata != NULL);
         data->glBindTexture(GL_TEXTURE_2D, texturedata->texture);
         data->drawstate.texture = texture;
     }
@@ -1006,6 +1011,7 @@ static int GLES_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float 
 
     data = (GLES_RenderData *)renderer->driverdata;
     texturedata = (GLES_TextureData *)texture->driverdata;
+    SDL_assert(texturedata != NULL);
     data->glEnable(GL_TEXTURE_2D);
     data->glBindTexture(texturedata->type, texturedata->texture);
 
@@ -1031,6 +1037,7 @@ static int GLES_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     data = (GLES_RenderData *)renderer->driverdata;
     texturedata = (GLES_TextureData *)texture->driverdata;
+    SDL_assert(texturedata != NULL);
     data->glDisable(texturedata->type);
 
     data->drawstate.texture = NULL;

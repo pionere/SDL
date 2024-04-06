@@ -357,7 +357,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
     Uint8 *dst;
     int row, length, dpitch;
-
+    SDL_assert(vita_texture != NULL);
 #if SDL_HAVE_YUV
     if (vita_texture->yuv || vita_texture->nv12) {
         VITA_GXM_SetYUVProfile(renderer, texture);
@@ -477,9 +477,12 @@ static int VITA_GXM_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *textur
         void *Vdst;
         VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
         int uv_pitch = (dpitch + 1) / 2;
+        void *pixels;
+
+        SDL_assert(vita_texture != NULL);
 
         // skip Y plane
-        void *pixels = (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (vita_texture->pitch * vita_texture->h));
+        pixels = (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (vita_texture->pitch * vita_texture->h));
 
         if (texture->format == SDL_PIXELFORMAT_YV12) { // YVU
             Vdst = pixels + (UVrect.y * uv_pitch) + UVrect.x;
@@ -549,9 +552,12 @@ static int VITA_GXM_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture
         void *UVdst;
         VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
         int uv_pitch = 2 * ((dpitch + 1) / 2);
+        void *pixels;
+
+        SDL_assert(vita_texture != NULL);
 
         // skip Y plane
-        void *pixels = (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (vita_texture->pitch * vita_texture->h));
+        pixels = (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (vita_texture->pitch * vita_texture->h));
 
         UVdst = pixels + (UVrect.y * uv_pitch) + UVrect.x;
 
@@ -579,7 +585,7 @@ static int VITA_GXM_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
     VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
-
+    SDL_assert(vita_texture != NULL);
     *pixels =
         (void *)((Uint8 *)gxm_texture_get_datap(vita_texture->tex) + (rect->y * vita_texture->pitch) + rect->x * SDL_PIXELFORMAT_BPP(texture->format));
     *pitch = vita_texture->pitch;
@@ -602,7 +608,6 @@ static void VITA_GXM_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void VITA_GXM_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture, SDL_ScaleMode scaleMode)
 {
     VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
-
     /*
      set texture filtering according to scaleMode
      suported hint values are nearest (0, default) or linear (1)
@@ -613,6 +618,7 @@ static void VITA_GXM_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *te
     int vitaScaleMode = (scaleMode == SDL_ScaleModeNearest
                              ? SCE_GXM_TEXTURE_FILTER_POINT
                              : SCE_GXM_TEXTURE_FILTER_LINEAR);
+    SDL_assert(vita_texture != NULL);
     gxm_texture_set_filters(vita_texture->tex, vitaScaleMode, vitaScaleMode);
 
     return;
@@ -732,6 +738,8 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     if (texture) {
         VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
         texture_vertex *vertices;
+
+        SDL_assert(vita_texture != NULL);
 
         vertices = (texture_vertex *)pool_malloc(
             data,
@@ -915,6 +923,7 @@ static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
     if (texture != data->drawstate.texture) {
         if (texture) {
             VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)cmd->data.draw.texture->driverdata;
+            SDL_assert(vita_texture != NULL);
             sceGxmSetFragmentTexture(data->gxm_context, 0, &vita_texture->tex->gxm_tex);
         }
         data->drawstate.texture = texture;

@@ -1374,9 +1374,7 @@ static int D3D11_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     int bpp = SDL_PIXELFORMAT_BPP(format);
     int status;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch);
 #if SDL_HAVE_YUV
@@ -1413,9 +1411,7 @@ static int D3D11_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     int bpp = SDL_PIXELFORMAT_BPP(texture->format);
     int status;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
@@ -1435,9 +1431,7 @@ static int D3D11_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D11_TextureData *textureData = (D3D11_TextureData *)texture->driverdata;
     int status;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
@@ -1456,9 +1450,8 @@ static int D3D11_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     D3D11_TEXTURE2D_DESC stagingTextureDesc;
     D3D11_MAPPED_SUBRESOURCE textureMemory;
 
-    if (!textureData) {
-        return SDL_SetError("Texture is not currently available");
-    }
+    SDL_assert(textureData != NULL);
+
 #if SDL_HAVE_YUV
     if (textureData->yuv || textureData->nv12) {
         /* It's more efficient to upload directly... */
@@ -1536,9 +1529,8 @@ static void D3D11_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     ID3D11DeviceContext1 *d3dContext = rendererData->d3dContext;
     D3D11_TextureData *textureData = (D3D11_TextureData *)texture->driverdata;
 
-    if (!textureData) {
-        return;
-    }
+    SDL_assert(textureData != NULL);
+
 #if SDL_HAVE_YUV
     if (textureData->yuv || textureData->nv12) {
         const SDL_Rect *rect = &textureData->locked_rect;
@@ -1572,9 +1564,7 @@ static void D3D11_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *textu
 {
     D3D11_TextureData *textureData = (D3D11_TextureData *)texture->driverdata;
 
-    if (!textureData) {
-        return;
-    }
+    SDL_assert(textureData != NULL);
 
     textureData->scaleMode = (scaleMode == SDL_ScaleModeNearest) ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 }
@@ -1590,6 +1580,7 @@ static int D3D11_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     textureData = (D3D11_TextureData *)texture->driverdata;
+    SDL_assert(textureData != NULL);
 
     if (!textureData->mainTextureRenderTargetView) {
         return SDL_SetError("specified texture is not a render target");
@@ -1959,6 +1950,8 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
     SDL_Texture *texture = cmd->data.draw.texture;
     D3D11_TextureData *textureData = (D3D11_TextureData *)texture->driverdata;
     ID3D11SamplerState *textureSampler;
+
+    SDL_assert(textureData != NULL);
 
     switch (textureData->scaleMode) {
     case D3D11_FILTER_MIN_MAG_MIP_POINT:

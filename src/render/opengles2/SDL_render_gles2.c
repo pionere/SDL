@@ -1143,6 +1143,7 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
 
     if (texture != data->drawstate.texture) {
         GLES2_TextureData *tdata = (GLES2_TextureData *)texture->driverdata;
+        SDL_assert(tdata != NULL);
 #if SDL_HAVE_YUV
         if (tdata->yuv) {
             data->glActiveTexture(GL_TEXTURE2);
@@ -1639,6 +1640,7 @@ static int GLES2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture, con
 
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
+    SDL_assert(tdata != NULL);
     data->drawstate.texture = NULL; /* we trash this state. */
 
     /* Create a texture subimage with the supplied data */
@@ -1722,6 +1724,7 @@ static int GLES2_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
+    SDL_assert(tdata != NULL);
     data->drawstate.texture = NULL; /* we trash this state. */
 
     data->glBindTexture(tdata->texture_type, tdata->texture_v);
@@ -1774,6 +1777,7 @@ static int GLES2_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
+    SDL_assert(tdata != NULL);
     data->drawstate.texture = NULL; /* we trash this state. */
 
     data->glBindTexture(tdata->texture_type, tdata->texture_u);
@@ -1804,7 +1808,7 @@ static int GLES2_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture, const
                              void **pixels, int *pitch)
 {
     GLES2_TextureData *tdata = (GLES2_TextureData *)texture->driverdata;
-
+    SDL_assert(tdata != NULL);
     /* Retrieve the buffer/pitch for the specified region */
     *pixels = (Uint8 *)tdata->pixel_data +
               (tdata->pitch * rect->y) +
@@ -1818,7 +1822,7 @@ static void GLES2_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     GLES2_TextureData *tdata = (GLES2_TextureData *)texture->driverdata;
     SDL_Rect rect;
-
+    SDL_assert(tdata != NULL);
     /* We do whole texture updates, at least for now */
     rect.x = 0;
     rect.y = 0;
@@ -1832,7 +1836,7 @@ static void GLES2_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *textu
     GLES2_RenderData *renderdata = (GLES2_RenderData *)renderer->driverdata;
     GLES2_TextureData *data = (GLES2_TextureData *)texture->driverdata;
     GLenum glScaleMode = (scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
-
+    SDL_assert(data != NULL);
 #if SDL_HAVE_YUV
     if (data->yuv) {
         renderdata->glActiveTexture(GL_TEXTURE2);
@@ -1870,6 +1874,7 @@ static int GLES2_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
         data->glBindFramebuffer(GL_FRAMEBUFFER, data->window_framebuffer);
     } else {
         texturedata = (GLES2_TextureData *)texture->driverdata;
+        SDL_assert(texturedata != NULL);
         data->glBindFramebuffer(GL_FRAMEBUFFER, texturedata->fbo->FBO);
         /* TODO: check if texture pixel format allows this operation */
         data->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texturedata->texture_type, texturedata->texture, 0);
@@ -2010,6 +2015,7 @@ static int GLES2_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float
 
     data = (GLES2_RenderData *)renderer->driverdata;
     texturedata = (GLES2_TextureData *)texture->driverdata;
+    SDL_assert(texturedata != NULL);
 #if SDL_HAVE_YUV
     if (texturedata->yuv) {
         data->glActiveTexture(GL_TEXTURE2);
@@ -2049,6 +2055,7 @@ static int GLES2_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     data = (GLES2_RenderData *)renderer->driverdata;
     texturedata = (GLES2_TextureData *)texture->driverdata;
+    SDL_assert(texturedata != NULL);
     data->glBindTexture(texturedata->texture_type, 0);
     data->drawstate.texture = NULL;
 
