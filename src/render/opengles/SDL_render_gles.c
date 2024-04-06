@@ -635,7 +635,7 @@ static int GLES_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SD
         *(verts++) = col_.b * inv255f;
         *(verts++) = col_.a * inv255f;
 
-        if (texture) {
+        if (texturedata /* texture */) {
             float *uv_ = (float *)((char *)uv + j * uv_stride);
             *(verts++) = uv_[0] * texturedata->texw;
             *(verts++) = uv_[1] * texturedata->texh;

@@ -1051,7 +1051,7 @@ static int GL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
         SDL_memcpy(verts, ((char *)color + j * color_stride), sizeof(*color));
         ++verts;
 
-        if (texture) {
+        if (texturedata /* texture */) {
             float *uv_ = (float *)((char *)uv + j * uv_stride);
             *(verts++) = uv_[0] * texturedata->texw;
             *(verts++) = uv_[1] * texturedata->texh;

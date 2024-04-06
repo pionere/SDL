@@ -3264,7 +3264,7 @@ static int VULKAN_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
         verts->vxcolor[3] = (float)col.a / 255.0f;
 #endif
 
-        if (texture) {
+        if (textureData /* texture */) {
             float *uv_ = (float *)((char *)uv + j * uv_stride);
             verts->tex[0] = uv_[0] * u_scale;
             verts->tex[1] = uv_[1] * v_scale;
