@@ -749,6 +749,8 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             return -1;
         }
 
+        cmd->data.draw.first = (size_t)vertices;
+
         for (i = 0; i < count; i++) {
             int j;
             float *xy_;
@@ -771,8 +773,6 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             vertices[i].color = col_;
         }
 
-        cmd->data.draw.first = (size_t)vertices;
-
     } else {
         color_vertex *vertices;
 
@@ -783,6 +783,8 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
         if (!vertices) {
             return -1;
         }
+
+        cmd->data.draw.first = (size_t)vertices;
 
         for (i = 0; i < count; i++) {
             int j;
@@ -801,7 +803,6 @@ static int VITA_GXM_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd
             vertices[i].y = xy_[1] * scale_y;
             vertices[i].color = col_;
         }
-        cmd->data.draw.first = (size_t)vertices;
     }
 
     return 0;
@@ -840,12 +841,11 @@ static int VITA_GXM_RenderClear(SDL_Renderer *renderer, SDL_RenderCommand *cmd)
 
 static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
 {
-    SDL_Texture *texture = cmd->data.draw.texture;
-    const SDL_BlendMode blend = cmd->data.draw.blend;
+    SDL_Texture *texture;
+    SDL_BlendMode blend;
     SceGxmFragmentProgram *fragment_program;
     SceGxmVertexProgram *vertex_program;
-    SDL_bool matrix_updated = SDL_FALSE;
-    SDL_bool program_updated = SDL_FALSE;
+    SDL_bool updateProgramParam = SDL_FALSE;
 
     if (data->drawstate.viewport_dirty) {
         const SDL_Rect *viewport = &data->drawstate.viewport;
@@ -867,7 +867,7 @@ static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
                                      (float)viewport->h,
                                      (float)0,
                                      0.0f, 1.0f);
-            matrix_updated = SDL_TRUE;
+            updateProgramParam = SDL_TRUE; // matrix updated
         }
 
         data->drawstate.viewport_dirty = SDL_FALSE;
@@ -886,8 +886,10 @@ static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
         data->drawstate.cliprect_dirty = SDL_FALSE;
     }
 
+    blend = cmd->data.draw.blend;
     VITA_GXM_SetBlendMode(data, blend); // do that first, to select appropriate shaders
 
+    texture = cmd->data.draw.texture;
     if (texture) {
         vertex_program = data->textureVertexProgram;
         fragment_program = data->textureFragmentProgram;
@@ -899,30 +901,30 @@ static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
     if (data->drawstate.vertex_program != vertex_program) {
         data->drawstate.vertex_program = vertex_program;
         sceGxmSetVertexProgram(data->gxm_context, vertex_program);
-        program_updated = SDL_TRUE;
+        updateProgramParam = SDL_TRUE; // program updated
     }
 
     if (data->drawstate.fragment_program != fragment_program) {
         data->drawstate.fragment_program = fragment_program;
         sceGxmSetFragmentProgram(data->gxm_context, fragment_program);
-        program_updated = SDL_TRUE;
+        updateProgramParam = SDL_TRUE; // program updated
     }
 
-    if (program_updated || matrix_updated) {
+    if (updateProgramParam) {
+        void *vertexBuffer;
+        SceGxmProgramParameter *param;
+        sceGxmReserveVertexDefaultUniformBuffer(data->gxm_context, &vertexBuffer);
         if (data->drawstate.fragment_program == data->textureFragmentProgram) {
-            void *vertex_wvp_buffer;
-            sceGxmReserveVertexDefaultUniformBuffer(data->gxm_context, &vertex_wvp_buffer);
-            sceGxmSetUniformDataF(vertex_wvp_buffer, data->textureWvpParam, 0, 16, data->ortho_matrix);
+            param = data->textureWvpParam;
         } else { // color
-            void *vertexDefaultBuffer;
-            sceGxmReserveVertexDefaultUniformBuffer(data->gxm_context, &vertexDefaultBuffer);
-            sceGxmSetUniformDataF(vertexDefaultBuffer, data->colorWvpParam, 0, 16, data->ortho_matrix);
+            param = data->colorWvpParam;
         }
+        sceGxmSetUniformDataF(vertexBuffer, param, 0, 16, data->ortho_matrix);
     }
 
     if (texture != data->drawstate.texture) {
         if (texture) {
-            VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)cmd->data.draw.texture->driverdata;
+            VITA_GXM_TextureData *vita_texture = (VITA_GXM_TextureData *)texture->driverdata;
             SDL_assert(vita_texture != NULL);
             sceGxmSetFragmentTexture(data->gxm_context, 0, &vita_texture->tex->gxm_tex);
         }
@@ -937,9 +939,11 @@ static int SetDrawState(VITA_GXM_RenderData *data, const SDL_RenderCommand *cmd)
 
 static int VITA_GXM_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, void *vertices, size_t vertsize)
 {
-    VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
+    VITA_GXM_RenderData *data;
+
     StartDrawing(renderer);
 
+    data = (VITA_GXM_RenderData *)renderer->driverdata;
     data->drawstate.target = renderer->target;
     if (!data->drawstate.target) {
         int w, h;
