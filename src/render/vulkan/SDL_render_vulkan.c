@@ -3824,7 +3824,7 @@ static SDL_bool VULKAN_SetCopyState(VULKAN_RenderData *rendererData, const SDL_R
         break;
     default:
         SDL_assume(!"Unknown scale mode");
-        return -1;
+        return SDL_FALSE;
     }
 
     descriptorSetLayout = (textureData->descriptorSetLayoutYcbcr != VK_NULL_HANDLE) ? textureData->descriptorSetLayoutYcbcr : rendererData->descriptorSetLayout;
