@@ -699,13 +699,13 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(D3D12_RenderData *data,
     return &pipelineStates[data->pipelineStateCount - 1];
 }
 
-static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, size_t vbidx, size_t size)
+static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, D3D12_VertexBuffer *buffer, size_t size)
 {
     D3D12_HEAP_PROPERTIES vbufferHeapProps;
     D3D12_RESOURCE_DESC vbufferDesc;
     HRESULT result;
 
-    SAFE_RELEASE(data->vertexBuffers[vbidx].resource);
+    SAFE_RELEASE(buffer->resource);
 
     SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_ct_hp, sizeof(D3D12_HEAP_PROPERTIES) == offsetof(D3D12_HEAP_PROPERTIES, VisibleNodeMask) + sizeof(vbufferHeapProps.VisibleNodeMask));
     // SDL_zero(vbufferHeapProps);
@@ -738,16 +738,16 @@ static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, size_t vbidx, si
                       D3D12_RESOURCE_STATE_GENERIC_READ,
                       NULL,
                       D3D_GUID(SDL_IID_ID3D12Resource),
-                      (void **)&data->vertexBuffers[vbidx].resource);
+                      (void **)&buffer->resource);
 
     if (FAILED(result)) {
         WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreatePlacedResource [vertex buffer]"), result);
         return result;
     }
 
-    data->vertexBuffers[vbidx].view.BufferLocation = D3D_CALL(data->vertexBuffers[vbidx].resource, GetGPUVirtualAddress);
-    data->vertexBuffers[vbidx].view.StrideInBytes = sizeof(VertexPositionColor);
-    data->vertexBuffers[vbidx].size = size;
+    buffer->view.BufferLocation = D3D_CALL(buffer->resource, GetGPUVirtualAddress);
+    buffer->view.StrideInBytes = sizeof(VertexPositionColor);
+    buffer->size = size;
 
     return result;
 }
@@ -1098,7 +1098,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Create default vertex buffers  */
     for (i = 0; i < SDL_D3D12_NUM_VERTEX_BUFFERS; ++i) {
-        D3D12_CreateVertexBuffer(data, i, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+        D3D12_CreateVertexBuffer(data, &data->vertexBuffers[i], D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
     }
 
     /* Create samplers to use when drawing textures: */
@@ -2282,13 +2282,10 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
                                     const void *vertexData, size_t dataSizeInBytes)
 {
     HRESULT result;
-    const int vbidx = rendererData->currentVertexBuffer;
+    D3D12_VertexBuffer *buffer;
     UINT8 *vertexBufferData = NULL;
     D3D12_RANGE range;
     ID3D12Resource *vertexBuffer;
-
-    range.Begin = 0;
-    range.End = 0;
 
     if (dataSizeInBytes == 0) {
         return 0; /* nothing to do. */
@@ -2300,12 +2297,15 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
         }
     }
 
+    buffer = &rendererData->vertexBuffers[rendererData->currentVertexBuffer];
     /* If the existing vertex buffer isn't big enough, we need to recreate a big enough one */
-    if (dataSizeInBytes > rendererData->vertexBuffers[vbidx].size) {
-        D3D12_CreateVertexBuffer(rendererData, vbidx, dataSizeInBytes);
+    if (dataSizeInBytes > buffer->size) {
+        D3D12_CreateVertexBuffer(rendererData, buffer, dataSizeInBytes);
     }
 
-    vertexBuffer = rendererData->vertexBuffers[vbidx].resource;
+    vertexBuffer = buffer->resource;
+    range.Begin = 0;
+    range.End = 0;
     result = D3D_CALL(vertexBuffer, Map, 0, &range, (void **)&vertexBufferData);
     if (FAILED(result)) {
         return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [vertex buffer]"), result);
@@ -2313,9 +2313,9 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
     SDL_memcpy(vertexBufferData, vertexData, dataSizeInBytes);
     D3D_CALL(vertexBuffer, Unmap, 0, NULL);
 
-    rendererData->vertexBuffers[vbidx].view.SizeInBytes = (UINT)dataSizeInBytes;
+    buffer->view.SizeInBytes = (UINT)dataSizeInBytes;
 
-    D3D_CALL(rendererData->commandList, IASetVertexBuffers, 0, 1, &rendererData->vertexBuffers[vbidx].view);
+    D3D_CALL(rendererData->commandList, IASetVertexBuffers, 0, 1, &buffer->view);
 
     rendererData->currentVertexBuffer++;
     if (rendererData->currentVertexBuffer >= SDL_D3D12_NUM_VERTEX_BUFFERS) {
