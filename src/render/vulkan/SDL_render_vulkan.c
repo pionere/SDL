@@ -216,7 +216,7 @@ typedef struct
 #if 0
     SDL_FColor color;
 #else
-    SDL_Color color;
+    float vxcolor[4];
 #endif
 } VertexPositionColor;
 
@@ -3201,10 +3201,15 @@ static int VULKAN_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     int i;
 //    SDL_bool convert_color = SDL_RenderingLinearSpace(renderer);
     SDL_Color color = cmd->data.draw.color;
+    float fcolor[4];
 
     if (!verts) {
         return -1;
     }
+    fcolor[0] = (float)color.r / 255.0f;
+    fcolor[1] = (float)color.g / 255.0f;
+    fcolor[2] = (float)color.b / 255.0f;
+    fcolor[3] = (float)color.a / 255.0f;
 
     cmd->data.draw.count = count;
     for (i = 0; i < count; i++) {
@@ -3212,10 +3217,10 @@ static int VULKAN_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd
         verts->pos[1] = points[i].y + 0.5f;
         verts->tex[0] = 0.0f;
         verts->tex[1] = 0.0f;
-        verts->color = color;
+        SDL_memcpy(verts->vxcolor, fcolor, sizeof(fcolor));
 #if 0
         if (convert_color) {
-            SDL_ConvertToLinear(&verts->color);
+            SDL_ConvertToLinear(&verts->vxcolor);
         }
 #endif
         verts++;
@@ -3245,6 +3250,7 @@ static int VULKAN_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
     for (i = 0; i < count; i++) {
         int j;
         float *xy_;
+        SDL_Color col;
         if (indices) {
             j = indices[i];
         } else {
@@ -3256,12 +3262,16 @@ static int VULKAN_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, 
         verts->pos[0] = xy_[0] * scale_x;
         verts->pos[1] = xy_[1] * scale_y;
 #if 0
-        verts->color = *(SDL_FColor *)((char *)color + j * color_stride);
+        verts->vxcolor = *(SDL_FColor *)((char *)color + j * color_stride);
         if (convert_color) {
-            SDL_ConvertToLinear(&verts->color);
+            SDL_ConvertToLinear(&verts->vxcolor);
         }
 #else
-        verts->color = *(SDL_Color *)((char *)color + j * color_stride);
+        col = *(SDL_Color *)((char *)color + j * color_stride);
+        verts->vxcolor[0] = (float)col.r / 255.0f;
+        verts->vxcolor[1] = (float)col.g / 255.0f;
+        verts->vxcolor[2] = (float)col.b / 255.0f;
+        verts->vxcolor[3] = (float)col.a / 255.0f;
 #endif
 
         if (texture) {
