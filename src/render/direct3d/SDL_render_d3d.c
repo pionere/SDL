@@ -938,12 +938,12 @@ static void UpdateTextureScaleMode(D3D_RenderData *data, D3D_TextureData *textur
     }
 }
 
-static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIRECT3DPIXELSHADER9 *shader)
+static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIRECT3DPIXELSHADER9 *shader_ptr)
 {
     D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
     int status;
 
-    SDL_assert(*shader == NULL);
+    SDL_assert(*shader_ptr == NULL);
 
     SDL_assert(texturedata != NULL);
 
@@ -953,20 +953,23 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
 #if SDL_HAVE_YUV
     if (status >= 0 && texturedata->yuv) {
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        D3D9_Shader shader;
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
-            *shader = data->shaders[SHADER_YUV_JPEG];
+            shader = SHADER_YUV_JPEG;
             break;
         case SDL_YUV_CONVERSION_BT601:
-            *shader = data->shaders[SHADER_YUV_BT601];
+            shader = SHADER_YUV_BT601;
             break;
         case SDL_YUV_CONVERSION_BT709:
-            *shader = data->shaders[SHADER_YUV_BT709];
+            shader = SHADER_YUV_BT709;
             break;
         default:
             SDL_assume(!"Unsupported YUV conversion mode");
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
+
+        *shader_ptr = data->shaders[shader];
 
         UpdateTextureScaleMode(data, texturedata, 1);
         UpdateTextureScaleMode(data, texturedata, 2);
