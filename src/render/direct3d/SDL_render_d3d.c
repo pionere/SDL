@@ -888,9 +888,10 @@ static int D3D_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
     return 0;
 }
 
-static int UpdateDirtyTexture(IDirect3DDevice9 *device, D3D_TextureRep *texture)
+static int UpdateDirtyTexture(D3D_RenderData *data, D3D_TextureRep *texture)
 {
     if (texture->dirty && texture->staging) {
+        IDirect3DDevice9 *device = data->device;
         HRESULT result;
         if (!texture->texture) {
             result = IDirect3DDevice9_CreateTexture(device, texture->w, texture->h, 1, texture->usage,
@@ -909,11 +910,11 @@ static int UpdateDirtyTexture(IDirect3DDevice9 *device, D3D_TextureRep *texture)
     return 0;
 }
 
-static int BindTextureRep(IDirect3DDevice9 *device, D3D_TextureRep *texture, DWORD sampler)
+static int BindTextureRep(D3D_RenderData *data, D3D_TextureRep *texture, DWORD sampler)
 {
     HRESULT result;
-    UpdateDirtyTexture(device, texture);
-    result = IDirect3DDevice9_SetTexture(device, sampler, (IDirect3DBaseTexture9 *)texture->texture);
+    UpdateDirtyTexture(data, texture);
+    result = IDirect3DDevice9_SetTexture(data->device, sampler, (IDirect3DBaseTexture9 *)texture->texture);
     if (FAILED(result)) {
         return D3D_SetError("SetTexture()", result);
     }
@@ -949,7 +950,7 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
 
     UpdateTextureScaleMode(data, texturedata, 0);
 
-    status = BindTextureRep(data->device, &texturedata->texture, 0);
+    status = BindTextureRep(data, &texturedata->texture, 0);
 #if SDL_HAVE_YUV
     if (status >= 0 && texturedata->yuv) {
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
@@ -974,9 +975,9 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
         UpdateTextureScaleMode(data, texturedata, 1);
         UpdateTextureScaleMode(data, texturedata, 2);
 
-        status = BindTextureRep(data->device, &texturedata->utexture, 1);
+        status = BindTextureRep(data, &texturedata->utexture, 1);
         if (status >= 0) {
-            status = BindTextureRep(data->device, &texturedata->vtexture, 2);
+            status = BindTextureRep(data, &texturedata->vtexture, 2);
         }
     }
 #endif
@@ -1021,11 +1022,11 @@ static int SetDrawState(D3D_RenderData *data, const SDL_RenderCommand *cmd)
     } else if (texture) {
         D3D_TextureData *texturedata = (D3D_TextureData *)texture->driverdata;
         SDL_assert(texturedata != NULL);
-        UpdateDirtyTexture(data->device, &texturedata->texture);
+        UpdateDirtyTexture(data, &texturedata->texture);
 #if SDL_HAVE_YUV
         if (texturedata->yuv) {
-            UpdateDirtyTexture(data->device, &texturedata->utexture);
-            UpdateDirtyTexture(data->device, &texturedata->vtexture);
+            UpdateDirtyTexture(data, &texturedata->utexture);
+            UpdateDirtyTexture(data, &texturedata->vtexture);
         }
 #endif
     }
