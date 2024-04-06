@@ -138,8 +138,10 @@ typedef struct
 /* Private renderer data */
 typedef struct
 {
+#ifndef __WINRT__
     void *hDXGIMod;
     void *hD3D11Mod;
+#endif
     IDXGIFactory2 *dxgiFactory;
 //    IDXGIAdapter *dxgiAdapter;
     ID3D11Device1 *d3dDevice;
@@ -315,7 +317,7 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
         data->currentShader = NUM_SHADERS;
         data->currentShaderResource = NULL;
         data->currentSampler = NULL;
-
+#ifndef __WINRT__
         /* Unload the D3D libraries.  This should be done last, in order
          * to prevent IUnknown::Release() calls from crashing.
          */
@@ -327,6 +329,7 @@ static void D3D11_ReleaseAll(SDL_Renderer *renderer)
             SDL_UnloadObject(data->hDXGIMod);
             data->hDXGIMod = NULL;
         }
+#endif
     }
 }
 
