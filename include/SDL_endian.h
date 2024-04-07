@@ -337,6 +337,21 @@ SDL_SwapFloat(float x)
 #endif
 /* @} *//* Swap to native */
 
+
+/**
+ *  \name Rotate
+ *  Rotate byte array.
+ */
+/* @{ */
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define SDL_RorLE32(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
+#define SDL_RolLE32(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
+#else
+#define SDL_Rol32LE(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
+#define SDL_Ror32LE(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
+#endif
+/* @} *//* Rotate */
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

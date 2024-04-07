@@ -264,14 +264,14 @@ __EOF__
                     # RGBA -> ARGB
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_Ror32(pixel);
+            pixel = SDL_RorLE32(pixel);
             *dst = pixel;
 __EOF__
                 } else {
                     # ARGB -> RGBA -- unused
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_Rol32(pixel);
+            pixel = SDL_RolLE32(pixel);
             *dst = pixel;
 __EOF__
                 }
@@ -320,7 +320,7 @@ __EOF__
                         # ARGB -> ABGR -- unused
                         print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_Rol32(pixel);
+            pixel = SDL_RolLE32(pixel);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
 __EOF__
@@ -344,7 +344,7 @@ __EOF__
                         # RGBA -> BGRA -- unused
                         print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_Ror32(pixel);
+            pixel = SDL_RorLE32(pixel);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
 __EOF__
@@ -703,8 +703,6 @@ sub output_copyinc
 
 #define FIXED_POINT(i) ((Uint32)(i) << 16)
 #define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
-#define SDL_Ror32(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
-#define SDL_Rol32(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
 
 __EOF__
 }

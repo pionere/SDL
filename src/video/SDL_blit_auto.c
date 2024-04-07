@@ -31,8 +31,6 @@
 
 #define FIXED_POINT(i) ((Uint32)(i) << 16)
 #define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
-#define SDL_Ror32(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
-#define SDL_Rol32(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
 
 static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 {
@@ -3791,7 +3789,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         while (n--) {
             Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
-            pixel = SDL_Ror32(pixel);
+            pixel = SDL_RorLE32(pixel);
             *dst = pixel;
             posx += incx;
             ++dst;
@@ -4854,7 +4852,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         while (n--) {
             Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
-            pixel = SDL_Rol32(pixel);
+            pixel = SDL_RolLE32(pixel);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
             posx += incx;
