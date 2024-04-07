@@ -133,7 +133,7 @@ typedef enum
     (SDL_ISPIXELFORMAT_FOURCC(X) ? \
         ((((X) == SDL_PIXELFORMAT_YUY2) || \
           ((X) == SDL_PIXELFORMAT_UYVY) || \
-          ((X) == SDL_PIXELFORMAT_UYVY) || \
+          ((X) == SDL_PIXELFORMAT_YVYU) || \
           ((X) == SDL_PIXELFORMAT_P010)) ? 2 : 1) : (((X) >> 0) & 0xFF))
 
 #define SDL_ISPIXELFORMAT_INDEXED(format)   \
