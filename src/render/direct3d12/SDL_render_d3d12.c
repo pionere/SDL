@@ -118,8 +118,8 @@ typedef struct
     D3D12_RESOURCE_STATES stagingResourceState;
     D3D12_FILTER scaleMode;
 #if SDL_HAVE_YUV
-    /* YV12 texture support */
     SDL_bool yuv;
+    SDL_bool nv12;
     ID3D12Resource *mainTextureU;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewU;
     D3D12_RESOURCE_STATES mainResourceStateU;
@@ -128,13 +128,6 @@ typedef struct
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewV;
     D3D12_RESOURCE_STATES mainResourceStateV;
     SIZE_T mainSRVIndexV;
-
-    /* NV12 texture support */
-    SDL_bool nv12;
-    ID3D12Resource *mainTextureNV;
-    D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewNV;
-    D3D12_RESOURCE_STATES mainResourceStateNV;
-    SIZE_T mainSRVIndexNV;
 
     Uint8 *pixels;
     int pitch;
@@ -1617,8 +1610,8 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           D3D12_RESOURCE_STATE_COPY_DEST,
                           NULL,
                           D3D_GUID(SDL_IID_ID3D12Resource),
-                          (void **)&textureData->mainTextureNV);
-        textureData->mainResourceStateNV = D3D12_RESOURCE_STATE_COPY_DEST;
+                          (void **)&textureData->mainTextureU);
+        textureData->mainResourceStateU = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
             return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateTexture2D"), result);
         }
@@ -1663,13 +1656,13 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
         nvResourceViewDesc.Format = DXGI_FORMAT_R8G8_UNORM;
 
-        D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceViewNV);
-        textureData->mainSRVIndexNV = D3D12_GetAvailableSRVIndex(renderer);
-        textureData->mainTextureResourceViewNV.ptr += textureData->mainSRVIndexNV * rendererData->srvDescriptorSize;
+        D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceViewU);
+        textureData->mainSRVIndexU = D3D12_GetAvailableSRVIndex(renderer);
+        textureData->mainTextureResourceViewU.ptr += textureData->mainSRVIndexU * rendererData->srvDescriptorSize;
         D3D_CALL(rendererData->d3dDevice, CreateShaderResourceView,
-                 textureData->mainTextureNV,
+                 textureData->mainTextureU,
                  &nvResourceViewDesc,
-                 textureData->mainTextureResourceViewNV);
+                 textureData->mainTextureResourceViewU);
     }
 #endif /* SDL_HAVE_YUV */
 
@@ -1717,9 +1710,8 @@ static void D3D12_DestroyTexture(SDL_Renderer *renderer,
         D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexU);
         D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexV);
     }
-    SAFE_RELEASE(textureData->mainTextureNV);
     if (textureData->yuv) {
-        D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexNV);
+        D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexU);
     }
     SDL_free(textureData->pixels);
 #endif
@@ -1911,7 +1903,7 @@ static int D3D12_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateNV);
+            status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2), &textureData->mainResourceStateU);
         }
     }
 #endif /* SDL_HAVE_YUV */
@@ -1953,7 +1945,7 @@ static int D3D12_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     status = D3D12_UpdateTextureInternal(renderer, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch, &textureData->mainResourceState);
     if (status >= 0) {
-        status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateNV);
+        status = D3D12_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch, &textureData->mainResourceStateU);
     }
     return status;
 }
@@ -2615,7 +2607,7 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
     } else if (textureData->nv12) {
         D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
             textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewNV,
+            textureData->mainTextureResourceViewU,
         };
         D3D12_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
@@ -2638,8 +2630,8 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
         /* Make sure each texture is in the correct state to be accessed by the pixel shader. */
         D3D12_TransitionResource(rendererData, textureData->mainTexture, textureData->mainResourceState, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         textureData->mainResourceState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        D3D12_TransitionResource(rendererData, textureData->mainTextureNV, textureData->mainResourceStateNV, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        textureData->mainResourceStateNV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+        D3D12_TransitionResource(rendererData, textureData->mainTextureU, textureData->mainResourceStateU, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        textureData->mainResourceStateU = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
         return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
                                   textureSampler);
