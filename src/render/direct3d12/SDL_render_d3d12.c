@@ -111,7 +111,7 @@ typedef struct
     ID3D12Resource *mainTexture;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceView;
     D3D12_RESOURCE_STATES mainResourceState;
-    SIZE_T mainSRVIndex;
+    unsigned mainSRVIndex;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureRenderTargetView;
     DXGI_FORMAT mainTextureFormat;
     ID3D12Resource *stagingBuffer;
@@ -123,11 +123,11 @@ typedef struct
     ID3D12Resource *mainTextureU;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewU;
     D3D12_RESOURCE_STATES mainResourceStateU;
-    SIZE_T mainSRVIndexU;
+    unsigned mainSRVIndexU;
     ID3D12Resource *mainTextureV;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewV;
     D3D12_RESOURCE_STATES mainResourceStateV;
-    SIZE_T mainSRVIndexV;
+    unsigned mainSRVIndexV;
 
     Uint8 *pixels;
     int pitch;
@@ -156,7 +156,7 @@ typedef struct
 /* For SRV pool allocator */
 typedef struct
 {
-    SIZE_T index;
+    unsigned index;
     void *next;
 } D3D12_SRVPoolNode;
 
@@ -1121,11 +1121,10 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Initialize the pool allocator for SRVs */
     for (i = 0; i < SDL_D3D12_MAX_NUM_TEXTURES; ++i) {
-        data->srvPoolNodes[i].index = (SIZE_T)i;
-        if (i != SDL_D3D12_MAX_NUM_TEXTURES - 1) {
-            data->srvPoolNodes[i].next = &data->srvPoolNodes[i + 1];
-        }
+        data->srvPoolNodes[i].index = i;
+        data->srvPoolNodes[i].next = &data->srvPoolNodes[i + 1];
     }
+    data->srvPoolNodes[SDL_D3D12_MAX_NUM_TEXTURES - 1].next = NULL;
     data->srvPoolHead = &data->srvPoolNodes[0];
 done:
     SAFE_RELEASE(d3dDevice);
@@ -1478,24 +1477,24 @@ static SDL_bool D3D12_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode bl
     return SDL_TRUE;
 }
 
-static SIZE_T D3D12_GetAvailableSRVIndex(SDL_Renderer *renderer)
+static unsigned D3D12_GetAvailableSRVIndex(D3D12_RenderData *rendererData)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
     if (rendererData->srvPoolHead) {
-        SIZE_T index = rendererData->srvPoolHead->index;
+        unsigned index = rendererData->srvPoolHead->index;
         rendererData->srvPoolHead = (D3D12_SRVPoolNode *)(rendererData->srvPoolHead->next);
         return index;
     } else {
         SDL_SetError("[d3d12] Cannot allocate more than %d textures!", SDL_D3D12_MAX_NUM_TEXTURES);
-        return SDL_D3D12_MAX_NUM_TEXTURES + 1;
+        return SDL_D3D12_MAX_NUM_TEXTURES;
     }
 }
 
-static void D3D12_FreeSRVIndex(SDL_Renderer *renderer, SIZE_T index)
+static void D3D12_FreeSRVIndex(D3D12_RenderData *rendererData, unsigned index)
 {
-    D3D12_RenderData *rendererData = (D3D12_RenderData *)renderer->driverdata;
-    rendererData->srvPoolNodes[index].next = rendererData->srvPoolHead;
-    rendererData->srvPoolHead = &rendererData->srvPoolNodes[index];
+    if (index < SDL_D3D12_MAX_NUM_TEXTURES) {
+        rendererData->srvPoolNodes[index].next = rendererData->srvPoolHead;
+        rendererData->srvPoolHead = &rendererData->srvPoolNodes[index];
+    }
 }
 
 static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
@@ -1515,6 +1514,15 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         SDL_OutOfMemory();
         return -1;
     }
+#if SDL_HAVE_YUV
+    textureData->mainSRVIndexU = SDL_D3D12_MAX_NUM_TEXTURES;
+    textureData->mainSRVIndexV = SDL_D3D12_MAX_NUM_TEXTURES;
+#endif
+    textureData->mainSRVIndex = D3D12_GetAvailableSRVIndex(rendererData);
+    if (textureData->mainSRVIndex >= SDL_D3D12_MAX_NUM_TEXTURES) {
+        return -1;
+    }
+
     textureData->scaleMode = (texture->scaleMode == SDL_ScaleModeNearest) ? D3D12_FILTER_MIN_MAG_MIP_POINT : D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 
     texture->driverdata = textureData;
@@ -1626,9 +1634,8 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     // resourceViewDesc.Texture2D.PlaneSlice = 0;
     // resourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-    textureData->mainSRVIndex = D3D12_GetAvailableSRVIndex(renderer);
     D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceView);
-    textureData->mainTextureResourceView.ptr += textureData->mainSRVIndex * rendererData->srvDescriptorSize;
+    textureData->mainTextureResourceView.ptr += (size_t)textureData->mainSRVIndex * rendererData->srvDescriptorSize;
 
     D3D_CALL(rendererData->d3dDevice, CreateShaderResourceView,
              textureData->mainTexture,
@@ -1637,16 +1644,22 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #if SDL_HAVE_YUV
     if (textureData->yuv) {
         D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceViewU);
-        textureData->mainSRVIndexU = D3D12_GetAvailableSRVIndex(renderer);
-        textureData->mainTextureResourceViewU.ptr += textureData->mainSRVIndexU * rendererData->srvDescriptorSize;
+        textureData->mainSRVIndexU = D3D12_GetAvailableSRVIndex(rendererData);
+        if (textureData->mainSRVIndexU >= SDL_D3D12_MAX_NUM_TEXTURES) {
+            return -1;
+        }
+        textureData->mainTextureResourceViewU.ptr += (size_t)textureData->mainSRVIndexU * rendererData->srvDescriptorSize;
         D3D_CALL(rendererData->d3dDevice, CreateShaderResourceView,
                  textureData->mainTextureU,
                  &resourceViewDesc,
                  textureData->mainTextureResourceViewU);
 
         D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceViewV);
-        textureData->mainSRVIndexV = D3D12_GetAvailableSRVIndex(renderer);
-        textureData->mainTextureResourceViewV.ptr += textureData->mainSRVIndexV * rendererData->srvDescriptorSize;
+        textureData->mainSRVIndexV = D3D12_GetAvailableSRVIndex(rendererData);
+        if (textureData->mainSRVIndexV >= SDL_D3D12_MAX_NUM_TEXTURES) {
+            return -1;
+        }
+        textureData->mainTextureResourceViewV.ptr += (size_t)textureData->mainSRVIndexV * rendererData->srvDescriptorSize;
         D3D_CALL(rendererData->d3dDevice, CreateShaderResourceView,
                  textureData->mainTextureV,
                  &resourceViewDesc,
@@ -1657,8 +1670,11 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         nvResourceViewDesc.Format = DXGI_FORMAT_R8G8_UNORM;
 
         D3D_CALL_RET(rendererData->srvDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureResourceViewU);
-        textureData->mainSRVIndexU = D3D12_GetAvailableSRVIndex(renderer);
-        textureData->mainTextureResourceViewU.ptr += textureData->mainSRVIndexU * rendererData->srvDescriptorSize;
+        textureData->mainSRVIndexU = D3D12_GetAvailableSRVIndex(rendererData);
+        if (textureData->mainSRVIndexU >= SDL_D3D12_MAX_NUM_TEXTURES) {
+            return -1;
+        }
+        textureData->mainTextureResourceViewU.ptr += (size_t)textureData->mainSRVIndexU * rendererData->srvDescriptorSize;
         D3D_CALL(rendererData->d3dDevice, CreateShaderResourceView,
                  textureData->mainTextureU,
                  &nvResourceViewDesc,
@@ -1675,7 +1691,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         // renderTargetViewDesc.Texture2D.PlaneSlice = 0;
 
         D3D_CALL_RET(rendererData->textureRTVDescriptorHeap, GetCPUDescriptorHandleForHeapStart, &textureData->mainTextureRenderTargetView);
-        textureData->mainTextureRenderTargetView.ptr += textureData->mainSRVIndex * rendererData->rtvDescriptorSize;
+        textureData->mainTextureRenderTargetView.ptr += (size_t)textureData->mainSRVIndex * rendererData->rtvDescriptorSize;
 
         D3D_CALL(rendererData->d3dDevice, CreateRenderTargetView,
                  (ID3D12Resource *)textureData->mainTexture,
@@ -1702,17 +1718,12 @@ static void D3D12_DestroyTexture(SDL_Renderer *renderer,
 
     SAFE_RELEASE(textureData->mainTexture);
     SAFE_RELEASE(textureData->stagingBuffer);
-    D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndex);
+    D3D12_FreeSRVIndex(rendererData, textureData->mainSRVIndex);
 #if SDL_HAVE_YUV
     SAFE_RELEASE(textureData->mainTextureU);
     SAFE_RELEASE(textureData->mainTextureV);
-    if (textureData->yuv) {
-        D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexU);
-        D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexV);
-    }
-    if (textureData->yuv) {
-        D3D12_FreeSRVIndex(renderer, textureData->mainSRVIndexU);
-    }
+    D3D12_FreeSRVIndex(rendererData, textureData->mainSRVIndexU);
+    D3D12_FreeSRVIndex(rendererData, textureData->mainSRVIndexV);
     SDL_free(textureData->pixels);
 #endif
     SDL_free(textureData);
