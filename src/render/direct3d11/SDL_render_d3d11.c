@@ -569,29 +569,18 @@ static HRESULT D3D11_CreateDeviceResources(SDL_Renderer *renderer)
      */
     switch (featureLevel) {
     case D3D_FEATURE_LEVEL_11_1:
-    case D3D_FEATURE_LEVEL_11_0:
-        renderer->info.max_texture_width = renderer->info.max_texture_height = 16384;
-        break;
-
+    case D3D_FEATURE_LEVEL_11_0: i = 16384; break;
     case D3D_FEATURE_LEVEL_10_1:
-    case D3D_FEATURE_LEVEL_10_0:
-        renderer->info.max_texture_width = renderer->info.max_texture_height = 8192;
-        break;
-
-    case D3D_FEATURE_LEVEL_9_3:
-        renderer->info.max_texture_width = renderer->info.max_texture_height = 4096;
-        break;
-
+    case D3D_FEATURE_LEVEL_10_0: i = 8192;  break;
+    case D3D_FEATURE_LEVEL_9_3:  i = 4096;  break;
     case D3D_FEATURE_LEVEL_9_2:
-    case D3D_FEATURE_LEVEL_9_1:
-        renderer->info.max_texture_width = renderer->info.max_texture_height = 2048;
-        break;
-
+    case D3D_FEATURE_LEVEL_9_1:  i = 2048;  break;
     default:
         SDL_SetError(SDL_COMPOSE_ERROR("Unexpected feature level: %d"), featureLevel);
         result = SDL_D3D11_ERROR_UNKNOWN;
         goto done;
     }
+    renderer->info.max_texture_width = renderer->info.max_texture_height = i;
 
     result = D3D11_CreateVertexShader(data->d3dDevice, &data->vertexShader, &data->inputLayout);
     if (FAILED(result)) {
