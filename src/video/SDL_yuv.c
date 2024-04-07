@@ -27,11 +27,11 @@
 
 #include "yuv2rgb/yuv_rgb.h"
 
+#if SDL_HAVE_YUV
 #define SDL_YUV_SD_THRESHOLD 576
 
 static SDL_YUV_CONVERSION_MODE SDL_YUV_ConversionMode = SDL_YUV_CONVERSION_BT601;
 
-#if SDL_HAVE_YUV
 static SDL_bool IsPlanar2x2Format(Uint32 format);
 
 void SDL_SetYUVConversionMode(SDL_YUV_CONVERSION_MODE mode)
@@ -1439,18 +1439,24 @@ static int SDL_ConvertPixels_YUY2_to_UYVY(int width, int height, const void *src
         }
 #endif
         while (x--) {
-            Uint8 Y1, U, Y2, V;
+            Uint32 value = *((Uint32 *)srcYUV);
 
-            Y1 = srcYUV[0];
-            U = srcYUV[1];
-            Y2 = srcYUV[2];
-            V = srcYUV[3];
+            value = ((value & 0xFF00FF) << 8) | ((value >> 8) & 0xFF00FF);
+
+            *((Uint32 *)dstYUV) = value;
+
+            // Uint8 Y1, U, Y2, V;
+
+            // Y1 = srcYUV[0];
+            // U = srcYUV[1];
+            // Y2 = srcYUV[2];
+            // V = srcYUV[3];
             srcYUV += 4;
 
-            dstYUV[0] = U;
-            dstYUV[1] = Y1;
-            dstYUV[2] = V;
-            dstYUV[3] = Y2;
+            // dstYUV[0] = U;
+            // dstYUV[1] = Y1;
+            // dstYUV[2] = V;
+            // dstYUV[3] = Y2;
             dstYUV += 4;
         }
         srcYUV += srcYUVPitchLeft;
@@ -1480,18 +1486,24 @@ static int SDL_ConvertPixels_YUY2_to_YVYU(int width, int height, const void *src
         }
 #endif
         while (x--) {
-            Uint8 Y1, U, Y2, V;
+            Uint32 value = *((Uint32 *)srcYUV);
+            Uint8 *bytes = (Uint8 *)&value;
+            Uint8 tmp = bytes[1];
+            bytes[1] = bytes[3];
+            bytes[3] = tmp;
+            *((Uint32 *)dstYUV) = value;
 
-            Y1 = srcYUV[0];
-            U = srcYUV[1];
-            Y2 = srcYUV[2];
-            V = srcYUV[3];
+            // Uint8 Y1, U, Y2, V;
+            // Y1 = srcYUV[0];
+            // U = srcYUV[1];
+            // Y2 = srcYUV[2];
+            // V = srcYUV[3];
             srcYUV += 4;
 
-            dstYUV[0] = Y1;
-            dstYUV[1] = V;
-            dstYUV[2] = Y2;
-            dstYUV[3] = U;
+            // dstYUV[0] = Y1;
+            // dstYUV[1] = V;
+            // dstYUV[2] = Y2;
+            // dstYUV[3] = U;
             dstYUV += 4;
         }
         srcYUV += srcYUVPitchLeft;
@@ -1500,7 +1512,7 @@ static int SDL_ConvertPixels_YUY2_to_YVYU(int width, int height, const void *src
     return 0;
 }
 
-static int SDL_ConvertPixels_UYVY_to_YUY2(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
+/*static int SDL_ConvertPixels_UYVY_to_YUY2(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
 {
     int x, y;
     const int YUVwidth = (width + 1) / 2;
@@ -1539,7 +1551,7 @@ static int SDL_ConvertPixels_UYVY_to_YUY2(int width, int height, const void *src
         dstYUV += dstYUVPitchLeft;
     }
     return 0;
-}
+}*/
 
 static int SDL_ConvertPixels_UYVY_to_YVYU(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
 {
@@ -1562,18 +1574,23 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(int width, int height, const void *src
         }
 #endif
         while (x--) {
-            Uint8 Y1, U, Y2, V;
+            Uint32 value = *((Uint32 *)srcYUV);
 
-            U = srcYUV[0];
-            Y1 = srcYUV[1];
-            V = srcYUV[2];
-            Y2 = srcYUV[3];
+            value = SDL_RorLE32(value);
+
+            *((Uint32 *)dstYUV) = value;
+
+            // Uint8 Y1, U, Y2, V;
+            // U = srcYUV[0];
+            // Y1 = srcYUV[1];
+            // V = srcYUV[2];
+            // Y2 = srcYUV[3];
             srcYUV += 4;
 
-            dstYUV[0] = Y1;
-            dstYUV[1] = V;
-            dstYUV[2] = Y2;
-            dstYUV[3] = U;
+            // dstYUV[0] = Y1;
+            // dstYUV[1] = V;
+            // dstYUV[2] = Y2;
+            // dstYUV[3] = U;
             dstYUV += 4;
         }
         srcYUV += srcYUVPitchLeft;
@@ -1582,7 +1599,7 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(int width, int height, const void *src
     return 0;
 }
 
-static int SDL_ConvertPixels_YVYU_to_YUY2(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
+/*static int SDL_ConvertPixels_YVYU_to_YUY2(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
 {
     int x, y;
     const int YUVwidth = (width + 1) / 2;
@@ -1621,7 +1638,7 @@ static int SDL_ConvertPixels_YVYU_to_YUY2(int width, int height, const void *src
         dstYUV += dstYUVPitchLeft;
     }
     return 0;
-}
+}*/
 
 static int SDL_ConvertPixels_YVYU_to_UYVY(int width, int height, const void *src, int src_pitch, void *dst, int dst_pitch)
 {
@@ -1644,18 +1661,24 @@ static int SDL_ConvertPixels_YVYU_to_UYVY(int width, int height, const void *src
         }
 #endif
         while (x--) {
-            Uint8 Y1, U, Y2, V;
+            Uint32 value = *((Uint32 *)srcYUV);
 
-            Y1 = srcYUV[0];
-            V = srcYUV[1];
-            Y2 = srcYUV[2];
-            U = srcYUV[3];
+            value = SDL_RolLE32(value);
+
+            *((Uint32 *)dstYUV) = value;
+
+            // Uint8 Y1, U, Y2, V;
+
+            // Y1 = srcYUV[0];
+            // V = srcYUV[1];
+            // Y2 = srcYUV[2];
+            // U = srcYUV[3];
             srcYUV += 4;
 
-            dstYUV[0] = U;
-            dstYUV[1] = Y1;
-            dstYUV[2] = V;
-            dstYUV[3] = Y2;
+            // dstYUV[0] = U;
+            // dstYUV[1] = Y1;
+            // dstYUV[2] = V;
+            // dstYUV[3] = Y2;
             dstYUV += 4;
         }
         srcYUV += srcYUVPitchLeft;
@@ -1682,7 +1705,8 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(int width, int height,
     case SDL_PIXELFORMAT_UYVY:
         switch (dst_format) {
         case SDL_PIXELFORMAT_YUY2:
-            return SDL_ConvertPixels_UYVY_to_YUY2(width, height, src, src_pitch, dst, dst_pitch);
+            // return SDL_ConvertPixels_UYVY_to_YUY2(width, height, src, src_pitch, dst, dst_pitch); -- same as SDL_ConvertPixels_YUY2_to_UYVY
+            return SDL_ConvertPixels_YUY2_to_UYVY(width, height, src, src_pitch, dst, dst_pitch);
         case SDL_PIXELFORMAT_YVYU:
             return SDL_ConvertPixels_UYVY_to_YVYU(width, height, src, src_pitch, dst, dst_pitch);
         default:
@@ -1692,7 +1716,8 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(int width, int height,
     case SDL_PIXELFORMAT_YVYU:
         switch (dst_format) {
         case SDL_PIXELFORMAT_YUY2:
-            return SDL_ConvertPixels_YVYU_to_YUY2(width, height, src, src_pitch, dst, dst_pitch);
+            // return SDL_ConvertPixels_YVYU_to_YUY2(width, height, src, src_pitch, dst, dst_pitch); -- same as SDL_ConvertPixels_YUY2_to_YVYU
+            return SDL_ConvertPixels_YUY2_to_YVYU(width, height, src, src_pitch, dst, dst_pitch);
         case SDL_PIXELFORMAT_UYVY:
             return SDL_ConvertPixels_YVYU_to_UYVY(width, height, src, src_pitch, dst, dst_pitch);
         default:
