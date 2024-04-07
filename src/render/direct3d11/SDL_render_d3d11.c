@@ -103,17 +103,12 @@ typedef struct
     int lockedTexturePositionY;
     D3D11_FILTER scaleMode;
 #if SDL_HAVE_YUV
-    /* YV12 texture support */
     SDL_bool yuv;
+    SDL_bool nv12;
     ID3D11Texture2D *mainTextureU;
     ID3D11ShaderResourceView *mainTextureResourceViewU;
     ID3D11Texture2D *mainTextureV;
     ID3D11ShaderResourceView *mainTextureResourceViewV;
-
-    /* NV12 texture support */
-    SDL_bool nv12;
-    ID3D11Texture2D *mainTextureNV;
-    ID3D11ShaderResourceView *mainTextureResourceViewNV;
 
     Uint8 *pixels;
     int pitch;
@@ -1183,7 +1178,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         result = ID3D11Device_CreateTexture2D(d3dDevice,
                                               &nvTextureDesc,
                                               NULL,
-                                              &textureData->mainTextureNV);
+                                              &textureData->mainTextureU);
         if (FAILED(result)) {
             WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateTexture2D"), result);
             goto error;
@@ -1228,9 +1223,9 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         nvResourceViewDesc.Format = DXGI_FORMAT_R8G8_UNORM;
 
         result = ID3D11Device_CreateShaderResourceView(d3dDevice,
-                                                       (ID3D11Resource *)textureData->mainTextureNV,
+                                                       (ID3D11Resource *)textureData->mainTextureU,
                                                        &nvResourceViewDesc,
-                                                       &textureData->mainTextureResourceViewNV);
+                                                       &textureData->mainTextureResourceViewU);
         if (FAILED(result)) {
             WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateShaderResourceView"), result);
             goto error;
@@ -1278,8 +1273,6 @@ static void D3D11_DestroyTexture(SDL_Renderer *renderer,
     SAFE_RELEASE(data->mainTextureResourceViewU);
     SAFE_RELEASE(data->mainTextureV);
     SAFE_RELEASE(data->mainTextureResourceViewV);
-    SAFE_RELEASE(data->mainTextureNV);
-    SAFE_RELEASE(data->mainTextureResourceViewNV);
     SDL_free(data->pixels);
 #endif
     SDL_free(data);
@@ -1394,7 +1387,7 @@ static int D3D11_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2));
+            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2));
         }
     }
 #endif /* SDL_HAVE_YUV */
@@ -1436,7 +1429,7 @@ static int D3D11_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
-        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureNV, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch);
+        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch);
     }
     return status;
 }
@@ -1997,7 +1990,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
     } else if (textureData->nv12) {
         ID3D11ShaderResourceView *shaderResources[] = {
             textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewNV,
+            textureData->mainTextureResourceViewU,
         };
         D3D11_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
