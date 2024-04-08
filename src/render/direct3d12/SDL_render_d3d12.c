@@ -117,6 +117,10 @@ typedef struct
 {
     ID3D12Resource *mainTexture;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceView;
+#if SDL_HAVE_YUV
+    D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewU;
+    D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewV;
+#endif
     D3D12_RESOURCE_STATES mainResourceState;
     unsigned mainSRVIndex;
     D3D12_CPU_DESCRIPTOR_HANDLE mainTextureRenderTargetView;
@@ -127,11 +131,9 @@ typedef struct
 #if SDL_HAVE_YUV
     D3D12_YuvType yuv_planes;
     ID3D12Resource *mainTextureU;
-    D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewU;
     D3D12_RESOURCE_STATES mainResourceStateU;
     unsigned mainSRVIndexU;
     ID3D12Resource *mainTextureV;
-    D3D12_CPU_DESCRIPTOR_HANDLE mainTextureResourceViewV;
     D3D12_RESOURCE_STATES mainResourceStateV;
     unsigned mainSRVIndexV;
 
@@ -2588,13 +2590,16 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
     }
 #if SDL_HAVE_YUV
     if (textureData->yuv_planes == SDL_D3D12_YUV_3PLANES) {
-        D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
-            textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewU,
-            textureData->mainTextureResourceViewV
-        };
         D3D12_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        // D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
+        //    textureData->mainTextureResourceView,
+        //    textureData->mainTextureResourceViewU,
+        //    textureData->mainTextureResourceViewV
+        // };
+        D3D12_CPU_DESCRIPTOR_HANDLE *shaderResources = &textureData->mainTextureResourceView;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_scs_sr3a, offsetof(D3D12_TextureData, mainTextureResourceView) + sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) == offsetof(D3D12_TextureData, mainTextureResourceViewU));
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_scs_sr3b, offsetof(D3D12_TextureData, mainTextureResourceViewU) + sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) == offsetof(D3D12_TextureData, mainTextureResourceViewV));
 
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
@@ -2619,15 +2624,17 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
         D3D12_TransitionResource(rendererData, textureData->mainTextureV, textureData->mainResourceStateV, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         textureData->mainResourceStateV = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
+        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 3, shaderResources,
                                   textureSampler);
     } else if (textureData->yuv_planes == SDL_D3D12_YUV_2PLANES) {
-        D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
-            textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewU,
-        };
         D3D12_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        // D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
+        //    textureData->mainTextureResourceView,
+        //    textureData->mainTextureResourceViewU,
+        // };
+        D3D12_CPU_DESCRIPTOR_HANDLE *shaderResources = &textureData->mainTextureResourceView;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_scs_sr2, offsetof(D3D12_TextureData, mainTextureResourceView) + sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) == offsetof(D3D12_TextureData, mainTextureResourceViewU));
 
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
@@ -2650,7 +2657,7 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
         D3D12_TransitionResource(rendererData, textureData->mainTextureU, textureData->mainResourceStateU, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         textureData->mainResourceStateU = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, SDL_arraysize(shaderResources), shaderResources,
+        return D3D12_SetDrawState(rendererData, cmd, shader, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 2, shaderResources,
                                   textureSampler);
     }
 #endif /* SDL_HAVE_YUV */

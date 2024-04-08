@@ -104,6 +104,10 @@ typedef struct
 {
     ID3D11Texture2D *mainTexture;
     ID3D11ShaderResourceView *mainTextureResourceView;
+#if SDL_HAVE_YUV
+    ID3D11ShaderResourceView *mainTextureResourceViewU;
+    ID3D11ShaderResourceView *mainTextureResourceViewV;
+#endif
     ID3D11RenderTargetView *mainTextureRenderTargetView;
     ID3D11Texture2D *stagingTexture;
     int lockedTexturePositionX;
@@ -112,9 +116,7 @@ typedef struct
 #if SDL_HAVE_YUV
     D3D11_YuvPlanes yuv_planes;
     ID3D11Texture2D *mainTextureU;
-    ID3D11ShaderResourceView *mainTextureResourceViewU;
     ID3D11Texture2D *mainTextureV;
-    ID3D11ShaderResourceView *mainTextureResourceViewV;
 
     Uint8 *pixels;
     int pitch;
@@ -824,7 +826,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer)
 #endif
 
     /* Create a swap chain using the same adapter as the existing Direct3D device. */
-    SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, sizeof(DXGI_SWAP_CHAIN_DESC1) == offsetof(DXGI_SWAP_CHAIN_DESC1, Flags) + sizeof(swapChainDesc.Flags));
+    SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_csc_scd, sizeof(DXGI_SWAP_CHAIN_DESC1) == offsetof(DXGI_SWAP_CHAIN_DESC1, Flags) + sizeof(swapChainDesc.Flags));
     // SDL_zero(swapChainDesc);
     swapChainDesc.Width = w;
     swapChainDesc.Height = h;
@@ -1126,7 +1128,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         textureDesc.Usage = D3D11_USAGE_DYNAMIC;
         textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     } else {
-        SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_csc_scd, D3D11_USAGE_DEFAULT == 0);
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_ct_tdu, D3D11_USAGE_DEFAULT == 0);
         // textureDesc.Usage = D3D11_USAGE_DEFAULT;
         // textureDesc.CPUAccessFlags = 0;
     }
@@ -1967,13 +1969,16 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
     }
 #if SDL_HAVE_YUV
     if (textureData->yuv_planes == SDL_D3D11_YUV_3PLANES) {
-        ID3D11ShaderResourceView *shaderResources[] = {
-            textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewU,
-            textureData->mainTextureResourceViewV
-        };
         D3D11_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        // ID3D11ShaderResourceView *shaderResources[] = {
+        //    textureData->mainTextureResourceView,
+        //    textureData->mainTextureResourceViewU,
+        //    textureData->mainTextureResourceViewV
+        // };
+        ID3D11ShaderResourceView **shaderResources = &textureData->mainTextureResourceView;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_scs_sr3a, offsetof(D3D11_TextureData, mainTextureResourceView) + sizeof(ID3D11ShaderResourceView *) == offsetof(D3D11_TextureData, mainTextureResourceViewU));
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_scs_sr3b, offsetof(D3D11_TextureData, mainTextureResourceViewU) + sizeof(ID3D11ShaderResourceView *) == offsetof(D3D11_TextureData, mainTextureResourceViewV));
 
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
@@ -1990,16 +1995,17 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
-        return D3D11_SetDrawState(rendererData, cmd, shader,
-                                  SDL_arraysize(shaderResources), shaderResources, textureSampler);
+        return D3D11_SetDrawState(rendererData, cmd, shader, 3, shaderResources, textureSampler);
 
     } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
-        ID3D11ShaderResourceView *shaderResources[] = {
-            textureData->mainTextureResourceView,
-            textureData->mainTextureResourceViewU,
-        };
         D3D11_Shader shader;
         SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        // ID3D11ShaderResourceView *shaderResources[] = {
+        //    textureData->mainTextureResourceView,
+        //    textureData->mainTextureResourceViewU,
+        // };
+        ID3D11ShaderResourceView **shaderResources = &textureData->mainTextureResourceView;
+        SDL_INLINE_COMPILE_TIME_ASSERT(d3d11_scs_sr2, offsetof(D3D11_TextureData, mainTextureResourceView) + sizeof(ID3D11ShaderResourceView *) == offsetof(D3D11_TextureData, mainTextureResourceViewU));
 
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
@@ -2016,8 +2022,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
             return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
         }
 
-        return D3D11_SetDrawState(rendererData, cmd, shader,
-                                  SDL_arraysize(shaderResources), shaderResources, textureSampler);
+        return D3D11_SetDrawState(rendererData, cmd, shader, 2, shaderResources, textureSampler);
     }
 #endif /* SDL_HAVE_YUV */
     return D3D11_SetDrawState(rendererData, cmd, SHADER_RGB,
