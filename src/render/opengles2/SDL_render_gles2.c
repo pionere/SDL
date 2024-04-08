@@ -59,6 +59,13 @@ struct GLES2_FBOList
     GLES2_FBOList *next;
 };
 
+typedef enum
+{
+    SDL_GLES2_YUV_NONE,
+    SDL_GLES2_YUV_3PLANES,
+    SDL_GLES2_YUV_2PLANES,
+} OpenGLES2_YuvPlanes;
+
 typedef struct GLES2_TextureData
 {
     GLuint texture;
@@ -69,8 +76,7 @@ typedef struct GLES2_TextureData
     int pitch;
 #if SDL_HAVE_YUV
     /* YUV texture support */
-    SDL_bool yuv;
-    SDL_bool nv12;
+    OpenGLES2_YuvPlanes yuv_planes;
     GLuint texture_v;
     GLuint texture_u;
 #endif
@@ -1145,7 +1151,7 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
         GLES2_TextureData *tdata = (GLES2_TextureData *)texture->driverdata;
         SDL_assert(tdata != NULL);
 #if SDL_HAVE_YUV
-        if (tdata->yuv) {
+        if (tdata->yuv_planes == SDL_GLES2_YUV_3PLANES) {
             data->glActiveTexture(GL_TEXTURE2);
             data->glBindTexture(tdata->texture_type, tdata->texture_v);
 
@@ -1153,7 +1159,7 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
             data->glBindTexture(tdata->texture_type, tdata->texture_u);
 
             data->glActiveTexture(GL_TEXTURE0);
-        } else if (tdata->nv12) {
+        } else if (tdata->yuv_planes == SDL_GLES2_YUV_2PLANES) {
             data->glActiveTexture(GL_TEXTURE1);
             data->glBindTexture(tdata->texture_type, tdata->texture_u);
 
@@ -1484,8 +1490,12 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #ifdef GL_TEXTURE_EXTERNAL_OES
     data->texture_type = (texture->format == SDL_PIXELFORMAT_EXTERNAL_OES) ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
 #endif
-    data->yuv = ((texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12));
-    data->nv12 = ((texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21));
+    // data->yuv_planes = SDL_GLES2_YUV_NONE;
+    if (texture->format == SDL_PIXELFORMAT_IYUV || texture->format == SDL_PIXELFORMAT_YV12) {
+        data->yuv_planes = SDL_GLES2_YUV_3PLANES;
+    } else if (texture->format == SDL_PIXELFORMAT_NV12 || texture->format == SDL_PIXELFORMAT_NV21) {
+        data->yuv_planes = SDL_GLES2_YUV_2PLANES;
+    }
     // data->texture_u = 0;
     // data->texture_v = 0;
 #endif // SDL_HAVE_YUV
@@ -1497,10 +1507,10 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
 #if SDL_HAVE_YUV
-        if (data->yuv) {
+        if (data->yuv_planes == SDL_GLES2_YUV_3PLANES) {
             /* Need to add size for the U and V planes */
             size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
-        } else if (data->nv12) {
+        } else if (data->yuv_planes == SDL_GLES2_YUV_2PLANES) {
             /* Need to add size for the U/V plane */
             size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
         }
@@ -1515,7 +1525,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     GL_CheckError("", renderer);
 
 #if SDL_HAVE_YUV
-    if (data->yuv) {
+    if (data->yuv_planes == SDL_GLES2_YUV_3PLANES) {
         renderdata->glGenTextures(1, &data->texture_v);
         if (GL_CheckError("glGenTexures()", renderer) < 0) {
             return -1;
@@ -1542,7 +1552,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         if (GL_CheckError("glTexImage2D()", renderer) < 0) {
             return -1;
         }
-    } else if (data->nv12) {
+    } else if (data->yuv_planes == SDL_GLES2_YUV_2PLANES) {
         renderdata->glGenTextures(1, &data->texture_u);
         if (GL_CheckError("glGenTexures()", renderer) < 0) {
             return -1;
@@ -1655,7 +1665,7 @@ static int GLES2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture, con
                         pixels, pitch, SDL_PIXELFORMAT_BPP(texture->format));
 
 #if SDL_HAVE_YUV
-    if (tdata->yuv) {
+    if (tdata->yuv_planes == SDL_GLES2_YUV_3PLANES) {
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
         if (texture->format == SDL_PIXELFORMAT_YV12) {
@@ -1687,7 +1697,7 @@ static int GLES2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture, con
                             tdata->pixel_format,
                             tdata->pixel_type,
                             pixels, (pitch + 1) / 2, 1);
-    } else if (tdata->nv12) {
+    } else if (tdata->yuv_planes == SDL_GLES2_YUV_2PLANES) {
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
         data->glBindTexture(tdata->texture_type, tdata->texture_u);
@@ -1838,7 +1848,7 @@ static void GLES2_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *textu
     GLenum glScaleMode = (scaleMode == SDL_ScaleModeNearest) ? GL_NEAREST : GL_LINEAR;
     SDL_assert(data != NULL);
 #if SDL_HAVE_YUV
-    if (data->yuv) {
+    if (data->yuv_planes == SDL_GLES2_YUV_3PLANES) {
         renderdata->glActiveTexture(GL_TEXTURE2);
         renderdata->glBindTexture(data->texture_type, data->texture_v);
         renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MIN_FILTER, glScaleMode);
@@ -1848,7 +1858,7 @@ static void GLES2_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *textu
         renderdata->glBindTexture(data->texture_type, data->texture_u);
         renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MAG_FILTER, glScaleMode);
-    } else if (data->nv12) {
+    } else if (data->yuv_planes == SDL_GLES2_YUV_2PLANES) {
         renderdata->glActiveTexture(GL_TEXTURE1);
         renderdata->glBindTexture(data->texture_type, data->texture_u);
         renderdata->glTexParameteri(data->texture_type, GL_TEXTURE_MIN_FILTER, glScaleMode);
@@ -2017,7 +2027,7 @@ static int GLES2_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float
     texturedata = (GLES2_TextureData *)texture->driverdata;
     SDL_assert(texturedata != NULL);
 #if SDL_HAVE_YUV
-    if (texturedata->yuv) {
+    if (texturedata->yuv_planes == SDL_GLES2_YUV_3PLANES) {
         data->glActiveTexture(GL_TEXTURE2);
         data->glBindTexture(texturedata->texture_type, texturedata->texture_v);
 
@@ -2025,7 +2035,7 @@ static int GLES2_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float
         data->glBindTexture(texturedata->texture_type, texturedata->texture_u);
 
         data->glActiveTexture(GL_TEXTURE0);
-    } else if (texturedata->nv12) {
+    } else if (texturedata->yuv_planes == SDL_GLES2_YUV_2PLANES) {
         data->glActiveTexture(GL_TEXTURE1);
         data->glBindTexture(texturedata->texture_type, texturedata->texture_u);
 
