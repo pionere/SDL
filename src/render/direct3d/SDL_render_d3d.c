@@ -60,9 +60,9 @@ typedef struct
 typedef struct
 {
     void *d3dDLL;
-    IDirect3D9 *d3d;
+    IDirect3D9 *d3dIfc;
     IDirect3DDevice9 *device;
-    UINT adapter;
+//    UINT adapter;
     D3DPRESENT_PARAMETERS pparams;
     SDL_bool updateSize;
     SDL_bool beginScene;
@@ -70,7 +70,6 @@ typedef struct
     D3DTEXTUREFILTERTYPE scaleMode[8];
     IDirect3DSurface9 *defaultRenderTarget;
     IDirect3DSurface9 *currentRenderTarget;
-    void *d3dxDLL;
 #if SDL_HAVE_YUV
     LPDIRECT3DPIXELSHADER9 shaders[NUM_SHADERS];
 #endif
@@ -1454,8 +1453,8 @@ static void D3D_DestroyRenderer(SDL_Renderer *renderer)
             IDirect3DDevice9_Release(data->device);
             data->device = NULL;
         }
-        if (data->d3d) {
-            IDirect3D9_Release(data->d3d);
+        if (data->d3dIfc) {
+            IDirect3D9_Release(data->d3dIfc);
             SDL_UnloadObject(data->d3dDLL);
         }
         SDL_free(data);
@@ -1568,6 +1567,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     D3DCAPS9 caps;
     DWORD device_flags;
     SDL_bool d3dSupport = SDL_FALSE;
+    UINT adapter;
 
 #ifdef SDL_VIDEO_DRIVER_WINDOWS
     d3dSupport |= SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_WIN; // required by WIN_GetWindowHandle
@@ -1586,7 +1586,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
         return NULL;
     }
 
-    if (!D3D_LoadDLL(&data->d3dDLL, &data->d3d)) {
+    if (!D3D_LoadDLL(&data->d3dDLL, &data->d3dIfc)) {
         SDL_free(renderer);
         SDL_free(data);
         SDL_SetError("Unable to create Direct3D interface");
@@ -1634,9 +1634,9 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
     D3D_UpdatePresentParams(window, &pparams);
 
     /* Get the adapter for the display that the window is on */
-    data->adapter = SDL_Direct3D9AdapterIndex(window->display_index, data->d3d);
+    adapter = SDL_Direct3D9AdapterIndex(window->display_index, data->d3dIfc);
 
-    IDirect3D9_GetDeviceCaps(data->d3d, data->adapter, D3DDEVTYPE_HAL, &caps);
+    IDirect3D9_GetDeviceCaps(data->d3dIfc, adapter, D3DDEVTYPE_HAL, &caps);
 
     device_flags = D3DCREATE_FPU_PRESERVE;
     if (caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT) {
@@ -1649,7 +1649,7 @@ SDL_Renderer *D3D_CreateRenderer(SDL_Window *window, Uint32 flags)
         device_flags |= D3DCREATE_MULTITHREADED;
     }
 
-    result = IDirect3D9_CreateDevice(data->d3d, data->adapter,
+    result = IDirect3D9_CreateDevice(data->d3dIfc, adapter,
                                      D3DDEVTYPE_HAL,
                                      pparams.hDeviceWindow,
                                      device_flags,
