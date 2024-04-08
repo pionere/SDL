@@ -337,6 +337,8 @@ SDL_SwapFloat(float x)
 #endif
 /* @} *//* Swap to native */
 
+#define SDL_Ror32(x, n) ((((Uint32)x) >> (n)) | (((Uint32)x) << (32 - n)))
+#define SDL_Rol32(x, n) ((((Uint32)x) << (n)) | (((Uint32)x) >> (32 - n)))
 
 /**
  *  \name Rotate
@@ -344,11 +346,11 @@ SDL_SwapFloat(float x)
  */
 /* @{ */
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define SDL_RorLE32(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
-#define SDL_RolLE32(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
+#define SDL_RorLE32(x, n) SDL_Ror32(x, n)
+#define SDL_RolLE32(x, n) SDL_Rol32(x, n)
 #else
-#define SDL_Rol32LE(x) ((((Uint32)x) >> 8) | (((Uint32)x) << 24))
-#define SDL_Ror32LE(x) ((((Uint32)x) << 8) | (((Uint32)x) >> 24))
+#define SDL_RorLE32(x, n) SDL_Rol32(x, n)
+#define SDL_RolLE32(x, n) SDL_Ror32(x, n)
 #endif
 /* @} *//* Rotate */
 

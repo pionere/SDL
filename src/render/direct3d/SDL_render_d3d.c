@@ -818,7 +818,7 @@ static int D3D_QueueSetViewport(SDL_Renderer *renderer, SDL_RenderCommand *cmd)
 static int D3D_QueueDrawPoints(SDL_Renderer *renderer, SDL_RenderCommand *cmd, const SDL_FPoint *points, int count)
 {
     // const D3DCOLOR color = D3DCOLOR_ARGB(cmd->data.draw.color.a, cmd->data.draw.color.r, cmd->data.draw.color.g, cmd->data.draw.color.b);
-    const D3DCOLOR color = SDL_RorLE32(SDL_ColorRGBAmask(&cmd->data.draw.color));
+    const D3DCOLOR color = SDL_Swap32(SDL_RolLE32(SDL_ColorRGBAmask(&cmd->data.draw.color), 8));
     const size_t vertslen = count * sizeof(Vertex);
     Vertex *verts = (Vertex *)SDL_AllocateRenderVertices(renderer, vertslen, 0, &cmd->data.draw.first);
     int i;
@@ -871,7 +871,7 @@ static int D3D_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL
         verts->y = xy_[1] * scale_y - 0.5f;
         verts->z = 0.0f;
         // verts->color = D3DCOLOR_ARGB(col_.a, col_.r, col_.g, col_.b);
-        verts->color = SDL_RorLE32(SDL_ColorRGBAmask(&col_));
+        verts->color = SDL_Swap32(SDL_RolLE32(SDL_ColorRGBAmask(&col_), 8));
 
         if (texture) {
             float *uv_ = (float *)((char *)uv + j * uv_stride);
@@ -1198,7 +1198,7 @@ static int D3D_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd, v
         case SDL_RENDERCMD_CLEAR:
         {
             // const D3DCOLOR color = D3DCOLOR_ARGB(cmd->data.color.color.a, cmd->data.color.color.r, cmd->data.color.color.g, cmd->data.color.color.b);
-            const D3DCOLOR color = SDL_RorLE32(SDL_ColorRGBAmask(&cmd->data.color.color));
+            const D3DCOLOR color = SDL_Swap32(SDL_RolLE32(SDL_ColorRGBAmask(&cmd->data.color.color), 8));
             const SDL_Rect *viewport = &data->drawstate.viewport;
             const int backw = istarget ? renderer->target->w : data->pparams.BackBufferWidth;
             const int backh = istarget ? renderer->target->h : data->pparams.BackBufferHeight;

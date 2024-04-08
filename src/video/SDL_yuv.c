@@ -1498,12 +1498,8 @@ static int SDL_ConvertPixels_YUY2_to_UYVY(unsigned width, unsigned height, const
 
             // value = ((value & 0xFF00FF) << 8) | ((value >> 8) & 0xFF00FF);
 
-            // value = SDL_Swap32(value);
-            // value = SDL_RorLE32(value);
-            // value = SDL_RorLE32(value);
-
             value = SDL_Swap32(value);
-            value = ((((Uint32)value) >> 16) | (((Uint32)value) << 16));
+            value = SDL_RorLE32(value, 16);
 
             *((Uint32 *)dstYUV) = value;
 
@@ -1638,7 +1634,7 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(unsigned width, unsigned height, const
         while (x--) {
             Uint32 value = *((Uint32 *)srcYUV);
 
-            value = SDL_RorLE32(value);
+            value = SDL_RorLE32(value, 8);
 
             *((Uint32 *)dstYUV) = value;
 
@@ -1725,7 +1721,7 @@ static int SDL_ConvertPixels_YVYU_to_UYVY(unsigned width, unsigned height, const
         while (x--) {
             Uint32 value = *((Uint32 *)srcYUV);
 
-            value = SDL_RolLE32(value);
+            value = SDL_RolLE32(value, 8);
 
             *((Uint32 *)dstYUV) = value;
 

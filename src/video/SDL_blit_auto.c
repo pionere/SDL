@@ -3789,7 +3789,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         while (n--) {
             Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
-            pixel = SDL_RorLE32(pixel);
+            pixel = SDL_Ror32(pixel, 8);
             *dst = pixel;
             posx += incx;
             ++dst;
@@ -4852,7 +4852,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         while (n--) {
             Uint32 *src = &srcRow[SRC_INDEX(posx)];
             pixel = *src;
-            pixel = SDL_RolLE32(pixel);
+            pixel = SDL_Rol32(pixel, 8);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
             posx += incx;

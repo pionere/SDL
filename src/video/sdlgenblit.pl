@@ -264,14 +264,14 @@ __EOF__
                     # RGBA -> ARGB
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_RorLE32(pixel);
+            pixel = SDL_Ror32(pixel, 8);
             *dst = pixel;
 __EOF__
                 } else {
                     # ARGB -> RGBA -- unused
                     print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_RolLE32(pixel);
+            pixel = SDL_Rol32(pixel, 8);
             *dst = pixel;
 __EOF__
                 }
@@ -320,7 +320,7 @@ __EOF__
                         # ARGB -> ABGR -- unused
                         print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_RolLE32(pixel);
+            pixel = SDL_Rol32(pixel, 8);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
 __EOF__
@@ -344,7 +344,7 @@ __EOF__
                         # RGBA -> BGRA -- unused
                         print FILE <<__EOF__;
             pixel = *src;
-            pixel = SDL_RorLE32(pixel);
+            pixel = SDL_Ror32(pixel, 8);
             pixel = SDL_Swap32(pixel);
             *dst = pixel;
 __EOF__
