@@ -35,10 +35,10 @@
 #include "../SDL_sysrender.h"
 #include "../SDL_d3dmath.h"
 
-#if SDL_VIDEO_RENDER_D3D
+#ifdef DEBUG_RENDER
 #define D3D_DEBUG_INFO
-#include <d3d9.h>
 #endif
+#include <d3d9.h>
 
 #include "SDL_shaders_d3d.h"
 
