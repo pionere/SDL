@@ -1551,8 +1551,10 @@ static void GL_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         renderdata->glDeleteTextures(1, &data->texture);
     }
 #if SDL_HAVE_YUV
-    if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
+    if (data->utexture) {
         renderdata->glDeleteTextures(1, &data->utexture);
+    }
+    if (data->vtexture) {
         renderdata->glDeleteTextures(1, &data->vtexture);
     }
 #endif
