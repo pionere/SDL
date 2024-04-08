@@ -52,6 +52,13 @@
 
 static const float inv255f = 1.0f / 255.0f;
 
+typedef enum
+{
+    SDL_GL_YUV_NONE,
+    SDL_GL_YUV_3PLANES,
+    SDL_GL_YUV_2PLANES,
+} OpenGL_YuvPlanes;
+
 typedef struct GL_FBOList GL_FBOList;
 
 struct GL_FBOList
@@ -139,8 +146,7 @@ typedef struct
 
 #if SDL_HAVE_YUV
     /* YUV texture support */
-    SDL_bool yuv;
-    SDL_bool nv12;
+    OpenGL_YuvPlanes yuv_planes;
     GLuint utexture;
     GLuint vtexture;
 #endif
@@ -488,18 +494,26 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     texture->driverdata = data;
+#if SDL_HAVE_YUV
+    // data->yuv_planes = SDL_GL_YUV_NONE;
+    if (texture->format == SDL_PIXELFORMAT_YV12 ||
+        texture->format == SDL_PIXELFORMAT_IYUV) {
+        data->yuv_planes = SDL_GL_YUV_3PLANES;
+    } else if (texture->format == SDL_PIXELFORMAT_NV12 ||
+        texture->format == SDL_PIXELFORMAT_NV21) {
+        data->yuv_planes = SDL_GL_YUV_2PLANES;
+    }
+#endif
+
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         size_t size;
         data->pitch = texture->w * SDL_PIXELFORMAT_BPP(texture->format);
         size = (size_t)texture->h * data->pitch;
 #if SDL_HAVE_YUV
-        if (texture->format == SDL_PIXELFORMAT_YV12 ||
-            texture->format == SDL_PIXELFORMAT_IYUV) {
+        if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
             /* Need to add size for the U and V planes */
             size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
-        }
-        if (texture->format == SDL_PIXELFORMAT_NV12 ||
-            texture->format == SDL_PIXELFORMAT_NV21) {
+        } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
             /* Need to add size for the U/V plane */
             size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
         }
@@ -593,10 +607,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
 #if SDL_HAVE_YUV
-    if (texture->format == SDL_PIXELFORMAT_YV12 ||
-        texture->format == SDL_PIXELFORMAT_IYUV) {
-        data->yuv = SDL_TRUE;
-
+    if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
         renderdata->glGenTextures(1, &data->utexture);
         renderdata->glGenTextures(1, &data->vtexture);
 
@@ -623,12 +634,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                                     GL_CLAMP_TO_EDGE);
         renderdata->glTexImage2D(textype, 0, internalFormat, (texture_w + 1) / 2,
                                  (texture_h + 1) / 2, 0, format, type, NULL);
-    }
-
-    if (texture->format == SDL_PIXELFORMAT_NV12 ||
-        texture->format == SDL_PIXELFORMAT_NV21) {
-        data->nv12 = SDL_TRUE;
-
+    } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
         renderdata->glGenTextures(1, &data->utexture);
         renderdata->glBindTexture(textype, data->utexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER,
@@ -651,10 +657,10 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
 #if SDL_HAVE_YUV
-    if (data->yuv || data->nv12) {
+    if (data->yuv_planes != SDL_GL_YUV_NONE) {
         switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
         case SDL_YUV_CONVERSION_JPEG:
-            if (data->yuv) {
+            if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
                 data->shader = SHADER_YUV_JPEG;
             } else if (texture->format == SDL_PIXELFORMAT_NV12) {
                 data->shader = SHADER_NV12_JPEG;
@@ -663,7 +669,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             }
             break;
         case SDL_YUV_CONVERSION_BT601:
-            if (data->yuv) {
+            if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
                 data->shader = SHADER_YUV_BT601;
             } else if (texture->format == SDL_PIXELFORMAT_NV12) {
                 if (SDL_GetHintBoolean("SDL_RENDER_OPENGL_NV12_RG_SHADER", SDL_FALSE)) {
@@ -676,7 +682,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             }
             break;
         case SDL_YUV_CONVERSION_BT709:
-            if (data->yuv) {
+            if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
                 data->shader = SHADER_YUV_BT709;
             } else if (texture->format == SDL_PIXELFORMAT_NV12) {
                 if (SDL_GetHintBoolean("SDL_RENDER_OPENGL_NV12_RG_SHADER", SDL_FALSE)) {
@@ -727,7 +733,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                                 rect->h, data->format, data->formattype,
                                 pixels);
 #if SDL_HAVE_YUV
-    if (data->yuv) {
+    if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
         renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, ((pitch + 1) / 2));
 
         /* Skip to the correct offset into the next texture */
@@ -751,9 +757,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
                                     (rect->w + 1) / 2, (rect->h + 1) / 2,
                                     data->format, data->formattype, pixels);
-    }
-
-    if (data->nv12) {
+    } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
         renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, ((pitch + 1) / 2));
 
         /* Skip to the correct offset into the next texture */
@@ -890,8 +894,7 @@ static void GL_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture,
     renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
 
 #if SDL_HAVE_YUV
-    if (texture->format == SDL_PIXELFORMAT_YV12 ||
-        texture->format == SDL_PIXELFORMAT_IYUV) {
+    if (texturedata->yuv_planes == SDL_GL_YUV_3PLANES) {
         renderdata->glBindTexture(textype, texturedata->utexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
@@ -899,10 +902,7 @@ static void GL_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture,
         renderdata->glBindTexture(textype, texturedata->vtexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
-    }
-
-    if (texture->format == SDL_PIXELFORMAT_NV12 ||
-        texture->format == SDL_PIXELFORMAT_NV21) {
+    } else if (texturedata->yuv_planes == SDL_GL_YUV_2PLANES) {
         renderdata->glBindTexture(textype, texturedata->utexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER, glScaleMode);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MAG_FILTER, glScaleMode);
@@ -1185,7 +1185,7 @@ static int SetCopyState(GL_RenderData *data, const SDL_RenderCommand *cmd)
     if (texture != data->drawstate.texture) {
         const GLenum textype = data->textype;
 #if SDL_HAVE_YUV
-        if (texturedata->yuv) {
+        if (texturedata->yuv_planes == SDL_GL_YUV_3PLANES) {
             if (data->GL_ARB_multitexture_supported) {
                 data->glActiveTextureARB(GL_TEXTURE2_ARB);
             }
@@ -1195,8 +1195,7 @@ static int SetCopyState(GL_RenderData *data, const SDL_RenderCommand *cmd)
                 data->glActiveTextureARB(GL_TEXTURE1_ARB);
             }
             data->glBindTexture(textype, texturedata->utexture);
-        }
-        if (texturedata->nv12) {
+        } else if (texturedata->yuv_planes == SDL_GL_YUV_2PLANES) {
             if (data->GL_ARB_multitexture_supported) {
                 data->glActiveTextureARB(GL_TEXTURE1_ARB);
             }
@@ -1552,7 +1551,7 @@ static void GL_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         renderdata->glDeleteTextures(1, &data->texture);
     }
 #if SDL_HAVE_YUV
-    if (data->yuv) {
+    if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
         renderdata->glDeleteTextures(1, &data->utexture);
         renderdata->glDeleteTextures(1, &data->vtexture);
     }
@@ -1616,7 +1615,7 @@ static int GL_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *t
 
     data->glEnable(textype);
 #if SDL_HAVE_YUV
-    if (texturedata->yuv) {
+    if (texturedata->yuv_planes == SDL_GL_YUV_3PLANES) {
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE2_ARB);
         }
@@ -1630,8 +1629,7 @@ static int GL_BindTexture(SDL_Renderer *renderer, SDL_Texture *texture, float *t
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE0_ARB);
         }
-    }
-    if (texturedata->nv12) {
+    } else if (texturedata->yuv_planes == SDL_GL_YUV_2PLANES) {
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE1_ARB);
         }
@@ -1671,7 +1669,7 @@ static int GL_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
    SDL_assert(texturedata != NULL);
 
 #if SDL_HAVE_YUV
-    if (texturedata->yuv) {
+    if (texturedata->yuv_planes == SDL_GL_YUV_3PLANES) {
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE2_ARB);
         }
@@ -1687,8 +1685,7 @@ static int GL_UnbindTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE0_ARB);
         }
-    }
-    if (texturedata->nv12) {
+    } else if (texturedata->yuv_planes == SDL_GL_YUV_2PLANES) {
         if (data->GL_ARB_multitexture_supported) {
             data->glActiveTextureARB(GL_TEXTURE1_ARB);
         }
