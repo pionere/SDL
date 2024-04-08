@@ -1455,13 +1455,13 @@ int SDL_ConvertPixels(int width, int height,
     if (!src) {
         return SDL_InvalidParamError("src");
     }
-    if (!src_pitch) {
+    if (src_pitch <= 0) {
         return SDL_InvalidParamError("src_pitch");
     }
     if (!dst) {
         return SDL_InvalidParamError("dst");
     }
-    if (!dst_pitch) {
+    if (dst_pitch <= 0) {
         return SDL_InvalidParamError("dst_pitch");
     }
 
