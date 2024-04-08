@@ -20,10 +20,10 @@
 */
 #include "../../SDL_internal.h"
 
+#if SDL_VIDEO_RENDER_D3D && SDL_HAVE_YUV
+
 #include "SDL_render.h"
 #include "SDL_system.h"
-
-#if SDL_VIDEO_RENDER_D3D
 
 #include "../../core/windows/SDL_windows.h"
 
@@ -268,6 +268,6 @@ HRESULT D3D9_CreatePixelShader(IDirect3DDevice9 *d3dDevice, D3D9_Shader shader, 
     return IDirect3DDevice9_CreatePixelShader(d3dDevice, D3D9_shaders[shader], pixelShader);
 }
 
-#endif /* SDL_VIDEO_RENDER_D3D */
+#endif /* SDL_VIDEO_RENDER_D3D && SDL_HAVE_YUV */
 
 /* vi: set ts=4 sw=4 expandtab: */
