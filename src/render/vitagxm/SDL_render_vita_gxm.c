@@ -319,8 +319,12 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     VITA_GXM_SetTextureScaleMode(renderer, texture, texture->scaleMode);
 
 #if SDL_HAVE_YUV
-    vita_texture->yuv = ((texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12));
-    vita_texture->nv12 = ((texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21));
+    // vita_texture->yuv_planes = SDL_VITA_YUV_NONE;
+    if (texture->format == SDL_PIXELFORMAT_IYUV || texture->format == SDL_PIXELFORMAT_YV12) {
+        vita_texture->yuv_planes = SDL_VITA_YUV_3PLANES;
+    } else if (texture->format == SDL_PIXELFORMAT_NV12 || texture->format == SDL_PIXELFORMAT_NV21) {
+        vita_texture->yuv_planes = SDL_VITA_YUV_2PLANES;
+    }
 #endif
 
     return 0;
@@ -359,7 +363,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     int row, length, dpitch;
     SDL_assert(vita_texture != NULL);
 #if SDL_HAVE_YUV
-    if (vita_texture->yuv || vita_texture->nv12) {
+    if (vita_texture->yuv_planes != SDL_VITA_YUV_NONE) {
         VITA_GXM_SetYUVProfile(renderer, texture);
     }
 #endif
@@ -377,7 +381,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     }
 
 #if SDL_HAVE_YUV
-    if (vita_texture->yuv) {
+    if (vita_texture->yuv_planes == SDL_VITA_YUV_3PLANES) {
         void *Udst;
         void *Vdst;
         int uv_pitch = (dpitch + 1) / 2;
@@ -414,7 +418,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             }
         }
 
-    } else if (vita_texture->nv12) {
+    } else if (vita_texture->yuv_planes == SDL_VITA_YUV_2PLANES) {
         void *UVdst;
         int uv_pitch = 2 * ((dpitch + 1) / 2);
         int uv_src_pitch = 2 * ((pitch + 1) / 2);

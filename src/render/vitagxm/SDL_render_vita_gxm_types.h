@@ -197,6 +197,13 @@ typedef struct
     SceUID texturePoolUID;
 } VITA_GXM_RenderData;
 
+typedef enum
+{
+    SDL_VITA_YUV_NONE,
+    SDL_VITA_YUV_3PLANES,
+    SDL_VITA_YUV_2PLANES,
+} VITA_YuvPlanes;
+
 typedef struct
 {
     gxm_texture *tex;
@@ -204,8 +211,9 @@ typedef struct
     unsigned int w;
     unsigned int h;
     float wscale;
-    SDL_bool yuv;
-    SDL_bool nv12;
+#if SDL_HAVE_YUV
+    VITA_YuvPlanes yuv_planes;
+#endif
 } VITA_GXM_TextureData;
 
 #endif /* SDL_RENDER_VITA_GXM_TYPES_H */
