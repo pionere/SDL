@@ -22,10 +22,17 @@
 #ifndef SDL_surface_c_h_
 #define SDL_surface_c_h_
 
+#include "../SDL_internal.h"
+
 /* Useful functions and variables from SDL_surface.c */
 
 #include "SDL_render.h"
 #include "SDL_surface.h"
+
+#if !SDL_HAVE_RLE
+#undef SDL_MUSTLOCK
+#define SDL_MUSTLOCK(S) SDL_FALSE
+#endif
 
 /* private functions defined in SDL_surface.c */
 extern SDL_Color SDL_PrivateGetSurfaceColorMod(SDL_Surface *surface);

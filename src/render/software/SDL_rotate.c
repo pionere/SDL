@@ -36,13 +36,10 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #include "../../core/windows/SDL_windows.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "SDL_surface.h"
 #include "SDL_rotate.h"
 
 #include "../../video/SDL_pixels_c.h"
+#include "../../video/SDL_surface_c.h"
 
 /* ---- Internally used structures */
 

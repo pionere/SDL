@@ -288,6 +288,7 @@ int SDL_SetSurfacePalette(SDL_Surface *surface, SDL_Palette *palette)
 
 int SDL_SetSurfaceRLE(SDL_Surface *surface, int flag)
 {
+#if SDL_HAVE_RLE
     int flags;
 
     if (!surface) {
@@ -304,10 +305,14 @@ int SDL_SetSurfaceRLE(SDL_Surface *surface, int flag)
         SDL_InvalidateMap(surface->map);
     }
     return 0;
+#else
+    return SDL_Unsupported();
+#endif
 }
 
 SDL_bool SDL_HasSurfaceRLE(SDL_Surface *surface)
 {
+#if SDL_HAVE_RLE
     if (!surface) {
         return SDL_FALSE;
     }
@@ -317,6 +322,9 @@ SDL_bool SDL_HasSurfaceRLE(SDL_Surface *surface)
     }
 
     return SDL_TRUE;
+#else
+    return SDL_FALSE;
+#endif
 }
 
 int SDL_SetColorKey(SDL_Surface *surface, int flag, Uint32 key)
@@ -1380,10 +1388,11 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
         (copy_flags & SDL_COPY_MODULATE_ALPHA)) {
         SDL_SetSurfaceBlendMode(convert, SDL_BLENDMODE_BLEND);
     }
+#if SDL_HAVE_RLE
     if ((copy_flags & SDL_COPY_RLE_DESIRED) || (flags & SDL_RLEACCEL)) {
-        SDL_SetSurfaceRLE(convert, SDL_RLEACCEL);
+        SDL_SetSurfaceRLE(convert, 1);
     }
-
+#endif
     /* We're ready to go! */
     return convert;
 }

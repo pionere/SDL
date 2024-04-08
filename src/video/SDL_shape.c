@@ -21,8 +21,10 @@
 #include "../SDL_internal.h"
 
 #include "SDL_video.h"
-#include "SDL_sysvideo.h"
+
 #include "SDL_shape_internals.h"
+#include "SDL_surface_c.h"
+#include "SDL_sysvideo.h"
 
 SDL_bool SDL_IsShapedWindow(const SDL_Window *window)
 {

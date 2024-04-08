@@ -21,6 +21,7 @@
 #include "../SDL_internal.h"
 
 #include "SDL_video.h"
+
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_blit_auto.h"
@@ -28,6 +29,7 @@
 #include "SDL_blit_slow.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
+#include "SDL_surface_c.h"
 
 /* The general purpose software blit routine */
 static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
@@ -227,7 +229,11 @@ int SDL_CalculateBlit(SDL_Surface *surface)
     /* Choose a standard blit function */
     if (map->info.dst_fmt->BitsPerPixel < 8) {
         ; // We don't currently support blitting to < 8 bpp surfaces
+#if SDL_HAVE_RLE
     } else if (map->identity && !(map->info.flags & ~SDL_COPY_RLE_DESIRED)) {
+#else
+    } else if (map->identity && !map->info.flags) {
+#endif
         blit = SDL_BlitCopy;
     } else if (map->info.src_fmt->palette) {
         SDL_assert(SDL_ISPIXELFORMAT_INDEXED(map->info.src_fmt->format));

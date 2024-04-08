@@ -21,8 +21,9 @@
 #include "../SDL_internal.h"
 
 #include "SDL_video.h"
+
 #include "SDL_blit.h"
-#include "SDL_render.h"
+#include "SDL_surface_c.h"
 
 #ifdef __SSE2__
 #define HAVE_SSE2_INTRINSICS

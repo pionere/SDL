@@ -100,14 +100,14 @@ static int SW_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     SDL_PrivateSetSurfaceColorMod(surface, texture->color);
     SDL_SetSurfaceBlendMode(surface, texture->blendMode);
-
+#if SDL_HAVE_RLE
     /* Only RLE encode textures without an alpha channel since the RLE coder
      * discards the color values of pixels with an alpha value of zero.
      */
     if (texture->access == SDL_TEXTUREACCESS_STATIC && !surface->format->Amask) {
         SDL_SetSurfaceRLE(surface, 1);
     }
-
+#endif
     texture->driverdata = surface;
     return 0;
 }

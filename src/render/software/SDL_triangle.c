@@ -24,11 +24,11 @@
 
 #include <limits.h>
 
-#include "SDL_surface.h"
 #include "SDL_triangle.h"
 
 #include "../../video/SDL_blit.h"
 #include "../../video/SDL_pixels_c.h"
+#include "../../video/SDL_surface_c.h"
 
 /* fixed points bits precision
  * Set to 1, so that it can start rendering wth middle of a pixel precision.
