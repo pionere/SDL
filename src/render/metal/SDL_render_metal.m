@@ -126,6 +126,13 @@ typedef struct METAL_ShaderPipelines
     METAL_PipelineCache caches[SDL_METAL_FRAGMENT_COUNT];
 } METAL_ShaderPipelines;
 
+typedef enum
+{
+    SDL_METAL_YUV_NONE,
+    SDL_METAL_YUV_3PLANES,
+    SDL_METAL_YUV_2PLANES,
+} METAL_YuvPlanes;
+
 @interface METAL_RenderData : NSObject
     @property (nonatomic, retain) id<MTLDevice> mtldevice;
     @property (nonatomic, retain) id<MTLCommandQueue> mtlcmdqueue;
@@ -154,8 +161,7 @@ typedef struct METAL_ShaderPipelines
     @property (nonatomic, retain) id<MTLSamplerState> mtlsampler;
     @property (nonatomic, assign) SDL_MetalFragmentFunction fragmentFunction;
 #if SDL_HAVE_YUV
-    @property (nonatomic, assign) BOOL yuv;
-    @property (nonatomic, assign) BOOL nv12;
+    @property (nonatomic, assign) METAL_YuvPlanes yuv_planes;
     @property (nonatomic, assign) size_t conversionBufferOffset;
 #endif
     @property (nonatomic, assign) BOOL hasdata;
@@ -538,7 +544,9 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     MTLPixelFormat pixfmt;
     MTLTextureDescriptor *mtltexdesc;
     id<MTLTexture> mtltexture, mtltexture_uv;
-    BOOL yuv, nv12;
+#if SDL_HAVE_YUV
+    METAL_YuvPlanes yuv_planes = SDL_METAL_YUV_NONE;
+#endif
     METAL_TextureData *texturedata;
 
     switch (texture->format) {
@@ -553,9 +561,13 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 #if SDL_HAVE_YUV
     case SDL_PIXELFORMAT_IYUV:
     case SDL_PIXELFORMAT_YV12:
+        pixfmt = MTLPixelFormatR8Unorm;
+        yuv_planes = SDL_METAL_YUV_3PLANES;
+        break;
     case SDL_PIXELFORMAT_NV12:
     case SDL_PIXELFORMAT_NV21:
         pixfmt = MTLPixelFormatR8Unorm;
+        yuv_planes = SDL_METAL_YUV_2PLANES;
         break;
 #endif
     }
@@ -579,22 +591,18 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 
     mtltexture_uv = nil;
 #if SDL_HAVE_YUV
-    yuv = (texture->format == SDL_PIXELFORMAT_IYUV) || (texture->format == SDL_PIXELFORMAT_YV12);
-    nv12 = (texture->format == SDL_PIXELFORMAT_NV12) || (texture->format == SDL_PIXELFORMAT_NV21);
-
-    if (yuv) {
-        mtltexdesc.pixelFormat = MTLPixelFormatR8Unorm;
-        mtltexdesc.width = (texture->w + 1) / 2;
-        mtltexdesc.height = (texture->h + 1) / 2;
-        mtltexdesc.textureType = MTLTextureType2DArray;
-        mtltexdesc.arrayLength = 2;
-    } else if (nv12) {
-        mtltexdesc.pixelFormat = MTLPixelFormatRG8Unorm;
-        mtltexdesc.width = (texture->w + 1) / 2;
-        mtltexdesc.height = (texture->h + 1) / 2;
-    }
-
-    if (yuv || nv12) {
+    if (yuv_planes != SDL_METAL_YUV_NONE) {
+        if (yuv_planes == SDL_METAL_YUV_3PLANES) {
+            mtltexdesc.pixelFormat = MTLPixelFormatR8Unorm;
+            mtltexdesc.width = (texture->w + 1) / 2;
+            mtltexdesc.height = (texture->h + 1) / 2;
+            mtltexdesc.textureType = MTLTextureType2DArray;
+            mtltexdesc.arrayLength = 2;
+        } else { // if (yuv_planes == SDL_METAL_YUV_2PLANES) {
+            mtltexdesc.pixelFormat = MTLPixelFormatRG8Unorm;
+            mtltexdesc.width = (texture->w + 1) / 2;
+            mtltexdesc.height = (texture->h + 1) / 2;
+        }
         mtltexture_uv = [data.mtldevice newTextureWithDescriptor:mtltexdesc];
         if (mtltexture_uv == nil) {
             return SDL_SetError("Texture allocation failed");
@@ -609,23 +617,17 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     }
     texturedata.mtltexture = mtltexture;
     texturedata.mtltexture_uv = mtltexture_uv;
+    texturedata.fragmentFunction = SDL_METAL_FRAGMENT_COPY;
 #if SDL_HAVE_YUV
-    texturedata.yuv = yuv;
-    texturedata.nv12 = nv12;
-
-    if (yuv) {
-        texturedata.fragmentFunction = SDL_METAL_FRAGMENT_YUV;
-    } else if (texture->format == SDL_PIXELFORMAT_NV12) {
-        texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV12;
-    } else if (texture->format == SDL_PIXELFORMAT_NV21) {
-        texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV21;
-    } else
-#endif
-    {
-        texturedata.fragmentFunction = SDL_METAL_FRAGMENT_COPY;
-    }
-#if SDL_HAVE_YUV
-    if (yuv || nv12) {
+    texturedata.yuv_planes = yuv_planes;
+    if (yuv_planes != SDL_METAL_YUV_NONE) {
+        if (yuv_planes == SDL_METAL_YUV_3PLANES) {
+            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_YUV;
+        } else if (texture->format == SDL_PIXELFORMAT_NV12) {
+            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV12;
+        } else { // if (texture->format == SDL_PIXELFORMAT_NV21) {
+            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV21;
+        }
         size_t offset = 0;
         SDL_YUV_CONVERSION_MODE mode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
         switch (mode) {
@@ -739,7 +741,7 @@ static int METAL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
         return -1;
     }
 #if SDL_HAVE_YUV
-    if (texturedata.yuv) {
+    if (texturedata.yuv_planes == SDL_METAL_YUV_3PLANES) {
         int Uslice = texture->format == SDL_PIXELFORMAT_YV12 ? 1 : 0;
         int Vslice = texture->format == SDL_PIXELFORMAT_YV12 ? 0 : 1;
         int UVpitch = (pitch + 1) / 2;
@@ -756,9 +758,7 @@ static int METAL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
         if (METAL_UpdateTextureInternal(renderer, texturedata, texturedata.mtltexture_uv, UVrect, Vslice, pixels, UVpitch) < 0) {
             return -1;
         }
-    }
-
-    if (texturedata.nv12) {
+    } else if (texturedata.yuv_planes == SDL_METAL_YUV_2PLANES) {
         SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
         int UVpitch = 2 * ((pitch + 1) / 2);
 
@@ -847,7 +847,7 @@ static int METAL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
 
     *pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect->w;
 #if SDL_HAVE_YUV
-    if (texturedata.yuv || texturedata.nv12) {
+    if (texturedata.yuv_planes != SDL_METAL_YUV_NONE) {
         buffersize = ((*pitch) * rect->h) + (2 * (*pitch + 1) / 2) * ((rect->h + 1) / 2);
     } else
 #endif
@@ -901,7 +901,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
            destinationLevel:0
           destinationOrigin:MTLOriginMake(rect.x, rect.y, 0)];
 #if SDL_HAVE_YUV
-    if (texturedata.yuv) {
+    if (texturedata.yuv_planes == SDL_METAL_YUV_3PLANES) {
         int Uslice = texture->format == SDL_PIXELFORMAT_YV12 ? 1 : 0;
         int Vslice = texture->format == SDL_PIXELFORMAT_YV12 ? 0 : 1;
         int UVpitch = (pitch + 1) / 2;
@@ -925,9 +925,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
                destinationSlice:Vslice
                destinationLevel:0
               destinationOrigin:MTLOriginMake(UVrect.x, UVrect.y, 0)];
-    }
-
-    if (texturedata.nv12) {
+    } else if (texturedata.yuv_planes == SDL_METAL_YUV_2PLANES) {
         int UVpitch = 2 * ((pitch + 1) / 2);
 
         [blitcmd copyFromBuffer:texturedata.lockedbuffer
@@ -1250,7 +1248,7 @@ static SDL_bool SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cm
 
         [data.mtlcmdencoder setFragmentTexture:texturedata.mtltexture atIndex:0];
 #if SDL_HAVE_YUV
-        if (texturedata.yuv || texturedata.nv12) {
+        if (texturedata.yuv_planes != SDL_METAL_YUV_NONE) {
             [data.mtlcmdencoder setFragmentTexture:texturedata.mtltexture_uv atIndex:1];
             [data.mtlcmdencoder setFragmentBuffer:data.mtlbufconstants offset:texturedata.conversionBufferOffset atIndex:1];
         }
