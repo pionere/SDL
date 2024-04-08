@@ -92,6 +92,13 @@ typedef struct
     SDL_Color color;
 } VertexPositionColor;
 
+typedef enum
+{
+    SDL_D3D11_YUV_NONE,
+    SDL_D3D11_YUV_3PLANES,
+    SDL_D3D11_YUV_2PLANES,
+} D3D11_YuvPlanes;
+
 /* Per-texture data */
 typedef struct
 {
@@ -103,8 +110,7 @@ typedef struct
     int lockedTexturePositionY;
     D3D11_FILTER scaleMode;
 #if SDL_HAVE_YUV
-    SDL_bool yuv;
-    SDL_bool nv12;
+    D3D11_YuvPlanes yuv_planes;
     ID3D11Texture2D *mainTextureU;
     ID3D11ShaderResourceView *mainTextureResourceViewU;
     ID3D11Texture2D *mainTextureV;
@@ -1143,7 +1149,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #if SDL_HAVE_YUV
     if (texture->format == SDL_PIXELFORMAT_YV12 ||
         texture->format == SDL_PIXELFORMAT_IYUV) {
-        textureData->yuv = SDL_TRUE;
+        textureData->yuv_planes = SDL_D3D11_YUV_3PLANES;
 
         textureDesc.Width = (textureDesc.Width + 1) / 2;
         textureDesc.Height = (textureDesc.Height + 1) / 2;
@@ -1169,7 +1175,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         texture->format == SDL_PIXELFORMAT_NV21) {
         D3D11_TEXTURE2D_DESC nvTextureDesc = textureDesc;
 
-        textureData->nv12 = SDL_TRUE;
+        textureData->yuv_planes = SDL_D3D11_YUV_2PLANES;
 
         nvTextureDesc.Format = DXGI_FORMAT_R8G8_UNORM;
         nvTextureDesc.Width = (textureDesc.Width + 1) / 2;
@@ -1200,7 +1206,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         goto error;
     }
 #if SDL_HAVE_YUV
-    if (textureData->yuv) {
+    if (textureData->yuv_planes == SDL_D3D11_YUV_3PLANES) {
         result = ID3D11Device_CreateShaderResourceView(d3dDevice,
                                                        (ID3D11Resource *)textureData->mainTextureU,
                                                        &resourceViewDesc,
@@ -1217,7 +1223,7 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
             WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D11Device1::CreateShaderResourceView"), result);
             goto error;
         }
-    } else if (textureData->nv12) {
+    } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
         D3D11_SHADER_RESOURCE_VIEW_DESC nvResourceViewDesc = resourceViewDesc;
 
         nvResourceViewDesc.Format = DXGI_FORMAT_R8G8_UNORM;
@@ -1373,7 +1379,7 @@ static int D3D11_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, srcPixels, srcPitch);
 #if SDL_HAVE_YUV
     if (status >= 0) {
-        if (textureData->yuv) {
+        if (textureData->yuv_planes == SDL_D3D11_YUV_3PLANES) {
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
@@ -1383,7 +1389,7 @@ static int D3D11_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                 srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
                 status = D3D11_UpdateTextureInternal(renderer, format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2);
             }
-        } else if (textureData->nv12) {
+        } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
@@ -1447,7 +1453,7 @@ static int D3D11_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     SDL_assert(textureData != NULL);
 
 #if SDL_HAVE_YUV
-    if (textureData->yuv || textureData->nv12) {
+    if (textureData->yuv_planes != SDL_D3D11_YUV_NONE) {
         /* It's more efficient to upload directly... */
         if (!textureData->pixels) {
             textureData->pitch = texture->w;
@@ -1526,7 +1532,7 @@ static void D3D11_UnlockTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     SDL_assert(textureData != NULL);
 
 #if SDL_HAVE_YUV
-    if (textureData->yuv || textureData->nv12) {
+    if (textureData->yuv_planes != SDL_D3D11_YUV_NONE) {
         const SDL_Rect *rect = &textureData->locked_rect;
         void *pixels =
             (void *)(textureData->pixels + rect->y * textureData->pitch +
@@ -1960,7 +1966,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
         return SDL_SetError("Unknown scale mode: %d\n", textureData->scaleMode);
     }
 #if SDL_HAVE_YUV
-    if (textureData->yuv) {
+    if (textureData->yuv_planes == SDL_D3D11_YUV_3PLANES) {
         ID3D11ShaderResourceView *shaderResources[] = {
             textureData->mainTextureResourceView,
             textureData->mainTextureResourceViewU,
@@ -1987,7 +1993,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
         return D3D11_SetDrawState(rendererData, cmd, shader,
                                   SDL_arraysize(shaderResources), shaderResources, textureSampler);
 
-    } else if (textureData->nv12) {
+    } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
         ID3D11ShaderResourceView *shaderResources[] = {
             textureData->mainTextureResourceView,
             textureData->mainTextureResourceViewU,
