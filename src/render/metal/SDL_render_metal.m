@@ -92,9 +92,11 @@ typedef enum SDL_MetalFragmentFunction
 {
     SDL_METAL_FRAGMENT_SOLID = 0,
     SDL_METAL_FRAGMENT_COPY,
+#if SDL_HAVE_YUV
     SDL_METAL_FRAGMENT_YUV,
     SDL_METAL_FRAGMENT_NV12,
     SDL_METAL_FRAGMENT_NV21,
+#endif
     SDL_METAL_FRAGMENT_COUNT,
 } SDL_MetalFragmentFunction;
 
@@ -245,10 +247,12 @@ static NSString *GetFragmentFunctionName(SDL_MetalFragmentFunction function)
     switch (function) {
         case SDL_METAL_FRAGMENT_SOLID: return @"SDL_Solid_fragment";
         case SDL_METAL_FRAGMENT_COPY: return @"SDL_Copy_fragment";
+#if SDL_HAVE_YUV
         case SDL_METAL_FRAGMENT_YUV: return @"SDL_YUV_fragment";
         case SDL_METAL_FRAGMENT_NV12: return @"SDL_NV12_fragment";
         case SDL_METAL_FRAGMENT_NV21: return @"SDL_NV21_fragment";
-        default: return nil;
+#endif
+        default: SDL_assume(!"Unknown fragment function"); return nil;
     }
 }
 
@@ -382,9 +386,11 @@ static void MakeShaderPipelines(METAL_RenderData *data, METAL_ShaderPipelines *p
 
     MakePipelineCache(data, &pipelines->caches[SDL_METAL_FRAGMENT_SOLID], "SDL primitives pipeline", rtformat, SDL_METAL_VERTEX_SOLID, SDL_METAL_FRAGMENT_SOLID);
     MakePipelineCache(data, &pipelines->caches[SDL_METAL_FRAGMENT_COPY], "SDL copy pipeline", rtformat, SDL_METAL_VERTEX_COPY, SDL_METAL_FRAGMENT_COPY);
+#if SDL_HAVE_YUV
     MakePipelineCache(data, &pipelines->caches[SDL_METAL_FRAGMENT_YUV], "SDL YUV pipeline", rtformat, SDL_METAL_VERTEX_COPY, SDL_METAL_FRAGMENT_YUV);
     MakePipelineCache(data, &pipelines->caches[SDL_METAL_FRAGMENT_NV12], "SDL NV12 pipeline", rtformat, SDL_METAL_VERTEX_COPY, SDL_METAL_FRAGMENT_NV12);
     MakePipelineCache(data, &pipelines->caches[SDL_METAL_FRAGMENT_NV21], "SDL NV21 pipeline", rtformat, SDL_METAL_VERTEX_COPY, SDL_METAL_FRAGMENT_NV21);
+#endif
 }
 
 static METAL_ShaderPipelines *ChooseShaderPipelines(METAL_RenderData *data, MTLPixelFormat rtformat)
