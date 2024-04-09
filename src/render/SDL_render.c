@@ -1165,7 +1165,7 @@ const SDL_RendererInfo *SDL_PrivateGetRendererInfo(const SDL_Renderer *renderer)
     return &renderer->info;
 }
 
-void SDL_PrivateGetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
+static void SDL_PrivateGetRendererOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_Texture *texture = renderer->target;
     if (texture) {

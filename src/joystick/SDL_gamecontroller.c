@@ -3302,7 +3302,7 @@ int SDL_GameControllerSendEffect(SDL_GameController *gamecontroller, const void 
     return retval;
 }
 
-void SDL_PrivateGameControllerClose(SDL_GameController *gamecontroller)
+static void SDL_PrivateGameControllerClose(SDL_GameController *gamecontroller)
 {
     SDL_GameController *gamecontrollerlist, *gamecontrollerlistprev;
 
