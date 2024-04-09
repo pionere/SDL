@@ -27,12 +27,14 @@
 
 #include "yuv2rgb/yuv_rgb.h"
 
+#include <limits.h> /* For INT_MAX */
+
 #if SDL_HAVE_YUV
 #define SDL_YUV_SD_THRESHOLD 576
 
 static SDL_YUV_CONVERSION_MODE SDL_YUV_ConversionMode = SDL_YUV_CONVERSION_BT601;
 
-static SDL_bool IsPlanar2x2Format(Uint32 format);
+static SDL_bool IsPacked4Format(Uint32 format);
 
 void SDL_SetYUVConversionMode(SDL_YUV_CONVERSION_MODE mode)
 {
@@ -89,123 +91,119 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int hei
  */
 int SDL_CalculateYUVSize(Uint32 format, int w, int h, size_t *size, int *pitch)
 {
-#if SDL_HAVE_YUV
-    int sz_plane = 0, sz_plane_chroma = 0, sz_plane_packed = 0;
+    if (IsPacked4Format(format)) {
+        size_t sz_plane_packed;
+        {
+            /* sz_plane_packed == ((w + 1) / 2) * h; */
+            size_t s1, s2;
+            s1 = (size_t)w + 1;
+            s1 = s1 / 2;
+            if (SDL_size_mul_overflow(s1, h, &s2)) {
+                return -1;
+            }
+            sz_plane_packed = s2;
+        }
 
-    if (IsPlanar2x2Format(format) == SDL_TRUE) {
+        switch (format) {
+        case SDL_PIXELFORMAT_YUY2: /**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
+        case SDL_PIXELFORMAT_UYVY: /**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
+        case SDL_PIXELFORMAT_YVYU: /**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
+        {
+            size_t s1, p1, p2;
+            /* dst_size == 4 * sz_plane_packed; */
+            if (SDL_size_mul_overflow(sz_plane_packed, 4, &s1)) {
+                return -1;
+            }
+            *size = s1;
+
+            /* pitch == ((w + 1) / 2) * 4; */
+            p1 = (size_t)w + 1;
+            p1 = p1 / 2;
+            if (SDL_size_mul_overflow(p1, 4, &p2) || p2 > INT_MAX) {
+                return -1;
+            }
+            *pitch = (int)p2;
+        } break;
+        default:
+            SDL_assume(!"Unknown packed yuv format");
+            return -1;
+        }
+    } else {
+        /* planar formats with 4:2:0 sampling */
+        size_t sz_plane, sz_plane_chroma, sz_uv, sz_bytes;
         {
             /* sz_plane == w * h; */
             size_t s1;
-            if (SDL_size_mul_overflow(w, h, &s1) < 0) {
+            if (SDL_size_mul_overflow(w, h, &s1)) {
                 return -1;
             }
-            sz_plane = (int) s1;
+            sz_plane = s1;
         }
 
         {
             /* sz_plane_chroma == ((w + 1) / 2) * ((h + 1) / 2); */
             size_t s1, s2, s3;
-            if (SDL_size_add_overflow(w, 1, &s1) < 0) {
-                return -1;
-            }
+            s1 = (size_t)w + 1;
             s1 = s1 / 2;
-            if (SDL_size_add_overflow(h, 1, &s2) < 0) {
-                return -1;
-            }
+            s2 = (size_t)h + 1;
             s2 = s2 / 2;
-            if (SDL_size_mul_overflow(s1, s2, &s3) < 0) {
+            if (SDL_size_mul_overflow(s1, s2, &s3)) {
                 return -1;
             }
-            sz_plane_chroma = (int) s3;
-        }
-    } else {
-        /* sz_plane_packed == ((w + 1) / 2) * h; */
-        size_t s1, s2;
-        if (SDL_size_add_overflow(w, 1, &s1) < 0) {
-            return -1;
-        }
-        s1 = s1 / 2;
-        if (SDL_size_mul_overflow(s1, h, &s2) < 0) {
-            return -1;
-        }
-        sz_plane_packed = (int) s2;
-    }
-
-    switch (format) {
-    case SDL_PIXELFORMAT_YV12: /**< Planar mode: Y + V + U  (3 planes) */
-    case SDL_PIXELFORMAT_IYUV: /**< Planar mode: Y + U + V  (3 planes) */
-
-        if (pitch) {
-            *pitch = w;
+            sz_plane_chroma = s3;
         }
 
-        if (size) {
-            /* dst_size == sz_plane + sz_plane_chroma + sz_plane_chroma; */
-            size_t s1, s2;
-            if (SDL_size_add_overflow(sz_plane, sz_plane_chroma, &s1) < 0) {
-                return -1;
-            }
-            if (SDL_size_add_overflow(s1, sz_plane_chroma, &s2) < 0) {
-                return -1;
-            }
-            *size = (int)s2;
-        }
-        break;
-
-    case SDL_PIXELFORMAT_YUY2: /**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
-    case SDL_PIXELFORMAT_UYVY: /**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
-    case SDL_PIXELFORMAT_YVYU: /**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
-
-        if (pitch) {
-            /* pitch == ((w + 1) / 2) * 4; */
-           size_t p1, p2;
-           if (SDL_size_add_overflow(w, 1, &p1) < 0) {
-               return -1;
-           }
-           p1 = p1 / 2;
-           if (SDL_size_mul_overflow(p1, 4, &p2) < 0) {
-               return -1;
-           }
-           *pitch = (int) p2;
-        }
-
-        if (size) {
-            /* dst_size == 4 * sz_plane_packed; */
+        {
+            /* sz_uv = sz_plane_chroma + sz_plane_chroma; */
             size_t s1;
-            if (SDL_size_mul_overflow(sz_plane_packed, 4, &s1) < 0) {
+            if (SDL_size_mul_overflow(sz_plane_chroma, 2, &s1)) {
                 return -1;
             }
-            *size = (int) s1;
+            sz_uv = s1;
         }
-        break;
 
-    case SDL_PIXELFORMAT_NV12: /**< Planar mode: Y + U/V interleaved  (2 planes) */
-    case SDL_PIXELFORMAT_NV21: /**< Planar mode: Y + V/U interleaved  (2 planes) */
-        if (pitch) {
+        {
+            /* sz_bytes = sz_plane + sz_uv; */
+            size_t s1;
+            if (SDL_size_add_overflow(sz_plane, sz_uv, &s1)) {
+                return -1;
+            }
+            sz_bytes = s1;
+        }
+
+        switch (format) {
+        case SDL_PIXELFORMAT_YV12: /**<  8bit Y + V + U  (3 planes) */
+        case SDL_PIXELFORMAT_IYUV: /**<  8bit Y + U + V  (3 planes) */
+        case SDL_PIXELFORMAT_NV12: /**<  8bit Y + U/V interleaved  (2 planes) */
+        case SDL_PIXELFORMAT_NV21: /**<  8bit Y + V/U interleaved  (2 planes) */
+        {
             *pitch = w;
-        }
 
-        if (size) {
-            /* dst_size == sz_plane + sz_plane_chroma + sz_plane_chroma; */
-            size_t s1, s2;
-            if (SDL_size_add_overflow(sz_plane, sz_plane_chroma, &s1) < 0) {
+            /* 3 planes: dst_size == sz_plane + sz_plane_chroma + sz_plane_chroma; */
+            /* 2 planes: dst_size == sz_plane + (sz_plane_chroma + sz_plane_chroma); */
+            *size = sz_bytes;
+        } break;
+        case SDL_PIXELFORMAT_P010: /**< 16bit Y + U/V interleaved  (2 planes) */
+        {
+            size_t s1;
+
+            if (w > INT_MAX / sizeof(Uint16)) {
                 return -1;
             }
-            if (SDL_size_add_overflow(s1, sz_plane_chroma, &s2) < 0) {
+            *pitch = sizeof(Uint16) * w;
+            
+            if (SDL_size_mul_overflow(sz_bytes, sizeof(Uint16), &s1)) {
                 return -1;
             }
-            *size = (int) s2;
+            *size = s1;
+        } break;
+        default:
+            SDL_assume(!"Unknown planar yuv format");
+            return -1;
         }
-        break;
-
-    default:
-        return -1;
     }
 
     return 0;
-#else
-    return -1;
-#endif
 }
 
 #if SDL_HAVE_YUV
