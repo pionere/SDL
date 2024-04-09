@@ -241,106 +241,69 @@ static SDL_bool IsPacked4Format(Uint32 format)
 static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const void *yuv, unsigned yuv_pitch,
                         const Uint8 **y, const Uint8 **u, const Uint8 **v, Uint32 *y_stride, Uint32 *uv_stride)
 {
-    const Uint8 *planes[3] = { NULL, NULL, NULL };
-    unsigned pitches[3] = { 0, 0, 0 };
-    unsigned uv_width;
+    const Uint8 *plane0, *plane1, *plane2;
+    unsigned uv_pitch;
 
+    plane0 = (const Uint8 *)yuv;
+
+    *y = plane0;
+    *y_stride = yuv_pitch;
+
+    uv_pitch = yuv_pitch;
     switch (format) {
+    /* packed formats */
+    case SDL_PIXELFORMAT_YUY2:
+        *v = plane0 + 3;
+        *u = plane0 + 1;
+        break;
+    case SDL_PIXELFORMAT_UYVY:
+        *y = plane0 + 1;
+        *v = plane0 + 2;
+        *u = plane0;
+        break;
+    case SDL_PIXELFORMAT_YVYU:
+        *v = plane0 + 1;
+        *u = plane0 + 3;
+        break;
+    /* planar formats (3 planes) */
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
-        pitches[0] = yuv_pitch;
-        pitches[1] = (pitches[0] + 1) / 2;
-        pitches[2] = (pitches[0] + 1) / 2;
-        planes[0] = (const Uint8 *)yuv;
-        planes[1] = planes[0] + pitches[0] * height;
-        planes[2] = planes[1] + pitches[1] * ((height + 1) / 2);
+        uv_pitch = (yuv_pitch + 1) / 2;
+        plane1 = plane0 + yuv_pitch * height;
+        plane2 = plane1 + uv_pitch * ((height + 1) / 2);
+
+        if (format == SDL_PIXELFORMAT_YV12) {
+            *v = plane1;
+            *u = plane2;
+        } else {
+            *v = plane2;
+            *u = plane1;
+        }
         break;
-    case SDL_PIXELFORMAT_YUY2:
-    case SDL_PIXELFORMAT_UYVY:
-    case SDL_PIXELFORMAT_YVYU:
-        pitches[0] = yuv_pitch;
-        planes[0] = (const Uint8 *)yuv;
-        break;
+    /* planar formats (2 planes) */
     case SDL_PIXELFORMAT_NV12:
     case SDL_PIXELFORMAT_NV21:
-        pitches[0] = yuv_pitch;
-        pitches[1] = 2 * ((pitches[0] + 1) / 2);
-        planes[0] = (const Uint8 *)yuv;
-        planes[1] = planes[0] + pitches[0] * height;
-        break;
     case SDL_PIXELFORMAT_P010:
-        pitches[0] = yuv_pitch;
-        uv_width = ((width + 1) / 2) * 2;
-        pitches[1] = SDL_max(pitches[0], uv_width * sizeof(Uint16));
-        planes[0] = (const Uint8 *)yuv;
-        planes[1] = planes[0] + pitches[0] * height;
+        uv_pitch = 2 * ((yuv_pitch + 1) / 2);
+        plane1 = plane0 + yuv_pitch * height;
+
+        if (format == SDL_PIXELFORMAT_NV12) {
+            *u = plane1;
+            *v = *u + 1;
+        } else if (format == SDL_PIXELFORMAT_NV21) {
+            *v = plane1;
+            *u = *v + 1;
+        } else { // if (format == SDL_PIXELFORMAT_P010) {
+            *u = plane1;
+            *v = *u + sizeof(Uint16);
+        }
         break;
     default:
         return SDL_SetError("GetYUVPlanes(): Unsupported YUV format: %s", SDL_GetPixelFormatName(format));
     }
 
-    switch (format) {
-    case SDL_PIXELFORMAT_YV12:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *v = planes[1];
-        *u = planes[2];
-        *uv_stride = pitches[1];
-        break;
-    case SDL_PIXELFORMAT_IYUV:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *v = planes[2];
-        *u = planes[1];
-        *uv_stride = pitches[1];
-        break;
-    case SDL_PIXELFORMAT_YUY2:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *v = *y + 3;
-        *u = *y + 1;
-        *uv_stride = pitches[0];
-        break;
-    case SDL_PIXELFORMAT_UYVY:
-        *y = planes[0] + 1;
-        *y_stride = pitches[0];
-        *v = *y + 1;
-        *u = *y - 1;
-        *uv_stride = pitches[0];
-        break;
-    case SDL_PIXELFORMAT_YVYU:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *v = *y + 1;
-        *u = *y + 3;
-        *uv_stride = pitches[0];
-        break;
-    case SDL_PIXELFORMAT_NV12:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *u = planes[1];
-        *v = *u + 1;
-        *uv_stride = pitches[1];
-        break;
-    case SDL_PIXELFORMAT_NV21:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *v = planes[1];
-        *u = *v + 1;
-        *uv_stride = pitches[1];
-        break;
-    case SDL_PIXELFORMAT_P010:
-        *y = planes[0];
-        *y_stride = pitches[0];
-        *u = planes[1];
-        *v = *u + sizeof(Uint16);
-        *uv_stride = pitches[1];
-        break;
-    default:
-        /* Should have caught this above */
-        SDL_assume(!"Unsupported YUV format");
-        break;
-    }
+    *uv_stride = uv_pitch;
+
     return 0;
 }
 
