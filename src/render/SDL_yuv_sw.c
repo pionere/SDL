@@ -316,23 +316,34 @@ int SDL_SW_UpdateNVTexturePlanar(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect
 int SDL_SW_LockYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                           void **pixels, int *pitch)
 {
-    switch (swdata->format) {
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        if (rect && (rect->x != 0 || rect->y != 0 || rect->w != swdata->w || rect->h != swdata->h)) {
-            return SDL_SetError("YV12, IYUV, NV12, NV21 textures only support full surface locks");
-        }
-        break;
-    }
+    int sw_pitch;
+    unsigned offset = 0;
+    SDL_assert(swdata != NULL);
+    SDL_assert(rect != NULL);
 
-    if (rect) {
-        *pixels = swdata->planes[0] + rect->y * swdata->pitches[0] + rect->x * 2;
-    } else {
-        *pixels = swdata->planes[0];
+    sw_pitch = swdata->pitches[0];
+
+    if (rect->x != 0 || rect->y != 0) {
+        switch (swdata->format) {
+        case SDL_PIXELFORMAT_YUY2:
+        case SDL_PIXELFORMAT_UYVY:
+        case SDL_PIXELFORMAT_YVYU:
+            break;
+        case SDL_PIXELFORMAT_YV12:
+        case SDL_PIXELFORMAT_IYUV:
+        case SDL_PIXELFORMAT_NV12:
+        case SDL_PIXELFORMAT_NV21:
+        case SDL_PIXELFORMAT_P010:
+            return SDL_SetError("YV12, IYUV, NV12, NV21, P010 textures only support full surface locks");
+        default:
+            SDL_assume(!"Unknown pixel format");
+            break;
+        }
+
+        offset = rect->y * sw_pitch + rect->x * 2;
     }
-    *pitch = swdata->pitches[0];
+    *pixels = swdata->planes[0] + offset;
+    *pitch = sw_pitch;
     return 0;
 }
 
