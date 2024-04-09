@@ -168,7 +168,6 @@ typedef struct GLES2_RenderData
     GLuint shader_id_cache[GLES2_SHADER_COUNT];
 
     GLES2_ProgramCache program_cache;
-    Uint8 clear_r, clear_g, clear_b, clear_a;
 
 #if USE_VERTEX_BUFFER_OBJECTS
     GLuint vertex_buffers[8];
