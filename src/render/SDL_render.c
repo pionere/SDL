@@ -2083,14 +2083,6 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
 #endif
 }
 
-#if SDL_HAVE_YUV
-static int SDL_LockTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
-                              void **pixels, int *pitch)
-{
-    return SDL_SW_LockYUVTexture(texture->yuv, rect, pixels, pitch);
-}
-#endif /* SDL_HAVE_YUV */
-
 static int SDL_LockTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
                                  void **pixels, int *pitch)
 {
@@ -2136,7 +2128,7 @@ static int SDL_PrivateLockTexture(SDL_Texture *texture, const SDL_Rect *rect, vo
         if (retval < 0) {
             return retval;
         }
-        return SDL_LockTextureYUV(texture, rect, pixels, pitch);
+        return SDL_SW_LockYUVTexture(texture->yuv, rect, pixels, pitch);
     } else
 #endif
         if (texture->native) {
