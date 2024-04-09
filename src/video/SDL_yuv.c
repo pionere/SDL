@@ -34,7 +34,15 @@
 
 static SDL_YUV_CONVERSION_MODE SDL_YUV_ConversionMode = SDL_YUV_CONVERSION_BT601;
 
-static SDL_bool IsPacked4Format(Uint32 format);
+static SDL_bool IsPacked4Format(Uint32 format)
+{
+    return format == SDL_PIXELFORMAT_YUY2 || format == SDL_PIXELFORMAT_UYVY || format == SDL_PIXELFORMAT_YVYU;
+}
+
+static SDL_bool IsPlanar2x2Format(Uint32 format)
+{
+    return format == SDL_PIXELFORMAT_YV12 || format == SDL_PIXELFORMAT_IYUV || format == SDL_PIXELFORMAT_NV12 || format == SDL_PIXELFORMAT_NV21 || format == SDL_PIXELFORMAT_P010;
+}
 
 void SDL_SetYUVConversionMode(SDL_YUV_CONVERSION_MODE mode)
 {
@@ -226,16 +234,6 @@ static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
         return SDL_SetError("Unsupported YUV conversion mode: %d", convmode);
     }
     return 0;
-}
-
-static SDL_bool IsPlanar2x2Format(Uint32 format)
-{
-    return format == SDL_PIXELFORMAT_YV12 || format == SDL_PIXELFORMAT_IYUV || format == SDL_PIXELFORMAT_NV12 || format == SDL_PIXELFORMAT_NV21 || format == SDL_PIXELFORMAT_P010;
-}
-
-static SDL_bool IsPacked4Format(Uint32 format)
-{
-    return format == SDL_PIXELFORMAT_YUY2 || format == SDL_PIXELFORMAT_UYVY || format == SDL_PIXELFORMAT_YVYU;
 }
 
 static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const void *yuv, unsigned yuv_pitch,
