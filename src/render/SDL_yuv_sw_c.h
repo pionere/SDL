@@ -47,8 +47,6 @@ struct SDL_SW_YUVTexture
 typedef struct SDL_SW_YUVTexture SDL_SW_YUVTexture;
 
 SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h);
-int SDL_SW_QueryYUVTexturePixels(SDL_SW_YUVTexture *swdata, void **pixels,
-                                 int *pitch);
 int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                             const void *pixels, int pitch);
 int SDL_SW_UpdateYUVTexturePlanar(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,

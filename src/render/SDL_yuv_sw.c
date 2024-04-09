@@ -106,14 +106,6 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
     return swdata;
 }
 
-int SDL_SW_QueryYUVTexturePixels(SDL_SW_YUVTexture *swdata, void **pixels,
-                                 int *pitch)
-{
-    *pixels = swdata->planes[0];
-    *pitch = swdata->pitches[0];
-    return 0;
-}
-
 int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                             const void *pixels, int pitch)
 {
