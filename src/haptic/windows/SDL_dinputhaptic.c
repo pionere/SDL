@@ -491,7 +491,7 @@ void SDL_DINPUT_HapticClose(SDL_Haptic *haptic)
     IDirectInputDevice8_Unacquire(haptic->hwdata->device);
 
     /* Only release if isn't grabbed by a joystick. */
-    if (haptic->hwdata->is_joystick == 0) {
+    if (!haptic->hwdata->is_joystick) {
         IDirectInputDevice8_Release(haptic->hwdata->device);
     }
 }

@@ -187,7 +187,7 @@ static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 us
         return SDL_OutOfMemory();
     }
 
-    haptic->hwdata->bXInputHaptic = 1;
+    haptic->hwdata->bXInputHaptic = SDL_TRUE;
     haptic->hwdata->userid = userid;
 
     haptic->hwdata->mutex = SDL_CreateMutex();

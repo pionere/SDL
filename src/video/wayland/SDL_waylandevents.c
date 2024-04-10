@@ -2750,7 +2750,7 @@ int Wayland_input_lock_pointer(struct SDL_WaylandInput *input)
         lock_pointer_to_window(window, input);
     }
 
-    d->relative_mouse_mode = 1;
+    d->relative_mouse_mode = SDL_TRUE;
 
     return 0;
 }
@@ -2774,7 +2774,7 @@ int Wayland_input_unlock_pointer(struct SDL_WaylandInput *input)
         input->relative_pointer = NULL;
     }
 
-    d->relative_mouse_mode = 0;
+    d->relative_mouse_mode = SDL_FALSE;
 
     for (window = SDL_GetWindows(); window; window = window->next) {
         Wayland_input_confine_pointer(input, window);

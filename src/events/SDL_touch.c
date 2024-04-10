@@ -295,7 +295,7 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
 #endif
 
     /* SDL_HINT_MOUSE_TOUCH_EVENTS: if not set, discard synthetic touch events coming from platform layer */
-    if (mouse->mouse_touch_events == 0) {
+    if (!mouse->mouse_touch_events) {
         if (id == SDL_MOUSE_TOUCHID) {
             return 0;
         }
@@ -400,7 +400,7 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
 #endif
 
     /* SDL_HINT_MOUSE_TOUCH_EVENTS: if not set, discard synthetic touch events coming from platform layer */
-    if (mouse->mouse_touch_events == 0) {
+    if (!mouse->mouse_touch_events) {
         if (id == SDL_MOUSE_TOUCHID) {
             return 0;
         }
