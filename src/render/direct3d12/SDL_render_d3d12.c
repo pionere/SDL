@@ -238,17 +238,17 @@ typedef struct
     D3D12_CPU_DESCRIPTOR_HANDLE currentRenderTargetView;
     D3D12_CPU_DESCRIPTOR_HANDLE currentShaderResource;
     D3D12_CPU_DESCRIPTOR_HANDLE currentSampler;
-    SDL_bool cliprectDirty;
-    SDL_bool currentCliprectEnabled;
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
 #if 0
     DXGI_MODE_ROTATION currentViewportRotation;
 #endif
-    SDL_bool viewportDirty;
+    SDL_boolean viewportDirty;
+    SDL_boolean cliprectDirty;
+    SDL_boolean currentCliprectEnabled;
     // Float4X4 identity;
+    SDL_boolean issueBatch;
     int currentVertexBuffer;
-    SDL_bool issueBatch;
 } D3D12_RenderData;
 
 static const DXGI_SWAP_EFFECT D3D12_SWAP_EFFECT = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; /* All Windows Store apps must use this SwapEffect. */

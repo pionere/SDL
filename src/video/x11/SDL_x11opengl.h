@@ -43,12 +43,12 @@ typedef struct SDL_GLDriverData
     int swapinterval;
     int errorBase, eventBase;
 
-    SDL_bool HAS_GLX_EXT_visual_rating;
-    SDL_bool HAS_GLX_EXT_visual_info;
-    SDL_bool HAS_GLX_EXT_swap_control_tear;
-    SDL_bool HAS_GLX_ARB_context_flush_control;
-    SDL_bool HAS_GLX_ARB_create_context_robustness;
-    SDL_bool HAS_GLX_ARB_create_context_no_error;
+    SDL_boolean HAS_GLX_EXT_visual_rating;
+    SDL_boolean HAS_GLX_EXT_visual_info;
+    SDL_boolean HAS_GLX_EXT_swap_control_tear;
+    SDL_boolean HAS_GLX_ARB_context_flush_control;
+    SDL_boolean HAS_GLX_ARB_create_context_robustness;
+    SDL_boolean HAS_GLX_ARB_create_context_no_error;
 
     /* Max version of OpenGL ES context that can be created if the
        implementation supports GLX_EXT_create_context_es2_profile.

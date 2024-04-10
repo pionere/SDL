@@ -90,10 +90,10 @@ typedef struct SDL_WindowData
     struct gbm_bo *next_bo;
 
     SDL_bool waiting_for_flip;
-    SDL_bool double_buffer;
+    SDL_boolean double_buffer;
 
+    SDL_boolean egl_surface_dirty;
     EGLSurface egl_surface;
-    SDL_bool egl_surface_dirty;
 } SDL_WindowData;
 
 typedef struct KMSDRM_FBInfo

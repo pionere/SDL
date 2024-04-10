@@ -133,15 +133,15 @@ typedef enum
 typedef struct
 {
     SDL_Rect viewport;
-    SDL_bool viewport_dirty;
     SDL_Texture *texture;
     SDL_Texture *target;
     SDL_BlendMode blend;
-    SDL_bool cliprect_enabled_dirty;
-    SDL_bool cliprect_enabled;
-    SDL_bool cliprect_dirty;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean cliprect_enabled_dirty;
+    SDL_boolean cliprect_enabled;
     SDL_Rect cliprect;
-    SDL_bool texturing;
+    SDL_boolean texturing;
     SDL_Color clear_color;
     int drawablew;
     int drawableh;

@@ -38,8 +38,8 @@ struct joystick_hwdata
     SDL_JoystickGUID guid;
     char *fname; /* Used in haptic subsystem */
 
-    SDL_bool ff_rumble;
-    SDL_bool ff_sine;
+    SDL_boolean ff_rumble;
+    SDL_boolean ff_sine;
     struct ff_effect effect;
     Uint32 effect_expiration;
 
@@ -57,13 +57,13 @@ struct joystick_hwdata
     /* Support for the Linux 2.4 unified input interface */
     Uint8 key_map[KEY_MAX];
     Uint8 abs_map[ABS_MAX];
-    SDL_bool has_key[KEY_MAX];
-    SDL_bool has_abs[ABS_MAX];
-    SDL_bool has_accelerometer;
-    SDL_bool has_gyro;
+    SDL_boolean has_key[KEY_MAX];
+    SDL_boolean has_abs[ABS_MAX];
+    SDL_boolean has_accelerometer;
+    SDL_boolean has_gyro;
 
     /* Support for the classic joystick interface */
-    SDL_bool classic;
+    SDL_boolean classic;
     Uint16 *key_pam;
     Uint8 *abs_pam;
 
@@ -90,17 +90,17 @@ struct joystick_hwdata
     Uint64 sensor_tick;
     Sint32 last_tick;
 
-    SDL_bool report_sensor;
-    SDL_bool fresh;
-    SDL_bool recovering_from_dropped;
-    SDL_bool recovering_from_dropped_sensor;
+    SDL_boolean report_sensor;
+    SDL_boolean fresh;
+    SDL_boolean recovering_from_dropped;
+    SDL_boolean recovering_from_dropped_sensor;
 
     /* Steam Controller support */
-    SDL_bool m_bSteamController;
+    SDL_boolean m_bSteamController;
 
     /* 4 = (ABS_HAT3X-ABS_HAT0X)/2 (see input-event-codes.h in kernel) */
     int hats_indices[4];
-    SDL_bool has_hat[4];
+    SDL_boolean has_hat[4];
     struct hat_axis_correct
     {
         SDL_bool use_deadzones;
@@ -109,8 +109,8 @@ struct joystick_hwdata
     } hat_correct[4];
 
     /* Set when gamepad is pending removal due to ENODEV read error */
-    SDL_bool gone;
-    SDL_bool sensor_gone;
+    SDL_boolean gone;
+    SDL_boolean sensor_gone;
 };
 
 #endif /* SDL_sysjoystick_c_h_ */

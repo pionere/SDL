@@ -403,7 +403,7 @@ static void Emscripten_SetWindowFullscreen(SDL_Window *window, SDL_VideoDisplay 
     if (data) {
         if (fullscreen) {
             EmscriptenFullscreenStrategy strategy;
-            SDL_bool is_desktop_fullscreen = (window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP;
+            SDL_boolean is_desktop_fullscreen = (window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP;
             int res;
 
             SDL_zero(strategy);

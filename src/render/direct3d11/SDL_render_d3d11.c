@@ -182,14 +182,14 @@ typedef struct
     D3D11_Shader currentShader;
     ID3D11ShaderResourceView *currentShaderResource;
     ID3D11SamplerState *currentSampler;
-    SDL_bool cliprectDirty;
-    SDL_bool currentCliprectEnabled;
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
 #ifdef __WINRT__
     DXGI_MODE_ROTATION currentViewportRotation;
 #endif
-    SDL_bool viewportDirty;
+    SDL_boolean viewportDirty;
+    SDL_boolean cliprectDirty;
+    SDL_boolean currentCliprectEnabled;
     // Float4X4 identity;
     int currentVertexBuffer;
 } D3D11_RenderData;

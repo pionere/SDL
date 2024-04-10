@@ -109,11 +109,11 @@ typedef struct
     int window_width, window_height;
     int system_min_required_width;
     int system_min_required_height;
-    SDL_bool needs_resize_event;
-    SDL_bool floating_resize_pending;
-    SDL_bool was_floating;
-    SDL_bool is_fullscreen;
-    SDL_bool in_fullscreen_transition;
+    SDL_boolean needs_resize_event;
+    SDL_boolean floating_resize_pending;
+    SDL_boolean was_floating;
+    SDL_boolean is_fullscreen;
+    SDL_boolean in_fullscreen_transition;
     Uint32 fullscreen_flags;
 } SDL_WindowData;
 

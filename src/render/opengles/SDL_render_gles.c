@@ -63,15 +63,15 @@ struct GLES_FBOList
 typedef struct
 {
     SDL_Rect viewport;
-    SDL_bool viewport_dirty;
     SDL_Texture *texture;
     SDL_Texture *target;
     int drawablew;
     int drawableh;
     SDL_BlendMode blend;
-    SDL_bool cliprect_enabled_dirty;
-    SDL_bool cliprect_enabled;
-    SDL_bool cliprect_dirty;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean cliprect_enabled_dirty;
+    SDL_boolean cliprect_enabled;
     SDL_Rect cliprect;
     SDL_bool texturing;
     SDL_Color color;
@@ -91,14 +91,14 @@ typedef struct
 #undef SDL_PROC_OES
 #undef SDL_PROC_UNUSED
 #undef SDL_PROC_OES_UNUSED
-    SDL_bool GL_OES_framebuffer_object_supported;
+    SDL_boolean GL_OES_framebuffer_object_supported;
     GLES_FBOList *framebuffers;
     GLuint window_framebuffer;
 
-    SDL_bool GL_OES_blend_func_separate_supported;
-    SDL_bool GL_OES_blend_equation_separate_supported;
-    SDL_bool GL_OES_blend_subtract_supported;
-    SDL_bool GL_EXT_blend_minmax_supported;
+    SDL_boolean GL_OES_blend_func_separate_supported;
+    SDL_boolean GL_OES_blend_equation_separate_supported;
+    SDL_boolean GL_OES_blend_subtract_supported;
+    SDL_boolean GL_EXT_blend_minmax_supported;
 
     GLES_DrawStateCache drawstate;
 } GLES_RenderData;

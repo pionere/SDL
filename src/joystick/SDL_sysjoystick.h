@@ -35,13 +35,13 @@ extern "C" {
 /* The SDL joystick structure */
 typedef struct _SDL_JoystickAxisInfo
 {
-    Sint16 initial_value;           /* Initial axis state */
-    Sint16 value;                   /* Current axis state */
-    Sint16 zero;                    /* Zero point on the axis (-32768 for triggers) */
-    SDL_bool has_initial_value;     /* Whether we've seen a value on the axis yet */
-    SDL_bool has_second_value;      /* Whether we've seen a second value on the axis yet */
-    SDL_bool sent_initial_value;    /* Whether we've sent the initial axis value */
-    SDL_bool sending_initial_value; /* Whether we are sending the initial axis value */
+    Sint16 initial_value;              /* Initial axis state */
+    Sint16 value;                      /* Current axis state */
+    Sint16 zero;                       /* Zero point on the axis (-32768 for triggers) */
+    SDL_boolean has_initial_value;     /* Whether we've seen a value on the axis yet */
+    SDL_boolean has_second_value;      /* Whether we've seen a second value on the axis yet */
+    SDL_boolean sent_initial_value;    /* Whether we've sent the initial axis value */
+    SDL_boolean sending_initial_value; /* Whether we are sending the initial axis value */
 } SDL_JoystickAxisInfo;
 
 typedef struct _SDL_JoystickTouchpadFingerInfo
@@ -119,8 +119,8 @@ struct _SDL_Joystick
     Uint32 led_expiration _guarded;
 
     SDL_bool attached _guarded;
-    SDL_bool is_game_controller _guarded;
-    SDL_bool delayed_guide_button _guarded;      /* SDL_TRUE if this device has the guide button event delayed */
+    SDL_boolean is_game_controller _guarded;
+    SDL_boolean delayed_guide_button _guarded;   /* SDL_TRUE if this device has the guide button event delayed */
     SDL_JoystickPowerLevel epowerlevel _guarded; /* power level of this joystick, SDL_JOYSTICK_POWER_UNKNOWN if not supported */
 
     const struct _SDL_JoystickDriver *driver _guarded;

@@ -183,6 +183,7 @@ typedef enum
     SDL_TRUE = 1
 } SDL_bool;
 #endif
+typedef uint8_t SDL_boolean;
 
 /**
  * \brief A signed 8-bit integer type.

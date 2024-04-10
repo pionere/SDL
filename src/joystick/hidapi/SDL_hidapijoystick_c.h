@@ -93,10 +93,10 @@ typedef struct _SDL_HIDAPI_Device
     SDL_JoystickID *joysticks;
 
     /* Used during scanning for device changes */
-    SDL_bool seen;
+    SDL_boolean seen;
 
     /* Used to flag that the device is being updated */
-    SDL_bool updating;
+    SDL_boolean updating;
 
     struct _SDL_HIDAPI_Device *parent;
     int num_children;

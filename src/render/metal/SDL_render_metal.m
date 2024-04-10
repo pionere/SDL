@@ -1142,13 +1142,13 @@ typedef struct
     __unsafe_unretained id<MTLBuffer> vertex_buffer;
     size_t constants_offset;
     SDL_Texture *texture;
-    SDL_bool cliprect_dirty;
-    SDL_bool cliprect_enabled;
     SDL_Rect cliprect;
-    SDL_bool viewport_dirty;
     SDL_Rect viewport;
     size_t projection_offset;
-    SDL_bool color_dirty;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean cliprect_enabled;
+    SDL_boolean color_dirty;
     size_t color_offset;
 } METAL_DrawStateCache;
 

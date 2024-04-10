@@ -36,9 +36,9 @@ typedef struct JoyStick_DeviceData
 {
     SDL_JoystickGUID guid;
     char *joystickname;
-    Uint8 send_add_event;
     SDL_JoystickID nInstanceID;
-    SDL_bool bXInputDevice;
+    SDL_boolean send_add_event;
+    SDL_boolean bXInputDevice;
     BYTE SubType;
     Uint8 XInputUserId;
     DIDEVICEINSTANCE dxdevice;
@@ -86,9 +86,9 @@ struct joystick_hwdata
     LPDIRECTINPUTEFFECT ffeffect_ref;
 #endif
 
-    SDL_bool bXInputDevice; /* SDL_TRUE if this device supports using the xinput API rather than DirectInput */
-    SDL_bool bXInputHaptic; /* Supports force feedback via XInput. */
-    Uint8 userid;           /* XInput userid index for this joystick */
+    SDL_boolean bXInputDevice; /* SDL_TRUE if this device supports using the xinput API rather than DirectInput */
+    SDL_boolean bXInputHaptic; /* Supports force feedback via XInput. */
+    Uint8 userid;              /* XInput userid index for this joystick */
     DWORD dwPacketNumber;
 };
 

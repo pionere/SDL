@@ -70,7 +70,6 @@ struct GL_FBOList
 
 typedef struct
 {
-    SDL_bool viewport_dirty;
     SDL_Rect viewport;
     SDL_Texture *texture;
     SDL_Texture *target;
@@ -78,14 +77,15 @@ typedef struct
     int drawableh;
     SDL_BlendMode blend;
     GL_Shader shader;
-    SDL_bool cliprect_enabled_dirty;
-    SDL_bool cliprect_enabled;
-    SDL_bool cliprect_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_enabled_dirty;
+    SDL_boolean cliprect_enabled;
     SDL_Rect cliprect;
-    SDL_bool texturing;
-    SDL_bool vertex_array;
-    SDL_bool color_array;
-    SDL_bool texture_array;
+    SDL_boolean texturing;
+    SDL_boolean vertex_array;
+    SDL_boolean color_array;
+    SDL_boolean texture_array;
     SDL_Color color;
     SDL_Color clear_color;
 } GL_DrawStateCache;
@@ -94,8 +94,8 @@ typedef struct
 {
     SDL_GLContext context;
 #ifdef DEBUG_RENDER
-    SDL_bool debug_enabled;
-    SDL_bool GL_ARB_debug_output_supported;
+    SDL_boolean debug_enabled;
+    SDL_boolean GL_ARB_debug_output_supported;
     int errors;
     char **error_messages;
     GLDEBUGPROCARB next_error_callback;
@@ -103,9 +103,9 @@ typedef struct
 #endif
     GLenum textype;
 
-    SDL_bool GL_ARB_texture_non_power_of_two_supported;
-    SDL_bool GL_ARB_texture_rectangle_supported;
-    SDL_bool GL_EXT_framebuffer_object_supported;
+    SDL_boolean GL_ARB_texture_non_power_of_two_supported;
+    SDL_boolean GL_ARB_texture_rectangle_supported;
+    SDL_boolean GL_EXT_framebuffer_object_supported;
     GL_FBOList *framebuffers;
 
     /* OpenGL functions */
@@ -1063,9 +1063,9 @@ static int GL_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_
 static int SetDrawState(GL_RenderData *data, const SDL_RenderCommand *cmd, const GL_Shader shader)
 {
     SDL_BlendMode blend;
-    SDL_bool vertex_array;
-    SDL_bool color_array;
-    SDL_bool texture_array;
+    SDL_boolean vertex_array;
+    SDL_boolean color_array;
+    SDL_boolean texture_array;
 
     if (data->drawstate.viewport_dirty) {
         const SDL_bool istarget = data->drawstate.target != NULL;

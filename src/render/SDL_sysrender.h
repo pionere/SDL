@@ -109,7 +109,7 @@ typedef struct SDL_RenderCommand
         } viewport;
         struct
         {
-            SDL_bool enabled;
+            SDL_boolean enabled;
             SDL_Rect rect;
         } cliprect;
         struct
@@ -210,11 +210,11 @@ struct SDL_Renderer
 
     /* The window associated with the renderer */
     SDL_Window *window;
-    SDL_bool hidden;
+    SDL_boolean hidden;
 
     /* Whether we should simulate vsync */
-    SDL_bool wanted_vsync;
-    SDL_bool simulate_vsync;
+    SDL_boolean wanted_vsync;
+    SDL_boolean simulate_vsync;
     Uint32 simulate_vsync_interval;
     Uint32 next_present;
 
@@ -236,8 +236,8 @@ struct SDL_Renderer
     SDL_DRect clip_rect_backup;
 
     /* Whether or not the clipping rectangle is used. */
-    SDL_bool clipping_enabled;
-    SDL_bool clipping_enabled_backup;
+    SDL_boolean clipping_enabled;
+    SDL_boolean clipping_enabled_backup;
 
     /* The render output coordinate scale */
     SDL_FPoint scale;
@@ -268,8 +268,8 @@ struct SDL_Renderer
     SDL_Color color;         /**< Color for drawing operations values */
     SDL_BlendMode blendMode; /**< The drawing blend mode */
 
-    SDL_bool always_batch;
-    SDL_bool batching;
+    SDL_boolean always_batch;
+    SDL_boolean batching;
     SDL_RenderCommand *render_commands;
     SDL_RenderCommand *render_commands_tail;
     SDL_RenderCommand *render_commands_pool;
@@ -277,10 +277,10 @@ struct SDL_Renderer
     SDL_Color last_queued_color;
     SDL_DRect last_queued_viewport;
     SDL_DRect last_queued_cliprect;
-    SDL_bool last_queued_cliprect_enabled;
-    SDL_bool color_queued;
-    SDL_bool viewport_queued;
-    SDL_bool cliprect_queued;
+    SDL_boolean last_queued_cliprect_enabled;
+    SDL_boolean color_queued;
+    SDL_boolean viewport_queued;
+    SDL_boolean cliprect_queued;
 
     void *vertex_data;
     size_t vertex_data_used;

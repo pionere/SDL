@@ -238,9 +238,9 @@ typedef struct _SDL_InputMapping
 {
     EMappingKind kind;
     Uint8 target;
-    SDL_bool axis_reversed;
-    SDL_bool half_axis_positive;
-    SDL_bool half_axis_negative;
+    SDL_boolean axis_reversed;
+    SDL_boolean half_axis_positive;
+    SDL_boolean half_axis_negative;
 } SDL_InputMapping;
 
 typedef struct _SDL_GamepadMapping

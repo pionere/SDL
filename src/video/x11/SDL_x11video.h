@@ -125,9 +125,9 @@ typedef struct X11_VideoData
     Atom XKLAVIER_STATE;
 
     SDL_Scancode key_layout[256];
-    SDL_bool selection_waiting;
+    SDL_boolean selection_waiting;
 
-    SDL_bool broken_pointer_grab; /* true if XGrabPointer seems unreliable. */
+    SDL_boolean broken_pointer_grab; /* true if XGrabPointer seems unreliable. */
 
     Uint32 last_mode_change_deadline;
 
@@ -158,8 +158,8 @@ typedef struct X11_VideoData
 #endif
 
     /* Used to interact with the on-screen keyboard */
-    SDL_bool is_steam_deck;
-    SDL_bool steam_keyboard_open;
+    SDL_boolean is_steam_deck;
+    SDL_boolean steam_keyboard_open;
 
 } X11_VideoData;
 

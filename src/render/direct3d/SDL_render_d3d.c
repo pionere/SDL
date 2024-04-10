@@ -45,13 +45,13 @@
 typedef struct
 {
     SDL_Rect viewport;
-    SDL_bool viewport_dirty;
     SDL_Texture *texture;
     SDL_BlendMode blend;
-    SDL_bool cliprect_enabled;
-    SDL_bool cliprect_enabled_dirty;
     SDL_Rect cliprect;
-    SDL_bool cliprect_dirty;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean cliprect_enabled;
+    SDL_boolean cliprect_enabled_dirty;
     LPDIRECT3DPIXELSHADER9 shader;
 } D3D_DrawStateCache;
 
@@ -64,9 +64,9 @@ typedef struct
     IDirect3DDevice9 *device;
 //    UINT adapter;
     D3DPRESENT_PARAMETERS pparams;
-    SDL_bool updateSize;
-    SDL_bool beginScene;
-    SDL_bool enableSeparateAlphaBlend;
+    SDL_boolean updateSize;
+    SDL_boolean beginScene;
+    SDL_boolean enableSeparateAlphaBlend;
     D3DTEXTUREFILTERTYPE scaleMode[8];
     IDirect3DSurface9 *defaultRenderTarget;
     IDirect3DSurface9 *currentRenderTarget;

@@ -88,29 +88,29 @@ typedef struct
     int last_x, last_y; /* the last reported x and y coordinates */
     float accumulated_wheel_x;
     float accumulated_wheel_y;
-    SDL_bool has_position;
-    SDL_bool relative_mode;
-    SDL_bool relative_mode_warp;
-    SDL_bool relative_mode_warp_motion;
-    SDL_bool enable_normal_speed_scale;
+    SDL_boolean has_position;
+    SDL_boolean relative_mode;
+    SDL_boolean relative_mode_warp;
+    SDL_boolean relative_mode_warp_motion;
+    SDL_boolean enable_normal_speed_scale;
+    SDL_boolean enable_relative_speed_scale;
+    SDL_boolean enable_relative_system_scale;
     float normal_speed_scale;
-    SDL_bool enable_relative_speed_scale;
     float relative_speed_scale;
-    SDL_bool enable_relative_system_scale;
     int num_system_scale_values;
     float *system_scale_values;
     float scale_accum_x;
     float scale_accum_y;
     Uint32 double_click_time;
     int double_click_radius;
-    SDL_bool touch_mouse_events;
-    SDL_bool mouse_touch_events;
-    SDL_bool was_touch_mouse_events; /* Was a touch-mouse event pending? */
+    SDL_boolean touch_mouse_events;
+    SDL_boolean mouse_touch_events;
+    SDL_boolean was_touch_mouse_events; /* Was a touch-mouse event pending? */
 #if defined(__vita__)
     Uint8 vita_touch_mouse_device;
 #endif
-    SDL_bool auto_capture;
-    SDL_bool capture_desired;
+    SDL_boolean auto_capture;
+    SDL_boolean capture_desired;
     SDL_Window *capture_window;
 
     /* Data for input source state */

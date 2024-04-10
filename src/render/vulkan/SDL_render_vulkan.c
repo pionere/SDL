@@ -354,9 +354,9 @@ typedef struct
     VULKAN_PipelineState *pipelineStates;
     VULKAN_PipelineState *currentPipelineState;
 
-    SDL_bool supportsEXTSwapchainColorspace;
-    SDL_bool supportsKHRGetPhysicalDeviceProperties2;
-    SDL_bool supportsKHRSamplerYCbCrConversion;
+    SDL_boolean supportsEXTSwapchainColorspace;
+    SDL_boolean supportsKHRGetPhysicalDeviceProperties2;
+    SDL_boolean supportsKHRSamplerYCbCrConversion;
     uint32_t surfaceFormatsAllocatedCount;
     uint32_t surfaceFormatsCount;
     uint32_t swapchainDesiredImageCount;
@@ -381,16 +381,16 @@ typedef struct
 
     /* Cached renderer properties */
     VULKAN_TextureData *textureRenderTarget;
-    SDL_bool cliprectDirty;
-    SDL_bool currentCliprectEnabled;
     SDL_Rect currentCliprect;
     SDL_Rect currentViewport;
+    SDL_boolean viewportDirty;
+    SDL_boolean cliprectDirty;
+    SDL_boolean currentCliprectEnabled;
+    SDL_boolean issueBatch;
     int currentViewportRotation;
-    SDL_bool viewportDirty;
     // Float4X4 identity;
     VkComponentMapping identitySwizzle;
     int currentVertexBuffer;
-    SDL_bool issueBatch;
 } VULKAN_RenderData;
 
 static Uint32 VULKAN_VkFormatToSDLPixelFormat(VkFormat vkFormat)

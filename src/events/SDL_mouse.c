@@ -156,7 +156,7 @@ static void SDLCALL SDL_MouseTouchEventsChanged(void *userdata, const char *name
 static void SDLCALL SDL_MouseAutoCaptureChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
 {
     SDL_Mouse *mouse = _this;
-    SDL_bool auto_capture = SDL_GetStringBoolean(hint, SDL_TRUE);
+    SDL_boolean auto_capture = SDL_GetStringBoolean(hint, SDL_TRUE);
 
     if (auto_capture != mouse->auto_capture) {
         mouse->auto_capture = auto_capture;
@@ -1072,10 +1072,11 @@ static SDL_bool ShouldUseRelativeModeWarp(SDL_Mouse *mouse)
     return SDL_GetHintBoolean(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, SDL_FALSE);
 }
 
-int SDL_SetRelativeMouseMode(SDL_bool enabled)
+int SDL_SetRelativeMouseMode(SDL_bool input)
 {
     SDL_Mouse *mouse = _this;
     SDL_Window *focusWindow;
+    const SDL_bool enabled = input;
 
     if (enabled == mouse->relative_mode) {
         return 0;

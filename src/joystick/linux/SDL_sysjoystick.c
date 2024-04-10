@@ -1709,8 +1709,9 @@ static int LINUX_JoystickSendEffect(SDL_Joystick *joystick, const void *data, in
     return SDL_Unsupported();
 }
 
-static int LINUX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
+static int LINUX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool input)
 {
+    const SDL_boolean enabled = input;
     SDL_AssertJoysticksLocked();
 
     if (!joystick->hwdata->has_accelerometer && !joystick->hwdata->has_gyro) {

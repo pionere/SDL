@@ -105,7 +105,6 @@ typedef struct blend_fragment_programs
 typedef struct
 {
     SDL_Rect viewport;
-    SDL_bool viewport_dirty;
     SDL_Texture *texture;
     SDL_Texture *target;
     SDL_Color color;
@@ -113,10 +112,12 @@ typedef struct
     SceGxmVertexProgram *vertex_program;
     int last_command;
 
-    SDL_bool cliprect_enabled_dirty;
-    SDL_bool cliprect_enabled;
-    SDL_bool cliprect_dirty;
     SDL_Rect cliprect;
+    SDL_boolean viewport_dirty;
+    SDL_boolean cliprect_dirty;
+    SDL_boolean cliprect_enabled_dirty;
+    SDL_boolean cliprect_enabled;
+
     int drawablew;
     int drawableh;
 } gxm_drawstate_cache;

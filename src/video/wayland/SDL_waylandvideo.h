@@ -99,8 +99,8 @@ typedef struct
 
     char *classname;
 
-    int relative_mouse_mode;
-    SDL_bool egl_transparency_enabled;
+    SDL_boolean relative_mouse_mode;
+    SDL_boolean egl_transparency_enabled;
 } Wayland_VideoData;
 
 struct SDL_WaylandOutputData
@@ -114,7 +114,7 @@ struct SDL_WaylandOutputData
     SDL_DisplayOrientation orientation;
     int physical_width, physical_height;
     float ddpi, hdpi, vdpi;
-    SDL_bool has_logical_position, has_logical_size;
+    SDL_boolean has_logical_position, has_logical_size;
     int index;
     SDL_VideoDisplay placeholder;
     int wl_output_done_count;

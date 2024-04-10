@@ -83,11 +83,11 @@ typedef struct SDL_AudioDriverImpl
     /* !!! FIXME: add pause(), so we can optimize instead of mixing silence. */
 
     /* Some flags to push duplicate code into the core and reduce #ifdefs. */
-    SDL_bool ProvidesOwnCallbackThread;
-    SDL_bool HasCaptureSupport;
-    SDL_bool PreventSimultaneousOpens;
-    SDL_bool AllowsArbitraryDeviceNames;
-    SDL_bool SupportsNonPow2Samples;
+    SDL_boolean ProvidesOwnCallbackThread;
+    SDL_boolean HasCaptureSupport;
+    SDL_boolean PreventSimultaneousOpens;
+    SDL_boolean AllowsArbitraryDeviceNames;
+    SDL_boolean SupportsNonPow2Samples;
 } SDL_AudioDriverImpl;
 
 typedef struct SDL_AudioDeviceItem

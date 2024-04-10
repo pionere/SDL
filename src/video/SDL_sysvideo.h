@@ -87,11 +87,11 @@ typedef struct SDL_Window
     Uint16 *saved_gamma;        /* (just offset into gamma) */
 
     SDL_Surface *surface;
-    SDL_bool surface_valid;
+    SDL_boolean surface_valid;
 
-    SDL_bool is_hiding;
-    SDL_bool is_destroying;
-    SDL_bool is_dropping; /* drag/drop in progress, expecting SDL_SendDropComplete(). */
+    SDL_boolean is_hiding;
+    SDL_boolean is_destroying;
+    SDL_boolean is_dropping; /* drag/drop in progress, expecting SDL_SendDropComplete(). */
 
     SDL_Rect mouse_rect;
 

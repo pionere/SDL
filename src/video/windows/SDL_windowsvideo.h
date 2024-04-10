@@ -351,9 +351,9 @@ typedef struct WIN_VideoData
     SDL_GLDriverData wgl_data;
 #endif
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_bool dpi_scaling_enabled;
+    SDL_boolean dpi_scaling_enabled;
 #endif
-    SDL_bool cleared;
+    SDL_boolean cleared;
 } WIN_VideoData;
 
 extern SDL_bool g_WindowsEnableMessageLoop;

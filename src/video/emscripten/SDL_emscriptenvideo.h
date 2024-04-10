@@ -44,12 +44,12 @@ typedef struct SDL_WindowData
 
     float pixel_ratio;
 
-    SDL_bool external_size;
-
     int requested_fullscreen_mode;
-    SDL_bool fullscreen_resize;
+    SDL_boolean fullscreen_resize;
 
-    SDL_bool has_pointer_lock;
+    SDL_boolean external_size;
+
+    SDL_boolean has_pointer_lock;
 } SDL_WindowData;
 
 extern void Emscripten_GetWindowSizeInPixels(SDL_Window *window, int *w, int *h);

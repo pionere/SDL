@@ -59,11 +59,11 @@ struct SDL_WaylandTabletInput
     wl_fixed_t sx_w;
     wl_fixed_t sy_w;
 
-    SDL_bool is_down;
+    SDL_boolean is_down;
 
-    SDL_bool btn_stylus;
-    SDL_bool btn_stylus2;
-    SDL_bool btn_stylus3;
+    SDL_boolean btn_stylus;
+    SDL_boolean btn_stylus2;
+    SDL_boolean btn_stylus3;
 };
 
 typedef struct
@@ -71,9 +71,9 @@ typedef struct
     // repeat_rate in range of [1, 1000]
     int32_t repeat_rate;
     int32_t repeat_delay;
-    SDL_bool is_initialized;
+    SDL_boolean is_initialized;
 
-    SDL_bool is_key_down;
+    SDL_boolean is_key_down;
     uint32_t key;
     uint32_t wl_press_time;  // Key press time as reported by the Wayland API
     uint32_t sdl_press_time; // Key press time expressed in SDL ticks
@@ -140,10 +140,10 @@ struct SDL_WaylandInput
     struct SDL_WaylandTabletInput *tablet;
 
     /* are we forcing relative mouse mode? */
-    SDL_bool cursor_visible;
-    SDL_bool relative_mode_override;
-    SDL_bool warp_emulation_prohibited;
-    SDL_bool keyboard_is_virtual;
+    SDL_boolean cursor_visible;
+    SDL_boolean relative_mode_override;
+    SDL_boolean warp_emulation_prohibited;
+    SDL_boolean keyboard_is_virtual;
 };
 
 extern void Wayland_PumpEvents(void);
