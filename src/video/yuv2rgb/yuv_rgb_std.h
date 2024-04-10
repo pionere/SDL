@@ -129,3 +129,9 @@ void yuvnv12_abgr_std(
     const uint8_t *y, const uint8_t *u, const uint8_t *v, uint32_t y_stride, uint32_t uv_stride,
     uint8_t *rgb, uint32_t rgb_stride,
     YCbCrType yuv_type);
+
+void yuvp010_argb_std(
+    uint32_t width, uint32_t height,
+    const uint8_t *y, const uint8_t *u, const uint8_t *v, uint32_t y_stride, uint32_t uv_stride,
+    uint8_t *rgb, uint32_t rgb_stride,
+    YCbCrType yuv_type);

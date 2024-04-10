@@ -119,6 +119,11 @@ static uint8_t clampU8(int32_t v)
 #define RGB_FORMAT			RGB_FORMAT_ABGR
 #include "yuv_rgb_std_func.h"
 
+#define STD_FUNCTION_NAME	yuvp010_argb_std
+#define YUV_FORMAT			YUV_FORMAT_P010
+#define RGB_FORMAT			RGB_FORMAT_ARGB
+#include "yuv_rgb_std_func.h"
+
 void rgb24_yuv420_std(
     uint32_t width, uint32_t height,
     const uint8_t *RGB, uint32_t RGB_stride,

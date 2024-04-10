@@ -96,6 +96,11 @@ void STD_FUNCTION_NAME(
 	#define uv_pixel_stride 2
 	#define uv_x_sample_interval 2
 	#define uv_y_sample_interval 2
+#elif YUV_FORMAT == YUV_FORMAT_P010
+	#define y_pixel_stride 2
+	#define uv_pixel_stride 4
+	#define uv_x_sample_interval 2
+	#define uv_y_sample_interval 2
 #endif
 
 	uint32_t x, y;

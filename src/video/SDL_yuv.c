@@ -555,6 +555,13 @@ static SDL_bool yuv_rgb_std(
         }
         break;
     case SDL_PIXELFORMAT_P010:
+        switch (dst_format) {
+        case SDL_PIXELFORMAT_ARGB8888:
+            yuvp010_argb_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            return SDL_TRUE;
+        default:
+            break;
+        }
         break;
     default:
         SDL_assume(!"Unknown pixel format");

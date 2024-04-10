@@ -64,6 +64,7 @@ static const RGB2YUVParam RGB2YUV[3] = {
 #define YUV_FORMAT_420	1
 #define YUV_FORMAT_422	2
 #define YUV_FORMAT_NV12	3
+#define YUV_FORMAT_P010	4
 
 /* The various formats of RGB pixel that we support */
 #define RGB_FORMAT_RGB565	1
