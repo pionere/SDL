@@ -383,8 +383,8 @@ PACK_RGB24_32_STEP1(R1, R2, G1, G2, B1, B2, RGB1, RGB2, RGB3, RGB4, RGB5, RGB6) 
 
 
 void SSE_FUNCTION_NAME(uint32_t width, uint32_t height, 
-	const uint8_t *Y, const uint8_t *U, const uint8_t *V, uint32_t Y_stride, uint32_t UV_stride, 
-	uint8_t *RGB, uint32_t RGB_stride, 
+	const uint8_t *Y, const uint8_t *U, const uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch, 
+	uint8_t *RGB, uint32_t RGB_pitch, 
 	YCbCrType yuv_type)
 {
 	const YUV2RGBParam *const param = &(YUV2RGB[yuv_type]);
@@ -438,13 +438,13 @@ void SSE_FUNCTION_NAME(uint32_t width, uint32_t height,
 		uint32_t xpos, ypos;
 		for(ypos=0; ypos<(height-(uv_y_sample_interval-1)) - fix_read_422; ypos+=uv_y_sample_interval)
 		{
-			const uint8_t *y_ptr1=Y+ypos*Y_stride,
-				*y_ptr2=Y+(ypos+1)*Y_stride,
-				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_stride,
-				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_stride;
+			const uint8_t *y_ptr1=Y+ypos*Y_pitch,
+				*y_ptr2=Y+(ypos+1)*Y_pitch,
+				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_pitch,
+				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_pitch;
 			
-			uint8_t *rgb_ptr1=RGB+ypos*RGB_stride,
-				*rgb_ptr2=RGB+(ypos+1)*RGB_stride;
+			uint8_t *rgb_ptr1=RGB+ypos*RGB_pitch,
+				*rgb_ptr2=RGB+(ypos+1)*RGB_pitch;
 			
 			for(xpos=0; xpos<(width-31) - fix_read_nv12; xpos+=32)
 			{
@@ -468,24 +468,24 @@ void SSE_FUNCTION_NAME(uint32_t width, uint32_t height,
 		}
 
 		if (fix_read_422) {
-			const uint8_t *y_ptr=Y+ypos*Y_stride,
-				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_stride,
-				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_stride;
-			uint8_t *rgb_ptr=RGB+ypos*RGB_stride;
-			STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_stride, UV_stride, rgb_ptr, RGB_stride, yuv_type);
+			const uint8_t *y_ptr=Y+ypos*Y_pitch,
+				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_pitch,
+				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_pitch;
+			uint8_t *rgb_ptr=RGB+ypos*RGB_pitch;
+			STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_pitch, UV_pitch, rgb_ptr, RGB_pitch, yuv_type);
 			ypos += uv_y_sample_interval;
 		}
 
 		/* Catch the last line, if needed */
 		if (uv_y_sample_interval == 2 && ypos == (height-1))
 		{
-			const uint8_t *y_ptr=Y+ypos*Y_stride,
-				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_stride,
-				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_stride;
+			const uint8_t *y_ptr=Y+ypos*Y_pitch,
+				*u_ptr=U+(ypos/uv_y_sample_interval)*UV_pitch,
+				*v_ptr=V+(ypos/uv_y_sample_interval)*UV_pitch;
 			
-			uint8_t *rgb_ptr=RGB+ypos*RGB_stride;
+			uint8_t *rgb_ptr=RGB+ypos*RGB_pitch;
 
-			STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_stride, UV_stride, rgb_ptr, RGB_stride, yuv_type);
+			STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_pitch, UV_pitch, rgb_ptr, RGB_pitch, yuv_type);
 		}
 	}
 
@@ -503,7 +503,7 @@ void SSE_FUNCTION_NAME(uint32_t width, uint32_t height,
 			
 			uint8_t *rgb_ptr=RGB+converted*rgb_pixel_stride;
 
-			STD_FUNCTION_NAME(width-converted, height, y_ptr, u_ptr, v_ptr, Y_stride, UV_stride, rgb_ptr, RGB_stride, yuv_type);
+			STD_FUNCTION_NAME(width-converted, height, y_ptr, u_ptr, v_ptr, Y_pitch, UV_pitch, rgb_ptr, RGB_pitch, yuv_type);
 		}
 	}
 }

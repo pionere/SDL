@@ -387,8 +387,8 @@ V = _mm_srai_epi16(V, PRECISION);
 
 /* SDL doesn't use these atm and compiling them adds seconds onto the build.  --ryan.
 void rgb24_yuv420_sse(uint32_t width, uint32_t height,
-        const uint8_t *RGB, uint32_t RGB_stride,
-        uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_stride, uint32_t UV_stride,
+        const uint8_t *RGB, uint32_t RGB_pitch,
+        uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch,
         YCbCrType yuv_type)
 {
         #define LOAD_SI128 _mm_load_si128
@@ -398,13 +398,13 @@ void rgb24_yuv420_sse(uint32_t width, uint32_t height,
         uint32_t xpos, ypos;
         for(ypos=0; ypos<(height-1); ypos+=2)
         {
-                const uint8_t *rgb_ptr1=RGB+ypos*RGB_stride,
-                        *rgb_ptr2=RGB+(ypos+1)*RGB_stride;
+                const uint8_t *rgb_ptr1=RGB+ypos*RGB_pitch,
+                        *rgb_ptr2=RGB+(ypos+1)*RGB_pitch;
 
-                uint8_t *y_ptr1=Y+ypos*Y_stride,
-                        *y_ptr2=Y+(ypos+1)*Y_stride,
-                        *u_ptr=U+(ypos/2)*UV_stride,
-                        *v_ptr=V+(ypos/2)*UV_stride;
+                uint8_t *y_ptr1=Y+ypos*Y_pitch,
+                        *y_ptr2=Y+(ypos+1)*Y_pitch,
+                        *u_ptr=U+(ypos/2)*UV_pitch,
+                        *v_ptr=V+(ypos/2)*UV_pitch;
 
                 for(xpos=0; xpos<(width-31); xpos+=32)
                 {
@@ -423,8 +423,8 @@ void rgb24_yuv420_sse(uint32_t width, uint32_t height,
 }
 
 void rgb24_yuv420_sseu(uint32_t width, uint32_t height,
-        const uint8_t *RGB, uint32_t RGB_stride,
-        uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_stride, uint32_t UV_stride,
+        const uint8_t *RGB, uint32_t RGB_pitch,
+        uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch,
         YCbCrType yuv_type)
 {
         #define LOAD_SI128 _mm_loadu_si128
@@ -434,13 +434,13 @@ void rgb24_yuv420_sseu(uint32_t width, uint32_t height,
         uint32_t xpos, ypos;
         for(ypos=0; ypos<(height-1); ypos+=2)
         {
-                const uint8_t *rgb_ptr1=RGB+ypos*RGB_stride,
-                        *rgb_ptr2=RGB+(ypos+1)*RGB_stride;
+                const uint8_t *rgb_ptr1=RGB+ypos*RGB_pitch,
+                        *rgb_ptr2=RGB+(ypos+1)*RGB_pitch;
 
-                uint8_t *y_ptr1=Y+ypos*Y_stride,
-                        *y_ptr2=Y+(ypos+1)*Y_stride,
-                        *u_ptr=U+(ypos/2)*UV_stride,
-                        *v_ptr=V+(ypos/2)*UV_stride;
+                uint8_t *y_ptr1=Y+ypos*Y_pitch,
+                        *y_ptr2=Y+(ypos+1)*Y_pitch,
+                        *u_ptr=U+(ypos/2)*UV_pitch,
+                        *v_ptr=V+(ypos/2)*UV_pitch;
 
                 for(xpos=0; xpos<(width-31); xpos+=32)
                 {

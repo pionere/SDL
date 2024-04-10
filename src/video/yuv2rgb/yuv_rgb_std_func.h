@@ -76,8 +76,8 @@
 
 void STD_FUNCTION_NAME(
 	uint32_t width, uint32_t height,
-	const uint8_t *Y, const uint8_t *U, const uint8_t *V, uint32_t Y_stride, uint32_t UV_stride,
-	uint8_t *RGB, uint32_t RGB_stride,
+	const uint8_t *Y, const uint8_t *U, const uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch,
+	uint8_t *RGB, uint32_t RGB_pitch,
 	YCbCrType yuv_type)
 {
 	const YUV2RGBParam *const param = &(YUV2RGB[yuv_type]);
@@ -106,18 +106,18 @@ void STD_FUNCTION_NAME(
 	uint32_t x, y;
 	for(y=0; y<(height-(uv_y_sample_interval-1)); y+=uv_y_sample_interval)
 	{
-		const uint8_t *y_ptr1=Y+y*Y_stride,
-			*u_ptr=U+(y/uv_y_sample_interval)*UV_stride,
-			*v_ptr=V+(y/uv_y_sample_interval)*UV_stride;
+		const uint8_t *y_ptr1=Y+y*Y_pitch,
+			*u_ptr=U+(y/uv_y_sample_interval)*UV_pitch,
+			*v_ptr=V+(y/uv_y_sample_interval)*UV_pitch;
 
 		#if uv_y_sample_interval > 1
-		const uint8_t *y_ptr2=Y+(y+1)*Y_stride;
+		const uint8_t *y_ptr2=Y+(y+1)*Y_pitch;
 		#endif
 
-		uint8_t *rgb_ptr1=RGB+y*RGB_stride;
+		uint8_t *rgb_ptr1=RGB+y*RGB_pitch;
 
 		#if uv_y_sample_interval > 1
-        uint8_t *rgb_ptr2=RGB+(y+1)*RGB_stride;
+        uint8_t *rgb_ptr2=RGB+(y+1)*RGB_pitch;
 		#endif
 
 		for(x=0; x<(width-(uv_x_sample_interval-1)); x+=uv_x_sample_interval)
@@ -182,11 +182,11 @@ void STD_FUNCTION_NAME(
 	/* Catch the last line, if needed */
 	if (uv_y_sample_interval == 2 && y == (height-1))
 	{
-		const uint8_t *y_ptr1=Y+y*Y_stride,
-			*u_ptr=U+(y/uv_y_sample_interval)*UV_stride,
-			*v_ptr=V+(y/uv_y_sample_interval)*UV_stride;
+		const uint8_t *y_ptr1=Y+y*Y_pitch,
+			*u_ptr=U+(y/uv_y_sample_interval)*UV_pitch,
+			*v_ptr=V+(y/uv_y_sample_interval)*UV_pitch;
 
-		uint8_t *rgb_ptr1=RGB+y*RGB_stride;
+		uint8_t *rgb_ptr1=RGB+y*RGB_pitch;
 
 		for(x=0; x<(width-(uv_x_sample_interval-1)); x+=uv_x_sample_interval)
 		{

@@ -237,17 +237,17 @@ static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
 }
 
 static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const void *yuv, unsigned yuv_pitch,
-                        const Uint8 **y, const Uint8 **u, const Uint8 **v, Uint32 *y_stride, Uint32 *uv_stride)
+                        const Uint8 **y, const Uint8 **u, const Uint8 **v, Uint32 *y_pitch, Uint32 *uv_pitch)
 {
     const Uint8 *plane0, *plane1, *plane2;
-    unsigned uv_pitch;
+    unsigned res_uv_pitch;
 
     plane0 = (const Uint8 *)yuv;
 
     *y = plane0;
-    *y_stride = yuv_pitch;
+    *y_pitch = yuv_pitch;
 
-    uv_pitch = yuv_pitch;
+    res_uv_pitch = yuv_pitch;
     switch (format) {
     /* packed formats */
     case SDL_PIXELFORMAT_YUY2:
@@ -266,9 +266,9 @@ static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const vo
     /* planar formats (3 planes) */
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
-        uv_pitch = (yuv_pitch + 1) / 2;
+        res_uv_pitch = (yuv_pitch + 1) / 2;
         plane1 = plane0 + yuv_pitch * height;
-        plane2 = plane1 + uv_pitch * ((height + 1) / 2);
+        plane2 = plane1 + res_uv_pitch * ((height + 1) / 2);
 
         if (format == SDL_PIXELFORMAT_YV12) {
             *v = plane1;
@@ -282,7 +282,7 @@ static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const vo
     case SDL_PIXELFORMAT_NV12:
     case SDL_PIXELFORMAT_NV21:
     case SDL_PIXELFORMAT_P010:
-        uv_pitch = 2 * ((yuv_pitch + 1) / 2);
+        res_uv_pitch = 2 * ((yuv_pitch + 1) / 2);
         plane1 = plane0 + yuv_pitch * height;
 
         if (format == SDL_PIXELFORMAT_NV12) {
@@ -300,7 +300,7 @@ static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const vo
         return SDL_SetError("GetYUVPlanes(): Unsupported YUV format: %s", SDL_GetPixelFormatName(format));
     }
 
-    *uv_stride = uv_pitch;
+    *uv_pitch = res_uv_pitch;
 
     return 0;
 }
@@ -308,8 +308,8 @@ static int GetYUVPlanes(unsigned width, unsigned height, Uint32 format, const vo
 static SDL_bool yuv_rgb_sse(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
-    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_stride, Uint32 uv_stride,
-    Uint8 *rgb, Uint32 rgb_stride,
+    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_pitch, Uint32 uv_pitch,
+    Uint8 *rgb, Uint32 rgb_pitch,
     YCbCrType yuv_type)
 {
 #ifdef __SSE2__
@@ -322,26 +322,26 @@ static SDL_bool yuv_rgb_sse(
     case SDL_PIXELFORMAT_IYUV:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuv420_rgb565_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgb565_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuv420_rgb24_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgb24_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuv420_rgba_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgba_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuv420_bgra_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_bgra_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuv420_argb_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_argb_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuv420_abgr_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_abgr_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -352,26 +352,26 @@ static SDL_bool yuv_rgb_sse(
     case SDL_PIXELFORMAT_YVYU:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuv422_rgb565_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgb565_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuv422_rgb24_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgb24_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuv422_rgba_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgba_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuv422_bgra_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_bgra_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuv422_argb_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_argb_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuv422_abgr_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_abgr_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -381,26 +381,26 @@ static SDL_bool yuv_rgb_sse(
     case SDL_PIXELFORMAT_NV21:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuvnv12_rgb565_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgb565_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuvnv12_rgb24_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgb24_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuvnv12_rgba_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgba_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuvnv12_bgra_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_bgra_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuvnv12_argb_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_argb_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuvnv12_abgr_sseu(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_abgr_sseu(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -419,8 +419,8 @@ static SDL_bool yuv_rgb_sse(
 static SDL_bool yuv_rgb_lsx(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
-    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_stride, Uint32 uv_stride,
-    Uint8 *rgb, Uint32 rgb_stride,
+    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_pitch, Uint32 uv_pitch,
+    Uint8 *rgb, Uint32 rgb_pitch,
     YCbCrType yuv_type)
 {
 #ifdef __loongarch_sx
@@ -432,23 +432,23 @@ static SDL_bool yuv_rgb_lsx(
 
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB24:
-            yuv420_rgb24_lsx(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgb24_lsx(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuv420_rgba_lsx(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgba_lsx(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuv420_bgra_lsx(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_bgra_lsx(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuv420_argb_lsx(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_argb_lsx(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuv420_abgr_lsx(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_abgr_lsx(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -461,8 +461,8 @@ static SDL_bool yuv_rgb_lsx(
 static SDL_bool yuv_rgb_std(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
-    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_stride, Uint32 uv_stride,
-    Uint8 *rgb, Uint32 rgb_stride,
+    const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_pitch, Uint32 uv_pitch,
+    Uint8 *rgb, Uint32 rgb_pitch,
     YCbCrType yuv_type)
 {
     switch (src_format) {
@@ -470,26 +470,26 @@ static SDL_bool yuv_rgb_std(
     case SDL_PIXELFORMAT_IYUV:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuv420_rgb565_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgb565_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuv420_rgb24_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgb24_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuv420_rgba_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_rgba_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuv420_bgra_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_bgra_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuv420_argb_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_argb_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuv420_abgr_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv420_abgr_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -500,26 +500,26 @@ static SDL_bool yuv_rgb_std(
     case SDL_PIXELFORMAT_YVYU:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuv422_rgb565_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgb565_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuv422_rgb24_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgb24_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuv422_rgba_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_rgba_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuv422_bgra_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_bgra_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuv422_argb_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_argb_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuv422_abgr_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuv422_abgr_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -529,26 +529,26 @@ static SDL_bool yuv_rgb_std(
     case SDL_PIXELFORMAT_NV21:
         switch (dst_format) {
         case SDL_PIXELFORMAT_RGB565:
-            yuvnv12_rgb565_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgb565_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB24:
-            yuvnv12_rgb24_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgb24_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGBX8888:
         case SDL_PIXELFORMAT_RGBA8888:
-            yuvnv12_rgba_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_rgba_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGRX8888:
         case SDL_PIXELFORMAT_BGRA8888:
-            yuvnv12_bgra_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_bgra_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_RGB888:
         case SDL_PIXELFORMAT_ARGB8888:
-            yuvnv12_argb_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_argb_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         case SDL_PIXELFORMAT_BGR888:
         case SDL_PIXELFORMAT_ABGR8888:
-            yuvnv12_abgr_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvnv12_abgr_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -557,7 +557,7 @@ static SDL_bool yuv_rgb_std(
     case SDL_PIXELFORMAT_P010:
         switch (dst_format) {
         case SDL_PIXELFORMAT_ARGB8888:
-            yuvp010_argb_std(width, height, y, u, v, y_stride, uv_stride, rgb, rgb_stride, yuv_type);
+            yuvp010_argb_std(width, height, y, u, v, y_pitch, uv_pitch, rgb, rgb_pitch, yuv_type);
             return SDL_TRUE;
         default:
             break;
@@ -577,14 +577,14 @@ int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
     const Uint8 *y = NULL;
     const Uint8 *u = NULL;
     const Uint8 *v = NULL;
-    Uint32 y_stride = 0;
-    Uint32 uv_stride = 0;
+    Uint32 y_pitch = 0;
+    Uint32 uv_pitch = 0;
     YCbCrType yuv_type = YCBCR_601;
 
     SDL_assert(width > 0 && height > 0);
     SDL_assert(src_pitch > 0 && dst_pitch > 0);
 
-    if (GetYUVPlanes(width, height, src_format, src, src_pitch, &y, &u, &v, &y_stride, &uv_stride) < 0) {
+    if (GetYUVPlanes(width, height, src_format, src, src_pitch, &y, &u, &v, &y_pitch, &uv_pitch) < 0) {
         return -1;
     }
 
@@ -592,15 +592,15 @@ int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
         return -1;
     }
 
-    if (yuv_rgb_sse(src_format, dst_format, width, height, y, u, v, y_stride, uv_stride, (Uint8 *)dst, dst_pitch, yuv_type)) {
+    if (yuv_rgb_sse(src_format, dst_format, width, height, y, u, v, y_pitch, uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
         return 0;
     }
 
-    if (yuv_rgb_lsx(src_format, dst_format, width, height, y, u, v, y_stride, uv_stride, (Uint8 *)dst, dst_pitch, yuv_type)) {
+    if (yuv_rgb_lsx(src_format, dst_format, width, height, y, u, v, y_pitch, uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
         return 0;
     }
 
-    if (yuv_rgb_std(src_format, dst_format, width, height, y, u, v, y_stride, uv_stride, (Uint8 *)dst, dst_pitch, yuv_type)) {
+    if (yuv_rgb_std(src_format, dst_format, width, height, y, u, v, y_pitch, uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
         return 0;
     }
 
@@ -729,18 +729,18 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
         Uint8 *plane_u;
         Uint8 *plane_v;
         Uint8 *plane_interleaved_uv;
-        Uint32 y_stride, uv_stride, y_skip, uv_skip;
+        Uint32 y_pitch, uv_pitch, y_skip, uv_skip;
         unsigned src_pitch_x_2;
 
         retval = GetYUVPlanes(width, height, dst_format, dst, dst_pitch,
                          (const Uint8 **)&plane_y, (const Uint8 **)&plane_u, (const Uint8 **)&plane_v,
-                         &y_stride, &uv_stride);
+                         &y_pitch, &uv_pitch);
         SDL_assert(retval == 0);
 
-        // if (y_stride < width) {
+        // if (y_pitch < width) {
         //     return SDL_SetError("Destination pitch is too small, expected at least %d\n", width);
         // }
-        y_skip = (y_stride - width);
+        y_skip = (y_pitch - width);
 
         curr_row = (const Uint8 *)src;
 
@@ -766,7 +766,7 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
         case SDL_PIXELFORMAT_YV12:
         case SDL_PIXELFORMAT_IYUV:
             /* Write UV planes, not interleaved */
-            uv_skip = (uv_stride - (width + 1) / 2);
+            uv_skip = (uv_pitch - (width + 1) / 2);
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -800,7 +800,7 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             break;
         case SDL_PIXELFORMAT_NV12:
             plane_interleaved_uv = plane_u;
-            uv_skip = (uv_stride - ((width + 1) / 2) * 2);
+            uv_skip = (uv_pitch - ((width + 1) / 2) * 2);
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -831,7 +831,7 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             break;
         case SDL_PIXELFORMAT_NV21:
             plane_interleaved_uv = plane_v;
-            uv_skip = (uv_stride - ((width + 1) / 2) * 2);
+            uv_skip = (uv_pitch - ((width + 1) / 2) * 2);
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -983,11 +983,11 @@ int SDL_ConvertPixels_RGB_to_YUV(int width, int height,
         Uint8 *y;
         Uint8 *u;
         Uint8 *v;
-        Uint32 y_stride;
-        Uint32 uv_stride;
+        Uint32 y_pitch;
+        Uint32 uv_pitch;
         YCbCrType yuv_type;
 
-        if (GetYUVPlanes(width, height, dst_format, dst, dst_pitch, (const Uint8 **)&y, (const Uint8 **)&u, (const Uint8 **)&v, &y_stride, &uv_stride) < 0) {
+        if (GetYUVPlanes(width, height, dst_format, dst, dst_pitch, (const Uint8 **)&y, (const Uint8 **)&u, (const Uint8 **)&v, &y_pitch, &uv_pitch) < 0) {
             return -1;
         }
 
@@ -995,7 +995,7 @@ int SDL_ConvertPixels_RGB_to_YUV(int width, int height,
             return -1;
         }
 
-        rgb24_yuv420_std(width, height, src, src_pitch, y, u, v, y_stride, uv_stride, yuv_type);
+        rgb24_yuv420_std(width, height, src, src_pitch, y, u, v, y_pitch, uv_pitch, yuv_type);
         return 0;
     }
 #endif

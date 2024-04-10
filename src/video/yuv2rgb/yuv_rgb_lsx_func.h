@@ -266,8 +266,8 @@
                                                               \
 
 void LSX_FUNCTION_NAME(uint32_t width, uint32_t height, const uint8_t *Y,
-                       const uint8_t *U, const uint8_t *V, uint32_t Y_stride,
-                       uint32_t UV_stride, uint8_t *RGB, uint32_t RGB_stride,
+                       const uint8_t *U, const uint8_t *V, uint32_t Y_pitch,
+                       uint32_t UV_pitch, uint8_t *RGB, uint32_t RGB_pitch,
                        YCbCrType yuv_type)
 {
     const YUV2RGBParam *const param = &(YUV2RGB[yuv_type]);
@@ -306,12 +306,12 @@ void LSX_FUNCTION_NAME(uint32_t width, uint32_t height, const uint8_t *Y,
 
     if (width >= 32) {
         for (ypos = 0; ypos < (height - (uv_y_sample_interval - 1)); ypos += uv_y_sample_interval) {
-            const uint8_t *y_ptr1 = Y + ypos * Y_stride,
-                          *y_ptr2 = Y + (ypos + 1) * Y_stride,
-                          *u_ptr  = U + (ypos/uv_y_sample_interval) * UV_stride,
-                          *v_ptr  = V + (ypos/uv_y_sample_interval) * UV_stride;
-            uint8_t *rgb_ptr1 = RGB + ypos * RGB_stride,
-                    *rgb_ptr2 = RGB + (ypos + 1) * RGB_stride;
+            const uint8_t *y_ptr1 = Y + ypos * Y_pitch,
+                          *y_ptr2 = Y + (ypos + 1) * Y_pitch,
+                          *u_ptr  = U + (ypos/uv_y_sample_interval) * UV_pitch,
+                          *v_ptr  = V + (ypos/uv_y_sample_interval) * UV_pitch;
+            uint8_t *rgb_ptr1 = RGB + ypos * RGB_pitch,
+                    *rgb_ptr2 = RGB + (ypos + 1) * RGB_pitch;
 
             for (xpos = 0; xpos < (width - 31); xpos += 32){
                 YUV2RGB_32
@@ -332,11 +332,11 @@ void LSX_FUNCTION_NAME(uint32_t width, uint32_t height, const uint8_t *Y,
             }
         }
         if (uv_y_sample_interval == 2 && ypos == (height - 1)) {
-            const uint8_t *y_ptr = Y + ypos * Y_stride,
-                          *u_ptr = U + (ypos/uv_y_sample_interval) * UV_stride,
-                          *v_ptr = V + (ypos/uv_y_sample_interval) * UV_stride;
-            uint8_t *rgb_ptr = RGB + ypos * RGB_stride;
-            STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_stride, UV_stride, rgb_ptr, RGB_stride, yuv_type);
+            const uint8_t *y_ptr = Y + ypos * Y_pitch,
+                          *u_ptr = U + (ypos/uv_y_sample_interval) * UV_pitch,
+                          *v_ptr = V + (ypos/uv_y_sample_interval) * UV_pitch;
+            uint8_t *rgb_ptr = RGB + ypos * RGB_pitch;
+            STD_FUNCTION_NAME(width, 1, y_ptr, u_ptr, v_ptr, Y_pitch, UV_pitch, rgb_ptr, RGB_pitch, yuv_type);
         }
     }
     {
@@ -348,7 +348,7 @@ void LSX_FUNCTION_NAME(uint32_t width, uint32_t height, const uint8_t *Y,
                           *v_ptr = V + converted * uv_pixel_stride / uv_x_sample_interval;
             uint8_t *rgb_ptr = RGB + converted * rgb_pixel_stride;
 
-            STD_FUNCTION_NAME(width-converted, height, y_ptr, u_ptr, v_ptr, Y_stride, UV_stride, rgb_ptr, RGB_stride, yuv_type);
+            STD_FUNCTION_NAME(width-converted, height, y_ptr, u_ptr, v_ptr, Y_pitch, UV_pitch, rgb_ptr, RGB_pitch, yuv_type);
         }
     }
 }
