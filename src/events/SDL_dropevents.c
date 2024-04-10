@@ -35,10 +35,10 @@ static int SDL_SendDrop(SDL_Window *window, const SDL_EventType evtype, const ch
 
     /* Post the event, if desired */
     if (SDL_GetEventState(evtype) == SDL_ENABLE) {
-        const SDL_bool need_begin = window ? !window->is_dropping : !app_is_dropping;
+        const SDL_bool skip_begin = window ? window->is_dropping : app_is_dropping;
         SDL_Event event;
 
-        if (need_begin) {
+        if (!skip_begin) {
             event.type = SDL_DROPBEGIN;
             event.drop.file = NULL;
             event.drop.windowID = window ? window->id : 0;

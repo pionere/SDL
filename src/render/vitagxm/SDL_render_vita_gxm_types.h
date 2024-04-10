@@ -117,8 +117,6 @@ typedef struct
     SDL_bool cliprect_enabled;
     SDL_bool cliprect_dirty;
     SDL_Rect cliprect;
-    SDL_bool texturing;
-    SDL_Color clear_color;
     int drawablew;
     int drawableh;
 } gxm_drawstate_cache;

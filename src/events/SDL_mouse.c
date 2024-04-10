@@ -1075,7 +1075,7 @@ static SDL_bool ShouldUseRelativeModeWarp(SDL_Mouse *mouse)
 int SDL_SetRelativeMouseMode(SDL_bool enabled)
 {
     SDL_Mouse *mouse = _this;
-    SDL_Window *focusWindow = SDL_GetKeyboardFocus();
+    SDL_Window *focusWindow;
 
     if (enabled == mouse->relative_mode) {
         return 0;
@@ -1099,6 +1099,7 @@ int SDL_SetRelativeMouseMode(SDL_bool enabled)
     mouse->scale_accum_x = 0.0f;
     mouse->scale_accum_y = 0.0f;
 
+    focusWindow = SDL_GetKeyboardFocus();
     if (enabled) {
         /* Update cursor visibility before we potentially warp the mouse */
         SDL_SetCursor(NULL);
