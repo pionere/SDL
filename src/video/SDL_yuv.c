@@ -846,7 +846,7 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
 
         Uint8 *plane_y, *plane_u, *plane_v, *plane_interleaved_uv;
         Uint32 y_pitch, y_skip, uv_skip;
-        unsigned src_pitch_x_2;
+        unsigned src_skip, src_pitch_x_2;
 
         if (yuv_info.bpp != 1) {
             return SDL_SetError("Unsupported YUV destination format: %s", SDL_GetPixelFormatName(yuv_info.yuv_format));
@@ -861,19 +861,24 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
         //     return SDL_SetError("Destination pitch is too small, expected at least %d\n", width);
         // }
         y_skip = (y_pitch - width);
+        // if (src_pitch < width * 4) {
+        //     return SDL_SetError("Source pitch is too small, expected at least %d\n", width * 4);
+        // }
+        src_skip = src_pitch - width * 4;
 
         curr_row = (const Uint8 *)src;
         plane_y = yuv_info.y_plane;
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {
-                const Uint32 p1 = ((const Uint32 *)curr_row)[i];
+                const Uint32 p1 = *(const Uint32 *)curr_row;
                 const Uint32 r = (p1 & 0x00ff0000) >> 16;
                 const Uint32 g = (p1 & 0x0000ff00) >> 8;
                 const Uint32 b = (p1 & 0x000000ff);
                 *plane_y++ = MAKE_Y(r, g, b);
+                curr_row += 4;
             }
             plane_y += y_skip;
-            curr_row += src_pitch;
+            curr_row += src_skip;
         }
 
         /* Write UV planes */
