@@ -1224,25 +1224,33 @@ static int SDL_ConvertPixels_YUV_to_YUV_Copy(unsigned width, unsigned height, Ui
     return 0;
 }
 
-static int SDL_ConvertPixels_SwapUVPlanes(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_SwapUVPlanes(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
-    unsigned y;
-    const unsigned UVwidth = (width + 1) / 2;
-    const unsigned UVheight = (height + 1) / 2;
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
 
-    /* Skip the Y plane */
-    src = (const Uint8 *)src + height * src_pitch;
-    dst = (Uint8 *)dst + height * dst_pitch;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
 
-    {
-        const Uint8 *srcUV;
-        Uint8 *dstUV;
-        unsigned srcUVPitch = ((src_pitch + 1) / 2);
-        unsigned dstUVPitch = ((dst_pitch + 1) / 2);
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    if (src_pitch == dst_pitch) {
+        /* Fast path */
+        size_t uv_size = (size_t)src_yuv_info.planes[2] - (size_t)src_yuv_info.planes[1];
+        SDL_memcpy(dst_yuv_info.planes[2], src_yuv_info.planes[1], uv_size);
+        SDL_memcpy(dst_yuv_info.planes[1], src_yuv_info.planes[2], uv_size);
+    } else {
+        const unsigned UVwidth = src_yuv_info.uv_width;
+        const unsigned UVheight = src_yuv_info.uv_height;
+        const unsigned srcUVPitch = src_yuv_info.uv_pitch;
+        const unsigned dstUVPitch = dst_yuv_info.uv_pitch;
+        Uint8 *srcUV, *dstUV;
+        unsigned y;
 
         /* Copy the first plane */
-        srcUV = (const Uint8 *)src;
-        dstUV = (Uint8 *)dst + UVheight * dstUVPitch;
+        srcUV = src_yuv_info.planes[1];
+        dstUV = dst_yuv_info.planes[2];
         for (y = 0; y < UVheight; ++y) {
             SDL_memcpy(dstUV, srcUV, UVwidth);
             srcUV += srcUVPitch;
@@ -1250,7 +1258,8 @@ static int SDL_ConvertPixels_SwapUVPlanes(unsigned width, unsigned height, const
         }
 
         /* Copy the second plane */
-        dstUV = (Uint8 *)dst;
+        srcUV = src_yuv_info.planes[2];
+        dstUV = dst_yuv_info.planes[1];
         for (y = 0; y < UVheight; ++y) {
             SDL_memcpy(dstUV, srcUV, UVwidth);
             srcUV += srcUVPitch;
@@ -1450,7 +1459,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(unsigned width, unsigned hei
     case SDL_PIXELFORMAT_YV12:
         switch (dst_format) {
         case SDL_PIXELFORMAT_IYUV:
-            return SDL_ConvertPixels_SwapUVPlanes(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_SwapUVPlanes(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_NV12:
             return SDL_ConvertPixels_PackUVPlanes_to_NV(width, height, src, src_pitch, dst, dst_pitch, SDL_TRUE);
         case SDL_PIXELFORMAT_NV21:
@@ -1465,7 +1474,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(unsigned width, unsigned hei
     case SDL_PIXELFORMAT_IYUV:
         switch (dst_format) {
         case SDL_PIXELFORMAT_YV12:
-            return SDL_ConvertPixels_SwapUVPlanes(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_SwapUVPlanes(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_NV12:
             return SDL_ConvertPixels_PackUVPlanes_to_NV(width, height, src, src_pitch, dst, dst_pitch, SDL_FALSE);
         case SDL_PIXELFORMAT_NV21:
