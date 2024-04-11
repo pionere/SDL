@@ -759,6 +759,8 @@ struct RGB2YUVFactors
 
 static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo yuv_info;
+    int retval;
     unsigned i, j;
 
     static struct RGB2YUVFactors RGB2YUVFactorTables[SDL_YUV_CONVERSION_BT709 + 1] = {
@@ -785,6 +787,11 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
         },
     };
     const struct RGB2YUVFactors *cvt = &RGB2YUVFactorTables[SDL_GetYUVConversionModeForResolution(width, height)];
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &yuv_info);
+    if (retval < 0) {
+        return retval;
+    }
 
 #define MAKE_Y(r, g, b) (Uint8)((int)(cvt->y[0] * (r) + cvt->y[1] * (g) + cvt->y[2] * (b) + 0.5f) + cvt->y_offset)
 #define MAKE_U(r, g, b) (Uint8)((int)(cvt->u[0] * (r) + cvt->u[1] * (g) + cvt->u[2] * (b) + 0.5f) + 128)
@@ -834,40 +841,29 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
 
 #define READ_ONE_RGB_PIXEL READ_1x1_PIXEL
 
-    switch (dst_format) {
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-    {
-        int retval;
-        SDL_YUVInfo yuv_info;
+    if (yuv_info.yuv_layout != SDL_YUVLAYOUT_PACKED) {
         const Uint8 *curr_row, *next_row;
 
-        Uint8 *plane_y;
-        Uint8 *plane_u;
-        Uint8 *plane_v;
-        Uint8 *plane_interleaved_uv;
-        Uint32 y_pitch, uv_pitch, y_skip, uv_skip;
+        Uint8 *plane_y, *plane_u, *plane_v, *plane_interleaved_uv;
+        Uint32 y_pitch, y_skip, uv_skip;
         unsigned src_pitch_x_2;
 
-        retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &yuv_info);
-        SDL_assert(retval == 0);
+        if (yuv_info.bpp != 1) {
+            return SDL_SetError("Unsupported YUV destination format: %s", SDL_GetPixelFormatName(yuv_info.yuv_format));
+        }
 
-        plane_y = yuv_info.y_plane;
-        plane_u = yuv_info.u_plane;
-        plane_v = yuv_info.v_plane;
+        width = yuv_info.y_width;
+        height = yuv_info.y_height;
+
+        /* Write Y plane */
         y_pitch = yuv_info.y_pitch;
-        uv_pitch = yuv_info.uv_pitch;
-
         // if (y_pitch < width) {
         //     return SDL_SetError("Destination pitch is too small, expected at least %d\n", width);
         // }
         y_skip = (y_pitch - width);
 
         curr_row = (const Uint8 *)src;
-
-        /* Write Y plane */
+        plane_y = yuv_info.y_plane;
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {
                 const Uint32 p1 = ((const Uint32 *)curr_row)[i];
@@ -880,16 +876,19 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             curr_row += src_pitch;
         }
 
+        /* Write UV planes */
         curr_row = (const Uint8 *)src;
         next_row = (const Uint8 *)src;
         next_row += src_pitch;
         src_pitch_x_2 = src_pitch * 2;
 
-        switch (dst_format) {
+        switch (yuv_info.yuv_format) {
         case SDL_PIXELFORMAT_YV12:
         case SDL_PIXELFORMAT_IYUV:
             /* Write UV planes, not interleaved */
-            uv_skip = (uv_pitch - (width + 1) / 2);
+            plane_u = yuv_info.u_plane;
+            plane_v = yuv_info.v_plane;
+            uv_skip = yuv_info.uv_pitch - yuv_info.uv_width;
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -922,8 +921,8 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             }
             break;
         case SDL_PIXELFORMAT_NV12:
-            plane_interleaved_uv = plane_u;
-            uv_skip = (uv_pitch - ((width + 1) / 2) * 2);
+            plane_interleaved_uv = yuv_info.u_plane;
+            uv_skip = yuv_info.uv_pitch - 2 * yuv_info.uv_width;
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -953,8 +952,8 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             }
             break;
         case SDL_PIXELFORMAT_NV21:
-            plane_interleaved_uv = plane_v;
-            uv_skip = (uv_pitch - ((width + 1) / 2) * 2);
+            plane_interleaved_uv = yuv_info.v_plane;
+            uv_skip = yuv_info.uv_pitch - 2 * yuv_info.uv_width;
             for (j = 0; j < height / 2; j++) {
                 for (i = 0; i < width / 2; i++) {
                     READ_2x2_PIXELS;
@@ -987,24 +986,24 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             SDL_assume(!"Unknown format");
             break;
         }
-    } break;
-
-    case SDL_PIXELFORMAT_YUY2:
-    case SDL_PIXELFORMAT_UYVY:
-    case SDL_PIXELFORMAT_YVYU:
-    {
+    } else { // yuv_info.yuv_layout == SDL_YUVLAYOUT_PACKED
         const Uint8 *curr_row = (const Uint8 *)src;
-        Uint8 *plane = (Uint8 *)dst;
-        const unsigned row_size = (4 * ((width + 1) / 2));
+        Uint8 *plane = yuv_info.planes[0];
+        const unsigned row_size = 4 * yuv_info.uv_width;
         unsigned plane_skip;
 
-        // if (dst_pitch < row_size) {
+        SDL_assert(yuv_info.bpp == 1);
+
+        width = yuv_info.y_width;
+        height = yuv_info.y_height;
+
+        // if (yuv_info.y_pitch < row_size) {
         //     return SDL_SetError("Destination pitch is too small, expected at least %d\n", row_size);
         // }
-        plane_skip = (dst_pitch - row_size);
+        plane_skip = (yuv_info.y_pitch - row_size);
 
         /* Write YUV plane, packed */
-        switch (dst_format) {
+        switch (yuv_info.yuv_format) {
         case SDL_PIXELFORMAT_YUY2:
             for (j = 0; j < height; j++) {
                 for (i = 0; i < width / 2; i++) {
@@ -1075,11 +1074,6 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(unsigned width, unsigned height, co
             SDL_assume(!"Unknown format");
             break;
         }
-    } break;
-    case SDL_PIXELFORMAT_P010:
-
-    default:
-        return SDL_SetError("Unsupported YUV destination format: %s", SDL_GetPixelFormatName(dst_format));
     }
 #undef MAKE_Y
 #undef MAKE_U
