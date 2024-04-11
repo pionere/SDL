@@ -2756,6 +2756,10 @@ elseif(VITA)
 
       if(HAVE_PIGS_IN_BLANKET_H)
         set(SDL_VIDEO_OPENGL_ES2 1)
+        if(SDL_RENDER_GLES2)
+          set(HAVE_RENDER_GLES2 TRUE)
+          set(SDL_VIDEO_RENDER_OGL_ES2 1)
+        endif()
         list(APPEND EXTRA_LIBS
           pib
           libScePiglet_stub_weak
