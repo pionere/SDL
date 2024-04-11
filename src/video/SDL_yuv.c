@@ -1296,7 +1296,7 @@ static int SDL_ConvertPixels_PackUVPlanes_to_NV(unsigned width, unsigned height,
     dstUVPitchLeft = dstUVPitch - UVwidth * 2;
 
     /* Skip the Y plane */
-    dstUV = (Uint8 *)dst_yuv_info.planes[1];
+    dstUV = dst_yuv_info.planes[1];
     if (reverseUV) {
         src2 = src_yuv_info.planes[1];
         src1 = src_yuv_info.planes[2];
@@ -1363,7 +1363,7 @@ static int SDL_ConvertPixels_SplitNV_to_UVPlanes(unsigned width, unsigned height
     dstUVPitchLeft = dstUVPitch - UVwidth;
 
     /* Skip the Y plane */
-    srcUV = (Uint8 *)src_yuv_info.planes[1];
+    srcUV = src_yuv_info.planes[1];
     if (reverseUV) {
         dst2 = dst_yuv_info.planes[1];
         dst1 = dst_yuv_info.planes[2];
@@ -1408,27 +1408,36 @@ static int SDL_ConvertPixels_SplitNV_to_UVPlanes(unsigned width, unsigned height
     return 0;
 }
 
-static int SDL_ConvertPixels_SwapNV(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_SwapNV(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned UVwidth = (width + 1) / 2;
-    const unsigned UVheight = (height + 1) / 2;
-    const unsigned srcUVPitch = ((src_pitch + 1) / 2) * 2;
-    const unsigned srcUVPitchLeft = (srcUVPitch - UVwidth * 2) / sizeof(Uint16);
-    const unsigned dstUVPitch = ((dst_pitch + 1) / 2) * 2;
-    const unsigned dstUVPitchLeft = (dstUVPitch - UVwidth * 2) / sizeof(Uint16);
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVPitchLeft, dstUVPitch, dstUVPitchLeft;
     const Uint16 *srcUV;
     Uint16 *dstUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    /* Skip the Y plane */
-    src = (const Uint8 *)src + height * src_pitch;
-    dst = (Uint8 *)dst + height * dst_pitch;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
 
-    srcUV = (const Uint16 *)src;
-    dstUV = (Uint16 *)dst;
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    UVwidth = src_yuv_info.uv_width;
+    UVheight = src_yuv_info.uv_height;
+    srcUVPitch = src_yuv_info.uv_pitch;
+    srcUVPitchLeft = srcUVPitch - UVwidth * 2;
+    dstUVPitch = dst_yuv_info.uv_pitch;
+    dstUVPitchLeft = dstUVPitch - UVwidth * 2;
+
+    /* Skip the Y plane */
+    srcUV = (const Uint16 *)src_yuv_info.planes[1];
+    dstUV = (Uint16 *)dst_yuv_info.planes[1];
+
     y = UVheight;
     while (y--) {
         x = UVwidth;
@@ -1449,8 +1458,8 @@ static int SDL_ConvertPixels_SwapNV(unsigned width, unsigned height, const void 
         while (x--) {
             *dstUV++ = SDL_Swap16(*srcUV++);
         }
-        srcUV += srcUVPitchLeft;
-        dstUV += dstUVPitchLeft;
+        srcUV = (const Uint16 *)((const Uint8 *)srcUV + srcUVPitchLeft);
+        dstUV = (Uint16 *)((Uint8 *)dstUV + dstUVPitchLeft);
     }
     return 0;
 }
@@ -1509,7 +1518,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(unsigned width, unsigned hei
         case SDL_PIXELFORMAT_IYUV:
             return SDL_ConvertPixels_SplitNV_to_UVPlanes(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch, SDL_FALSE);
         case SDL_PIXELFORMAT_NV21:
-            return SDL_ConvertPixels_SwapNV(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_SwapNV(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_P010:
             break;
         default:
@@ -1524,7 +1533,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(unsigned width, unsigned hei
         case SDL_PIXELFORMAT_IYUV:
             return SDL_ConvertPixels_SplitNV_to_UVPlanes(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch, SDL_TRUE);
         case SDL_PIXELFORMAT_NV12:
-            return SDL_ConvertPixels_SwapNV(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_SwapNV(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_P010:
             break;
         default:
