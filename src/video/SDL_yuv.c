@@ -1554,19 +1554,36 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(unsigned width, unsigned hei
 
 #endif
 
-static int SDL_ConvertPixels_YUY2_to_UYVY(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_YUY2_to_UYVY(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1604,19 +1621,36 @@ static int SDL_ConvertPixels_YUY2_to_UYVY(unsigned width, unsigned height, const
     return 0;
 }
 
-static int SDL_ConvertPixels_YUY2_to_YVYU(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_YUY2_to_YVYU(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1651,19 +1685,36 @@ static int SDL_ConvertPixels_YUY2_to_YVYU(unsigned width, unsigned height, const
     return 0;
 }
 
-/*static int SDL_ConvertPixels_UYVY_to_YUY2(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+/*static int SDL_ConvertPixels_UYVY_to_YUY2(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1692,19 +1743,36 @@ static int SDL_ConvertPixels_YUY2_to_YVYU(unsigned width, unsigned height, const
     return 0;
 }*/
 
-static int SDL_ConvertPixels_UYVY_to_YVYU(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_UYVY_to_YVYU(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1738,19 +1806,36 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(unsigned width, unsigned height, const
     return 0;
 }
 
-/*static int SDL_ConvertPixels_YVYU_to_YUY2(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+/*static int SDL_ConvertPixels_YVYU_to_YUY2(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1779,19 +1864,36 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(unsigned width, unsigned height, const
     return 0;
 }*/
 
-static int SDL_ConvertPixels_YVYU_to_UYVY(unsigned width, unsigned height, const void *src, unsigned src_pitch, void *dst, unsigned dst_pitch)
+static int SDL_ConvertPixels_YVYU_to_UYVY(unsigned width, unsigned height, Uint32 src_format, const void *src, unsigned src_pitch, Uint32 dst_format, void *dst, unsigned dst_pitch)
 {
+    SDL_YUVInfo src_yuv_info, dst_yuv_info;
+    int retval;
+
     unsigned x, y;
-    const unsigned YUVwidth = (width + 1) / 2;
-    const unsigned srcYUVSkip = (src_pitch - YUVwidth * 4);
-    const unsigned dstYUVSkip = (dst_pitch - YUVwidth * 4);
-    const Uint8 *srcYUV = (const Uint8 *)src;
-    Uint8 *dstYUV = (Uint8 *)dst;
+    unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
+    const Uint8 *srcYUV;
+    Uint8 *dstYUV;
 #ifdef __SSE2__
     const SDL_bool use_SSE2 = SDL_HasSSE2();
 #endif
 
-    y = height;
+    retval = SDL_InitYUVInfo(width, height, src_format, src, src_pitch, &src_yuv_info);
+    SDL_assert(retval == 0);
+
+    retval = SDL_InitYUVInfo(width, height, dst_format, dst, dst_pitch, &dst_yuv_info);
+    SDL_assert(retval == 0);
+
+    YUVwidth = src_yuv_info.uv_width;
+    YUVheight = src_yuv_info.uv_height;
+    srcYUVPitch = src_yuv_info.uv_pitch;
+    srcYUVSkip = srcYUVPitch - YUVwidth * 4;
+    dstYUVPitch = dst_yuv_info.uv_pitch;
+    dstYUVSkip = dstYUVPitch - YUVwidth * 4;
+
+    srcYUV = src_yuv_info.planes[0];
+    dstYUV = dst_yuv_info.planes[0];
+
+    y = YUVheight;
     while (y--) {
         x = YUVwidth;
 #ifdef __SSE2__
@@ -1834,9 +1936,9 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(unsigned width, unsigned height,
     case SDL_PIXELFORMAT_YUY2:
         switch (dst_format) {
         case SDL_PIXELFORMAT_UYVY:
-            return SDL_ConvertPixels_YUY2_to_UYVY(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_YUY2_to_UYVY(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_YVYU:
-            return SDL_ConvertPixels_YUY2_to_YVYU(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_YUY2_to_YVYU(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         default:
             SDL_assume(!"Unknown packed yuv destination format");
             break;
@@ -1845,10 +1947,10 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(unsigned width, unsigned height,
     case SDL_PIXELFORMAT_UYVY:
         switch (dst_format) {
         case SDL_PIXELFORMAT_YUY2:
-            // return SDL_ConvertPixels_UYVY_to_YUY2(width, height, src, src_pitch, dst, dst_pitch); -- same as SDL_ConvertPixels_YUY2_to_UYVY
-            return SDL_ConvertPixels_YUY2_to_UYVY(width, height, src, src_pitch, dst, dst_pitch);
+            // return SDL_ConvertPixels_UYVY_to_YUY2(width, height, src_format, src, src_pitch, dst, dst_pitch); -- same as SDL_ConvertPixels_YUY2_to_UYVY
+            return SDL_ConvertPixels_YUY2_to_UYVY(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_YVYU:
-            return SDL_ConvertPixels_UYVY_to_YVYU(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_UYVY_to_YVYU(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         default:
             SDL_assume(!"Unknown packed yuv destination format");
             break;
@@ -1858,9 +1960,9 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(unsigned width, unsigned height,
         switch (dst_format) {
         case SDL_PIXELFORMAT_YUY2:
             // return SDL_ConvertPixels_YVYU_to_YUY2(width, height, src, src_pitch, dst, dst_pitch); -- same as SDL_ConvertPixels_YUY2_to_YVYU
-            return SDL_ConvertPixels_YUY2_to_YVYU(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_YUY2_to_YVYU(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         case SDL_PIXELFORMAT_UYVY:
-            return SDL_ConvertPixels_YVYU_to_UYVY(width, height, src, src_pitch, dst, dst_pitch);
+            return SDL_ConvertPixels_YVYU_to_UYVY(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
         default:
             SDL_assume(!"Unknown packed yuv destination format");
             break;
