@@ -904,12 +904,12 @@ int SDL_GetCPUCacheLineSize(void)
     }
 }
 
-static Uint32 SDL_CPUFeatures = 0xFFFFFFFF;
-static Uint32 SDL_SIMDAlignment = 0xFFFFFFFF;
+static Uint32 SDL_CPUFeatures = (Uint32)(Sint32)-1;
+static Uint32 SDL_SIMDAlignment = 0;
 
 static Uint32 SDL_GetCPUFeatures(void)
 {
-    if (SDL_CPUFeatures == 0xFFFFFFFF) {
+    if ((Sint32)SDL_CPUFeatures < 0) {
         CPU_calcCPUIDFeatures();
         SDL_CPUFeatures = 0;
         SDL_SIMDAlignment = sizeof(void *); /* a good safe base value */
@@ -1141,7 +1141,7 @@ int SDL_GetSystemRAM(void)
 
 size_t SDL_SIMDGetAlignment(void)
 {
-    if (SDL_SIMDAlignment == 0xFFFFFFFF) {
+    if (SDL_SIMDAlignment == 0) {
         SDL_GetCPUFeatures(); /* make sure this has been calculated */
     }
     SDL_assert(SDL_SIMDAlignment != 0);
