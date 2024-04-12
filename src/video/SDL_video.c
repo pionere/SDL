@@ -195,6 +195,18 @@ static SDL_bool DisableUnsetFullscreenOnMinimize(void)
     return SDL_FALSE;
 #endif
 }
+static SDL_bool IsFullscreenOnly(void) // VIDEO_DEVICE_QUIRK_FULLSCREEN_ONLY
+{
+#ifdef SDL_VIDEO_DRIVER_RISCOS
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_RISCOS)
+        return SDL_TRUE;
+#endif
+#ifdef SDL_VIDEO_DRIVER_NACL
+    if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_NACL)
+        return SDL_TRUE;
+#endif
+    return SDL_FALSE;
+}
 
 static void SDL_StartTextInputPrivate(SDL_bool default_value)
 {
@@ -1648,6 +1660,9 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
 
     window->display_index = displayIndex;
 
+    if (IsFullscreenOnly()) {
+        flags |= SDL_WINDOW_FULLSCREEN;
+    }
     if (flags & SDL_WINDOW_FULLSCREEN) {
         SDL_VideoDisplay *display = &current_video.displays[displayIndex];
         SDL_Rect bounds;

@@ -44,8 +44,8 @@ int NACL_CreateSDLWindow(_THIS, SDL_Window * window)
     window->wrect.w = driverdata->w;
     window->wrect.h = driverdata->h;
 
+    SDL_assert(window->flags & SDL_WINDOW_FULLSCREEN); /* window is always fullscreen */
     window->flags &= ~SDL_WINDOW_RESIZABLE;     /* window is NEVER resizeable */
-    window->flags |= SDL_WINDOW_FULLSCREEN;     /* window is always fullscreen */
     window->flags &= ~SDL_WINDOW_HIDDEN;
     window->flags |= SDL_WINDOW_SHOWN;          /* only one window on NaCl */
     window->flags |= SDL_WINDOW_INPUT_FOCUS;    /* always has input focus */
