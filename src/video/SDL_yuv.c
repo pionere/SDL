@@ -1926,22 +1926,30 @@ static int SDL_ConvertPixels_Planar2x2_to_Packed4(const SDL_YUVInfo *src_yuv_inf
     srcY2 = srcY1 + srcY_pitch;
     srcYSkip = (srcY_pitch - src_yuv_info->y_width);
 
-    switch (src_yuv_info->yuv_format) {
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        srcUV_pixel_stride = 2;
-        srcUVSkip = srcUV_pitch - 2 * src_yuv_info->uv_width;
-        break;
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
+    if (src_yuv_info->yuv_layout == SDL_YUVLAYOUT_2PLANES) {
+        if (src_yuv_info->bpp == 1) {
+            // SDL_PIXELFORMAT_NV12, SDL_PIXELFORMAT_NV21
+            srcUV_pixel_stride = 2;
+            srcUVSkip = srcUV_pitch - 2 * src_yuv_info->uv_width;
+        } else {
+            // SDL_PIXELFORMAT_P010
+            SDL_assert(src_yuv_info->bpp == 2);
+            srcUV_pixel_stride = 2 * sizeof(Uint16);
+            srcUVSkip = srcUV_pitch - 2 * src_yuv_info->uv_width * sizeof(Uint16);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            // shift to the high byte
+            srcY1 += 1;
+            srcU += 1;
+            srcV += 1;
+            srcY2 += 1;
+#endif
+        }
+    } else {
+        // SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV
+        SDL_assert(src_yuv_info->yuv_layout == SDL_YUVLAYOUT_3PLANES);
+        SDL_assert(src_yuv_info->bpp == 1);
         srcUV_pixel_stride = 1;
         srcUVSkip = (srcUV_pitch - src_yuv_info->uv_width);
-        break;
-    case SDL_PIXELFORMAT_P010:
-        return SDL_Unsupported();
-    default:
-        SDL_assume(!"Unknown yuv format");
-        return -1;
     }
 
     dstY1 = dst_yuv_info->y_plane;
@@ -2068,7 +2076,6 @@ static int SDL_ConvertPixels_Packed4_to_Planar2x2(const SDL_YUVInfo *src_yuv_inf
     Uint32 dstY_pitch, dstUV_pitch;
     Uint32 dstYSkip, dstUVSkip, dstUV_pixel_stride;
 
-
     srcY1 = src_yuv_info->y_plane;
     srcU1 = src_yuv_info->u_plane;
     srcV1 = src_yuv_info->v_plane;
@@ -2089,22 +2096,31 @@ static int SDL_ConvertPixels_Packed4_to_Planar2x2(const SDL_YUVInfo *src_yuv_inf
     dstY2 = dstY1 + dstY_pitch;
     dstYSkip = dstY_pitch - dst_yuv_info->y_width;
 
-    switch (dst_yuv_info->yuv_format) {
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        dstUV_pixel_stride = 2;
-        dstUVSkip = dstUV_pitch - 2 * dst_yuv_info->uv_width;
-        break;
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
+    if (dst_yuv_info->yuv_layout == SDL_YUVLAYOUT_2PLANES) {
+        if (dst_yuv_info->bpp == 1) {
+            // SDL_PIXELFORMAT_NV12, SDL_PIXELFORMAT_NV21
+            dstUV_pixel_stride = 2;
+            dstUVSkip = dstUV_pitch - 2 * dst_yuv_info->uv_width;
+        } else {
+            // SDL_PIXELFORMAT_P010
+            SDL_assert(dst_yuv_info->bpp == 2);
+            SDL_memset(dstY1, 0, dst_yuv_info->yuv_size);
+            dstUV_pixel_stride = 2 * sizeof(Uint16);
+            dstUVSkip = dstUV_pitch - 2 * dst_yuv_info->uv_width * sizeof(Uint16);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            // shift to the high byte
+            dstY1 += 1;
+            dstU += 1;
+            dstV += 1;
+            dstY2 += 1;
+#endif
+        }
+    } else {
+        // SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV
+        SDL_assert(dst_yuv_info->yuv_layout == SDL_YUVLAYOUT_3PLANES);
+        SDL_assert(dst_yuv_info->bpp == 1);
         dstUV_pixel_stride = 1;
         dstUVSkip = dstUV_pitch - dst_yuv_info->uv_width;
-        break;
-    case SDL_PIXELFORMAT_P010:
-        return SDL_Unsupported();
-    default:
-        SDL_assume(!"Unknown yuv format");
-        return -1;
     }
 
     /* Copy 2x2 blocks of pixels at a time */
