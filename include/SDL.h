@@ -98,8 +98,7 @@ extern "C" {
  * Initialize the SDL library.
  *
  * SDL_Init() simply forwards to calling SDL_InitSubSystem(). Therefore, the
- * two may be used interchangeably. Though for readability of your code
- * SDL_InitSubSystem() might be preferred.
+ * two may be used interchangeably.
  *
  * The file I/O (for example: SDL_RWFromFile) and threading (SDL_CreateThread)
  * subsystems are initialized by default. Message boxes
@@ -124,11 +123,6 @@ extern "C" {
  * - `SDL_INIT_EVENTS`: events subsystem
  * - `SDL_INIT_EVERYTHING`: all of the above subsystems
  * - `SDL_INIT_NOPARACHUTE`: compatibility; this flag is ignored
- *
- * Subsystem initialization is ref-counted, you must call SDL_QuitSubSystem()
- * for each SDL_InitSubSystem() to correctly shutdown a subsystem manually (or
- * call SDL_Quit() to force shutdown). If a subsystem is already loaded then
- * this call will increase the ref-count and return.
  *
  * \param flags subsystem initialization flags
  * \returns 0 on success or a negative error code on failure; call
