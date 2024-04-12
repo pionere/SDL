@@ -1313,6 +1313,73 @@ static int SDL_ConvertPixels_PackUVPlanes_to_NV(const SDL_YUVInfo *src_yuv_info,
     return 0;
 }
 
+// (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV) -> SDL_PIXELFORMAT_P010
+static int SDL_ConvertPixels_PackUVPlanes_to_P0(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *src1, *src2;
+    Uint16 *dstUV;
+    const int bpp = sizeof(Uint16);
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth;
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth * 2 * bpp;
+
+    /* Skip the Y plane */
+    dstUV = (Uint16 *)dst_yuv_info->planes[1];
+    if (reverseUV) {
+        src2 = src_yuv_info->planes[1];
+        src1 = src_yuv_info->planes[2];
+    } else {
+        src1 = src_yuv_info->planes[1];
+        src2 = src_yuv_info->planes[2];
+    }
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            __m128i zero = _mm_setzero_si128();
+            while (x >= 16) {
+                __m128i u = _mm_loadu_si128((__m128i *)src1);
+                __m128i v = _mm_loadu_si128((__m128i *)src2);
+                __m128i uv1 = _mm_unpacklo_epi8(u, v);
+                __m128i uv2 = _mm_unpackhi_epi8(u, v);
+                __m128i uv10 = _mm_unpacklo_epi8(uv1, zero);
+                __m128i uv11 = _mm_unpackhi_epi8(uv1, zero);
+                __m128i uv20 = _mm_unpacklo_epi8(uv2, zero);
+                __m128i uv21 = _mm_unpackhi_epi8(uv2, zero);
+                _mm_storeu_si128((__m128i *)dstUV, uv10);
+                _mm_storeu_si128((__m128i *)(dstUV + 8), uv11);
+                _mm_storeu_si128((__m128i *)(dstUV + 16), uv20);
+                _mm_storeu_si128((__m128i *)(dstUV + 24), uv21);
+                src1 += 16;
+                src2 += 16;
+                dstUV += 32;
+                x -= 16;
+            }
+        }
+#endif
+        while (x--) {
+            *dstUV++ = (Uint16)(*src1++) << 8;
+            *dstUV++ = (Uint16)(*src2++) << 8;
+        }
+        src1 += srcUVSkip;
+        src2 += srcUVSkip;
+        dstUV = (Uint16 *)((Uint8 *)dstUV + dstUVSkip);
+    }
+
+    return 0;
+}
+
 static int SDL_ConvertPixels_SplitNV_to_UVPlanes(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
     unsigned x, y;
@@ -1376,6 +1443,90 @@ static int SDL_ConvertPixels_SplitNV_to_UVPlanes(const SDL_YUVInfo *src_yuv_info
     return 0;
 }
 
+// SDL_PIXELFORMAT_P010 -> (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV)
+static int SDL_ConvertPixels_SplitP0_to_UVPlanes(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *srcUV;
+    Uint8 *dst1, *dst2;
+    const int bpp = sizeof(Uint16);
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth * 2;
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    srcUVSkip -= 1; // revert the shift
+#endif
+    /* Skip the Y plane */
+    srcUV = src_yuv_info->planes[1];
+    if (reverseUV) {
+        dst2 = dst_yuv_info->planes[1];
+        dst1 = dst_yuv_info->planes[2];
+    } else {
+        dst1 = dst_yuv_info->planes[1];
+        dst2 = dst_yuv_info->planes[2];
+    }
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            __m128i mask = _mm_set1_epi16(0x00FF);
+            while (x >= 16) {
+                // load the data
+                __m128i uv10 = _mm_loadu_si128((__m128i *)srcUV);
+                __m128i uv11 = _mm_loadu_si128((__m128i *)(srcUV + 16));
+                __m128i uv20 = _mm_loadu_si128((__m128i *)(srcUV + 32));
+                __m128i uv21 = _mm_loadu_si128((__m128i *)(srcUV + 48));
+                // discard the low byte
+                __m128i uv10_ = _mm_srli_epi16(uv10, 8);
+                __m128i uv11_ = _mm_srli_epi16(uv11, 8);
+                __m128i uv20_ = _mm_srli_epi16(uv20, 8);
+                __m128i uv21_ = _mm_srli_epi16(uv21, 8);
+                __m128i uv1 = _mm_packus_epi16(uv10_, uv11_);
+                __m128i uv2 = _mm_packus_epi16(uv20_, uv21_);
+                // split the 'plane'
+                __m128i u1 = _mm_and_si128(uv1, mask);
+                __m128i u2 = _mm_and_si128(uv2, mask);
+                __m128i u = _mm_packus_epi16(u1, u2);
+                __m128i v1 = _mm_srli_epi16(uv1, 8);
+                __m128i v2 = _mm_srli_epi16(uv2, 8);
+                __m128i v = _mm_packus_epi16(v1, v2);
+                // store the 'planes'
+                _mm_storeu_si128((__m128i *)dst1, u);
+                _mm_storeu_si128((__m128i *)dst2, v);
+                srcUV += 32;
+                dst1 += 16;
+                dst2 += 16;
+                x -= 16;
+            }
+        }
+#endif
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        srcUV += 1; // shift to the high byte
+#endif
+        while (x--) {
+            *dst1++ = *srcUV;
+            srcUV += bpp;
+            *dst2++ = *srcUV;
+            srcUV += bpp;
+        }
+        srcUV += srcUVSkip;
+        dst1 += dstUVSkip;
+        dst2 += dstUVSkip;
+    }
+
+    return 0;
+}
+
 static int SDL_ConvertPixels_SwapNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
@@ -1423,21 +1574,315 @@ static int SDL_ConvertPixels_SwapNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo
     return 0;
 }
 
+// SDL_PIXELFORMAT_NV12 -> SDL_PIXELFORMAT_P010
+static int SDL_ConvertPixels_DecompNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *srcUV;
+    Uint16 *dstUV;
+    const int bpp = 2;
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth * 2;
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth * 2 * bpp;
+
+    /* Skip the Y plane */
+    srcUV = src_yuv_info->planes[1];
+    dstUV = (Uint16 *)dst_yuv_info->planes[1];
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            __m128i zero = _mm_setzero_si128();
+            while (x >= 8) {
+                // load the data
+                __m128i uv = _mm_loadu_si128((__m128i *)srcUV);
+                // zfill to 16bits
+                __m128i uv0 = _mm_unpacklo_epi8(zero, uv);
+                __m128i uv1 = _mm_unpackhi_epi8(zero, uv);
+                // store the result
+                _mm_storeu_si128((__m128i *)dstUV, uv0);
+                _mm_storeu_si128((__m128i *)(dstUV + 8), uv1);
+                srcUV += 16;
+                dstUV += 16;
+                x -= 8;
+            }
+        }
+#endif
+        while (x--) {
+            Uint16 u = (Uint16)(*srcUV++) << 8;
+            Uint16 v = (Uint16)(*srcUV++) << 8;
+
+            *dstUV++ = u;
+            *dstUV++ = v;
+        }
+        srcUV += srcUVSkip;
+        dstUV = (Uint16 *)((Uint8 *)dstUV + dstUVSkip);
+    }
+    return 0;
+}
+
+// SDL_PIXELFORMAT_NV21 -> SDL_PIXELFORMAT_P010
+static int SDL_ConvertPixels_SwapAndDecompNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *srcUV;
+    Uint16 *dstUV;
+    const int bpp = 2;
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth * 2;
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth * 2 * bpp;
+
+    /* Skip the Y plane */
+    srcUV = src_yuv_info->planes[1];
+    dstUV = (Uint16 *)dst_yuv_info->planes[1];
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            __m128i zero = _mm_setzero_si128();
+            while (x >= 8) {
+                // load the data
+                __m128i uv = _mm_loadu_si128((__m128i *)srcUV);
+                // swap the bytes
+                __m128i v = _mm_slli_epi16(uv, 8);
+                __m128i u = _mm_srli_epi16(uv, 8);
+                __m128i vu = _mm_or_si128(v, u);
+                // zfill to 16bits
+                __m128i vu0 = _mm_unpacklo_epi8(zero, vu);
+                __m128i vu1 = _mm_unpackhi_epi8(zero, vu);
+                // store the result
+                _mm_storeu_si128((__m128i *)dstUV, vu0);
+                _mm_storeu_si128((__m128i *)(dstUV + 8), vu1);
+                srcUV += 16;
+                dstUV += 16;
+                x -= 8;
+            }
+        }
+#endif
+        while (x--) {
+            Uint16 u = (Uint16)(*srcUV++) << 8;
+            Uint16 v = (Uint16)(*srcUV++) << 8;
+
+            *dstUV++ = v;
+            *dstUV++ = u;
+        }
+        srcUV += srcUVSkip;
+        dstUV = (Uint16 *)((Uint8 *)dstUV + dstUVSkip);
+    }
+    return 0;
+}
+
+// SDL_PIXELFORMAT_P010 -> SDL_PIXELFORMAT_NV12
+static int SDL_ConvertPixels_CompNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *srcUV;
+    Uint8 *dstUV;
+    const int bpp = 2;
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth * 2 * bpp;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    srcUVSkip -= 1; // revert the shift
+#endif
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth * 2;
+
+    /* Skip the Y plane */
+    srcUV = src_yuv_info->planes[1];
+    dstUV = dst_yuv_info->planes[1];
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            while (x >= 8) {
+                // load the data
+                __m128i uv0 = _mm_loadu_si128((__m128i *)srcUV);
+                __m128i uv1 = _mm_loadu_si128((__m128i *)(srcUV + 16));
+                // pack the values
+                __m128i uv00 = _mm_srli_epi16(uv0, 8);
+                __m128i uv10 = _mm_srli_epi16(uv1, 8);
+                __m128i uv00_ = _mm_packus_epi16(uv00, uv10);
+                // store the result
+                _mm_storeu_si128((__m128i *)dstUV, uv00_);
+                srcUV += 32;
+                dstUV += 16;
+                x -= 8;
+            }
+        }
+#endif
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        srcUV += 1; // shift to the high byte
+#endif
+        while (x--) {
+            Uint8 u, v;
+
+            u = *srcUV;
+            srcUV += bpp;
+            v = *srcUV;
+            srcUV += bpp;
+
+            *dstUV++ = u;
+            *dstUV++ = v;
+        }
+        srcUV += srcUVSkip;
+        dstUV += dstUVSkip;
+    }
+    return 0;
+}
+
+// SDL_PIXELFORMAT_P010 -> SDL_PIXELFORMAT_NV21
+static int SDL_ConvertPixels_SwapAndCompNV(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+{
+    unsigned x, y;
+    unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
+    const Uint8 *srcUV;
+    Uint8 *dstUV;
+    const int bpp = 2;
+#ifdef __SSE2__
+    const SDL_bool use_SSE2 = SDL_HasSSE2();
+#endif
+
+    UVwidth = src_yuv_info->uv_width;
+    UVheight = src_yuv_info->uv_height;
+    srcUVPitch = src_yuv_info->uv_pitch;
+    srcUVSkip = srcUVPitch - UVwidth * 2 * bpp;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    srcUVSkip -= 1; // revert the shift
+#endif
+    dstUVPitch = dst_yuv_info->uv_pitch;
+    dstUVSkip = dstUVPitch - UVwidth * 2;
+
+    /* Skip the Y plane */
+    srcUV = src_yuv_info->planes[1];
+    dstUV = dst_yuv_info->planes[1];
+
+    y = UVheight;
+    while (y--) {
+        x = UVwidth;
+#ifdef __SSE2__
+        if (use_SSE2) {
+            while (x >= 8) {
+                // load the data
+                __m128i uv0 = _mm_loadu_si128((__m128i *)srcUV);
+                __m128i uv1 = _mm_loadu_si128((__m128i *)(srcUV + 16));
+                // pack the values
+                __m128i uv00 = _mm_srli_epi16(uv0, 8);
+                __m128i uv10 = _mm_srli_epi16(uv1, 8);
+                __m128i uv00_ = _mm_packus_epi16(uv00, uv10);
+                // swap the bytes
+                __m128i v = _mm_slli_epi16(uv00_, 8);
+                __m128i u = _mm_srli_epi16(uv00_, 8);
+                __m128i vu = _mm_or_si128(v, u);
+                // store the result
+                _mm_storeu_si128((__m128i *)dstUV, vu);
+                srcUV += 32;
+                dstUV += 16;
+                x -= 8;
+            }
+        }
+#endif
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+        srcUV += 1; // shift to the high byte
+#endif
+        while (x--) {
+            Uint8 u, v;
+
+            u = *srcUV;
+            srcUV += bpp;
+            v = *srcUV;
+            srcUV += bpp;
+
+            *dstUV++ = v;
+            *dstUV++ = u;
+        }
+        srcUV += srcUVSkip;
+        dstUV += dstUVSkip;
+    }
+    return 0;
+}
+
 static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
-    {
-        /* Copy Y plane */
-        unsigned i;
-        const Uint8 *srcY = src_yuv_info->planes[0];
-        Uint8 *dstY = dst_yuv_info->planes[0];
+    {   /* Copy Y plane */
+        unsigned i, x;
+        unsigned height = src_yuv_info->y_height;
+        unsigned width = src_yuv_info->y_width;
         unsigned srcY_pitch = src_yuv_info->y_pitch;
         unsigned dstY_pitch = dst_yuv_info->y_pitch;
-        unsigned rows = src_yuv_info->y_height;
-        unsigned length = src_yuv_info->y_width;
-        for (i = rows; i--;) {
-            SDL_memcpy(dstY, srcY, length);
-            srcY += srcY_pitch;
-            dstY += dstY_pitch;
+        const Uint8 *srcY = src_yuv_info->planes[0];
+        Uint8 *dstY = dst_yuv_info->planes[0];
+        if (src_yuv_info->bpp == dst_yuv_info->bpp) {
+            // (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV, SDL_PIXELFORMAT_NV12, SDL_PIXELFORMAT_NV21) | (SDL_PIXELFORMAT_P010)
+            unsigned length = width * src_yuv_info->bpp;
+            for (i = height; i--;) {
+                SDL_memcpy(dstY, srcY, length);
+                srcY += srcY_pitch;
+                dstY += dstY_pitch;
+            }
+        } else if (src_yuv_info->bpp < dst_yuv_info->bpp) {
+            // (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV, SDL_PIXELFORMAT_NV12, SDL_PIXELFORMAT_NV21) -> (SDL_PIXELFORMAT_P010)
+            unsigned srcYSkip = srcY_pitch - width;
+            unsigned dstYSkip = dstY_pitch - width * sizeof(Uint16);
+            SDL_assert(src_yuv_info->bpp == 1);
+            SDL_assert(dst_yuv_info->bpp == 2);
+            for (i = height; i--;) {
+                for (x = width; x--;) {
+                    *(Uint16 *)dstY = (Uint16)(*srcY) << 8;
+                    srcY++;
+                    dstY += sizeof(Uint16); 
+                }
+                srcY += srcYSkip;
+                dstY += dstYSkip;
+            }
+        } else {
+            // (SDL_PIXELFORMAT_P010) -> (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV, SDL_PIXELFORMAT_NV12, SDL_PIXELFORMAT_NV21)
+            unsigned srcYSkip = srcY_pitch - width * sizeof(Uint16);
+            unsigned dstYSkip = dstY_pitch - width;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            srcY += 1; // shift to the high byte
+#endif
+            SDL_assert(src_yuv_info->bpp == 2);
+            SDL_assert(dst_yuv_info->bpp == 1);
+            for (i = height; i--;) {
+                for (x = width; x--;) {
+                    *dstY = *srcY;
+                    srcY += sizeof(Uint16);
+                    dstY++;
+                }
+                srcY += srcYSkip;
+                dstY += dstYSkip;
+            }
         }
     }
 
@@ -1451,7 +1896,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
         case SDL_PIXELFORMAT_NV21:
             return SDL_ConvertPixels_PackUVPlanes_to_NV(src_yuv_info, dst_yuv_info, SDL_FALSE);
         case SDL_PIXELFORMAT_P010:
-            break;
+            return SDL_ConvertPixels_PackUVPlanes_to_P0(src_yuv_info, dst_yuv_info, SDL_TRUE);
         default:
             SDL_assume(!"Unsupported YUV format");
             break;
@@ -1466,7 +1911,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
         case SDL_PIXELFORMAT_NV21:
             return SDL_ConvertPixels_PackUVPlanes_to_NV(src_yuv_info, dst_yuv_info, SDL_TRUE);
         case SDL_PIXELFORMAT_P010:
-            break;
+            return SDL_ConvertPixels_PackUVPlanes_to_P0(src_yuv_info, dst_yuv_info, SDL_FALSE);
         default:
             SDL_assume(!"Unsupported YUV format");
             break;
@@ -1481,7 +1926,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
         case SDL_PIXELFORMAT_NV21:
             return SDL_ConvertPixels_SwapNV(src_yuv_info, dst_yuv_info);
         case SDL_PIXELFORMAT_P010:
-            break;
+            return SDL_ConvertPixels_DecompNV(src_yuv_info, dst_yuv_info);
         default:
             SDL_assume(!"Unsupported YUV format");
             break;
@@ -1496,7 +1941,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
         case SDL_PIXELFORMAT_NV12:
             return SDL_ConvertPixels_SwapNV(src_yuv_info, dst_yuv_info);
         case SDL_PIXELFORMAT_P010:
-            break;
+            return SDL_ConvertPixels_SwapAndDecompNV(src_yuv_info, dst_yuv_info);
         default:
             SDL_assume(!"Unsupported YUV format");
             break;
@@ -1505,10 +1950,13 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
     case SDL_PIXELFORMAT_P010:
         switch (dst_yuv_info->yuv_format) {
         case SDL_PIXELFORMAT_YV12:
+            return SDL_ConvertPixels_SplitP0_to_UVPlanes(src_yuv_info, dst_yuv_info, SDL_TRUE);
         case SDL_PIXELFORMAT_IYUV:
+            return SDL_ConvertPixels_SplitP0_to_UVPlanes(src_yuv_info, dst_yuv_info, SDL_FALSE);
         case SDL_PIXELFORMAT_NV12:
+            return SDL_ConvertPixels_CompNV(src_yuv_info, dst_yuv_info);
         case SDL_PIXELFORMAT_NV21:
-            break;
+            return SDL_ConvertPixels_SwapAndCompNV(src_yuv_info, dst_yuv_info);
         default:
             SDL_assume(!"Unsupported YUV format");
             break;
