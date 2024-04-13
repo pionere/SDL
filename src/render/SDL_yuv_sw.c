@@ -128,9 +128,9 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
         if (rect->x == 0 && rect->y == 0 &&
-            rect->w == swdata->w && rect->h == swdata->h) {
+            rect->w == swdata->w && rect->h == swdata->h && pitch == swdata->pitches[0]) {
             SDL_memcpy(swdata->pixels, pixels,
-                       (size_t)(swdata->h * swdata->w) + 2 * ((swdata->h + 1) / 2) * ((swdata->w + 1) / 2));
+                       (size_t)(swdata->h * swdata->pitches[0]) + 2 * ((swdata->h + 1) / 2) * ((swdata->w + 1) / 2));
         } else {
             Uint8 *src, *dst;
             int row, rows, rows1, rows2;
@@ -217,9 +217,9 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
     case SDL_PIXELFORMAT_NV12:
     case SDL_PIXELFORMAT_NV21:
     {
-        if (rect->x == 0 && rect->y == 0 && rect->w == swdata->w && rect->h == swdata->h) {
+        if (rect->x == 0 && rect->y == 0 && rect->w == swdata->w && rect->h == swdata->h && pitch == swdata->pitches[0]) {
             SDL_memcpy(swdata->pixels, pixels,
-                       (size_t)(swdata->h * swdata->w) + 2 * ((swdata->h + 1) / 2) * ((swdata->w + 1) / 2));
+                       (size_t)(swdata->h * swdata->pitches[0]) + 2 * ((swdata->h + 1) / 2) * ((swdata->w + 1) / 2));
         } else {
 
             Uint8 *src, *dst;
