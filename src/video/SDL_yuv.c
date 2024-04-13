@@ -426,6 +426,7 @@ int SDL_InitYUVInfo(int width, int height, Uint32 format, const void *yuv, int y
     return 0;
 }
 
+#ifdef __SSE2__
 static SDL_bool yuv_rgb_sse(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
@@ -433,11 +434,6 @@ static SDL_bool yuv_rgb_sse(
     Uint8 *rgb, Uint32 rgb_pitch,
     YCbCrType yuv_type)
 {
-#ifdef __SSE2__
-    if (!SDL_HasSSE2()) {
-        return SDL_FALSE;
-    }
-
     switch (src_format) {
     case SDL_PIXELFORMAT_YV12:
     case SDL_PIXELFORMAT_IYUV:
@@ -533,10 +529,11 @@ static SDL_bool yuv_rgb_sse(
         SDL_assume(!"Unknown pixel format");
         break;
     }
-#endif
     return SDL_FALSE;
 }
+#endif // __SSE2__
 
+#ifdef __loongarch_sx
 static SDL_bool yuv_rgb_lsx(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
@@ -544,10 +541,6 @@ static SDL_bool yuv_rgb_lsx(
     Uint8 *rgb, Uint32 rgb_pitch,
     YCbCrType yuv_type)
 {
-#ifdef __loongarch_sx
-    if (!SDL_HasLSX()) {
-        return SDL_FALSE;
-    }
     if (src_format == SDL_PIXELFORMAT_YV12 ||
         src_format == SDL_PIXELFORMAT_IYUV) {
 
@@ -575,9 +568,9 @@ static SDL_bool yuv_rgb_lsx(
             break;
         }
     }
-#endif
     return SDL_FALSE;
 }
+#endif // __loongarch_sx
 
 static SDL_bool yuv_rgb_std(
     Uint32 src_format, Uint32 dst_format,
@@ -711,14 +704,20 @@ int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
         return -1;
     }
 
-    if (yuv_rgb_sse(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
-        return 0;
+#ifdef __SSE2__
+    if (SDL_HasSSE2()) {
+        if (yuv_rgb_sse(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
+            return 0;
+        }
     }
-
-    if (yuv_rgb_lsx(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
-        return 0;
+#endif
+#ifdef __loongarch_sx
+    if (SDL_HasLSX()) {
+        if (yuv_rgb_lsx(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
+            return 0;
+        }
     }
-
+#endif
     if (yuv_rgb_std(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
         return 0;
     }
