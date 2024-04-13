@@ -91,6 +91,7 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int hei
 }
 #endif
 
+#if SDL_HAVE_YUV
 /*
  * Calculate YUV size and pitch. Check for overflow.
  * Output 'pitch' that can be used with SDL_ConvertPixels()
@@ -213,8 +214,6 @@ int SDL_CalculateYUVSize(Uint32 format, int w, int h, size_t *size, int *pitch)
 
     return 0;
 }
-
-#if SDL_HAVE_YUV
 
 static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
 {
@@ -2681,13 +2680,10 @@ static int SDL_ConvertPixels_Packed4_to_Planar2x2(const SDL_YUVInfo *src_yuv_inf
     return 0;
 }
 
-#endif /* SDL_HAVE_YUV */
-
 int SDL_ConvertPixels_YUV_to_YUV(int width, int height,
                                  Uint32 src_format, const void *src, int src_pitch,
                                  Uint32 dst_format, void *dst, int dst_pitch)
 {
-#if SDL_HAVE_YUV
     int retval;
     SDL_YUVInfo src_yuv_info, dst_yuv_info;
 
@@ -2721,9 +2717,8 @@ int SDL_ConvertPixels_YUV_to_YUV(int width, int height,
             return SDL_ConvertPixels_Packed4_to_Packed4(&src_yuv_info, &dst_yuv_info);
         }
     }
-#else
-    return SDL_SetError("SDL not built with YUV support");
-#endif
 }
+
+#endif /* SDL_HAVE_YUV */
 
 /* vi: set ts=4 sw=4 expandtab: */
