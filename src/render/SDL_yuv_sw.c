@@ -53,7 +53,6 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
     }
 
     swdata->format = format;
-    swdata->target_format = SDL_PIXELFORMAT_UNKNOWN;
     swdata->w = w;
     swdata->h = h;
     {
@@ -375,24 +374,27 @@ int SDL_SW_CopyYUVToRGB(SDL_SW_YUVTexture *swdata, const SDL_Rect *srcrect,
                         Uint32 target_format, int w, int h, void *pixels,
                         int pitch)
 {
-    int stretch;
+    SDL_bool stretch;
+    int retval;
 
     /* Make sure we're set up to display in the desired format */
-    if (target_format != swdata->target_format && swdata->display) {
+    if (swdata->display && target_format != swdata->display->format->format) {
         SDL_FreeSurface(swdata->display);
         swdata->display = NULL;
+        SDL_FreeSurface(swdata->stretch);
+        swdata->stretch = NULL;
     }
 
-    stretch = 0;
+    stretch = SDL_FALSE;
     if (srcrect->x || srcrect->y || srcrect->w < swdata->w || srcrect->h < swdata->h) {
         /* The source rectangle has been clipped.
            Using a scratch surface is easier than adding clipped
            source support to all the blitters, plus that would
            slow them down in the general unclipped case.
          */
-        stretch = 1;
+        stretch = SDL_TRUE;
     } else if ((srcrect->w != w) || (srcrect->h != h)) {
-        stretch = 1;
+        stretch = SDL_TRUE;
     }
     if (stretch) {
         if (swdata->display) {
@@ -401,14 +403,12 @@ int SDL_SW_CopyYUVToRGB(SDL_SW_YUVTexture *swdata, const SDL_Rect *srcrect,
             swdata->display->pixels = pixels;
             swdata->display->pitch = pitch;
         } else {
-            /* This must have succeeded in SDL_SW_SetupYUVDisplay() earlier */
             swdata->display = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, 0, pitch, target_format);
             if (!swdata->display) {
                 return -1;
             }
         }
         if (!swdata->stretch) {
-            /* This must have succeeded in SDL_SW_SetupYUVDisplay() earlier */
             swdata->stretch = SDL_CreateRGBSurfaceWithFormat(0, swdata->w, swdata->h, 0, target_format);
             if (!swdata->stretch) {
                 return -1;
@@ -417,16 +417,14 @@ int SDL_SW_CopyYUVToRGB(SDL_SW_YUVTexture *swdata, const SDL_Rect *srcrect,
         pixels = swdata->stretch->pixels;
         pitch = swdata->stretch->pitch;
     }
-    if (SDL_ConvertPixels(swdata->w, swdata->h, swdata->format,
+
+    retval = SDL_ConvertPixels(swdata->w, swdata->h, swdata->format,
                           swdata->planes[0], swdata->pitches[0],
-                          target_format, pixels, pitch) < 0) {
-        return -1;
+                          target_format, pixels, pitch);
+    if (retval == 0 && stretch) {
+        retval = SDL_SoftStretch(swdata->stretch, srcrect, swdata->display, NULL);
     }
-    if (stretch) {
-        SDL_Rect rect = *srcrect;
-        SDL_SoftStretch(swdata->stretch, &rect, swdata->display, NULL);
-    }
-    return 0;
+    return retval;
 }
 
 void SDL_SW_DestroyYUVTexture(SDL_SW_YUVTexture *swdata)

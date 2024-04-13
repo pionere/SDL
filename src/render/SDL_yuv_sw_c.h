@@ -31,7 +31,6 @@
 struct SDL_SW_YUVTexture
 {
     Uint32 format;
-    Uint32 target_format;
     int w, h;
     Uint8 *pixels;
 
