@@ -156,7 +156,7 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
 
             /* Copy the next plane */
             // -- skip the first plane
-            src = (Uint8 *)pixels + rect->h * src_pitch;
+            // src = (Uint8 *)pixels + rows * src_pitch;
             src_pitch1 = (src_pitch + 1) / 2;
             dst = swdata->planes[1];
             dst_pitch1 = swdata->pitches[1];
@@ -173,7 +173,7 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
 
             /* Copy the next plane */
             // -- skip the first two planes
-            src = (Uint8 *)pixels + rect->h * src_pitch + rows1 * src_pitch1;
+            // src = (Uint8 *)pixels + rows * src_pitch + rows1 * src_pitch1;
             src_pitch2 = src_pitch1; // (src_pitch + 1) / 2;
             dst = swdata->planes[2];
             dst_pitch2 = dst_pitch1; // swdata->pitches[2];
@@ -246,7 +246,7 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
 
             /* Copy the UV plane */
             // -- skip the first plane
-            src = (Uint8 *)pixels + rect->h * src_pitch;
+            // src = (Uint8 *)pixels + rows * src_pitch;
             src_pitch1 = 2 * ((src_pitch + 1) / 2);
             dst = swdata->planes[1];
             dst_pitch1 = swdata->pitches[1];
