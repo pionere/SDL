@@ -251,7 +251,7 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
             dst = swdata->planes[1];
             dst_pitch1 = swdata->pitches[1];
             // -- move to the selected rectangle
-            dst += (((unsigned)rect->y + 1) / 2) * dst_pitch1 + 2 * ((unsigned)rect->x / 2);
+            dst += ((unsigned)rect->y / 2) * dst_pitch1 + 2 * ((unsigned)rect->x / 2);
             // -- copy the bytes
             length = 2 * (((size_t)rect->w + 1) / 2);
             rows1 = ((unsigned)rect->h + 1) / 2;
