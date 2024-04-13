@@ -133,42 +133,49 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                        (size_t)(swdata->h * swdata->w) + 2 * ((swdata->h + 1) / 2) * ((swdata->w + 1) / 2));
         } else {
             Uint8 *src, *dst;
-            int row;
+            int row, rows, rows1, rows2;
             size_t length;
+            unsigned src_pitch, src_pitch1, src_pitch2;
             unsigned dst_pitch, dst_pitch1, dst_pitch2;
 
             /* Copy the Y plane */
             src = (Uint8 *)pixels;
+            src_pitch = pitch;
             dst_pitch = swdata->pitches[0];
             dst = swdata->planes[0] + rect->y * dst_pitch + rect->x;
             length = rect->w;
-            for (row = 0; row < rect->h; ++row) {
+            rows = rect->h;
+            for (row = 0; row < rows; ++row) {
                 SDL_memcpy(dst, src, length);
-                src += pitch;
+                src += src_pitch;
                 dst += dst_pitch;
             }
 
             /* Copy the next plane */
-            src = (Uint8 *)pixels + rect->h * pitch;
+            src = (Uint8 *)pixels + rect->h * src_pitch;
+            src_pitch1 = (src_pitch + 1) / 2;
             dst_pitch1 = swdata->pitches[1];
             dst = swdata->planes[1];
-            dst += rect->y / 2 * dst_pitch1 + rect->x / 2;
-            length = (rect->w + 1) / 2;
-            for (row = 0; row < (rect->h + 1) / 2; ++row) {
+            dst += (unsigned)rect->y / 2 * dst_pitch1 + (unsigned)rect->x / 2;
+            length = ((unsigned)rect->w + 1) / 2;
+            rows1 = ((unsigned)rect->h + 1) / 2;
+            for (row = 0; row < rows1; ++row) {
                 SDL_memcpy(dst, src, length);
-                src += (pitch + 1) / 2;
+                src += src_pitch1;
                 dst += dst_pitch1;
             }
 
             /* Copy the next plane */
-            src = (Uint8 *)pixels + rect->h * pitch + ((rect->h + 1) / 2) * ((pitch + 1) / 2);
+            src = (Uint8 *)pixels + rect->h * src_pitch + rows1 * src_pitch1;
+            src_pitch2 = src_pitch1; // (src_pitch + 1) / 2;
             dst_pitch2 = dst_pitch1; // swdata->pitches[2];
             dst = swdata->planes[2];
-            dst += rect->y / 2 * dst_pitch2 + rect->x / 2;
-            length = (rect->w + 1) / 2;
-            for (row = 0; row < (rect->h + 1) / 2; ++row) {
+            dst += (unsigned)rect->y / 2 * dst_pitch2 + (unsigned)rect->x / 2;
+            // length = (rect->w + 1) / 2;
+            rows2 = rows1; // ((unsigned)rect->h + 1) / 2;
+            for (row = 0; row < rows2; ++row) {
                 SDL_memcpy(dst, src, length);
-                src += (pitch + 1) / 2;
+                src += src_pitch2;
                 dst += dst_pitch2;
             }
         }
@@ -178,19 +185,22 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
     case SDL_PIXELFORMAT_YVYU:
     {
         Uint8 *src, *dst;
-        int row;
+        int row, rows;
+        unsigned src_pitch;
         unsigned dst_pitch;
         size_t length;
 
         src = (Uint8 *)pixels;
+        src_pitch = pitch;
         dst_pitch = swdata->pitches[0];
         dst =
             swdata->planes[0] + rect->y * dst_pitch +
             rect->x * 2;
         length = 4 * (((size_t)rect->w + 1) / 2);
-        for (row = 0; row < rect->h; ++row) {
+        rows = rect->h;
+        for (row = 0; row < rows; ++row) {
             SDL_memcpy(dst, src, length);
-            src += pitch;
+            src += src_pitch;
             dst += dst_pitch;
         }
     } break;
@@ -203,30 +213,35 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
         } else {
 
             Uint8 *src, *dst;
-            int row;
+            int row, rows, rows1;
+            unsigned src_pitch, src_pitch1;
             unsigned dst_pitch, dst_pitch1;
             size_t length;
 
             /* Copy the Y plane */
             src = (Uint8 *)pixels;
+            src_pitch = pitch;
             dst_pitch = swdata->pitches[0];
             dst = swdata->planes[0] + rect->y * dst_pitch + rect->x;
             length = rect->w;
-            for (row = 0; row < rect->h; ++row) {
+            rows = rect->h;
+            for (row = 0; row < rows; ++row) {
                 SDL_memcpy(dst, src, length);
-                src += pitch;
+                src += src_pitch;
                 dst += dst_pitch;
             }
 
             /* Copy the next plane */
-            src = (Uint8 *)pixels + rect->h * pitch;
+            src = (Uint8 *)pixels + rect->h * src_pitch;
+            src_pitch1 = 2 * ((src_pitch + 1) / 2);
             dst_pitch1 = swdata->pitches[1];
             dst = swdata->planes[1];
-            dst += ((rect->y + 1) / 2) * dst_pitch1 + 2 * (rect->x / 2);
+            dst += (((unsigned)rect->y + 1) / 2) * dst_pitch1 + 2 * ((unsigned)rect->x / 2);
             length = 2 * (((size_t)rect->w + 1) / 2);
-            for (row = 0; row < (rect->h + 1) / 2; ++row) {
+            rows1 = ((unsigned)rect->h + 1) / 2;
+            for (row = 0; row < rows1; ++row) {
                 SDL_memcpy(dst, src, length);
-                src += 2 * ((pitch + 1) / 2);
+                src += src_pitch1;
                 dst += dst_pitch1;
             }
         }
