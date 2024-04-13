@@ -52,10 +52,14 @@ typedef struct
     gfxScreen_t screen;
 } DisplayDriverData;
 
+/* Instance */
+N3DS_VideoData n3dsVideoData;
+
 /* N3DS driver bootstrap functions */
 
 static void N3DS_DeleteDevice(_THIS)
 {
+    SDL_zero(n3dsVideoData);
 }
 
 static SDL_bool N3DS_CreateDevice(SDL_VideoDevice *device)
@@ -183,14 +187,14 @@ const VideoBootStrap N3DS_bootstrap = { "n3ds", N3DS_CreateDevice };
 
 static int N3DS_VideoInit(_THIS)
 {
+    N3DS_VideoData *driverdata = &n3dsVideoData;
     int result;
     gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, false);
     hidInit();
 
-    result = AddN3DSDisplay(GFX_TOP);
-    if (result == 0) {
-        result = AddN3DSDisplay(GFX_BOTTOM);
-    }
+    driverdata->top_display = AddN3DSDisplay(GFX_TOP);
+    driverdata->touch_display = AddN3DSDisplay(GFX_BOTTOM);
+    result = (driverdata->top_display >= 0 && driverdata->touch_display >= 0) ? 0 : -1;
 
     N3DS_InitTouch();
     N3DS_SwkbInit();
