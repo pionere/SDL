@@ -24,9 +24,25 @@
 
 #if SDL_HAVE_YUV
 
+#include "SDL_cpuinfo.h"
+
 #include "SDL_yuv_sw_c.h"
 #include "../video/SDL_yuv_c.h"
-#include "SDL_cpuinfo.h"
+
+struct SDL_SW_YUVTexture
+{
+    Uint32 format;
+    int w, h;
+    Uint8 *pixels;
+
+    /* These are just so we don't have to allocate them separately */
+    Uint16 pitches[3];
+    Uint8 *planes[3];
+
+    /* This is a temporary surface in case we have to stretch copy */
+    SDL_Surface *stretch;
+    SDL_Surface *display;
+};
 
 SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
 {

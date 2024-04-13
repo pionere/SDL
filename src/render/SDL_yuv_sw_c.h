@@ -28,21 +28,7 @@
 
 /* This is the software implementation of the YUV texture support */
 
-struct SDL_SW_YUVTexture
-{
-    Uint32 format;
-    int w, h;
-    Uint8 *pixels;
-
-    /* These are just so we don't have to allocate them separately */
-    Uint16 pitches[3];
-    Uint8 *planes[3];
-
-    /* This is a temporary surface in case we have to stretch copy */
-    SDL_Surface *stretch;
-    SDL_Surface *display;
-};
-
+struct SDL_SW_YUVTexture;
 typedef struct SDL_SW_YUVTexture SDL_SW_YUVTexture;
 
 SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h);
