@@ -1552,7 +1552,7 @@ SDL_Window *SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint
 
     if (!SDL_HasVideoDevice()) {
         /* Initialize the video system if needed */
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
             return NULL;
         }
     }

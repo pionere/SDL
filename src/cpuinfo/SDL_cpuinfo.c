@@ -41,6 +41,8 @@
 #include "SDL_cpuinfo.h"
 #include "SDL_assert.h"
 
+#include "SDL_cpuinfo_c.h"
+
 #ifdef HAVE_SYSCONF
 #include <unistd.h>
 #endif
@@ -904,12 +906,18 @@ int SDL_GetCPUCacheLineSize(void)
     }
 }
 
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
 static Uint32 SDL_CPUFeatures = (Uint32)(Sint32)-1;
+#else
+static Uint32 SDL_CPUFeatures = 0;
+#endif
 static Uint32 SDL_SIMDAlignment = 0;
 
-static Uint32 SDL_GetCPUFeatures(void)
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
+static
+#endif
+void SDL_InitCPUFeatures(void)
 {
-    if ((Sint32)SDL_CPUFeatures < 0) {
         CPU_calcCPUIDFeatures();
         SDL_CPUFeatures = 0;
         SDL_SIMDAlignment = sizeof(void *); /* a good safe base value */
@@ -976,7 +984,18 @@ static Uint32 SDL_GetCPUFeatures(void)
             SDL_CPUFeatures |= CPU_HAS_LASX;
             SDL_SIMDAlignment = SDL_max(SDL_SIMDAlignment, 32);
         }
+}
+
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
+static
+#endif
+Uint32 SDL_GetCPUFeatures(void)
+{
+#ifndef SDL_SANITIZE_ACCESS_DISABLED
+    if ((int32_t)SDL_CPUFeatures < 0) {
+        SDL_InitCPUFeatures();
     }
+#endif
     return SDL_CPUFeatures;
 }
 
@@ -1142,7 +1161,7 @@ int SDL_GetSystemRAM(void)
 size_t SDL_SIMDGetAlignment(void)
 {
     if (SDL_SIMDAlignment == 0) {
-        SDL_GetCPUFeatures(); /* make sure this has been calculated */
+        SDL_InitCPUFeatures(); /* make sure this has been calculated */
     }
     SDL_assert(SDL_SIMDAlignment != 0);
     return SDL_SIMDAlignment;

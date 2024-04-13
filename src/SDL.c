@@ -50,6 +50,8 @@
 #include "SDL_revision.h"
 #include "SDL_assert_c.h"
 #include "SDL_log_c.h"
+
+#include "cpuinfo/SDL_cpuinfo_c.h"
 #include "events/SDL_events_c.h"
 #include "haptic/SDL_haptic_c.h"
 #include "joystick/SDL_joystick_c.h"
@@ -297,6 +299,10 @@ quit_and_error:
 
 int SDL_Init(Uint32 flags)
 {
+#ifdef SDL_SANITIZE_ACCESS_DISABLED
+    if (SDL_GetCPUFeatures() == 0)
+        SDL_InitCPUFeatures();
+#endif
     return SDL_InitSubSystem(flags);
 }
 

@@ -97,8 +97,10 @@ extern "C" {
 /**
  * Initialize the SDL library.
  *
- * SDL_Init() simply forwards to calling SDL_InitSubSystem(). Therefore, the
- * two may be used interchangeably.
+ * SDL_Init() initializes the selected subsystems. In case the library was
+ * compiled with SDL_SANITIZE_ACCESS_DISABLED, it also initializes the CPU-
+ * features. This means, that SDL_Has* (SSE/SSE2/etc...) might return FALSE
+ * before SDL_Init is called.
  *
  * The file I/O (for example: SDL_RWFromFile) and threading (SDL_CreateThread)
  * subsystems are initialized by default. Message boxes
