@@ -21,6 +21,7 @@
 
 #include "SDL_stdinc.h"
 
+#if 0
 // yuv to rgb, sse implementation
 // pointers must be 16 byte aligned, and strides must be divisable by 16
 void yuv420_rgb565_sse(
@@ -130,6 +131,7 @@ void yuvnv12_abgr_sse(
     const uint8_t *y, const uint8_t *u, const uint8_t *v, uint32_t y_pitch, uint32_t uv_pitch,
     uint8_t *rgb, uint32_t rgb_pitch,
     YCbCrType yuv_type);
+#endif
 
 // yuv to rgb, sse implementation
 // pointers do not need to be 16 byte aligned
@@ -241,14 +243,7 @@ void yuvnv12_abgr_sseu(
     uint8_t *rgb, uint32_t rgb_pitch,
     YCbCrType yuv_type);
 
-
-// rgb to yuv, standard c implementation
-void rgb24_yuv420_std(
-    uint32_t width, uint32_t height,
-    const uint8_t *rgb, uint32_t rgb_pitch,
-    uint8_t *y, uint8_t *u, uint8_t *v, uint32_t y_pitch, uint32_t uv_pitch,
-    YCbCrType yuv_type);
-
+#if 0
 // rgb to yuv, sse implementation
 // pointers must be 16 byte aligned, and strides must be divisible by 16
 void rgb24_yuv420_sse(
@@ -264,3 +259,4 @@ void rgb24_yuv420_sseu(
     const uint8_t *rgb, uint32_t rgb_pitch,
     uint8_t *y, uint8_t *u, uint8_t *v, uint32_t y_pitch, uint32_t uv_pitch,
     YCbCrType yuv_type);
+#endif
