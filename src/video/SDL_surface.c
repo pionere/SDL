@@ -69,6 +69,59 @@ static size_t SDL_CalculatePitch(Uint32 format, size_t width, SDL_bool minimal)
     return pitch;
 }
 
+static SDL_Surface *SDL_AllocSurface(Uint32 format)
+{
+    SDL_Surface *surface;
+
+    surface = (SDL_Surface *)SDL_calloc(1, sizeof(*surface));
+    if (!surface) {
+        SDL_OutOfMemory();
+        return NULL;
+    }
+
+    surface->format = SDL_AllocFormat(format);
+    if (!surface->format) {
+        SDL_free(surface);
+        return NULL;
+    }
+
+    SDL_assume(!SDL_ISPIXELFORMAT_FOURCC(format));
+    if (SDL_ISPIXELFORMAT_INDEXED(format)) {
+        SDL_Palette *palette =
+            SDL_AllocPalette((1 << surface->format->BitsPerPixel));
+        if (!palette) {
+            SDL_FreeSurface(surface);
+            return NULL;
+        }
+#if 0
+        if (palette->ncolors == 2) {
+            /* Create a black and white bitmap palette */
+            palette->colors[0] = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0x00);
+            palette->colors[1] = SDL_ColorFromInt(0x00, 0x00, 0x00, 0x00);
+        }
+#endif
+        // SDL_SetSurfacePalette(surface, palette);
+        // SDL_FreePalette(palette);
+        SDL_assert(surface->format->palette == NULL);
+        surface->format->palette = palette;
+    }
+
+    /* Allocate an empty mapping */
+    surface->map = SDL_AllocBlitMap();
+    if (!surface->map) {
+        SDL_FreeSurface(surface);
+        return NULL;
+    }
+
+    /* By default surface with an alpha mask are set up for blending */
+    if (surface->format->Amask) {
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
+    }
+
+    surface->refcount = 1;
+    return surface;
+}
+
 /* TODO: In SDL 3, drop the unused flags and depth parameters */
 /*
  * Create an empty RGB surface of the appropriate depth using the given
@@ -108,41 +161,15 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
     }
 
     /* Allocate the surface */
-    surface = (SDL_Surface *)SDL_calloc(1, sizeof(*surface));
+    surface = SDL_AllocSurface(format);
     if (!surface) {
-        SDL_OutOfMemory();
         return NULL;
     }
 
-    surface->format = SDL_AllocFormat(format);
-    if (!surface->format) {
-        SDL_FreeSurface(surface);
-        return NULL;
-    }
     surface->w = width;
     surface->h = height;
     surface->pitch = (int)pitch;
     SDL_SetClipRect(surface, NULL);
-
-    if (SDL_ISPIXELFORMAT_INDEXED(surface->format->format)) {
-        SDL_Palette *palette =
-            SDL_AllocPalette((1 << surface->format->BitsPerPixel));
-        if (!palette) {
-            SDL_FreeSurface(surface);
-            return NULL;
-        }
-#if 0
-        if (palette->ncolors == 2) {
-            /* Create a black and white bitmap palette */
-            palette->colors[0] = SDL_ColorFromInt(0xFF, 0xFF, 0xFF, 0x00);
-            palette->colors[1] = SDL_ColorFromInt(0x00, 0x00, 0x00, 0x00);
-        }
-#endif
-        // SDL_SetSurfacePalette(surface, palette);
-        // SDL_FreePalette(palette);
-        SDL_assert(surface->format->palette == NULL);
-        surface->format->palette = palette;
-    }
 
     /* Get the pixels */
     if (surface->w && surface->h) {
@@ -166,20 +193,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
         SDL_memset(surface->pixels, 0, size);
     }
 
-    /* Allocate an empty mapping */
-    surface->map = SDL_AllocBlitMap();
-    if (!surface->map) {
-        SDL_FreeSurface(surface);
-        return NULL;
-    }
-
-    /* By default surface with an alpha mask are set up for blending */
-    if (surface->format->Amask) {
-        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
-    }
-
     /* The surface is ready to go */
-    surface->refcount = 1;
     return surface;
 }
 
@@ -259,7 +273,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
         return NULL;
     }
 
-    surface = SDL_CreateRGBSurfaceWithFormat(0, 0, 0, 0, format);
+    surface = SDL_AllocSurface(format);
     if (surface) {
         surface->flags |= SDL_PREALLOC;
         surface->pixels = pixels;
