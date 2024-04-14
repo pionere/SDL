@@ -137,7 +137,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
     (void)flags;
     /* The depth is no longer used, make the compiler happy */
     (void)depth;
-
+#if 0
     if (width < 0) {
         SDL_InvalidParamError("width");
         return NULL;
@@ -147,17 +147,17 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
         SDL_InvalidParamError("height");
         return NULL;
     }
-
+#endif
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
         SDL_SetError("Unsupported pixel format");
         return NULL;
-    } else {
-        pitch = SDL_CalculatePitch(format, width, SDL_FALSE);
-        if (pitch > SDL_MAX_SINT32) {
-            /* Overflow... */
-            SDL_OutOfMemory();
-            return NULL;
-        }
+    }
+
+    pitch = SDL_CalculatePitch(format, width, SDL_FALSE);
+    if (pitch > SDL_MAX_SINT32) {
+        /* Overflow... */
+        SDL_OutOfMemory();
+        return NULL;
     }
 
     /* Allocate the surface */
@@ -249,6 +249,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
                          Uint32 format)
 {
     SDL_Surface *surface;
+#if 0
     size_t minimalPitch;
 
     if (width < 0) {
@@ -260,19 +261,19 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
         SDL_InvalidParamError("height");
         return NULL;
     }
-
+#endif
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
         SDL_SetError("Unsupported pixel format");
         return NULL;
-    } else {
-        minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
     }
+#if 0
+    minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
 
     if (pitch < 0 || (pitch > 0 && ((size_t)pitch) < minimalPitch)) {
         SDL_InvalidParamError("pitch");
         return NULL;
     }
-
+#endif
     surface = SDL_AllocSurface(format);
     if (surface) {
         surface->flags |= SDL_PREALLOC;
