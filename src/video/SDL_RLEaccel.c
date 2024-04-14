@@ -1601,7 +1601,7 @@ void SDL_UnRLESurface(SDL_Surface *surface, int recode)
                 full.h = surface->h;
 
                 /* fill the background color */
-                SDL_FillRect(surface, &full, surface->map->info.colorkey);
+                SDL_FillRects(surface, &full, 1, surface->map->info.colorkey);
 
                 /* now render the encoded surface */
                 SDL_RLEBlit(surface, &full, surface, &full);

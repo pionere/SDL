@@ -499,9 +499,9 @@ SDL_Surface *SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, in
     double sangleinv, cangleinv;
 
     /* Sanity check */
-    if (!src) {
-        return NULL;
-    }
+    SDL_assert(src != NULL);
+    SDL_assert(rect_dest != NULL);
+    SDL_assert(center != NULL); // or it must be a 90 * N rotation
 
     if (SDL_HasColorKey(src)) {
         if (SDL_GetColorKey(src, &colorkey) == 0) {
@@ -551,7 +551,7 @@ SDL_Surface *SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, in
     if (colorKeyAvailable == SDL_TRUE) {
         /* If available, the colorkey will be used to discard the pixels that are outside of the rotated area. */
         SDL_SetColorKey(rz_dst, SDL_TRUE, colorkey);
-        SDL_FillRect(rz_dst, NULL, colorkey);
+        SDL_FillRects(rz_dst, &rz_dst->clip_rect, 1, colorkey);
     } else if (blendmode == SDL_BLENDMODE_NONE) {
         blendmode = SDL_BLENDMODE_BLEND;
     } else if (blendmode == SDL_BLENDMODE_MOD || blendmode == SDL_BLENDMODE_MUL) {
@@ -560,7 +560,7 @@ SDL_Surface *SDLgfx_rotateSurface(SDL_Surface *src, double angle, int smooth, in
          */
         SDL_Color mask = SDL_ColorFromInt(255, 255, 255, 0);
         colorkey = SDL_MapColor(rz_dst->format, mask);
-        SDL_FillRect(rz_dst, NULL, colorkey);
+        SDL_FillRects(rz_dst, &rz_dst->clip_rect, 1, colorkey);
         /* Setting a white colorkey for the destination surface makes the final blit discard
          * all pixels outside of the rotated area. This doesn't interfere with anything because
          * white pixels are already a no-op and the MOD blend mode does not interact with alpha.

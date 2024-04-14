@@ -1370,7 +1370,7 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface * surface, const SDL_PixelFormat * f
                 SDL_SetSurfacePalette(tmp, surface->format->palette);
             }
 
-            SDL_FillRect(tmp, NULL, surface->map->info.colorkey);
+            SDL_FillRects(tmp, &surface->clip_rect, 1, surface->map->info.colorkey);
 
             tmp->map->info.flags &= ~SDL_COPY_COLORKEY;
 
@@ -1488,7 +1488,7 @@ int SDL_ConvertPixels(int width, int height,
     }
 
     if (width <= 0 || height <= 0) {
-        /* No-op*/
+        /* No-op */
         return 0;
     }
 

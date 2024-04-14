@@ -299,7 +299,7 @@ int SDL_SW_FillTriangle(SDL_Surface *dst, SDL_Point *d0, SDL_Point *d1, SDL_Poin
         if (blend == SDL_BLENDMODE_MOD) {
             SDL_Color mask = SDL_ColorFromInt(255, 255, 255, 255);
             Uint32 c = SDL_MapColor(tmp->format, mask);
-            SDL_FillRect(tmp, NULL, c);
+            SDL_FillRects(tmp, &tmp->clip_rect, 1, c);
         }
 
         SDL_SetSurfaceBlendMode(tmp, blend);
