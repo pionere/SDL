@@ -447,8 +447,9 @@ static SDL_Cursor *Wayland_CreateCursor(SDL_Surface *surface, int hot_x, int hot
         }
 
         /* Wayland requires premultiplied alpha for its surfaces. */
+        SDL_assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
         SDL_PremultiplyAlpha(surface->w, surface->h,
-                             surface->format->format, surface->pixels, surface->pitch,
+                             SDL_PIXELFORMAT_ARGB8888 /*surface->format->format*/, surface->pixels, surface->pitch,
                              SDL_PIXELFORMAT_ARGB8888, data->shm_data, surface->w * 4);
 
         data->surface = wl_compositor_create_surface(wd->compositor);

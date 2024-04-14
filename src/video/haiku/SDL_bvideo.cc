@@ -239,16 +239,11 @@ static void HAIKU_FreeCursor(SDL_Cursor * cursor)
 static SDL_Cursor * HAIKU_CreateCursor(SDL_Surface * surface, int hot_x, int hot_y)
 {
     SDL_Cursor *cursor;
-    SDL_Surface *converted;
 
-    converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
-    if (!converted) {
-        return NULL;
-    }
+    SDL_assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
 
     BBitmap *cursorBitmap = new BBitmap(BRect(0, 0, surface->w - 1, surface->h - 1), B_RGBA32);
-    cursorBitmap->SetBits(converted->pixels, converted->h * converted->pitch, 0, B_RGBA32);
-    SDL_FreeSurface(converted);
+    cursorBitmap->SetBits(surface->pixels, surface->h * surface->pitch, 0, B_RGBA32);
 
     cursor = (SDL_Cursor *) SDL_calloc(1, sizeof(*cursor));
     if (cursor) {

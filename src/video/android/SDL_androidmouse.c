@@ -88,14 +88,11 @@ static SDL_Cursor *Android_CreateDefaultCursor()
 static SDL_Cursor *Android_CreateCursor(SDL_Surface *surface, int hot_x, int hot_y)
 {
     int custom_cursor;
-    SDL_Surface *converted;
 
-    converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
-    if (!converted) {
-        return NULL;
-    }
-    custom_cursor = Android_JNI_CreateCustomCursor(converted, hot_x, hot_y);
-    SDL_FreeSurface(converted);
+    SDL_assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+    custom_cursor = Android_JNI_CreateCustomCursor(surface, hot_x, hot_y);
+
     if (!custom_cursor) {
         SDL_Unsupported();
         return NULL;
