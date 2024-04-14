@@ -1555,7 +1555,9 @@ int SDL_PremultiplyAlpha(int width, int height,
                          Uint32 src_format, const void *src, int src_pitch,
                          Uint32 dst_format, void *dst, int dst_pitch)
 {
-    int c;
+    int srcSkip, dstSkip, x;
+    const Uint32 *src_px;
+    Uint32 *dst_px;
     Uint32 srcpixel;
     Uint32 srcR, srcG, srcB, srcA;
     Uint32 dstpixel;
@@ -1564,26 +1566,31 @@ int SDL_PremultiplyAlpha(int width, int height,
     if (!src) {
         return SDL_InvalidParamError("src");
     }
-    if (!src_pitch) {
-        return SDL_InvalidParamError("src_pitch");
-    }
     if (!dst) {
         return SDL_InvalidParamError("dst");
+    }
+#if 0
+    if (!src_pitch) {
+        return SDL_InvalidParamError("src_pitch");
     }
     if (!dst_pitch) {
         return SDL_InvalidParamError("dst_pitch");
     }
+#endif
     if (src_format != SDL_PIXELFORMAT_ARGB8888) {
-        return SDL_InvalidParamError("src_format");
+        return SDL_SetError("Unsupported pixel format");
     }
     if (dst_format != SDL_PIXELFORMAT_ARGB8888) {
-        return SDL_InvalidParamError("dst_format");
+        return SDL_SetError("Unsupported pixel format");
     }
 
+    srcSkip = src_pitch - width * SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_ARGB8888);
+    dstSkip = dst_pitch - width * SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_ARGB8888);
+    src_px = (const Uint32 *)src;
+    dst_px = (Uint32 *)dst;
+
     while (height--) {
-        const Uint32 *src_px = (const Uint32 *)src;
-        Uint32 *dst_px = (Uint32 *)dst;
-        for (c = width; c; --c) {
+        for (x = width; x; --x) {
             /* Component bytes extraction. */
             srcpixel = *src_px++;
             RGBA_FROM_ARGB8888(srcpixel, srcR, srcG, srcB, srcA);
@@ -1598,8 +1605,8 @@ int SDL_PremultiplyAlpha(int width, int height,
             ARGB8888_FROM_RGBA(dstpixel, dstR, dstG, dstB, dstA);
             *dst_px++ = dstpixel;
         }
-        src = (const Uint8 *)src + src_pitch;
-        dst = (Uint8 *)dst + dst_pitch;
+        src_px = (const Uint32 *)((const Uint8 *)src_px + srcSkip);
+        dst_px = (Uint32 *)((Uint8 *)dst_px + dstSkip);
     }
     return 0;
 }
