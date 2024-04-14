@@ -108,7 +108,7 @@ static void SUNAUDIO_PlayDevice(_THIS)
         Uint8 *aubuf;
 
         accum = 0;
-        incr = this->spec.freq / 8;
+        incr = this->spec.freq / 8u;
         aubuf = this->hidden->ulaw_buf;
         switch (this->hidden->audio_fmt & 0xFF) {
         case 8:
@@ -301,7 +301,7 @@ static int SUNAUDIO_OpenDevice(_THIS, const char *devname)
     if (this->hidden->ulaw_only) {
         this->spec.freq = desired_freq;
         this->hidden->fragsize = (this->spec.samples * 1000) /
-            (this->spec.freq / 8);
+            (this->spec.freq / 8u);
         this->hidden->frequency = 8;
         this->hidden->ulaw_buf = (Uint8 *) SDL_malloc(this->hidden->fragsize);
         if (!this->hidden->ulaw_buf) {
@@ -364,21 +364,21 @@ static Uint8 snd2au(int sample)
     }
 
     if (sample < 32) {
-        sample = 0xF0 | (15 - sample / 2);
+        sample = 0xF0 | (15 - sample / 2u);
     } else if (sample < 96) {
-        sample = 0xE0 | (15 - (sample - 32) / 4);
+        sample = 0xE0 | (15 - (sample - 32) / 4u);
     } else if (sample < 224) {
-        sample = 0xD0 | (15 - (sample - 96) / 8);
+        sample = 0xD0 | (15 - (sample - 96) / 8u);
     } else if (sample < 480) {
-        sample = 0xC0 | (15 - (sample - 224) / 16);
+        sample = 0xC0 | (15 - (sample - 224) / 16u);
     } else if (sample < 992) {
-        sample = 0xB0 | (15 - (sample - 480) / 32);
+        sample = 0xB0 | (15 - (sample - 480) / 32u);
     } else if (sample < 2016) {
-        sample = 0xA0 | (15 - (sample - 992) / 64);
+        sample = 0xA0 | (15 - (sample - 992) / 64u);
     } else if (sample < 4064) {
-        sample = 0x90 | (15 - (sample - 2016) / 128);
+        sample = 0x90 | (15 - (sample - 2016) / 128u);
     } else if (sample < 8160) {
-        sample = 0x80 | (15 - (sample - 4064) / 256);
+        sample = 0x80 | (15 - (sample - 4064) / 256u);
     } else {
         sample = 0x80;
     }

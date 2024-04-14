@@ -505,7 +505,7 @@ static Sint16 MS_ADPCM_ProcessNibble(MS_ADPCM_ChannelState *cstate, Sint32 sampl
     Sint32 errordelta;
     Uint32 delta = cstate->delta;
 
-    new_sample = (sample1 * cstate->coeff1 + sample2 * cstate->coeff2) / 256;
+    new_sample = (sample1 * cstate->coeff1 + sample2 * cstate->coeff2) / 256u;
     /* The nibble is a signed 4-bit error delta. */
     errordelta = (Sint32)nybble - (nybble >= 0x08 ? 0x10 : 0);
     new_sample += (Sint32)delta * errordelta;
@@ -980,7 +980,7 @@ static int IMA_ADPCM_DecodeBlockData(ADPCM_DecoderState *state)
         blockframesleft = state->framesleft;
     }
 
-    bytesrequired = (blockframesleft + 7) / 8 * subblockframesize;
+    bytesrequired = (blockframesleft + 7) / 8u * subblockframesize;
     if (blockleft < bytesrequired) {
         /* Data truncated. Calculate how many samples we can get out if it. */
         const size_t guaranteedframes = blockleft / subblockframesize;
@@ -1283,9 +1283,9 @@ static int LAW_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len)
             Uint8 nibble = ~src[i];
             Sint16 mantissa = nibble & 0xf;
             Uint8 exponent = (nibble >> 4) & 0x7;
-            Sint16 step = 4 << (exponent + 1);
+            Sint16 half_step = 4 << exponent;
 
-            mantissa = (0x80 << exponent) + step * mantissa + step / 2 - 132;
+            mantissa = (0x80 << exponent) + half_step * 2 * mantissa + half_step - 132;
 
             dst[i] = nibble & 0x80 ? -mantissa : mantissa;
         }

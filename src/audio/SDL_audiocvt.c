@@ -99,7 +99,7 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt, SDL_AudioFor
     const __m128 divby2 = _mm_set1_ps(0.5f);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i = cvt->len_cvt / 8;
+    int i = (unsigned)cvt->len_cvt / 8;
 
     LOG_DEBUG_CONVERT("stereo", "mono (using SSE3)");
     SDL_assert(format == AUDIO_F32SYS);
@@ -122,7 +122,7 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt, SDL_AudioFor
         src += 2;
     }
 
-    cvt->len_cvt /= 2;
+    cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -135,7 +135,7 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt, SDL_AudioForm
 {
     float *dst = ((float *)(cvt->buf + (cvt->len_cvt * 2))) - 8;
     const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - 4;
-    int i = cvt->len_cvt / sizeof(float);
+    int i = (unsigned)cvt->len_cvt / sizeof(float);
 
     LOG_DEBUG_CONVERT("mono", "stereo (using SSE)");
     SDL_assert(format == AUDIO_F32SYS);
@@ -300,7 +300,7 @@ static void SDLCALL SDL_Convert_Byteswap(SDL_AudioCVT *cvt, SDL_AudioFormat form
     {                                                          \
         Uint##b *ptr = (Uint##b *)cvt->buf;                    \
         int i;                                                 \
-        for (i = cvt->len_cvt / sizeof(*ptr); i; --i, ++ptr) { \
+        for (i = (unsigned)cvt->len_cvt / sizeof(*ptr); i; --i, ++ptr) { \
             *ptr = SDL_Swap##b(*ptr);                          \
         }                                                      \
         break;                                                 \

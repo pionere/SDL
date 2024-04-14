@@ -266,7 +266,11 @@ static void write_converter(const int fromchans, const int tochans)
            "{\n", remove_dots(fromstr), remove_dots(tostr));
 
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
-        printf("    float *dst = ((float *) (cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
+        if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+            printf("    float *dst = ((float *) (cvt->buf + ((cvt->len_cvt / (unsigned)%d) * %d))) - %d;\n", fromchans, tochans, tochans);
+        } else {
+            printf("    float *dst = ((float *) (cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
+        }
         printf("    const float *src = ((const float *) (cvt->buf + cvt->len_cvt)) - %d;\n", fromchans);
     } else {
         printf("    float *dst = (float *) cvt->buf;\n");
@@ -281,7 +285,11 @@ static void write_converter(const int fromchans, const int tochans)
 
     if (convert_backwards) {
         printf("    /* convert backwards, since output is growing in-place. */\n");
-        printf("    for (i = cvt->len_cvt / (sizeof (float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
+        if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+            printf("    for (i = (unsigned)cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
+        } else {
+            printf("    for (i = (unsigned)cvt->len_cvt / (sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
+        }
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
             if (input_channel_used[i] > 1) {  /* don't read it from src more than once. */
@@ -326,7 +334,11 @@ static void write_converter(const int fromchans, const int tochans)
 
         printf("    }\n");
     } else {
-        printf("    for (i = cvt->len_cvt / (sizeof (float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
+        if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+            printf("    for (i = (unsigned)cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
+        } else {
+            printf("    for (i = (unsigned)cvt->len_cvt / (sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
+        }
 
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
@@ -375,9 +387,17 @@ static void write_converter(const int fromchans, const int tochans)
     printf("\n");
 
     if ((fromchans > 1) && (tochans > 1)) {
-        printf("    cvt->len_cvt = (cvt->len_cvt / %d) * %d;\n", fromchans, tochans);
+        if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+            printf("    cvt->len_cvt = (cvt->len_cvt / (unsigned)%d) * %d;\n", fromchans, tochans);
+        } else {
+            printf("    cvt->len_cvt = (cvt->len_cvt / %d) * %d;\n", fromchans, tochans);
+        }
     } else if (tochans == 1) {
-        printf("    cvt->len_cvt = cvt->len_cvt / %d;\n", fromchans);
+        if ((fromchans & (fromchans - 1)) == 0) {
+            printf("    cvt->len_cvt = cvt->len_cvt / (unsigned)%d;\n", fromchans);
+        } else {
+            printf("    cvt->len_cvt = cvt->len_cvt / %d;\n", fromchans);
+        }
     } else /* if (fromchans == 1) */ {
         printf("    cvt->len_cvt = cvt->len_cvt * %d;\n", tochans);
     }
