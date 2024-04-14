@@ -325,17 +325,25 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
     }
 
     /* This function doesn't usually work on surfaces < 8 bpp
-     * Except: support for 4bits, when filling full size.
+     * Except: when filling full size.
      */
     if (dst->format->BitsPerPixel < 8) {
         if (count == 1) {
             const SDL_Rect *r = &rects[0];
             if (r->x == 0 && r->y == 0 && r->w == dst->w && r->h == dst->h) {
-                if (dst->format->BitsPerPixel == 4) {
-                    Uint8 b = (((Uint8)color << 4) | (Uint8)color);
-                    SDL_memset(dst->pixels, b, (size_t)dst->h * dst->pitch);
-                    return 1;
+                Uint8 b;
+                if (dst->format->BitsPerPixel == 1) {
+                    b = color ? 0xFF : 0;
+                } else {
+                    b = (color << 4) | color;
+                    if (dst->format->BitsPerPixel == 2) {
+                        b |= b << 2;
+                    } else {
+                        SDL_assert(dst->format->BitsPerPixel == 4);
+                    }
                 }
+                SDL_memset(dst->pixels, b, (size_t)dst->h * dst->pitch);
+                return 0;
             }
         }
         return SDL_SetError("SDL_FillRects(): Unsupported surface format");
