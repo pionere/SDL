@@ -1226,13 +1226,16 @@ SDL_Cursor *SDL_CreateCursor(const Uint8 *data, const Uint8 *mask,
 {
     SDL_Surface *surface;
     SDL_Cursor *cursor;
-    int x, y;
+    unsigned skip, x, y;
     Uint32 *pixel;
-    Uint8 datab = 0, maskb = 0;
+    Uint8 datab, maskb;
     const Uint32 black = 0xFF000000;
     const Uint32 white = 0xFFFFFFFF;
     const Uint32 transparent = 0x00000000;
-
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER)
+    datab = 0; // 'smart' compilers...
+    maskb = 0;
+#endif
     /* Make sure the width is a multiple of 8 */
     w = ((w + 7) & ~7);
 
@@ -1241,21 +1244,19 @@ SDL_Cursor *SDL_CreateCursor(const Uint8 *data, const Uint8 *mask,
     if (!surface) {
         return NULL;
     }
-    for (y = 0; y < h; ++y) {
-        pixel = (Uint32 *)((Uint8 *)surface->pixels + y * surface->pitch);
-        for (x = 0; x < w; ++x) {
+    skip = surface->pitch - w * sizeof(Uint32);
+    pixel = (Uint32 *)surface->pixels;
+    for (y = 0; y < (unsigned)h; ++y) {
+        for (x = 0; x < (unsigned)w; ++x) {
             if ((x % 8) == 0) {
                 datab = *data++;
                 maskb = *mask++;
             }
-            if (maskb & 0x80) {
-                *pixel++ = (datab & 0x80) ? black : white;
-            } else {
-                *pixel++ = (datab & 0x80) ? black : transparent;
-            }
+            *pixel++ = (datab & 0x80) ? black : ((maskb & 0x80) ? white : transparent);
             datab <<= 1;
             maskb <<= 1;
         }
+        pixel = (Uint32 *)((Uint8 *)pixel + skip);
     }
 
     cursor = SDL_CreateColorCursor(surface, hot_x, hot_y);
