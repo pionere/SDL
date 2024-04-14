@@ -149,7 +149,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
     }
 
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
-        SDL_SetError("invalid format");
+        SDL_SetError("Unsupported pixel format");
         return NULL;
     } else {
         pitch = SDL_CalculatePitch(format, width, SDL_FALSE);
@@ -262,7 +262,7 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
     }
 
     if (SDL_ISPIXELFORMAT_FOURCC(format)) {
-        SDL_SetError("invalid format");
+        SDL_SetError("Unsupported pixel format");
         return NULL;
     } else {
         minimalPitch = SDL_CalculatePitch(format, width, SDL_TRUE);
@@ -1432,7 +1432,7 @@ static SDL_INLINE int SDL_CreateSurfaceOnStack(int width, int height, Uint32 pix
 {
     int retval;
     if (SDL_ISPIXELFORMAT_INDEXED(pixel_format)) {
-        return SDL_SetError("Indexed pixel formats not supported");
+        return SDL_SetError("Indexed pixel formats are not supported");
     }
     retval = SDL_InitFormat(format, pixel_format);
     if (retval < 0) {
