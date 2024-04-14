@@ -40,8 +40,6 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 /*
  * Calculate the pad-aligned scanline width of a surface.
  * Return SDL_SIZE_MAX on overflow.
- *
- * for FOURCC, use SDL_CalculateYUVSize()
  */
 static size_t SDL_CalculatePitch(Uint32 format, size_t width, SDL_bool minimal)
 {

@@ -41,20 +41,7 @@ struct SDL_SW_YUVTexture
 SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
 {
     SDL_SW_YUVTexture *swdata;
-
-    switch (format) {
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
-    case SDL_PIXELFORMAT_YUY2:
-    case SDL_PIXELFORMAT_UYVY:
-    case SDL_PIXELFORMAT_YVYU:
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        break;
-    default:
-        SDL_SetError("Unsupported YUV format");
-        return NULL;
-    }
+    Uint8 *pixels;
 
     swdata = (SDL_SW_YUVTexture *)SDL_calloc(1, sizeof(*swdata));
     if (!swdata) {
@@ -62,48 +49,17 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
         return NULL;
     }
 
-    swdata->info.yuv_format = format;
-    swdata->info.y_width = w;
-    swdata->info.y_height = h;
-    {
-        size_t dst_size;
-        if (SDL_CalculateYUVSize(format, w, h, &dst_size, NULL) < 0) {
-            SDL_free(swdata);
-            SDL_OutOfMemory();
-            return NULL;
-        }
-        swdata->info.planes[0] = (Uint8 *)SDL_SIMDAlloc(dst_size);
-        if (!swdata->info.planes[0]) {
-            SDL_free(swdata);
-            SDL_OutOfMemory();
-            return NULL;
-        }
+    if (SDL_InitYUVInfo(w, h, format, NULL, 0, &swdata->info) < 0) {
+        SDL_free(swdata);
+        return NULL;
     }
 
-    /* Find the pitch and offset values for the texture */
-    swdata->info.y_pitch = w;
-    switch (format) {
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
-        swdata->info.uv_pitch = (swdata->info.y_pitch + 1) / 2;
-        swdata->info.planes[1] = swdata->info.planes[0] + swdata->info.y_pitch * h;
-        swdata->info.planes[2] = swdata->info.planes[1] + swdata->info.uv_pitch * ((h + 1) / 2);
-        break;
-    case SDL_PIXELFORMAT_YUY2:
-    case SDL_PIXELFORMAT_UYVY:
-    case SDL_PIXELFORMAT_YVYU:
-        swdata->info.uv_pitch = ((w + 1) / 2) * 4;
-        break;
-
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-        swdata->info.uv_pitch = 2 * ((w + 1) / 2);
-        swdata->info.planes[1] = swdata->info.planes[0] + swdata->info.y_pitch * h;
-        break;
-
-    default:
-        SDL_assume(!"Unknown pixel format");
-        break;
+    pixels = (Uint8 *)SDL_SIMDAlloc(swdata->info.yuv_size);
+    if (!pixels || SDL_SetupYUVInfo(&swdata->info, (size_t)pixels) < 0) {
+        SDL_free(swdata);
+        SDL_free(pixels);
+        SDL_OutOfMemory();
+        return NULL;
     }
 
     /* We're all done.. */

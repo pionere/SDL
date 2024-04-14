@@ -92,129 +92,6 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int hei
 #endif
 
 #if SDL_HAVE_YUV
-/*
- * Calculate YUV size and pitch. Check for overflow.
- * Output 'pitch' that can be used with SDL_ConvertPixels()
- *
- * return 0 on success, -1 on error
- */
-int SDL_CalculateYUVSize(Uint32 format, int w, int h, size_t *size, int *pitch)
-{
-    if (IsPacked4Format(format)) {
-        size_t sz_plane_packed;
-        {
-            /* sz_plane_packed == ((w + 1) / 2) * h; */
-            size_t s1, s2;
-            s1 = (size_t)w + 1;
-            s1 = s1 / 2;
-            if (SDL_size_mul_overflow(s1, h, &s2)) {
-                return -1;
-            }
-            sz_plane_packed = s2;
-        }
-
-        switch (format) {
-        case SDL_PIXELFORMAT_YUY2: /**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
-        case SDL_PIXELFORMAT_UYVY: /**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
-        case SDL_PIXELFORMAT_YVYU: /**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
-        {
-            size_t s1, p1, p2;
-            /* dst_size == 4 * sz_plane_packed; */
-            if (SDL_size_mul_overflow(sz_plane_packed, 4, &s1)) {
-                return -1;
-            }
-            *size = s1;
-
-            /* pitch == ((w + 1) / 2) * 4; */
-            p1 = (size_t)w + 1;
-            p1 = p1 / 2;
-            if (SDL_size_mul_overflow(p1, 4, &p2) || p2 > INT_MAX) {
-                return -1;
-            }
-            *pitch = (int)p2;
-        } break;
-        default:
-            SDL_assume(!"Unknown packed yuv format");
-            return -1;
-        }
-    } else {
-        /* planar formats with 4:2:0 sampling */
-        size_t sz_plane, sz_plane_chroma, sz_uv, sz_bytes;
-        {
-            /* sz_plane == w * h; */
-            size_t s1;
-            if (SDL_size_mul_overflow(w, h, &s1)) {
-                return -1;
-            }
-            sz_plane = s1;
-        }
-
-        {
-            /* sz_plane_chroma == ((w + 1) / 2) * ((h + 1) / 2); */
-            size_t s1, s2, s3;
-            s1 = (size_t)w + 1;
-            s1 = s1 / 2;
-            s2 = (size_t)h + 1;
-            s2 = s2 / 2;
-            if (SDL_size_mul_overflow(s1, s2, &s3)) {
-                return -1;
-            }
-            sz_plane_chroma = s3;
-        }
-
-        {
-            /* sz_uv = sz_plane_chroma + sz_plane_chroma; */
-            size_t s1;
-            if (SDL_size_mul_overflow(sz_plane_chroma, 2, &s1)) {
-                return -1;
-            }
-            sz_uv = s1;
-        }
-
-        {
-            /* sz_bytes = sz_plane + sz_uv; */
-            size_t s1;
-            if (SDL_size_add_overflow(sz_plane, sz_uv, &s1)) {
-                return -1;
-            }
-            sz_bytes = s1;
-        }
-
-        switch (format) {
-        case SDL_PIXELFORMAT_YV12: /**<  8bit Y + V + U  (3 planes) */
-        case SDL_PIXELFORMAT_IYUV: /**<  8bit Y + U + V  (3 planes) */
-        case SDL_PIXELFORMAT_NV12: /**<  8bit Y + U/V interleaved  (2 planes) */
-        case SDL_PIXELFORMAT_NV21: /**<  8bit Y + V/U interleaved  (2 planes) */
-        {
-            *pitch = w;
-
-            /* 3 planes: dst_size == sz_plane + sz_plane_chroma + sz_plane_chroma; */
-            /* 2 planes: dst_size == sz_plane + (sz_plane_chroma + sz_plane_chroma); */
-            *size = sz_bytes;
-        } break;
-        case SDL_PIXELFORMAT_P010: /**< 16bit Y + U/V interleaved  (2 planes) */
-        {
-            size_t s1;
-
-            if (w > INT_MAX / sizeof(Uint16)) {
-                return -1;
-            }
-            *pitch = sizeof(Uint16) * w;
-            
-            if (SDL_size_mul_overflow(sz_bytes, sizeof(Uint16), &s1)) {
-                return -1;
-            }
-            *size = s1;
-        } break;
-        default:
-            SDL_assume(!"Unknown planar yuv format");
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
 static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
 {
     SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(width, height);
@@ -422,6 +299,49 @@ int SDL_InitYUVInfo(int width, int height, Uint32 format, const void *yuv, int y
     }
 
     yuv_info->uv_pitch = res_uv_pitch;
+    return 0;
+}
+
+int SDL_SetupYUVInfo(SDL_YUVInfo *yuv_info, size_t offset)
+{
+    int w, h, pitch;
+    SDL_assert(yuv_info != NULL);
+    pitch = yuv_info->y_pitch;
+    w = yuv_info->y_width;
+    h = yuv_info->y_height;
+
+    SDL_assert(h > 0);
+    SDL_assert(w > 0);
+    // validate the size and offset values
+    if (pitch < w) {
+        return -1; // SDL_OutOfMemory(); // pitch overflowed or bad input
+    }
+
+    if (yuv_info->yuv_layout == SDL_YUVLAYOUT_PACKED) {
+        if (yuv_info->yuv_size / pitch != h) {
+            return -1; // SDL_OutOfMemory(); // size overflowed
+        }
+    } else {
+        size_t offset0, offset1, offset2;
+
+        offset0 = (size_t)yuv_info->planes[0];
+        offset1 = (size_t)yuv_info->planes[1];
+        offset2 = (size_t)yuv_info->planes[2];
+        if (offset0 >= offset1                                                       // address overflowed
+         || (offset1 - offset0) / pitch != h                                         // size overflowed
+         || (yuv_info->yuv_layout != SDL_YUVLAYOUT_2PLANES && offset1 >= offset2)) { // address overflowed
+            return -1; // SDL_OutOfMemory(); 
+        }
+    }
+    // adjust the address of the pixels
+    yuv_info->planes[0] += offset;
+    yuv_info->planes[1] += offset;
+    yuv_info->planes[2] += offset;
+
+    yuv_info->y_plane += offset;
+    yuv_info->u_plane += offset;
+    yuv_info->v_plane += offset;
+
     return 0;
 }
 
