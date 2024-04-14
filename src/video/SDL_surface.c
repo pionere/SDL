@@ -20,14 +20,12 @@
 */
 #include "../SDL_internal.h"
 
-// #include "SDL_video.h"
-// #include "SDL_sysvideo.h"
-
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
 #include "SDL_yuv_c.h"
 #include "SDL_surface_c.h"
+#include "../cpuinfo/SDL_cpuinfo_c.h"
 
 /* Check to make sure we can safely check multiplication of surface w and pitch and it won't overflow size_t */
 SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
@@ -182,15 +180,13 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
             return NULL;
         }
 
-        surface->pixels = SDL_SIMDAlloc(size);
+        surface->pixels = SDL_SIMDcalloc(size); // calloc is necessary for paddings
         if (!surface->pixels) {
             SDL_FreeSurface(surface);
             SDL_OutOfMemory();
             return NULL;
         }
         surface->flags |= SDL_SIMD_ALIGNED;
-        /* This is important for bitmaps */
-        SDL_memset(surface->pixels, 0, size);
     }
 
     /* The surface is ready to go */

@@ -29,7 +29,7 @@
 static SDL_Cursor *DUMMY_CreateDefaultCursor()
 {
     SDL_Cursor *cursor = NULL;
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, 1, 1, 32, SDL_PIXELFORMAT_ARGB8888);
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, 1, 1, 0, SDL_PIXELFORMAT_ARGB8888);
 
     if (surface != NULL) {
         // SDL_memset(surface->pixels, 0, (size_t)surface->h * surface->pitch);

@@ -31,6 +31,7 @@
 extern Uint32 SDL_GetCPUFeatures(void);
 extern void SDL_InitCPUFeatures(void);
 #endif
+extern void *SDL_SIMDcalloc(const size_t len);
 
 #endif /* SDL_cpuinfo_c_h_ */
 

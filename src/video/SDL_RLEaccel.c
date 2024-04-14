@@ -88,9 +88,11 @@
  */
 
 #include "SDL_video.h"
+
 #include "SDL_sysvideo.h"
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
+#include "../cpuinfo/SDL_cpuinfo_c.h"
 
 #define PIXEL_COPY(to, from, len, bpp) \
     SDL_memcpy(to, from, (size_t)(len) * (bpp))
@@ -1587,7 +1589,7 @@ void SDL_UnRLESurface(SDL_Surface *surface, int recode)
         if (recode && !(surface->flags & SDL_PREALLOC)) {
             /* re-create the original surface */
             size_t size = (size_t)surface->h * surface->pitch;
-            surface->pixels = SDL_SIMDAlloc(size);
+            surface->pixels = SDL_SIMDcalloc(size); // -- calloc is necessary for paddings
             if (!surface->pixels) {
                 /* Oh crap... */
                 surface->flags |= SDL_RLEACCEL;
@@ -1600,14 +1602,16 @@ void SDL_UnRLESurface(SDL_Surface *surface, int recode)
                 full.w = surface->w;
                 full.h = surface->h;
 
-                /* fill the background color */
-                SDL_FillRects(surface, &full, 1, surface->map->info.colorkey);
+                /* fill the background color, skip if it would be just a zerofill after calloc */
+                if (surface->map->info.colorkey != 0) {
+                    SDL_FillRects(surface, &full, 1, surface->map->info.colorkey);
+                }
 
                 /* now render the encoded surface */
                 SDL_RLEBlit(surface, &full, surface, &full);
             } else {
                 /* fill the background with transparent pixels */
-                SDL_memset(surface->pixels, 0, size);
+                // SDL_memset(surface->pixels, 0, size); -- not necessary because of calloc
 
                 UnRLEAlpha(surface);
             }

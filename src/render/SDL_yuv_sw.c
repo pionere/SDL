@@ -27,6 +27,7 @@
 #include "SDL_cpuinfo.h"
 
 #include "SDL_yuv_sw_c.h"
+#include "../cpuinfo/SDL_cpuinfo_c.h"
 #include "../video/SDL_yuv_c.h"
 
 struct SDL_SW_YUVTexture
@@ -54,7 +55,7 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
         return NULL;
     }
 
-    pixels = (Uint8 *)SDL_SIMDAlloc(swdata->info.yuv_size);
+    pixels = (Uint8 *)SDL_SIMDcalloc(swdata->info.yuv_size); // calloc is necessary for paddings
     if (!pixels || SDL_SetupYUVInfo(&swdata->info, (size_t)pixels) < 0) {
         SDL_free(swdata);
         SDL_free(pixels);
