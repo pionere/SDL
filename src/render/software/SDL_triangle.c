@@ -275,7 +275,10 @@ int SDL_SW_FillTriangle(SDL_Surface *dst, SDL_Point *d0, SDL_Point *d1, SDL_Poin
         /* Clip triangle with surface clip rect */
         SDL_Rect rect;
         SDL_GetClipRect(dst, &rect);
-        SDL_IntersectRect(&dstrect, &rect, &dstrect);
+        if (!SDL_IntersectRect(&dstrect, &rect, &dstrect)) {
+            ret = 0; /* No-op */
+            goto end;
+        }
     }
 
     if (blend != SDL_BLENDMODE_NONE) {
