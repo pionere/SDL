@@ -534,7 +534,6 @@ static char *make_path(libusb_device *dev, int interface_number)
 		libusb_get_bus_number(dev),
 		libusb_get_device_address(dev),
 		interface_number);
-	str[sizeof(str)-1] = '\0';
 
 	return SDL_strdup(str);
 }
@@ -611,7 +610,7 @@ static int is_xbox360(unsigned short vendor_id, const struct libusb_interface_de
 	    (intf_desc->bInterfaceProtocol == XB360_IFACE_PROTOCOL ||
 	     intf_desc->bInterfaceProtocol == XB360W_IFACE_PROTOCOL)) {
 		int i;
-		for (i = 0; i < sizeof(SUPPORTED_VENDORS)/sizeof(SUPPORTED_VENDORS[0]); ++i) {
+		for (i = 0; i < SDL_arraysize(SUPPORTED_VENDORS); ++i) {
 			if (vendor_id == SUPPORTED_VENDORS[i]) {
 				return 1;
 			}
@@ -645,7 +644,7 @@ static int is_xboxone(unsigned short vendor_id, const struct libusb_interface_de
 	    intf_desc->bInterfaceSubClass == XB1_IFACE_SUBCLASS &&
 	    intf_desc->bInterfaceProtocol == XB1_IFACE_PROTOCOL) {
 		int i;
-		for (i = 0; i < sizeof(SUPPORTED_VENDORS)/sizeof(SUPPORTED_VENDORS[0]); ++i) {
+		for (i = 0; i < SDL_arraysize(SUPPORTED_VENDORS); ++i) {
 			if (vendor_id == SUPPORTED_VENDORS[i]) {
 				return 1;
 			}
@@ -1586,10 +1585,11 @@ int HID_API_EXPORT_CALL hid_get_indexed_string(hid_device *dev, int string_index
 {
 	wchar_t *str;
 
+	SDL_assert(dev != NULL);
+
 	str = get_usb_string(dev->device_handle, string_index);
 	if (str) {
 		SDL_wcslcpy(string, str, maxlen);
-		string[maxlen-1] = L'\0';
 		free(str);
 		return 0;
 	}
@@ -1605,13 +1605,15 @@ HID_API_EXPORT const wchar_t * HID_API_CALL  hid_error(hid_device *dev)
 
 
 struct lang_map_entry {
+#if 0
 	const char *name;
+#endif
 	const char *string_code;
 	uint16_t usb_code;
 };
 
-#define LANG(name,code,usb_code) { name, code, usb_code }
-static struct lang_map_entry lang_map[] = {
+#define LANG(name,code,usb_code) { code, usb_code }
+static const struct lang_map_entry lang_map[] = {
 	LANG("Afrikaans", "af", 0x0436),
 	LANG("Albanian", "sq", 0x041C),
 	LANG("Arabic - United Arab Emirates", "ar_ae", 0x3801),
@@ -1764,7 +1766,6 @@ uint16_t get_usb_code_for_current_locale(void)
 
 	/* Make a copy of the current locale string. */
 	SDL_strlcpy(search_string, locale, sizeof(search_string));
-	search_string[sizeof(search_string)-1] = '\0';
 
 	/* Chop off the encoding part, and make it lower case. */
 	ptr = search_string;
@@ -1786,6 +1787,7 @@ uint16_t get_usb_code_for_current_locale(void)
 		lang++;
 	}
 
+#if 0 /* TODO: Do we need this? */
 	/* There was no match. Find with just the language only. */
 	/* Chop off the variant. Chop it off at the '_'. */
 	ptr = search_string;
@@ -1798,7 +1800,6 @@ uint16_t get_usb_code_for_current_locale(void)
 		ptr++;
 	}
 
-#if 0 /* TODO: Do we need this? */
 	/* Find the entry which matches the string code of our language. */
 	lang = lang_map;
 	while (lang->string_code) {
