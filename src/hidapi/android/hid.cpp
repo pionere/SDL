@@ -74,7 +74,6 @@
 
 #include <pthread.h>
 #include <errno.h>	// For ETIMEDOUT and ECONNRESET
-#include <stdlib.h> // For malloc() and free()
 
 #include "../hidapi/hidapi.h"
 
@@ -325,10 +324,12 @@ static jbyteArray NewByteArray( JNIEnv* env, const uint8_t *pData, size_t nDataL
 static char *CreateStringFromJString( JNIEnv *env, const jstring &sString )
 {
 	size_t nLength = env->GetStringUTFLength( sString );
+	nLength += 1; // GetStringUTFChars returns a NULL-terminated string
 	const char *pjChars = env->GetStringUTFChars( sString, NULL );
-	char *psString = (char*)malloc( nLength + 1 );
-	SDL_memcpy( psString, pjChars, nLength );
-	psString[ nLength ] = '\0';
+	char *psString = (char*)SDL_malloc(nLength);
+	if (psString) {
+		SDL_memcpy( psString, pjChars, nLength );
+	}
 	env->ReleaseStringUTFChars( sString, pjChars );
 	return psString;
 }
@@ -337,23 +338,15 @@ static wchar_t *CreateWStringFromJString( JNIEnv *env, const jstring &sString )
 {
 	size_t nLength = env->GetStringLength( sString );
 	const jchar *pjChars = env->GetStringChars( sString, NULL );
-	wchar_t *pwString = (wchar_t*)malloc( ( nLength + 1 ) * sizeof( wchar_t ) );
-	wchar_t *pwChars = pwString;
-	for ( size_t iIndex = 0; iIndex < nLength; ++iIndex )
-	{
-		pwChars[ iIndex ] = pjChars[ iIndex ];
+	wchar_t *pwString = (wchar_t*)SDL_calloc(nLength + 1, sizeof(wchar_t));
+	if (pwString) {
+		wchar_t *pwChars = pwString;
+		for ( size_t iIndex = 0; iIndex < nLength; ++iIndex ) {
+			pwChars[ iIndex ] = pjChars[ iIndex ];
+		}
+		pwString[ nLength ] = '\0';
 	}
-	pwString[ nLength ] = '\0';
 	env->ReleaseStringChars( sString, pjChars );
-	return pwString;
-}
-
-static wchar_t *CreateWStringFromWString( const wchar_t *pwSrc )
-{
-	size_t nLength = SDL_wcslen( pwSrc );
-	wchar_t *pwString = (wchar_t*)malloc( ( nLength + 1 ) * sizeof( wchar_t ) );
-	SDL_memcpy( pwString, pwSrc, nLength * sizeof( wchar_t ) );
-	pwString[ nLength ] = '\0';
 	return pwString;
 }
 
@@ -362,18 +355,18 @@ static hid_device_info *CopyHIDDeviceInfo( const hid_device_info *pInfo )
 	hid_device_info *pCopy = new hid_device_info;
 	*pCopy = *pInfo;
 	pCopy->path = SDL_strdup( pInfo->path );
-	pCopy->product_string = CreateWStringFromWString( pInfo->product_string );
-	pCopy->manufacturer_string = CreateWStringFromWString( pInfo->manufacturer_string );
-	pCopy->serial_number = CreateWStringFromWString( pInfo->serial_number );
+	pCopy->product_string = SDL_wcsdup( pInfo->product_string );
+	pCopy->manufacturer_string = SDL_wcsdup( pInfo->manufacturer_string );
+	pCopy->serial_number = SDL_wcsdup( pInfo->serial_number );
 	return pCopy;
 }
 
 static void FreeHIDDeviceInfo( hid_device_info *pInfo )
 {
-	free( pInfo->path );
-	free( pInfo->serial_number );
-	free( pInfo->manufacturer_string );
-	free( pInfo->product_string );
+	SDL_free( pInfo->path );
+	SDL_free( pInfo->serial_number );
+	SDL_free( pInfo->manufacturer_string );
+	SDL_free( pInfo->product_string );
 	delete pInfo;
 }
 
