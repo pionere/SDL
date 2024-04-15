@@ -122,11 +122,11 @@ instead to differentiate between interfaces on a composite HID device. */
 /*#define INVASIVE_GET_USAGE*/
 
 /* Linked List of input reports received from the device. */
-struct input_report {
+typedef struct {
 	uint8_t *data;
 	size_t len;
 	struct input_report *next;
-};
+} input_report;
 
 
 struct hid_device_ {
@@ -155,7 +155,7 @@ struct hid_device_ {
 	SDL_mutex *mutex; /* Protects input_reports */
 	SDL_cond *condition;
 	SDL_ThreadBarrier barrier; /* Ensures correct startup sequence */
-	int shutdown_thread;
+	int shutdown_thread; /* boolean */
 	int transfer_loop_finished;
 	struct libusb_transfer *transfer;
 
@@ -164,7 +164,9 @@ struct hid_device_ {
 	int no_output_reports_on_intr_ep;
 
 	/* List of received input reports. */
-	struct input_report *input_reports;
+	input_report *input_reports;
+	input_report* input_reports_tail;
+	unsigned num_input_reports;
 };
 
 static libusb_context *usb_context = NULL;
@@ -919,7 +921,7 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 
 	switch (transfer->status) {
 	case LIBUSB_TRANSFER_COMPLETED: {
-		struct input_report *rpt = (struct input_report*) SDL_malloc(sizeof(*rpt));
+		input_report *rpt = (input_report*) SDL_malloc(sizeof(*rpt));
 		if (!rpt) {
 			LOG("Unable to queue the report. Out of memory.\n");
 			break;
@@ -937,25 +939,21 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 		SDL_LockMutex(dev->mutex);
 
 		/* Attach the new report object to the end of the list. */
-		if (dev->input_reports == NULL) {
+		dev->num_input_reports++;
+		if (dev->input_reports_tail == NULL) {
 			/* The list is empty. Put it at the root. */
+			dev->input_reports_tail = rpt;
 			dev->input_reports = rpt;
 			SDL_CondSignal(dev->condition);
-		}
-		else {
-			/* Find the end of the list and attach. */
-			struct input_report *cur = dev->input_reports;
-			int num_queued = 0;
-			while (cur->next != NULL) {
-				cur = cur->next;
-				num_queued++;
-			}
-			cur->next = rpt;
+		} else {
+			/* Attach the report to the end of the list. */
+			dev->input_reports_tail->next = rpt;
+			dev->input_reports_tail = rpt;
 
 			/* Pop one off if we've reached 30 in the queue. This
 			   way we don't grow forever if the user never reads
 			   anything from the device. */
-			if (num_queued > 30) {
+			if (dev->num_input_reports > 30) {
 				return_data(dev, NULL, 0);
 			}
 		}
@@ -1351,11 +1349,14 @@ static int return_data(hid_device *dev, unsigned char *data, size_t length)
 {
 	/* Copy the data out of the linked list item (rpt) into the
 	   return buffer (data), and delete the liked list item. */
-	struct input_report *rpt = dev->input_reports;
+	input_report *rpt = dev->input_reports;
 	size_t len = (length < rpt->len)? length: rpt->len;
 	if (data && len > 0)
 		memcpy(data, rpt->data, len);
 	dev->input_reports = rpt->next;
+	if (--dev->num_input_reports == 0) {
+		dev->input_reports_tail = NULL;
+	}
 	free(rpt->data);
 	free(rpt);
 	return len;
