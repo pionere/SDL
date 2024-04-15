@@ -338,18 +338,6 @@ static int get_product_string(IOHIDDeviceRef device, wchar_t *buf, size_t len)
 	return get_string_property(device, CFSTR(kIOHIDProductKey), buf, len);
 }
 
-
-/* Implementation of wcsdup() for Mac. */
-static wchar_t *dup_wcs(const wchar_t *s)
-{
-	size_t len = wcslen(s);
-	wchar_t *ret = (wchar_t *)malloc((len+1)*sizeof(wchar_t));
-	wcscpy(ret, s);
-	
-	return ret;
-}
-
-
 static int make_path(IOHIDDeviceRef device, char *buf, size_t len)
 {
 	int res;
@@ -606,13 +594,13 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			
 			/* Serial Number */
 			get_serial_number(dev, buf, BUF_LEN);
-			cur_dev->serial_number = dup_wcs(buf);
+			cur_dev->serial_number = SDL_wcsdup(buf);
 			
 			/* Manufacturer and Product strings */
 			get_manufacturer_string(dev, buf, BUF_LEN);
-			cur_dev->manufacturer_string = dup_wcs(buf);
+			cur_dev->manufacturer_string = SDL_wcsdup(buf);
 			get_product_string(dev, buf, BUF_LEN);
-			cur_dev->product_string = dup_wcs(buf);
+			cur_dev->product_string = SDL_wcsdup(buf);
 			
 			/* VID/PID */
 			cur_dev->vendor_id = dev_vid;
