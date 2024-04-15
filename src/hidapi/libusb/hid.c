@@ -917,10 +917,19 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 	hid_device *dev = (hid_device *)transfer->user_data;
 	int res;
 
-	if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
-
+	switch (transfer->status) {
+	case LIBUSB_TRANSFER_COMPLETED: {
 		struct input_report *rpt = (struct input_report*) SDL_malloc(sizeof(*rpt));
+		if (!rpt) {
+			LOG("Unable to queue the report. Out of memory.\n");
+			break;
+		}
 		rpt->data = (uint8_t*) SDL_malloc(transfer->actual_length);
+		if (!rpt->data) {
+			SDL_free(rpt);
+			LOG("Unable to queue the report. Out of memory.\n");
+			break;
+		}
 		memcpy(rpt->data, transfer->buffer, transfer->actual_length);
 		rpt->len = transfer->actual_length;
 		rpt->next = NULL;
@@ -951,17 +960,20 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 			}
 		}
 		SDL_UnlockMutex(dev->mutex);
-	}
-	else if (transfer->status == LIBUSB_TRANSFER_CANCELLED) {
+	} break;
+	case LIBUSB_TRANSFER_CANCELLED:
 		dev->shutdown_thread = 1;
-	}
-	else if (transfer->status == LIBUSB_TRANSFER_NO_DEVICE) {
+		break;
+	case LIBUSB_TRANSFER_NO_DEVICE:
 		dev->shutdown_thread = 1;
-	}
-	else if (transfer->status == LIBUSB_TRANSFER_TIMED_OUT) {
+		break;
+	case LIBUSB_TRANSFER_TIMED_OUT:
 		//LOG("Timeout (normal)\n");
-	}
-	else {
+		break;
+	// case LIBUSB_TRANSFER_ERROR:
+	// case LIBUSB_TRANSFER_STALL:
+	// case LIBUSB_TRANSFER_OVERFLOW:
+	default:
 		LOG("Unknown transfer code: %d\n", transfer->status);
 	}
 
@@ -989,6 +1001,9 @@ static int SDLCALL read_thread(void *param)
 
 	/* Set up the transfer object. */
 	buf = (uint8_t*) SDL_malloc(length);
+	if (!buf) {
+		return SDL_OutOfMemory();
+	}
 	dev->transfer = libusb_alloc_transfer(0);
 	libusb_fill_interrupt_transfer(dev->transfer,
 		dev->device_handle,
