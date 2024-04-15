@@ -136,16 +136,16 @@ static 	struct hid_device_list_node *device_list = 0x0;
 static hid_device *new_hid_device(void)
 {
 	hid_device *dev = (hid_device*)calloc(1, sizeof(hid_device));
-	dev->device_handle = NULL;
+	// dev->device_handle = NULL;
 	dev->blocking = 1;
-	dev->uses_numbered_reports = 0;
-	dev->disconnected = 0;
-	dev->run_loop_mode = NULL;
-	dev->run_loop = NULL;
-	dev->source = NULL;
-	dev->input_report_buf = NULL;
-	dev->input_reports = NULL;
-	dev->shutdown_thread = 0;
+	// dev->uses_numbered_reports = 0;
+	// dev->disconnected = 0;
+	// dev->run_loop_mode = NULL;
+	// dev->run_loop = NULL;
+	// dev->source = NULL;
+	// dev->input_report_buf = NULL;
+	// dev->input_reports = NULL;
+	// dev->shutdown_thread = 0;
 	
 	/* Thread objects */
 	pthread_mutex_init(&dev->mutex, NULL);
@@ -682,8 +682,8 @@ static void hid_report_callback(void *context, IOReturn result, void *sender,
 	hid_device *dev = (hid_device *)context;
 	
 	/* Make a new Input Report object */
-	rpt = (struct input_report *)calloc(1, sizeof(struct input_report));
-	rpt->data = (uint8_t *)calloc(1, report_length);
+	rpt = (struct input_report *)SDL_malloc(sizeof(struct input_report));
+	rpt->data = (uint8_t *)SDL_malloc(report_length);
 	memcpy(rpt->data, report, report_length);
 	rpt->len = report_length;
 	rpt->next = NULL;
@@ -852,7 +852,7 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path, int bExclusive)
 													   os_dev, dev->input_report_buf, dev->max_input_report_len,
 													   &hid_report_callback, dev);
 
-				node = (struct hid_device_list_node *)calloc(1, sizeof(struct hid_device_list_node));
+				node = (struct hid_device_list_node *)SDL_malloc(sizeof(struct hid_device_list_node));
 				node->dev = dev;
 				node->next = device_list;
 				device_list = node;

@@ -778,9 +778,8 @@ static int hid_write_timeout(hid_device *dev, const unsigned char *data, size_t 
 	} else {
 		/* Create a temporary buffer and copy the user's data
 		   into it, padding the rest with zeros. */
-		buf = (unsigned char *) malloc(dev->output_report_length);
+		buf = (unsigned char *) SDL_calloc(1, dev->output_report_length);
 		memcpy(buf, data, length);
-		memset(buf + length, 0, dev->output_report_length - length);
 		length = dev->output_report_length;
 	}
 

@@ -798,8 +798,7 @@ HID_API_EXPORT hid_device * HID_API_CALL hid_open_path( const char *path, int bE
 
 		if ( [device.bleSteamController.identifier.UUIDString isEqualToString:nssPath] )
 		{
-			result = (hid_device *)malloc( sizeof( hid_device ) );
-			memset( result, 0, sizeof( hid_device ) );
+			result = (hid_device *)SDL_calloc(1, sizeof( hid_device ) );
 			result->device_handle = (void*)CFBridgingRetain( device );
 			result->blocking = NO;
 			// enable reporting input events on the characteristic
@@ -873,8 +872,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 				}
 				continue;
 			}
-			struct hid_device_info *device_info = (struct hid_device_info *)malloc( sizeof(struct hid_device_info) );
-			memset( device_info, 0, sizeof(struct hid_device_info) );
+			struct hid_device_info *device_info = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info) );
 			device_info->next = root;
 			root = device_info;
 			device_info->path = strdup( device.bleSteamController.identifier.UUIDString.UTF8String );
