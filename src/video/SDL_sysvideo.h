@@ -349,9 +349,7 @@ struct SDL_VideoDevice
     Uint32 next_object_id;
     char *clipboard_text;
     char *primary_selection_text;
-#ifdef SDL_VIDEO_DRIVER_WAYLAND
-    Uint32 quirk_flags;
-#endif
+
 #ifdef SDL_VIDEO_VULKAN
     /* * * */
     /* Data used by the Vulkan drivers */

@@ -178,27 +178,23 @@ static Uint32 SDL_DefaultGraphicsBackends()
 
 static SDL_atomic_t SDL_messagebox_count;
 
-/* Convenience functions for reading driver flags */
+/* Convenience functions for driver-specific behavior */
+static SDL_bool DisableDisplayModeSwitching()
+{
 #ifdef SDL_VIDEO_DRIVER_WAYLAND
-static SDL_bool DisableDisplayModeSwitching()
-{
-    return !!(current_video.quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING);
-}
-
-static SDL_bool DisableUnsetFullscreenOnMinimize()
-{
-    return !!(current_video.quirk_flags & VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE);
-}
+    return SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_Wayland; // VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING
 #else
-static SDL_bool DisableDisplayModeSwitching()
-{
     return SDL_FALSE;
+#endif
 }
 static SDL_bool DisableUnsetFullscreenOnMinimize()
 {
+#ifdef SDL_VIDEO_DRIVER_WAYLAND
+    return SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_Wayland; // VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE
+#else
     return SDL_FALSE;
-}
 #endif
+}
 
 static void SDL_StartTextInputPrivate(SDL_bool default_value)
 {
@@ -3149,7 +3145,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
     hint = SDL_GetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS);
     if (!hint || !*hint || SDL_strcasecmp(hint, "auto") == 0) {
         if ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP ||
-            DisableDisplayModeSwitching() == SDL_TRUE) {
+            DisableDisplayModeSwitching()) {
             return SDL_FALSE;
         } else {
             return SDL_TRUE;

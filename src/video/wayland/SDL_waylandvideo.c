@@ -337,9 +337,6 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
 
     device->DeleteDevice = Wayland_DeleteDevice;
 
-    device->quirk_flags = VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING |
-                          VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE;
-
     return SDL_TRUE;
 }
 /* "SDL Wayland video driver" */
