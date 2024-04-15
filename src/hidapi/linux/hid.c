@@ -115,7 +115,7 @@ static __u32 detect_kernel_version(void)
 
 static hid_device *new_hid_device(void)
 {
-	hid_device *dev = (hid_device *)calloc(1, sizeof(hid_device));
+	hid_device *dev = (hid_device *)SDL_calloc(1, sizeof(hid_device));
 	dev->device_handle = -1;
 	dev->blocking = 1;
 	dev->uses_numbered_reports = 0;
@@ -578,7 +578,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			struct hid_device_info *tmp;
 
 			/* VID/PID match. Create the record. */
-			tmp = (struct hid_device_info *)calloc(1, sizeof(struct hid_device_info));
+			tmp = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info));
 			if (cur_dev) {
 				cur_dev->next = tmp;
 			}

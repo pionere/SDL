@@ -135,7 +135,7 @@ static 	struct hid_device_list_node *device_list = 0x0;
 
 static hid_device *new_hid_device(void)
 {
-	hid_device *dev = (hid_device*)calloc(1, sizeof(hid_device));
+	hid_device *dev = (hid_device*)SDL_calloc(1, sizeof(hid_device));
 	// dev->device_handle = NULL;
 	dev->blocking = 1;
 	// dev->uses_numbered_reports = 0;
@@ -527,7 +527,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 		CFRelease(device_set);
 		return NULL;
 	}
-	device_array = (IOHIDDeviceRef*)calloc(num_devices, sizeof(IOHIDDeviceRef));
+	device_array = (IOHIDDeviceRef*)SDL_calloc(num_devices, sizeof(IOHIDDeviceRef));
 	CFSetGetValues(device_set, (const void **) device_array);
 	
 	/* Iterate over each device, making an entry for it. */	
@@ -574,7 +574,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			struct hid_device_info *tmp;
 
 			/* VID/PID match. Create the record. */
-			tmp = (struct hid_device_info *)calloc(1, sizeof(struct hid_device_info));
+			tmp = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info));
 			if (cur_dev) {
 				cur_dev->next = tmp;
 			}
@@ -741,7 +741,7 @@ static void *read_thread(void *param)
 	
 	/* Create the RunLoopSource which is used to signal the
 	 event loop to stop when hid_close() is called. */
-	memset(&ctx, 0, sizeof(ctx));
+	SDL_memset(&ctx, 0, sizeof(ctx));
 	ctx.version = 0;
 	ctx.info = dev;
 	ctx.perform = &perform_signal_callback;
@@ -818,7 +818,7 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path, int bExclusive)
 		return NULL;
 	
 	num_devices = CFSetGetCount(device_set);
-	device_array = (IOHIDDeviceRef *)calloc(num_devices, sizeof(IOHIDDeviceRef));
+	device_array = (IOHIDDeviceRef *)SDL_calloc(num_devices, sizeof(IOHIDDeviceRef));
 	CFSetGetValues(device_set, (const void **) device_array);	
 	for (i = 0; i < num_devices; i++) {
 		char cbuf[BUF_LEN];
@@ -839,7 +839,7 @@ hid_device * HID_API_EXPORT hid_open_path(const char *path, int bExclusive)
 				/* Create the buffers for receiving data */
 				dev->max_input_report_len = (CFIndex) get_max_report_length(os_dev);
 				SDL_assert(dev->max_input_report_len > 0);
-				dev->input_report_buf = (uint8_t *)calloc(dev->max_input_report_len, sizeof(uint8_t));
+				dev->input_report_buf = (uint8_t *)SDL_calloc(dev->max_input_report_len, sizeof(uint8_t));
 				
 				/* Create the Run Loop Mode for this device.
 				 printing the reference seems to work. */
@@ -1242,7 +1242,7 @@ int main(void)
 	CFSetRef device_set = IOHIDManagerCopyDevices(mgr);
 	
 	CFIndex num_devices = CFSetGetCount(device_set);
-	IOHIDDeviceRef *device_array = calloc(num_devices, sizeof(IOHIDDeviceRef));
+	IOHIDDeviceRef *device_array = SDL_calloc(num_devices, sizeof(IOHIDDeviceRef));
 	CFSetGetValues(device_set, (const void **) device_array);
 	
 	for (i = 0; i < num_devices; i++) {

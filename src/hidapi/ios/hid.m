@@ -703,7 +703,7 @@ static void process_pending_events(void)
 	}
 	else if ( [characteristic.UUID isEqual:_bleCharacteristicReport.UUID] )
 	{
-		memset( _featureReport, 0, sizeof(_featureReport) );
+		SDL_memset( _featureReport, 0, sizeof(_featureReport) );
 
 		if ( error != nil )
 		{

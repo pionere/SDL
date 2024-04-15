@@ -231,7 +231,7 @@ static void N3DSAUDIO_CloseDevice(_THIS)
 
     if (!this->hidden->isCancelled) {
         ndspChnReset(0);
-        memset(this->hidden->waveBuf, 0, sizeof(ndspWaveBuf) * NUM_BUFFERS);
+        SDL_memset(this->hidden->waveBuf, 0, sizeof(ndspWaveBuf) * NUM_BUFFERS);
         CondVar_Broadcast(&this->hidden->cv);
     }
 
