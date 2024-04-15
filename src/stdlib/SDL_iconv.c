@@ -86,20 +86,20 @@ size_t SDL_iconv(SDL_iconv_t cd,
 
 enum
 {
-    ENCODING_UNKNOWN,
     ENCODING_ASCII,
     ENCODING_LATIN1,
     ENCODING_UTF8,
-    ENCODING_UTF16, /* Needs byte order marker */
     ENCODING_UTF16BE,
     ENCODING_UTF16LE,
-    ENCODING_UTF32, /* Needs byte order marker */
     ENCODING_UTF32BE,
     ENCODING_UTF32LE,
     ENCODING_UCS2BE,
     ENCODING_UCS2LE,
     ENCODING_UCS4BE,
     ENCODING_UCS4LE,
+    ENCODING_UTF16, /* Needs byte order marker */
+    ENCODING_UTF32, /* Needs byte order marker */
+    NUM_ENCODINGS
 };
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define ENCODING_UTF16NATIVE ENCODING_UTF16BE
@@ -119,7 +119,23 @@ struct _SDL_iconv_t
     int dst_fmt;
 };
 
-static struct
+static const uint8_t encoding_base[NUM_ENCODINGS] = {
+/* ENCODING_ASCII */   1,
+/* ENCODING_LATIN1 */  1,
+/* ENCODING_UTF8 */    1,
+/* ENCODING_UTF16 */   2,
+/* ENCODING_UTF16BE */ 2,
+/* ENCODING_UTF16LE */ 2,
+/* ENCODING_UTF32 */   4,
+/* ENCODING_UTF32BE */ 4,
+/* ENCODING_UTF32LE */ 4,
+/* ENCODING_UCS2BE */  2,
+/* ENCODING_UCS2LE */  2,
+/* ENCODING_UCS4BE */  4,
+/* ENCODING_UCS4LE */  4,
+};
+
+static const struct
 {
     const char *name;
     int format;
@@ -197,8 +213,8 @@ static const char *getlocale(char *buffer, size_t bufsize)
 
 SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
 {
-    int src_fmt = ENCODING_UNKNOWN;
-    int dst_fmt = ENCODING_UNKNOWN;
+    int src_fmt = -1;
+    int dst_fmt = -1;
     int i;
 #ifndef SDL_LOCALE_DISABLED
     char fromcode_buffer[64];
@@ -217,18 +233,18 @@ SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
     for (i = 0; i < SDL_arraysize(encodings); ++i) {
         if (SDL_strcasecmp(fromcode, encodings[i].name) == 0) {
             src_fmt = encodings[i].format;
-            if (dst_fmt != ENCODING_UNKNOWN) {
+            if (dst_fmt >= 0) {
                 break;
             }
         }
         if (SDL_strcasecmp(tocode, encodings[i].name) == 0) {
             dst_fmt = encodings[i].format;
-            if (src_fmt != ENCODING_UNKNOWN) {
+            if (src_fmt >= 0) {
                 break;
             }
         }
     }
-    if (src_fmt != ENCODING_UNKNOWN && dst_fmt != ENCODING_UNKNOWN) {
+    if (i < SDL_arraysize(encodings)) {
         SDL_iconv_t cd = (SDL_iconv_t)SDL_malloc(sizeof(*cd));
         if (cd) {
             cd->src_fmt = src_fmt;
@@ -564,6 +580,9 @@ SDL_iconv(SDL_iconv_t cd,
             src += 4;
             srclen -= 4;
         } break;
+        default:
+            SDL_assume(!"Unknown encoding");
+            break;
         }
 
         /* Encode a character */
@@ -770,6 +789,9 @@ SDL_iconv(SDL_iconv_t cd,
                 dstlen -= 4;
             }
             break;
+        default:
+            SDL_assume(!"Unknown encoding");
+            break;
         }
 
         /* Update state */
@@ -812,15 +834,19 @@ char *SDL_iconv_string(const char *tocode, const char *fromcode, const char *inb
         return NULL;
     }
 
+#if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
     stringsize = inbytesleft;
+#else
+    stringsize = inbytesleft * encoding_base[cd->dst_fmt] / encoding_base[cd->src_fmt];
+#endif
     string = (char *)SDL_malloc(stringsize + sizeof(Uint32));
     if (!string) {
-        SDL_iconv_close(cd);
-        return NULL;
+        SDL_OutOfMemory();
+        goto error;
     }
-    outbuf = string;
     outbytesleft = stringsize;
-    SDL_memset(outbuf, 0, sizeof(Uint32));
+    outbuf = string;
+    // SDL_memset(outbuf, 0, sizeof(Uint32));
 
     while (inbytesleft > 0) {
         const size_t oldinbytesleft = inbytesleft;
@@ -833,32 +859,43 @@ char *SDL_iconv_string(const char *tocode, const char *fromcode, const char *inb
             string = (char *)SDL_realloc(string, stringsize + sizeof(Uint32));
             if (!string) {
                 SDL_free(oldstring);
-                SDL_iconv_close(cd);
-                return NULL;
+                SDL_OutOfMemory();
+                goto error;
             }
+            outbytesleft = stringsize - (outbuf - oldstring);
             outbuf = string + (outbuf - oldstring);
-            outbytesleft = stringsize - (outbuf - string);
-            SDL_memset(outbuf, 0, sizeof(Uint32));
+            // SDL_memset(outbuf, 0, sizeof(Uint32));
             continue;
         }
+#if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
         case SDL_ICONV_EILSEQ:
             /* Try skipping some input data - not perfect, but... */
             ++inbuf;
             --inbytesleft;
             break;
-        case SDL_ICONV_EINVAL:
         case SDL_ICONV_ERROR:
+#endif
+        case SDL_ICONV_EINVAL:
             /* We can't continue... */
             inbytesleft = 0;
             break;
         }
+#if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
         /* Avoid infinite loops when nothing gets converted */
         if (oldinbytesleft == inbytesleft) {
             break;
         }
+#else
+        SDL_assert(oldinbytesleft != inbytesleft);
+#endif
     }
     SDL_memset(outbuf, 0, sizeof(Uint32));
+error:
+#if defined(HAVE_ICONV) && defined(HAVE_ICONV_H)
     SDL_iconv_close(cd);
+#else
+    SDL_free(cd); // SDL_iconv_close
+#endif
 
     return string;
 }
