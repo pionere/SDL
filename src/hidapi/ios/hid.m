@@ -887,24 +887,33 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	return root;
 }}
 
+static void SDL_cwcslcpy(const wchar_t *src, size_t srclen, wchar_t *dst, size_t maxlen)
+{
+	if (maxlen > 0) {
+		size_t len = SDL_min(srclen, maxlen - 1);
+		SDL_memcpy(dst, src, len * sizeof(wchar_t));
+		dst[len] = '\0';
+	}
+}
+
 int HID_API_EXPORT_CALL hid_get_manufacturer_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
-	static wchar_t s_wszManufacturer[] = L"Valve Corporation";
-	wcsncpy( string, s_wszManufacturer, sizeof(s_wszManufacturer)/sizeof(s_wszManufacturer[0]) );
+	const wchar_t s_wszManufacturer[] = L"Valve Corporation";
+	SDL_cwcslcpy(s_wszManufacturer, SDL_arraysize(s_wszManufacturer) - 1, string, maxlen);
 	return 0;
 }
 
 int HID_API_EXPORT_CALL hid_get_product_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
-	static wchar_t s_wszProduct[] = L"Steam Controller";
-	wcsncpy( string, s_wszProduct, sizeof(s_wszProduct)/sizeof(s_wszProduct[0]) );
+	const wchar_t s_wszProduct[] = L"Steam Controller";
+	SDL_cwcslcpy(s_wszProduct, SDL_arraysize(s_wszProduct) - 1, string, maxlen);
 	return 0;
 }
 
 int HID_API_EXPORT_CALL hid_get_serial_number_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
-	static wchar_t s_wszSerial[] = L"12345";
-	wcsncpy( string, s_wszSerial, sizeof(s_wszSerial)/sizeof(s_wszSerial[0]) );
+	const wchar_t s_wszSerial[] = L"12345";
+	SDL_cwcslcpy(s_wszSerial, SDL_arraysize(s_wszSerial) - 1, string, maxlen);
 	return 0;
 }
 
