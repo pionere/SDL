@@ -324,52 +324,37 @@ static inline int libusb_get_string_descriptor(libusb_device_handle *dev,
 }
 #endif
 
-
-/* Get the first language the device says it reports. This comes from
-   USB string #0. */
-static uint16_t get_first_language(libusb_device_handle *dev)
+/* get a supported language, preferably lang */
+static uint16_t get_supported_language(libusb_device_handle *dev, uint16_t lang)
 {
-	uint16_t buf[32];
-	int len;
+	unsigned char buf[64];
+	unsigned char* ptr;
+	int i, len;
+	uint16_t result;
 
 	/* Get the string from libusb. */
+	ptr = buf;
 	len = libusb_get_string_descriptor(dev,
 			0x0, /* String ID */
 			0x0, /* Language */
-			(unsigned char*)buf,
+			ptr,
 			sizeof(buf));
 	if (len < 4)
 		return 0x0;
 
-	return buf[1]; /* First two bytes are len and descriptor type. */
-}
-
-static int is_language_supported(libusb_device_handle *dev, uint16_t lang)
-{
-	uint16_t buf[32];
-	int len;
-	int i;
-
-	/* Get the string from libusb. */
-	len = libusb_get_string_descriptor(dev,
-			0x0, /* String ID */
-			0x0, /* Language */
-			(unsigned char*)buf,
-			sizeof(buf));
-	if (len < 4)
-		return 0x0;
-
-
-	len /= 2; /* language IDs are two-bytes each. */
-	/* Start at index 1 because there are two bytes of protocol data. */
-	for (i = 1; i < len; i++) {
-		if (buf[i] == lang)
-			return 1;
+	/* Skip the first two bytes of protocol data (First two bytes are len and descriptor type). */
+	ptr += 2;
+	len -= 2;
+	/* language IDs are two-bytes each. */
+	result = *(uint16_t*)&ptr[0]; // return the first language by default
+	for (i = 0; i < len; i += 2) {
+		if (*(uint16_t*)&ptr[i] == lang) {
+			result = lang; // the wanted language is supported -> done
+			break;
+		}
 	}
-
-	return 0;
+	return result;
 }
-
 
 /* This function returns a newly allocated wide string containing the USB
    device string numbered by the index. The returned string must be freed
@@ -379,27 +364,18 @@ static int is_language_supported(libusb_device_handle *dev, uint16_t lang)
 #endif
 static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 {
+	uint16_t lang;
 	char buf[512];
 	int len;
 	wchar_t *str = NULL;
-
-#if !defined(NO_ICONV)
-	wchar_t wbuf[256];
-	SDL_iconv_t ic;
-	size_t inbytes;
-	size_t outbytes;
-	size_t res;
 	const char *inptr;
-	char *outptr;
-#else
+#if defined(NO_ICONV)
 	int i;
 #endif
 
 	/* Determine which language to use. */
-	uint16_t lang;
 	lang = get_usb_code_for_current_locale();
-	if (!is_language_supported(dev, lang))
-		lang = get_first_language(dev);
+	lang = get_supported_language(dev, lang);
 
 	/* Get the string from libusb. */
 	len = libusb_get_string_descriptor(dev,
@@ -407,8 +383,11 @@ static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 			lang,
 			(unsigned char*)buf,
 			sizeof(buf));
-	if (len < 0)
+	/* Skip the first two bytes of protocol data (First two bytes are len and descriptor type). */
+	if (/*len < 0 ||*/ len < 2)
 		return NULL;
+	len -= 2;
+	inptr = buf+2;
 
 #if defined(NO_ICONV) /* original hidapi code for NO_ICONV : */
 
@@ -416,53 +395,26 @@ static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 	   has to be done manually.  The following code will only work for
 	   code points that can be represented as a single UTF-16 character,
 	   and will incorrectly convert any code points which require more
-	   than one UTF-16 character.
+	   than one UTF-16 character. */
 
-	   Skip over the first character (2-bytes).  */
-	len -= 2;
-	str = (wchar_t*) SDL_malloc((len / 2 + 1) * sizeof(wchar_t));
-	for (i = 0; i < len / 2; i++) {
-		str[i] = buf[i * 2 + 2] | (buf[i * 2 + 3] << 8);
+	str = (wchar_t*) SDL_malloc((len / 2u + 1) * sizeof(wchar_t));
+	if (str != NULL) {
+		/*for (i = 0; i < len / 2u; i++, inptr += 2) {
+			str[i] = inptr[0] | (inptr[1] << 8);
+		}*/
+		SDL_INLINE_COMPILE_TIME_ASSERT(hid_get_usb_string, sizeof(wchar_t) == 2);
+		SDL_memcpy(str, inptr, len);
+		str[len / 2u] = L'\0';
+	} else {
+		SDL_OutOfMemory();
 	}
-	str[len / 2] = 0x00000000;
 
 #else
 	/* buf does not need to be explicitly NULL-terminated because
-	   it is only passed into iconv() which does not need it. */
+	   it is only passed into iconv() which does not need it.
 
-	/* Initialize iconv. */
-	ic = SDL_iconv_open("WCHAR_T", "UTF-16LE");
-	if (ic == (SDL_iconv_t)-1) {
-		LOG("SDL_iconv_open() failed\n");
-		return NULL;
-	}
-
-	/* Convert to native wchar_t (UTF-32 on glibc/BSD systems).
-	   Skip the first character (2-bytes). */
-	inptr = buf+2;
-	inbytes = len-2;
-	outptr = (char*) wbuf;
-	outbytes = sizeof(wbuf);
-	res = SDL_iconv(ic, &inptr, &inbytes, &outptr, &outbytes);
-	switch (res) {
-	case SDL_ICONV_E2BIG:
-	case SDL_ICONV_EILSEQ:
-	case SDL_ICONV_EINVAL:
-	case SDL_ICONV_ERROR:
-		LOG("SDL_iconv() failed\n");
-		goto err;
-	}
-
-	/* Write the terminating NULL. */
-	wbuf[sizeof(wbuf)/sizeof(wbuf[0])-1] = 0x00000000;
-	if (outbytes >= sizeof(wbuf[0]))
-		*((wchar_t*)outptr) = 0x00000000;
-
-	/* Allocate and copy the string. */
-	str = SDL_wcsdup(wbuf);
-
-err:
-	SDL_iconv_close(ic);
+	   Convert to native wchar_t (UTF-32 on glibc/BSD systems). */
+	str = (wchar_t*)SDL_iconv_string("WCHAR_T", "UTF-16LE", inptr, len);
 #endif
 
 	return str;
