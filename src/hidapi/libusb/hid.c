@@ -33,50 +33,6 @@
 #include "SDL_mutex.h"
 #include "SDL_thread.h"
 
-#ifdef realloc
-#undef realloc
-#endif
-#define realloc	SDL_realloc
-#ifdef snprintf
-#undef snprintf
-#endif
-#define snprintf SDL_snprintf
-#ifdef strdup
-#undef strdup
-#endif
-#define strdup  SDL_strdup
-#ifdef strncpy
-#undef strncpy
-#endif
-#define strncpy SDL_strlcpy
-#ifdef tolower
-#undef tolower
-#endif
-#define tolower SDL_tolower
-#ifdef wcsncpy
-#undef wcsncpy
-#endif
-#define wcsncpy SDL_wcslcpy
-
-#ifndef HAVE_WCSDUP
-#ifdef HAVE__WCSDUP
-#define wcsdup _wcsdup
-#else
-#define wcsdup _dupwcs
-static wchar_t *_dupwcs(const wchar_t *src)
-{
-    wchar_t *dst = NULL;
-    if (src) {
-        size_t len = SDL_wcslen(src) + 1;
-        len *= sizeof(wchar_t);
-        dst = (wchar_t *) malloc(len);
-        if (dst) memcpy(dst, src, len);
-    }
-    return dst;
-}
-#endif
-#endif /* HAVE_WCSDUP */
-
 #include <libusb.h>
 #ifndef _WIN32
 #define HAVE_SETLOCALE
@@ -464,7 +420,7 @@ static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 
 	   Skip over the first character (2-bytes).  */
 	len -= 2;
-	str = (wchar_t*) malloc((len / 2 + 1) * sizeof(wchar_t));
+	str = (wchar_t*) SDL_malloc((len / 2 + 1) * sizeof(wchar_t));
 	for (i = 0; i < len / 2; i++) {
 		str[i] = buf[i * 2 + 2] | (buf[i * 2 + 3] << 8);
 	}
@@ -503,7 +459,7 @@ static wchar_t *get_usb_string(libusb_device_handle *dev, uint8_t idx)
 		*((wchar_t*)outptr) = 0x00000000;
 
 	/* Allocate and copy the string. */
-	str = wcsdup(wbuf);
+	str = SDL_wcsdup(wbuf);
 
 err:
 	SDL_iconv_close(ic);
@@ -531,7 +487,7 @@ static int usb_string_cache_grow()
 
 	new_cache_size = usb_string_cache_size + 8;
 	allocSize = sizeof(struct usb_string_cache_entry) * new_cache_size;
-	new_cache = (struct usb_string_cache_entry *)realloc(usb_string_cache, allocSize);
+	new_cache = (struct usb_string_cache_entry *)SDL_realloc(usb_string_cache, allocSize);
 	if (!new_cache)
 		return -1;
 
@@ -620,13 +576,13 @@ static const struct usb_string_cache_entry *usb_string_cache_find(struct libusb_
 static char *make_path(libusb_device *dev, int interface_number)
 {
 	char str[64];
-	snprintf(str, sizeof(str), "%04x:%04x:%02x",
+	SDL_snprintf(str, sizeof(str), "%04x:%04x:%02x",
 		libusb_get_bus_number(dev),
 		libusb_get_device_address(dev),
 		interface_number);
 	str[sizeof(str)-1] = '\0';
 
-	return strdup(str);
+	return SDL_strdup(str);
 }
 
 
@@ -846,10 +802,10 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 									string_cache = usb_string_cache_find(&desc, handle);
 									if (string_cache) {
 										if (string_cache->vendor) {
-											cur_dev->manufacturer_string = wcsdup(string_cache->vendor);
+											cur_dev->manufacturer_string = SDL_wcsdup(string_cache->vendor);
 										}
 										if (string_cache->product) {
-											cur_dev->product_string = wcsdup(string_cache->product);
+											cur_dev->product_string = SDL_wcsdup(string_cache->product);
 										}
 									}
 								} else {
@@ -1011,8 +967,8 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 
 	if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
 
-		struct input_report *rpt = (struct input_report*) malloc(sizeof(*rpt));
-		rpt->data = (uint8_t*) malloc(transfer->actual_length);
+		struct input_report *rpt = (struct input_report*) SDL_malloc(sizeof(*rpt));
+		rpt->data = (uint8_t*) SDL_malloc(transfer->actual_length);
 		memcpy(rpt->data, transfer->buffer, transfer->actual_length);
 		rpt->len = transfer->actual_length;
 		rpt->next = NULL;
@@ -1080,7 +1036,7 @@ static int SDLCALL read_thread(void *param)
 	const size_t length = dev->input_ep_max_packet_size;
 
 	/* Set up the transfer object. */
-	buf = (uint8_t*) malloc(length);
+	buf = (uint8_t*) SDL_malloc(length);
 	dev->transfer = libusb_alloc_transfer(0);
 	libusb_fill_interrupt_transfer(dev->transfer,
 		dev->device_handle,
@@ -1664,7 +1620,7 @@ int HID_API_EXPORT_CALL hid_get_indexed_string(hid_device *dev, int string_index
 
 	str = get_usb_string(dev->device_handle, string_index);
 	if (str) {
-		wcsncpy(string, str, maxlen);
+		SDL_wcslcpy(string, str, maxlen);
 		string[maxlen-1] = L'\0';
 		free(str);
 		return 0;
@@ -1839,13 +1795,13 @@ uint16_t get_usb_code_for_current_locale(void)
 		return 0x0;
 
 	/* Make a copy of the current locale string. */
-	strncpy(search_string, locale, sizeof(search_string));
+	SDL_strlcpy(search_string, locale, sizeof(search_string));
 	search_string[sizeof(search_string)-1] = '\0';
 
 	/* Chop off the encoding part, and make it lower case. */
 	ptr = search_string;
 	while (*ptr) {
-		*ptr = tolower(*ptr);
+		*ptr = SDL_tolower(*ptr);
 		if (*ptr == '.') {
 			*ptr = '\0';
 			break;
@@ -1866,7 +1822,7 @@ uint16_t get_usb_code_for_current_locale(void)
 	/* Chop off the variant. Chop it off at the '_'. */
 	ptr = search_string;
 	while (*ptr) {
-		*ptr = tolower(*ptr);
+		*ptr = SDL_tolower(*ptr);
 		if (*ptr == '_') {
 			*ptr = '\0';
 			break;
