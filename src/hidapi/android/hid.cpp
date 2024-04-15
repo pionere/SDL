@@ -1301,7 +1301,7 @@ int HID_API_EXPORT_CALL hid_get_manufacturer_string(hid_device *device, wchar_t 
 		hid_device_ref<CHIDDevice> pDevice = FindDevice( device->m_nId );
 		if ( pDevice )
 		{
-			wcsncpy( string, pDevice->GetDeviceInfo()->manufacturer_string, maxlen );
+			SDL_wcslcpy( string, pDevice->GetDeviceInfo()->manufacturer_string, maxlen );
 			return 0;
 		}
 	}
@@ -1315,7 +1315,7 @@ int HID_API_EXPORT_CALL hid_get_product_string(hid_device *device, wchar_t *stri
 		hid_device_ref<CHIDDevice> pDevice = FindDevice( device->m_nId );
 		if ( pDevice )
 		{
-			wcsncpy( string, pDevice->GetDeviceInfo()->product_string, maxlen );
+			SDL_wcslcpy( string, pDevice->GetDeviceInfo()->product_string, maxlen );
 			return 0;
 		}
 	}
@@ -1329,7 +1329,7 @@ int HID_API_EXPORT_CALL hid_get_serial_number_string(hid_device *device, wchar_t
 		hid_device_ref<CHIDDevice> pDevice = FindDevice( device->m_nId );
 		if ( pDevice )
 		{
-			wcsncpy( string, pDevice->GetDeviceInfo()->serial_number, maxlen );
+			SDL_wcslcpy( string, pDevice->GetDeviceInfo()->serial_number, maxlen );
 			return 0;
 		}
 	}
