@@ -351,6 +351,8 @@ static int get_device_string(hid_device *dev, enum device_string_id key, wchar_t
 	char *product_name_utf8 = NULL;
 	char *tmp;
 
+	SDL_assert(dev != NULL);
+
 	/* Create the udev object */
 	udev = udev_new();
 	if (!udev) {
@@ -388,7 +390,9 @@ static int get_device_string(hid_device *dev, enum device_string_id key, wchar_t
 			if (bus_type == BUS_BLUETOOTH) {
 				switch (key) {
 					case DEVICE_STRING_MANUFACTURER:
-						wcsncpy(string, L"", maxlen);
+						if (maxlen > 0 && string != NULL) {
+							string[0] = L'\0';
+						}
 						ret = 0;
 						break;
 					case DEVICE_STRING_PRODUCT:
@@ -408,11 +412,11 @@ static int get_device_string(hid_device *dev, enum device_string_id key, wchar_t
 						break;
 					case DEVICE_STRING_COUNT:
 					default:
+						SDL_assume(!"Unknown device string key");
 						ret = -1;
 						break;
 				}
-			}
-			else {
+			} else {
 				/* This is a USB device. Find its parent USB Device node. */
 				parent = udev_device_get_parent_with_subsystem_devtype(
 					   udev_dev,
@@ -425,6 +429,7 @@ static int get_device_string(hid_device *dev, enum device_string_id key, wchar_t
 					if (key >= 0 && key < DEVICE_STRING_COUNT) {
 						key_str = device_string_names[key];
 					} else {
+						SDL_assume(!"Unknown device string key");
 						ret = -1;
 						goto end;
 					}
