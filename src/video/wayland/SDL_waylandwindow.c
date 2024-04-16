@@ -55,8 +55,8 @@ SDL_FORCE_INLINE SDL_bool FloatEqual(float a, float b)
 
 static void GetFullScreenDimensions(SDL_Window *window, int *width, int *height, int *drawable_width, int *drawable_height)
 {
-    SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
     SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
+    SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
 
     int fs_width, fs_height;
     int buf_width, buf_height;
@@ -127,9 +127,9 @@ SDL_FORCE_INLINE SDL_bool FullscreenModeEmulation(SDL_Window *window)
 
 static SDL_bool NeedViewport(SDL_Window *window)
 {
-    SDL_WindowData *wind = window->driverdata;
     Wayland_VideoData *video = &waylandVideoData;
     SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
+    SDL_WindowData *wind = window->driverdata;
     const int output_width = wind->fs_output_width ? wind->fs_output_width : (output ? output->width : wind->window_width);
     const int output_height = wind->fs_output_height ? wind->fs_output_height : (output ? output->height : wind->window_height);
     int fs_width, fs_height;
@@ -213,9 +213,9 @@ static void UnsetDrawSurfaceViewport(SDL_Window *window)
 
 static void ConfigureWindowGeometry(SDL_Window *window)
 {
-    SDL_WindowData *data = window->driverdata;
     Wayland_VideoData *viddata = &waylandVideoData;
     SDL_WaylandOutputData *output = (SDL_WaylandOutputData *)SDL_GetWindowDisplayDriverData(window);
+    SDL_WindowData *data = window->driverdata;
     struct wl_region *region;
     const int old_dw = data->drawable_width;
     const int old_dh = data->drawable_height;
@@ -729,7 +729,7 @@ static void handle_configure_zxdg_decoration(void *data,
                                              uint32_t mode)
 {
     SDL_Window *window = (SDL_Window *)data;
-    SDL_WindowData *driverdata = (SDL_WindowData *)window->driverdata;
+    SDL_WindowData *driverdata;
     Wayland_VideoData *viddata = &waylandVideoData;
 
     /* If the compositor tries to force CSD anyway, bail on direct XDG support
@@ -749,6 +749,7 @@ static void handle_configure_zxdg_decoration(void *data,
         WAYLAND_wl_display_roundtrip(viddata->display);
 
         Wayland_HideWindow(window);
+        driverdata = (SDL_WindowData *)window->driverdata;
         SDL_zero(driverdata->shell_surface);
         driverdata->shell_surface_type = WAYLAND_SURFACE_LIBDECOR;
 
@@ -1024,7 +1025,7 @@ static void update_scale_factor(SDL_WindowData *window)
 static void Wayland_move_window(SDL_Window *window,
                                 SDL_WaylandOutputData *driverdata)
 {
-    SDL_WindowData *wind = (SDL_WindowData *)window->driverdata;
+    SDL_WindowData *data;
     SDL_VideoDisplay *display;
     SDL_bool fs_display_changed = SDL_FALSE;
     int num_displays, i, j;
@@ -1081,8 +1082,9 @@ static void Wayland_move_window(SDL_Window *window,
              * If the fullscreen output was changed, and we have bad dimensions from
              * the compositor, commit with the dimensions of the new display.
              */
+            data = (SDL_WindowData *)window->driverdata;
             if (fs_display_changed &&
-                (!wind->fs_output_width || !wind->fs_output_height)) {
+                (!data->fs_output_width || !data->fs_output_height)) {
                 ConfigureWindowGeometry(window);
                 CommitLibdecorFrame(window);
             }
