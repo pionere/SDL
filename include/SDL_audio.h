@@ -241,7 +241,13 @@ typedef struct SDL_AudioCVT
     int len;                    /**< Length of original audio buffer */
     int len_cvt;                /**< Length of converted audio buffer */
     int len_mult;               /**< buffer must be len*len_mult big */
-    double len_ratio;           /**< Given len, final size is len*len_ratio */
+    union {
+        double len_ratio;      /**< Given len, final size is len*len_ratio */
+        struct {
+            Uint32 len_num;    /**< Private */
+            Uint32 len_denom;  /**< Private */
+        };
+    };
     SDL_AudioFilter filters[SDL_AUDIOCVT_MAX_FILTERS + 1]; /**< NULL-terminated list of filter functions */
     int filter_index;           /**< Current audio conversion function */
 } SDL_AUDIOCVT_PACKED SDL_AudioCVT;
