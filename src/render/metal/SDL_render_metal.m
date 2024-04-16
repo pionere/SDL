@@ -635,7 +635,7 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
             texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV21;
         }
         size_t offset = 0;
-        SDL_YUV_CONVERSION_MODE mode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE mode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         switch (mode) {
             case SDL_YUV_CONVERSION_JPEG: offset = CONSTANTS_OFFSET_DECODE_JPEG; break;
             case SDL_YUV_CONVERSION_BT601: offset = CONSTANTS_OFFSET_DECODE_BT601; break;

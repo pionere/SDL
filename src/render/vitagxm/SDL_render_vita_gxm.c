@@ -333,7 +333,7 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 static void VITA_GXM_SetYUVProfile(SDL_Renderer *renderer, SDL_Texture *texture)
 {
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
-    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
     int ret = 0;
     switch (convmode) {
     case SDL_YUV_CONVERSION_BT601:

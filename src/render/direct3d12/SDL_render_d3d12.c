@@ -2591,7 +2591,7 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
 #if SDL_HAVE_YUV
     if (textureData->yuv_planes == SDL_D3D12_YUV_3PLANES) {
         D3D12_Shader shader;
-        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         // D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
         //    textureData->mainTextureResourceView,
         //    textureData->mainTextureResourceViewU,
@@ -2628,7 +2628,7 @@ static int D3D12_SetCopyState(D3D12_RenderData *rendererData, const SDL_RenderCo
                                   textureSampler);
     } else if (textureData->yuv_planes == SDL_D3D12_YUV_2PLANES) {
         D3D12_Shader shader;
-        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         // D3D12_CPU_DESCRIPTOR_HANDLE shaderResources[] = {
         //    textureData->mainTextureResourceView,
         //    textureData->mainTextureResourceViewU,

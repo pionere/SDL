@@ -1970,7 +1970,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
 #if SDL_HAVE_YUV
     if (textureData->yuv_planes == SDL_D3D11_YUV_3PLANES) {
         D3D11_Shader shader;
-        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         // ID3D11ShaderResourceView *shaderResources[] = {
         //    textureData->mainTextureResourceView,
         //    textureData->mainTextureResourceViewU,
@@ -1999,7 +1999,7 @@ static int D3D11_SetCopyState(D3D11_RenderData *rendererData, const SDL_RenderCo
 
     } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
         D3D11_Shader shader;
-        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         // ID3D11ShaderResourceView *shaderResources[] = {
         //    textureData->mainTextureResourceView,
         //    textureData->mainTextureResourceViewU,

@@ -65,6 +65,10 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionMode(void)
 SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int height)
 {
     SDL_YUV_CONVERSION_MODE mode = SDL_GetYUVConversionMode();
+
+    /* The width is not used, make the compiler happy */
+    (void)width;
+
     if (mode == SDL_YUV_CONVERSION_AUTOMATIC) {
         if (height <= SDL_YUV_SD_THRESHOLD) {
             mode = SDL_YUV_CONVERSION_BT601;
@@ -92,9 +96,9 @@ SDL_YUV_CONVERSION_MODE SDL_GetYUVConversionModeForResolution(int width, int hei
 #endif
 
 #if SDL_HAVE_YUV
-static int GetYUVConversionType(int width, int height, YCbCrType *yuv_type)
+static int GetYUVConversionType(int height, YCbCrType *yuv_type)
 {
-    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(width, height);
+    SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, height);
     switch (convmode) {
     case SDL_YUV_CONVERSION_JPEG:
         *yuv_type = YCBCR_JPEG;
@@ -662,7 +666,7 @@ int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
     if (retval < 0) {
         return retval;
     }
-    retval = GetYUVConversionType(width, height, &yuv_type);
+    retval = GetYUVConversionType(height, &yuv_type);
     if (retval < 0) {
         return -1;
     }
@@ -707,7 +711,7 @@ static int SDL_ConvertPixels_ARGB8888_to_YUV(const void *src, unsigned src_pitch
             { 0.4392f, -0.3989f, -0.0403f },
         },
     };
-    const struct RGB2YUVFactors *cvt = &RGB2YUVFactorTables[SDL_GetYUVConversionModeForResolution(width, height)];
+    const struct RGB2YUVFactors *cvt = &RGB2YUVFactorTables[SDL_GetYUVConversionModeForResolution(0, height)];
 
 #define MAKE_Y(r, g, b) (Uint8)((int)(cvt->y[0] * (r) + cvt->y[1] * (g) + cvt->y[2] * (b) + 0.5f) + cvt->y_offset)
 #define MAKE_U(r, g, b) (Uint8)((int)(cvt->u[0] * (r) + cvt->u[1] * (g) + cvt->u[2] * (b) + 0.5f) + 128)
@@ -1021,7 +1025,7 @@ int SDL_ConvertPixels_RGB_to_YUV(int width, int height,
     if (src_format == SDL_PIXELFORMAT_RGB24) {
         YCbCrType yuv_type;
 
-        retval = GetYUVConversionType(dst_yuv_info.y_width, dst_yuv_info.y_height, &yuv_type);
+        retval = GetYUVConversionType(dst_yuv_info.y_height, &yuv_type);
         if (retval < 0) {
             return retval;
         }

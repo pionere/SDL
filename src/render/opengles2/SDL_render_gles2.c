@@ -640,7 +640,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
         break;
 #if SDL_HAVE_YUV
     case GLES2_IMAGESOURCE_TEXTURE_YUV:
-        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        convmode = SDL_GetYUVConversionModeForResolution(0, h);
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_YUV_JPEG;
@@ -657,7 +657,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
         }
         break;
     case GLES2_IMAGESOURCE_TEXTURE_NV12:
-        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        convmode = SDL_GetYUVConversionModeForResolution(0, h);
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV12_JPEG;
@@ -682,7 +682,7 @@ static int GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source,
         }
         break;
     case GLES2_IMAGESOURCE_TEXTURE_NV21:
-        convmode = SDL_GetYUVConversionModeForResolution(w, h);
+        convmode = SDL_GetYUVConversionModeForResolution(0, h);
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
             ftype = GLES2_SHADER_FRAGMENT_TEXTURE_NV21_JPEG;

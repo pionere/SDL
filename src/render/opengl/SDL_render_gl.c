@@ -658,7 +658,7 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
 #if SDL_HAVE_YUV
     if (data->yuv_planes != SDL_GL_YUV_NONE) {
-        switch (SDL_GetYUVConversionModeForResolution(texture->w, texture->h)) {
+        switch (SDL_GetYUVConversionModeForResolution(0, texture->h)) {
         case SDL_YUV_CONVERSION_JPEG:
             if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
                 data->shader = SHADER_YUV_JPEG;

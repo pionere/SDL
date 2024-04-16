@@ -951,7 +951,7 @@ static int SetupTextureState(D3D_RenderData *data, SDL_Texture *texture, LPDIREC
     status = BindTextureRep(data, &texturedata->texture, 0);
 #if SDL_HAVE_YUV
     if (status >= 0 && texturedata->yuv) {
-        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(texture->w, texture->h);
+        SDL_YUV_CONVERSION_MODE convmode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         D3D9_Shader shader;
         switch (convmode) {
         case SDL_YUV_CONVERSION_JPEG:
