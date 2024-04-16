@@ -70,14 +70,15 @@ SDL_SW_YUVTexture *SDL_SW_CreateYUVTexture(Uint32 format, int w, int h)
 int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                             const void *pixels, int pitch)
 {
-    switch (swdata->info.yuv_format) {
-    case SDL_PIXELFORMAT_YV12:
-    case SDL_PIXELFORMAT_IYUV:
-        if (rect->x == 0 && rect->y == 0 &&
-            rect->w == swdata->info.y_width && rect->h == swdata->info.y_height && pitch == swdata->info.y_pitch) {
-            SDL_memcpy(swdata->info.planes[0], pixels,
-                       (size_t)(swdata->info.y_height * swdata->info.y_pitch) + 2 * ((swdata->info.y_height + 1) / 2) * ((swdata->info.y_width + 1) / 2));
-        } else {
+    if (rect->x == 0 && rect->y == 0 &&
+        rect->w == swdata->info.y_width && rect->h == swdata->info.y_height && swdata->info.y_pitch == pitch) {
+        /* Fast path for complete update */
+        SDL_memcpy(swdata->info.planes[0], pixels, swdata->info.yuv_size);
+    } else {
+        switch (swdata->info.yuv_format) {
+        case SDL_PIXELFORMAT_YV12:
+        case SDL_PIXELFORMAT_IYUV:
+        {
             Uint8 *src, *dst;
             int row, rows, rows1, rows2;
             size_t length;
@@ -134,47 +135,42 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                 dst += dst_pitch2;
             }
         } break;
-    case SDL_PIXELFORMAT_YUY2:
-    case SDL_PIXELFORMAT_UYVY:
-    case SDL_PIXELFORMAT_YVYU:
-    {
-        Uint8 *src, *dst;
-        int row, rows;
-        unsigned src_pitch;
-        unsigned dst_pitch;
-        size_t length;
+        case SDL_PIXELFORMAT_YUY2:
+        case SDL_PIXELFORMAT_UYVY:
+        case SDL_PIXELFORMAT_YVYU:
+        {
+            Uint8 *src, *dst;
+            int row, rows;
+            unsigned src_pitch;
+            unsigned dst_pitch;
+            size_t length;
 
-        /* Copy the YUV plane */
-        src = (Uint8 *)pixels;
-        src_pitch = pitch;
-        dst = swdata->info.planes[0];
-        dst_pitch = swdata->info.y_pitch;
-        // -- move to the selected rectangle
-        dst += rect->y * dst_pitch + rect->x * 2;
-        // -- copy the bytes
-        length = 4 * (((size_t)rect->w + 1) / 2);
-        rows = rect->h;
-        for (row = 0; row < rows; ++row) {
-            SDL_memcpy(dst, src, length);
-            src += src_pitch;
-            dst += dst_pitch;
-        }
-    } break;
-    case SDL_PIXELFORMAT_NV12:
-    case SDL_PIXELFORMAT_NV21:
-    case SDL_PIXELFORMAT_P010:
-    {
-        const unsigned ubbp = swdata->info.yuv_format == SDL_PIXELFORMAT_P010 ? 2 : 1;
-        if (rect->x == 0 && rect->y == 0 && rect->w == swdata->info.y_width && rect->h == swdata->info.y_height && pitch == swdata->info.y_pitch) {
-            SDL_memcpy(swdata->info.planes[0], pixels,
-                       (size_t)(swdata->info.y_height * swdata->info.y_pitch) + 2 * ((swdata->info.y_height + 1) / 2) * ((swdata->info.y_width + 1) / 2) * ubbp);
-        } else {
-
+            /* Copy the YUV plane */
+            src = (Uint8 *)pixels;
+            src_pitch = pitch;
+            dst = swdata->info.planes[0];
+            dst_pitch = swdata->info.y_pitch;
+            // -- move to the selected rectangle
+            dst += rect->y * dst_pitch + rect->x * 2;
+            // -- copy the bytes
+            length = 4 * (((size_t)rect->w + 1) / 2);
+            rows = rect->h;
+            for (row = 0; row < rows; ++row) {
+                SDL_memcpy(dst, src, length);
+                src += src_pitch;
+                dst += dst_pitch;
+            }
+        } break;
+        case SDL_PIXELFORMAT_NV12:
+        case SDL_PIXELFORMAT_NV21:
+        case SDL_PIXELFORMAT_P010:
+        {
             Uint8 *src, *dst;
             int row, rows, rows1;
             unsigned src_pitch, src_pitch1;
             unsigned dst_pitch, dst_pitch1;
             size_t length;
+            const unsigned ubbp = swdata->info.bpp;
 
             /* Copy the Y plane */
             src = (Uint8 *)pixels;
@@ -208,11 +204,11 @@ int SDL_SW_UpdateYUVTexture(SDL_SW_YUVTexture *swdata, const SDL_Rect *rect,
                 src += src_pitch1;
                 dst += dst_pitch1;
             }
+        } break;
+        default:
+            SDL_assume(!"Unknown pixel format");
+            break;
         }
-    } break;
-    default:
-        SDL_assume(!"Unknown pixel format");
-        break;
     }
     return 0;
 }
@@ -231,7 +227,7 @@ int SDL_SW_UpdateYUVTexturePlanar(SDL_SW_YUVTexture *swdata, const SDL_Rect *rec
 
     /* Copy the Y plane */
     src = Yplane;
-    dst = swdata->info.planes[0];
+    dst = swdata->info.y_plane;
     // -- move to the selected rectangle
     dst_pitch = swdata->info.y_pitch;
     dst += rect->y * dst_pitch + rect->x;
@@ -248,12 +244,7 @@ int SDL_SW_UpdateYUVTexturePlanar(SDL_SW_YUVTexture *swdata, const SDL_Rect *rec
     /* Copy the U plane */
     src = Uplane;
     dst_pitch1 = swdata->info.uv_pitch;
-    if (swdata->info.yuv_format == SDL_PIXELFORMAT_IYUV) {
-        dst = swdata->info.planes[1];
-    } else {
-        // SDL_PIXELFORMAT_YV12
-        dst = swdata->info.planes[2];
-    }
+    dst = swdata->info.u_plane;
     // -- move to the selected rectangle
     dst += ((unsigned)rect->y / 2) * dst_pitch1 + (unsigned)rect->x / 2;
     // -- copy the bytes
@@ -269,11 +260,7 @@ int SDL_SW_UpdateYUVTexturePlanar(SDL_SW_YUVTexture *swdata, const SDL_Rect *rec
     /* Copy the V plane */
     src = Vplane;
     dst_pitch2 = dst_pitch1; // swdata->info.uv_pitch;
-    if (swdata->info.yuv_format == SDL_PIXELFORMAT_IYUV) {
-        dst = swdata->info.planes[2];
-    } else {
-        dst = swdata->info.planes[1];
-    }
+    dst = swdata->info.v_plane;
     // -- move to the selected rectangle
     dst += ((unsigned)rect->y / 2) * dst_pitch2 + (unsigned)rect->x / 2;
     // -- copy the bytes
