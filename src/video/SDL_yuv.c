@@ -603,6 +603,50 @@ static SDL_bool yuv_rgb_std(
     return SDL_FALSE;
 }
 
+static int SDL_ConvertPixels_yuv_rgb(const SDL_YUVInfo *src_yuv_info, Uint32 dst_format, void *dst, int dst_pitch, YCbCrType yuv_type)
+{
+#ifdef __SSE2__
+    if (SDL_HasSSE2()) {
+        if (yuv_rgb_sse(src_yuv_info->yuv_format, dst_format, src_yuv_info->y_width, src_yuv_info->y_height, src_yuv_info->y_plane, src_yuv_info->u_plane, src_yuv_info->v_plane, src_yuv_info->y_pitch, src_yuv_info->uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
+            return 0;
+        }
+    }
+#endif
+#ifdef __loongarch_sx
+    if (SDL_HasLSX()) {
+        if (yuv_rgb_lsx(src_yuv_info->yuv_format, dst_format, src_yuv_info->y_width, src_yuv_info->y_height, src_yuv_info->y_plane, src_yuv_info->u_plane, src_yuv_info->v_plane, src_yuv_info->y_pitch, src_yuv_info->uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
+            return 0;
+        }
+    }
+#endif
+    if (yuv_rgb_std(src_yuv_info->yuv_format, dst_format, src_yuv_info->y_width, src_yuv_info->y_height, src_yuv_info->y_plane, src_yuv_info->u_plane, src_yuv_info->v_plane, src_yuv_info->y_pitch, src_yuv_info->uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
+        return 0;
+    }
+
+    /* No fast path for the RGB format, instead convert using an intermediate buffer */
+    if (dst_format != SDL_PIXELFORMAT_ARGB8888) {
+        void *tmp;
+        unsigned tmp_pitch = (src_yuv_info->y_width * sizeof(Uint32));
+        int retval;
+
+        tmp = SDL_malloc((size_t)tmp_pitch * src_yuv_info->y_height);
+        if (!tmp) {
+            return SDL_OutOfMemory();
+        }
+
+        /* convert src/src_format to tmp/ARGB8888 */
+        retval = SDL_ConvertPixels_yuv_rgb(src_yuv_info, SDL_PIXELFORMAT_ARGB8888, tmp, tmp_pitch, yuv_type);
+        if (retval >= 0) {
+            /* convert tmp/ARGB8888 to dst/RGB */
+            retval = SDL_ConvertPixels(src_yuv_info->y_width, src_yuv_info->y_height, SDL_PIXELFORMAT_ARGB8888, tmp, tmp_pitch, dst_format, dst, dst_pitch);
+        }
+        SDL_free(tmp);
+        return retval;
+    }
+
+    return SDL_SetError("Unsupported YUV conversion");
+}
+
 int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
                                  Uint32 src_format, const void *src, int src_pitch,
                                  Uint32 dst_format, void *dst, int dst_pitch)
@@ -623,48 +667,7 @@ int SDL_ConvertPixels_YUV_to_RGB(int width, int height,
         return -1;
     }
 
-#ifdef __SSE2__
-    if (SDL_HasSSE2()) {
-        if (yuv_rgb_sse(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
-            return 0;
-        }
-    }
-#endif
-#ifdef __loongarch_sx
-    if (SDL_HasLSX()) {
-        if (yuv_rgb_lsx(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
-            return 0;
-        }
-    }
-#endif
-    if (yuv_rgb_std(src_format, dst_format, width, height, yuv_info.y_plane, yuv_info.u_plane, yuv_info.v_plane, yuv_info.y_pitch, yuv_info.uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
-        return 0;
-    }
-
-    /* No fast path for the RGB format, instead convert using an intermediate buffer */
-    if (dst_format != SDL_PIXELFORMAT_ARGB8888) {
-        void *tmp;
-        unsigned tmp_pitch = (width * sizeof(Uint32));
-
-        tmp = SDL_malloc((size_t)tmp_pitch * height);
-        if (!tmp) {
-            return SDL_OutOfMemory();
-        }
-
-        /* convert src/src_format to tmp/ARGB8888 */
-        retval = SDL_ConvertPixels_YUV_to_RGB(width, height, src_format, src, src_pitch, SDL_PIXELFORMAT_ARGB8888, tmp, tmp_pitch);
-        if (retval < 0) {
-            SDL_free(tmp);
-            return retval;
-        }
-
-        /* convert tmp/ARGB8888 to dst/RGB */
-        retval = SDL_ConvertPixels(width, height, SDL_PIXELFORMAT_ARGB8888, tmp, tmp_pitch, dst_format, dst, dst_pitch);
-        SDL_free(tmp);
-        return retval;
-    }
-
-    return SDL_SetError("Unsupported YUV conversion");
+    return SDL_ConvertPixels_yuv_rgb(&yuv_info, dst_format, dst, dst_pitch, yuv_type);
 }
 
 struct RGB2YUVFactors
