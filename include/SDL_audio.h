@@ -82,18 +82,21 @@ typedef Uint16 SDL_AudioFormat;
 #define SDL_AUDIO_ISLITTLEENDIAN(x)  (!SDL_AUDIO_ISBIGENDIAN(x))
 #define SDL_AUDIO_ISUNSIGNED(x)      (!SDL_AUDIO_ISSIGNED(x))
 
+#define SDL_DEFINE_AUDIOFORMAT(has_sign, is_big_endian, is_float, bits) \
+    (((has_sign) << 15) | ((is_big_endian) << 12) | ((is_float) << 8) | ((bits) << 0))
+
 /**
  *  \name Audio format flags
  *
  *  Defaults to LSB byte order.
  */
 /* @{ */
-#define AUDIO_U8        0x0008  /**< Unsigned 8-bit samples */
-#define AUDIO_S8        0x8008  /**< Signed 8-bit samples */
-#define AUDIO_U16LSB    0x0010  /**< Unsigned 16-bit samples */
-#define AUDIO_S16LSB    0x8010  /**< Signed 16-bit samples */
-#define AUDIO_U16MSB    0x1010  /**< As above, but big-endian byte order */
-#define AUDIO_S16MSB    0x9010  /**< As above, but big-endian byte order */
+#define AUDIO_U8        SDL_DEFINE_AUDIOFORMAT(0, 0, 0,  8) /**< Unsigned 8-bit integer samples */
+#define AUDIO_S8        SDL_DEFINE_AUDIOFORMAT(1, 0, 0,  8) /**< Signed 8-bit integer samples */
+#define AUDIO_U16LSB    SDL_DEFINE_AUDIOFORMAT(0, 0, 0, 16) /**< Unsigned 16-bit integer samples */
+#define AUDIO_S16LSB    SDL_DEFINE_AUDIOFORMAT(1, 0, 0, 16) /**< Signed 16-bit integer samples */
+#define AUDIO_U16MSB    SDL_DEFINE_AUDIOFORMAT(0, 1, 0, 16)  /**< As above, but big-endian byte order */
+#define AUDIO_S16MSB    SDL_DEFINE_AUDIOFORMAT(1, 1, 0, 16)  /**< As above, but signed */
 #define AUDIO_U16       AUDIO_U16LSB
 #define AUDIO_S16       AUDIO_S16LSB
 /* @} */
@@ -102,8 +105,8 @@ typedef Uint16 SDL_AudioFormat;
  *  \name int32 support
  */
 /* @{ */
-#define AUDIO_S32LSB    0x8020  /**< 32-bit integer samples */
-#define AUDIO_S32MSB    0x9020  /**< As above, but big-endian byte order */
+#define AUDIO_S32LSB    SDL_DEFINE_AUDIOFORMAT(1, 0, 0, 32)  /**< Signed 32-bit integer samples */
+#define AUDIO_S32MSB    SDL_DEFINE_AUDIOFORMAT(1, 1, 0, 32)  /**< As above, but big-endian byte order */
 #define AUDIO_S32       AUDIO_S32LSB
 /* @} */
 
@@ -111,8 +114,8 @@ typedef Uint16 SDL_AudioFormat;
  *  \name float32 support
  */
 /* @{ */
-#define AUDIO_F32LSB    0x8120  /**< 32-bit floating point samples */
-#define AUDIO_F32MSB    0x9120  /**< As above, but big-endian byte order */
+#define AUDIO_F32LSB    SDL_DEFINE_AUDIOFORMAT(1, 0, 1, 32)  /**< (Signed) 32-bit floating point samples */
+#define AUDIO_F32MSB    SDL_DEFINE_AUDIOFORMAT(1, 1, 1, 32)  /**< As above, but big-endian byte order */
 #define AUDIO_F32       AUDIO_F32LSB
 /* @} */
 
