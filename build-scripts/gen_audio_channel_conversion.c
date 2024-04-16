@@ -348,8 +348,18 @@ static void write_converter(const int fromchans, const int tochans)
 
         for (j = 0; j < tochans; j++) {
             int has_input = 0;
+            int all_the_same = 1;
+            float coeff;
             fptr = cvtmatrix + (fromchans * j);
             printf("        dst[%d] /* %s */ =", j, channel_names[tochans-1][j]);
+            coeff = fptr[0];
+            for (i = 0; i < fromchans; i++) {
+                const float coefficient = fptr[i];
+                if (coefficient == 0.0f || coefficient != coeff) {
+                    all_the_same = 0;
+                    break;
+                }
+            }
             for (i = 0; i < fromchans; i++) {
                 const float coefficient = fptr[i];
                 char srcname[32];
@@ -363,19 +373,22 @@ static void write_converter(const int fromchans, const int tochans)
 
                 if (has_input) {
                     printf(" +");
+                } else if (all_the_same) {
+                    printf(" (");
                 }
 
                 has_input = 1;
 
-                if (coefficient == 1.0f) {
+                if (coefficient == 1.0f || all_the_same) {
                     printf(" %s", srcname);
                 } else {
                     printf(" (%s * %.9ff)", srcname, coefficient);
                 }
             }
-
             if (!has_input) {
                 printf(" 0.0f");
+            } else if (all_the_same) {
+                printf(" ) * %.9ff", coeff);
             }
 
             printf(";\n");

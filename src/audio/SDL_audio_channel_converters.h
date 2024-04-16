@@ -206,7 +206,7 @@ static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt, SDL_AudioFormat f
     SDL_assert(format == AUDIO_F32SYS);
 
     for (i = cvt->len_cvt / ((unsigned)sizeof(float) * 2); i; i--, src += 2, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.500000000f) + (src[1] * 0.500000000f);
+        dst[0] /* FC */ = ( src[0] + src[1] ) * 0.500000000f;
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)2;
@@ -372,7 +372,7 @@ static void SDLCALL SDL_Convert21ToMono(SDL_AudioCVT *cvt, SDL_AudioFormat forma
     SDL_assert(format == AUDIO_F32SYS);
 
     for (i = cvt->len_cvt / (sizeof(float) * 3); i; i--, src += 3, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.333333343f) + (src[1] * 0.333333343f) + (src[2] * 0.333333343f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] ) * 0.333333343f;
     }
 
     cvt->len_cvt = cvt->len_cvt / 3;
@@ -538,7 +538,7 @@ static void SDLCALL SDL_ConvertQuadToMono(SDL_AudioCVT *cvt, SDL_AudioFormat for
     SDL_assert(format == AUDIO_F32SYS);
 
     for (i = cvt->len_cvt / ((unsigned)sizeof(float) * 4); i; i--, src += 4, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.250000000f) + (src[1] * 0.250000000f) + (src[2] * 0.250000000f) + (src[3] * 0.250000000f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] ) * 0.250000000f;
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)4;
@@ -706,7 +706,7 @@ static void SDLCALL SDL_Convert41ToMono(SDL_AudioCVT *cvt, SDL_AudioFormat forma
     SDL_assert(format == AUDIO_F32SYS);
 
     for (i = cvt->len_cvt / (sizeof(float) * 5); i; i--, src += 5, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.200000003f) + (src[1] * 0.200000003f) + (src[2] * 0.200000003f) + (src[3] * 0.200000003f) + (src[4] * 0.200000003f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] + src[4] ) * 0.200000003f;
     }
 
     cvt->len_cvt = cvt->len_cvt / 5;
@@ -874,7 +874,7 @@ static void SDLCALL SDL_Convert51ToMono(SDL_AudioCVT *cvt, SDL_AudioFormat forma
     SDL_assert(format == AUDIO_F32SYS);
 
     for (i = cvt->len_cvt / (sizeof(float) * 6); i; i--, src += 6, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.166666672f) + (src[1] * 0.166666672f) + (src[2] * 0.166666672f) + (src[3] * 0.166666672f) + (src[4] * 0.166666672f) + (src[5] * 0.166666672f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] + src[4] + src[5] ) * 0.166666672f;
     }
 
     cvt->len_cvt = cvt->len_cvt / 6;
