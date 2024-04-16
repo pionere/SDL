@@ -1713,7 +1713,7 @@ static int SDL_PrivateLockTexture(SDL_Texture *texture, const SDL_Rect *rect, vo
 static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
                                 const void *pixels, int pitch)
 {
-    SDL_Texture *native = texture->native;
+    SDL_Texture *native;
     SDL_Rect full_rect;
     int retval;
 
@@ -1728,6 +1728,11 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
     full_rect.h = texture->h;
     rect = &full_rect;
 
+    if (!rect->w || !rect->h) { // SDL_RectEmpty(&rect)
+        return 0; /* nothing to do. */
+    }
+
+    native = texture->native;
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
@@ -1744,16 +1749,14 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
         /* Use a temporary buffer for updating */
         const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
-        if (alloclen > 0) {
-            void *temp_pixels = SDL_malloc(alloclen);
-            if (!temp_pixels) {
-                return SDL_OutOfMemory();
-            }
-            SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
-                                rect->w, rect->h, temp_pixels, temp_pitch);
-            SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
-            SDL_free(temp_pixels);
+        void *temp_pixels = SDL_malloc(alloclen);
+        if (!temp_pixels) {
+            return SDL_OutOfMemory();
         }
+        SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
+            rect->w, rect->h, temp_pixels, temp_pitch);
+        SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
+        SDL_free(temp_pixels);
     }
     return 0;
 }
@@ -1762,12 +1765,13 @@ static int SDL_UpdateTextureYUV(SDL_Texture *texture, const SDL_Rect *rect,
 static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
                                    const void *pixels, int pitch)
 {
-    SDL_Texture *native = texture->native;
+    SDL_Texture *native;
 
-    if (!rect->w || !rect->h) {
+    if (!rect->w || !rect->h) { // SDL_RectEmpty(&rect)
         return 0; /* nothing to do. */
     }
 
+    native = texture->native;
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
@@ -1785,17 +1789,15 @@ static int SDL_UpdateTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
         /* Use a temporary buffer for updating */
         const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
-        if (alloclen > 0) {
-            void *temp_pixels = SDL_malloc(alloclen);
-            if (!temp_pixels) {
-                return SDL_OutOfMemory();
-            }
-            SDL_ConvertPixels(rect->w, rect->h,
-                              texture->format, pixels, pitch,
-                              native->format, temp_pixels, temp_pitch);
-            SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
-            SDL_free(temp_pixels);
+        void *temp_pixels = SDL_malloc(alloclen);
+        if (!temp_pixels) {
+            return SDL_OutOfMemory();
         }
+        SDL_ConvertPixels(rect->w, rect->h,
+            texture->format, pixels, pitch,
+            native->format, temp_pixels, temp_pitch);
+        SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
+        SDL_free(temp_pixels);
     }
     return 0;
 }
@@ -1819,12 +1821,10 @@ int SDL_UpdateTexture(SDL_Texture *texture, const SDL_Rect *rect,
     real_rect.w = texture->w;
     real_rect.h = texture->h;
     if (rect) {
-        if (!SDL_IntersectRect(rect, &real_rect, &real_rect)) {
-            return 0;
-        }
+        SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
+    if (!real_rect.w || !real_rect.h) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
 #if SDL_HAVE_YUV
     } else if (texture->yuv) {
@@ -1848,7 +1848,7 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
                                       const Uint8 *Uplane, int Upitch,
                                       const Uint8 *Vplane, int Vpitch)
 {
-    SDL_Texture *native = texture->native;
+    SDL_Texture *native;
     SDL_Rect full_rect;
     int retval;
 
@@ -1863,10 +1863,11 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
     full_rect.h = texture->h;
     rect = &full_rect;
 
-    if (!rect->w || !rect->h) {
+    if (!rect->w || !rect->h) { // SDL_RectEmpty(&rect)
         return 0; /* nothing to do. */
     }
 
+    native = texture->native;
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
@@ -1883,16 +1884,14 @@ static int SDL_UpdateTextureYUVPlanar(SDL_Texture *texture, const SDL_Rect *rect
         /* Use a temporary buffer for updating */
         const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
-        if (alloclen > 0) {
-            void *temp_pixels = SDL_malloc(alloclen);
-            if (!temp_pixels) {
-                return SDL_OutOfMemory();
-            }
-            SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
-                                rect->w, rect->h, temp_pixels, temp_pitch);
-            SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
-            SDL_free(temp_pixels);
+        void *temp_pixels = SDL_malloc(alloclen);
+        if (!temp_pixels) {
+            return SDL_OutOfMemory();
         }
+        SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
+            rect->w, rect->h, temp_pixels, temp_pitch);
+        SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
+        SDL_free(temp_pixels);
     }
     return 0;
 }
@@ -1901,7 +1900,7 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
                                      const Uint8 *Yplane, int Ypitch,
                                      const Uint8 *UVplane, int UVpitch)
 {
-    SDL_Texture *native = texture->native;
+    SDL_Texture *native;
     SDL_Rect full_rect;
     int retval;
 
@@ -1916,10 +1915,11 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
     full_rect.h = texture->h;
     rect = &full_rect;
 
-    if (!rect->w || !rect->h) {
+    if (!rect->w || !rect->h) { // SDL_RectEmpty(&rect)
         return 0; /* nothing to do. */
     }
 
+    native = texture->native;
     if (texture->access & SDL_TEXTUREACCESS_STREAMING) {
         /* We can lock the texture and copy to it */
         void *native_pixels = NULL;
@@ -1936,16 +1936,14 @@ static int SDL_UpdateTextureNVPlanar(SDL_Texture *texture, const SDL_Rect *rect,
         /* Use a temporary buffer for updating */
         const int temp_pitch = (((rect->w * SDL_PIXELFORMAT_BPP(native->format)) + 3) & ~3);
         const size_t alloclen = (size_t)rect->h * temp_pitch;
-        if (alloclen > 0) {
-            void *temp_pixels = SDL_malloc(alloclen);
-            if (!temp_pixels) {
-                return SDL_OutOfMemory();
-            }
-            SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
-                                rect->w, rect->h, temp_pixels, temp_pitch);
-            SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
-            SDL_free(temp_pixels);
+        void *temp_pixels = SDL_malloc(alloclen);
+        if (!temp_pixels) {
+            return SDL_OutOfMemory();
         }
+        SDL_SW_CopyYUVToRGB(texture->yuv, rect, native->format,
+            rect->w, rect->h, temp_pixels, temp_pitch);
+        SDL_UpdateTexture(native, rect, temp_pixels, temp_pitch);
+        SDL_free(temp_pixels);
     }
     return 0;
 }
@@ -1996,7 +1994,7 @@ int SDL_UpdateYUVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
+    if (!real_rect.w || !real_rect.h) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
     }
 
@@ -2058,7 +2056,7 @@ int SDL_UpdateNVTexture(SDL_Texture *texture, const SDL_Rect *rect,
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
+    if (!real_rect.w || !real_rect.h) { // SDL_RectEmpty(&real_rect)
         return 0; /* nothing to do. */
     }
 
@@ -2162,7 +2160,7 @@ int SDL_LockTextureToSurface(SDL_Texture *texture, const SDL_Rect *rect,
     if (rect) {
         SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
-    if (real_rect.w == 0 || real_rect.h == 0) { // SDL_RectEmpty(&real_rect)
+    if (!real_rect.w || !real_rect.h) { // SDL_RectEmpty(&real_rect)
         *surface = NULL;
         return 0; /* nothing to do. */
     }
@@ -2189,6 +2187,8 @@ static void SDL_UnlockTextureYUV(SDL_Texture *texture)
     void *native_pixels = NULL;
     int native_pitch = 0;
     SDL_Rect rect;
+
+    // SDL_SW_UnlockYUVTexture(texture->yuv);
 
     rect.x = 0;
     rect.y = 0;
