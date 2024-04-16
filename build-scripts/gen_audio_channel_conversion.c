@@ -285,9 +285,9 @@ static void write_converter(const int fromchans, const int tochans)
     if (convert_backwards) {
         printf("    /* convert backwards, since output is growing in-place. */\n");
         if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    for (i = (unsigned)cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
+            printf("    for (i = cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
         } else {
-            printf("    for (i = (unsigned)cvt->len_cvt / (sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
+            printf("    for (i = cvt->len_cvt / (sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
         }
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
@@ -334,9 +334,9 @@ static void write_converter(const int fromchans, const int tochans)
         printf("    }\n");
     } else {
         if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    for (i = (unsigned)cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
+            printf("    for (i = cvt->len_cvt / ((unsigned)sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
         } else {
-            printf("    for (i = (unsigned)cvt->len_cvt / (sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
+            printf("    for (i = cvt->len_cvt / (sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
         }
 
         fptr = cvtmatrix;
