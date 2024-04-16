@@ -399,7 +399,15 @@ static void write_converter(const int fromchans, const int tochans)
     printf("\n");
 
     if ((fromchans > 1) && (tochans > 1)) {
-        if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+        if (fromchans > tochans && (fromchans % tochans) == 0) { // -- fromchans is multiple of tochans -> use single division
+            if (((fromchans / tochans) & ((fromchans / tochans) - 1)) == 0) {
+                printf("    cvt->len_cvt = (cvt->len_cvt / %du);\n", (fromchans / tochans));
+            } else {
+                printf("    cvt->len_cvt = (cvt->len_cvt / %d);\n", (fromchans / tochans));
+            }
+        } else if (tochans > fromchans && (tochans % fromchans) == 0) { // -- tochans is multiple of fromchans -> use single multiplication
+            printf("    cvt->len_cvt = (cvt->len_cvt * %d);\n", (tochans / fromchans));
+        } else if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
             printf("    cvt->len_cvt = (cvt->len_cvt / (unsigned)%d) * %d;\n", fromchans, tochans);
         } else {
             printf("    cvt->len_cvt = (cvt->len_cvt / %d) * %d;\n", fromchans, tochans);

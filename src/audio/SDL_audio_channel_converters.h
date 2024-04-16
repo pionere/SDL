@@ -254,7 +254,7 @@ static void SDLCALL SDL_ConvertStereoToQuad(SDL_AudioCVT *cvt, SDL_AudioFormat f
         dst[0] /* FL */ = src[0];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 4;
+    cvt->len_cvt = (cvt->len_cvt * 2);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -303,7 +303,7 @@ static void SDLCALL SDL_ConvertStereoTo51(SDL_AudioCVT *cvt, SDL_AudioFormat for
         dst[0] /* FL */ = src[0];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 6;
+    cvt->len_cvt = (cvt->len_cvt * 3);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -356,7 +356,7 @@ static void SDLCALL SDL_ConvertStereoTo71(SDL_AudioCVT *cvt, SDL_AudioFormat for
         dst[0] /* FL */ = src[0];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 8;
+    cvt->len_cvt = (cvt->len_cvt * 4);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -469,7 +469,7 @@ static void SDLCALL SDL_Convert21To51(SDL_AudioCVT *cvt, SDL_AudioFormat format)
         dst[0] /* FL */ = src[0];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / 3) * 6;
+    cvt->len_cvt = (cvt->len_cvt * 2);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -563,7 +563,7 @@ static void SDLCALL SDL_ConvertQuadToStereo(SDL_AudioCVT *cvt, SDL_AudioFormat f
         dst[1] /* FR */ = (src[1] * 0.421000004f) + (srcBL * 0.219999999f) + (srcBR * 0.358999997f);
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 2;
+    cvt->len_cvt = (cvt->len_cvt / 2u);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -690,7 +690,7 @@ static void SDLCALL SDL_ConvertQuadTo71(SDL_AudioCVT *cvt, SDL_AudioFormat forma
         dst[0] /* FL */ = src[0];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 8;
+    cvt->len_cvt = (cvt->len_cvt * 2);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -901,7 +901,7 @@ static void SDLCALL SDL_Convert51ToStereo(SDL_AudioCVT *cvt, SDL_AudioFormat for
         dst[1] /* FR */ = (src[1] * 0.294545442f) + (srcFC * 0.208181813f) + (srcLFE * 0.090909094f) + (srcBL * 0.154545456f) + (srcBR * 0.251818180f);
     }
 
-    cvt->len_cvt = (cvt->len_cvt / 6) * 2;
+    cvt->len_cvt = (cvt->len_cvt / 3);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -925,7 +925,7 @@ static void SDLCALL SDL_Convert51To21(SDL_AudioCVT *cvt, SDL_AudioFormat format)
         dst[2] /* LFE */ = src[3];
     }
 
-    cvt->len_cvt = (cvt->len_cvt / 6) * 3;
+    cvt->len_cvt = (cvt->len_cvt / 2u);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -1251,7 +1251,7 @@ static void SDLCALL SDL_Convert71ToStereo(SDL_AudioCVT *cvt, SDL_AudioFormat for
         dst[1] /* FR */ = (src[1] * 0.211866662f) + (srcFC * 0.150266662f) + (srcLFE * 0.066666670f) + (srcBL * 0.111066669f) + (srcBR * 0.181066677f) + (srcSL * 0.085866667f) + (srcSR * 0.194133341f);
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 2;
+    cvt->len_cvt = (cvt->len_cvt / 4u);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
@@ -1303,7 +1303,7 @@ static void SDLCALL SDL_Convert71ToQuad(SDL_AudioCVT *cvt, SDL_AudioFormat forma
         dst[3] /* BR */ = (srcLFE * 0.034482758f) + (src[5] * 0.466344833f) + (srcSR * 0.433517247f);
     }
 
-    cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 4;
+    cvt->len_cvt = (cvt->len_cvt / 2u);
     if (cvt->filters[++cvt->filter_index]) {
         cvt->filters[cvt->filter_index](cvt, format);
     }
