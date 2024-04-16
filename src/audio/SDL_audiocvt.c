@@ -288,32 +288,40 @@ int SDL_ConvertAudio(SDL_AudioCVT *cvt)
     return 0;
 }
 
-static void SDLCALL SDL_Convert_Byteswap(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt, SDL_AudioFormat format)
 {
+    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
+    Uint16 *ptr = (Uint16 *)cvt->buf;
+    int i;
 #if DEBUG_CONVERT
-    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order\n");
+    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (16)\n");
 #endif
 
-    switch (SDL_AUDIO_BITSIZE(format)) {
-#define CASESWAP(b)                                            \
-    case b:                                                    \
-    {                                                          \
-        Uint##b *ptr = (Uint##b *)cvt->buf;                    \
-        int i;                                                 \
-        for (i = (unsigned)cvt->len_cvt / sizeof(*ptr); i; --i, ++ptr) { \
-            *ptr = SDL_Swap##b(*ptr);                          \
-        }                                                      \
-        break;                                                 \
+    for (i = num_samples; i; --i, ++ptr) {
+        *ptr = SDL_Swap16(*ptr);
     }
 
-        CASESWAP(16);
-        CASESWAP(32);
+    if (cvt->filters[++cvt->filter_index]) {
+        /* flip endian flag for data. */
+        if (format & SDL_AUDIO_MASK_ENDIAN) {
+            format &= ~SDL_AUDIO_MASK_ENDIAN;
+        } else {
+            format |= SDL_AUDIO_MASK_ENDIAN;
+        }
+        cvt->filters[cvt->filter_index](cvt, format);
+    }
+}
 
-#undef CASESWAP
-
-    default:
-        SDL_assume(!"unhandled byteswap datatype!");
-        break;
+static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+{
+    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint32);
+    Uint32 *ptr = (Uint32 *)cvt->buf;
+    int i;
+#if DEBUG_CONVERT
+    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (32)\n");
+#endif
+    for (i = num_samples; i; --i, ++ptr) {
+        *ptr = SDL_Swap32(*ptr);
     }
 
     if (cvt->filters[++cvt->filter_index]) {
@@ -337,12 +345,27 @@ static int SDL_AddAudioCVTFilter(SDL_AudioCVT *cvt, SDL_AudioFilter filter)
     return 0;
 }
 
+static int SDL_BuildAudioTypeCVTSwap(SDL_AudioCVT *cvt, const SDL_AudioFormat format)
+{
+    SDL_AudioFilter filter;
+
+    switch (SDL_AUDIO_BITSIZE(format)) {
+    case 16: filter = SDL_Convert_Byteswap16; break;
+    case 32: filter = SDL_Convert_Byteswap32; break;
+    default:
+        SDL_assume(!"unhandled byteswap datatype!");
+        return SDL_SetError("unhandled byteswap datatype!");
+    }
+
+    return SDL_AddAudioCVTFilter(cvt, filter);
+}
+
 static int SDL_BuildAudioTypeCVTToFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat src_fmt)
 {
     int retval = 0; /* 0 == no conversion necessary. */
 
     if ((SDL_AUDIO_ISBIGENDIAN(src_fmt) != 0) == (SDL_BYTEORDER == SDL_LIL_ENDIAN) && SDL_AUDIO_BITSIZE(src_fmt) > 8) {
-        if (SDL_AddAudioCVTFilter(cvt, SDL_Convert_Byteswap) < 0) {
+        if (SDL_BuildAudioTypeCVTSwap(cvt, src_fmt) < 0) {
             return -1;
         }
         // retval = 1; /* added a converter. */
@@ -465,7 +488,7 @@ static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt, const SDL_AudioForm
     }
 
     if ((SDL_AUDIO_ISBIGENDIAN(dst_fmt) != 0) == (SDL_BYTEORDER == SDL_LIL_ENDIAN) && SDL_AUDIO_BITSIZE(dst_fmt) > 8) {
-        if (SDL_AddAudioCVTFilter(cvt, SDL_Convert_Byteswap) < 0) {
+        if (SDL_BuildAudioTypeCVTSwap(cvt, dst_fmt) < 0) {
             return -1;
         }
         // retval = 1; /* added a converter. */
@@ -788,8 +811,8 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
 
         /* just a byteswap needed? */
         if ((src_format ^ dst_format) == SDL_AUDIO_MASK_ENDIAN) {
-            SDL_assert(SDL_AUDIO_BITSIZE(dst_format) > 8);
-            if (SDL_AddAudioCVTFilter(cvt, SDL_Convert_Byteswap) < 0) {
+            SDL_assert(SDL_AUDIO_BITSIZE(src_format) > 8);
+            if (SDL_BuildAudioTypeCVTSwap(cvt, src_format) < 0) {
                 return -1;
             }
             cvt->needed = 1;
