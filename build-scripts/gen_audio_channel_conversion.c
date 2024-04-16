@@ -261,19 +261,18 @@ static void write_converter(const int fromchans, const int tochans)
         }
     }
 
-    printf("static void SDLCALL\n"
-           "SDL_Convert%sTo%s(SDL_AudioCVT *cvt, SDL_AudioFormat format)\n"
+    printf("static void SDLCALL SDL_Convert%sTo%s(SDL_AudioCVT *cvt, SDL_AudioFormat format)\n"
            "{\n", remove_dots(fromstr), remove_dots(tostr));
 
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
         if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    float *dst = ((float *) (cvt->buf + ((cvt->len_cvt / (unsigned)%d) * %d))) - %d;\n", fromchans, tochans, tochans);
+            printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / (unsigned)%d) * %d))) - %d;\n", fromchans, tochans, tochans);
         } else {
-            printf("    float *dst = ((float *) (cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
+            printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
         }
-        printf("    const float *src = ((const float *) (cvt->buf + cvt->len_cvt)) - %d;\n", fromchans);
+        printf("    const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - %d;\n", fromchans);
     } else {
-        printf("    float *dst = (float *) cvt->buf;\n");
+        printf("    float *dst = (float *)cvt->buf;\n");
         printf("    const float *src = dst;\n");
     }
 
@@ -403,7 +402,7 @@ static void write_converter(const int fromchans, const int tochans)
     }
 
     printf("    if (cvt->filters[++cvt->filter_index]) {\n"
-           "        cvt->filters[cvt->filter_index] (cvt, format);\n"
+           "        cvt->filters[cvt->filter_index](cvt, format);\n"
            "    }\n"
            "}\n\n");
 }
@@ -444,7 +443,7 @@ int main(void)
         }
     }
 
-    printf("static const SDL_AudioFilter channel_converters[%d][%d] = {   /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
+    printf("static const SDL_AudioFilter channel_converters[%d][%d] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
     for (ini = 1; ini <= NUM_CHANNELS; ini++) {
         const char *comma = "";
         printf("    {");
@@ -462,7 +461,7 @@ int main(void)
     }
 
     printf("};\n\n");
-    printf("/* vi: set ts=4 sw=4 expandtab: */\n\n");
+    printf("/* vi: set ts=4 sw=4 expandtab: */\n");
 
     return 0;
 }
