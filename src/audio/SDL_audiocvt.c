@@ -688,6 +688,58 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, const int dst_channels,
     return 0;
 }
 
+static int SDL_BuildAudioChannelCVT(SDL_AudioCVT *cvt, const int src_channels, const int dst_channels)
+{
+    SDL_AudioFilter channel_converter = NULL;
+
+    /* SDL_SupportedChannelCount should have caught these asserts, or we added a new format and forgot to update the table. */
+    SDL_assert(src_channels <= SDL_arraysize(channel_converters));
+    SDL_assert(dst_channels <= SDL_arraysize(channel_converters[0]));
+
+    channel_converter = channel_converters[src_channels - 1][dst_channels - 1];
+    if ((!channel_converter) != (src_channels == dst_channels)) {
+        /* All combinations of supported channel counts should have been handled by now, but let's be defensive */
+        SDL_assume(!"Invalid channel combination");
+        return SDL_SetError("Invalid channel combination");
+    } else if (channel_converter != NULL) {
+        /* swap in some SIMD versions for a few of these. */
+        if (channel_converter == SDL_ConvertStereoToMono) {
+            SDL_AudioFilter filter = NULL;
+#ifdef HAVE_SSE3_INTRINSICS
+            if (!filter && SDL_HasSSE3()) {
+                filter = SDL_ConvertStereoToMono_SSE3;
+            }
+#endif
+            if (filter) {
+                channel_converter = filter;
+            }
+        } else if (channel_converter == SDL_ConvertMonoToStereo) {
+            SDL_AudioFilter filter = NULL;
+#ifdef HAVE_SSE_INTRINSICS
+            if (!filter && SDL_HasSSE()) {
+                filter = SDL_ConvertMonoToStereo_SSE;
+            }
+#endif
+            if (filter) {
+                channel_converter = filter;
+            }
+        }
+
+        if (SDL_AddAudioCVTFilter(cvt, channel_converter) < 0) {
+            return -1; /* shouldn't happen, but just in case... */
+        }
+
+        if (src_channels < dst_channels) {
+            cvt->len_mult = ((cvt->len_mult * dst_channels) + (src_channels - 1)) / src_channels;
+        }
+
+        // cvt->len_ratio = (cvt->len_ratio * dst_channels) / src_channels;
+        cvt->len_num *= dst_channels;
+        cvt->len_denom *= src_channels;
+    }
+    return 0;
+}
+
 static SDL_bool SDL_SupportedAudioFormat(const SDL_AudioFormat fmt)
 {
     switch (fmt) {
@@ -724,8 +776,6 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
                       SDL_AudioFormat src_format, Uint8 src_channels, int src_rate,
                       SDL_AudioFormat dst_format, Uint8 dst_channels, int dst_rate)
 {
-    SDL_AudioFilter channel_converter = NULL;
-
     /* Sanity check target pointer */
     if (!cvt) {
         return SDL_InvalidParamError("cvt");
@@ -817,52 +867,8 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     }
 
     /* Channel conversion */
-
-    /* SDL_SupportedChannelCount should have caught these asserts, or we added a new format and forgot to update the table. */
-    SDL_assert(src_channels <= SDL_arraysize(channel_converters));
-    SDL_assert(dst_channels <= SDL_arraysize(channel_converters[0]));
-
-    channel_converter = channel_converters[src_channels - 1][dst_channels - 1];
-    if ((!channel_converter) != (src_channels == dst_channels)) {
-        /* All combinations of supported channel counts should have been handled by now, but let's be defensive */
-        SDL_assume(!"Invalid channel combination");
-        return SDL_SetError("Invalid channel combination");
-    } else if (channel_converter != NULL) {
-        /* swap in some SIMD versions for a few of these. */
-        if (channel_converter == SDL_ConvertStereoToMono) {
-            SDL_AudioFilter filter = NULL;
-#ifdef HAVE_SSE3_INTRINSICS
-            if (!filter && SDL_HasSSE3()) {
-                filter = SDL_ConvertStereoToMono_SSE3;
-            }
-#endif
-            if (filter) {
-                channel_converter = filter;
-            }
-        } else if (channel_converter == SDL_ConvertMonoToStereo) {
-            SDL_AudioFilter filter = NULL;
-#ifdef HAVE_SSE_INTRINSICS
-            if (!filter && SDL_HasSSE()) {
-                filter = SDL_ConvertMonoToStereo_SSE;
-            }
-#endif
-            if (filter) {
-                channel_converter = filter;
-            }
-        }
-
-        if (SDL_AddAudioCVTFilter(cvt, channel_converter) < 0) {
-            return -1; /* shouldn't happen, but just in case... */
-        }
-
-        if (src_channels < dst_channels) {
-            cvt->len_mult = ((cvt->len_mult * dst_channels) + (src_channels - 1)) / src_channels;
-        }
-
-        // cvt->len_ratio = (cvt->len_ratio * dst_channels) / src_channels;
-        cvt->len_num *= dst_channels;
-        cvt->len_denom *= src_channels;
-        src_channels = dst_channels;
+    if (SDL_BuildAudioChannelCVT(cvt, src_channels, dst_channels) < 0) {
+        return -1; /* shouldn't happen, but just in case... */
     }
 
     /* Do rate conversion, if necessary. Updates (cvt). */
