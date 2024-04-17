@@ -1166,7 +1166,7 @@ static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
     cvt->len_cvt = (cvt->len_cvt / 8u) * 7;
 }
 
-static const SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */
+static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */
     { NULL,                    SDL_ConvertMonoToStereo, SDL_ConvertMonoTo21,     SDL_ConvertMonoToQuad,   SDL_ConvertMonoTo41,     SDL_ConvertMonoTo51,     SDL_ConvertMonoTo61,     SDL_ConvertMonoTo71,     },
     { SDL_ConvertStereoToMono, NULL,                    SDL_ConvertStereoTo21,   SDL_ConvertStereoToQuad, SDL_ConvertStereoTo41,   SDL_ConvertStereoTo51,   SDL_ConvertStereoTo61,   SDL_ConvertStereoTo71,   },
     { SDL_Convert21ToMono,     SDL_Convert21ToStereo,   NULL,                    SDL_Convert21ToQuad,     SDL_Convert21To41,       SDL_Convert21To51,       SDL_Convert21To61,       SDL_Convert21To71,       },

@@ -60,6 +60,7 @@ extern void SDL_CalculateAudioSpec(SDL_AudioSpec *spec);
 
 /* Choose the audio filter functions below */
 extern void SDL_ChooseAudioConverters(void);
+extern void SDL_ChooseAudioChannelConverters(void);
 
 /* These pointers get set during SDL_ChooseAudioConverters() to various SIMD implementations. */
 extern SDL_AudioFilter SDL_Convert_S8_to_F32;

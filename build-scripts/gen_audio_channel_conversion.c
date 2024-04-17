@@ -527,7 +527,7 @@ int main(void)
         }
     }
 
-    printf("static const SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
+    printf("static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
     for (ini = 1; ini <= NUM_CHANNELS; ini++) {
         printf("    {");
         for (outi = 1; outi <= NUM_CHANNELS; outi++) {

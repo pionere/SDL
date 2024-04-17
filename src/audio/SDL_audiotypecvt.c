@@ -1342,6 +1342,8 @@ void SDL_ChooseAudioConverters(void)
         return; // converters chosen
     }
 
+    SDL_ChooseAudioChannelConverters();
+
 #define SET_CONVERTER_FUNCS(fntype)                           \
     SDL_Convert_S8_to_F32 = SDL_Convert_S8_to_F32_##fntype;   \
     SDL_Convert_U8_to_F32 = SDL_Convert_U8_to_F32_##fntype;   \
