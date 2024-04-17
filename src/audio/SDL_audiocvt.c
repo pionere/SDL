@@ -348,8 +348,9 @@ static int SDL_BuildAudioTypeCVTSwap(SDL_AudioCVT *cvt, const SDL_AudioFormat fo
     return SDL_AddAudioCVTFilter(cvt, filter);
 }
 
-static int SDL_BuildAudioTypeCVTToFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat src_fmt)
+static int SDL_BuildAudioTypeCVTToFloat(SDL_AudioCVT *cvt /*, const SDL_AudioFormat src_fmt*/)
 {
+    const SDL_AudioFormat src_fmt = cvt->src_format;
     int retval = 0; /* 0 == no conversion necessary. */
 
     if ((SDL_AUDIO_ISBIGENDIAN(src_fmt) != 0) == (SDL_BYTEORDER == SDL_LIL_ENDIAN) && SDL_AUDIO_BITSIZE(src_fmt) > 8) {
@@ -418,8 +419,9 @@ static int SDL_BuildAudioTypeCVTToFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat
     return retval;
 }
 
-static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt, const SDL_AudioFormat dst_fmt)
+static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt)
 {
+    const SDL_AudioFormat dst_fmt = cvt->dst_format;
     int retval = 0; /* 0 == no conversion necessary. */
 
     if (!SDL_AUDIO_ISFLOAT(dst_fmt)) {
@@ -810,7 +812,7 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     cvt->len_denom = src_rate;
 
     /* Convert data types, if necessary. Updates (cvt). */
-    if (SDL_BuildAudioTypeCVTToFloat(cvt, src_format) < 0) {
+    if (SDL_BuildAudioTypeCVTToFloat(cvt/*, src_format*/) < 0) {
         return -1; /* shouldn't happen, but just in case... */
     }
 
@@ -869,7 +871,7 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     }
 
     /* Move to final data type. */
-    if (SDL_BuildAudioTypeCVTFromFloat(cvt, dst_format) < 0) {
+    if (SDL_BuildAudioTypeCVTFromFloat(cvt/*, dst_format*/) < 0) {
         return -1; /* shouldn't happen, but just in case... */
     }
 
