@@ -39,9 +39,6 @@ static void SDLCALL SDL_ConvertMonoToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoTo21(SDL_AudioCVT *cvt)
@@ -61,9 +58,6 @@ static void SDLCALL SDL_ConvertMonoTo21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoToQuad(SDL_AudioCVT *cvt)
@@ -84,9 +78,6 @@ static void SDLCALL SDL_ConvertMonoToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoTo41(SDL_AudioCVT *cvt)
@@ -108,9 +99,6 @@ static void SDLCALL SDL_ConvertMonoTo41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoTo51(SDL_AudioCVT *cvt)
@@ -133,9 +121,6 @@ static void SDLCALL SDL_ConvertMonoTo51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoTo61(SDL_AudioCVT *cvt)
@@ -159,9 +144,6 @@ static void SDLCALL SDL_ConvertMonoTo61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertMonoTo71(SDL_AudioCVT *cvt)
@@ -186,9 +168,6 @@ static void SDLCALL SDL_ConvertMonoTo71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt * 8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt)
@@ -204,9 +183,6 @@ static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoTo21(SDL_AudioCVT *cvt)
@@ -225,9 +201,6 @@ static void SDLCALL SDL_ConvertStereoTo21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoToQuad(SDL_AudioCVT *cvt)
@@ -247,9 +220,6 @@ static void SDLCALL SDL_ConvertStereoToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt * 2);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoTo41(SDL_AudioCVT *cvt)
@@ -270,9 +240,6 @@ static void SDLCALL SDL_ConvertStereoTo41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoTo51(SDL_AudioCVT *cvt)
@@ -294,9 +261,6 @@ static void SDLCALL SDL_ConvertStereoTo51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt * 3);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoTo61(SDL_AudioCVT *cvt)
@@ -319,9 +283,6 @@ static void SDLCALL SDL_ConvertStereoTo61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)2) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertStereoTo71(SDL_AudioCVT *cvt)
@@ -345,9 +306,6 @@ static void SDLCALL SDL_ConvertStereoTo71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt * 4);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21ToMono(SDL_AudioCVT *cvt)
@@ -363,9 +321,6 @@ static void SDLCALL SDL_Convert21ToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21ToStereo(SDL_AudioCVT *cvt)
@@ -383,9 +338,6 @@ static void SDLCALL SDL_Convert21ToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3) * 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21ToQuad(SDL_AudioCVT *cvt)
@@ -406,9 +358,6 @@ static void SDLCALL SDL_Convert21ToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3) * 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21To41(SDL_AudioCVT *cvt)
@@ -429,9 +378,6 @@ static void SDLCALL SDL_Convert21To41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21To51(SDL_AudioCVT *cvt)
@@ -453,9 +399,6 @@ static void SDLCALL SDL_Convert21To51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt * 2);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21To61(SDL_AudioCVT *cvt)
@@ -478,9 +421,6 @@ static void SDLCALL SDL_Convert21To61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert21To71(SDL_AudioCVT *cvt)
@@ -504,9 +444,6 @@ static void SDLCALL SDL_Convert21To71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3) * 8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadToMono(SDL_AudioCVT *cvt)
@@ -522,9 +459,6 @@ static void SDLCALL SDL_ConvertQuadToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadToStereo(SDL_AudioCVT *cvt)
@@ -543,9 +477,6 @@ static void SDLCALL SDL_ConvertQuadToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 2u);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadTo21(SDL_AudioCVT *cvt)
@@ -565,9 +496,6 @@ static void SDLCALL SDL_ConvertQuadTo21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadTo41(SDL_AudioCVT *cvt)
@@ -588,9 +516,6 @@ static void SDLCALL SDL_ConvertQuadTo41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadTo51(SDL_AudioCVT *cvt)
@@ -612,9 +537,6 @@ static void SDLCALL SDL_ConvertQuadTo51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadTo61(SDL_AudioCVT *cvt)
@@ -639,9 +561,6 @@ static void SDLCALL SDL_ConvertQuadTo61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)4) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_ConvertQuadTo71(SDL_AudioCVT *cvt)
@@ -665,9 +584,6 @@ static void SDLCALL SDL_ConvertQuadTo71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt * 2);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41ToMono(SDL_AudioCVT *cvt)
@@ -683,9 +599,6 @@ static void SDLCALL SDL_Convert41ToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41ToStereo(SDL_AudioCVT *cvt)
@@ -705,9 +618,6 @@ static void SDLCALL SDL_Convert41ToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41To21(SDL_AudioCVT *cvt)
@@ -727,9 +637,6 @@ static void SDLCALL SDL_Convert41To21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41ToQuad(SDL_AudioCVT *cvt)
@@ -749,9 +656,6 @@ static void SDLCALL SDL_Convert41ToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41To51(SDL_AudioCVT *cvt)
@@ -773,9 +677,6 @@ static void SDLCALL SDL_Convert41To51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41To61(SDL_AudioCVT *cvt)
@@ -800,9 +701,6 @@ static void SDLCALL SDL_Convert41To61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert41To71(SDL_AudioCVT *cvt)
@@ -826,9 +724,6 @@ static void SDLCALL SDL_Convert41To71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 5) * 8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51ToMono(SDL_AudioCVT *cvt)
@@ -844,9 +739,6 @@ static void SDLCALL SDL_Convert51ToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51ToStereo(SDL_AudioCVT *cvt)
@@ -867,9 +759,6 @@ static void SDLCALL SDL_Convert51ToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 3);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51To21(SDL_AudioCVT *cvt)
@@ -890,9 +779,6 @@ static void SDLCALL SDL_Convert51To21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 2u);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51ToQuad(SDL_AudioCVT *cvt)
@@ -913,9 +799,6 @@ static void SDLCALL SDL_Convert51ToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 6) * 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51To41(SDL_AudioCVT *cvt)
@@ -936,9 +819,6 @@ static void SDLCALL SDL_Convert51To41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 6) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51To61(SDL_AudioCVT *cvt)
@@ -963,9 +843,6 @@ static void SDLCALL SDL_Convert51To61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 6) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert51To71(SDL_AudioCVT *cvt)
@@ -989,9 +866,6 @@ static void SDLCALL SDL_Convert51To71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 6) * 8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61ToMono(SDL_AudioCVT *cvt)
@@ -1007,9 +881,6 @@ static void SDLCALL SDL_Convert61ToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61ToStereo(SDL_AudioCVT *cvt)
@@ -1031,9 +902,6 @@ static void SDLCALL SDL_Convert61ToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61To21(SDL_AudioCVT *cvt)
@@ -1055,9 +923,6 @@ static void SDLCALL SDL_Convert61To21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61ToQuad(SDL_AudioCVT *cvt)
@@ -1081,9 +946,6 @@ static void SDLCALL SDL_Convert61ToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61To41(SDL_AudioCVT *cvt)
@@ -1107,9 +969,6 @@ static void SDLCALL SDL_Convert61To41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61To51(SDL_AudioCVT *cvt)
@@ -1133,9 +992,6 @@ static void SDLCALL SDL_Convert61To51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert61To71(SDL_AudioCVT *cvt)
@@ -1160,9 +1016,6 @@ static void SDLCALL SDL_Convert61To71(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71ToMono(SDL_AudioCVT *cvt)
@@ -1178,9 +1031,6 @@ static void SDLCALL SDL_Convert71ToMono(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)8;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71ToStereo(SDL_AudioCVT *cvt)
@@ -1203,9 +1053,6 @@ static void SDLCALL SDL_Convert71ToStereo(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 4u);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71To21(SDL_AudioCVT *cvt)
@@ -1228,9 +1075,6 @@ static void SDLCALL SDL_Convert71To21(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 3;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71ToQuad(SDL_AudioCVT *cvt)
@@ -1253,9 +1097,6 @@ static void SDLCALL SDL_Convert71ToQuad(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / 2u);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71To41(SDL_AudioCVT *cvt)
@@ -1278,9 +1119,6 @@ static void SDLCALL SDL_Convert71To41(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 5;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71To51(SDL_AudioCVT *cvt)
@@ -1303,9 +1141,6 @@ static void SDLCALL SDL_Convert71To51(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 6;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
@@ -1329,9 +1164,6 @@ static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (cvt->len_cvt / (unsigned)8) * 7;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static const SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */

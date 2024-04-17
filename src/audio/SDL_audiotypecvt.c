@@ -95,9 +95,6 @@ static void SDLCALL SDL_Convert_S8_to_F32_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U8_to_F32_Scalar(SDL_AudioCVT *cvt)
@@ -118,9 +115,6 @@ static void SDLCALL SDL_Convert_U8_to_F32_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S16_to_F32_Scalar(SDL_AudioCVT *cvt)
@@ -141,9 +135,6 @@ static void SDLCALL SDL_Convert_S16_to_F32_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U16_to_F32_Scalar(SDL_AudioCVT *cvt)
@@ -160,9 +151,6 @@ static void SDLCALL SDL_Convert_U16_to_F32_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt)
@@ -176,10 +164,6 @@ static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt)
 
     for (i = num_samples; i; --i, ++src, ++dst) {
         *dst = ((float)(*src >> 8)) * DIVBY8388607;
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -208,9 +192,6 @@ static void SDLCALL SDL_Convert_F32_to_S8_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt)
@@ -239,9 +220,6 @@ static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt)
@@ -269,9 +247,6 @@ static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt)
@@ -295,9 +270,6 @@ static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt)
@@ -323,10 +295,6 @@ static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt)
         x.u32 = y - z;
 
         dst[i] = (Sint32)x.f32 ^ (Sint32)SIGNMASK(z);
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
@@ -376,9 +344,6 @@ static void SDLCALL SDL_Convert_S8_to_F32_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U8_to_F32_SSE2(SDL_AudioCVT *cvt)
@@ -423,9 +388,6 @@ static void SDLCALL SDL_Convert_U8_to_F32_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S16_to_F32_SSE2(SDL_AudioCVT *cvt)
@@ -469,9 +431,6 @@ static void SDLCALL SDL_Convert_S16_to_F32_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt)
@@ -524,9 +483,6 @@ static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt)
@@ -564,10 +520,6 @@ static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt)
     while (i) {
         --i;
         _mm_store_ss(&dst[i], _mm_mul_ss(_mm_cvt_si2ss(_mm_setzero_ps(), src[i]), scaler));
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -619,9 +571,6 @@ static void SDLCALL SDL_Convert_F32_to_S8_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U8_SSE2(SDL_AudioCVT *cvt)
@@ -672,9 +621,6 @@ static void SDLCALL SDL_Convert_F32_to_U8_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S16_SSE2(SDL_AudioCVT *cvt)
@@ -724,9 +670,6 @@ static void SDLCALL SDL_Convert_F32_to_S16_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
@@ -794,9 +737,6 @@ static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S32_SSE2(SDL_AudioCVT *cvt)
@@ -848,10 +788,6 @@ static void SDLCALL SDL_Convert_F32_to_S32_SSE2(SDL_AudioCVT *cvt)
         --i;
         ++src;
         ++dst;
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
@@ -908,9 +844,6 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
@@ -965,9 +898,6 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 4;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
@@ -1015,9 +945,6 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
@@ -1066,9 +993,6 @@ static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
@@ -1108,10 +1032,6 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
         i--;
         src++;
         dst++;
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -1176,9 +1096,6 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
@@ -1243,9 +1160,6 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
@@ -1305,9 +1219,6 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
@@ -1367,9 +1278,6 @@ static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
@@ -1424,10 +1332,6 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
         i--;
         src++;
         dst++;
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif

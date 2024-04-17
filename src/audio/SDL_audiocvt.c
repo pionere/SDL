@@ -122,9 +122,6 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 #endif
 
@@ -164,9 +161,6 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
     }
 
     cvt->len_cvt *= 2;
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 #endif
 
@@ -259,18 +253,21 @@ static int SDL_ResampleAudio(const int chans, const int inrate, const int outrat
 #endif /* !SDL_RESAMPLER_DISABLED */
 static void SDL_PrivateConvertAudio(SDL_AudioCVT *cvt)
 {
+    int i;
     /* !!! FIXME: (cvt) should be const; stack-copy it here. */
     /* !!! FIXME: (actually, we can't...len_cvt needs to be updated. Grr.) */
 
     /* Make sure there's data to convert */
     SDL_assert(cvt->buf != NULL);
 
-    /* Return okay if no conversion is necessary */
+    /* Set up the conversion and go! */
     cvt->len_cvt = cvt->len;
-    if (cvt->filters[0] != NULL) {
-        /* Set up the conversion and go! */
-        cvt->filter_index = 0;
-        cvt->filters[0](cvt);
+    for (i = 0; ; i++) {
+        if (cvt->filters[i] != NULL) {
+            cvt->filters[i](cvt);
+            continue;
+        }
+        break;
     }
 }
 
@@ -300,10 +297,6 @@ static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt)
     for (i = num_samples; i; --i, ++ptr) {
         *ptr = SDL_Swap16(*ptr);
     }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt)
@@ -316,10 +309,6 @@ static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt)
 #endif
     for (i = num_samples; i; --i, ++ptr) {
         *ptr = SDL_Swap32(*ptr);
-    }
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -522,10 +511,6 @@ static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans)
     cvt->len_cvt = data.output_frames_gen * framelen;
 
     SDL_memmove(cvt->buf, dst, cvt->len_cvt);
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 #endif /* HAVE_LIBSAMPLERATE_H */
@@ -566,10 +551,6 @@ static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans)
     SDL_free(padding);
 
     SDL_memmove(cvt->buf, dst, cvt->len_cvt); /* !!! FIXME: remove this if we can get the resampler to work in-place again. */
-
-    if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt);
-    }
 }
 
 /* !!! FIXME: We only have this macro salsa because SDL_AudioCVT doesn't

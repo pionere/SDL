@@ -52,7 +52,7 @@ static const char *channel_names[NUM_CHANNELS][NUM_CHANNELS] = {
  *
  *  https://raw.githubusercontent.com/FNA-XNA/FAudio/master/src/matrix_defaults.inl
  */
-static const float channel_conversion_matrix[8][8][64] = {
+static const float channel_conversion_matrix[NUM_CHANNELS][NUM_CHANNELS][64] = {
 {
 	/* 1 x 1 */
 	{ 1.000000000f },
@@ -480,10 +480,7 @@ static void write_converter(const int fromchans, const int tochans)
         printf("    cvt->len_cvt = cvt->len_cvt * %d;\n", tochans);
     }
 
-    printf("    if (cvt->filters[++cvt->filter_index]) {\n"
-           "        cvt->filters[cvt->filter_index](cvt);\n"
-           "    }\n"
-           "}\n\n");
+    printf("}\n\n");
 }
 
 int main(void)
