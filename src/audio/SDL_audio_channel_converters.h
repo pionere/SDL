@@ -629,7 +629,7 @@ static void SDLCALL SDL_ConvertQuadTo61(SDL_AudioCVT *cvt)
         const float srcBR = src[3];
         dst[6] /* SR */ = (srcBR * 0.796000004f);
         dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = (srcBR * 0.500000000f) + (srcBL * 0.500000000f);
+        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = 0.0f;
         dst[2] /* FC */ = 0.0f;
         dst[1] /* FR */ = (src[1] * 0.939999998f);
@@ -790,7 +790,7 @@ static void SDLCALL SDL_Convert41To61(SDL_AudioCVT *cvt)
         const float srcBR = src[4];
         dst[6] /* SR */ = (srcBR * 0.796000004f);
         dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = (srcBR * 0.500000000f) + (srcBL * 0.500000000f);
+        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = src[2];
         dst[2] /* FC */ = 0.0f;
         dst[1] /* FR */ = (src[1] * 0.939999998f);
@@ -953,7 +953,7 @@ static void SDLCALL SDL_Convert51To61(SDL_AudioCVT *cvt)
         const float srcBR = src[5];
         dst[6] /* SR */ = (srcBR * 0.796000004f);
         dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = (srcBR * 0.500000000f) + (srcBL * 0.500000000f);
+        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = src[3];
         dst[2] /* FC */ = (src[2] * 0.939999998f);
         dst[1] /* FR */ = (src[1] * 0.939999998f);
@@ -1001,7 +1001,7 @@ static void SDLCALL SDL_Convert61ToMono(SDL_AudioCVT *cvt)
     LOG_DEBUG_CONVERT("6.1", "mono");
 
     for (i = cvt->len_cvt / (sizeof(float) * 7); i; i--, src += 7, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.143142849f) + (src[1] * 0.143142849f) + (src[2] * 0.143142849f) + (src[3] * 0.142857149f) + (src[4] * 0.143142849f) + (src[5] * 0.143142849f) + (src[6] * 0.143142849f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[4] + src[5] + src[6] ) * 0.143142849f + (src[3] * 0.142857149f);
     }
 
     cvt->len_cvt = cvt->len_cvt / 7;
@@ -1024,8 +1024,8 @@ static void SDLCALL SDL_Convert61ToStereo(SDL_AudioCVT *cvt)
         const float srcBC = src[4];
         const float srcSL = src[5];
         const float srcSR = src[6];
-        dst[0] /* FL */ = (src[0] * 0.247384623f) + (srcFC * 0.174461529f) + (srcLFE * 0.076923080f) + (srcBC * 0.174461529f) + (srcSL * 0.226153851f) + (srcSR * 0.100615382f);
-        dst[1] /* FR */ = (src[1] * 0.247384623f) + (srcFC * 0.174461529f) + (srcLFE * 0.076923080f) + (srcBC * 0.174461529f) + (srcSL * 0.100615382f) + (srcSR * 0.226153851f);
+        dst[0] /* FL */ = (src[0] * 0.247384623f) + ( srcFC + srcBC ) * 0.174461529f + (srcLFE * 0.076923080f) + (srcSL * 0.226153851f) + (srcSR * 0.100615382f);
+        dst[1] /* FR */ = (src[1] * 0.247384623f) + ( srcFC + srcBC ) * 0.174461529f + (srcLFE * 0.076923080f) + (srcSL * 0.100615382f) + (srcSR * 0.226153851f);
     }
 
     cvt->len_cvt = (cvt->len_cvt / 7) * 2;
@@ -1047,8 +1047,8 @@ static void SDLCALL SDL_Convert61To21(SDL_AudioCVT *cvt)
         const float srcBC = src[4];
         const float srcSL = src[5];
         const float srcSR = src[6];
-        dst[0] /* FL */ = (src[0] * 0.268000007f) + (srcFC * 0.188999996f) + (srcBC * 0.188999996f) + (srcSL * 0.245000005f) + (srcSR * 0.108999997f);
-        dst[1] /* FR */ = (src[1] * 0.268000007f) + (srcFC * 0.188999996f) + (srcBC * 0.188999996f) + (srcSL * 0.108999997f) + (srcSR * 0.245000005f);
+        dst[0] /* FL */ = (src[0] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.245000005f) + (srcSR * 0.108999997f);
+        dst[1] /* FR */ = (src[1] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.108999997f) + (srcSR * 0.245000005f);
         dst[2] /* LFE */ = src[3];
     }
 
@@ -1172,7 +1172,7 @@ static void SDLCALL SDL_Convert71ToMono(SDL_AudioCVT *cvt)
     LOG_DEBUG_CONVERT("7.1", "mono");
 
     for (i = cvt->len_cvt / ((unsigned)sizeof(float) * 8); i; i--, src += 8, dst += 1) {
-        dst[0] /* FC */ = (src[0] * 0.125125006f) + (src[1] * 0.125125006f) + (src[2] * 0.125125006f) + (src[3] * 0.125000000f) + (src[4] * 0.125125006f) + (src[5] * 0.125125006f) + (src[6] * 0.125125006f) + (src[7] * 0.125125006f);
+        dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[4] + src[5] + src[6] + src[7] ) * 0.125125006f + (src[3] * 0.125000000f);
     }
 
     cvt->len_cvt = cvt->len_cvt / (unsigned)8;
@@ -1321,7 +1321,7 @@ static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
         dst[1] /* FR */ = (src[1] * 0.541000009f);
         dst[2] /* FC */ = (src[2] * 0.541000009f);
         dst[3] /* LFE */ = src[3];
-        dst[4] /* BC */ = (srcBL * 0.287999988f) + (srcBR * 0.287999988f);
+        dst[4] /* BC */ = ( srcBL + srcBR ) * 0.287999988f;
         dst[5] /* SL */ = (srcBL * 0.458999991f) + (src[6] * 0.541000009f);
         dst[6] /* SR */ = (srcBR * 0.458999991f) + (src[7] * 0.541000009f);
     }
