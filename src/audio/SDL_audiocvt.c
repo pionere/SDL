@@ -314,11 +314,10 @@ static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt)
 
 static int SDL_AddAudioCVTFilter(SDL_AudioCVT *cvt, SDL_AudioFilter filter)
 {
-    SDL_assert(cvt->filter_index < SDL_AUDIOCVT_MAX_FILTERS);
+    SDL_assert(cvt->needed < SDL_AUDIOCVT_MAX_FILTERS);
 
     SDL_assert(filter != NULL);
-    cvt->filters[cvt->filter_index++] = filter;
-    cvt->filters[cvt->filter_index] = NULL; /* Moving terminator */
+    cvt->filters[cvt->needed++] = filter;
     return 0;
 }
 
@@ -478,8 +477,9 @@ static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt)
 #ifndef SDL_RESAMPLER_DISABLED
 #ifdef HAVE_LIBSAMPLERATE_H
 
-static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans)
+static void SDLCALL SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt)
 {
+    const int chans = cvt->dst_channels;
     const float *src = (const float *)cvt->buf;
     const int srclen = cvt->len_cvt;
     float *dst = (float *)(cvt->buf + srclen);
@@ -515,8 +515,9 @@ static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans)
 
 #endif /* HAVE_LIBSAMPLERATE_H */
 
-static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans)
+static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
 {
+    const int chans = cvt->dst_channels;
     /* !!! FIXME in 2.1: there are ten slots in the filter list, and the theoretical maximum we use is six (seven with NULL terminator).
        !!! FIXME in 2.1:   We need to store data for this resampler, because the cvt structure doesn't store the original sample rates,
        !!! FIXME in 2.1:   so we steal the ninth and tenth slot.  :( */
@@ -553,79 +554,18 @@ static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans)
     SDL_memmove(cvt->buf, dst, cvt->len_cvt); /* !!! FIXME: remove this if we can get the resampler to work in-place again. */
 }
 
-/* !!! FIXME: We only have this macro salsa because SDL_AudioCVT doesn't
-   !!! FIXME:  store channel info, so we have to have function entry
-   !!! FIXME:  points for each supported channel count and multiple
-   !!! FIXME:  vs arbitrary. When we rev the ABI, clean this up. */
-#define RESAMPLER_FUNCS(chans)                      \
-    static void SDLCALL                             \
-        SDL_ResampleCVT_c##chans(SDL_AudioCVT *cvt) \
-    {                                               \
-        SDL_ResampleCVT(cvt, chans);                \
-    }
-RESAMPLER_FUNCS(1)
-RESAMPLER_FUNCS(2)
-RESAMPLER_FUNCS(4)
-RESAMPLER_FUNCS(6)
-RESAMPLER_FUNCS(8)
-#undef RESAMPLER_FUNCS
-
-#ifdef HAVE_LIBSAMPLERATE_H
-#define RESAMPLER_FUNCS(chans)                          \
-    static void SDLCALL                                 \
-        SDL_ResampleCVT_SRC_c##chans(SDL_AudioCVT *cvt) \
-    {                                                   \
-        SDL_ResampleCVT_SRC(cvt, chans);                \
-    }
-RESAMPLER_FUNCS(1)
-RESAMPLER_FUNCS(2)
-RESAMPLER_FUNCS(4)
-RESAMPLER_FUNCS(6)
-RESAMPLER_FUNCS(8)
-#undef RESAMPLER_FUNCS
-#endif /* HAVE_LIBSAMPLERATE_H */
-#endif /* !SDL_RESAMPLER_DISABLED */
-static SDL_AudioFilter ChooseCVTResampler(const int dst_channels)
+static SDL_AudioFilter ChooseCVTResampler()
 {
-#ifndef SDL_RESAMPLER_DISABLED
 #ifdef HAVE_LIBSAMPLERATE_H
     if (SRC_available) {
-        switch (dst_channels) {
-        case 1:
-            return SDL_ResampleCVT_SRC_c1;
-        case 2:
-            return SDL_ResampleCVT_SRC_c2;
-        case 4:
-            return SDL_ResampleCVT_SRC_c4;
-        case 6:
-            return SDL_ResampleCVT_SRC_c6;
-        case 8:
-            return SDL_ResampleCVT_SRC_c8;
-        default:
-            break;
-        }
+        return SDL_ResampleCVT_SRC;
     }
 #endif /* HAVE_LIBSAMPLERATE_H */
 
-    switch (dst_channels) {
-    case 1:
-        return SDL_ResampleCVT_c1;
-    case 2:
-        return SDL_ResampleCVT_c2;
-    case 4:
-        return SDL_ResampleCVT_c4;
-    case 6:
-        return SDL_ResampleCVT_c6;
-    case 8:
-        return SDL_ResampleCVT_c8;
-    default:
-        break;
-    }
-#endif /* !SDL_RESAMPLER_DISABLED */
-    return NULL;
+    return SDL_ResampleCVT;
 }
 
-static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, const int dst_channels,
+static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, /*const int dst_channels, */
                                      const int src_rate, const int dst_rate)
 {
     SDL_AudioFilter filter;
@@ -634,7 +574,8 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, const int dst_channels,
         return 0; /* no conversion necessary. */
     }
 
-    filter = ChooseCVTResampler(dst_channels);
+    filter = ChooseCVTResampler(/* dst_channels */);
+    SDL_assume(filter != NULL);
     if (!filter) {
         return SDL_SetError("No conversion available for these rates");
     }
@@ -647,7 +588,7 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, const int dst_channels,
     /* !!! FIXME in 2.1: there are ten slots in the filter list, and the theoretical maximum we use is six (seven with NULL terminator).
        !!! FIXME in 2.1:   We need to store data for this resampler, because the cvt structure doesn't store the original sample rates,
        !!! FIXME in 2.1:   so we steal the ninth and tenth slot.  :( */
-    SDL_assert(cvt->filter_index < (SDL_AUDIOCVT_MAX_FILTERS - 2));
+    SDL_assert(cvt->needed < (SDL_AUDIOCVT_MAX_FILTERS - 2));
 
     cvt->filters[SDL_AUDIOCVT_MAX_FILTERS - 1] = (SDL_AudioFilter)(uintptr_t)src_rate;
     cvt->filters[SDL_AUDIOCVT_MAX_FILTERS] = (SDL_AudioFilter)(uintptr_t)dst_rate;
@@ -668,7 +609,17 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, const int dst_channels,
     // return 1; /* added a converter. */
     return 0;
 }
+#else
+static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, /*const int dst_channels, */
+                                     const int src_rate, const int dst_rate)
+{
+    if (src_rate == dst_rate) {
+        return 0; /* no conversion necessary. */
+    }
 
+    return SDL_Unsupported();
+}
+#endif /* !SDL_RESAMPLER_DISABLED */
 static int SDL_BuildAudioChannelCVT(SDL_AudioCVT *cvt, const int src_channels, const int dst_channels)
 {
     SDL_AudioFilter channel_converter = NULL;
@@ -797,9 +748,11 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
 #endif
 
     /* Start off with no conversion necessary */
+    // cvt->needed = 0;
+    cvt->src_channels = src_channels;
+    cvt->dst_channels = dst_channels;
     cvt->src_format = src_format;
     cvt->dst_format = dst_format;
-    // cvt->needed = 0;
     // cvt->filter_index = 0;
     // SDL_zeroa(cvt->filters);
     cvt->len_mult = 1;
@@ -835,7 +788,8 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
             if (SDL_BuildAudioTypeCVTSwap(cvt, src_format) < 0) {
                 return -1; /* shouldn't happen, but just in case... */
             }
-            cvt->needed = 1;
+            SDL_assert(cvt->needed == 1);
+            // cvt->needed = 1;
             return 1;
         }
     }
@@ -853,7 +807,7 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     }
 
     /* Do rate conversion, if necessary. Updates (cvt). */
-    if (SDL_BuildAudioResampleCVT(cvt, dst_channels, src_rate, dst_rate) < 0) {
+    if (SDL_BuildAudioResampleCVT(cvt, /*dst_channels, */src_rate, dst_rate) < 0) {
         return -1; /* shouldn't happen, but just in case... */
     }
 
@@ -863,7 +817,7 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     }
 
     cvt->len_ratio = (double)cvt->len_num / (double)cvt->len_denom;
-    cvt->needed = (cvt->filter_index != 0);
+    cvt->needed = (cvt->needed != 0) ? 1 : 0;
     return cvt->needed;
 }
 

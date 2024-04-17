@@ -232,7 +232,7 @@ typedef void (SDLCALL * SDL_AudioFilter) (struct SDL_AudioCVT * cvt);
 /* */
 typedef struct SDL_AudioCVT
 {
-    int needed;                 /**< Set to 1 if conversion possible */
+    int needed;                 /**< Set to 1 if conversion is necessary */
     SDL_AudioFormat src_format; /**< Source audio format */
     SDL_AudioFormat dst_format; /**< Target audio format */
     double rate_incr;           /**< Rate conversion increment */
@@ -248,7 +248,9 @@ typedef struct SDL_AudioCVT
         };
     };
     SDL_AudioFilter filters[SDL_AUDIOCVT_MAX_FILTERS + 1]; /**< NULL-terminated list of filter functions */
-    int filter_index;           /**< Current audio conversion function */
+    Uint8 src_channels;         /**< Number of channels in the source audio */
+    Uint8 dst_channels;         /**< Number of channels in the target audio */
+    Uint16 padding;
 } SDL_AUDIOCVT_PACKED SDL_AudioCVT;
 
 
