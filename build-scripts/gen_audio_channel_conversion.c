@@ -516,25 +516,31 @@ int main(void)
         "\n"
     );
 
+    printf("#define NUM_CHANNELS %d\n\n", NUM_CHANNELS);
+
     for (ini = 1; ini <= NUM_CHANNELS; ini++) {
         for (outi = 1; outi <= NUM_CHANNELS; outi++) {
             write_converter(ini, outi);
         }
     }
 
-    printf("static const SDL_AudioFilter channel_converters[%d][%d] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
+    printf("static const SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
     for (ini = 1; ini <= NUM_CHANNELS; ini++) {
-        const char *comma = "";
         printf("    {");
         for (outi = 1; outi <= NUM_CHANNELS; outi++) {
             const char *fromstr = layout_names[ini-1];
             const char *tostr = layout_names[outi-1];
+            int len;
             if (ini == outi) {
-                printf("%s NULL", comma);
+                len = printf(" NULL");
             } else {
-                printf("%s SDL_Convert%sTo%s", comma, remove_dots(fromstr), remove_dots(tostr));
+                len = printf(" SDL_Convert%sTo%s", remove_dots(fromstr), remove_dots(tostr));
             }
-            comma = ",";
+            printf(",");
+            while (len < 24) {
+                len++;
+                printf(" ");
+            }
         }
         printf(" }%s\n", (ini == NUM_CHANNELS) ? "" : ",");
     }

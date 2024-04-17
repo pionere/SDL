@@ -764,7 +764,7 @@ static SDL_bool SDL_SupportedAudioFormat(const SDL_AudioFormat fmt)
 
 static SDL_bool SDL_SupportedChannelCount(const int channels)
 {
-    return ((channels >= 1) && (channels <= 8)) ? SDL_TRUE : SDL_FALSE;
+    return ((channels >= 1) && (channels <= NUM_CHANNELS)) ? SDL_TRUE : SDL_FALSE;
 }
 
 /* Creates a set of audio filters to convert from one format to another.
