@@ -99,7 +99,7 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
     const __m128 divby2 = _mm_set1_ps(0.5f);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i = (unsigned)cvt->len_cvt / 8;
+    int i = cvt->len_cvt / (sizeof(float) * 2u);
 
     LOG_DEBUG_CONVERT("stereo", "mono (using SSE3)");
 
@@ -131,7 +131,7 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
 {
     float *dst = ((float *)(cvt->buf + (cvt->len_cvt * 2))) - 8;
     const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - 4;
-    int i = (unsigned)cvt->len_cvt / sizeof(float);
+    int i = cvt->len_cvt / (unsigned)sizeof(float);
 
     LOG_DEBUG_CONVERT("mono", "stereo (using SSE)");
 
