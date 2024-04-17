@@ -185,9 +185,8 @@ static Sint32 ResamplerPadding(const Sint32 inrate, const Sint32 outrate)
      * by large floating point numbers. Sint32 is needed for the large number
      * multiplication. The integers are assumed to be non-negative so that
      * division rounds by truncation. */
-    if (inrate == outrate) {
-        return 0;
-    }
+    SDL_assert(inrate != outrate);
+
     if (inrate > outrate) {
         return (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * inrate + outrate - 1) / outrate;
     }
@@ -256,12 +255,6 @@ static int SDL_ResampleAudio(const int chans, const int inrate, const int outrat
     }
 
     return outframes * chans * sizeof(float);
-}
-#else
-static int
-ResamplerPadding(const int inrate, const int outrate)
-{
-    return 0;
 }
 #endif /* !SDL_RESAMPLER_DISABLED */
 int SDL_ConvertAudio(SDL_AudioCVT *cvt)
@@ -1091,24 +1084,6 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
     retval->pre_resample_channels = pre_resample_channels;
     retval->packetlen = packetlen;
     retval->rate_incr = ((double)dst_rate) / ((double)src_rate);
-    retval->resampler_padding_samples = ResamplerPadding(retval->src_rate, retval->dst_rate) * pre_resample_channels;
-    retval->resampler_padding = (float *)SDL_calloc(retval->resampler_padding_samples ? retval->resampler_padding_samples : 1, sizeof(float));
-
-    if (!retval->resampler_padding) {
-        SDL_FreeAudioStream(retval);
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
-    retval->staging_buffer_size = ((retval->resampler_padding_samples / retval->pre_resample_channels) * retval->src_sample_frame_size);
-    if (retval->staging_buffer_size > 0) {
-        retval->staging_buffer = (Uint8 *)SDL_malloc(retval->staging_buffer_size);
-        if (!retval->staging_buffer) {
-            SDL_FreeAudioStream(retval);
-            SDL_OutOfMemory();
-            return NULL;
-        }
-    }
 
     /* Not resampling? It's an easy conversion (and maybe not even that!) */
     if (src_rate == dst_rate) {
@@ -1119,6 +1094,26 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         }
     } else {
 #ifndef SDL_RESAMPLER_DISABLED
+        retval->resampler_padding_samples = ResamplerPadding(src_rate, dst_rate) * pre_resample_channels;
+        SDL_assert(retval->resampler_padding_samples != 0);
+        retval->resampler_padding = (float *)SDL_calloc(retval->resampler_padding_samples, sizeof(float));
+
+        if (!retval->resampler_padding) {
+            SDL_FreeAudioStream(retval);
+            SDL_OutOfMemory();
+            return NULL;
+        }
+
+        retval->staging_buffer_size = ((retval->resampler_padding_samples / retval->pre_resample_channels) * retval->src_sample_frame_size);
+        if (retval->staging_buffer_size > 0) {
+            retval->staging_buffer = (Uint8 *)SDL_malloc(retval->staging_buffer_size);
+            if (!retval->staging_buffer) {
+                SDL_FreeAudioStream(retval);
+                SDL_OutOfMemory();
+                return NULL;
+            }
+        }
+
         /* Don't resample at first. Just get us to Float32 format. */
         /* !!! FIXME: convert to int32 on devices without hardware float. */
         if (SDL_BuildAudioCVT(&retval->cvt_before_resampling, src_format, src_channels, src_rate, AUDIO_F32SYS, pre_resample_channels, src_rate) < 0) {
