@@ -77,7 +77,7 @@ union float_bits {
 /* Create a bit-mask based on the sign-bit. Should optimize to a single arithmetic-shift-right */
 #define SIGNMASK(x) (Uint32)(0u - ((Uint32)(x) >> 31))
 
-static void SDLCALL SDL_Convert_S8_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S8_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt;
     const Sint8 *src = (const Sint8 *)cvt->buf;
@@ -96,11 +96,11 @@ static void SDLCALL SDL_Convert_S8_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFor
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U8_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U8_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt;
     const Uint8 *src = (const Uint8 *)cvt->buf;
@@ -119,11 +119,11 @@ static void SDLCALL SDL_Convert_U8_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFor
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S16_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S16_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Sint16);
     const Sint16 *src = (const Sint16 *)cvt->buf;
@@ -142,11 +142,11 @@ static void SDLCALL SDL_Convert_S16_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U16_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U16_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
     const Uint16 *src = ((const Uint16 *)(cvt->buf + cvt->len_cvt)) - 1;
@@ -161,11 +161,11 @@ static void SDLCALL SDL_Convert_U16_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Sint32);
     const Sint32 *src = (const Sint32 *)cvt->buf;
@@ -179,11 +179,11 @@ static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S8_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S8_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -209,11 +209,11 @@ static void SDLCALL SDL_Convert_F32_to_S8_Scalar(SDL_AudioCVT *cvt, SDL_AudioFor
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -240,11 +240,11 @@ static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt, SDL_AudioFor
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -270,11 +270,11 @@ static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -296,11 +296,11 @@ static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -326,13 +326,13 @@ static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt, SDL_AudioFo
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
 
 #ifdef HAVE_SSE2_INTRINSICS
-static void SDLCALL SDL_Convert_S8_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S8_to_F32_SSE2(SDL_AudioCVT *cvt)
 {
     const Sint8 *src = (const Sint8 *)cvt->buf;
     float *dst = (float *)cvt->buf;
@@ -377,11 +377,11 @@ static void SDLCALL SDL_Convert_S8_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U8_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U8_to_F32_SSE2(SDL_AudioCVT *cvt)
 {
     const Sint8 *src = (const Sint8 *)cvt->buf;
     float *dst = (float *)cvt->buf;
@@ -424,11 +424,11 @@ static void SDLCALL SDL_Convert_U8_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S16_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S16_to_F32_SSE2(SDL_AudioCVT *cvt)
 {
     const Sint16 *src = (const Sint16 *)cvt->buf;
     float *dst = (float *)cvt->buf;
@@ -470,11 +470,11 @@ static void SDLCALL SDL_Convert_S16_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
     const Uint16 *src = ((const Uint16 *)(cvt->buf + cvt->len_cvt)) - 1;
@@ -525,11 +525,11 @@ static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt)
 {
     const Sint32 *src = (const Sint32 *)cvt->buf;
     float *dst = (float *)cvt->buf;
@@ -567,11 +567,11 @@ static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S8_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S8_SSE2(SDL_AudioCVT *cvt)
 {
     const float *src = (const float *)cvt->buf;
     Sint8 *dst = (Sint8 *)cvt->buf;
@@ -620,11 +620,11 @@ static void SDLCALL SDL_Convert_F32_to_S8_SSE2(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U8_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U8_SSE2(SDL_AudioCVT *cvt)
 {
     const float *src = (const float *)cvt->buf;
     Uint8 *dst = cvt->buf;
@@ -673,11 +673,11 @@ static void SDLCALL SDL_Convert_F32_to_U8_SSE2(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S16_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S16_SSE2(SDL_AudioCVT *cvt)
 {
     const float *src = (const float *)cvt->buf;
     Sint16 *dst = (Sint16 *)cvt->buf;
@@ -725,11 +725,11 @@ static void SDLCALL SDL_Convert_F32_to_S16_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -795,11 +795,11 @@ static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S32_SSE2(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S32_SSE2(SDL_AudioCVT *cvt)
 {
     const float *src = (const float *)cvt->buf;
     Sint32 *dst = (Sint32 *)cvt->buf;
@@ -851,13 +851,13 @@ static void SDLCALL SDL_Convert_F32_to_S32_SSE2(SDL_AudioCVT *cvt, SDL_AudioForm
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
-static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
 {
     const Sint8 *src = ((const Sint8 *)(cvt->buf + cvt->len_cvt)) - 1;
     float *dst = ((float *)(cvt->buf + cvt->len_cvt * 4)) - 1;
@@ -909,11 +909,11 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
 {
     const Uint8 *src = ((const Uint8 *)(cvt->buf + cvt->len_cvt)) - 1;
     float *dst = ((float *)(cvt->buf + cvt->len_cvt * 4)) - 1;
@@ -966,11 +966,11 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt *= 4;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Sint16);
     const Sint16 *src = ((const Sint16 *)(cvt->buf + cvt->len_cvt)) - 1;
@@ -1016,11 +1016,11 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
     const Uint16 *src = ((const Uint16 *)(cvt->buf + cvt->len_cvt)) - 1;
@@ -1067,11 +1067,11 @@ static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Sint32);
     const Sint32 *src = (const Sint32 *)cvt->buf;
@@ -1111,11 +1111,11 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_F32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -1177,11 +1177,11 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -1244,11 +1244,11 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt, SDL_AudioForma
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / sizeof(float);
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U8);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -1306,11 +1306,11 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -1368,11 +1368,11 @@ static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_U16SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(float);
     const float *src = (const float *)cvt->buf;
@@ -1427,7 +1427,7 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt, SDL_AudioForm
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, AUDIO_S32SYS);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif

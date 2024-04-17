@@ -94,7 +94,7 @@
 
 #ifdef HAVE_SSE3_INTRINSICS
 /* Convert from stereo to mono. Average left and right. */
-static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
 {
     const __m128 divby2 = _mm_set1_ps(0.5f);
     float *dst = (float *)cvt->buf;
@@ -102,7 +102,6 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt, SDL_AudioFor
     int i = (unsigned)cvt->len_cvt / 8;
 
     LOG_DEBUG_CONVERT("stereo", "mono (using SSE3)");
-    SDL_assert(format == AUDIO_F32SYS);
 
     /* Do SSE blocks as long as we have 16 bytes available.
        Just use unaligned load/stores, if the memory at runtime is
@@ -124,21 +123,20 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt, SDL_AudioFor
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
 
 #ifdef HAVE_SSE_INTRINSICS
 /* Convert from mono to stereo. Duplicate to stereo left and right. */
-static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
 {
     float *dst = ((float *)(cvt->buf + (cvt->len_cvt * 2))) - 8;
     const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - 4;
     int i = (unsigned)cvt->len_cvt / sizeof(float);
 
     LOG_DEBUG_CONVERT("mono", "stereo (using SSE)");
-    SDL_assert(format == AUDIO_F32SYS);
 
     /* Do SSE blocks as long as we have 16 bytes available.
        Just use unaligned load/stores, if the memory at runtime is
@@ -167,7 +165,7 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt, SDL_AudioForm
 
     cvt->len_cvt *= 2;
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 #endif
@@ -284,11 +282,11 @@ int SDL_ConvertAudio(SDL_AudioCVT *cvt)
 
     /* Set up the conversion and go! */
     cvt->filter_index = 0;
-    cvt->filters[0](cvt, cvt->src_format);
+    cvt->filters[0](cvt);
     return 0;
 }
 
-static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
     Uint16 *ptr = (Uint16 *)cvt->buf;
@@ -302,17 +300,11 @@ static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt, SDL_AudioFormat fo
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        /* flip endian flag for data. */
-        if (format & SDL_AUDIO_MASK_ENDIAN) {
-            format &= ~SDL_AUDIO_MASK_ENDIAN;
-        } else {
-            format |= SDL_AUDIO_MASK_ENDIAN;
-        }
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
-static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt, SDL_AudioFormat format)
+static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt)
 {
     const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint32);
     Uint32 *ptr = (Uint32 *)cvt->buf;
@@ -325,13 +317,7 @@ static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt, SDL_AudioFormat fo
     }
 
     if (cvt->filters[++cvt->filter_index]) {
-        /* flip endian flag for data. */
-        if (format & SDL_AUDIO_MASK_ENDIAN) {
-            format &= ~SDL_AUDIO_MASK_ENDIAN;
-        } else {
-            format |= SDL_AUDIO_MASK_ENDIAN;
-        }
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -499,7 +485,7 @@ static int SDL_BuildAudioTypeCVTFromFloat(SDL_AudioCVT *cvt, const SDL_AudioForm
 #ifndef SDL_RESAMPLER_DISABLED
 #ifdef HAVE_LIBSAMPLERATE_H
 
-static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans, const SDL_AudioFormat format)
+static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans)
 {
     const float *src = (const float *)cvt->buf;
     const int srclen = cvt->len_cvt;
@@ -534,13 +520,13 @@ static void SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt, const int chans, const SDL_Au
     SDL_memmove(cvt->buf, dst, cvt->len_cvt);
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
 #endif /* HAVE_LIBSAMPLERATE_H */
 
-static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans, const SDL_AudioFormat format)
+static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans)
 {
     /* !!! FIXME in 2.1: there are ten slots in the filter list, and the theoretical maximum we use is six (seven with NULL terminator).
        !!! FIXME in 2.1:   We need to store data for this resampler, because the cvt structure doesn't store the original sample rates,
@@ -563,7 +549,6 @@ static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans, const SDL_AudioF
     } else {
         paddingsamples = 0;
     }
-    SDL_assert(format == AUDIO_F32SYS);
 
     /* we keep no streaming state here, so pad with silence on both ends. */
     padding = (float *)SDL_calloc(paddingsamples ? paddingsamples : 1, sizeof(float));
@@ -579,7 +564,7 @@ static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans, const SDL_AudioF
     SDL_memmove(cvt->buf, dst, cvt->len_cvt); /* !!! FIXME: remove this if we can get the resampler to work in-place again. */
 
     if (cvt->filters[++cvt->filter_index]) {
-        cvt->filters[cvt->filter_index](cvt, format);
+        cvt->filters[cvt->filter_index](cvt);
     }
 }
 
@@ -587,11 +572,11 @@ static void SDL_ResampleCVT(SDL_AudioCVT *cvt, const int chans, const SDL_AudioF
    !!! FIXME:  store channel info, so we have to have function entry
    !!! FIXME:  points for each supported channel count and multiple
    !!! FIXME:  vs arbitrary. When we rev the ABI, clean this up. */
-#define RESAMPLER_FUNCS(chans)                                              \
-    static void SDLCALL                                                     \
-        SDL_ResampleCVT_c##chans(SDL_AudioCVT *cvt, SDL_AudioFormat format) \
-    {                                                                       \
-        SDL_ResampleCVT(cvt, chans, format);                                \
+#define RESAMPLER_FUNCS(chans)                      \
+    static void SDLCALL                             \
+        SDL_ResampleCVT_c##chans(SDL_AudioCVT *cvt) \
+    {                                               \
+        SDL_ResampleCVT(cvt, chans);                \
     }
 RESAMPLER_FUNCS(1)
 RESAMPLER_FUNCS(2)
@@ -601,11 +586,11 @@ RESAMPLER_FUNCS(8)
 #undef RESAMPLER_FUNCS
 
 #ifdef HAVE_LIBSAMPLERATE_H
-#define RESAMPLER_FUNCS(chans)                                                  \
-    static void SDLCALL                                                         \
-        SDL_ResampleCVT_SRC_c##chans(SDL_AudioCVT *cvt, SDL_AudioFormat format) \
-    {                                                                           \
-        SDL_ResampleCVT_SRC(cvt, chans, format);                                \
+#define RESAMPLER_FUNCS(chans)                          \
+    static void SDLCALL                                 \
+        SDL_ResampleCVT_SRC_c##chans(SDL_AudioCVT *cvt) \
+    {                                                   \
+        SDL_ResampleCVT_SRC(cvt, chans);                \
     }
 RESAMPLER_FUNCS(1)
 RESAMPLER_FUNCS(2)

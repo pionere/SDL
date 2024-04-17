@@ -261,7 +261,7 @@ static void write_converter(const int fromchans, const int tochans)
         }
     }
 
-    printf("static void SDLCALL SDL_Convert%sTo%s(SDL_AudioCVT *cvt, SDL_AudioFormat format)\n"
+    printf("static void SDLCALL SDL_Convert%sTo%s(SDL_AudioCVT *cvt)\n"
            "{\n", remove_dots(fromstr), remove_dots(tostr));
 
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
@@ -279,7 +279,6 @@ static void write_converter(const int fromchans, const int tochans)
     printf("    int i;\n"
            "\n"
            "    LOG_DEBUG_CONVERT(\"%s\", \"%s\");\n"
-           "    SDL_assert(format == AUDIO_F32SYS);\n"
            "\n", lowercase(fromstr), lowercase(tostr));
 
     if (convert_backwards) {
@@ -423,7 +422,7 @@ static void write_converter(const int fromchans, const int tochans)
     }
 
     printf("    if (cvt->filters[++cvt->filter_index]) {\n"
-           "        cvt->filters[cvt->filter_index](cvt, format);\n"
+           "        cvt->filters[cvt->filter_index](cvt);\n"
            "    }\n"
            "}\n\n");
 }

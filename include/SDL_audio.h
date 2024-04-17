@@ -195,8 +195,7 @@ typedef struct SDL_AudioSpec
 
 
 struct SDL_AudioCVT;
-typedef void (SDLCALL * SDL_AudioFilter) (struct SDL_AudioCVT * cvt,
-                                          SDL_AudioFormat format);
+typedef void (SDLCALL * SDL_AudioFilter) (struct SDL_AudioCVT * cvt);
 
 /**
  *  \brief Upper limit of filters in SDL_AudioCVT
