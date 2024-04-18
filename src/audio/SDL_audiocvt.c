@@ -833,7 +833,9 @@ typedef void (*SDL_CleanupAudioStreamResamplerFunc)(SDL_AudioStream *stream);
 
 struct _SDL_AudioStream
 {
+#ifndef SDL_RESAMPLER_DISABLED
     SDL_AudioCVT cvt_before_resampling;
+#endif
     SDL_AudioCVT cvt_after_resampling;
     SDL_DataQueue *queue;
     Uint8 *work_buffer_base; /* maybe unaligned pointer from SDL_realloc(). */
@@ -1036,7 +1038,6 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
 
     /* Not resampling? It's an easy conversion (and maybe not even that!) */
     if (src_rate == dst_rate) {
-        // retval->cvt_before_resampling.needed = SDL_FALSE;
         if (SDL_BuildAudioCVT(&retval->cvt_after_resampling, src_format, src_channels, dst_rate, dst_format, dst_channels, dst_rate) < 0) {
             SDL_FreeAudioStream(retval);
             return NULL; /* SDL_BuildAudioCVT should have called SDL_SetError. */
@@ -1154,8 +1155,6 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
 #endif
         workbuflen += resamplebuflen;
     }
-#else
-    SDL_assert(!stream->cvt_before_resampling.needed);
 #endif
     if (stream->cvt_after_resampling.needed) {
         /* !!! FIXME: buffer might be big enough already? */
