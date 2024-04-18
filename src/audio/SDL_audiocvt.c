@@ -208,7 +208,7 @@ static int ResamplerPadding(const int inrate, const int outrate)
 
 /* lpadding and rpadding are expected to be buffers of (ResamplePadding(inrate, outrate) * channels * sizeof(float)) bytes. */
 static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int outrate,
-                             const float *lpadding, const float *rpadding,
+                             const float *lpaddingend, const float *rpadding,
                              const float *inbuffer, const int inbuflen,
                              float *outbuf, const int outbuflen)
 {
@@ -218,7 +218,6 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
      * assumed to be non-negative so that division rounds by truncation and
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
-    const int padding_steps = ResamplerPadding(inrate, outrate);
     const int chans = channels;
     const int framelen = chans * sizeof(float);
     const int inframes = inbuflen / framelen;
@@ -234,7 +233,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
     SDL_assert(((Sint64)outframes * inrate / outrate) <= INT_MAX);
 
     /* align the padding bytes with the inbuffer */
-    lpadding += padding_steps * chans;
+    // lpadding += padding_steps * chans;
     rpadding -= inframes * chans;
 
     for (i = 0; i < outframes; i++) {
@@ -259,7 +258,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
                 const int filt_ind = filterindex1 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
                 const int srcframe = srcindex - j;
                 /* !!! FIXME: we can bubble this conditional out of here by doing a pre loop. */
-                const float insample = (srcframe < 0) ? lpadding[(srcframe * chans) + chan] : inbuffer[(srcframe * chans) + chan];
+                const float insample = (srcframe < 0) ? lpaddingend[(srcframe * chans) + chan] : inbuffer[(srcframe * chans) + chan];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation1 * ResamplerFilterDifference[filt_ind])));
             }
 
@@ -552,23 +551,25 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const int outrate = (int)(size_t)cvt->filters[SDL_AUDIOCVT_MAX_FILTERS];
     const float *src;
     int paddingsamples, srclen, dstlen;
-    float *padding, *dst;
+    float *padding, *lpaddingend, *dst;
     const int padding_steps = ResamplerPadding(inrate, outrate);
     const Uint8 chans = cvt->dst_channels;
+    size_t padding_len;
 
     SDL_assert(padding_steps <= INT_MAX / chans);
 
     paddingsamples = padding_steps * chans;
 
     SDL_assert(paddingsamples <= SDL_SIZE_MAX / sizeof(float));
-
+    padding_len = paddingsamples * sizeof(float);
     /* we keep no streaming state here, so pad with silence on both ends. */
-    padding = (float *)SDL_calloc(paddingsamples, sizeof(float));
+    padding = (float *)SDL_calloc(1, padding_len);
     SDL_expect(padding,
         SDL_OutOfMemory();
         return;
     );
 
+    lpaddingend = (float *)((Uint8 *)padding + padding_len);
     src = (const float *)cvt->buf;
     srclen = cvt->len_cvt;
     /*dst = (float *) cvt->buf;
@@ -577,7 +578,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     dst = (float *)(cvt->buf + srclen);
     dstlen = (cvt->len * cvt->len_mult) - srclen;
 
-    cvt->len_cvt = SDL_ResampleAudio(chans, inrate, outrate, padding, padding, src, srclen, dst, dstlen);
+    cvt->len_cvt = SDL_ResampleAudio(chans, inrate, outrate, lpaddingend, padding, src, srclen, dst, dstlen);
 
     SDL_free(padding);
 
@@ -966,17 +967,17 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     const int inrate = stream->src_rate;
     const int outrate = stream->dst_rate;
     const int padding_len = stream->resampler_padding_len;
-    float *lpadding = (float *)stream->resampler_state;
+    Uint8 *lpaddingend = (Uint8 *)stream->resampler_state + padding_len;
     const float *rpadding = (const float *)inbufend; /* we set this up so there are valid padding samples at the end of the input buffer. */
     int cpy, retval;
 
     SDL_assert(inbuf != ((const float *)outbuf)); /* SDL_AudioStreamPut() shouldn't allow in-place resamples. */
 
-    retval = SDL_ResampleAudio(chans, inrate, outrate, lpadding, rpadding, inbuf, inbuflen, outbuf, outbuflen);
+    retval = SDL_ResampleAudio(chans, inrate, outrate, (float *)lpaddingend, rpadding, inbuf, inbuflen, outbuf, outbuflen);
 
     /* update our left padding with end of current input, for next run. */
     cpy = SDL_min(inbuflen, padding_len);
-    SDL_memcpy((Uint8 *)lpadding + padding_len - cpy, inbufend - cpy, cpy);
+    SDL_memcpy(lpaddingend - cpy, inbufend - cpy, cpy);
     return retval;
 }
 
