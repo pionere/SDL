@@ -206,6 +206,23 @@ extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
 #define SDL_assume(x) SDL_assert(x);
 #endif
 
+#if _SDL_HAS_BUILTIN(__builtin_expect) || (defined(__GNUC__) && __GNUC__ >= 4)
+#define SDL_expect(cond, otherwise) \
+ if (__builtin_expect(!(cond), 0)) { \
+    otherwise; \
+}
+#elif __cplusplus >= 202002
+#define SDL_expect(cond, otherwise) \
+ if (!(cond)) [[ unlikely ]] { \
+    otherwise; \
+}
+#else
+#define SDL_expect(cond, otherwise) \
+ if (!cond) { \
+    otherwise; \
+}
+#endif
+
 /**
  * A callback that fires when an SDL assertion fails.
  *
