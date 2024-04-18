@@ -207,7 +207,7 @@ static int ResamplerPadding(const int inrate, const int outrate)
 }
 
 /* lpadding and rpadding are expected to be buffers of (ResamplePadding(inrate, outrate) * chans * sizeof(float)) bytes. */
-static int SDL_ResampleAudio(const int chans, const int inrate, const int outrate,
+static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outrate,
                              const float *lpadding, const float *rpadding,
                              const float *inbuf, const int inbuflen,
                              float *outbuf, const int outbuflen)
@@ -219,14 +219,15 @@ static int SDL_ResampleAudio(const int chans, const int inrate, const int outrat
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int paddinglen = ResamplerPadding(inrate, outrate);
-    const int framelen = chans * (int)sizeof(float);
+    const int framelen = chans * sizeof(float);
     const int inframes = inbuflen / framelen;
     /* outbuflen isn't total to write, it's total available. */
     const int wantedoutframes = (int)((Sint64)inframes * outrate / inrate);
     const int maxoutframes = outbuflen / framelen;
     const int outframes = SDL_min(wantedoutframes, maxoutframes);
     float *dst = outbuf;
-    int i, j, chan;
+    int i, j;
+    unsigned chan;
     SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
     SDL_assert(((Sint64)inframes * outrate / inrate) <= INT_MAX);
     SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
@@ -540,7 +541,7 @@ static void SDLCALL SDL_ResampleCVT_SRC(SDL_AudioCVT *cvt)
 
 static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
 {
-    const int chans = cvt->dst_channels;
+    const Uint8 chans = cvt->dst_channels;
     /* !!! FIXME in 2.1: there are ten slots in the filter list, and the theoretical maximum we use is six (seven with NULL terminator).
        !!! FIXME in 2.1:   We need to store data for this resampler, because the cvt structure doesn't store the original sample rates,
        !!! FIXME in 2.1:   so we steal the ninth and tenth slot.  :( */
@@ -954,7 +955,7 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     const Uint8 *inbufend = ((const Uint8 *)_inbuf) + inbuflen;
     const float *inbuf = (const float *)_inbuf;
     float *outbuf = (float *)_outbuf;
-    const int chans = (int)stream->pre_resample_channels;
+    const Uint8 chans = stream->pre_resample_channels;
     const int inrate = stream->src_rate;
     const int outrate = stream->dst_rate;
     const int paddingsamples = stream->resampler_padding_samples;
