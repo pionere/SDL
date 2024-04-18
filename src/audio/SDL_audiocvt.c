@@ -234,7 +234,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
 
     /* align the padding bytes with the inbuffer */
     // lpadding += padding_steps * chans;
-    rpadding -= inframes * chans;
+    rpadding = (const float *)((const Uint8 *)rpadding - inbuflen);
 
     for (i = 0; i < outframes; i++) {
         const int srcindex = (int)((Sint64)i * inrate / outrate);
