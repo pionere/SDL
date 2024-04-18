@@ -218,7 +218,7 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
      * assumed to be non-negative so that division rounds by truncation and
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
-    const int paddinglen = ResamplerPadding(inrate, outrate);
+    const int padding_steps = ResamplerPadding(inrate, outrate);
     const int framelen = chans * sizeof(float);
     const int inframes = inbuflen / framelen;
     /* outbuflen isn't total to write, it's total available. */
@@ -255,7 +255,7 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
                 const int filt_ind = filterindex1 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
                 const int srcframe = srcindex - j;
                 /* !!! FIXME: we can bubble this conditional out of here by doing a pre loop. */
-                const float insample = (srcframe < 0) ? lpadding[((paddinglen + srcframe) * chans) + chan] : inbuf[(srcframe * chans) + chan];
+                const float insample = (srcframe < 0) ? lpadding[((padding_steps + srcframe) * chans) + chan] : inbuf[(srcframe * chans) + chan];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation1 * ResamplerFilterDifference[filt_ind])));
             }
 
@@ -549,12 +549,12 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const float *src;
     int paddingsamples, srclen, dstlen;
     float *padding, *dst;
-    const int requestedpadding = ResamplerPadding(inrate, outrate);
+    const int padding_steps = ResamplerPadding(inrate, outrate);
     const Uint8 chans = cvt->dst_channels;
 
-    SDL_assert(requestedpadding <= INT_MAX / chans);
+    SDL_assert(padding_steps <= INT_MAX / chans);
 
-    paddingsamples = requestedpadding * chans;
+    paddingsamples = padding_steps * chans;
 
     SDL_assert(paddingsamples <= SDL_SIZE_MAX / sizeof(float));
 
@@ -839,8 +839,8 @@ struct _SDL_AudioStream
     int dst_rate;
     double rate_incr;
     Uint8 *staging_buffer;
-    int staging_buffer_size;
-    int staging_buffer_filled;
+    int staging_buffer_len;
+    int staging_buffer_fill_len;
     SDL_boolean first_run;
     Uint8 pre_resample_channels;
     int resampler_padding_samples;
@@ -1038,9 +1038,9 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         }
     } else {
 #ifndef SDL_RESAMPLER_DISABLED
-        int paddinglen = ResamplerPadding(src_rate, dst_rate);
-        SDL_assert(paddinglen <= INT_MAX / pre_resample_channels);
-        retval->resampler_padding_samples = paddinglen * pre_resample_channels;
+        int padding_steps = ResamplerPadding(src_rate, dst_rate);
+        SDL_assert(padding_steps <= INT_MAX / pre_resample_channels);
+        retval->resampler_padding_samples = padding_steps * pre_resample_channels;
         SDL_assert(retval->resampler_padding_samples <= SDL_SIZE_MAX / sizeof(float));
         retval->resampler_padding = (float *)SDL_calloc(retval->resampler_padding_samples, sizeof(float));
 
@@ -1050,9 +1050,9 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
             return NULL;
         );
 
-        SDL_assert(paddinglen <= INT_MAX / retval->src_sample_frame_size);
-        retval->staging_buffer_size = paddinglen * retval->src_sample_frame_size;
-        retval->staging_buffer = (Uint8 *)SDL_malloc(retval->staging_buffer_size);
+        SDL_assert(padding_steps <= INT_MAX / retval->src_sample_frame_size);
+        retval->staging_buffer_len = padding_steps * retval->src_sample_frame_size;
+        retval->staging_buffer = (Uint8 *)SDL_malloc(retval->staging_buffer_len);
         SDL_expect(retval->staging_buffer,
             SDL_FreeAudioStream(retval);
             SDL_OutOfMemory();
@@ -1284,24 +1284,24 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
         /* If we don't have a staging buffer or we're given enough data that
            we don't need to store it for later, skip the staging process.
          */
-        if (!stream->staging_buffer_filled && len >= stream->staging_buffer_size) {
+        if (!stream->staging_buffer_fill_len && len >= stream->staging_buffer_len) {
 #endif
             return SDL_AudioStreamPutInternal(stream, buf, len, NULL);
 #ifndef SDL_RESAMPLER_DISABLED
         }
         /* If there's not enough data to fill the staging buffer, just save it */
-        if ((stream->staging_buffer_filled + len) < stream->staging_buffer_size) {
-            SDL_memcpy(stream->staging_buffer + stream->staging_buffer_filled, buf, len);
-            stream->staging_buffer_filled += len;
+        if ((stream->staging_buffer_fill_len + len) < stream->staging_buffer_len) {
+            SDL_memcpy(stream->staging_buffer + stream->staging_buffer_fill_len, buf, len);
+            stream->staging_buffer_fill_len += len;
             return 0;
         }
 
         /* Fill the staging buffer, process it, and continue */
-        amount = (stream->staging_buffer_size - stream->staging_buffer_filled);
+        amount = (stream->staging_buffer_len - stream->staging_buffer_fill_len);
         SDL_assert(amount > 0);
-        SDL_memcpy(stream->staging_buffer + stream->staging_buffer_filled, buf, amount);
-        stream->staging_buffer_filled = 0;
-        if (SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_size, NULL) < 0) {
+        SDL_memcpy(stream->staging_buffer + stream->staging_buffer_fill_len, buf, amount);
+        stream->staging_buffer_fill_len = 0;
+        if (SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_len, NULL) < 0) {
             return -1;
         }
         buf = (void *)((Uint8 *)buf + amount);
@@ -1321,33 +1321,33 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
     }
 
 #if DEBUG_AUDIOSTREAM
-    SDL_Log("AUDIOSTREAM: flushing! staging_buffer_filled=%d bytes\n", stream->staging_buffer_filled);
+    SDL_Log("AUDIOSTREAM: flushing! staging_buffer_fill_len=%d bytes\n", stream->staging_buffer_fill_len);
 #endif
 
     /* shouldn't use a staging buffer if we're not resampling. */
-    SDL_assert((stream->dst_rate != stream->src_rate) || (stream->staging_buffer_filled == 0));
+    SDL_assert((stream->dst_rate != stream->src_rate) || (stream->staging_buffer_fill_len == 0));
 
-    if (stream->staging_buffer_filled > 0) {
+    if (stream->staging_buffer_fill_len > 0) {
         /* push the staging buffer + silence. We need to flush out not just
            the staging buffer, but the piece that the stream was saving off
            for right-side resampler padding. */
         const SDL_bool first_run = stream->first_run;
-        const int filled = stream->staging_buffer_filled;
-        int actual_input_frames = filled / stream->src_sample_frame_size;
+        const int filled = stream->staging_buffer_fill_len;
+        int actual_input_steps = filled / stream->src_sample_frame_size;
         if (!first_run) {
-            actual_input_frames += stream->resampler_padding_samples / stream->pre_resample_channels;
+            actual_input_steps += stream->resampler_padding_samples / stream->pre_resample_channels;
         }
 
-        if (actual_input_frames > 0) { /* don't bother if nothing to flush. */
+        if (actual_input_steps > 0) { /* don't bother if nothing to flush. */
             /* This is how many bytes we're expecting without silence appended. */
-            int flush_remaining = ((int)SDL_ceil(actual_input_frames * stream->rate_incr)) * stream->dst_sample_frame_size;
+            int flush_remaining = ((int)SDL_ceil(actual_input_steps * stream->rate_incr)) * stream->dst_sample_frame_size;
 
 #if DEBUG_AUDIOSTREAM
             SDL_Log("AUDIOSTREAM: flushing with padding to get max %d bytes!\n", flush_remaining);
 #endif
 
-            SDL_memset(stream->staging_buffer + filled, '\0', stream->staging_buffer_size - filled);
-            retval = SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_size, &flush_remaining);
+            SDL_memset(stream->staging_buffer + filled, '\0', stream->staging_buffer_len - filled);
+            retval = SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_len, &flush_remaining);
             if (retval < 0) {
                 return retval;
             }
@@ -1356,14 +1356,14 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
                resampler padding, but we need to push more silence to guarantee
                the staging buffer is fully flushed out, too. */
             SDL_memset(stream->staging_buffer, '\0', filled);
-            retval = SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_size, &flush_remaining);
+            retval = SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_len, &flush_remaining);
             if (retval < 0) {
                 return retval;
             }
         }
     }
 
-    stream->staging_buffer_filled = 0;
+    stream->staging_buffer_fill_len = 0;
     stream->first_run = SDL_TRUE;
 #endif // SDL_RESAMPLER_DISABLED
     return 0;
@@ -1416,7 +1416,7 @@ void SDL_AudioStreamClear(SDL_AudioStream *stream)
             stream->reset_resampler_func(stream);
         }
         stream->first_run = SDL_TRUE;
-        stream->staging_buffer_filled = 0;
+        stream->staging_buffer_fill_len = 0;
 #endif
     }
 }
