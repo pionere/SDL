@@ -206,10 +206,10 @@ static int ResamplerPadding(const int inrate, const int outrate)
     return RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
 }
 
-/* lpadding and rpadding are expected to be buffers of (ResamplePadding(inrate, outrate) * chans * sizeof(float)) bytes. */
-static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outrate,
+/* lpadding and rpadding are expected to be buffers of (ResamplePadding(inrate, outrate) * channels * sizeof(float)) bytes. */
+static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int outrate,
                              const float *lpadding, const float *rpadding,
-                             const float *inbuf, const int inbuflen,
+                             const float *inbuffer, const int inbuflen,
                              float *outbuf, const int outbuflen)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
@@ -219,6 +219,7 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int padding_steps = ResamplerPadding(inrate, outrate);
+    const int chans = channels;
     const int framelen = chans * sizeof(float);
     const int inframes = inbuflen / framelen;
     /* outbuflen isn't total to write, it's total available. */
@@ -226,12 +227,15 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
     const int maxoutframes = outbuflen / framelen;
     const int outframes = SDL_min(wantedoutframes, maxoutframes);
     float *dst = outbuf;
-    int i, j;
-    unsigned chan;
+    int i, chan, j;
     SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
     SDL_assert(((Sint64)inframes * outrate / inrate) <= INT_MAX);
     SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
     SDL_assert(((Sint64)outframes * inrate / outrate) <= INT_MAX);
+
+    /* align the padding bytes with the inbuffer */
+    lpadding += padding_steps * chans;
+    rpadding -= inframes * chans;
 
     for (i = 0; i < outframes; i++) {
         const int srcindex = (int)((Sint64)i * inrate / outrate);
@@ -255,7 +259,7 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
                 const int filt_ind = filterindex1 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
                 const int srcframe = srcindex - j;
                 /* !!! FIXME: we can bubble this conditional out of here by doing a pre loop. */
-                const float insample = (srcframe < 0) ? lpadding[((padding_steps + srcframe) * chans) + chan] : inbuf[(srcframe * chans) + chan];
+                const float insample = (srcframe < 0) ? lpadding[(srcframe * chans) + chan] : inbuffer[(srcframe * chans) + chan];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation1 * ResamplerFilterDifference[filt_ind])));
             }
 
@@ -264,7 +268,7 @@ static int SDL_ResampleAudio(const Uint8 chans, const int inrate, const int outr
                 const int filt_ind = filterindex2 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
                 const int srcframe = srcindex + 1 + j;
                 /* !!! FIXME: we can bubble this conditional out of here by doing a post loop. */
-                const float insample = (srcframe >= inframes) ? rpadding[((srcframe - inframes) * chans) + chan] : inbuf[(srcframe * chans) + chan];
+                const float insample = (srcframe >= inframes) ? rpadding[(srcframe * chans) + chan] : inbuffer[(srcframe * chans) + chan];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation2 * ResamplerFilterDifference[filt_ind])));
             }
 
