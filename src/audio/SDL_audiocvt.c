@@ -651,8 +651,10 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, /*const int dst_channels
     return SDL_Unsupported();
 }
 #endif /* !SDL_RESAMPLER_DISABLED */
-static int SDL_BuildAudioChannelCVT(SDL_AudioCVT *cvt, const int src_channels, const int dst_channels)
+static int SDL_BuildAudioChannelCVT(SDL_AudioCVT *cvt/*, const int src_channels, const int dst_channels*/)
 {
+    const Uint8 src_channels = cvt->src_channels;
+    const Uint8 dst_channels = cvt->dst_channels;
     SDL_AudioFilter channel_converter;
 
     /* SDL_SupportedChannelCount should have caught these asserts, or we added a new format and forgot to update the table. */
@@ -804,7 +806,7 @@ int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
     }
 
     /* Channel conversion */
-    if (SDL_BuildAudioChannelCVT(cvt, src_channels, dst_channels) < 0) {
+    if (SDL_BuildAudioChannelCVT(cvt/*, src_channels, dst_channels*/) < 0) {
         return -1; /* shouldn't happen, but just in case... */
     }
 
