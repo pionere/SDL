@@ -850,7 +850,6 @@ struct _SDL_AudioStream
     int staging_buffer_fill_len;
     SDL_boolean first_run;
     Uint8 pre_resample_channels;
-    int resampler_padding_samples;
     int resampler_padding_len;
     float *resampler_padding;
     void *resampler_state;
@@ -1045,10 +1044,12 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
     } else {
 #ifndef SDL_RESAMPLER_DISABLED
         int padding_steps = ResamplerPadding(src_rate, dst_rate);
+        int padding_samples;
+
         SDL_assert(padding_steps <= INT_MAX / pre_resample_channels);
-        retval->resampler_padding_samples = padding_steps * pre_resample_channels;
-        SDL_assert(retval->resampler_padding_samples <= INT_MAX / sizeof(float));
-        retval->resampler_padding_len = retval->resampler_padding_samples * sizeof(float);
+        padding_samples = padding_steps * pre_resample_channels;
+        SDL_assert(padding_samples <= INT_MAX / sizeof(float));
+        retval->resampler_padding_len = padding_samples * sizeof(float);
         retval->resampler_padding = (float *)SDL_calloc(1, retval->resampler_padding_len);
         SDL_expect(retval->resampler_padding,
             SDL_FreeAudioStream(retval);
@@ -1340,7 +1341,7 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
         const int filled = stream->staging_buffer_fill_len;
         int actual_input_steps = filled / stream->src_sample_frame_size;
         if (!first_run) {
-            actual_input_steps += stream->resampler_padding_samples / stream->pre_resample_channels;
+            actual_input_steps += stream->resampler_padding_len / (stream->pre_resample_channels * sizeof(float));
         }
 
         if (actual_input_steps > 0) { /* don't bother if nothing to flush. */
