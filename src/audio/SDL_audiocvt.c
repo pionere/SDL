@@ -853,6 +853,7 @@ struct _SDL_AudioStream
     int staging_buffer_len;
     int staging_buffer_fill_len;
     SDL_boolean first_run;
+    SDL_boolean resampling_needed;
     Uint8 pre_resample_channels;
     int resampler_padding_len;
     float *resampler_padding;
@@ -1053,6 +1054,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         int padding_steps = ResamplerPadding(src_rate, dst_rate);
         int padding_samples;
 
+        retval->resampling_needed = SDL_TRUE;
         SDL_assert(padding_steps <= INT_MAX / pre_resample_channels);
         padding_samples = padding_steps * pre_resample_channels;
         SDL_assert(padding_samples <= INT_MAX / sizeof(float));
@@ -1154,7 +1156,7 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
         workbuflen *= stream->cvt_before_resampling.len_mult;
     }
 
-    if (stream->dst_rate != stream->src_rate) {
+    if (stream->resampling_needed) {
         /* resamples can't happen in place, so make space for second buf. */
         const int framesize = stream->pre_resample_channels * sizeof(float);
         const int frames = workbuflen / framesize;
@@ -1196,7 +1198,7 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
 #endif
     }
 
-    if (stream->dst_rate != stream->src_rate) {
+    if (stream->resampling_needed) {
         /* save off some samples at the end; they are used for padding now so
            the resampler is coherent and then used at the start of the next
            put operation. Prepend last put operation's padding, too. */
@@ -1279,7 +1281,7 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
     }
 #ifndef SDL_RESAMPLER_DISABLED
     if (!stream->cvt_before_resampling.needed &&
-        (stream->dst_rate == stream->src_rate) &&
+        !stream->resampling_needed &&
         !stream->cvt_after_resampling.needed) {
 #else
     if (!stream->cvt_after_resampling.needed) {
@@ -1339,7 +1341,7 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
 #endif
 
     /* shouldn't use a staging buffer if we're not resampling. */
-    SDL_assert((stream->dst_rate != stream->src_rate) || (stream->staging_buffer_fill_len == 0));
+    SDL_assert(stream->resampling_needed || (stream->staging_buffer_fill_len == 0));
 
     if (stream->staging_buffer_fill_len > 0) {
         /* push the staging buffer + silence. We need to flush out not just
