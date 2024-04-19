@@ -840,6 +840,7 @@ struct _SDL_AudioStream
     SDL_AudioCVT cvt_after_resampling;
     SDL_DataQueue *queue;
     Uint8 *work_buffer_base; /* maybe unaligned pointer from SDL_realloc(). */
+    Uint8 *work_buffer_ptr;  /* the aligned pointer from SDL_realloc(). */
     int work_buffer_len;
     int src_sample_frame_size;
     int dst_sample_frame_size;
@@ -862,26 +863,29 @@ struct _SDL_AudioStream
 #endif
 };
 
-static Uint8 *EnsureStreamBufferSize(SDL_AudioStream *stream, int newlen)
+static Uint8 *EnsureStreamBufferSize(SDL_AudioStream *stream, int len)
 {
-    Uint8 *ptr;
-    size_t offset;
+    Uint8 *retval;
 
-    if (stream->work_buffer_len >= newlen) {
-        ptr = stream->work_buffer_base;
+    if (stream->work_buffer_len >= len) {
+        retval = stream->work_buffer_ptr;
     } else {
-        ptr = (Uint8 *)SDL_realloc(stream->work_buffer_base, (size_t)newlen + 32);
-        if (!ptr) {
+        const size_t alignment_1 = SDL_SIMDGetAlignment() - 1;
+        const size_t padding = (alignment_1 + 1 - (len & alignment_1)) & alignment_1;
+        len += padding;
+        retval = (Uint8 *)SDL_realloc(stream->work_buffer_base, alignment_1 + len);
+        if (retval) {
+            stream->work_buffer_base = retval;
+            stream->work_buffer_len = len;
+            /* Make sure we're aligned to 16 bytes for SIMD code. */
+            retval = (Uint8 *)((size_t)(retval + alignment_1) & ~alignment_1);
+            stream->work_buffer_ptr = retval;
+        } else {
             SDL_OutOfMemory();
-            return NULL;
         }
-        /* Make sure we're aligned to 16 bytes for SIMD code. */
-        stream->work_buffer_base = ptr;
-        stream->work_buffer_len = newlen;
     }
 
-    offset = ((size_t)ptr) & 15;
-    return offset ? ptr + (16 - offset) : ptr;
+    return retval;
 }
 #ifndef SDL_RESAMPLER_DISABLED
 #ifdef HAVE_LIBSAMPLERATE_H
