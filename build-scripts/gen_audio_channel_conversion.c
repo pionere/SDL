@@ -264,13 +264,22 @@ static void write_converter(const int fromchans, const int tochans)
     printf("static void SDLCALL SDL_Convert%sTo%s(SDL_AudioCVT *cvt)\n"
            "{\n", remove_dots(fromstr), remove_dots(tostr));
 
+    if (fromchans == 1) {
+        printf("    const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);\n");
+    } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+        printf("    const int num_samples = cvt->len_cvt / (sizeof(float) * %du);\n", fromchans);
+    // } else {
+    //    printf("    const int num_samples = cvt->len_cvt / (sizeof(float) * %d);\n", fromchans);
+    }
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
-        if (fromchans == 1) {
+        /*if (fromchans == 1) {
             printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d))) - %d;\n", tochans, tochans);
-        } else if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+        } else */ if ((tochans % fromchans) == 0) {
+            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d))) - %d;\n", tochans / fromchans, tochans);
+        } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
             printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %du) * %d))) - %d;\n", fromchans, tochans, tochans);
-        } else {
-            printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
+        // } else {
+        //    printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
         }
         printf("    const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - %d;\n", fromchans);
     } else {
@@ -283,15 +292,34 @@ static void write_converter(const int fromchans, const int tochans)
            "    LOG_DEBUG_CONVERT(\"%s\", \"%s\");\n"
            "\n", lowercase(fromstr), lowercase(tostr));
 
+    if ((fromchans > 1) && (tochans > 1)) {
+        if (fromchans > tochans && (fromchans % tochans) == 0) { // -- fromchans is multiple of tochans -> use single division
+            // if (((fromchans / tochans) & ((fromchans / tochans) - 1)) == 0) {
+                printf("    cvt->len_cvt = (cvt->len_cvt / %du);\n", (fromchans / tochans));
+            // } else {
+            //    printf("    cvt->len_cvt = (cvt->len_cvt / %d);\n", (fromchans / tochans));
+            // }
+        } else if (tochans > fromchans && (tochans % fromchans) == 0) { // -- tochans is multiple of fromchans -> use single multiplication
+            printf("    cvt->len_cvt = (cvt->len_cvt * %d);\n", (tochans / fromchans));
+        } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
+            printf("    cvt->len_cvt = (cvt->len_cvt / %du) * %d;\n", fromchans, tochans);
+        // } else {
+        //    printf("    cvt->len_cvt = (cvt->len_cvt / %d) * %d;\n", fromchans, tochans);
+        }
+    } else if (tochans == 1) {
+        // if ((fromchans & (fromchans - 1)) == 0) {
+            printf("    cvt->len_cvt = cvt->len_cvt / %du;\n", fromchans);
+        // } else {
+        //    printf("    cvt->len_cvt = cvt->len_cvt / %d;\n", fromchans);
+        // }
+    } else /* if (fromchans == 1) */ {
+        printf("    cvt->len_cvt = cvt->len_cvt * %d;\n", tochans);
+    }
+    printf("\n");
+
     if (convert_backwards) {
         printf("    /* convert backwards, since output is growing in-place. */\n");
-        if (fromchans == 1) {
-            printf("    for (i = cvt->len_cvt / (unsigned)sizeof(float); i; i--, src -= %d, dst -= %d) {\n", fromchans, tochans);
-        } else if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    for (i = cvt->len_cvt / (sizeof(float) * %du); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
-        } else {
-            printf("    for (i = cvt->len_cvt / (sizeof(float) * %d); i; i--, src -= %d, dst -= %d) {\n", fromchans, fromchans, tochans);
-        }
+        printf("    for (i = num_samples; i; i--, src -= %d, dst -= %d) {\n", fromchans, tochans);
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
             if (input_channel_used[i] > 1) {  /* don't read it from src more than once. */
@@ -372,13 +400,7 @@ static void write_converter(const int fromchans, const int tochans)
 
         printf("    }\n");
     } else {
-        if (fromchans == 1) {
-            printf("    for (i = cvt->len_cvt / (unsigned)sizeof(float); i; i--, src += %d, dst += %d) {\n", fromchans, tochans);
-        } else if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    for (i = cvt->len_cvt / (sizeof(float) * %du); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
-        } else {
-            printf("    for (i = cvt->len_cvt / (sizeof(float) * %d); i; i--, src += %d, dst += %d) {\n", fromchans, fromchans, tochans);
-        }
+        printf("    for (i = num_samples; i; i--, src += %d, dst += %d) {\n", fromchans, tochans);
 
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
@@ -460,33 +482,8 @@ static void write_converter(const int fromchans, const int tochans)
         printf("    }\n");
     }
 
-    printf("\n");
-
-    if ((fromchans > 1) && (tochans > 1)) {
-        if (fromchans > tochans && (fromchans % tochans) == 0) { // -- fromchans is multiple of tochans -> use single division
-            if (((fromchans / tochans) & ((fromchans / tochans) - 1)) == 0) {
-                printf("    cvt->len_cvt = (cvt->len_cvt / %du);\n", (fromchans / tochans));
-            } else {
-                printf("    cvt->len_cvt = (cvt->len_cvt / %d);\n", (fromchans / tochans));
-            }
-        } else if (tochans > fromchans && (tochans % fromchans) == 0) { // -- tochans is multiple of fromchans -> use single multiplication
-            printf("    cvt->len_cvt = (cvt->len_cvt * %d);\n", (tochans / fromchans));
-        } else if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    cvt->len_cvt = (cvt->len_cvt / %du) * %d;\n", fromchans, tochans);
-        } else {
-            printf("    cvt->len_cvt = (cvt->len_cvt / %d) * %d;\n", fromchans, tochans);
-        }
-    } else if (tochans == 1) {
-        if ((fromchans & (fromchans - 1)) == 0) {
-            printf("    cvt->len_cvt = cvt->len_cvt / %du;\n", fromchans);
-        } else {
-            printf("    cvt->len_cvt = cvt->len_cvt / %d;\n", fromchans);
-        }
-    } else /* if (fromchans == 1) */ {
-        printf("    cvt->len_cvt = cvt->len_cvt * %d;\n", tochans);
-    }
-
     printf("}\n\n");
+
 }
 
 int main(void)
