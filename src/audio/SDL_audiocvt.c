@@ -908,7 +908,9 @@ struct _SDL_AudioStream
 #ifndef SDL_RESAMPLER_DISABLED
     int src_rate;
     int dst_rate;
+#ifdef HAVE_LIBSAMPLERATE_H
     double rate_incr;
+#endif
     Uint8 *staging_buffer;
     int staging_buffer_len;
     int staging_buffer_fill_len;
@@ -1161,8 +1163,10 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
             SDL_FreeAudioStream(retval);
             return NULL; /* SDL_BuildAudioCVT should have called SDL_SetError. */
         }
-        /* calcualte rate_incr only after the rates are 'validated' */
-        retval->rate_incr = ((double)retval->dst_rate) / ((double)retval->src_rate);
+#ifdef HAVE_LIBSAMPLERATE_H
+        /* calculate rate_incr only after the rates are 'validated' */
+        retval->rate_incr = (double)retval->dst_rate / (double)retval->src_rate;
+#endif
 #else
         SDL_Unsupported();
         return NULL;
@@ -1220,7 +1224,7 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
         const int outframes = (int)((Sint64)inframes * outrate / inrate);
         resamplebuflen = outframes * framelen;
 #if DEBUG_AUDIOSTREAM
-        SDL_Log("AUDIOSTREAM: will resample %d bytes to %d (ratio=%.6f)\n", workbuflen, resamplebuflen, stream->rate_incr);
+        SDL_Log("AUDIOSTREAM: will resample %d bytes to %d (ratio=%.6f)\n", workbuflen, resamplebuflen, (double)stream->dst_rate / (double)stream->src_rate);
 #endif
         workbuflen += resamplebuflen;
     }
