@@ -1211,12 +1211,16 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
         /* no padding prepended on first run. */
         paddingbytes = stream->first_run ? 0 : neededpaddingbytes;
         stream->first_run = SDL_FALSE;
+
+        workbuflen += paddingbytes;       // add the last bytes from the previous run
+
         { /* resamples can't happen in place, so make space for second buf. */
+        const int currbuflen = workbuflen - neededpaddingbytes; // no need to resample the last bytes (going to be buffered for the next run)
         const int inrate = stream->src_rate;
         const int outrate = stream->dst_rate;
         const Uint8 chans = stream->pre_resample_channels;
         const int framelen = chans * sizeof(float);
-        const int inframes = workbuflen / framelen;
+        const int inframes = currbuflen / framelen;
         const int outframes = (int)((Sint64)inframes * outrate / inrate);
         resamplebuflen = outframes * framelen;
 #if DEBUG_AUDIOSTREAM
@@ -1224,14 +1228,14 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
 #endif
         }
         workbuflen += resamplebuflen;
-    }
+        if (stream->cvt_after_resampling.needed) {
+            workbuflen = SDL_max(workbuflen, resamplebuflen * stream->cvt_after_resampling.len_mult);
+        }
+    } else
 #endif
-    if (stream->cvt_after_resampling.needed) {
-        /* !!! FIXME: buffer might be big enough already? */
+      if (stream->cvt_after_resampling.needed) {
         workbuflen *= stream->cvt_after_resampling.len_mult;
     }
-
-    workbuflen += neededpaddingbytes;
 
 #if DEBUG_AUDIOSTREAM
     SDL_Log("AUDIOSTREAM: Putting %d bytes of preconverted audio, need %d byte work buffer\n", buflen, workbuflen);
