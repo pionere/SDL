@@ -39,7 +39,7 @@
 #include <sys/stat.h>
 #endif
 #ifdef HAVE_LIMITS_H
-#include <limits.h>
+#include <limits.h> /* For CHAR_BIT, FSEEK_OFF_MIN, FSEEK_OFF_MAX */
 #endif
 
 /* This file provides a general interface for SDL to read and write

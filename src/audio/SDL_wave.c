@@ -27,9 +27,6 @@
 /* Make a lucky guess. */
 #define INT_MAX SDL_MAX_SINT32
 #endif
-#ifndef SIZE_MAX
-#define SIZE_MAX ((size_t)-1)
-#endif
 
 /* Microsoft WAVE file loading routines */
 
@@ -37,20 +34,6 @@
 #include "SDL_audio.h"
 #include "SDL_wave.h"
 #include "SDL_audio_c.h"
-
-/* Reads the value stored at the location of the f1 pointer, multiplies it
- * with the second argument and then stores the result to f1.
- * Returns 0 on success, or -1 if the multiplication overflows, in which case f1
- * does not get modified.
- */
-static int SafeMult(size_t *f1, size_t f2)
-{
-    if (*f1 > 0 && SIZE_MAX / *f1 <= f2) {
-        return -1;
-    }
-    *f1 *= f2;
-    return 0;
-}
 
 typedef struct ADPCM_DecoderState
 {
@@ -675,9 +658,9 @@ static int MS_ADPCM_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len)
 
     /* The output size in bytes. May get modified if data is truncated. */
     outputsize = (size_t)state.framestotal;
-    if (SafeMult(&outputsize, state.framesize)) {
+    if (SDL_size_mul_overflow(outputsize, state.framesize, &outputsize)) {
         return SDL_OutOfMemory();
-    } else if (outputsize > SDL_MAX_UINT32 || state.framestotal > SIZE_MAX) {
+    } else if (outputsize > SDL_MAX_UINT32 || state.framestotal > SDL_SIZE_MAX) {
         return SDL_SetError("WAVE file too big");
     }
 
@@ -1066,9 +1049,9 @@ static int IMA_ADPCM_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len
 
     /* The output size in bytes. May get modified if data is truncated. */
     outputsize = (size_t)state.framestotal;
-    if (SafeMult(&outputsize, state.framesize)) {
+    if (SDL_size_mul_overflow(outputsize, state.framesize, &outputsize)) {
         return SDL_OutOfMemory();
-    } else if (outputsize > SDL_MAX_UINT32 || state.framestotal > SIZE_MAX) {
+    } else if (outputsize > SDL_MAX_UINT32 || state.framestotal > SDL_SIZE_MAX) {
         return SDL_SetError("WAVE file too big");
     }
 
@@ -1222,14 +1205,14 @@ static int LAW_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len)
     }
 
     sample_count = (size_t)file->sampleframes;
-    if (SafeMult(&sample_count, format->channels)) {
+    if (SDL_size_mul_overflow(sample_count, format->channels, &sample_count)) {
         return SDL_OutOfMemory();
     }
 
     expanded_len = sample_count;
-    if (SafeMult(&expanded_len, sizeof(Sint16))) {
+    if (SDL_size_mul_overflow(expanded_len, sizeof(Sint16), &expanded_len)) {
         return SDL_OutOfMemory();
-    } else if (expanded_len > SDL_MAX_UINT32 || file->sampleframes > SIZE_MAX) {
+    } else if (expanded_len > SDL_MAX_UINT32 || file->sampleframes > SDL_SIZE_MAX) {
         return SDL_SetError("WAVE file too big");
     }
 
@@ -1353,14 +1336,14 @@ static int PCM_ConvertSint24ToSint32(WaveFile *file, Uint8 **audio_buf, Uint32 *
     Uint8 *ptr;
 
     sample_count = (size_t)file->sampleframes;
-    if (SafeMult(&sample_count, format->channels)) {
+    if (SDL_size_mul_overflow(sample_count, format->channels, &sample_count)) {
         return SDL_OutOfMemory();
     }
 
     expanded_len = sample_count;
-    if (SafeMult(&expanded_len, sizeof(Sint32))) {
+    if (SDL_size_mul_overflow(expanded_len, sizeof(Sint32), &expanded_len)) {
         return SDL_OutOfMemory();
-    } else if (expanded_len > SDL_MAX_UINT32 || file->sampleframes > SIZE_MAX) {
+    } else if (expanded_len > SDL_MAX_UINT32 || file->sampleframes > SDL_SIZE_MAX) {
         return SDL_SetError("WAVE file too big");
     }
 
@@ -1422,9 +1405,9 @@ static int PCM_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len)
     }
 
     outputsize = (size_t)file->sampleframes;
-    if (SafeMult(&outputsize, format->blockalign)) {
+    if (SDL_size_mul_overflow(outputsize, format->blockalign, &outputsize)) {
         return SDL_OutOfMemory();
-    } else if (outputsize > SDL_MAX_UINT32 || file->sampleframes > SIZE_MAX) {
+    } else if (outputsize > SDL_MAX_UINT32 || file->sampleframes > SDL_SIZE_MAX) {
         return SDL_SetError("WAVE file too big");
     }
 

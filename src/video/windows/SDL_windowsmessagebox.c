@@ -22,13 +22,6 @@
 
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
-#ifndef SIZE_MAX
-#define SIZE_MAX ((size_t)-1)
-#endif
-
 #include "../../core/windows/SDL_windows.h"
 
 #include "SDL_windowsvideo.h"
