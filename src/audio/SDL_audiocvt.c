@@ -685,9 +685,10 @@ static int SDL_BuildAudioResampleCVT(SDL_AudioCVT *cvt, /*const int dst_channels
     cvt->filters[SDL_AUDIOCVT_MAX_FILTERS] = (SDL_AudioFilter)(uintptr_t)dst_rate;
 
     if (src_rate < dst_rate) {
-        const double mult = ((double)dst_rate) / ((double)src_rate);
-        cvt->len_mult *= (int)SDL_ceil(mult);
-        // cvt->len_ratio *= mult;
+        const int mult = (dst_rate + src_rate - 1) / src_rate;
+        cvt->len_mult *= mult;
+        // cvt->len_mult *= (int)SDL_ceil(mult);
+        // cvt->len_ratio *= ((double)dst_rate) / ((double)src_rate);
     } else {
         // cvt->len_ratio /= ((double)src_rate) / ((double)dst_rate);
     }
