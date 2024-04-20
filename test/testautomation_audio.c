@@ -1141,11 +1141,18 @@ int audio_resampleLoss()
     double phase;
     int rate_in;
     int rate_out;
+    int chans;
     double signal_to_noise;
     double max_error;
   } test_specs[] = {
-    { 50, 440, 0, 44100, 48000, 60, 0.0025 },
-    { 50, 5000, M_PI / 2, 20000, 10000, 65, 0.0010 },
+    { 50, 440, 0, 22050, 48000, 1, 60, 0.0110 },
+    { 50, 440, 0, 22050, 48000, 2, 60, 0.0110 },
+    { 50, 440, 0, 44100, 48000, 1, 60, 0.0025 },
+    { 50, 440, 0, 44100, 48000, 2, 60, 0.0025 },
+    { 50, 440, 0, 48000, 22050, 1, 60, 0.0025 },
+    { 50, 440, 0, 48000, 22050, 2, 60, 0.0025 },
+    { 50, 5000, M_PI / 2, 20000, 10000, 1, 65, 0.0010 },
+    { 50, 5000, M_PI / 2, 20000, 10000, 2, 65, 0.0010 },
     { 0 }
   };
 
@@ -1155,14 +1162,13 @@ int audio_resampleLoss()
     const struct test_spec_t *spec = &test_specs[spec_idx];
     const int frames_in = spec->time * spec->rate_in;
     const int frames_target = spec->time * spec->rate_out;
-    const int len_in = frames_in * (int)sizeof(float);
-    const int len_target = frames_target * (int)sizeof(float);
+    const int chans = spec->chans;
+    const int len_in = chans * frames_in * (int)sizeof(float);
+    const int len_target = chans * frames_target * (int)sizeof(float);
 
-    Uint64 tick_beg = 0;
-    Uint64 tick_end = 0;
+    Uint64 tick_beg, tick_end;
     SDL_AudioCVT cvt;
-    int i = 0;
-    int ret = 0;
+    int i, j, ret;
     double max_error = 0;
     double sum_squared_error = 0;
     double sum_squared_value = 0;
@@ -1171,8 +1177,8 @@ int audio_resampleLoss()
     SDLTest_AssertPass("Test resampling of %i s %i Hz %f phase sine wave from sampling rate of %i Hz to %i Hz",
                        spec->time, spec->freq, spec->phase, spec->rate_in, spec->rate_out);
 
-    ret = SDL_BuildAudioCVT(&cvt, AUDIO_F32SYS, 1, spec->rate_in, AUDIO_F32SYS, 1, spec->rate_out);
-    SDLTest_AssertPass("Call to SDL_BuildAudioCVT(&cvt, AUDIO_F32SYS, 1, %i, AUDIO_F32SYS, 1, %i)", spec->rate_in, spec->rate_out);
+    ret = SDL_BuildAudioCVT(&cvt, AUDIO_F32SYS, chans, spec->rate_in, AUDIO_F32SYS, chans, spec->rate_out);
+    SDLTest_AssertPass("Call to SDL_BuildAudioCVT(&cvt, AUDIO_F32SYS, %d, %i, AUDIO_F32SYS, %d, %i)", chans, spec->rate_in, chans, spec->rate_out);
     SDLTest_AssertCheck(ret == 1, "Expected SDL_BuildAudioCVT to succeed and conversion to be needed.");
     if (ret != 1) {
       return TEST_ABORTED;
@@ -1186,7 +1192,10 @@ int audio_resampleLoss()
 
     cvt.len = len_in;
     for (i = 0; i < frames_in; ++i) {
-      *(((float *) cvt.buf) + i) = (float)sine_wave_sample(i, spec->rate_in, spec->freq, spec->phase);
+        float value = (float)sine_wave_sample(i, spec->rate_in, spec->freq, spec->phase);
+        for (j = 0; j < chans; j++) {
+            *(((float *) cvt.buf) + i * chans + j) = value;
+        }
     }
 
     tick_beg = SDL_GetPerformanceCounter();
@@ -1202,12 +1211,14 @@ int audio_resampleLoss()
     SDLTest_Log("Resampling used %f seconds.", ((double) (tick_end - tick_beg)) / SDL_GetPerformanceFrequency());
 
     for (i = 0; i < frames_target; ++i) {
-        const float output = *(((float *) cvt.buf) + i);
         const double target = sine_wave_sample(i, spec->rate_out, spec->freq, spec->phase);
-        const double error = SDL_fabs(target - output);
-        max_error = SDL_max(max_error, error);
-        sum_squared_error += error * error;
-        sum_squared_value += target * target;
+		for (j = 0; j < chans; j++) {
+            const float output = *(((float *)cvt.buf) + i * chans + j);
+            const double error = SDL_fabs(target - output);
+            max_error = SDL_max(max_error, error);
+            sum_squared_error += error * error;
+            sum_squared_value += target * target;
+        }
     }
     SDL_free(cvt.buf);
     signal_to_noise = 10 * SDL_log10(sum_squared_value / sum_squared_error); /* decibel */
