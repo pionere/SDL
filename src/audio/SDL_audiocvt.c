@@ -994,11 +994,6 @@ static void SDL_CleanupAudioStreamResampler_SRC(SDL_AudioStream *stream)
     if (state) {
         SRC_src_delete(state);
     }
-
-    stream->resampler_state = NULL;
-    stream->resampler_func = NULL;
-    stream->reset_resampler_func = NULL;
-    stream->cleanup_resampler_func = NULL;
 }
 
 static SDL_bool SetupLibSampleRateResampling(SDL_AudioStream *stream)
@@ -1014,7 +1009,6 @@ static SDL_bool SetupLibSampleRateResampling(SDL_AudioStream *stream)
     }
 
     if (!state) {
-        SDL_CleanupAudioStreamResampler_SRC(stream);
         return SDL_FALSE;
     }
 
