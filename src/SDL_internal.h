@@ -279,6 +279,9 @@
 #define SDL_GetErrorMsg(errstr, maxlen) errstr
 #endif
 
+#define SDL_UINT_MAX ((unsigned)~0)
+#define SDL_INT_MAX ((int)(SDL_UINT_MAX >> 1))
+
 #endif /* SDL_internal_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

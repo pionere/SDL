@@ -20,14 +20,6 @@
 */
 #include "../SDL_internal.h"
 
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
-#ifndef INT_MAX
-/* Make a lucky guess. */
-#define INT_MAX SDL_MAX_SINT32
-#endif
-
 /* Microsoft WAVE file loading routines */
 
 #include "SDL_hints.h"
@@ -1659,9 +1651,9 @@ static int WaveCheckFormat(WaveFile *file, size_t datalength)
 
     if (format->frequency == 0) {
         return SDL_SetError("Invalid sample rate");
-    } else if (format->frequency > INT_MAX) {
+    } else if (format->frequency > SDL_INT_MAX) {
         /* Limit given by SDL_AudioSpec.freq. */
-        return SDL_SetError("Sample rate exceeds limit of %d", INT_MAX);
+        return SDL_SetError("Sample rate exceeds limit of %d", SDL_INT_MAX);
     }
 
     /* Reject invalid fact chunks in strict mode. */
