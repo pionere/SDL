@@ -1450,6 +1450,7 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
 
         stream->staging_buffer_fill_len = 0;
         stream->first_run = SDL_TRUE;
+        stream->reset_resampler_func(stream);
     }
 
 #endif // SDL_RESAMPLER_DISABLED
