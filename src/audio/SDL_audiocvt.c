@@ -1211,9 +1211,13 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
 
     if (stream->resampling_needed) {
         /* resamples can't happen in place, so make space for second buf. */
-        const int framesize = stream->pre_resample_channels * sizeof(float);
-        const int frames = workbuflen / framesize;
-        resamplebuflen = ((int)SDL_ceil(frames * stream->rate_incr)) * framesize;
+        const int inrate = stream->src_rate;
+        const int outrate = stream->dst_rate;
+        const Uint8 chans = stream->pre_resample_channels;
+        const int framelen = chans * sizeof(float);
+        const int inframes = workbuflen / framelen;
+        const int outframes = (int)((Sint64)inframes * outrate / inrate);
+        resamplebuflen = outframes * framelen;
 #if DEBUG_AUDIOSTREAM
         SDL_Log("AUDIOSTREAM: will resample %d bytes to %d (ratio=%.6f)\n", workbuflen, resamplebuflen, stream->rate_incr);
 #endif
@@ -1409,7 +1413,10 @@ int SDL_AudioStreamFlush(SDL_AudioStream *stream)
 
         if (actual_input_steps > 0) { /* don't bother if nothing to flush. */
             /* This is how many bytes we're expecting without silence appended. */
-            int flush_remaining = ((int)SDL_ceil(actual_input_steps * stream->rate_incr)) * stream->dst_sample_frame_size;
+            const int inrate = stream->src_rate;
+            const int outrate = stream->dst_rate;
+            const int outframes = (int)((Sint64)actual_input_steps * outrate / inrate);
+            int flush_remaining = outframes * stream->dst_sample_frame_size;
 
 #if DEBUG_AUDIOSTREAM
             SDL_Log("AUDIOSTREAM: flushing with padding to get max %d bytes!\n", flush_remaining);
