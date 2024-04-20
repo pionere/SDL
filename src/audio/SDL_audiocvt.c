@@ -1032,17 +1032,18 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     const int inrate = stream->src_rate;
     const int outrate = stream->dst_rate;
     const int padding_len = stream->resampler_padding_len;
-    Uint8 *lpaddingend = (Uint8 *)stream->resampler_state + padding_len;
+    Uint8 *lpaddingend = (Uint8 *)inbuf; // stream->resampler_state + padding_len;
     const float *rpadding = (const float *)inbufend; /* we set this up so there are valid padding samples at the end of the input buffer. */
-    int cpy, retval;
+    int retval;
 
     SDL_assert(inbuf != ((const float *)outbuf)); /* SDL_AudioStreamPut() shouldn't allow in-place resamples. */
+
+    SDL_memcpy((Uint8 *)inbuf - padding_len, stream->resampler_state, padding_len);
 
     retval = SDL_ResampleAudio(chans, inrate, outrate, (float *)lpaddingend, rpadding, inbuf, inbuflen, outbuf);
 
     /* update our left padding with end of current input, for next run. */
-    cpy = SDL_min(inbuflen, padding_len);
-    SDL_memcpy(lpaddingend - cpy, inbufend - cpy, cpy);
+    SDL_memcpy(stream->resampler_state, inbufend - padding_len, padding_len);
     return retval;
 }
 
@@ -1228,6 +1229,7 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
 #endif
         }
         workbuflen += resamplebuflen;
+        workbuflen += neededpaddingbytes; // add space for the padding bytes stored by the resampler function
         if (stream->cvt_after_resampling.needed) {
             workbuflen = SDL_max(workbuflen, resamplebuflen * stream->cvt_after_resampling.len_mult);
         }
@@ -1245,6 +1247,8 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
     if (!workbuf) {
         return -1; /* probably out of memory. */
     }
+
+    workbuf += neededpaddingbytes; // skip the space which was reserved for the resampler function
 
     resamplebuf = workbuf; /* default if not resampling. */
 
