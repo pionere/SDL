@@ -1331,7 +1331,7 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
     if (!buf) {
         return SDL_InvalidParamError("buf");
     }
-    if (len == 0) {
+    if (len <= 0) {
         return 0; /* nothing to do. */
     }
     if ((len % stream->src_sample_frame_size) != 0) {
@@ -1351,9 +1351,9 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
         return SDL_WriteToDataQueue(stream->queue, buf, len);
     }
 
-    while (len > 0) {
+    do {
 #ifndef SDL_RESAMPLER_DISABLED
-        int amount;
+        int amount, retval;
 
         /* If we don't have a staging buffer or we're given enough data that
            we don't need to store it for later, skip the staging process.
@@ -1363,25 +1363,26 @@ int SDL_AudioStreamPut(SDL_AudioStream *stream, const void *buf, int len)
             return SDL_AudioStreamPutInternal(stream, buf, len, NULL);
 #ifndef SDL_RESAMPLER_DISABLED
         }
+        amount = (stream->staging_buffer_len - stream->staging_buffer_fill_len);
         /* If there's not enough data to fill the staging buffer, just save it */
-        if ((stream->staging_buffer_fill_len + len) < stream->staging_buffer_len) {
+        if (len < amount) {
             SDL_memcpy(stream->staging_buffer + stream->staging_buffer_fill_len, buf, len);
             stream->staging_buffer_fill_len += len;
-            return 0;
+            break;
         }
 
         /* Fill the staging buffer, process it, and continue */
-        amount = (stream->staging_buffer_len - stream->staging_buffer_fill_len);
         SDL_assert(amount > 0);
         SDL_memcpy(stream->staging_buffer + stream->staging_buffer_fill_len, buf, amount);
         stream->staging_buffer_fill_len = 0;
-        if (SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_len, NULL) < 0) {
-            return -1;
+        retval = SDL_AudioStreamPutInternal(stream, stream->staging_buffer, stream->staging_buffer_len, NULL);
+        if (retval < 0) {
+            return retval;
         }
         buf = (void *)((Uint8 *)buf + amount);
         len -= amount;
 #endif
-    }
+    } while (len > 0);
     return 0;
 }
 
