@@ -226,6 +226,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
     const int framelen = chans * sizeof(float);
     const int inframes = inbuflen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
+    const float *src;
     float *dst = outbuf;
     int i, chan, j;
     SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
@@ -247,6 +248,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
         const int filterindex1 = ((Sint32)srcfraction) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate;
         const float interpolation2 = 1.0f - interpolation1;
         const int filterindex2 = ((Sint32)(outrate - srcfraction)) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate;
+        src = &inbuffer[srcindex * chans];
 
         for (chan = 0; chan < chans; chan++) {
             float outsample = 0.0f;
@@ -254,22 +256,19 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
             for (j = 0; (filterindex1 + (j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) < RESAMPLER_FILTER_SIZE; j++) {
                 const int filt_ind = filterindex1 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
-                const int srcframe = srcindex - j;
-                /* !!! FIXME: we can bubble this conditional out of here by doing a pre loop. */
-                const float insample = inbuffer[(srcframe * chans) + chan];
+                const float insample = src[- j * chans];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation1 * ResamplerFilterDifference[filt_ind])));
             }
 
             /* Do the right wing! */
             for (j = 0; (filterindex2 + (j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) < RESAMPLER_FILTER_SIZE; j++) {
                 const int filt_ind = filterindex2 + j * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
-                const int srcframe = srcindex + 1 + j;
-                /* !!! FIXME: we can bubble this conditional out of here by doing a post loop. */
-                const float insample = inbuffer[(srcframe * chans) + chan];
+                const float insample = src[(1 + j) * chans];
                 outsample += (float) (insample * (ResamplerFilter[filt_ind] + (interpolation2 * ResamplerFilterDifference[filt_ind])));
             }
 
             *(dst++) = outsample;
+            src++;
         }
     }
 
