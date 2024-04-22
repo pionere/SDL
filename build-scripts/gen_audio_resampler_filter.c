@@ -106,7 +106,7 @@ static void
 PrepareResampleFilter(void)
 {
     /* if dB > 50, beta=(0.1102 * (dB - 8.7)), according to Matlab. */
-    const double dB = 80.0;
+    const double dB = 120.0;
     const double beta = 0.1102 * (dB - 8.7);
     kaiser_and_sinc(ResamplerFilter, ResamplerFilterDifference, RESAMPLER_FILTER_SIZE, beta);
 }
