@@ -1215,8 +1215,8 @@ int audio_resampleLoss()
     SDLTest_Log("Resampling used %f seconds.", ((double) (tick_end - tick_beg)) / SDL_GetPerformanceFrequency());
 
     for (i = 0; i < frames_target; ++i) {
-        const double target = sine_wave_sample(i, spec->rate_out, spec->freq, spec->phase);
-		for (j = 0; j < chans; j++) {
+        const float target = (float)sine_wave_sample(i, spec->rate_out, spec->freq, spec->phase);
+        for (j = 0; j < chans; j++) {
             const float output = *(((float *)cvt.buf) + i * chans + j);
             const double error = SDL_fabs(target - output);
             max_error = SDL_max(max_error, error);
