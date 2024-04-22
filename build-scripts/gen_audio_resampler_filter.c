@@ -45,7 +45,7 @@ gcc -o genfilter build-scripts/gen_audio_resampler_filter.c -lm && ./genfilter >
 #define RESAMPLER_ZERO_CROSSINGS            5
 #define RESAMPLER_BITS_PER_SAMPLE           16
 #define RESAMPLER_SAMPLES_PER_ZERO_CROSSING (1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1))
-#define RESAMPLER_FILTER_SIZE               ((RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS) + 1)
+#define RESAMPLER_FILTER_SIZE               (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS)
 
 /* This is a "modified" bessel function, so you can't use POSIX j0() */
 static double
@@ -73,7 +73,6 @@ bessel(const double x)
 static void
 kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double beta)
 {
-    const int lenm1 = tablelen - 1;
     const double bessel_beta = bessel(beta);
     int i;
 
@@ -84,7 +83,7 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
 
     tmp[0] = 1.0f;
     for (i = 1; i < tablelen; i++) {
-        const double kaiser = bessel(beta * sqrt(1.0 - pow((double)i / lenm1, 2.0))) / bessel_beta;
+        const double kaiser = bessel(beta * sqrt(1.0 - pow((double)i / tablelen, 2.0))) / bessel_beta;
         tmp[i] = kaiser;
     }
 
@@ -94,7 +93,7 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
         table[i] = tmp[i] * sinf(x) / x;
         diffs[i - 1] = table[i] - table[i - 1];
     }
-    diffs[lenm1] = 0.0f;
+    diffs[tablelen - 1] = 0.0f - table[tablelen - 1];
     free(tmp);
 }
 
@@ -144,7 +143,7 @@ int main(void)
         "#define RESAMPLER_ZERO_CROSSINGS            %d\n"
         "#define RESAMPLER_BITS_PER_SAMPLE           %d\n"
         "#define RESAMPLER_SAMPLES_PER_ZERO_CROSSING (1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1))\n"
-        "#define RESAMPLER_FILTER_SIZE               ((RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS) + 1)\n"
+        "#define RESAMPLER_FILTER_SIZE               (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS)\n"
         "\n", RESAMPLER_ZERO_CROSSINGS, RESAMPLER_BITS_PER_SAMPLE
     );
 

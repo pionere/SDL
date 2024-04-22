@@ -266,7 +266,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
             }
 
             /* Do the right wing! */
-            for (j = 0, filt_idx = filterindex2; filt_idx < RESAMPLER_FILTER_SIZE; j++, filt_idx += RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
+            for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx += RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
                 const float insample = *s;
                 outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx])));
                 s += chans;
