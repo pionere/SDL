@@ -84,7 +84,7 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
 
     tmp[0] = 1.0f;
     for (i = 1; i < tablelen; i++) {
-        const double kaiser = bessel(beta * sqrt(1.0 - pow((double)(1 - i) / lenm1, 2.0))) / bessel_beta;
+        const double kaiser = bessel(beta * sqrt(1.0 - pow((double)i / lenm1, 2.0))) / bessel_beta;
         tmp[i] = kaiser;
     }
 
