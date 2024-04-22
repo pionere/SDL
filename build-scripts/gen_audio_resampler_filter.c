@@ -39,6 +39,7 @@ gcc -o genfilter build-scripts/gen_audio_resampler_filter.c -lm && ./genfilter >
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #define RESAMPLER_ZERO_CROSSINGS            5
@@ -77,18 +78,25 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
     const double bessel_beta = bessel(beta);
     int i;
 
-    table[0] = 1.0f;
-    for (i = 1; i < tablelen; i++) {
-        const double kaiser = bessel(beta * sqrt(1.0 - pow(((i - lenm1) / 2.0) / lenm1div2, 2.0))) / bessel_beta;
-        table[tablelen - i] = (float) kaiser;
+    double *tmp = (double*)malloc(tablelen * sizeof(double));
+    if (!tmp) {
+        return;
     }
 
+    tmp[0] = 1.0f;
     for (i = 1; i < tablelen; i++) {
-        const float x = (((float) i) / ((float) RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * ((float) M_PI);
-        table[i] *= sinf(x) / x;
+        const double kaiser = bessel(beta * sqrt(1.0 - pow(((i - lenm1) / 2.0) / lenm1div2, 2.0))) / bessel_beta;
+        tmp[tablelen - i] = kaiser;
+    }
+
+    table[0] = tmp[0]; // 1.0f;
+    for (i = 1; i < tablelen; i++) {
+        const double x = (((double) i) / ((double) RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * ((double) M_PI);
+        table[i] = tmp[i] * sinf(x) / x;
         diffs[i - 1] = table[i] - table[i - 1];
     }
     diffs[lenm1] = 0.0f;
+    free(tmp);
 }
 
 
