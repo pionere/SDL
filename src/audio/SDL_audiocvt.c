@@ -245,9 +245,9 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
         const float interpolation1 = ((float)srcfraction) / ((float)outrate);
-        const int filterindex1 = srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate;
+        const int filterindex1 = srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING)
         const float interpolation2 = 1.0f - interpolation1;
-        const int filterindex2 = (outrate - srcfraction) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate;
+        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) - filterindex1; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING)
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
         const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
