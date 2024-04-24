@@ -148,16 +148,16 @@ int main(void)
     );
 
     printf("static const float ResamplerFilter[RESAMPLER_FILTER_SIZE] = {\n");
-    printf("    %.9ff", ResamplerFilter[0]);
+    printf("    % .9ff", ResamplerFilter[0]);
     for (i = 0; i < RESAMPLER_FILTER_SIZE-1; i++) {
-        printf("%s%.9ff", ((i % 5) == 4) ? ",\n    " : ", ", ResamplerFilter[i+1]);
+        printf("%s% .9ff", ((i % RESAMPLER_ZERO_CROSSINGS) == (RESAMPLER_ZERO_CROSSINGS - 1)) ? ",\n    " : ", ", ResamplerFilter[i+1]);
     }
     printf("\n};\n\n");
 
     printf("static const float ResamplerFilterDifference[RESAMPLER_FILTER_SIZE] = {\n");
-    printf("    %.9ff", ResamplerFilterDifference[0]);
+    printf("    % .9ff", ResamplerFilterDifference[0]);
     for (i = 0; i < RESAMPLER_FILTER_SIZE-1; i++) {
-        printf("%s%.9ff", ((i % 5) == 4) ? ",\n    " : ", ", ResamplerFilterDifference[i+1]);
+        printf("%s% .9ff", ((i % RESAMPLER_ZERO_CROSSINGS) == (RESAMPLER_ZERO_CROSSINGS - 1)) ? ",\n    " : ", ", ResamplerFilterDifference[i+1]);
     }
     printf("\n};\n\n");
     printf("/* vi: set ts=4 sw=4 expandtab: */\n");
