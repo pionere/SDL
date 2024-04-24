@@ -76,6 +76,7 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
     const double bessel_beta = bessel(beta);
     int i;
 
+    // calculate the kaiser table
     double *tmp = (double*)malloc(tablelen * sizeof(double));
     if (!tmp) {
         return;
@@ -87,13 +88,19 @@ kaiser_and_sinc(float *table, float *diffs, const int tablelen, const double bet
         tmp[i] = kaiser;
     }
 
-    table[0] = tmp[0]; // 1.0f;
+    // apply cardinal sine
     for (i = 1; i < tablelen; i++) {
         const double x = (((double) i) / ((double) RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * ((double) M_PI);
-        table[i] = tmp[i] * sinf(x) / x;
-        diffs[i - 1] = table[i] - table[i - 1];
+        tmp[i] = tmp[i] * sin(x) / x;
     }
-    diffs[tablelen - 1] = 0.0f - table[tablelen - 1];
+
+    // store the table + prepare the diff-table
+    table[0] = tmp[0]; // 1.0f;
+    for (i = 1; i < tablelen; i++) {
+        table[i] = tmp[i];
+        diffs[i - 1] = tmp[i] - tmp[i - 1];
+    }
+    diffs[tablelen - 1] = 0.0f - tmp[tablelen - 1];
     free(tmp);
 }
 
