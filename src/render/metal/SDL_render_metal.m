@@ -627,20 +627,23 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
 #if SDL_HAVE_YUV
     texturedata.yuv_planes = yuv_planes;
     if (yuv_planes != SDL_METAL_YUV_NONE) {
+        SDL_MetalFragmentFunction fragmentFunction;
+        SDL_YUV_CONVERSION_MODE mode;
+        size_t offset;
         if (yuv_planes == SDL_METAL_YUV_3PLANES) {
-            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_YUV;
+            fragmentFunction = SDL_METAL_FRAGMENT_YUV;
         } else if (texture->format == SDL_PIXELFORMAT_NV12) {
-            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV12;
+            fragmentFunction = SDL_METAL_FRAGMENT_NV12;
         } else { // if (texture->format == SDL_PIXELFORMAT_NV21) {
-            texturedata.fragmentFunction = SDL_METAL_FRAGMENT_NV21;
+            fragmentFunction = SDL_METAL_FRAGMENT_NV21;
         }
-        size_t offset = 0;
-        SDL_YUV_CONVERSION_MODE mode = SDL_GetYUVConversionModeForResolution(0, texture->h);
+        texturedata.fragmentFunction = fragmentFunction;
+        mode = SDL_GetYUVConversionModeForResolution(0, texture->h);
         switch (mode) {
             case SDL_YUV_CONVERSION_JPEG: offset = CONSTANTS_OFFSET_DECODE_JPEG; break;
             case SDL_YUV_CONVERSION_BT601: offset = CONSTANTS_OFFSET_DECODE_BT601; break;
             case SDL_YUV_CONVERSION_BT709: offset = CONSTANTS_OFFSET_DECODE_BT709; break;
-            default: SDL_assume(!"Unsupported YUV conversion mode"); break;
+            default: SDL_assume(!"Unsupported YUV conversion mode"); offset = 0; break;
         }
         texturedata.conversionBufferOffset = offset;
     }
