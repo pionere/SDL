@@ -238,6 +238,7 @@ void Cocoa_GL_InitDevice(_THIS)
 
 int Cocoa_GL_LoadLibrary(_THIS, const char *path)
 {
+    Cocoa_VideoData *videodata = cocoaVideoData;
     if (_this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         /* Switch to EGL based functions */
@@ -247,7 +248,6 @@ int Cocoa_GL_LoadLibrary(_THIS, const char *path)
         return SDL_SetError("SDL not configured with EGL support");
 #endif
     }
-    Cocoa_VideoData *videodata = cocoaVideoData;
     /* Load the OpenGL library */
     if (path == NULL) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
