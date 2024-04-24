@@ -245,12 +245,12 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
         const float interpolation1 = ((float)srcfraction) / ((float)outrate);
-        const int filterindex1 = srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING)
+        const int filterindex1 = (srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate) * RESAMPLER_ZERO_CROSSINGS; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING) * RESAMPLER_ZERO_CROSSINGS
         const float interpolation2 = 1.0f - interpolation1;
-        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) - filterindex1; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING)
+        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1; // [0.. RESAMPLER_SAMPLES_PER_ZERO_CROSSING) * RESAMPLER_ZERO_CROSSINGS
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
-        const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
+        const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
 
         for (chan = 0; chan < chans; chan++) {
@@ -259,14 +259,14 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
             const float *s = src;
 
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
-            for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx -= RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
+            for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
                 const float insample = *s;
                 outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx])));
                 s += chans;
             }
 
             /* Do the right wing! */
-            for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx += RESAMPLER_SAMPLES_PER_ZERO_CROSSING) {
+            for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx++) {
                 const float insample = *s;
                 outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx])));
                 s += chans;
