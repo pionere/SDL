@@ -1233,7 +1233,7 @@ int audio_resampleLoss()
     SDLTest_AssertCheck(isfinite(max_error), "Maximum conversion error should be finite.");
     SDLTest_AssertCheck(signal_to_noise >= spec->signal_to_noise, "Conversion signal-to-noise ratio %f dB should be no less than %f dB.",
                         signal_to_noise, spec->signal_to_noise);
-    SDLTest_AssertCheck(max_error <= spec->max_error, "Maximum conversion error %f should be no more than %f.",
+    SDLTest_AssertCheck(max_error <= spec->max_error, "Maximum conversion error %.9f should be no more than %.4f.",
                         max_error, spec->max_error);
   }
 
