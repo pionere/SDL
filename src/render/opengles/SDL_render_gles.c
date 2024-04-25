@@ -411,11 +411,6 @@ static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
 
     GLES_ActivateRenderer(renderer);
 
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
-
     renderdata = (GLES_RenderData *)renderer->driverdata;
     data = (GLES_TextureData *)texture->driverdata;
     SDL_assert(data != NULL);

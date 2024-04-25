@@ -795,11 +795,6 @@ static int METAL_UpdateTextureYUV(SDL_Renderer * renderer, SDL_Texture * texture
     const int Vslice = 1;
     SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
 
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
-
     if (METAL_UpdateTextureInternal(renderer, texturedata, texturedata.mtltexture, *rect, 0, Yplane, Ypitch) < 0) {
         return -1;
     }
@@ -823,11 +818,6 @@ static int METAL_UpdateTextureNV(SDL_Renderer * renderer, SDL_Texture * texture,
     METAL_TextureData *texturedata = (__bridge METAL_TextureData *)texture->driverdata;
     SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
 
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
-
     if (METAL_UpdateTextureInternal(renderer, texturedata, texturedata.mtltexture, *rect, 0, Yplane, Ypitch) < 0) {
         return -1;
     }
@@ -849,10 +839,6 @@ static int METAL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     METAL_TextureData *texturedata = (__bridge METAL_TextureData *)texture->driverdata;
     int buffersize = 0;
     id<MTLBuffer> lockedbuffer = nil;
-
-    if (rect->w <= 0 || rect->h <= 0) {
-        return SDL_SetError("Invalid rectangle dimensions for LockTexture.");
-    }
 
     *pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect->w;
 #if SDL_HAVE_YUV

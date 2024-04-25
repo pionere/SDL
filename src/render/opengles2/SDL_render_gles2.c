@@ -1642,11 +1642,6 @@ static int GLES2_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture, con
 
     GLES2_ActivateRenderer(renderer);
 
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
-
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
     SDL_assert(tdata != NULL);
@@ -1726,11 +1721,6 @@ static int GLES2_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     GLES2_ActivateRenderer(renderer);
 
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
-
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
     SDL_assert(tdata != NULL);
@@ -1778,11 +1768,6 @@ static int GLES2_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
     GLES2_TextureData *tdata;
 
     GLES2_ActivateRenderer(renderer);
-
-    /* Bail out if we're supposed to update an empty rectangle */
-    if (rect->w <= 0 || rect->h <= 0) {
-        return 0;
-    }
 
     data = (GLES2_RenderData *)renderer->driverdata;
     tdata = (GLES2_TextureData *)texture->driverdata;
