@@ -327,8 +327,8 @@ static void D3D12_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture);
 
 static void D3D12_ReleaseAll(SDL_Renderer *renderer)
 {
-    D3D12_RenderData *data = (D3D12_RenderData *)renderer->driverdata;
-    SDL_Texture *texture = NULL;
+    D3D12_RenderData *data;
+    SDL_Texture *texture;
 
     /* Release all textures */
     for (texture = renderer->textures; texture; texture = texture->next) {
@@ -336,6 +336,7 @@ static void D3D12_ReleaseAll(SDL_Renderer *renderer)
     }
 
     /* Release/reset everything else */
+    data = (D3D12_RenderData *)renderer->driverdata;
     SDL_assert(data != NULL);
     if (1) {
         int i;
@@ -747,9 +748,9 @@ static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, D3D12_VertexBuff
         return result;
     }
 
-    buffer->view.BufferLocation = D3D_CALL(buffer->resource, GetGPUVirtualAddress);
-    buffer->view.StrideInBytes = sizeof(VertexPositionColor);
     buffer->size = size;
+    buffer->view.StrideInBytes = sizeof(VertexPositionColor);
+    buffer->view.BufferLocation = D3D_CALL(buffer->resource, GetGPUVirtualAddress);
 
     return result;
 }
@@ -2557,7 +2558,7 @@ static int D3D12_SetDrawState(D3D12_RenderData *rendererData, const SDL_RenderCo
         rendererData->currentSampler = *sampler;
     }
 
-    if (updateSubresource == SDL_TRUE /*|| SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0*/) {
+    if (updateSubresource /*|| SDL_memcmp(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix)) != 0*/) {
         // SDL_memcpy(&rendererData->vertexShaderConstantsData.model, newmatrix, sizeof(*newmatrix));
         D3D_CALL(rendererData->commandList, SetGraphicsRoot32BitConstants,
                  0,
