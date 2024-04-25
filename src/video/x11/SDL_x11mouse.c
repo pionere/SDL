@@ -118,7 +118,7 @@ static Cursor X11_CreatePixmapCursor(SDL_Surface *surface, int hot_x, int hot_y)
     Pixmap data_pixmap, mask_pixmap;
     int x, y;
     unsigned int rfg, gfg, bfg, rbg, gbg, bbg, fgBits, bgBits;
-    size_t width_bytes = ((surface->w + 7) & ~((size_t)7)) / 8u;
+    size_t width_bytes = (surface->w + 7) / 8u;
 
     data_bits = SDL_calloc(surface->h, width_bytes);
     mask_bits = SDL_calloc(surface->h, width_bytes);

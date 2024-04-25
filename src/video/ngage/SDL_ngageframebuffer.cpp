@@ -79,7 +79,7 @@ int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     phdata->NGAGE_DisplayMode = displayMode;
     phdata->NGAGE_HasFrameBuffer = screenInfo.iScreenAddressValid;
     phdata->NGAGE_FrameBuffer = phdata->NGAGE_HasFrameBuffer ? (TUint8 *)screenInfo.iScreenAddress : NULL;
-    phdata->NGAGE_BytesPerPixel = ((GetBpp(displayMode) - 1) / 8u) + 1;
+    phdata->NGAGE_BytesPerPixel = (GetBpp(displayMode) + 7) / 8u;
 
     phdata->NGAGE_BytesPerScanLine = screenInfo.iScreenSize.iWidth * phdata->NGAGE_BytesPerPixel;
     phdata->NGAGE_BytesPerScreen = phdata->NGAGE_BytesPerScanLine * phdata->NGAGE_ScreenSize.iHeight;
@@ -217,7 +217,7 @@ static void DirectDraw(SDL_Surface *screen, int numrects, const SDL_Rect *rects,
     TInt i;
 
     TDisplayMode displayMode = phdata->NGAGE_DisplayMode;
-    const TInt sourceNumBytesPerPixel = ((GetBpp(displayMode) - 1) / 8u) + 1;
+    const TInt sourceNumBytesPerPixel = (GetBpp(displayMode) + 7) / 8u;
 
     const TPoint fixedOffset = phdata->NGAGE_ScreenOffset;
     const TInt screenW = screen->w;
