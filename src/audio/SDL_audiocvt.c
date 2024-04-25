@@ -235,6 +235,8 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
     // SDL_assert(outbuflen >= outframes * framelen);
 
     for (i = 0; i < outframes; i++) {
+        float scales[2 * RESAMPLER_ZERO_CROSSINGS];
+        int filt_idx;
         /* Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
@@ -253,9 +255,93 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
         const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
 
+        /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
+        for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
+            scales[j] = ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx]);
+        }
+
+        /* Do the right wing! */
+        for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx++) {
+            scales[j + RESAMPLER_ZERO_CROSSINGS] = ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx]);
+        }
+
         for (chan = 0; chan < chans; chan++) {
             float outsample = 0.0f;
-            int filt_idx;
+            // int filt_idx;
+            const float *s = src;
+
+            /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
+//            for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
+//                const float insample = *s;
+//                outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx])));
+//                s += chans;
+//            }
+
+            /* Do the right wing! */
+//            for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx++) {
+//                const float insample = *s;
+//                outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx])));
+//                s += chans;
+//            }
+
+            for (j = 0; j < 2 * RESAMPLER_ZERO_CROSSINGS; j++) {
+                const float insample = *s;
+                outsample += insample * scales[j];
+                s += chans;
+            }
+
+            *(dst++) = outsample;
+            src++;
+        }
+    }
+
+    return outframes * chans * sizeof(float);
+}
+static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const int outrate,
+                             const float *inbuffer, const int inbuflen,
+                             float *outbuffer)
+{
+    /* This function uses integer arithmetics to avoid precision loss caused
+     * by large floating point numbers. For some operations, Sint32 or Sint64
+     * are needed for the large number multiplications. The input integers are
+     * assumed to be non-negative so that division rounds by truncation and
+     * modulo is always non-negative. Note that the operator order is important
+     * for these integer divisions. */
+    const int chans = 1;
+    const int framelen = chans * sizeof(float);
+    const int inframes = inbuflen / framelen;
+    const int outframes = (int)((Sint64)inframes * outrate / inrate);
+    float *dst = outbuffer;
+    int i, j;
+    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
+    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
+    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
+    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
+    // SDL_assert(outbuflen >= outframes * framelen);
+
+    for (i = 0; i < outframes; i++) {
+        int filt_idx;
+        /* Calculating the following way avoids subtraction or modulo of large
+         * floats which have low result precision.
+         *   interpolation1
+         * = (i / outrate * inrate) - floor(i / outrate * inrate)
+         * = mod(i / outrate * inrate, 1)
+         * = mod(i * inrate, outrate) / outrate */
+        const Sint64 pos = (Sint64)i * inrate;
+        const int srcindex = (int)(pos / outrate);
+        const int srcfraction = (int)(pos % outrate);
+        const float interpolation1 = ((float)srcfraction) / ((float)outrate);
+        const int filterindex1 = (srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+
+        {
+            float outsample = 0.0f;
+            // int filt_idx;
             const float *s = src;
 
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
@@ -279,6 +365,89 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
 
     return outframes * chans * sizeof(float);
 }
+static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, const int outrate,
+                             const float *inbuffer, const int inbuflen,
+                             float *outbuffer)
+{
+    /* This function uses integer arithmetics to avoid precision loss caused
+     * by large floating point numbers. For some operations, Sint32 or Sint64
+     * are needed for the large number multiplications. The input integers are
+     * assumed to be non-negative so that division rounds by truncation and
+     * modulo is always non-negative. Note that the operator order is important
+     * for these integer divisions. */
+    const int chans = 2;
+    const int framelen = chans * sizeof(float);
+    const int inframes = inbuflen / framelen;
+    const int outframes = (int)((Sint64)inframes * outrate / inrate);
+    float *dst = outbuffer;
+    int i, j;
+    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
+    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
+    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
+    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
+    // SDL_assert(outbuflen >= outframes * framelen);
+
+    for (i = 0; i < outframes; i++) {
+        /* Calculating the following way avoids subtraction or modulo of large
+         * floats which have low result precision.
+         *   interpolation1
+         * = (i / outrate * inrate) - floor(i / outrate * inrate)
+         * = mod(i / outrate * inrate, 1)
+         * = mod(i * inrate, outrate) / outrate */
+        const Sint64 pos = (Sint64)i * inrate;
+        const int srcindex = (int)(pos / outrate);
+        const int srcfraction = (int)(pos % outrate);
+        const float interpolation1 = ((float)srcfraction) / ((float)outrate);
+        const int filterindex1 = (srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+
+        {
+            float outsample0 = 0.0f;
+            float outsample1 = 0.0f;
+            int filt_idx;
+            const float *s = src;
+
+            /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
+            for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
+                const float insample0 = s[0];
+                const float insample1 = s[1];
+                const float w = ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx]);
+                outsample0 += insample0 * w;
+                outsample1 += insample1 * w;
+                s += chans;
+            }
+
+            /* Do the right wing! */
+            for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx++) {
+                const float insample0 = s[0];
+                const float insample1 = s[1];
+                const float w = ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx]);
+                outsample0 += insample0 * w;
+                outsample1 += insample1 * w;
+                s += chans;
+            }
+
+            *(dst++) = outsample0;
+            *(dst++) = outsample1;
+            src += chans;
+        }
+    }
+
+    return outframes * chans * sizeof(float);
+}
+
+typedef int (*SDL_AudioResampler) (const Uint8 channels, const int inrate, const int outrate,
+                             const float *inbuffer, const int inbuflen,
+                             float *outbuffer);
+
+static SDL_AudioResampler resampler_mono = SDL_ResampleAudio_Mono;
+static SDL_AudioResampler resampler_stereo = SDL_ResampleAudio_Stereo;
+static SDL_AudioResampler resampler_generic = SDL_ResampleAudio;
 #endif /* !SDL_RESAMPLER_DISABLED */
 static void SDL_PrivateConvertAudio(SDL_AudioCVT *cvt)
 {
@@ -599,6 +768,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const int inframes = srclen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
     const int reslen = outframes * framelen;
+    SDL_AudioResampler resampler_impl;
 
     SDL_assert(padding_steps <= SDL_INT_MAX / chans);
 
@@ -631,7 +801,13 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
         SDL_memcpy(workbuf, dst, srclen); // copy the data to the designated area
     }
 
-    cvt->len_cvt = SDL_ResampleAudio(chans, inrate, outrate, (const float *)workbuf, srclen, (float *)dst);
+    resampler_impl = resampler_generic;
+    if (chans == 1) {
+        resampler_impl = resampler_mono;
+    } else if (chans == 2) {
+        resampler_impl = resampler_stereo;
+    }
+    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, srclen, (float *)dst);
 
     SDL_assert(cvt->len_cvt == reslen);
 
@@ -916,6 +1092,7 @@ struct _SDL_AudioStream
     SDL_ResampleAudioStreamFunc resampler_func;
     SDL_ResetAudioStreamResamplerFunc reset_resampler_func;
     SDL_CleanupAudioStreamResamplerFunc cleanup_resampler_func;
+    SDL_AudioResampler resampler_impl;
 #endif
 };
 
@@ -1027,7 +1204,7 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
 
     SDL_memcpy((Uint8 *)inbuf - padding_len, stream->resampler_state, padding_len);
 
-    retval = SDL_ResampleAudio(stream->pre_resample_channels, stream->src_rate, stream->dst_rate, inbuf, inbuflen, outbuf);
+    retval = stream->resampler_impl(stream->pre_resample_channels, stream->src_rate, stream->dst_rate, inbuf, inbuflen, outbuf);
 
     /* update our left padding with end of current input, for next run. */
     SDL_memcpy(stream->resampler_state, (Uint8 *)inbuf + inbuflen - padding_len, padding_len);
@@ -1138,6 +1315,12 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
             retval->resampler_func = SDL_ResampleAudioStream;
             retval->reset_resampler_func = SDL_ResetAudioStreamResampler;
             retval->cleanup_resampler_func = SDL_CleanupAudioStreamResampler;
+            retval->resampler_impl = resampler_generic;
+            if (pre_resample_channels == 1) {
+                retval->resampler_impl = resampler_mono;
+            } else if (pre_resample_channels == 2) {
+                retval->resampler_impl = resampler_stereo;
+            }
         }
 
         /* Convert us to the final format after resampling. */
