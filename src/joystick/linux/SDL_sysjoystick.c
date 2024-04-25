@@ -1972,7 +1972,7 @@ static void HandleInputEvents(SDL_Joystick *joystick)
                 case ABS_HAT3Y:
                     hat_index = (code - ABS_HAT0X) / 2u;
                     if (joystick->hwdata->has_hat[hat_index]) {
-                        HandleHat(joystick, hat_index, code % 2, events[i].value);
+                        HandleHat(joystick, hat_index, hat_index % 2, events[i].value);
                         break;
                     }
                     SDL_FALLTHROUGH;
@@ -1989,7 +1989,7 @@ static void HandleInputEvents(SDL_Joystick *joystick)
                 case REL_X:
                 case REL_Y:
                     code -= REL_X;
-                    HandleBall(joystick, code / 2, code % 2, events[i].value);
+                    HandleBall(joystick, 0 /* code / 2 */, code % 2, events[i].value);
                     break;
                 default:
                     break;
@@ -2145,7 +2145,7 @@ static void HandleClassicEvents(SDL_Joystick *joystick)
                 case ABS_HAT3Y:
                     hat_index = (code - ABS_HAT0X) / 2u;
                     if (joystick->hwdata->has_hat[hat_index]) {
-                        HandleHat(joystick, hat_index, code % 2, events[i].value);
+                        HandleHat(joystick, hat_index, hat_index % 2, events[i].value);
                         break;
                     }
                     SDL_FALLTHROUGH;
