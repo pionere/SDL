@@ -209,12 +209,13 @@ static int ResamplerPadding(const int inrate, const int outrate)
  * @param inrate: the current frequency of the the audio data
  * @param outrate: the result frequency of the the audio data
  * @param inbuffer: the audio data (must have ResamplePadding(inrate, outrate) * framelen bytes long paddings on each side)
- * @param inframes: the number of samples (per channel) in the audio data without the paddings
+ * @param inframes: the number of samples (per channel) in the input audio data (without the paddings)
  * @param outbuffer: the output audio data (must be at least 'outframes * framelen' bytes long)
+ * @param outframes: the number of samples (per channel) in the output audio data
  */
 static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
-                             float *outbuffer)
+                             float *outbuffer, const int outframes)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
      * by large floating point numbers. For some operations, Sint32 or Sint64
@@ -223,14 +224,8 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = channels;
-    const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, chan, j;
-    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
-    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
-    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
-    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
-    // SDL_assert(outbuflen >= outframes * framelen);
 
     for (i = 0; i < outframes; i++) {
         float scales[2 * RESAMPLER_ZERO_CROSSINGS];
@@ -297,7 +292,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
 }
 static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
-                             float *outbuffer)
+                             float *outbuffer, const int outframes)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
      * by large floating point numbers. For some operations, Sint32 or Sint64
@@ -306,14 +301,8 @@ static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const 
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = 1;
-    const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, j;
-    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
-    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
-    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
-    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
-    // SDL_assert(outbuflen >= outframes * framelen);
 
     for (i = 0; i < outframes; i++) {
         int filt_idx;
@@ -363,7 +352,7 @@ static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const 
 }
 static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
-                             float *outbuffer)
+                             float *outbuffer, const int outframes)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
      * by large floating point numbers. For some operations, Sint32 or Sint64
@@ -372,14 +361,8 @@ static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, cons
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = 2;
-    const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, j;
-    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
-    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
-    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
-    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
-    // SDL_assert(outbuflen >= outframes * framelen);
 
     for (i = 0; i < outframes; i++) {
         /* Calculating the following way avoids subtraction or modulo of large
@@ -437,7 +420,7 @@ static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, cons
 
 typedef int (*SDL_AudioResampler) (const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
-                             float *outbuffer);
+                             float *outbuffer, const int outframes);
 
 static SDL_AudioResampler resampler_mono = SDL_ResampleAudio_Mono;
 static SDL_AudioResampler resampler_stereo = SDL_ResampleAudio_Stereo;
@@ -764,6 +747,12 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const int reslen = outframes * framelen;
     SDL_AudioResampler resampler_impl;
 
+    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
+    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
+    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
+    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
+    // SDL_assert(outbuflen >= outframes * framelen);
+
     SDL_assert(padding_steps <= SDL_INT_MAX / chans);
 
     paddingsamples = padding_steps * chans;
@@ -801,7 +790,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     } else if (chans == 2) {
         resampler_impl = resampler_stereo;
     }
-    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, inframes, (float *)dst);
+    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, inframes, (float *)dst, outframes);
 
     SDL_assert(cvt->len_cvt == reslen);
 
@@ -1193,7 +1182,7 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     float *outbuf = (float *)_outbuf;
     const int padding_len = stream->resampler_padding_len;
     Uint8 chans;
-    int framelen, inframes, retval;
+    int framelen, inframes, inrate, outrate, outframes, retval;
 
     SDL_assert(inbuf != outbuf); /* SDL_AudioStreamPut() shouldn't allow in-place resamples. */
 
@@ -1202,7 +1191,17 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     chans = stream->pre_resample_channels;
     framelen = chans * sizeof(float);
     inframes = inbuflen / framelen;
-    retval = stream->resampler_impl(chans, stream->src_rate, stream->dst_rate, inbuf, inframes, outbuf);
+
+    inrate = stream->src_rate;
+    outrate = stream->dst_rate;
+    SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
+    SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
+    SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
+    SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
+    // SDL_assert(outbuflen >= outframes * framelen);
+    outframes = (int)((Sint64)inframes * outrate / inrate);
+
+    retval = stream->resampler_impl(chans, inrate, outrate, inbuf, inframes, outbuf, outframes);
 
     /* update our left padding with end of current input, for next run. */
     SDL_memcpy(stream->resampler_state, (Uint8 *)inbuf + inbuflen - padding_len, padding_len);
