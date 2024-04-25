@@ -209,11 +209,11 @@ static int ResamplerPadding(const int inrate, const int outrate)
  * @param inrate: the current frequency of the the audio data
  * @param outrate: the result frequency of the the audio data
  * @param inbuffer: the audio data (must have ResamplePadding(inrate, outrate) * framelen bytes long paddings on each side)
- * @param inbuflen: the length of the audio data without the paddings (bytes)
+ * @param inframes: the number of samples (per channel) in the audio data without the paddings
  * @param outbuffer: the output audio data (must be at least 'outframes * framelen' bytes long)
  */
 static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int outrate,
-                             const float *inbuffer, const int inbuflen,
+                             const float *inbuffer, const int inframes,
                              float *outbuffer)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
@@ -223,8 +223,6 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = channels;
-    const int framelen = chans * sizeof(float);
-    const int inframes = inbuflen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, chan, j;
@@ -298,7 +296,7 @@ static int SDL_ResampleAudio(const Uint8 channels, const int inrate, const int o
     return outframes * chans * sizeof(float);
 }
 static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const int outrate,
-                             const float *inbuffer, const int inbuflen,
+                             const float *inbuffer, const int inframes,
                              float *outbuffer)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
@@ -308,8 +306,6 @@ static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const 
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = 1;
-    const int framelen = chans * sizeof(float);
-    const int inframes = inbuflen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, j;
@@ -366,7 +362,7 @@ static int SDL_ResampleAudio_Mono(const Uint8 channels, const int inrate, const 
     return outframes * chans * sizeof(float);
 }
 static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, const int outrate,
-                             const float *inbuffer, const int inbuflen,
+                             const float *inbuffer, const int inframes,
                              float *outbuffer)
 {
     /* This function uses integer arithmetics to avoid precision loss caused
@@ -376,8 +372,6 @@ static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, cons
      * modulo is always non-negative. Note that the operator order is important
      * for these integer divisions. */
     const int chans = 2;
-    const int framelen = chans * sizeof(float);
-    const int inframes = inbuflen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
     float *dst = outbuffer;
     int i, j;
@@ -442,7 +436,7 @@ static int SDL_ResampleAudio_Stereo(const Uint8 channels, const int inrate, cons
 }
 
 typedef int (*SDL_AudioResampler) (const Uint8 channels, const int inrate, const int outrate,
-                             const float *inbuffer, const int inbuflen,
+                             const float *inbuffer, const int inframes,
                              float *outbuffer);
 
 static SDL_AudioResampler resampler_mono = SDL_ResampleAudio_Mono;
@@ -807,7 +801,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     } else if (chans == 2) {
         resampler_impl = resampler_stereo;
     }
-    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, srclen, (float *)dst);
+    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, inframes, (float *)dst);
 
     SDL_assert(cvt->len_cvt == reslen);
 
@@ -1198,13 +1192,17 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     const float *inbuf = (const float *)_inbuf;
     float *outbuf = (float *)_outbuf;
     const int padding_len = stream->resampler_padding_len;
-    int retval;
+    Uint8 chans;
+    int framelen, inframes, retval;
 
     SDL_assert(inbuf != outbuf); /* SDL_AudioStreamPut() shouldn't allow in-place resamples. */
 
     SDL_memcpy((Uint8 *)inbuf - padding_len, stream->resampler_state, padding_len);
 
-    retval = stream->resampler_impl(stream->pre_resample_channels, stream->src_rate, stream->dst_rate, inbuf, inbuflen, outbuf);
+    chans = stream->pre_resample_channels;
+    framelen = chans * sizeof(float);
+    inframes = inbuflen / framelen;
+    retval = stream->resampler_impl(chans, stream->src_rate, stream->dst_rate, inbuf, inframes, outbuf);
 
     /* update our left padding with end of current input, for next run. */
     SDL_memcpy(stream->resampler_state, (Uint8 *)inbuf + inbuflen - padding_len, padding_len);
