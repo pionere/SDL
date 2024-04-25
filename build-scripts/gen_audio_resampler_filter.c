@@ -43,7 +43,7 @@ gcc -o genfilter build-scripts/gen_audio_resampler_filter.c -lm && ./genfilter >
 #include <string.h>
 #include <math.h>
 
-#define RESAMPLER_ZERO_CROSSINGS            5
+#define RESAMPLER_ZERO_CROSSINGS            4
 #define RESAMPLER_BITS_PER_SAMPLE           16
 #define RESAMPLER_SAMPLES_PER_ZERO_CROSSING (1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1))
 #define RESAMPLER_FILTER_SIZE               (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS)

@@ -1343,6 +1343,7 @@ void SDL_ChooseAudioConverters(void)
     }
 
     SDL_ChooseAudioChannelConverters();
+    SDL_ChooseAudioResamplers();
 
 #define SET_CONVERTER_FUNCS(fntype)                           \
     SDL_Convert_S8_to_F32 = SDL_Convert_S8_to_F32_##fntype;   \
