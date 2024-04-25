@@ -2095,7 +2095,7 @@ static int SDL_LockTextureNative(SDL_Texture *texture, const SDL_Rect *rect,
 int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
                     void **pixels, int *pitch)
 {
-    SDL_Rect full_rect;
+    SDL_Rect real_rect;
 
     CHECK_TEXTURE_MAGIC(texture, -1);
 
@@ -2103,15 +2103,19 @@ int SDL_LockTexture(SDL_Texture *texture, const SDL_Rect *rect,
         return SDL_SetError("SDL_LockTexture(): texture must be streaming");
     }
 
-    if (!rect) {
-        full_rect.x = 0;
-        full_rect.y = 0;
-        full_rect.w = texture->w;
-        full_rect.h = texture->h;
-        rect = &full_rect;
+    real_rect.x = 0;
+    real_rect.y = 0;
+    real_rect.w = texture->w;
+    real_rect.h = texture->h;
+    if (rect) {
+        SDL_IntersectRect(rect, &real_rect, &real_rect);
     }
 
-    return SDL_PrivateLockTexture(texture, rect, pixels, pitch);
+    if (!real_rect.w || !real_rect.h) { // SDL_RectEmpty(&real_rect)
+        return 0; /* nothing to do. */
+    }
+
+    return SDL_PrivateLockTexture(texture, &real_rect, pixels, pitch);
 }
 
 static int SDL_PrivateLockTexture(SDL_Texture *texture, const SDL_Rect *rect, void **pixels, int *pitch)
