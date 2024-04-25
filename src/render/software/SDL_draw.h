@@ -633,7 +633,7 @@
         type *pixel = (type *)dst->pixels + rect->y * pitch + rect->x; \
         while (height--) {                                             \
             {                                                          \
-                int n = (width + 3) / 4;                               \
+                int n = (width + 3) / 4u;                              \
                 switch (width & 3) {                                   \
                 case 0:                                                \
                     do {                                               \

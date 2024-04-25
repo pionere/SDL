@@ -588,7 +588,7 @@ int SDL_InitFormat(SDL_PixelFormat *format, Uint32 pixel_format)
     SDL_zerop(format);
     format->format = pixel_format;
     format->BitsPerPixel = bpp;
-    format->BytesPerPixel = (bpp + 7) / 8;
+    format->BytesPerPixel = (bpp + 7) / 8u;
 
     format->Rmask = Rmask;
     cls = SDL_ColorLossShift(Rmask);

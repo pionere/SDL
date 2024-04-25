@@ -95,7 +95,7 @@ static BOOL _getSDLPixelFormatData(SDL_PixelFormat *pSDLPixelFormat,
     ULONG   ulRloss, ulGloss, ulBloss;
 
     pSDLPixelFormat->BitsPerPixel = ulBPP;
-    pSDLPixelFormat->BytesPerPixel = (pSDLPixelFormat->BitsPerPixel + 7) / 8;
+    pSDLPixelFormat->BytesPerPixel = (pSDLPixelFormat->BitsPerPixel + 7) / 8u;
 
     switch (fccColorEncoding) {
     case FOURCC_LUT8:
@@ -274,8 +274,8 @@ static VOID _wmMouseMove(WINDATA *pWinData, SHORT lX, SHORT lY)
     }
 
     if (fWinActive) {
-        pointl.x = pWinData->window->wrect.w / 2;
-        pointl.y = pWinData->window->wrect.h / 2;
+        pointl.x = pWinData->window->wrect.w / 2u;
+        pointl.y = pWinData->window->wrect.h / 2u;
         WinMapWindowPoints(pWinData->hwnd, HWND_DESKTOP, &pointl, 1);
 
         SDL_SendMouseMotion(pWinData->window, 0, 1,
@@ -299,8 +299,8 @@ static VOID _wmMouseButton(WINDATA *pWinData, ULONG ulButton, BOOL fDown)
         if (pSDLMouse->relative_mode && !pSDLMouse->relative_mode_warp) {
             POINTL  pointl;
 
-            pointl.x = pWinData->window->wrect.w / 2;
-            pointl.y = pWinData->window->wrect.h / 2;
+            pointl.x = pWinData->window->wrect.w / 2u;
+            pointl.y = pWinData->window->wrect.h / 2u;
             WinMapWindowPoints(pWinData->hwnd, HWND_DESKTOP, &pointl, 1);
             pWinData->lSkipWMMouseMove++;
             WinSetPointerPos(HWND_DESKTOP, pointl.x, pointl.y);

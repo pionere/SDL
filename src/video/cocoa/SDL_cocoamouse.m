@@ -293,7 +293,7 @@ static int Cocoa_SetRelativeMouseMode(SDL_bool enabled)
         if (window) {
             /* make sure the mouse isn't at the corner of the window, as this can confuse things if macOS thinks a window resize is happening on the first click. */
             SDL_MouseData *mousedriverdata = (SDL_MouseData*)SDL_GetMouse()->driverdata;
-            const CGPoint point = CGPointMake((float)(window->wrect.x + (window->wrect.w / 2)), (float)(window->wrect.y + (window->wrect.h / 2)));
+            const CGPoint point = CGPointMake((float)(window->wrect.x + (window->wrect.w / 2u)), (float)(window->wrect.y + (window->wrect.h / 2u)));
             if (mousedriverdata) {
                 mousedriverdata->justEnabledRelative = SDL_TRUE;
             }

@@ -79,8 +79,8 @@ static void gsKit_flip(GSGLOBAL *gsGlobal)
 {
     if (!gsGlobal->FirstFrame) {
         if (gsGlobal->DoubleBuffering == GS_SETTING_ON) {
-            GS_SET_DISPFB2(gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192,
-                           gsGlobal->Width / 64, gsGlobal->PSM, 0, 0);
+            GS_SET_DISPFB2(gsGlobal->ScreenBuffer[gsGlobal->ActiveBuffer & 1] / 8192u,
+                           gsGlobal->Width / 64u, gsGlobal->PSM, 0, 0);
 
             gsGlobal->ActiveBuffer ^= 1;
         }

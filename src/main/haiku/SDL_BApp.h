@@ -248,10 +248,10 @@ class SDL_BLooper : public BLooper
             int winWidth, winHeight, winPosX, winPosY;
             SDL_GetWindowSize(win, &winWidth, &winHeight);
             SDL_GetWindowPosition(win, &winPosX, &winPosY);
-            int dx = x - (winWidth / 2);
-            int dy = y - (winHeight / 2);
+            int dx = x - (winWidth / 2u);
+            int dy = y - (winHeight / 2u);
             SDL_SendMouseMotion(win, 0, SDL_GetMouse()->relative_mode, dx, dy);
-            set_mouse_position((winPosX + winWidth / 2), (winPosY + winHeight / 2));
+            set_mouse_position((winPosX + winWidth / 2u), (winPosY + winHeight / 2u));
             if (!be_app->IsCursorHidden())
                 be_app->HideCursor();
         } else {

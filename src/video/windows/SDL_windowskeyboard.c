@@ -872,7 +872,7 @@ static void IME_GetCompositionString(HIMC himc, DWORD string)
     videodata->ime_cursor = LOWORD(ImmGetCompositionStringW(himc, GCS_CURSORPOS, 0, 0));
     if ((dwLang == LANG_CHT || dwLang == LANG_CHS) &&
         videodata->ime_cursor > 0 &&
-        videodata->ime_cursor < (int)(videodata->ime_composition_length / sizeof(WCHAR)) &&
+        videodata->ime_cursor < (int)(videodata->ime_composition_length / (unsigned)sizeof(WCHAR)) &&
         (videodata->ime_composition[0] == 0x3000 || videodata->ime_composition[0] == 0x0020)) {
         // Traditional Chinese IMEs add a placeholder U+3000
         // Simplified Chinese IMEs seem to add a placeholder U+0020 sometimes
@@ -1580,8 +1580,8 @@ static void DrawRect(HDC hdc, int left, int top, int right, int bottom, int pens
 {
     /* The case of no pen (PenSize = 0) is automatically taken care of. */
     const int penadjust = (int)SDL_floor(pensize / 2.0f - 0.5f);
-    left += pensize / 2;
-    top += pensize / 2;
+    left += pensize / 2u;
+    top += pensize / 2u;
     right -= penadjust;
     bottom -= penadjust;
     Rectangle(hdc, left, top, right, bottom);

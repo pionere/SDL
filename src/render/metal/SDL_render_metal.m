@@ -600,14 +600,14 @@ static int METAL_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     if (yuv_planes != SDL_METAL_YUV_NONE) {
         if (yuv_planes == SDL_METAL_YUV_3PLANES) {
             mtltexdesc.pixelFormat = MTLPixelFormatR8Unorm;
-            mtltexdesc.width = (texture->w + 1) / 2;
-            mtltexdesc.height = (texture->h + 1) / 2;
+            mtltexdesc.width = (texture->w + 1) / 2u;
+            mtltexdesc.height = (texture->h + 1) / 2u;
             mtltexdesc.textureType = MTLTextureType2DArray;
             mtltexdesc.arrayLength = 2;
         } else { // if (yuv_planes == SDL_METAL_YUV_2PLANES) {
             mtltexdesc.pixelFormat = MTLPixelFormatRG8Unorm;
-            mtltexdesc.width = (texture->w + 1) / 2;
-            mtltexdesc.height = (texture->h + 1) / 2;
+            mtltexdesc.width = (texture->w + 1) / 2u;
+            mtltexdesc.height = (texture->h + 1) / 2u;
         }
         mtltexture_uv = [data.mtldevice newTextureWithDescriptor:mtltexdesc];
         if (mtltexture_uv == nil) {
@@ -753,8 +753,8 @@ static int METAL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     if (texturedata.yuv_planes == SDL_METAL_YUV_3PLANES) {
         int Uslice = texture->format == SDL_PIXELFORMAT_YV12 ? 1 : 0;
         int Vslice = texture->format == SDL_PIXELFORMAT_YV12 ? 0 : 1;
-        int UVpitch = (pitch + 1) / 2;
-        SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
+        int UVpitch = (pitch + 1) / 2u;
+        SDL_Rect UVrect = {rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u};
 
         /* Skip to the correct offset into the next texture */
         pixels = (const void*)((const Uint8*)pixels + rect->h * pitch);
@@ -768,8 +768,8 @@ static int METAL_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture,
             return -1;
         }
     } else if (texturedata.yuv_planes == SDL_METAL_YUV_2PLANES) {
-        SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
-        int UVpitch = 2 * ((pitch + 1) / 2);
+        SDL_Rect UVrect = {rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u};
+        int UVpitch = 2 * ((pitch + 1) / 2u);
 
         /* Skip to the correct offset into the next texture */
         pixels = (const void*)((const Uint8*)pixels + rect->h * pitch);
@@ -793,7 +793,7 @@ static int METAL_UpdateTextureYUV(SDL_Renderer * renderer, SDL_Texture * texture
     METAL_TextureData *texturedata = (__bridge METAL_TextureData *)texture->driverdata;
     const int Uslice = 0;
     const int Vslice = 1;
-    SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
+    SDL_Rect UVrect = {rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u};
 
     if (METAL_UpdateTextureInternal(renderer, texturedata, texturedata.mtltexture, *rect, 0, Yplane, Ypitch) < 0) {
         return -1;
@@ -816,7 +816,7 @@ static int METAL_UpdateTextureNV(SDL_Renderer * renderer, SDL_Texture * texture,
                     const Uint8 *UVplane, int UVpitch)
 { @autoreleasepool {
     METAL_TextureData *texturedata = (__bridge METAL_TextureData *)texture->driverdata;
-    SDL_Rect UVrect = {rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2};
+    SDL_Rect UVrect = {rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u};
 
     if (METAL_UpdateTextureInternal(renderer, texturedata, texturedata.mtltexture, *rect, 0, Yplane, Ypitch) < 0) {
         return -1;
@@ -843,7 +843,7 @@ static int METAL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     *pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect->w;
 #if SDL_HAVE_YUV
     if (texturedata.yuv_planes != SDL_METAL_YUV_NONE) {
-        buffersize = ((*pitch) * rect->h) + (2 * (*pitch + 1) / 2) * ((rect->h + 1) / 2);
+        buffersize = ((*pitch) * rect->h) + (2 * (*pitch + 1) / 2u) * ((rect->h + 1) / 2u);
     } else
 #endif
     {
@@ -869,7 +869,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     id<MTLBlitCommandEncoder> blitcmd;
     SDL_Rect rect = texturedata.lockedrect;
     int pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect.w;
-    SDL_Rect UVrect = {rect.x / 2, rect.y / 2, (rect.w + 1) / 2, (rect.h + 1) / 2};
+    SDL_Rect UVrect = {rect.x / 2u, rect.y / 2u, (rect.w + 1) / 2u, (rect.h + 1) / 2u};
 
     if (texturedata.lockedbuffer == nil) {
         return;
@@ -899,7 +899,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     if (texturedata.yuv_planes == SDL_METAL_YUV_3PLANES) {
         int Uslice = texture->format == SDL_PIXELFORMAT_YV12 ? 1 : 0;
         int Vslice = texture->format == SDL_PIXELFORMAT_YV12 ? 0 : 1;
-        int UVpitch = (pitch + 1) / 2;
+        int UVpitch = (pitch + 1) / 2u;
 
         [blitcmd copyFromBuffer:texturedata.lockedbuffer
                    sourceOffset:rect.h * pitch
@@ -921,7 +921,7 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
                destinationLevel:0
               destinationOrigin:MTLOriginMake(UVrect.x, UVrect.y, 0)];
     } else if (texturedata.yuv_planes == SDL_METAL_YUV_2PLANES) {
-        int UVpitch = 2 * ((pitch + 1) / 2);
+        int UVpitch = 2 * ((pitch + 1) / 2u);
 
         [blitcmd copyFromBuffer:texturedata.lockedbuffer
                    sourceOffset:rect.h * pitch

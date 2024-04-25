@@ -424,7 +424,7 @@ void X11_ReconcileKeyboardState(void)
     keyboardState = SDL_GetKeyboardState(0);
     for (keycode = 0; keycode < SDL_arraysize(viddata->key_layout); ++keycode) {
         SDL_Scancode scancode = viddata->key_layout[keycode];
-        SDL_bool x11KeyPressed = (keys[keycode / 8] & (1 << (keycode % 8))) != 0;
+        SDL_bool x11KeyPressed = (keys[keycode / 8u] & (1 << (keycode % 8))) != 0;
         SDL_bool sdlKeyPressed = keyboardState[scancode] == SDL_PRESSED;
 
         if (x11KeyPressed && !sdlKeyPressed) {

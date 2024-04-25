@@ -364,7 +364,7 @@ static int NAS_OpenDevice(_THIS, const char *devname)
     } else {
         AuMakeElementImportClient(elms, this->spec.freq, format,
                                   this->spec.channels, AuTrue, buffer_size,
-                                  buffer_size / 4, 0, NULL);
+                                  buffer_size / 4u, 0, NULL);
         AuMakeElementExportDevice(elms + 1, 0, this->hidden->dev, this->spec.freq,
                                   AuUnlimitedSamples, 0, NULL);
     }

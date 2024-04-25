@@ -480,7 +480,7 @@ extern SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map);
     {                                            \
         int w = width;                           \
         if (w > 0) {                             \
-            int n = (w + 7) / 8;                 \
+            int n = (w + 7) / 8u;                \
             switch (w & 7) {                     \
             case 0:                              \
                 do {                             \
@@ -516,7 +516,7 @@ extern SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map);
     {                                            \
         int w = width;                           \
         if (w > 0) {                             \
-            int n = (w + 3) / 4;                 \
+            int n = (w + 3) / 4u;                \
             switch (w & 3) {                     \
             case 0:                              \
                 do {                             \

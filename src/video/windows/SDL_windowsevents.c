@@ -921,7 +921,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                We also sometimes get large deltas due to coalesced mouse motion and warping,
                                so ignore those.
                              */
-                            const int MAX_RELATIVE_MOTION = (h / 6);
+                            const int MAX_RELATIVE_MOTION = (h / 6u);
                             if (SDL_abs(relX) < MAX_RELATIVE_MOTION &&
                                 SDL_abs(relY) < MAX_RELATIVE_MOTION) {
                                 SDL_SendMouseMotion(window, mouseID, 1, relX, relY);

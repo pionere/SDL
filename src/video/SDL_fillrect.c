@@ -46,7 +46,7 @@
 #endif
 
 #define SSE_WORK \
-    for (i = n / 64; i--;) { \
+    for (i = n / 64u; i--;) { \
         _mm_stream_ps((float *)(p+0), c128); \
         _mm_stream_ps((float *)(p+16), c128); \
         _mm_stream_ps((float *)(p+32), c128); \

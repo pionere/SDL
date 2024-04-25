@@ -925,7 +925,7 @@ static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
         src = (Uint8 *)temp_pixels + (rect->h - 1) * temp_pitch;
         dst = (Uint8 *)temp_pixels;
         tmp = src + temp_pitch;
-        rows = rect->h / 2;
+        rows = rect->h / 2u;
         while (rows--) {
             SDL_memcpy(tmp, dst, temp_pitch);
             SDL_memcpy(dst, src, temp_pitch);

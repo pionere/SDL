@@ -301,7 +301,7 @@ static int X11_MessageBoxInitPositions(SDL_MessageBoxDataX11 *data)
         data->ytext = data->text_height + data->text_height;
 
         /* Bump button y down to bottom of text. */
-        ybuttons = 3 * data->ytext / 2 + (data->numlines - 1) * data->text_height;
+        ybuttons = 3 * data->ytext / 2u + (data->numlines - 1) * data->text_height;
 
         /* Bump the dialog box width and height up if needed. */
         data->dialog_width = IntMax(data->dialog_width, 2 * data->xtext + text_width_max);

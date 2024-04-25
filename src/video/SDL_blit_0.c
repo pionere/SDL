@@ -47,11 +47,11 @@ SDL_FORCE_INLINE void BlitBto1(const SDL_BlitInfo *info, const Uint32 srcbpp)
     map = info->table;
 
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (map) {
         if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
@@ -149,11 +149,11 @@ SDL_FORCE_INLINE void BlitBto2(const SDL_BlitInfo *info, const Uint32 srcbpp)
     map = (Uint16 *)info->table;
 
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {
@@ -212,11 +212,11 @@ SDL_FORCE_INLINE void BlitBto3(const SDL_BlitInfo *info, const Uint32 srcbpp)
     map = info->table;
 
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {
@@ -282,11 +282,11 @@ SDL_FORCE_INLINE void BlitBto4(const SDL_BlitInfo *info, const Uint32 srcbpp)
     map = (Uint32 *)info->table;
 
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {
@@ -342,11 +342,11 @@ SDL_FORCE_INLINE void BlitBto1Key(const SDL_BlitInfo *info, const Uint32 srcbpp)
 
     /* Set up some basic variables */
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (palmap) {
         if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
@@ -440,11 +440,11 @@ SDL_FORCE_INLINE void BlitBto2Key(const SDL_BlitInfo *info, const Uint32 srcbpp)
 
     /* Set up some basic variables */
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
     dstskip /= 2;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
@@ -501,11 +501,11 @@ SDL_FORCE_INLINE void BlitBto3Key(const SDL_BlitInfo *info, const Uint32 srcbpp)
 
     /* Set up some basic variables */
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {
@@ -561,11 +561,11 @@ SDL_FORCE_INLINE void BlitBto4Key(const SDL_BlitInfo *info, const Uint32 srcbpp)
 
     /* Set up some basic variables */
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
     dstskip /= 4;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
@@ -628,11 +628,11 @@ SDL_FORCE_INLINE void BlitBtoNAlpha(const SDL_BlitInfo *info, const Uint32 srcbp
     /* Set up some basic variables */
     dstbpp = dstfmt->BytesPerPixel;
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {
@@ -706,11 +706,11 @@ SDL_FORCE_INLINE void BlitBtoNAlphaKey(const SDL_BlitInfo *info, const Uint32 sr
     /* Set up some basic variables */
     dstbpp = dstfmt->BytesPerPixel;
     if (srcbpp == 4)
-        srcskip += width - (width + 1) / 2;
+        srcskip += width - (width + 1) / 2u;
     else if (srcbpp == 2)
-        srcskip += width - (width + 3) / 4;
+        srcskip += width - (width + 3) / 4u;
     else if (srcbpp == 1)
-        srcskip += width - (width + 7) / 8;
+        srcskip += width - (width + 7) / 8u;
 
     if (SDL_PIXELORDER(info->src_fmt->format) == SDL_BITMAPORDER_4321) {
         while (height--) {

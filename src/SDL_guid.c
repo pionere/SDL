@@ -27,13 +27,13 @@
 void SDL_GUIDToString(SDL_GUID guid, char *pszGUID, int cbGUID)
 {
     static const char k_rgchHexToASCII[] = "0123456789abcdef";
-    int i;
+    unsigned i;
 
     if ((!pszGUID) || (cbGUID <= 0)) {
         return;
     }
 
-    for (i = 0; i < sizeof(guid.data) && i < (cbGUID - 1) / 2; i++) {
+    for (i = 0; i < sizeof(guid.data) && i < (cbGUID - 1) / 2u; i++) {
         /* each input byte writes 2 ascii chars, and might write a null byte. */
         /* If we don't have room for next input byte, stop */
         unsigned char c = guid.data[i];

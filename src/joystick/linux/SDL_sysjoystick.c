@@ -1266,7 +1266,7 @@ static void ConfigJoystick(SDL_Joystick *joystick, int fd, int fd_sensor)
             }
             if (GuessIfAxesAreDigitalHat((hat_x < 0 ? (void *)0 : &absinfo_x),
                                          (hat_y < 0 ? (void *)0 : &absinfo_y))) {
-                const int hat_index = (i - ABS_HAT0X) / 2;
+                const int hat_index = (i - ABS_HAT0X) / 2u;
                 struct hat_axis_correct *correct = &joystick->hwdata->hat_correct[hat_index];
 #ifdef DEBUG_INPUT_EVENTS
                 SDL_Log("Joystick has digital hat: #%d\n", hat_index);
@@ -1293,7 +1293,7 @@ static void ConfigJoystick(SDL_Joystick *joystick, int fd, int fd_sensor)
         }
         for (i = 0; i < ABS_MAX; ++i) {
             /* Skip digital hats */
-            if (i >= ABS_HAT0X && i <= ABS_HAT3Y && joystick->hwdata->has_hat[(i - ABS_HAT0X) / 2]) {
+            if (i >= ABS_HAT0X && i <= ABS_HAT3Y && joystick->hwdata->has_hat[(i - ABS_HAT0X) / 2u]) {
                 continue;
             }
             if (test_bit(i, absbit)) {
@@ -1860,7 +1860,7 @@ static void PollAllValues(SDL_Joystick *joystick)
     /* Poll all digital hats */
     for (i = ABS_HAT0X; i <= ABS_HAT3Y; i++) {
         const int baseaxis = i - ABS_HAT0X;
-        const int hatidx = baseaxis / 2;
+        const int hatidx = baseaxis / 2u;
         SDL_assert(hatidx < SDL_arraysize(joystick->hwdata->has_hat));
         /* We don't need to test for analog axes here, they won't have has_hat[] set */
         if (joystick->hwdata->has_hat[hatidx]) {
@@ -1970,7 +1970,7 @@ static void HandleInputEvents(SDL_Joystick *joystick)
                 case ABS_HAT2Y:
                 case ABS_HAT3X:
                 case ABS_HAT3Y:
-                    hat_index = (code - ABS_HAT0X) / 2;
+                    hat_index = (code - ABS_HAT0X) / 2u;
                     if (joystick->hwdata->has_hat[hat_index]) {
                         HandleHat(joystick, hat_index, code % 2, events[i].value);
                         break;
@@ -2143,7 +2143,7 @@ static void HandleClassicEvents(SDL_Joystick *joystick)
                 case ABS_HAT2Y:
                 case ABS_HAT3X:
                 case ABS_HAT3Y:
-                    hat_index = (code - ABS_HAT0X) / 2;
+                    hat_index = (code - ABS_HAT0X) / 2u;
                     if (joystick->hwdata->has_hat[hat_index]) {
                         HandleHat(joystick, hat_index, code % 2, events[i].value);
                         break;

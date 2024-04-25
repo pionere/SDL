@@ -377,7 +377,7 @@ static int QSA_OpenDevice(_THIS, const char *devname)
     if (this->hidden->pcm_len == 0) {
         this->hidden->pcm_len =
             csetup.buf.block.frag_size * this->spec.channels *
-            (snd_pcm_format_width(format) / 8);
+            (snd_pcm_format_width(format) / 8u);
     }
 
     /*

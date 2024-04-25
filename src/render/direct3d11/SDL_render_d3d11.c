@@ -1153,8 +1153,8 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         texture->format == SDL_PIXELFORMAT_IYUV) {
         textureData->yuv_planes = SDL_D3D11_YUV_3PLANES;
 
-        textureDesc.Width = (textureDesc.Width + 1) / 2;
-        textureDesc.Height = (textureDesc.Height + 1) / 2;
+        textureDesc.Width = (textureDesc.Width + 1) / 2u;
+        textureDesc.Height = (textureDesc.Height + 1) / 2u;
 
         result = ID3D11Device_CreateTexture2D(d3dDevice,
                                               &textureDesc,
@@ -1180,8 +1180,8 @@ static int D3D11_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
         textureData->yuv_planes = SDL_D3D11_YUV_2PLANES;
 
         nvTextureDesc.Format = DXGI_FORMAT_R8G8_UNORM;
-        nvTextureDesc.Width = (textureDesc.Width + 1) / 2;
-        nvTextureDesc.Height = (textureDesc.Height + 1) / 2;
+        nvTextureDesc.Width = (textureDesc.Width + 1) / 2u;
+        nvTextureDesc.Height = (textureDesc.Height + 1) / 2u;
 
         result = ID3D11Device_CreateTexture2D(d3dDevice,
                                               &nvTextureDesc,
@@ -1385,17 +1385,17 @@ static int D3D11_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D11_UpdateTextureInternal(renderer, format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2);
+            status = D3D11_UpdateTextureInternal(renderer, format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureV : textureData->mainTextureU, bpp, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, srcPixels, (srcPitch + 1) / 2u);
             if (status >= 0) {
                 /* Skip to the correct offset into the next texture */
-                srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
-                status = D3D11_UpdateTextureInternal(renderer, format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2);
+                srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2u) * ((srcPitch + 1) / 2u));
+                status = D3D11_UpdateTextureInternal(renderer, format == SDL_PIXELFORMAT_YV12 ? textureData->mainTextureU : textureData->mainTextureV, bpp, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, srcPixels, (srcPitch + 1) / 2u);
             }
         } else if (textureData->yuv_planes == SDL_D3D11_YUV_2PLANES) {
             /* Skip to the correct offset into the next texture */
             srcPixels = (const void *)((const Uint8 *)srcPixels + rect->h * srcPitch);
 
-            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, srcPixels, 2 * ((srcPitch + 1) / 2));
+            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2u, rect->y / 2u, ((rect->w + 1) / 2u), (rect->h + 1) / 2u, srcPixels, 2 * ((srcPitch + 1) / 2u));
         }
     }
 #endif /* SDL_HAVE_YUV */
@@ -1417,9 +1417,9 @@ static int D3D11_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, bpp, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
-        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch);
+        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, bpp, rect->x / 2u, rect->y / 2u, rect->w / 2u, rect->h / 2u, Uplane, Upitch);
         if (status >= 0) {
-            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureV, bpp, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch);
+            status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureV, bpp, rect->x / 2u, rect->y / 2u, rect->w / 2u, rect->h / 2u, Vplane, Vpitch);
         }
     }
     return status;
@@ -1437,7 +1437,7 @@ static int D3D11_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     status = D3D11_UpdateTextureInternal(renderer, textureData->mainTexture, SDL_PIXELFORMAT_BPP(texture->format), rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
-        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2, rect->y / 2, ((rect->w + 1) / 2), (rect->h + 1) / 2, UVplane, UVpitch);
+        status = D3D11_UpdateTextureInternal(renderer, textureData->mainTextureU, 2, rect->x / 2u, rect->y / 2u, ((rect->w + 1) / 2u), (rect->h + 1) / 2u, UVplane, UVpitch);
     }
     return status;
 }
@@ -1459,7 +1459,7 @@ static int D3D11_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         /* It's more efficient to upload directly... */
         if (!textureData->pixels) {
             textureData->pitch = texture->w;
-            textureData->pixels = (Uint8 *)SDL_malloc((texture->h * textureData->pitch * 3) / 2);
+            textureData->pixels = (Uint8 *)SDL_malloc((texture->h * textureData->pitch * 3) / 2u);
             if (!textureData->pixels) {
                 return SDL_OutOfMemory();
             }

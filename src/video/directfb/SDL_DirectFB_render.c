@@ -459,18 +459,18 @@ static int DirectFB_UpdateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     if ((texture->format == SDL_PIXELFORMAT_YV12) ||
         (texture->format == SDL_PIXELFORMAT_IYUV)) {
         src = (Uint8 *) pixels + texture->h * pitch;
-        dst = (Uint8 *) dpixels + texture->h * dpitch + rect->y * dpitch / 4 + rect->x * bpp / 2;
-        for (row = 0; row < rect->h / 2 + (rect->h & 1); ++row) {
-            SDL_memcpy(dst, src, length / 2);
-            src += pitch / 2;
-            dst += dpitch / 2;
+        dst = (Uint8 *) dpixels + texture->h * dpitch + rect->y * dpitch / 4u + rect->x * bpp / 2u;
+        for (row = 0; row < rect->h / 2u + (rect->h & 1); ++row) {
+            SDL_memcpy(dst, src, length / 2u);
+            src += pitch / 2u;
+            dst += dpitch / 2u;
         }
-        src = (Uint8 *) pixels + texture->h * pitch + texture->h * pitch / 4;
-        dst = (Uint8 *) dpixels + texture->h * dpitch + texture->h * dpitch / 4 + rect->y * dpitch / 4 + rect->x * bpp / 2;
-        for (row = 0; row < rect->h / 2 + (rect->h & 1); ++row) {
-            SDL_memcpy(dst, src, length / 2);
-            src += pitch / 2;
-            dst += dpitch / 2;
+        src = (Uint8 *) pixels + texture->h * pitch + texture->h * pitch / 4u;
+        dst = (Uint8 *) dpixels + texture->h * dpitch + texture->h * dpitch / 4u + rect->y * dpitch / 4u + rect->x * bpp / 2u;
+        for (row = 0; row < rect->h / 2u + (rect->h & 1); ++row) {
+            SDL_memcpy(dst, src, length / 2u);
+            src += pitch / 2u;
+            dst += dpitch / 2u;
         }
     }
 #endif

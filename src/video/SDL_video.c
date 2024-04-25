@@ -3109,7 +3109,7 @@ void SDL_OnWindowFocusGained(SDL_Window *window)
     if (mouse && mouse->relative_mode) {
         SDL_SetMouseFocus(window);
         if (mouse->relative_mode_warp) {
-            SDL_PerformWarpMouseInWindow(window, window->wrect.w / 2, window->wrect.h / 2, SDL_TRUE);
+            SDL_PerformWarpMouseInWindow(window, window->wrect.w / 2u, window->wrect.h / 2u, SDL_TRUE);
         }
     }
 
@@ -4262,7 +4262,7 @@ static void CreateMaskFromColorKeyOrAlpha(SDL_Surface * icon, Uint8 * mask, int 
     int x, y;
     Uint32 colorkey;
 #define SET_MASKBIT(icon, x, y, mask) \
-    mask[(y * ((icon->w + 7) / 8)) + (x / 8)] &= ~(0x01 << (7 - (x % 8)))
+    mask[(y * ((icon->w + 7) / 8u)) + (x / 8u)] &= ~(0x01 << (7 - (x % 8u)))
 
     colorkey = icon->format->colorkey;
     switch (icon->format->BytesPerPixel) {
@@ -4284,7 +4284,7 @@ static void CreateMaskFromColorKeyOrAlpha(SDL_Surface * icon, Uint8 * mask, int 
         {
             Uint16 *pixels;
             for (y = 0; y < icon->h; ++y) {
-                pixels = (Uint16 *) icon->pixels + y * icon->pitch / 2;
+                pixels = (Uint16 *) icon->pixels + y * icon->pitch / 2u;
                 for (x = 0; x < icon->w; ++x) {
                     if ((flags & 1) && *pixels == colorkey) {
                         SET_MASKBIT(icon, x, y, mask);
@@ -4302,7 +4302,7 @@ static void CreateMaskFromColorKeyOrAlpha(SDL_Surface * icon, Uint8 * mask, int 
         {
             Uint32 *pixels;
             for (y = 0; y < icon->h; ++y) {
-                pixels = (Uint32 *) icon->pixels + y * icon->pitch / 4;
+                pixels = (Uint32 *) icon->pixels + y * icon->pitch / 4u;
                 for (x = 0; x < icon->w; ++x) {
                     if ((flags & 1) && *pixels == colorkey) {
                         SET_MASKBIT(icon, x, y, mask);
@@ -4326,7 +4326,7 @@ void SDL_WM_SetIcon(SDL_Surface * icon, Uint8 * mask)
     if (icon && current_video.SetIcon) {
         /* Generate a mask if necessary, and create the icon! */
         if (mask == NULL) {
-            int mask_len = icon->h * (icon->w + 7) / 8;
+            int mask_len = icon->h * (icon->w + 7) / 8u;
             int flags = 0;
             mask = (Uint8 *) SDL_malloc(mask_len);
             if (mask == NULL) {

@@ -593,7 +593,7 @@ void WIN_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 
     /* Create temporary buffer for ICONIMAGE structure */
     SDL_COMPILE_TIME_ASSERT(WIN_SetWindowIcon_uses_BITMAPINFOHEADER_to_prepare_an_ICONIMAGE, sizeof(BITMAPINFOHEADER) == 40);
-    mask_len = (icon->h * (icon->w + 7) / 8);
+    mask_len = (icon->h * (icon->w + 7) / 8u);
     icon_len = sizeof(BITMAPINFOHEADER) + icon->h * icon->w * sizeof(Uint32) + mask_len;
     icon_bmp = SDL_small_alloc(BYTE, icon_len, &isstack);
 
@@ -1281,8 +1281,8 @@ void WIN_UpdateClipCursor(SDL_Window *window)
                 LONG remote_desktop_adjustment = GetSystemMetrics(SM_REMOTESESSION) ? 2 : 0;
                 LONG cx, cy;
 
-                cx = (rect.left + rect.right) / 2;
-                cy = (rect.top + rect.bottom) / 2;
+                cx = (rect.left + rect.right) / 2u;
+                cy = (rect.top + rect.bottom) / 2u;
 
                 /* Make an absurdly small clip rect */
                 rect.left = cx - remote_desktop_adjustment;

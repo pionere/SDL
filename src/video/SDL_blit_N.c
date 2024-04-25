@@ -1002,7 +1002,7 @@ static void Blit_RGB888_index8(const SDL_BlitInfo *info)
             , width);
             /* *INDENT-ON* */ /* clang-format on */
 #else
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 /* Pack RGB into 8bit pixel */
                 ++src;
                 RGB888_RGB332(*dst++, *src);
@@ -1042,7 +1042,7 @@ static void Blit_RGB888_index8(const SDL_BlitInfo *info)
             , width);
             /* *INDENT-ON* */ /* clang-format on */
 #else
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 /* Pack RGB into 8bit pixel */
                 RGB888_RGB332(Pixel, *src);
                 *dst++ = map[Pixel];
@@ -1116,7 +1116,7 @@ static void Blit_RGB101010_index8(const SDL_BlitInfo *info)
             , width);
             /* *INDENT-ON* */ /* clang-format on */
 #else
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 /* Pack RGB into 8bit pixel */
                 ++src;
                 RGB101010_RGB332(*dst++, *src);
@@ -1156,7 +1156,7 @@ static void Blit_RGB101010_index8(const SDL_BlitInfo *info)
             , width);
             /* *INDENT-ON* */ /* clang-format on */
 #else
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 /* Pack RGB into 8bit pixel */
                 RGB101010_RGB332(Pixel, *src);
                 *dst++ = map[Pixel];
@@ -1259,7 +1259,7 @@ static void Blit_RGB888_RGB555(const SDL_BlitInfo *info)
             ++dst;
 
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 RGB888_RGB555_TWO(dst, src);
                 src += 2;
                 dst += 2;
@@ -1291,7 +1291,7 @@ static void Blit_RGB888_RGB555(const SDL_BlitInfo *info)
     } else {
         while (height--) {
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 RGB888_RGB555_TWO(dst, src);
                 src += 2;
                 dst += 2;
@@ -1389,7 +1389,7 @@ static void Blit_RGB888_RGB565(const SDL_BlitInfo *info)
             ++dst;
 
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 RGB888_RGB565_TWO(dst, src);
                 src += 2;
                 dst += 2;
@@ -1421,7 +1421,7 @@ static void Blit_RGB888_RGB565(const SDL_BlitInfo *info)
     } else {
         while (height--) {
             /* Copy in 4 pixel chunks */
-            for (c = width / 4; c; --c) {
+            for (c = width / 4u; c; --c) {
                 RGB888_RGB565_TWO(dst, src);
                 src += 2;
                 dst += 2;
@@ -1492,7 +1492,7 @@ static void Blit_RGB565_32(const SDL_BlitInfo *info, const Uint32 *map)
 #else
     while (height--) {
         /* Copy in 4 pixel chunks */
-        for (c = width / 4; c; --c) {
+        for (c = width / 4u; c; --c) {
             *dst++ = RGB565_32(dst, src, map);
             src += 2;
             *dst++ = RGB565_32(dst, src, map);

@@ -316,7 +316,7 @@ static void transformSurfaceRGBA(SDL_Surface *src, SDL_Surface *dst, int isin, i
                     c00 = *sp;
                     sp += 1;
                     c01 = *sp;
-                    sp += (src->pitch / 4);
+                    sp += (src->pitch / 4u);
                     c11 = *sp;
                     sp -= 1;
                     c10 = *sp;

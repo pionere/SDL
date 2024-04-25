@@ -423,7 +423,7 @@ static int ALSA_CaptureFromDevice(_THIS, void *buffer, int buflen)
                            this->spec.channels;
     const int total_frames = buflen / frame_size;
     snd_pcm_uframes_t frames_left = total_frames;
-    snd_pcm_uframes_t wait_time = frame_size / 2;
+    snd_pcm_uframes_t wait_time = frame_size / 2u;
 
     SDL_assert((buflen % frame_size) == 0);
 

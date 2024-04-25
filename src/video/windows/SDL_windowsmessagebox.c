@@ -757,7 +757,7 @@ static int WIN_ShowOldMessageBox(const SDL_MessageBoxData *messageboxdata, int *
         {
             SIZE extent;
             GetTextExtentPoint32A(FontDC, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, &extent);
-            s_BaseUnitsX = (extent.cx / 26 + 1) / 2;
+            s_BaseUnitsX = (extent.cx / 26 + 1) / 2u;
         }
         /*s_BaseUnitsX = TM.tmAveCharWidth + 1;*/
         s_BaseUnitsY = TM.tmHeight;

@@ -988,7 +988,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
         tex_size = aligned_w * h * tex_format_to_bytespp(format);
         *return_wscale = (float)(w) / texture_w;
         // add storage for UV planes
-        tex_size += (((aligned_w + 1) / 2) * ((h + 1) / 2)) * 2;
+        tex_size += (((aligned_w + 1) / 2u) * ((h + 1) / 2u)) * 2;
     }
 
     if (!texture) {

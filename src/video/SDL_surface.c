@@ -431,7 +431,7 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
                     }
                     ++spot;
                 }
-                row += surface->pitch / 2;
+                row += surface->pitch / 2u;
             }
         } else {
             row = (Uint16 *)surface->pixels;
@@ -443,7 +443,7 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
                     }
                     ++spot;
                 }
-                row += surface->pitch / 2;
+                row += surface->pitch / 2u;
             }
         }
     } else if (bpp == 4) {
@@ -463,7 +463,7 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
                     }
                     ++spot;
                 }
-                row += surface->pitch / 4;
+                row += surface->pitch / 4u;
             }
         } else {
             row = (Uint32 *)surface->pixels;
@@ -475,7 +475,7 @@ static void SDL_ConvertColorkeyToAlpha(SDL_Surface *surface, SDL_bool ignore_alp
                     }
                     ++spot;
                 }
-                row += surface->pitch / 4;
+                row += surface->pitch / 4u;
             }
         }
     }

@@ -361,7 +361,7 @@ static int PAUDIO_OpenDevice(_THIS, const char *devname)
             / bytes_per_sample / this->spec.channels;
     } else {
         this->spec.samples = paud_bufinfo.write_buf_cap
-            / bytes_per_sample / this->spec.channels / 2;
+            / bytes_per_sample / this->spec.channels / 2u;
     }
     paud_init.bsize = bytes_per_sample * this->spec.channels;
 

@@ -57,14 +57,14 @@ static void DrawTriangle(IDirectFBSurface * s, int down, int x, int y, int w)
     int y1, y2, y3;
 
     if (down) {
-        x1 = x + w / 2;
+        x1 = x + w / 2u;
         x2 = x;
         x3 = x + w;
         y1 = y + w;
         y2 = y;
         y3 = y;
     } else {
-        x1 = x + w / 2;
+        x1 = x + w / 2u;
         x2 = x;
         x3 = x + w;
         y1 = y;

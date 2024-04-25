@@ -621,11 +621,11 @@ static int D3D_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
 
-        status = D3D_UpdateTextureRep(device, texture->format == SDL_PIXELFORMAT_YV12 ? &texturedata->vtexture : &texturedata->utexture, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, pixels, (pitch + 1) / 2);
+        status = D3D_UpdateTextureRep(device, texture->format == SDL_PIXELFORMAT_YV12 ? &texturedata->vtexture : &texturedata->utexture, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, pixels, (pitch + 1) / 2u);
         if (status >= 0) {
             /* Skip to the correct offset into the next texture */
-            pixels = (const void *)((const Uint8 *)pixels + ((rect->h + 1) / 2) * ((pitch + 1) / 2));
-            status = D3D_UpdateTextureRep(device, texture->format == SDL_PIXELFORMAT_YV12 ? &texturedata->utexture : &texturedata->vtexture, rect->x / 2, (rect->y + 1) / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, pixels, (pitch + 1) / 2);
+            pixels = (const void *)((const Uint8 *)pixels + ((rect->h + 1) / 2u) * ((pitch + 1) / 2u));
+            status = D3D_UpdateTextureRep(device, texture->format == SDL_PIXELFORMAT_YV12 ? &texturedata->utexture : &texturedata->vtexture, rect->x / 2u, (rect->y + 1) / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, pixels, (pitch + 1) / 2u);
         }
     }
 #endif
@@ -648,9 +648,9 @@ static int D3D_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     status = D3D_UpdateTextureRep(device, &texturedata->texture, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (status >= 0) {
-        status = D3D_UpdateTextureRep(device, &texturedata->utexture, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, Uplane, Upitch);
+        status = D3D_UpdateTextureRep(device, &texturedata->utexture, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, Uplane, Upitch);
         if (status >= 0) {
-            status = D3D_UpdateTextureRep(device, &texturedata->vtexture, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, Vplane, Vpitch);
+            status = D3D_UpdateTextureRep(device, &texturedata->vtexture, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, Vplane, Vpitch);
         }
     }
     return status;
@@ -673,7 +673,7 @@ static int D3D_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         /* It's more efficient to upload directly... */
         if (!texturedata->pixels) {
             texturedata->pitch = texture->w;
-            texturedata->pixels = (Uint8 *)SDL_malloc((texture->h * texturedata->pitch * 3) / 2);
+            texturedata->pixels = (Uint8 *)SDL_malloc((texture->h * texturedata->pitch * 3) / 2u);
             if (!texturedata->pixels) {
                 return SDL_OutOfMemory();
             }

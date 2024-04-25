@@ -351,10 +351,11 @@ static int TextureUnswizzle(PSP_TextureData *psp_texture, void *dst)
     bytewidth = psp_texture->textureWidth * (psp_texture->bits >> 3);
     height = psp_texture->size / bytewidth;
 
-    widthblocks = bytewidth / 16;
-    heightblocks = height / 8;
+    widthblocks = bytewidth / 16u;
+    heightblocks = height / 8u;
 
-    dstpitch = (bytewidth - 16) / 4;
+    SDL_assert(bytewidth >= 16);
+    dstpitch = (bytewidth - 16) / 4u;
     dstrow = bytewidth * 8;
 
     src = (unsigned int *)psp_texture->data;

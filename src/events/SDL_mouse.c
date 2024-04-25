@@ -1110,7 +1110,7 @@ int SDL_SetRelativeMouseMode(SDL_bool input)
         SDL_SetMouseFocus(focusWindow);
 
         if (mouse->relative_mode_warp) {
-            SDL_PerformWarpMouseInWindow(focusWindow, focusWindow->wrect.w / 2, focusWindow->wrect.h / 2, SDL_TRUE);
+            SDL_PerformWarpMouseInWindow(focusWindow, focusWindow->wrect.w / 2u, focusWindow->wrect.h / 2u, SDL_TRUE);
         }
     }
 

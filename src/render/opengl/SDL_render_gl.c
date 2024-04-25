@@ -512,10 +512,10 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 #if SDL_HAVE_YUV
         if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
             /* Need to add size for the U and V planes */
-            size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
+            size += 2 * ((texture->h + 1) / 2u) * ((data->pitch + 1) / 2u);
         } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
             /* Need to add size for the U/V plane */
-            size += 2 * ((texture->h + 1) / 2) * ((data->pitch + 1) / 2);
+            size += 2 * ((texture->h + 1) / 2u) * ((data->pitch + 1) / 2u);
         }
 #endif
         data->pixels = SDL_calloc(1, size);
@@ -620,8 +620,8 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                                     GL_CLAMP_TO_EDGE);
         renderdata->glTexParameteri(textype, GL_TEXTURE_WRAP_T,
                                     GL_CLAMP_TO_EDGE);
-        renderdata->glTexImage2D(textype, 0, internalFormat, (texture_w + 1) / 2,
-                                 (texture_h + 1) / 2, 0, format, type, NULL);
+        renderdata->glTexImage2D(textype, 0, internalFormat, (texture_w + 1) / 2u,
+                                 (texture_h + 1) / 2u, 0, format, type, NULL);
 
         renderdata->glBindTexture(textype, data->vtexture);
         renderdata->glTexParameteri(textype, GL_TEXTURE_MIN_FILTER,
@@ -632,8 +632,8 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                                     GL_CLAMP_TO_EDGE);
         renderdata->glTexParameteri(textype, GL_TEXTURE_WRAP_T,
                                     GL_CLAMP_TO_EDGE);
-        renderdata->glTexImage2D(textype, 0, internalFormat, (texture_w + 1) / 2,
-                                 (texture_h + 1) / 2, 0, format, type, NULL);
+        renderdata->glTexImage2D(textype, 0, internalFormat, (texture_w + 1) / 2u,
+                                 (texture_h + 1) / 2u, 0, format, type, NULL);
     } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
         renderdata->glGenTextures(1, &data->utexture);
         renderdata->glBindTexture(textype, data->utexture);
@@ -645,8 +645,8 @@ static int GL_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                                     GL_CLAMP_TO_EDGE);
         renderdata->glTexParameteri(textype, GL_TEXTURE_WRAP_T,
                                     GL_CLAMP_TO_EDGE);
-        renderdata->glTexImage2D(textype, 0, GL_LUMINANCE_ALPHA, (texture_w + 1) / 2,
-                                 (texture_h + 1) / 2, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, NULL);
+        renderdata->glTexImage2D(textype, 0, GL_LUMINANCE_ALPHA, (texture_w + 1) / 2u,
+                                 (texture_h + 1) / 2u, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, NULL);
     }
 #endif
 
@@ -711,7 +711,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     GLenum textype;
     GL_TextureData *data;
     Uint32 texture_format;
-    int texturebpp;
+    Uint8 texturebpp;
 
     GL_ActivateRenderer(renderer);
 
@@ -734,7 +734,7 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                                 pixels);
 #if SDL_HAVE_YUV
     if (data->yuv_planes == SDL_GL_YUV_3PLANES) {
-        renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, ((pitch + 1) / 2));
+        renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, ((pitch + 1) / 2u));
 
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
@@ -743,19 +743,19 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         } else {
             renderdata->glBindTexture(textype, data->utexture);
         }
-        renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                    (rect->w + 1) / 2, (rect->h + 1) / 2,
+        renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                    (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                     data->format, data->formattype, pixels);
 
         /* Skip to the correct offset into the next texture */
-        pixels = (const void *)((const Uint8 *)pixels + ((rect->h + 1) / 2) * ((pitch + 1) / 2));
+        pixels = (const void *)((const Uint8 *)pixels + ((rect->h + 1) / 2u) * ((pitch + 1) / 2u));
         if (texture_format == SDL_PIXELFORMAT_YV12) {
             renderdata->glBindTexture(textype, data->utexture);
         } else {
             renderdata->glBindTexture(textype, data->vtexture);
         }
-        renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                    (rect->w + 1) / 2, (rect->h + 1) / 2,
+        renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                    (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                     data->format, data->formattype, pixels);
     } else if (data->yuv_planes == SDL_GL_YUV_2PLANES) {
         renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, ((pitch + 1) / 2));
@@ -763,8 +763,8 @@ static int GL_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         /* Skip to the correct offset into the next texture */
         pixels = (const void *)((const Uint8 *)pixels + rect->h * pitch);
         renderdata->glBindTexture(textype, data->utexture);
-        renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                    (rect->w + 1) / 2, (rect->h + 1) / 2,
+        renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                    (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, pixels);
     }
 #endif
@@ -801,14 +801,14 @@ static int GL_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
 
     renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, Upitch);
     renderdata->glBindTexture(textype, data->utexture);
-    renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                (rect->w + 1) / 2, (rect->h + 1) / 2,
+    renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                 data->format, data->formattype, Uplane);
 
     renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, Vpitch);
     renderdata->glBindTexture(textype, data->vtexture);
-    renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                (rect->w + 1) / 2, (rect->h + 1) / 2,
+    renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                 data->format, data->formattype, Vplane);
 
     return GL_CheckError("glTexSubImage2D()", renderer);
@@ -840,10 +840,10 @@ static int GL_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
                                 rect->h, data->format, data->formattype,
                                 Yplane);
 
-    renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, UVpitch / 2);
+    renderdata->glPixelStorei(GL_UNPACK_ROW_LENGTH, UVpitch / 2u);
     renderdata->glBindTexture(textype, data->utexture);
-    renderdata->glTexSubImage2D(textype, 0, rect->x / 2, rect->y / 2,
-                                (rect->w + 1) / 2, (rect->h + 1) / 2,
+    renderdata->glTexSubImage2D(textype, 0, rect->x / 2u, rect->y / 2u,
+                                (rect->w + 1) / 2u, (rect->h + 1) / 2u,
                                 GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, UVplane);
 
     return GL_CheckError("glTexSubImage2D()", renderer);
@@ -1502,7 +1502,7 @@ static int GL_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
         src = (Uint8 *)temp_pixels + (rect->h - 1) * temp_pitch;
         dst = (Uint8 *)temp_pixels;
         tmp = src + temp_pitch;
-        rows = rect->h / 2;
+        rows = rect->h / 2u;
         while (rows--) {
             SDL_memcpy(tmp, dst, temp_pitch);
             SDL_memcpy(dst, src, temp_pitch);

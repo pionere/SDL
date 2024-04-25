@@ -118,7 +118,7 @@ static Cursor X11_CreatePixmapCursor(SDL_Surface *surface, int hot_x, int hot_y)
     Pixmap data_pixmap, mask_pixmap;
     int x, y;
     unsigned int rfg, gfg, bfg, rbg, gbg, bbg, fgBits, bgBits;
-    size_t width_bytes = ((surface->w + 7) & ~((size_t)7)) / 8;
+    size_t width_bytes = ((surface->w + 7) & ~((size_t)7)) / 8u;
 
     data_bits = SDL_calloc(surface->h, width_bytes);
     mask_bits = SDL_calloc(surface->h, width_bytes);
@@ -141,14 +141,14 @@ static Cursor X11_CreatePixmapCursor(SDL_Surface *surface, int hot_x, int hot_y)
             int green = (*ptr >> 8) & 0xff;
             int blue = (*ptr >> 0) & 0xff;
             if (alpha > 25) {
-                mask_bits[y * width_bytes + x / 8] |= (0x01 << (x % 8));
+                mask_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8));
 
                 if ((red + green + blue) > 0x40) {
                     fgBits++;
                     rfg += red;
                     gfg += green;
                     bfg += blue;
-                    data_bits[y * width_bytes + x / 8] |= (0x01 << (x % 8));
+                    data_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8));
                 } else {
                     bgBits++;
                     rbg += red;

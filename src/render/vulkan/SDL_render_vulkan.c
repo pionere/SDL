@@ -2981,13 +2981,13 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     if (yuv_planes == SDL_VULKAN_YUV_3PLANES) {
         // YUV data
         for (Uint32 plane = 1; plane < 3; plane++) {
-            retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, plane, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, (srcPitch + 1) / 2);
+            retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, plane, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, srcPixels, (srcPitch + 1) / 2u);
             if (retval < 0) {
                 break; // return retval;
             }
 
             /* Skip to the correct offset into the next texture */
-            srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2) * ((srcPitch + 1) / 2));
+            srcPixels = (const void *)((const Uint8 *)srcPixels + ((rect->h + 1) / 2u) * ((srcPitch + 1) / 2u));
         }
     } else if (yuv_planes == SDL_VULKAN_YUV_2PLANES) {
         // NV12/NV21 data
@@ -2997,7 +2997,7 @@ static int VULKAN_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
             srcPitch = (srcPitch + 1) & ~1;
         }
 
-        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, srcPixels, srcPitch);
+        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, srcPixels, srcPitch);
         // if (retval < 0) {
         //    return retval;
         // }
@@ -3022,9 +3022,9 @@ static int VULKAN_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
     yuv_planes = textureData->yuv_planes;
     retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
-        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Uplane, Upitch);
+        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2u, rect->y / 2u, rect->w / 2u, rect->h / 2u, Uplane, Upitch);
         if (retval >= 0) {
-            retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 2, rect->x / 2, rect->y / 2, rect->w / 2, rect->h / 2, Vplane, Vpitch);
+            retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 2, rect->x / 2u, rect->y / 2u, rect->w / 2u, rect->h / 2u, Vplane, Vpitch);
         }
     }
     return retval;
@@ -3044,7 +3044,7 @@ static int VULKAN_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture,
     yuv_planes = textureData->yuv_planes;
     retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 0, rect->x, rect->y, rect->w, rect->h, Yplane, Ypitch);
     if (retval >= 0) {
-        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2, rect->y / 2, (rect->w + 1) / 2, (rect->h + 1) / 2, UVplane, UVpitch);
+        retval = VULKAN_UpdateTextureInternal(renderer, &textureData->mainImage, yuv_planes, 1, rect->x / 2u, rect->y / 2u, (rect->w + 1) / 2u, (rect->h + 1) / 2u, UVplane, UVpitch);
     }
     return retval;
 }
