@@ -224,8 +224,8 @@ typedef struct
     int currentUploadBuffer;
 
     /* Pool allocator to handle reusing SRV heap indices */
-    D3D12_SRVPoolNode *srvPoolHead;
-    D3D12_SRVPoolNode srvPoolNodes[SDL_D3D12_MAX_NUM_TEXTURES];
+    unsigned remSrvPoolNodes;
+    unsigned srvPoolNodes[SDL_D3D12_MAX_NUM_TEXTURES];
 
     /* Vertex buffer constants */
     VertexShaderConstants vertexShaderConstantsData;
@@ -1130,11 +1130,10 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     /* Initialize the pool allocator for SRVs */
     for (i = 0; i < SDL_D3D12_MAX_NUM_TEXTURES; ++i) {
-        data->srvPoolNodes[i].index = i;
-        data->srvPoolNodes[i].next = &data->srvPoolNodes[i + 1];
+        data->srvPoolNodes[i] = SDL_D3D12_MAX_NUM_TEXTURES - 1 - i;
     }
-    data->srvPoolNodes[SDL_D3D12_MAX_NUM_TEXTURES - 1].next = NULL;
-    data->srvPoolHead = &data->srvPoolNodes[0];
+    data->remSrvPoolNodes = SDL_D3D12_MAX_NUM_TEXTURES;
+
 done:
     SAFE_RELEASE(d3dDevice);
     return result;
@@ -1488,10 +1487,9 @@ static SDL_bool D3D12_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode bl
 
 static unsigned D3D12_GetAvailableSRVIndex(D3D12_RenderData *rendererData)
 {
-    if (rendererData->srvPoolHead) {
-        unsigned index = rendererData->srvPoolHead->index;
-        rendererData->srvPoolHead = (D3D12_SRVPoolNode *)(rendererData->srvPoolHead->next);
-        return index;
+    if (rendererData->remSrvPoolNodes) {
+        rendererData->remSrvPoolNodes--;
+        return rendererData->srvPoolNodes[rendererData->remSrvPoolNodes];
     } else {
         SDL_SetError("[d3d12] Cannot allocate more than %d textures!", SDL_D3D12_MAX_NUM_TEXTURES);
         return SDL_D3D12_MAX_NUM_TEXTURES;
@@ -1501,8 +1499,8 @@ static unsigned D3D12_GetAvailableSRVIndex(D3D12_RenderData *rendererData)
 static void D3D12_FreeSRVIndex(D3D12_RenderData *rendererData, unsigned index)
 {
     if (index < SDL_D3D12_MAX_NUM_TEXTURES) {
-        rendererData->srvPoolNodes[index].next = rendererData->srvPoolHead;
-        rendererData->srvPoolHead = &rendererData->srvPoolNodes[index];
+        rendererData->srvPoolNodes[rendererData->remSrvPoolNodes] = index;
+        rendererData->remSrvPoolNodes++;
     }
 }
 
