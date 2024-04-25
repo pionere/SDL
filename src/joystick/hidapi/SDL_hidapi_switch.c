@@ -709,7 +709,7 @@ static void UpdateSlotLED(SDL_DriverSwitch_Context *ctx)
         Uint8 led_data = 0;
 
         if (ctx->m_bPlayerLights && ctx->m_nPlayerIndex >= 0) {
-            led_data = (1 << (ctx->m_nPlayerIndex % 4));
+            led_data = (1 << (ctx->m_nPlayerIndex % 4u));
         }
         WriteSubcommand(ctx, k_eSwitchSubcommandIDs_SetPlayerLights, &led_data, sizeof(led_data), NULL);
     }

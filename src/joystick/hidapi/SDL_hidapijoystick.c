@@ -138,7 +138,7 @@ void HIDAPI_DumpPacket(const char *prefix, const Uint8 *data, int size)
     buffer = (char *)SDL_malloc(length);
     current_len = SDL_snprintf(buffer, length, prefix, size);
     for (i = start; i < start + amount; ++i) {
-        if ((i % 8) == 0) {
+        if ((i % 8u) == 0) {
             current_len += SDL_snprintf(&buffer[current_len], length - current_len, "\n%.2d:      ", i);
         }
         current_len += SDL_snprintf(&buffer[current_len], length - current_len, " 0x%.2x", data[i]);

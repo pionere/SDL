@@ -137,7 +137,7 @@ static void SDL_EVDEV_dump_keymap(SDL_EVDEV_keyboard_state *kbd)
         if (kbd->key_maps[i]) {
             printf("static unsigned short default_key_map_%d[NR_KEYS] = {", i);
             for (j = 0; j < NR_KEYS; ++j) {
-                if ((j % 8) == 0) {
+                if ((j % 8u) == 0) {
                     printf("\n    ");
                 }
                 printf("0x%.4x, ", kbd->key_maps[i][j]);

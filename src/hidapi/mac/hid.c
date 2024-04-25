@@ -1044,8 +1044,8 @@ int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
 		TIMEVAL_TO_TIMESPEC(&tv, &ts);
-		ts.tv_sec += milliseconds / 1000;
-		ts.tv_nsec += (milliseconds % 1000) * 1000000;
+		ts.tv_sec += milliseconds / 1000u;
+		ts.tv_nsec += (milliseconds % 1000u) * 1000000;
 		if (ts.tv_nsec >= 1000000000L) {
 			ts.tv_sec++;
 			ts.tv_nsec -= 1000000000L;

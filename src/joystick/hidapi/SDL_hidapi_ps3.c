@@ -211,7 +211,7 @@ static int HIDAPI_DriverPS3_UpdateEffects(SDL_HIDAPI_Device *device)
     effects[2] = ctx->rumble_right ? 1 : 0;
     effects[4] = ctx->rumble_left;
 
-    effects[9] = (0x01 << (1 + (ctx->player_index % 4)));
+    effects[9] = (0x01 << (1 + (ctx->player_index % 4u)));
 
     return HIDAPI_DriverPS3_SendJoystickEffect(device, ctx->joystick, effects, sizeof(effects));
 }

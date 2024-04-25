@@ -4153,7 +4153,7 @@ int SDL_RenderGeometryRaw(SDL_Renderer *renderer,
         return 0; /* nothing to do */
     }
 
-    if (count % 3 != 0) {
+    if (count % 3u != 0) {
         return SDL_InvalidParamError(indices ? "num_indices" : "num_vertices");
     }
 

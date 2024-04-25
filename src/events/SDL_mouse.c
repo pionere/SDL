@@ -430,7 +430,7 @@ int SDL_SetMouseSystemScale(int num_values, const float *values)
         /* Validate the values */
         int i;
 
-        if (num_values < 4 || (num_values % 2) != 0) {
+        if (num_values < 4 || (num_values % 2u) != 0) {
             return SDL_SetError("You must pass a set of {speed, scale} values");
         }
 

@@ -72,8 +72,8 @@ int SDL_IOReady(int fd, int flags, int timeoutMS)
         }
 
         if (timeoutMS >= 0) {
-            tv.tv_sec = timeoutMS / 1000;
-            tv.tv_usec = (timeoutMS % 1000) * 1000;
+            tv.tv_sec = timeoutMS / 1000u;
+            tv.tv_usec = (timeoutMS % 1000u) * 1000;
             tvp = &tv;
         }
 

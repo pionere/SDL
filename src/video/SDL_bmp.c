@@ -502,19 +502,19 @@ SDL_Surface *SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
     end = (Uint8 *)surface->pixels + (surface->h * surface->pitch);
     switch (ExpandBMP) {
     case 1:
-        bmpPitch = (biWidth + 7) >> 3;
-        pad = (((bmpPitch) % 4) ? (4 - ((bmpPitch) % 4)) : 0);
+        bmpPitch = (biWidth + 7) / 8u;
+        pad = (((bmpPitch) % 4u) ? (4 - ((bmpPitch) % 4u)) : 0);
         break;
     case 2:
-        bmpPitch = (biWidth + 3) >> 2;
-        pad = (((bmpPitch) % 4) ? (4 - ((bmpPitch) % 4)) : 0);
+        bmpPitch = (biWidth + 3) / 4u;
+        pad = (((bmpPitch) % 4u) ? (4 - ((bmpPitch) % 4u)) : 0);
         break;
     case 4:
-        bmpPitch = (biWidth + 1) >> 1;
-        pad = (((bmpPitch) % 4) ? (4 - ((bmpPitch) % 4)) : 0);
+        bmpPitch = (biWidth + 1) / 2u;
+        pad = (((bmpPitch) % 4u) ? (4 - ((bmpPitch) % 4u)) : 0);
         break;
     default:
-        pad = ((surface->pitch % 4) ? (4 - (surface->pitch % 4)) : 0);
+        pad = ((surface->pitch % 4u) ? (4 - (surface->pitch % 4u)) : 0);
         break;
     }
     if (topDown) {
@@ -818,7 +818,7 @@ int SDL_SaveBMP_RW(SDL_Surface *surface, SDL_RWops *dst, int freedst)
 
         /* Write the bitmap image upside down */
         bits = (Uint8 *)intermediate_surface->pixels + (intermediate_surface->h * intermediate_surface->pitch);
-        pad = ((bw % 4) ? (4 - (bw % 4)) : 0);
+        pad = ((bw % 4u) ? (4 - (bw % 4u)) : 0);
         while (bits > (Uint8 *)intermediate_surface->pixels) {
             bits -= intermediate_surface->pitch;
             if (SDL_RWwrite(dst, bits, 1, bw) != bw) {

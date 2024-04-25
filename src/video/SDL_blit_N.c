@@ -253,7 +253,7 @@ static void Blit_RGB888_RGB565Altivec(const SDL_BlitInfo *info)
         ONE_PIXEL_BLEND(((UNALIGNED_PTR(dst)) && (width)), width);
 
         /* After all that work, here's the vector part! */
-        extrawidth = (width % 8); /* trailing unaligned stores */
+        extrawidth = (width % 8u); /* trailing unaligned stores */
         width -= extrawidth;
         vsrc = vec_ld(0, src);
         valigner = VEC_ALIGNER(src);
@@ -392,7 +392,7 @@ static void Blit_RGB565_32Altivec(const SDL_BlitInfo *info)
         ONE_PIXEL_BLEND(((UNALIGNED_PTR(dst)) && (width)), width);
 
         /* After all that work, here's the vector part! */
-        extrawidth = (width % 8); /* trailing unaligned stores */
+        extrawidth = (width % 8u); /* trailing unaligned stores */
         width -= extrawidth;
         vsrc = vec_ld(0, src);
         valigner = VEC_ALIGNER(src);
@@ -530,7 +530,7 @@ static void Blit_RGB555_32Altivec(const SDL_BlitInfo *info)
         ONE_PIXEL_BLEND(((UNALIGNED_PTR(dst)) && (width)), width);
 
         /* After all that work, here's the vector part! */
-        extrawidth = (width % 8); /* trailing unaligned stores */
+        extrawidth = (width % 8u); /* trailing unaligned stores */
         width -= extrawidth;
         vsrc = vec_ld(0, src);
         valigner = VEC_ALIGNER(src);
@@ -663,8 +663,8 @@ static void Blit32to32KeyAltivec(const SDL_BlitInfo *info)
         int width = info->dst_w;
         ONE_PIXEL_BLEND((UNALIGNED_PTR(dstp)) && (width), width);
         SDL_assert(width > 0);
-        if (width > 0) {
-            int extrawidth = (width % 4);
+        {
+            int extrawidth = (width % 4u);
             vector unsigned char valigner = VEC_ALIGNER(srcp);
             vector unsigned int vs = vec_ld(0, srcp);
             width -= extrawidth;
@@ -751,7 +751,7 @@ static void ConvertAltivec32to32_noprefetch(const SDL_BlitInfo *info)
         }
 
         /* After all that work, here's the vector part! */
-        extrawidth = (width % 4);
+        extrawidth = (width % 4u);
         width -= extrawidth;
         valigner = VEC_ALIGNER(src);
         vbits = vec_ld(0, src);
@@ -841,7 +841,7 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
         }
 
         /* After all that work, here's the vector part! */
-        extrawidth = (width % 4);
+        extrawidth = (width % 4u);
         width -= extrawidth;
         valigner = VEC_ALIGNER(src);
         vbits = vec_ld(0, src);

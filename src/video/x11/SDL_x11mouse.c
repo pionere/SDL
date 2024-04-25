@@ -141,14 +141,14 @@ static Cursor X11_CreatePixmapCursor(SDL_Surface *surface, int hot_x, int hot_y)
             int green = (*ptr >> 8) & 0xff;
             int blue = (*ptr >> 0) & 0xff;
             if (alpha > 25) {
-                mask_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8));
+                mask_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8u));
 
                 if ((red + green + blue) > 0x40) {
                     fgBits++;
                     rfg += red;
                     gfg += green;
                     bfg += blue;
-                    data_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8));
+                    data_bits[y * width_bytes + x / 8u] |= (0x01 << (x % 8u));
                 } else {
                     bgBits++;
                     rbg += red;

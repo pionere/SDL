@@ -116,12 +116,12 @@ static void ESD_WaitDevice(_THIS)
 
     /* Check to see if the thread-parent process is still alive */
     {
-        static int cnt = 0;
+        static unsigned cnt = 0;
         /* Note that this only works with thread implementations
            that use a different process id for each thread.
          */
         /* Check every 10 loops */
-        if (this->hidden->parent && (((++cnt) % 10) == 0)) {
+        if (this->hidden->parent && (((++cnt) % 10u) == 0)) {
             if (kill(this->hidden->parent, 0) < 0 && errno == ESRCH) {
                 SDL_OpenedAudioDeviceDisconnected(this);
             }
