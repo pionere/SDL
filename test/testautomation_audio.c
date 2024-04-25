@@ -1144,19 +1144,20 @@ int audio_resampleLoss()
     int chans;
     double signal_to_noise;
     double max_error;
+    double overshoot;
   } test_specs[] = {
-    { 50, 440,  0,      22050, 48000, 1,  75, 0.0110 },
-    { 50, 440,  0,      44100, 48000, 1,  85, 0.0010 },
-    { 50, 440,  0,      22050, 96000, 1,  75, 0.0110 },
-    { 50, 440,  M_PI,   22050, 96000, 1,  75, 0.0110 },
-    { 50, 440,  0,      11025, 96000, 1,  70, 0.0250 },
-    { 50, 440,  M_PI,   11025, 96000, 1,  70, 0.0250 },
-    { 250, 440, 0,      48000, 22050, 1,  85, 0.0005 },
-    { 250, 440, 0,      48000, 22050, 2,  85, 0.0005 },
-    { 50, 5000, 0,      48000, 22050, 1,  65, 0.0025 },
-    { 50, 5000, 0,      96000, 22050, 1,  70, 0.0010 },
-    { 50, 440,  0,      20000, 10000, 1, 150, 0.0005 },
-    { 50, 5000, M_PI/2, 20000, 10000, 1, 150, 0.0005 },
+    { 50, 440,  0,      22050, 48000, 1,  75, 0.0110, 0.0005 },
+    { 50, 440,  0,      44100, 48000, 1,  85, 0.0010, 0.0005 },
+    { 50, 440,  0,      22050, 96000, 1,  75, 0.0110, 0.0005 },
+    { 50, 440,  M_PI,   22050, 96000, 1,  75, 0.0110, 0.0005 },
+    { 50, 440,  0,      11025, 96000, 1,  70, 0.0250, 0.0001 },
+    { 50, 440,  M_PI,   11025, 96000, 1,  70, 0.0250, 0.0001 },
+    { 250, 440, 0,      48000, 22050, 1,  85, 0.0005, 0.0005 },
+    { 250, 440, 0,      48000, 22050, 2,  85, 0.0005, 0.0005 },
+    { 50, 5000, 0,      48000, 22050, 1,  65, 0.0025, 0.0001 },
+    { 50, 5000, 0,      96000, 22050, 1,  70, 0.0010, 0.0001 },
+    { 50, 440,  0,      20000, 10000, 1, 150, 0.0005, 0.0001 },
+    { 50, 5000, M_PI/2, 20000, 10000, 1, 150, 0.0005, 0.0001 },
     { 0 }
   };
 
@@ -1172,7 +1173,7 @@ int audio_resampleLoss()
 
     Uint64 tick_beg, tick_end;
     SDL_AudioCVT cvt;
-    int i, j, ret;
+    int i, j, ret, over = 0;
     double max_error = 0;
     double sum_squared_error = 0;
     double sum_squared_value = 0;
@@ -1219,6 +1220,7 @@ int audio_resampleLoss()
         for (j = 0; j < chans; j++) {
             const float output = *(((float *)cvt.buf) + i * chans + j);
             const double error = SDL_min(SDL_fabs((float)target - output), SDL_fabs(target - (double)output));
+            over += output < -1.0f || output > 1.0f;
             max_error = SDL_max(max_error, error);
             sum_squared_error += error * error;
             sum_squared_value += target * target;
@@ -1235,6 +1237,8 @@ int audio_resampleLoss()
                         signal_to_noise, spec->signal_to_noise);
     SDLTest_AssertCheck(max_error <= spec->max_error, "Maximum conversion error %.9f should be no more than %.4f.",
                         max_error, spec->max_error);
+    SDLTest_AssertCheck((double)over / len_target <= spec->overshoot, "Overshoot %.9f should be no more than %.4f.",
+                        (double)over / len_target, spec->overshoot);
   }
 
   return TEST_COMPLETED;
