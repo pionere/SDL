@@ -1270,6 +1270,10 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
         return 0;
     }
 
+    if (!desired) {
+        SDL_InvalidParamError("desired");
+        return 0;
+    }
     if (!obtained) {
         obtained = &_obtained;
     }
