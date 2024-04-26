@@ -237,6 +237,7 @@ static int ESD_OpenDevice(_THIS, const char *devname)
     if (this->spec.channels == 1) {
         format |= ESD_MONO;
     } else {
+        this->spec.channels = 2;
         format |= ESD_STEREO;
     }
 #if 0
