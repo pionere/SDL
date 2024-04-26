@@ -37,7 +37,7 @@
 
 static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
 {
-    int i, mixlen;
+    int i, bits, mixlen;
     struct audsrv_fmt_t format;
 
     this->hidden = (struct SDL_PrivateAudioData *)
@@ -55,7 +55,6 @@ static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
     case 32000:
     case 44100:
     case 48000:
-        this->spec.freq = this->spec.freq;
         break;
     default:
         this->spec.freq = 48000;
@@ -63,24 +62,22 @@ static int PS2AUDIO_OpenDevice(_THIS, const char *devname)
     }
 
     this->spec.samples = 512;
-    this->spec.channels = this->spec.channels == 1 ? 1 : 2;
-    this->spec.format = this->spec.format == AUDIO_S8 ? AUDIO_S8 : AUDIO_S16;
+    this->spec.channels = this->spec.channels > 1 ? 2 : 1;
+    bits = SDL_AUDIO_BITSIZE(this->spec.format);
+    this->spec.format = bits == 8 ? AUDIO_S8 : AUDIO_S16LSB;
 
+    /* Update the fragment size as size in bytes. */
     SDL_CalculateAudioSpec(&this->spec);
 
-    format.bits = this->spec.format == AUDIO_S8 ? 8 : 16;
+    format.bits = bits;
     format.freq = this->spec.freq;
     format.channels = this->spec.channels;
 
     this->hidden->channel = audsrv_set_format(&format);
-    audsrv_set_volume(MAX_VOLUME);
-
     if (this->hidden->channel < 0) {
         return SDL_SetError("Couldn't reserve hardware channel");
     }
-
-    /* Update the fragment size as size in bytes. */
-    SDL_CalculateAudioSpec(&this->spec);
+    audsrv_set_volume(MAX_VOLUME);
 
     /* Allocate the mixing buffer.  Its size and starting address must
        be a multiple of 64 bytes.  Our sample count is already a multiple of
