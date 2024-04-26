@@ -407,8 +407,6 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     IAudioRenderClient *render = NULL;
     IAudioCaptureClient *capture = NULL;
     WAVEFORMATEX *waveformat = NULL;
-    SDL_AudioFormat test_format;
-    SDL_AudioFormat wasapi_format = 0;
     HRESULT ret = S_OK;
     DWORD streamflags = 0;
 
@@ -435,16 +433,15 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     this->spec.channels = (Uint8)waveformat->nChannels;
 
     /* Make sure we have a valid format that we can convert to whatever WASAPI wants. */
-    wasapi_format = WaveFormatToSDLFormat(waveformat);
+    this->spec.format = WaveFormatToSDLFormat(waveformat);
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        if (test_format == wasapi_format) {
-            this->spec.format = test_format;
+    /*for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
+        if (test_format == this->spec.format) {
             break;
         }
-    }
+    }*/
 
-    if (!test_format) {
+    if (!this->spec.format) {
         return SDL_SetError("%s: Unsupported audio format", "wasapi");
     }
 
