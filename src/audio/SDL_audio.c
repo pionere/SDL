@@ -1652,21 +1652,18 @@ static SDL_AudioFormat format_list[NUM_FORMATS][NUM_FORMATS] = {
 
 SDL_AudioFormat SDL_FirstAudioFormat(SDL_AudioFormat format)
 {
+    format_idx_sub = 0;
     for (format_idx = 0; format_idx < NUM_FORMATS; ++format_idx) {
         if (format_list[format_idx][0] == format) {
-            break;
+            return format;
         }
     }
-    format_idx_sub = 0;
-    return SDL_NextAudioFormat();
+    return 0;
 }
 
 SDL_AudioFormat SDL_NextAudioFormat(void)
 {
-    if ((format_idx == NUM_FORMATS) || (format_idx_sub == NUM_FORMATS)) {
-        return 0;
-    }
-    return format_list[format_idx][format_idx_sub++];
+    return format_idx_sub < NUM_FORMATS - 1 ? format_list[format_idx][++format_idx_sub] : 0;
 }
 
 Uint8 SDL_SilenceValueForFormat(const SDL_AudioFormat format)
