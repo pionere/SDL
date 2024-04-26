@@ -622,7 +622,7 @@ static int ALSA_OpenDevice(_THIS, const char *devname)
         }
     }
     if (!test_format) {
-        return SDL_SetError("ALSA: No supported audio format");
+        return SDL_SetError("%s: Unsupported audio format", "alsa");
     }
     this->spec.format = test_format;
 

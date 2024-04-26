@@ -194,7 +194,6 @@ EM_JS_DEPS(sdlaudio, "$autoResumeAudioContext,$dynCall");
 
 static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
 {
-    SDL_AudioFormat test_format;
     SDL_bool iscapture = this->iscapture;
     int result;
 
@@ -233,21 +232,12 @@ static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
         return SDL_SetError("Web Audio API is not available!");
     }
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        switch (test_format) {
-        case AUDIO_F32: /* web audio only supports floats */
-            break;
-        default:
-            continue;
-        }
-        break;
-    }
-
-    if (!test_format) {
-        /* Didn't find a compatible format :( */
+    /* Make sure we have a valid format that we can convert to float. */
+    if (!SDL_FirstAudioFormat(this->spec.format)) {
         return SDL_SetError("%s: Unsupported audio format", "emscripten");
     }
-    this->spec.format = test_format;
+
+    this->spec.format = AUDIO_F32; /* web audio only supports floats */
 
     /* Initialize all variables that we clean on shutdown */
 #if 0  /* !!! FIXME: currently not used. Can we move some stuff off the SDL2 namespace? --ryan. */

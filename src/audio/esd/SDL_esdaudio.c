@@ -201,8 +201,7 @@ static char *get_progname(void)
 static int ESD_OpenDevice(_THIS, const char *devname)
 {
     esd_format_t format = (ESD_STREAM | ESD_PLAY);
-    SDL_AudioFormat test_format = 0;
-    int found = 0;
+    SDL_AudioFormat test_format;
 
     /* Initialize all variables that we clean on shutdown */
     this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, sizeof(*this->hidden));
@@ -213,12 +212,10 @@ static int ESD_OpenDevice(_THIS, const char *devname)
 
     /* Convert audio spec to the ESD audio format */
     /* Try for a closest match on audio format */
-    for (test_format = SDL_FirstAudioFormat(this->spec.format);
-         !found && test_format; test_format = SDL_NextAudioFormat()) {
+    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
 #ifdef DEBUG_AUDIO
         fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
 #endif
-        found = 1;
         switch (test_format) {
         case AUDIO_U8:
             format |= ESD_BITS8;
@@ -227,13 +224,13 @@ static int ESD_OpenDevice(_THIS, const char *devname)
             format |= ESD_BITS16;
             break;
         default:
-            found = 0;
-            break;
+            continue;
         }
+        break;
     }
 
-    if (!found) {
-        return SDL_SetError("Couldn't find any hardware audio formats");
+    if (!test_format) {
+        return SDL_SetError("%s: Unsupported audio format", "esd");
     }
     this->spec.format = test_format;
 

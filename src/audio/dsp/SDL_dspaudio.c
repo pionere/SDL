@@ -114,8 +114,7 @@ static int DSP_OpenDevice(_THIS, const char *devname)
 
     /* Try for a closest match on audio format */
     format = 0;
-    for (test_format = SDL_FirstAudioFormat(this->spec.format);
-         !format && test_format;) {
+    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
 #ifdef DEBUG_AUDIO
         fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
 #endif
@@ -123,18 +122,21 @@ static int DSP_OpenDevice(_THIS, const char *devname)
         case AUDIO_U8:
             if (value & AFMT_U8) {
                 format = AFMT_U8;
+                break;
             }
-            break;
+            continue;
         case AUDIO_S16LSB:
             if (value & AFMT_S16_LE) {
                 format = AFMT_S16_LE;
+                break;
             }
-            break;
+            continue;
         case AUDIO_S16MSB:
             if (value & AFMT_S16_BE) {
                 format = AFMT_S16_BE;
+                break;
             }
-            break;
+            continue;
 #if 0
 /*
  * These formats are not used by any real life systems so they are not
@@ -143,29 +145,29 @@ static int DSP_OpenDevice(_THIS, const char *devname)
         case AUDIO_S8:
             if (value & AFMT_S8) {
                 format = AFMT_S8;
+                break;
             }
-            break;
+            continue;
         case AUDIO_U16LSB:
             if (value & AFMT_U16_LE) {
                 format = AFMT_U16_LE;
+                break;
             }
-            break;
+            continue;
         case AUDIO_U16MSB:
             if (value & AFMT_U16_BE) {
                 format = AFMT_U16_BE;
+                break;
             }
-            break;
+            continue;
 #endif
         default:
-            format = 0;
-            break;
+            continue;
         }
-        if (!format) {
-            test_format = SDL_NextAudioFormat();
-        }
+        break;
     }
-    if (!format) {
-        return SDL_SetError("Couldn't find any hardware audio formats");
+    if (!test_format) {
+        SDL_SetError("%s: Unsupported audio format", "dsp");
     }
     this->spec.format = test_format;
 

@@ -638,7 +638,7 @@ static int PULSEAUDIO_OpenDevice(_THIS, const char *devname)
         break;
     }
     if (!test_format) {
-        return SDL_SetError("pulseaudio: Unsupported audio format");
+        return SDL_SetError("%s: Unsupported audio format", "pulseaudio");
     }
     this->spec.format = test_format;
     paspec.format = format;

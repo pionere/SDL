@@ -63,18 +63,12 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
 {
     int format, mixlen, i, port = SCE_AUDIO_OUT_PORT_TYPE_MAIN;
     int vols[2] = { SCE_AUDIO_MAX_VOLUME, SCE_AUDIO_MAX_VOLUME };
-    SDL_AudioFormat test_format;
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        if (test_format == AUDIO_S16LSB) {
-            this->spec.format = test_format;
-            break;
-        }
+    /* Make sure we have a valid format that we can convert to signed 16-bit. */
+    if (!SDL_FirstAudioFormat(this->spec.format)) {
+        return SDL_SetError("%s: Unsupported audio format", "vita");
     }
-
-    if (!test_format) {
-        return SDL_SetError("Unsupported audio format");
-    }
+    this->spec.format = AUDIO_S16LSB;
 
     this->hidden = (struct SDL_PrivateAudioData *)
         SDL_calloc(1, sizeof(*this->hidden));

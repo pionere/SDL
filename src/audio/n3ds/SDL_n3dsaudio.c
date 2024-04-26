@@ -34,7 +34,6 @@ static dspHookCookie dsp_hook;
 static SDL_AudioDevice *audio_device;
 
 static void FreePrivateData(_THIS);
-static int FindAudioFormat(_THIS);
 
 /* fully local functions related to the wavebufs / DSP, not the same as the SDL-wide mixer lock */
 static SDL_INLINE void contextLock(_THIS)
@@ -85,6 +84,7 @@ static int N3DSAUDIO_OpenDevice(_THIS, const char *devname)
     Result ndsp_init_res;
     Uint8 *data_vaddr;
     float mix[12];
+    SDL_AudioFormat test_format;
     this->hidden = (struct SDL_PrivateAudioData *)SDL_calloc(1, sizeof(*this->hidden));
 
     if (!this->hidden) {
@@ -110,10 +110,30 @@ static int N3DSAUDIO_OpenDevice(_THIS, const char *devname)
         this->spec.channels = 2;
     }
 
-    /* Should not happen but better be safe. */
-    if (FindAudioFormat(this) < 0) {
-        return SDL_SetError("No supported audio format found.");
+    // FindAudioFormat
+    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
+        switch (test_format) {
+        case AUDIO_S8:
+            /* Signed 8-bit audio supported */
+            this->hidden->format = (this->spec.channels == 2) ? NDSP_FORMAT_STEREO_PCM8 : NDSP_FORMAT_MONO_PCM8;
+            this->hidden->isSigned = 1;
+            this->hidden->bytePerSample = this->spec.channels;
+            break;
+        case AUDIO_S16:
+            /* Signed 16-bit audio supported */
+            this->hidden->format = (this->spec.channels == 2) ? NDSP_FORMAT_STEREO_PCM16 : NDSP_FORMAT_MONO_PCM16;
+            this->hidden->isSigned = 1;
+            this->hidden->bytePerSample = this->spec.channels * 2;
+            break;
+        default:
+            continue;
+        }
+        break;
     }
+    if (!test_format) {
+        return SDL_SetError("%s: Unsupported audio format", "n3ds");
+    }
+    this->spec.format = test_format;
 
     /* Update the fragment size as size in bytes */
     SDL_CalculateAudioSpec(&this->spec);
@@ -294,37 +314,6 @@ static void FreePrivateData(_THIS)
 
     SDL_free(this->hidden);
     this->hidden = NULL;
-}
-
-static int FindAudioFormat(_THIS)
-{
-    SDL_bool found_valid_format = SDL_FALSE;
-    Uint16 test_format = SDL_FirstAudioFormat(this->spec.format);
-
-    while (!found_valid_format && test_format) {
-        this->spec.format = test_format;
-        switch (test_format) {
-        case AUDIO_S8:
-            /* Signed 8-bit audio supported */
-            this->hidden->format = (this->spec.channels == 2) ? NDSP_FORMAT_STEREO_PCM8 : NDSP_FORMAT_MONO_PCM8;
-            this->hidden->isSigned = 1;
-            this->hidden->bytePerSample = this->spec.channels;
-            found_valid_format = SDL_TRUE;
-            break;
-        case AUDIO_S16:
-            /* Signed 16-bit audio supported */
-            this->hidden->format = (this->spec.channels == 2) ? NDSP_FORMAT_STEREO_PCM16 : NDSP_FORMAT_MONO_PCM16;
-            this->hidden->isSigned = 1;
-            this->hidden->bytePerSample = this->spec.channels * 2;
-            found_valid_format = SDL_TRUE;
-            break;
-        default:
-            test_format = SDL_NextAudioFormat();
-            break;
-        }
-    }
-
-    return found_valid_format ? 0 : -1;
 }
 
 #endif /* SDL_AUDIO_DRIVER_N3DS */
