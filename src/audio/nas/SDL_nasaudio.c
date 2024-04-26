@@ -329,6 +329,7 @@ static int NAS_OpenDevice(_THIS, const char *devname)
         }
         break;
     }
+    SDL_assume(test_format != 0);
     if (!test_format) {
         return SDL_SetError("%s: Unsupported audio format", "nas");
     }

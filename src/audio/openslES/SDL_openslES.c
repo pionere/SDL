@@ -418,19 +418,10 @@ static int openslES_CreatePCMPlayer(_THIS)
        it can be done as described here:
         https://developer.android.com/ndk/guides/audio/opensl/android-extensions.html#floating-point
     */
-    test_format = SDL_FirstAudioFormat(this->spec.format);
-    /* Make sure we have a valid format that we can convert to whatever selected below. */
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "openslES");
-    }
+    test_format = this->spec.format;
     if (SDL_GetAndroidSDKVersion() >= 21) {
-        /* Select the first signed format */
-        for ( ; test_format; test_format = SDL_NextAudioFormat()) {
-            if (SDL_AUDIO_ISSIGNED(test_format)) {
-                break;
-            }
-        }
-        SDL_assume(test_format != 0);
+        /* Ensure the format is signed */
+        test_format |= SDL_AUDIO_MASK_SIGNED;
     } else {
         /* Just go with signed 16-bit audio as it's the most compatible */
         test_format = AUDIO_S16SYS;

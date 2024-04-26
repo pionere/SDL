@@ -1206,10 +1206,26 @@ static void close_audio_device(SDL_AudioDevice *device)
     SDL_free(device);
 }
 
+static SDL_bool ValidAudioFormat(SDL_AudioFormat format)
+{
+    switch (format) {
+    case AUDIO_U8:
+    case AUDIO_S8:
+    case AUDIO_S16LSB:
+    case AUDIO_S16MSB:
+    case AUDIO_U16LSB:
+    case AUDIO_U16MSB:
+    case AUDIO_S32LSB:
+    case AUDIO_S32MSB:
+    case AUDIO_F32LSB:
+    case AUDIO_F32MSB:
+        return SDL_TRUE;
+    }
+    return SDL_FALSE;
+}
+
 /*
- * Sanity check desired AudioSpec for SDL_OpenAudio() in (orig).
  *  Fills in a sanitized copy in (prepared).
- *  Returns non-zero if okay, zero on fatal parameters in (orig).
  */
 static void prepare_audiospec(const SDL_AudioSpec *orig, SDL_AudioSpec *prepared)
 {
@@ -1279,6 +1295,10 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
     }
     prepare_audiospec(desired, obtained);
 
+    if (!ValidAudioFormat(obtained->format)) {
+        SDL_SetError("Unsupported audio format");
+        return 0;
+    }
     if (obtained->channels > 8) {
         SDL_SetError("Unsupported number of audio channels.");
         return 0;

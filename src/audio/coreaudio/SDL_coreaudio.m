@@ -1147,30 +1147,13 @@ static int COREAUDIO_OpenDevice(_THIS, const char *devname)
     strdesc->mSampleRate = this->spec.freq;
     strdesc->mFramesPerPacket = 1;
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
+    test_format = this->spec.format;
+    strdesc->mBitsPerChannel = SDL_AUDIO_BITSIZE(test_format);
+    if (strdesc->mBitsPerChannel == 16) {
         /* CoreAudio handles most of SDL's formats natively, but not U16, apparently. */
-        switch (test_format) {
-        case AUDIO_U8:
-        case AUDIO_S8:
-        case AUDIO_S16LSB:
-        case AUDIO_S16MSB:
-        case AUDIO_S32LSB:
-        case AUDIO_S32MSB:
-        case AUDIO_F32LSB:
-        case AUDIO_F32MSB:
-            break;
-
-        default:
-            continue;
-        }
-        break;
-    }
-
-    if (!test_format) { /* shouldn't happen, but just in case... */
-        return SDL_SetError("%s: Unsupported audio format", "coreaudio");
+        test_format |= SDL_AUDIO_MASK_SIGNED;
     }
     this->spec.format = test_format;
-    strdesc->mBitsPerChannel = SDL_AUDIO_BITSIZE(test_format);
     if (SDL_AUDIO_ISBIGENDIAN(test_format)) {
         strdesc->mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
     }

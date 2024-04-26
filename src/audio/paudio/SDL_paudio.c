@@ -251,10 +251,7 @@ static int PAUDIO_OpenDevice(_THIS, const char *devname)
         return SDL_SetError("Couldn't get audio buffer information");
     }
 
-    if (this->spec.channels > 1)
-        this->spec.channels = 2;
-    else
-        this->spec.channels = 1;
+    this->spec.channels = this->spec.channels > 1 ? 2 : 1;
 
     /*
      * Fields in the audio_init structure:
@@ -335,6 +332,7 @@ static int PAUDIO_OpenDevice(_THIS, const char *devname)
         }
         break;
     }
+    SDL_assume(test_format != 0);
     if (!test_format) {
 #ifdef DEBUG_AUDIO
         fprintf(stderr, "Couldn't find any hardware audio formats\n");

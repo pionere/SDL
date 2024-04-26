@@ -210,7 +210,6 @@ static int ARTS_OpenDevice(_THIS, const char *devname)
 {
     int rc = 0;
     int bits, frag_spec = 0;
-    SDL_AudioFormat test_format = 0;
 
     /* Initialize all variables that we clean on shutdown */
     this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, (sizeof *this->hidden));
@@ -219,24 +218,12 @@ static int ARTS_OpenDevice(_THIS, const char *devname)
     }
 
     /* Try for a closest match on audio format */
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-#ifdef DEBUG_AUDIO
-        fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
-#endif
-        switch (test_format) {
-        case AUDIO_U8:
-        case AUDIO_S16LSB:
-            break;
-        default:
-            continue;
-        }
-        break;
+    bits = SDL_AUDIO_BITSIZE(this->spec.format);
+    if (bits == 8) {
+        this->spec.format = AUDIO_U8;
+    } else {
+        this->spec.format = AUDIO_S16LSB;
     }
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "arts");
-    }
-    this->spec.format = test_format;
-    bits = SDL_AUDIO_BITSIZE(test_format);
 
     if ((rc = SDL_NAME(arts_init) ()) != 0) {
         return SDL_SetError("Unable to initialize ARTS: %s",

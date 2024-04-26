@@ -167,8 +167,7 @@ static void SDL_FS_CloseDevice(_THIS)
 
 static int SDL_FS_OpenDevice(_THIS, const char *devname)
 {
-    int bytes;
-    SDL_AudioFormat test_format;
+    int byteShft;
     FSSampleFormat fs_format;
     FSStreamDescription desc;
     DirectResult ret;
@@ -180,34 +179,24 @@ static int SDL_FS_OpenDevice(_THIS, const char *devname)
     }
 
     /* Try for a closest match on audio format */
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-#ifdef DEBUG_AUDIO
-        fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
-#endif
-        switch (test_format) {
-        case AUDIO_U8:
-            fs_format = FSSF_U8;
-            break;
-        case AUDIO_S16SYS:
-            fs_format = FSSF_S16;
-            break;
-        case AUDIO_S32SYS:
+    byteShft = (SDL_AUDIO_BITSIZE(this->spec.format) / 8) - 1;
+    if (byteShft == 0) {
+        fs_format = FSSF_U8;
+        this->spec.format = AUDIO_U8;
+    } else if (byteShft == 1) {
+        fs_format = FSSF_S16;
+        this->spec.format = AUDIO_S16SYS;
+    } else {
+        SDL_assert(byteShft == 3);
+        byteShft = 2;
+        if (!SDL_AUDIO_ISFLOAT(this->spec.format)) {
             fs_format = FSSF_S32;
-            break;
-        case AUDIO_F32SYS:
+            this->spec.format = AUDIO_S32SYS;
+        } else {
             fs_format = FSSF_FLOAT;
-            break;
-        default:
-            continue;
+            this->spec.format = AUDIO_F32SYS;
         }
-        break;
     }
-
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "fusionsound");
-    }
-    this->spec.format = test_format;
-    bytes = SDL_AUDIO_BITSIZE(test_format) / 8;
 
     /* Retrieve the main sound interface. */
     ret = SDL_NAME(FusionSoundCreate) (&this->hidden->fs);
@@ -215,7 +204,7 @@ static int SDL_FS_OpenDevice(_THIS, const char *devname)
         return SDL_SetError("Unable to initialize FusionSound: %d", ret);
     }
 
-    this->hidden->mixsamples = this->spec.size / bytes / this->spec.channels;
+    this->hidden->mixsamples = (this->spec.size >> byteShft) / this->spec.channels;
 
     /* Fill stream description. */
     desc.flags = FSSDF_SAMPLERATE | FSSDF_BUFFERSIZE |
@@ -240,7 +229,7 @@ static int SDL_FS_OpenDevice(_THIS, const char *devname)
 
     this->spec.freq = desc.samplerate;
     this->spec.size =
-        desc.buffersize / FUSION_BUFFERS * bytes * desc.channels;
+        ((desc.buffersize / FUSION_BUFFERS) << byteShft) * desc.channels;
     this->spec.channels = desc.channels;
 
     /* Calculate the final parameters for this audio specification */

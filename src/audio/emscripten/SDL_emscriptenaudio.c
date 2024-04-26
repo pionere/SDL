@@ -232,11 +232,6 @@ static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
         return SDL_SetError("Web Audio API is not available!");
     }
 
-    /* Make sure we have a valid format that we can convert to float. */
-    if (!SDL_FirstAudioFormat(this->spec.format)) {
-        return SDL_SetError("%s: Unsupported audio format", "emscripten");
-    }
-
     this->spec.format = AUDIO_F32; /* web audio only supports floats */
 
     /* Initialize all variables that we clean on shutdown */

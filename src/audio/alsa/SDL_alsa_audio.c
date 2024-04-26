@@ -615,6 +615,7 @@ static int ALSA_OpenDevice(_THIS, const char *devname)
             format = SND_PCM_FORMAT_FLOAT_BE;
             break;
         default:
+            SDL_assume(!"Unknown audio format");
             continue;
         }
         if (ALSA_snd_pcm_hw_params_set_format(pcm_handle, hwparams, format) >= 0) {

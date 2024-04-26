@@ -201,7 +201,6 @@ static char *get_progname(void)
 static int ESD_OpenDevice(_THIS, const char *devname)
 {
     esd_format_t format = (ESD_STREAM | ESD_PLAY);
-    SDL_AudioFormat test_format;
 
     /* Initialize all variables that we clean on shutdown */
     this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, sizeof(*this->hidden));
@@ -211,28 +210,13 @@ static int ESD_OpenDevice(_THIS, const char *devname)
     this->hidden->audio_fd = -1;
 
     /* Convert audio spec to the ESD audio format */
-    /* Try for a closest match on audio format */
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-#ifdef DEBUG_AUDIO
-        fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
-#endif
-        switch (test_format) {
-        case AUDIO_U8:
-            format |= ESD_BITS8;
-            break;
-        case AUDIO_S16SYS:
-            format |= ESD_BITS16;
-            break;
-        default:
-            continue;
-        }
-        break;
+    if (SDL_AUDIO_BITSIZE(this->spec.format) == 8) {
+        format |= ESD_BITS8;
+        this->spec.format = AUDIO_U8;
+    } else {
+        format |= ESD_BITS16;
+        this->spec.format = AUDIO_S16SYS;
     }
-
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "esd");
-    }
-    this->spec.format = test_format;
 
     if (this->spec.channels == 1) {
         format |= ESD_MONO;

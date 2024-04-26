@@ -587,7 +587,6 @@ static void PulseStreamStateChangeCallback(pa_stream *stream, void *userdata)
 static int PULSEAUDIO_OpenDevice(_THIS, const char *devname)
 {
     struct SDL_PrivateAudioData *h = NULL;
-    SDL_AudioFormat test_format;
     pa_sample_spec paspec;
     pa_buffer_attr paattr;
     pa_channel_map pacmap;
@@ -606,41 +605,41 @@ static int PULSEAUDIO_OpenDevice(_THIS, const char *devname)
     }
 
     /* Try for a closest match on audio format */
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-#ifdef DEBUG_AUDIO
-        fprintf(stderr, "Trying format 0x%4.4x\n", test_format);
-#endif
-        switch (test_format) {
-        case AUDIO_U8:
-            format = PA_SAMPLE_U8;
-            break;
-        case AUDIO_S16LSB:
-            format = PA_SAMPLE_S16LE;
-            break;
-        case AUDIO_S16MSB:
-            format = PA_SAMPLE_S16BE;
-            break;
-        case AUDIO_S32LSB:
-            format = PA_SAMPLE_S32LE;
-            break;
-        case AUDIO_S32MSB:
-            format = PA_SAMPLE_S32BE;
-            break;
-        case AUDIO_F32LSB:
-            format = PA_SAMPLE_FLOAT32LE;
-            break;
-        case AUDIO_F32MSB:
-            format = PA_SAMPLE_FLOAT32BE;
-            break;
-        default:
-            continue;
-        }
+    switch (this->spec.format) {
+    case AUDIO_S8:
+        this->spec.format = AUDIO_U8;
+        /* fall-through */
+    case AUDIO_U8:
+        format = PA_SAMPLE_U8;
         break;
-    }
-    if (!test_format) {
+    case AUDIO_U16LSB:
+        this->spec.format = AUDIO_S16LSB;
+        /* fall-through */
+    case AUDIO_S16LSB:
+        format = PA_SAMPLE_S16LE;
+        break;
+    case AUDIO_U16MSB:
+        this->spec.format = AUDIO_S16MSB;
+        /* fall-through */
+    case AUDIO_S16MSB:
+        format = PA_SAMPLE_S16BE;
+        break;
+    case AUDIO_S32LSB:
+        format = PA_SAMPLE_S32LE;
+        break;
+    case AUDIO_S32MSB:
+        format = PA_SAMPLE_S32BE;
+        break;
+    case AUDIO_F32LSB:
+        format = PA_SAMPLE_FLOAT32LE;
+        break;
+    case AUDIO_F32MSB:
+        format = PA_SAMPLE_FLOAT32BE;
+        break;
+    default:
+        SDL_assume(!"Unknown audio format");
         return SDL_SetError("%s: Unsupported audio format", "pulseaudio");
     }
-    this->spec.format = test_format;
     paspec.format = format;
 
     /* Calculate the final parameters for this audio specification */

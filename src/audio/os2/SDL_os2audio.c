@@ -419,14 +419,6 @@ static int OS2_OpenDevice(_THIS, const char *devname)
     SDL_zero(stMCIAmpOpen);
     SDL_zero(stMCIBuffer);
 
-    for (test_format = SDL_FirstAudioFormat(_this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        if (test_format == AUDIO_U8 || test_format == AUDIO_S16)
-            break;
-    }
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "DART");
-    }
-
     pAData = (SDL_PrivateAudioData *) SDL_calloc(1, sizeof(struct SDL_PrivateAudioData));
     if (!pAData)
         return SDL_OutOfMemory();
@@ -485,8 +477,15 @@ static int OS2_OpenDevice(_THIS, const char *devname)
                        &stMCIAmpSet, 0);
     }
 
-    _this->spec.format = test_format;
     _this->spec.channels = _this->spec.channels > 1 ? 2 : 1;
+
+    if (SDL_AUDIO_BITSIZE(_this->spec.format) == 8) {
+        test_format = AUDIO_U8;
+    } else {
+        test_format = AUDIO_S16SYS;
+    }
+
+    _this->spec.format = test_format;
     if (_this->spec.freq < 8000) {
         _this->spec.freq = 8000;
         new_freq = TRUE;
@@ -530,7 +529,7 @@ static int OS2_OpenDevice(_THIS, const char *devname)
         return _MCIError("MCI_MIXSETUP", ulRC);
     }
 
-    if (_this->spec.samples == 0 || new_freq == TRUE) {
+    if (_this->spec.samples == 0 || new_freq) {
     /* also see SDL_audio.c:prepare_audiospec() */
     /* Pick a default of ~46 ms at desired frequency */
         Uint32 samples = (_this->spec.freq / 1000) * 46;

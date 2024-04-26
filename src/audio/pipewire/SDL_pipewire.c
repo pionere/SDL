@@ -910,6 +910,9 @@ static void initialize_spa_info(const SDL_AudioSpec *spec, struct spa_audio_info
     case 8:
         COPY_CHANNEL_MAP(8);
         break;
+    default:
+        SDL_assume(!"Unsupported number of channels");
+        break;
     }
 
     /* Pipewire natively supports all of SDL's sample formats */
@@ -943,6 +946,9 @@ static void initialize_spa_info(const SDL_AudioSpec *spec, struct spa_audio_info
         break;
     case AUDIO_F32MSB:
         info->format = SPA_AUDIO_FORMAT_F32_BE;
+        break;
+    default:
+        SDL_assume(!"Unknown audio format!");
         break;
     }
 }

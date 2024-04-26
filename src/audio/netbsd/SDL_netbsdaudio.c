@@ -236,40 +236,41 @@ static int NETBSDAUDIO_OpenDevice(_THIS, const char *devname)
     prinfo->sample_rate = this->spec.freq;
     prinfo->channels = this->spec.channels;
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        switch (test_format) {
-        case AUDIO_U8:
-            encoding = AUDIO_ENCODING_ULINEAR;
-            break;
-        case AUDIO_S8:
-            encoding = AUDIO_ENCODING_SLINEAR;
-            break;
-        case AUDIO_S16LSB:
-            encoding = AUDIO_ENCODING_SLINEAR_LE;
-            break;
-        case AUDIO_S16MSB:
-            encoding = AUDIO_ENCODING_SLINEAR_BE;
-            break;
-        case AUDIO_U16LSB:
-            encoding = AUDIO_ENCODING_ULINEAR_LE;
-            break;
-        case AUDIO_U16MSB:
-            encoding = AUDIO_ENCODING_ULINEAR_BE;
-            break;
-        case AUDIO_S32LSB:
-            encoding = AUDIO_ENCODING_SLINEAR_LE;
-            break;
-        case AUDIO_S32MSB:
-            encoding = AUDIO_ENCODING_SLINEAR_BE;
-            break;
-        default:
-            continue;
-        }
+    test_format = this->spec.format;
+    switch (test_format) {
+    case AUDIO_U8:
+        encoding = AUDIO_ENCODING_ULINEAR;
         break;
-    }
-
-    if (!test_format) {
-        return SDL_SetError("%s: Unsupported audio format", "netbsd");
+    case AUDIO_S8:
+        encoding = AUDIO_ENCODING_SLINEAR;
+        break;
+    case AUDIO_S16LSB:
+        encoding = AUDIO_ENCODING_SLINEAR_LE;
+        break;
+    case AUDIO_S16MSB:
+        encoding = AUDIO_ENCODING_SLINEAR_BE;
+        break;
+    case AUDIO_U16LSB:
+        encoding = AUDIO_ENCODING_ULINEAR_LE;
+        break;
+    case AUDIO_U16MSB:
+        encoding = AUDIO_ENCODING_ULINEAR_BE;
+        break;
+    case AUDIO_F32LSB:
+        test_format = AUDIO_S32LSB;
+        /* fall-through */
+    case AUDIO_S32LSB:
+        encoding = AUDIO_ENCODING_SLINEAR_LE;
+        break;
+    case AUDIO_F32MSB:
+        test_format = AUDIO_S32MSB;
+        /* fall-through */
+    case AUDIO_S32MSB:
+        encoding = AUDIO_ENCODING_SLINEAR_BE;
+        break;
+    default:
+        SDL_assume(!"Unknown audio format");
+        continue;
     }
     prinfo->encoding = encoding;
     prinfo->precision = SDL_AUDIO_BITSIZE(test_format);

@@ -117,7 +117,6 @@ static inline void UnmaskSignals(sigset_t * omask)
 static int HAIKUAUDIO_OpenDevice(_THIS, const char *devname)
 {
     media_raw_audio_format format;
-    SDL_AudioFormat test_format;
 
     /* Initialize all variables that we clean on shutdown */
     _this->hidden = new SDL_PrivateAudioData;
@@ -133,53 +132,48 @@ static int HAIKUAUDIO_OpenDevice(_THIS, const char *devname)
     format.byte_order = B_MEDIA_LITTLE_ENDIAN;
     format.frame_rate = (float) _this->spec.freq;
     format.channel_count = _this->spec.channels;
-    for (test_format = SDL_FirstAudioFormat(_this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        switch (test_format) {
-        case AUDIO_S8:
-            format.format = media_raw_audio_format::B_AUDIO_CHAR;
-            break;
-
-        case AUDIO_U8:
-            format.format = media_raw_audio_format::B_AUDIO_UCHAR;
-            break;
-
-        case AUDIO_S16LSB:
-            format.format = media_raw_audio_format::B_AUDIO_SHORT;
-            break;
-
-        case AUDIO_S16MSB:
-            format.format = media_raw_audio_format::B_AUDIO_SHORT;
-            format.byte_order = B_MEDIA_BIG_ENDIAN;
-            break;
-
-        case AUDIO_S32LSB:
-            format.format = media_raw_audio_format::B_AUDIO_INT;
-            break;
-
-        case AUDIO_S32MSB:
-            format.format = media_raw_audio_format::B_AUDIO_INT;
-            format.byte_order = B_MEDIA_BIG_ENDIAN;
-            break;
-
-        case AUDIO_F32LSB:
-            format.format = media_raw_audio_format::B_AUDIO_FLOAT;
-            break;
-
-        case AUDIO_F32MSB:
-            format.format = media_raw_audio_format::B_AUDIO_FLOAT;
-            format.byte_order = B_MEDIA_BIG_ENDIAN;
-            break;
-
-        default:
-            continue;
-        }
+    switch (_this->spec.format) {
+    case AUDIO_S8:
+        format.format = media_raw_audio_format::B_AUDIO_CHAR;
         break;
-    }
 
-    if (!test_format) {      /* shouldn't happen, but just in case... */
+    case AUDIO_U8:
+        format.format = media_raw_audio_format::B_AUDIO_UCHAR;
+        break;
+
+    case AUDIO_U16LSB:
+        _this->spec.format = AUDIO_S16LSB;
+        /* fall-through */
+    case AUDIO_S16LSB:
+        format.format = media_raw_audio_format::B_AUDIO_SHORT;
+        break;
+
+    case AUDIO_U16MSB:
+        _this->spec.format = AUDIO_S16MSB;
+        /* fall-through */
+    case AUDIO_S16MSB:
+        format.format = media_raw_audio_format::B_AUDIO_SHORT;
+        format.byte_order = B_MEDIA_BIG_ENDIAN;
+        break;
+
+    case AUDIO_S32MSB:
+        format.byte_order = B_MEDIA_BIG_ENDIAN;
+        /* fall-through */
+    case AUDIO_S32LSB:
+        format.format = media_raw_audio_format::B_AUDIO_INT;
+        break;
+
+    case AUDIO_F32MSB:
+        format.byte_order = B_MEDIA_BIG_ENDIAN;
+        /* fall-through */
+    case AUDIO_F32LSB:
+        format.format = media_raw_audio_format::B_AUDIO_FLOAT;
+        break;
+
+    default:
+        SDL_assume(!"Unknown audio format");
         return SDL_SetError("%s: Unsupported audio format", "haiku");
     }
-    _this->spec.format = test_format;
 
     /* Calculate the final parameters for this audio specification */
     SDL_CalculateAudioSpec(&_this->spec);

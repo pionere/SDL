@@ -38,7 +38,6 @@ static SDL_AudioDevice *captureDevice = NULL;
 
 static int ANDROIDAUDIO_OpenDevice(_THIS, const char *devname)
 {
-    SDL_AudioFormat test_format;
     SDL_bool iscapture = this->iscapture;
 
     SDL_assert((captureDevice == NULL) || !iscapture);
@@ -55,18 +54,12 @@ static int ANDROIDAUDIO_OpenDevice(_THIS, const char *devname)
         return SDL_OutOfMemory();
     }
 
-    for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        if ((test_format == AUDIO_U8) ||
-            (test_format == AUDIO_S16) ||
-            (test_format == AUDIO_F32)) {
-            this->spec.format = test_format;
-            break;
-        }
-    }
-
-    if (!test_format) {
-        /* Didn't find a compatible format :( */
-        return SDL_SetError("%s: Unsupported audio format", "android");
+    if (SDL_AUDIO_BITSIZE(this->spec.format) == 8) {
+        this->spec.format = AUDIO_U8;
+    } else if (SDL_AUDIO_BITSIZE(this->spec.format) == 16) {
+        this->spec.format = AUDIO_S16LSB;
+    } else {
+        this->spec.format = AUDIO_F32LSB;
     }
 
     {
