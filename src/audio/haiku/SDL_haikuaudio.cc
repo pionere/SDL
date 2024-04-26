@@ -126,11 +126,13 @@ static int HAIKUAUDIO_OpenDevice(_THIS, const char *devname)
     }
     SDL_zerop(_this->hidden);
 
+    _this->spec.channels = _this->spec.channels > 1 ? 2 : 1;
+
     /* Parse the audio format and fill the Be raw audio format */
     SDL_zero(format);
     format.byte_order = B_MEDIA_LITTLE_ENDIAN;
     format.frame_rate = (float) _this->spec.freq;
-    format.channel_count = _this->spec.channels;        /* !!! FIXME: support > 2? */
+    format.channel_count = _this->spec.channels;
     for (test_format = SDL_FirstAudioFormat(_this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
         switch (test_format) {
         case AUDIO_S8:
