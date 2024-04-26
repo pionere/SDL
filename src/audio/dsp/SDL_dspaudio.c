@@ -60,9 +60,7 @@ static int DSP_OpenDevice(_THIS, const char *devname)
 {
     SDL_bool iscapture = this->iscapture;
     const int flags = ((iscapture) ? OPEN_FLAGS_INPUT : OPEN_FLAGS_OUTPUT);
-    int format;
-    int value;
-    int frag_spec;
+    int format, i, value, frag_spec;
     SDL_AudioFormat test_format;
 
     /* We don't care what the devname is...we'll try to open anything. */
@@ -75,14 +73,11 @@ static int DSP_OpenDevice(_THIS, const char *devname)
     }
 
     /* Make sure fragment size stays a power of 2, or OSS fails. */
-    /* I don't know which of these are actually legal values, though... */
-    if (this->spec.channels > 8) {
-        this->spec.channels = 8;
-    } else if (this->spec.channels > 4) {
-        this->spec.channels = 4;
-    } else if (this->spec.channels > 2) {
-        this->spec.channels = 2;
+    i = 1;
+    while (i < this->spec.channels) {
+        i *= 2;
     }
+    this->spec.channels = i;
 
     /* Initialize all variables that we clean on shutdown */
     this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, sizeof(*this->hidden));
