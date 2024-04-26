@@ -235,6 +235,7 @@ static int ESD_OpenDevice(_THIS, const char *devname)
     if (!found) {
         return SDL_SetError("Couldn't find any hardware audio formats");
     }
+    this->spec.format = test_format;
 
     if (this->spec.channels == 1) {
         format |= ESD_MONO;
