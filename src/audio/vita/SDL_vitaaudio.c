@@ -80,6 +80,8 @@ static int VITAAUD_OpenDevice(_THIS, const char *devname)
         return VITAAUD_OpenCaptureDevice(this);
     }
 
+    this->spec.channels = this->spec.channels > 1 ? 2 : 1;
+
     /* The sample count must be a multiple of 64. */
     this->spec.samples = SCE_AUDIO_SAMPLE_ALIGN(this->spec.samples);
 
