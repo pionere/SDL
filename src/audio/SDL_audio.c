@@ -149,15 +149,14 @@ SRC_STATE *(*SRC_src_delete)(SRC_STATE *state) = NULL;
 const char *(*SRC_src_strerror)(int error) = NULL;
 int (*SRC_src_simple)(SRC_DATA *data, int converter_type, int channels) = NULL;
 
-static SDL_bool LoadLibSampleRate(void)
+static void LoadLibSampleRate(void)
 {
     const char *hint = SDL_GetHint(SDL_HINT_AUDIO_RESAMPLING_MODE);
 
-    SRC_available = SDL_FALSE;
-    SRC_converter = 0;
+    SDL_assert(SRC_available == SDL_FALSE);
 
-    if (!hint || *hint == '0' || SDL_strcasecmp(hint, "default") == 0) {
-        return SDL_FALSE; /* don't load anything. */
+    if (!hint) {
+        return; /* don't load anything. */
     } else if (*hint == '1' || SDL_strcasecmp(hint, "fast") == 0) {
         SRC_converter = SRC_SINC_FASTEST;
     } else if (*hint == '2' || SDL_strcasecmp(hint, "medium") == 0) {
@@ -167,7 +166,7 @@ static SDL_bool LoadLibSampleRate(void)
     } else if (*hint == '4' || SDL_strcasecmp(hint, "linear") == 0) {
         SRC_converter = SRC_LINEAR;
     } else {
-        return SDL_FALSE; /* treat it like "default", don't load anything. */
+        return; /* treat it like "default", don't load anything. */
     }
 
 #ifdef SDL_LIBSAMPLERATE_DYNAMIC
@@ -175,7 +174,7 @@ static SDL_bool LoadLibSampleRate(void)
     SRC_lib = SDL_LoadObject(SDL_LIBSAMPLERATE_DYNAMIC);
     if (!SRC_lib) {
         SDL_ClearError();
-        return SDL_FALSE;
+        return;
     }
 
     /* *INDENT-OFF* */ /* clang-format off */
@@ -190,7 +189,7 @@ static SDL_bool LoadLibSampleRate(void)
     if (!SRC_src_new || !SRC_src_process || !SRC_src_reset || !SRC_src_delete || !SRC_src_strerror || !SRC_src_simple) {
         SDL_UnloadObject(SRC_lib);
         SRC_lib = NULL;
-        return SDL_FALSE;
+        return;
     }
 #else
     SRC_src_new = src_new;
@@ -202,7 +201,6 @@ static SDL_bool LoadLibSampleRate(void)
 #endif
 
     SRC_available = SDL_TRUE;
-    return SDL_TRUE;
 }
 
 static void UnloadLibSampleRate(void)
@@ -215,11 +213,12 @@ static void UnloadLibSampleRate(void)
 #endif
 
     SRC_available = SDL_FALSE;
-    SRC_src_new = NULL;
-    SRC_src_process = NULL;
-    SRC_src_reset = NULL;
-    SRC_src_delete = NULL;
-    SRC_src_strerror = NULL;
+//    SRC_converter = 0;
+//    SRC_src_new = NULL;
+//    SRC_src_process = NULL;
+//    SRC_src_reset = NULL;
+//    SRC_src_delete = NULL;
+//    SRC_src_strerror = NULL;
 }
 #endif
 
