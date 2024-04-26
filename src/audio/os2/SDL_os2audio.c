@@ -424,8 +424,7 @@ static int OS2_OpenDevice(_THIS, const char *devname)
             break;
     }
     if (!test_format) {
-        debug_os2("Unsupported audio format, AUDIO_S16 used");
-        test_format = AUDIO_S16;
+        return SDL_SetError("%s: Unsupported audio format", "DART");
     }
 
     pAData = (SDL_PrivateAudioData *) SDL_calloc(1, sizeof(struct SDL_PrivateAudioData));
