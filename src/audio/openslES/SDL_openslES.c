@@ -412,29 +412,30 @@ static int openslES_CreatePCMPlayer(_THIS)
     const SLboolean req[2] = { SL_BOOLEAN_TRUE, SL_BOOLEAN_FALSE };
     SLresult result;
     int i;
+    SDL_AudioFormat test_format;
 
     /* If we want to add floating point audio support (requires API level 21)
        it can be done as described here:
         https://developer.android.com/ndk/guides/audio/opensl/android-extensions.html#floating-point
     */
+    test_format = SDL_FirstAudioFormat(this->spec.format);
+    /* Make sure we have a valid format that we can convert to whatever selected below. */
+    if (!test_format) {
+        return SDL_SetError("%s: Unsupported audio format", "openslES");
+    }
     if (SDL_GetAndroidSDKVersion() >= 21) {
-        SDL_AudioFormat test_format;
-        for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
+        /* Select the first signed format */
+        for ( ; test_format; test_format = SDL_NextAudioFormat()) {
             if (SDL_AUDIO_ISSIGNED(test_format)) {
                 break;
             }
         }
-
-        if (!test_format) {
-            /* Didn't find a compatible format : */
-            LOGI("No compatible audio format, using signed 16-bit audio");
-            test_format = AUDIO_S16SYS;
-        }
-        this->spec.format = test_format;
+        SDL_assume(test_format != 0);
     } else {
         /* Just go with signed 16-bit audio as it's the most compatible */
-        this->spec.format = AUDIO_S16SYS;
+        test_format = AUDIO_S16SYS;
     }
+    this->spec.format = test_format;
 
     /* Update the fragment size as size in bytes */
     SDL_CalculateAudioSpec(&this->spec);
