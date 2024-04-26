@@ -354,12 +354,16 @@ WaveFormatToSDLFormat(WAVEFORMATEX *waveformat)
         return AUDIO_S32SYS;
     } else if (waveformat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
         const WAVEFORMATEXTENSIBLE *ext = (const WAVEFORMATEXTENSIBLE *)waveformat;
-        if ((SDL_memcmp(&ext->SubFormat, &SDL_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, sizeof(GUID)) == 0) && (waveformat->wBitsPerSample == 32)) {
-            return AUDIO_F32SYS;
-        } else if ((SDL_memcmp(&ext->SubFormat, &SDL_KSDATAFORMAT_SUBTYPE_PCM, sizeof(GUID)) == 0) && (waveformat->wBitsPerSample == 16)) {
-            return AUDIO_S16SYS;
-        } else if ((SDL_memcmp(&ext->SubFormat, &SDL_KSDATAFORMAT_SUBTYPE_PCM, sizeof(GUID)) == 0) && (waveformat->wBitsPerSample == 32)) {
-            return AUDIO_S32SYS;
+        if (SDL_memcmp(&ext->SubFormat, &SDL_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, sizeof(GUID)) == 0) {
+            if (waveformat->wBitsPerSample == 32) {
+                return AUDIO_F32SYS;
+            }
+        } else if (SDL_memcmp(&ext->SubFormat, &SDL_KSDATAFORMAT_SUBTYPE_PCM, sizeof(GUID)) == 0) {
+            if (waveformat->wBitsPerSample == 16) {
+                return AUDIO_S16SYS;
+            } else if (waveformat->wBitsPerSample == 32) {
+                return AUDIO_S32SYS;
+            }
         }
     }
     return 0;
