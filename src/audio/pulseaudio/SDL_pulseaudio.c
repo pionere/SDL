@@ -643,7 +643,7 @@ static int PULSEAUDIO_OpenDevice(_THIS, const char *devname)
     paspec.format = format;
 
     /* Calculate the final parameters for this audio specification */
-    SDL_CalculateAudioSpec(&this->spec);
+    // SDL_CalculateAudioSpec(&this->spec);
 
     /* Allocate mixing buffer */
     if (!iscapture) {

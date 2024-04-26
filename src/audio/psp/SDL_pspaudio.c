@@ -66,7 +66,7 @@ static int PSPAUDIO_OpenDevice(_THIS, const char *devname)
         /* The sample count must be a multiple of 64. */
         this->spec.samples = PSP_AUDIO_SAMPLE_ALIGN(this->spec.samples);
         /* The number of channels (1 or 2). */
-        this->spec.channels = this->spec.channels == 1 ? 1 : 2;
+        this->spec.channels = this->spec.channels > 1 ? 2 : 1;
         format = this->spec.channels == 1 ? PSP_AUDIO_FORMAT_MONO : PSP_AUDIO_FORMAT_STEREO;
         this->hidden->channel = sceAudioChReserve(PSP_AUDIO_NEXT_CHANNEL, this->spec.samples, format);
     } else {

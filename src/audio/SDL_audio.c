@@ -1512,7 +1512,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
-    SDL_AudioDeviceID id = 0;
+    SDL_AudioDeviceID id;
 
     SDL_assert(SDL_WasInit(SDL_INIT_AUDIO));
 
@@ -1536,7 +1536,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
     }
 
     SDL_assert((id == 0) || (id == 1));
-    return (id == 0) ? -1 : 0;
+    return id - 1;
 }
 
 SDL_AudioDeviceID SDL_OpenAudioDevice(const char *device, int iscapture,

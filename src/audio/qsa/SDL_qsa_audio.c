@@ -360,7 +360,7 @@ static int QSA_OpenDevice(_THIS, const char *devname)
     }
 
     /* Calculate the final parameters for this audio specification */
-    SDL_CalculateAudioSpec(&this->spec);
+    // SDL_CalculateAudioSpec(&this->spec);
 
     this->hidden->pcm_len = this->spec.size;
 
