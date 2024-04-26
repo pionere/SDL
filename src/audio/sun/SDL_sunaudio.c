@@ -216,32 +216,20 @@ static int SUNAUDIO_OpenDevice(_THIS, const char *devname)
     desired_freq = this->spec.freq;
 
     /* Determine the audio parameters from the AudioSpec */
-    switch (SDL_AUDIO_BITSIZE(this->spec.format)) {
-
-    case 8:
-        {                       /* Unsigned 8 bit audio data */
-            this->spec.format = AUDIO_U8;
+    if (SDL_AUDIO_BITSIZE(this->spec.format) == 8) {
+        /* Unsigned 8 bit audio data */
+        this->spec.format = AUDIO_U8;
 #ifdef AUDIO_SETINFO
-            enc = AUDIO_ENCODING_LINEAR8;
+        enc = AUDIO_ENCODING_LINEAR8;
 #endif
-        }
-        break;
-
-    case 16:
-        {                       /* Signed 16 bit audio data */
-            this->spec.format = AUDIO_S16SYS;
+    } else {
+        /* Signed 16 bit audio data */
+        this->spec.format = AUDIO_S16SYS;
 #ifdef AUDIO_SETINFO
-            enc = AUDIO_ENCODING_LINEAR;
+        enc = AUDIO_ENCODING_LINEAR;
 #endif
-        }
-        break;
-
-    default:
-        {
-            /* !!! FIXME: fallback to conversion on unsupported types! */
-            return SDL_SetError("Unsupported audio format");
-        }
     }
+
     this->hidden->audio_fmt = this->spec.format;
 
     this->hidden->ulaw_only = 0;    /* modern Suns do support linear audio */
