@@ -433,14 +433,11 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     this->spec.channels = (Uint8)waveformat->nChannels;
 
     /* Make sure we have a valid format that we can convert to whatever WASAPI wants. */
+    if (!SDL_FirstAudioFormat(this->spec.format)) {
+        return SDL_SetError("%s: Unsupported audio format", "wasapi");
+    }
+
     this->spec.format = WaveFormatToSDLFormat(waveformat);
-
-    /*for (test_format = SDL_FirstAudioFormat(this->spec.format); test_format; test_format = SDL_NextAudioFormat()) {
-        if (test_format == this->spec.format) {
-            break;
-        }
-    }*/
-
     if (!this->spec.format) {
         return SDL_SetError("%s: Unsupported audio format", "wasapi");
     }
