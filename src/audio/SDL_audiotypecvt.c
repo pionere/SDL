@@ -33,18 +33,20 @@
 #endif
 
 #if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
 #elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
 #elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8) && defined(HAVE_NEON_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0 /* ARMv8+ promise NEON. */
+#define HAVE_NEON_SUPPORT 1 /* ARMv8+ promise NEON. */
 #elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7) && defined(HAVE_NEON_INTRINSICS)
-#define NEED_SCALAR_CONVERTER_FALLBACKS 0 /* All Apple ARMv7 chips promise NEON support. */
+#define HAVE_NEON_SUPPORT 1 /* All Apple ARMv7 chips promise NEON support. */
 #endif
 
-/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef NEED_SCALAR_CONVERTER_FALLBACKS
-#define NEED_SCALAR_CONVERTER_FALLBACKS 1
+#ifndef HAVE_SSE2_SUPPORT
+#define HAVE_SSE2_SUPPORT 0
+#endif
+#ifndef HAVE_NEON_SUPPORT
+#define HAVE_NEON_SUPPORT 0
 #endif
 
 /* Function pointers set to a CPU-specific implementation. */
@@ -63,8 +65,6 @@ SDL_AudioFilter SDL_Convert_F32_to_S32 = NULL;
 #define DIVBY32768   0.000030517578125f
 #define DIVBY8388607 0.00000011920930376163766f
 #define DIVBY2147483648 0.0000000004656612873077392578125f /* 0x1p-31f */
-
-#if NEED_SCALAR_CONVERTER_FALLBACKS
 
 /* This code requires that floats are in the IEEE-754 binary32 format */
 SDL_COMPILE_TIME_ASSERT(float_bits, sizeof(float) == sizeof(Uint32));
@@ -297,7 +297,6 @@ static void SDLCALL SDL_Convert_F32_to_S32_Scalar(SDL_AudioCVT *cvt)
         dst[i] = (Sint32)x.f32 ^ (Sint32)SIGNMASK(z);
     }
 }
-#endif
 
 #ifdef HAVE_SSE2_INTRINSICS
 static void SDLCALL SDL_Convert_S8_to_F32_SSE2(SDL_AudioCVT *cvt)
@@ -1358,11 +1357,11 @@ void SDL_ChooseAudioConverters(void)
     SDL_Convert_F32_to_S32 = SDL_Convert_F32_to_S32_##fntype; \
 
 #ifdef HAVE_SSE2_INTRINSICS
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    if (SDL_HasSSE2()) {
-#else
+#if HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1) {
+#else
+    if (SDL_HasSSE2()) {
 #endif
         SET_CONVERTER_FUNCS(SSE2);
         return;
@@ -1370,20 +1369,18 @@ void SDL_ChooseAudioConverters(void)
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
-#if NEED_SCALAR_CONVERTER_FALLBACKS
-    if (SDL_HasNEON()) {
-#else
+#if HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
     if (1) {
+#else
+    if (SDL_HasNEON()) {
 #endif
         SET_CONVERTER_FUNCS(NEON);
         return;
     }
 #endif
 
-#if NEED_SCALAR_CONVERTER_FALLBACKS
     SET_CONVERTER_FUNCS(Scalar);
-#endif
 
 #undef SET_CONVERTER_FUNCS
 
