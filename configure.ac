@@ -878,8 +878,8 @@ dnl Check for various instruction support
     fi
 
     AC_ARG_ENABLE(sse2,
-[AS_HELP_STRING([--enable-sse2], [use SSE2 assembly routines [default=maybe]])],
-                  , enable_sse2=$default_ssemath)
+[AS_HELP_STRING([--enable-sse2], [use SSE2 assembly routines [default=yes]])],
+                  , enable_sse2=$enable_sse)
     if test x$enable_sse2 = xyes; then
         save_CFLAGS="$CFLAGS"
         have_gcc_sse2=no
@@ -912,8 +912,8 @@ dnl Check for various instruction support
     fi
 
     AC_ARG_ENABLE(sse3,
-[AS_HELP_STRING([--enable-sse3], [use SSE3 assembly routines [default=maybe]])],
-                  , enable_sse3=$default_ssemath)
+[AS_HELP_STRING([--enable-sse3], [use SSE3 assembly routines [default=yes]])],
+                  , enable_sse3=$enable_sse2)
     if test x$enable_sse3 = xyes; then
         save_CFLAGS="$CFLAGS"
         have_gcc_sse3=no

@@ -1710,8 +1710,8 @@ Optional Features:
   --enable-mmx            use MMX assembly routines [default=yes]
   --enable-3dnow          use 3DNow! assembly routines [default=yes]
   --enable-sse            use SSE assembly routines [default=yes]
-  --enable-sse2           use SSE2 assembly routines [default=maybe]
-  --enable-sse3           use SSE3 assembly routines [default=maybe]
+  --enable-sse2           use SSE2 assembly routines [default=yes]
+  --enable-sse3           use SSE3 assembly routines [default=yes]
   --enable-altivec        use Altivec assembly routines [default=yes]
   --enable-lsx            use LSX assembly routines [default=yes]
   --enable-lasx           use LASX assembly routines [default=yes]
@@ -21025,7 +21025,7 @@ if test ${enable_sse2+y}
 then :
   enableval=$enable_sse2;
 else $as_nop
-  enable_sse2=$default_ssemath
+  enable_sse2=$enable_sse
 fi
 
     if test x$enable_sse2 = xyes; then
@@ -21081,7 +21081,7 @@ if test ${enable_sse3+y}
 then :
   enableval=$enable_sse3;
 else $as_nop
-  enable_sse3=$default_ssemath
+  enable_sse3=$enable_sse2
 fi
 
     if test x$enable_sse3 = xyes; then
