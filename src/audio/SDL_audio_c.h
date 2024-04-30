@@ -63,18 +63,6 @@ extern void SDL_ChooseAudioConverters(void);
 extern void SDL_ChooseAudioChannelConverters(void);
 extern void SDL_ChooseAudioResamplers(void);
 
-/* These pointers get set during SDL_ChooseAudioConverters() to various SIMD implementations. */
-extern SDL_AudioFilter SDL_Convert_S8_to_F32;
-extern SDL_AudioFilter SDL_Convert_U8_to_F32;
-extern SDL_AudioFilter SDL_Convert_S16_to_F32;
-extern SDL_AudioFilter SDL_Convert_U16_to_F32;
-extern SDL_AudioFilter SDL_Convert_S32_to_F32;
-extern SDL_AudioFilter SDL_Convert_F32_to_S8;
-extern SDL_AudioFilter SDL_Convert_F32_to_U8;
-extern SDL_AudioFilter SDL_Convert_F32_to_S16;
-extern SDL_AudioFilter SDL_Convert_F32_to_U16;
-extern SDL_AudioFilter SDL_Convert_F32_to_S32;
-
 /* Internal helper functions of SDL_audiocvt.c */
 int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len);
 

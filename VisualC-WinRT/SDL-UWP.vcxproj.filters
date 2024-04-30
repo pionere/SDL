@@ -186,6 +186,9 @@
     <ClInclude Include="..\src\audio\SDL_audio_c.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\audio\SDL_audiotypecvt.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\audio\SDL_sysaudio.h">
       <Filter>Source Files</Filter>
     </ClInclude>
