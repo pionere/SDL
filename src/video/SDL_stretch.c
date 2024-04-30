@@ -45,18 +45,21 @@
 #endif
 
 #if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_STRETCHER_FALLBACKS 0  /* x86_64 guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
 #elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define NEED_SCALAR_STRETCHER_FALLBACKS 0  /* Mac OS X/Intel guarantees SSE2. */
+#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
 #elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8) && defined(HAVE_NEON_INTRINSICS)
-#define NEED_SCALAR_STRETCHER_FALLBACKS 0 /* ARMv8+ promise NEON. */
+#define HAVE_NEON_SUPPORT 1 /* ARMv8+ promise NEON. */
 #elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7) && defined(HAVE_NEON_INTRINSICS)
-#define NEED_SCALAR_STRETCHER_FALLBACKS 0 /* All Apple ARMv7 chips promise NEON support. */
+#define HAVE_NEON_SUPPORT 1 /* All Apple ARMv7 chips promise NEON support. */
 #endif
 
 /* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef NEED_SCALAR_STRETCHER_FALLBACKS
-#define NEED_SCALAR_STRETCHER_FALLBACKS 1
+#ifndef HAVE_SSE2_SUPPORT
+#define HAVE_SSE2_SUPPORT 0
+#endif
+#ifndef HAVE_NEON_SUPPORT
+#define HAVE_NEON_SUPPORT 0
 #endif
 
 #define SDL_STRETCH_LIMIT SDL_MAX_UINT16
@@ -215,7 +218,6 @@ SDL_COMPILE_TIME_ASSERT(stretch_limit_round, FP_ONE > SDL_STRETCH_LIMIT);
     posx = 0;                                                     \
     columns = dst_w;
 
-#if NEED_SCALAR_STRETCHER_FALLBACKS
 typedef struct color_t
 {
     Uint8 a;
@@ -331,12 +333,11 @@ static void scale_mat(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch,
         break;
     }
 }
-#endif // NEED_SCALAR_STRETCHER_FALLBACKS
 
 #ifdef HAVE_SSE2_INTRINSICS
 
 /* Interpolate between colors at s0 and s1 using frac_w and store the result to dst */
-static SDL_INLINE void INTERPOL_SSE(const Uint32 *s0, const Uint32 *s1, const __m128i v_frac_w0, const __m128i v_frac_w1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, const __m128i v_frac_w0, const __m128i v_frac_w1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
     __m128i k0, l0, d0, e0;
@@ -360,7 +361,7 @@ static SDL_INLINE void INTERPOL_SSE(const Uint32 *s0, const Uint32 *s1, const __
 }
 
 /* Interpolate between color pairs at s0 and s1 using frac_w0 and frac_w1 and store the result to dst */
-static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_w1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void INTERPOLx2_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_w1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* (Pixels in 4*uint8 in row) * 2 */
     __m128i v_frac_w0, v_frac_w1, k0, l0, d0, e0;
@@ -393,7 +394,7 @@ static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, int fra
     _mm_storeu_si64((Uint64 *)dst, e0);
 }
 
-static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1, int frac_w, const __m128i v_frac_h0, const __m128i v_frac_h1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void INTERPOL_BILINEAR_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w, const __m128i v_frac_h0, const __m128i v_frac_h1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
     __m128i v_frac_w0, k0, l0, d0, e0;
@@ -432,7 +433,7 @@ static SDL_INLINE void INTERPOL_BILINEAR_SSE(const Uint32 *s0, const Uint32 *s1,
     *dst = _mm_cvtsi128_si32(e0);
 }
 
-static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
+static void scale_mat_SSE2(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
 {
     BILINEAR___START
 
@@ -471,7 +472,7 @@ static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pi
                         .       .         .
                         x10 ... x1_ ..... x11
                     */
-                    INTERPOL_BILINEAR_SSE(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst, zero);
+                    INTERPOL_BILINEAR_SSE2(s_00_01, s_10_11, frac_w, v_frac_h0, v_frac_h1, dst, zero);
                     dst += 1;
                 } else {
                     /* last column
@@ -482,7 +483,7 @@ static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pi
                         .
                         x10
                     */
-                    INTERPOL_SSE(&s_00_01[0], &s_10_11[0], v_frac_h0, v_frac_h1, dst, zero);
+                    INTERPOL_SSE2(&s_00_01[0], &s_10_11[0], v_frac_h0, v_frac_h1, dst, zero);
                     dst += 1;
                     break;
                 }
@@ -513,7 +514,7 @@ static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pi
 
                 s1_00_01 = (const Uint32 *)((const Uint8 *)src_h0 + index_w);
 
-                INTERPOL_SSE2(&s0_00_01[0], &s1_00_01[0], frac_w0, frac_w1, dst, zero);
+                INTERPOLx2_SSE2(&s0_00_01[0], &s1_00_01[0], frac_w0, frac_w1, dst, zero);
                 dst += 2;
             }
 
@@ -530,7 +531,7 @@ static void scale_mat_SSE(const Uint8 *src_ptr, int src_w, int src_h, int src_pi
                 v_frac_w1 = _mm_set1_epi16(FRAC_ONE - frac_w);
 
                 if (--columns) {
-                    INTERPOL_SSE(&s_00_01[0], &s_00_01[1], v_frac_w0, v_frac_w1, dst, zero);
+                    INTERPOL_SSE2(&s_00_01[0], &s_00_01[1], v_frac_w0, v_frac_w1, dst, zero);
                     dst += 1;
                 } else {
                     /* last column and row
@@ -799,6 +800,37 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
 }
 #endif // HAVE_NEON_INTRINSICS
 
+static void SDL_ChooseStrecher(void)
+{
+#ifdef HAVE_SSE2_INTRINSICS
+#if HAVE_SSE2_SUPPORT
+    SDL_assert(SDL_HasSSE2());
+    if (1) {
+#else
+    if (SDL_HasSSE2()) {
+#endif
+        SDL_Scale_linear = scale_mat_SSE2;
+        return;
+    }
+#endif
+
+#ifdef HAVE_NEON_INTRINSICS
+#if HAVE_NEON_SUPPORT
+    SDL_assert(SDL_HasNEON());
+    if (1) {
+#else
+    if (SDL_HasNEON()) {
+#endif
+        SDL_Scale_linear = scale_mat_NEON;
+        return;
+    }
+#endif
+
+    SDL_Scale_linear = scale_mat;
+
+    SDL_assert(SDL_Scale_linear != NULL);
+}
+
 void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
                                 SDL_Surface *d, const SDL_Rect *dstrect)
 {
@@ -806,31 +838,7 @@ void SDL_LowerSoftStretchLinear(SDL_Surface *s, const SDL_Rect *srcrect,
     Uint8 *src, *dst;
 
     if (SDL_Scale_linear == NULL) {
-#if NEED_SCALAR_STRETCHER_FALLBACKS
-        SDL_Scale_linear = scale_mat;
-#endif
-#ifdef HAVE_NEON_INTRINSICS
-#if NEED_SCALAR_STRETCHER_FALLBACKS
-        if (SDL_HasNEON()) {
-#else
-        SDL_assert(SDL_HasNEON());
-        if (1) {
-#endif
-            SDL_Scale_linear = scale_mat_NEON;
-        }
-#endif
-
-#ifdef HAVE_SSE2_INTRINSICS
-#if NEED_SCALAR_STRETCHER_FALLBACKS
-        if (SDL_HasSSE2()) {
-#else
-        SDL_assert(SDL_HasSSE2());
-        if (1) {
-#endif
-            SDL_Scale_linear = scale_mat_SSE;
-        }
-#endif
-        SDL_assert(SDL_Scale_linear != NULL);
+        SDL_ChooseStrecher();
     }
 
     src_w = srcrect->w;
