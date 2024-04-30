@@ -839,9 +839,10 @@ if(USE_GCC OR USE_CLANG OR USE_INTELCC OR USE_QCC)
     list(APPEND EXTRA_LDFLAGS_BUILD "-Wl,-compatibility_version,${DYLIB_COMPATIBILITY_VERSION}")
     list(APPEND EXTRA_LDFLAGS_BUILD "-Wl,-current_version,${DYLIB_CURRENT_VERSION}")
   elseif(NOT OPENBSD)
+    cmake_push_check_state()
     set(CMAKE_REQUIRED_FLAGS "-Wl,--no-undefined")
     check_c_compiler_flag("" HAVE_NO_UNDEFINED)
-    set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
+    cmake_pop_check_state()
     if(HAVE_NO_UNDEFINED AND NOT (USE_CLANG AND WINDOWS))
       list(APPEND EXTRA_LDFLAGS_BUILD "-Wl,--no-undefined")
     endif()
@@ -891,6 +892,7 @@ if(SDL_ASSEMBLY)
     # reworked for better compiler support
     set(HAVE_ASSEMBLY TRUE)
     if(SDL_MMX)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-mmmx")
       check_c_source_compiles("
           #ifdef __MINGW32__
@@ -907,13 +909,14 @@ if(SDL_ASSEMBLY)
           #error Assembler CPP flag not enabled
           #endif
           int main(int argc, char **argv) { return 0; }" HAVE_MMX)
+      cmake_pop_check_state()
       if(HAVE_MMX)
         list(APPEND EXTRA_CFLAGS "-mmmx")
       endif()
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
     endif()
 
     if(SDL_3DNOW)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-m3dnow")
       check_c_source_compiles("
           #include <mm3dnow.h>
@@ -925,13 +928,14 @@ if(SDL_ASSEMBLY)
             _m_prefetch(p);
             return 0;
           }" HAVE_3DNOW)
+      cmake_pop_check_state()
       if(HAVE_3DNOW)
         list(APPEND EXTRA_CFLAGS "-m3dnow")
       endif()
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
     endif()
 
     if(SDL_SSE)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-msse")
       check_c_source_compiles("
           #ifdef __MINGW32__
@@ -948,13 +952,14 @@ if(SDL_ASSEMBLY)
           #error Assembler CPP flag not enabled
           #endif
           int main(int argc, char **argv) { return 0; }" HAVE_SSE)
+      cmake_pop_check_state()
       if(HAVE_SSE)
         list(APPEND EXTRA_CFLAGS "-msse")
       endif()
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
     endif()
 
     if(SDL_SSE2)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-msse2")
       check_c_source_compiles("
           #ifdef __MINGW32__
@@ -970,15 +975,15 @@ if(SDL_ASSEMBLY)
           #ifndef __SSE2__
           #error Assembler CPP flag not enabled
           #endif
-          int main(int argc, char **argv) { return 0; }" CPU_SUPPORTS_SSE2)
-      if(CPU_SUPPORTS_SSE2)
-        set(HAVE_SSE2 TRUE)
+          int main(int argc, char **argv) { return 0; }" HAVE_SSE2)
+      cmake_pop_check_state()
+      if(HAVE_SSE2)
         list(APPEND EXTRA_CFLAGS "-msse2")
       endif()
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
     endif()
 
     if(SDL_SSE3)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-msse3")
       check_c_source_compiles("
           #ifdef __MINGW32__
@@ -994,12 +999,11 @@ if(SDL_ASSEMBLY)
           #ifndef __SSE3__
           #error Assembler CPP flag not enabled
           #endif
-          int main(int argc, char **argv) { return 0; }" CPU_SUPPORTS_SSE3)
-      if(CPU_SUPPORTS_SSE3)
-        set(HAVE_SSE3 TRUE)
+          int main(int argc, char **argv) { return 0; }" HAVE_SSE3)
+      cmake_pop_check_state()
+      if(HAVE_SSE3)
         list(APPEND EXTRA_CFLAGS "-msse3")
       endif()
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
     endif()
 
     if(USE_GCC)
@@ -1020,26 +1024,24 @@ if(SDL_ASSEMBLY)
     check_include_file("immintrin.h" HAVE_IMMINTRIN_H)
 
     if(SDL_ALTIVEC)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-maltivec")
       check_c_source_compiles("
           #include <altivec.h>
           vector unsigned int vzero() {
               return vec_splat_u32(0);
           }
-          int main(int argc, char **argv) { return 0; }" HAVE_ALTIVEC_H_HDR)
+          int main(int argc, char **argv) { return 0; }" HAVE_ALTIVEC_H)
       check_c_source_compiles("
           vector unsigned int vzero() {
               return vec_splat_u32(0);
           }
-          int main(int argc, char **argv) { return 0; }" CPU_SUPPORTS_ALTIVEC)
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
-      if(CPU_SUPPORTS_ALTIVEC OR HAVE_ALTIVEC_H_HDR)
-        set(HAVE_ALTIVEC TRUE) # if only HAVE_ALTIVEC_H_HDR is set
+          int main(int argc, char **argv) { return 0; }" HAVE_ALTIVEC)
+      cmake_pop_check_state()
+      if(HAVE_ALTIVEC OR HAVE_ALTIVEC_H)
+        set(HAVE_ALTIVEC TRUE) # if only HAVE_ALTIVEC_H is set
         list(APPEND EXTRA_CFLAGS "-maltivec")
         set(SDL_ALTIVEC_BLITTERS 1)
-        if(HAVE_ALTIVEC_H_HDR)
-          set(HAVE_ALTIVEC_H 1)
-        endif()
       endif()
     endif()
 
@@ -1050,13 +1052,17 @@ if(SDL_ASSEMBLY)
           #ifndef __loongarch_sx
           #error Assembler CPP flag not enabled
           #endif
-          int main(int argc, char **argv) { return 0; }" CPU_SUPPORTS_LSX)
+          int main(int argc, char **argv) { return 0; }" HAVE_LSX)
       check_include_file("lsxintrin.h" HAVE_LSXINTRIN_H)
       cmake_pop_check_state()
 
-      if(CPU_SUPPORTS_LSX AND HAVE_LSXINTRIN_H)
-        list(APPEND EXTRA_CFLAGS "-mlsx")
-        set(HAVE_LSX TRUE)
+      if(HAVE_LSX)
+        if (HAVE_LSXINTRIN_H)
+           list(APPEND EXTRA_CFLAGS "-mlsx")
+        else()
+          message(WARNING "LSX disabled because header file is missing.")
+          set(HAVE_LSX FALSE)
+        endif()
       endif()
     endif()
 
@@ -1067,17 +1073,21 @@ if(SDL_ASSEMBLY)
           #ifndef __loongarch_asx
           #error Assembler CPP flag not enabled
           #endif
-          int main(int argc, char **argv) { return 0; }" CPU_SUPPORTS_LASX)
+          int main(int argc, char **argv) { return 0; }" HAVE_LASX)
       check_include_file("lasxintrin.h" HAVE_LASXINTRIN_H)
       cmake_pop_check_state()
-      if(CPU_SUPPORTS_LASX AND HAVE_LASXINTRIN_H)
-        list(APPEND EXTRA_CFLAGS "-mlasx")
-        set(HAVE_LASX TRUE)
+      if(HAVE_LASX)
+        if(HAVE_LASXINTRIN_H)
+          list(APPEND EXTRA_CFLAGS "-mlasx")
+        else()
+          message(WARNING "LASX disabled because header file is missing.")
+          set(HAVE_LASX FALSE)
+        endif()
       endif()
     endif()
 
     if(SDL_ARMSIMD)
-      set(ORIG_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -x assembler-with-cpp")
       check_c_source_compiles("
         .text
@@ -1091,7 +1101,7 @@ if(SDL_ASSEMBLY)
         pld [r0]
         uqadd8 r0, r0, r0
       " ARMSIMD_FOUND)
-      set(CMAKE_REQUIRED_FLAGS "${ORIG_CMAKE_REQUIRED_FLAGS}")
+      cmake_pop_check_state()
 
       if(ARMSIMD_FOUND)
         set(HAVE_ARMSIMD TRUE)
@@ -1103,7 +1113,7 @@ if(SDL_ASSEMBLY)
     endif()
 
     if(SDL_ARMNEON)
-      set(ORIG_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -x assembler-with-cpp")
       check_c_source_compiles("
         .text
@@ -1119,7 +1129,7 @@ if(SDL_ASSEMBLY)
         pld [r0]
         vmovn.u16 d0, q0
       " ARMNEON_FOUND)
-      set(CMAKE_REQUIRED_FLAGS "${ORIG_CMAKE_REQUIRED_FLAGS}")
+      cmake_pop_check_state()
 
       if(ARMNEON_FOUND)
         set(HAVE_ARMNEON TRUE)
@@ -1935,9 +1945,10 @@ elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU)
   set(SDL_RLD_FLAGS "")
   if(SDL_RPATH AND SDL_SHARED)
     if(BSDI OR FREEBSD OR LINUX OR NETBSD)
+      cmake_push_check_state()
       set(CMAKE_REQUIRED_FLAGS "-Wl,--enable-new-dtags")
       check_c_compiler_flag("" HAVE_ENABLE_NEW_DTAGS)
-      set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
+      cmake_pop_check_state()
       if(HAVE_ENABLE_NEW_DTAGS)
         set(SDL_RLD_FLAGS "-Wl,-rpath,\${libdir} -Wl,--enable-new-dtags")
       else()
@@ -1996,6 +2007,7 @@ elseif(WINDOWS)
     if(DEFINED MSVC_VERSION AND NOT ${MSVC_VERSION} LESS 1700)
         set(USE_WINSDK_DIRECTX TRUE)
     endif()
+    cmake_push_check_state()
     if(NOT MINGW AND NOT USE_WINSDK_DIRECTX)
       if("$ENV{DXSDK_DIR}" STREQUAL "")
         message_error("DIRECTX requires the \$DXSDK_DIR environment variable to be set")
@@ -2020,6 +2032,7 @@ elseif(WINDOWS)
       set(HAVE_DINPUT_H 0)
     endif()
     check_include_file(dxgi.h HAVE_DXGI_H)
+    cmake_pop_check_state()
     if(HAVE_D3D_H OR HAVE_D3D11_H OR HAVE_D3D12_H OR HAVE_DDRAW_H OR HAVE_DSOUND_H OR HAVE_DINPUT_H)
       set(HAVE_DIRECTX TRUE)
       if(NOT MINGW AND NOT USE_WINSDK_DIRECTX)
@@ -2028,7 +2041,6 @@ elseif(WINDOWS)
         target_include_directories(sdl-build-options INTERFACE "$ENV{DXSDK_DIR}\\Include")
       endif()
     endif()
-    set(CMAKE_REQUIRED_FLAGS ${ORIG_CMAKE_REQUIRED_FLAGS})
   endif()
 
   if(SDL_XINPUT)
