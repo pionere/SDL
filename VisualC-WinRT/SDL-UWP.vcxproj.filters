@@ -186,6 +186,9 @@
     <ClInclude Include="..\src\audio\SDL_audio_c.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\audio\SDL_audioresampler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\audio\SDL_audiotypecvt.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -499,6 +502,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\audio\SDL_audiodev.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\audio\SDL_audioresampler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\audio\SDL_audiotypecvt.c">

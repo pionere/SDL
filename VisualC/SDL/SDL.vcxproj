@@ -300,6 +300,7 @@
     <ClInclude Include="..\..\src\audio\dummy\SDL_dummyaudio.h" />
     <ClInclude Include="..\..\src\audio\SDL_audio_c.h" />
     <ClInclude Include="..\..\src\audio\SDL_audiodev_c.h" />
+    <ClInclude Include="..\..\src\audio\SDL_audioresampler.h" />
     <ClInclude Include="..\..\src\audio\SDL_audiotypecvt.h" />
     <ClInclude Include="..\..\src\audio\SDL_sysaudio.h" />
     <ClInclude Include="..\..\src\audio\SDL_wave.h" />
@@ -465,6 +466,7 @@
     <ClCompile Include="..\..\src\audio\SDL_audio.c" />
     <ClCompile Include="..\..\src\audio\SDL_audiocvt.c" />
     <ClCompile Include="..\..\src\audio\SDL_audiodev.c" />
+    <ClCompile Include="..\..\src\audio\SDL_audioresampler.c" />
     <ClCompile Include="..\..\src\audio\SDL_audiotypecvt.c" />
     <ClCompile Include="..\..\src\audio\SDL_mixer.c" />
     <ClCompile Include="..\..\src\audio\SDL_wave.c" />

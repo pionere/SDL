@@ -57,7 +57,7 @@ SRCS = SDL.c SDL_assert.c SDL_error.c SDL_guid.c SDL_log.c SDL_dataqueue.c SDL_h
 SRCS+= SDL_getenv.c SDL_iconv.c SDL_malloc.c SDL_qsort.c SDL_stdlib.c SDL_string.c SDL_strtokr.c SDL_crc16.c SDL_crc32.c
 SRCS+= SDL_cpuinfo.c SDL_atomic.c SDL_spinlock.c SDL_thread.c SDL_timer.c
 SRCS+= SDL_rwops.c SDL_power.c
-SRCS+= SDL_audio.c SDL_audiocvt.c SDL_audiodev.c SDL_audiotypecvt.c SDL_mixer.c SDL_wave.c
+SRCS+= SDL_audio.c SDL_audiocvt.c SDL_audiodev.c SDL_audioresampler.c SDL_audiotypecvt.c SDL_mixer.c SDL_wave.c
 SRCS+= SDL_events.c SDL_quit.c SDL_keyboard.c SDL_mouse.c SDL_windowevents.c &
        SDL_clipboardevents.c SDL_dropevents.c SDL_displayevents.c SDL_gesture.c &
        scancodes_ascii.c scancodes_windows.c &
