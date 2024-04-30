@@ -227,10 +227,10 @@ static void BlitRGBtoRGBSurfaceAlpha128MMX(const SDL_BlitInfo *info)
 static void BlitRGBtoRGBSurfaceAlphaMMX(const SDL_BlitInfo *info)
 {
     SDL_PixelFormat *df = info->dst_fmt;
-    Uint32 chanmask;
+    const Uint32 chanmask = (df->Rmask | df->Gmask | df->Bmask);
     unsigned alpha = info->color.a;
 
-    if (alpha == 128 && (df->Rmask | df->Gmask | df->Bmask) == 0x00FFFFFF) {
+    if (alpha == 128 && chanmask == 0x00FFFFFF) {
         /* only call a128 version when R,G,B occupy lower bits */
         BlitRGBtoRGBSurfaceAlpha128MMX(info);
     } else {
@@ -242,15 +242,13 @@ static void BlitRGBtoRGBSurfaceAlphaMMX(const SDL_BlitInfo *info)
         int dstskip = info->dst_skip >> 2;
         Uint32 dalpha = df->Amask;
         Uint32 amult;
+        const __m64 mm_zero = _mm_setzero_si64(); /* 0 -> mm_zero */
 
-        __m64 src1, src2, dst1, dst2, mm_alpha, mm_zero, dsta;
+        __m64 src1, src2, dst1, dst2, mm_alpha, dsta;
 
-        mm_zero = _mm_setzero_si64(); /* 0 -> mm_zero */
         /* form the alpha mult */
         amult = alpha | (alpha << 8);
         amult = amult | (amult << 16);
-        chanmask =
-            (0xff << df->Rshift) | (0xff << df->Gshift) | (0xff << df->Bshift);
         mm_alpha = _mm_set_pi32(0, amult & chanmask);   /* 0000AAAA -> mm_alpha, minus 1 chan */
         mm_alpha = _mm_unpacklo_pi8(mm_alpha, mm_zero); /* 0A0A0A0A -> mm_alpha, minus 1 chan */
         /* at this point mm_alpha can be 000A0A0A or 0A0A0A00 or another combo */
@@ -330,24 +328,11 @@ static void BlitRGBtoRGBPixelAlphaMMX(const SDL_BlitInfo *info)
     SDL_PixelFormat *sf = info->src_fmt;
     Uint32 amask = sf->Amask;
     Uint32 ashift = sf->Ashift;
-    Uint64 multmask, multmask2;
-
-    __m64 src1, dst1, mm_alpha, mm_zero, mm_alpha2, mm_one_alpha;
-
-    mm_zero = _mm_setzero_si64(); /* 0 -> mm_zero */
-    if (amask == 0xFF000000) { /* 1 in the alpha channel -> mm_one_alpha */
-        mm_one_alpha = _mm_set_pi16(1, 0, 0, 0);
-    } else if (amask == 0x00FF0000) {
-        mm_one_alpha = _mm_set_pi16(0, 1, 0, 0);
-    } else if (amask == 0x0000FF00) {
-        mm_one_alpha = _mm_set_pi16(0, 0, 1, 0);
-    } else {
-        mm_one_alpha = _mm_set_pi16(0, 0, 0, 1);
-    }
-
-    multmask = 0x00FF;
-    multmask <<= (ashift * 2);
-    multmask2 = 0x00FF00FF00FF00FFULL;
+    const Uint64 multmask = 0x00FFULL << (ashift * 2); /* 0x00FF in the alpha channel -> multmask */
+    const Uint64 multmask2 = 0x00FF00FF00FF00FFULL;    /* 0x00FF in every channel -> multmask2 */
+    const __m64 mm_zero =  _mm_setzero_si64();                                                         /* 0 -> mm_zero */
+    const __m64 mm_one_alpha = _mm_set_pi32(((multmask >> 32) & 0x00010001), (multmask & 0x00010001)); /* 1 in the alpha channel -> mm_one_alpha */
+    __m64 src1, dst1, mm_alpha, mm_alpha2;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */
@@ -364,12 +349,13 @@ static void BlitRGBtoRGBPixelAlphaMMX(const SDL_BlitInfo *info)
             dst1 = _mm_cvtsi32_si64(*dstp); /* dst(ARGB) -> dst1 (0000ARGB) */
             dst1 = _mm_unpacklo_pi8(dst1, mm_zero); /* 0A0R0G0B -> dst1 */
 
-            mm_alpha = _mm_cvtsi32_si64(alpha); /* alpha -> mm_alpha (0000000A) */
-            mm_alpha = _mm_srli_si64(mm_alpha, ashift); /* mm_alpha >> ashift -> mm_alpha(0000000A) */
-            mm_alpha = _mm_unpacklo_pi16(mm_alpha, mm_alpha); /* 00000A0A -> mm_alpha */
-            mm_alpha2 = _mm_unpacklo_pi32(mm_alpha, mm_alpha); /* 0A0A0A0A -> mm_alpha2 */
+            // mm_alpha = _mm_cvtsi32_si64(alpha); /* alpha -> mm_alpha (0000000A) */
+            // mm_alpha = _mm_srli_si64(mm_alpha, ashift); /* mm_alpha >> ashift -> mm_alpha(0000000A) */
+            // mm_alpha = _mm_unpacklo_pi16(mm_alpha, mm_alpha); /* 00000A0A -> mm_alpha */
+            // mm_alpha2 = _mm_unpacklo_pi32(mm_alpha, mm_alpha); /* 0A0A0A0A -> mm_alpha2 */
+            mm_alpha2 = _mm_set1_pi16(alpha >> ashift);                  /* 0A0A0A0A -> mm_alpha2 */
             mm_alpha = _mm_or_si64(mm_alpha2, *(__m64 *) & multmask);    /* 0F0A0A0A -> mm_alpha */
-            mm_alpha2 = _mm_xor_si64(mm_alpha2, *(__m64 *) & multmask2);    /* 255 - mm_alpha -> mm_alpha */
+            mm_alpha2 = _mm_xor_si64(mm_alpha2, *(__m64 *) & multmask2); /* 255 - mm_alpha -> mm_alpha */
 
             /*
                 Alpha blending is:
@@ -383,6 +369,10 @@ static void BlitRGBtoRGBPixelAlphaMMX(const SDL_BlitInfo *info)
                     dstRGB * (1-srcA)
                     dstA * (1-srcA)
                 so that *dstp is 'src1 + dst1'
+                While 'mm_alpha' is:
+                    1 | srcA
+                And 'mm_alpha2' is:
+                    (1-srcA)
 
                 src1 is computed using mullo_pi16: (X * mask) >> 8, but is approximate for srcA ((srcA * 255) >> 8).
 
@@ -656,24 +646,12 @@ static void BlitRGBtoRGBPixelAlphaMMX3DNOW(const SDL_BlitInfo *info)
     SDL_PixelFormat *sf = info->src_fmt;
     Uint32 amask = sf->Amask;
     Uint32 ashift = sf->Ashift;
-    Uint64 multmask, multmask2;
+    const Uint64 multmask = 0x00FFULL << (ashift * 2); /* 0x00FF in the alpha channel -> multmask */
+    const Uint64 multmask2 = 0x00FF00FF00FF00FFULL;    /* 0x00FF in every channel -> multmask2 */
+    const __m64 mm_zero =  _mm_setzero_si64();                                                         /* 0 -> mm_zero */
+    const __m64 mm_one_alpha = _mm_set_pi32(((multmask >> 32) & 0x00010001), (multmask & 0x00010001)); /* 1 in the alpha channel -> mm_one_alpha */
 
-    __m64 src1, dst1, mm_alpha, mm_zero, mm_alpha2, mm_one_alpha;
-
-    mm_zero = _mm_setzero_si64(); /* 0 -> mm_zero */
-    if (amask == 0xFF000000) { /* 1 in the alpha channel -> mm_one_alpha */
-        mm_one_alpha = _mm_set_pi16(1, 0, 0, 0);
-    } else if (amask == 0x00FF0000) {
-        mm_one_alpha = _mm_set_pi16(0, 1, 0, 0);
-    } else if (amask == 0x0000FF00) {
-        mm_one_alpha = _mm_set_pi16(0, 0, 1, 0);
-    } else {
-        mm_one_alpha = _mm_set_pi16(0, 0, 0, 1);
-    }
-
-    multmask = 0x00FF;
-    multmask <<= (ashift * 2);
-    multmask2 = 0x00FF00FF00FF00FFULL;
+    __m64 src1, dst1, mm_alpha, mm_alpha2;
 
     while (height--) {
         /* *INDENT-OFF* */ /* clang-format off */
@@ -695,12 +673,13 @@ static void BlitRGBtoRGBPixelAlphaMMX3DNOW(const SDL_BlitInfo *info)
             dst1 = _mm_cvtsi32_si64(*dstp); /* dst(ARGB) -> dst1 (0000ARGB) */
             dst1 = _mm_unpacklo_pi8(dst1, mm_zero); /* 0A0R0G0B -> dst1 */
 
-            mm_alpha = _mm_cvtsi32_si64(alpha); /* alpha -> mm_alpha (0000000A) */
-            mm_alpha = _mm_srli_si64(mm_alpha, ashift); /* mm_alpha >> ashift -> mm_alpha(0000000A) */
-            mm_alpha = _mm_unpacklo_pi16(mm_alpha, mm_alpha); /* 00000A0A -> mm_alpha */
-            mm_alpha2 = _mm_unpacklo_pi32(mm_alpha, mm_alpha); /* 0A0A0A0A -> mm_alpha2 */
+            // mm_alpha = _mm_cvtsi32_si64(alpha); /* alpha -> mm_alpha (0000000A) */
+            // mm_alpha = _mm_srli_si64(mm_alpha, ashift); /* mm_alpha >> ashift -> mm_alpha(0000000A) */
+            // mm_alpha = _mm_unpacklo_pi16(mm_alpha, mm_alpha); /* 00000A0A -> mm_alpha */
+            // mm_alpha2 = _mm_unpacklo_pi32(mm_alpha, mm_alpha); /* 0A0A0A0A -> mm_alpha2 */
+            mm_alpha2 = _mm_set1_pi16(alpha >> ashift);                  /* 0A0A0A0A -> mm_alpha2 */
             mm_alpha = _mm_or_si64(mm_alpha2, *(__m64 *) & multmask);    /* 0F0A0A0A -> mm_alpha */
-            mm_alpha2 = _mm_xor_si64(mm_alpha2, *(__m64 *) & multmask2);    /* 255 - mm_alpha -> mm_alpha */
+            mm_alpha2 = _mm_xor_si64(mm_alpha2, *(__m64 *) & multmask2); /* 255 - mm_alpha -> mm_alpha */
 
             /*
                 Alpha blending is:
@@ -714,6 +693,10 @@ static void BlitRGBtoRGBPixelAlphaMMX3DNOW(const SDL_BlitInfo *info)
                     dstRGB * (1-srcA)
                     dstA * (1-srcA)
                 so that *dstp is 'src1 + dst1'
+                While 'mm_alpha' is:
+                    1 | srcA
+                And 'mm_alpha2' is:
+                    (1-srcA)
 
                 src1 is computed using mullo_pi16: (X * mask) >> 8, but is approximate for srcA ((srcA * 255) >> 8).
 
