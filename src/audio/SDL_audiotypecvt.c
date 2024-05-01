@@ -501,32 +501,21 @@ static void SDLCALL SDL_Convert_U16_to_F32_SSE2(SDL_AudioCVT *cvt)
 
     cvt->len_cvt *= 2;
 
-    /* Get dst aligned to 16 bytes (since buffer is growing, we don't have to worry about overreading from src) */
-    for ( ; i && ((size_t)dst & 15); i--) {
-        src--;
-        dst--;
-        dst[0] = (((float)src[0]) * DIVBY32768) - 1.0f;
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
-        /* Aligned! Do SSE blocks as long as we have 16 bytes available. */
+    {
         const __m128 divby32768 = _mm_set1_ps(DIVBY32768);
         const __m128 minus1 = _mm_set1_ps(-1.0f);
         while (i >= 8) {                                               /* 8 * 16-bit */
             src -= 8;
             dst -= 8;
             {
-            const __m128i ints = _mm_load_si128((__m128i const *)&src[0]); /* get 8 sint16 into an XMM register. */
+            const __m128i ints = _mm_loadu_si128((__m128i const *)&src[0]); /* get 8 sint16 into an XMM register. */
             /* treat as int32, shift left to clear every other sint16, then back right with zero-extend. Now sint32. */
             const __m128i a = _mm_srli_epi32(_mm_slli_epi32(ints, 16), 16);
             /* right-shift-sign-extend gets us sint32 with the other set of values. */
             const __m128i b = _mm_srli_epi32(ints, 16);
             /* Interleave these back into the right order, convert to float, multiply, store. */
-            _mm_store_ps(&dst[0], _mm_add_ps(_mm_mul_ps(_mm_cvtepi32_ps(_mm_unpacklo_epi32(a, b)), divby32768), minus1));
-            _mm_store_ps(&dst[4], _mm_add_ps(_mm_mul_ps(_mm_cvtepi32_ps(_mm_unpackhi_epi32(a, b)), divby32768), minus1));
+            _mm_storeu_ps(&dst[0], _mm_add_ps(_mm_mul_ps(_mm_cvtepi32_ps(_mm_unpacklo_epi32(a, b)), divby32768), minus1));
+            _mm_storeu_ps(&dst[4], _mm_add_ps(_mm_mul_ps(_mm_cvtepi32_ps(_mm_unpackhi_epi32(a, b)), divby32768), minus1));
             }
             i -= 8;
         }
@@ -731,22 +720,7 @@ static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
 
     cvt->len_cvt /= 2u;
 
-    /* Get dst aligned to 16 bytes */
-    for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 65535;
-        } else if (sample <= -1.0f) {
-            dst[0] = 0;
-        } else {
-            dst[0] = (Uint16)((sample + 1.0f) * 32767.0f);
-        }
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do SSE blocks as long as we have 16 bytes available. */
         /* This calculates differently than the scalar path because SSE2 can't
            pack int32 data down to unsigned int16. _mm_packs_epi32 does signed
@@ -760,9 +734,9 @@ static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
         const __m128 one = _mm_set1_ps(1.0f);
         const __m128 negone = _mm_set1_ps(-1.0f);
         while (i >= 8) {                                                                                                              /* 8 * float32 */
-            const __m128i ints1 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_load_ps(&src[0])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
-            const __m128i ints2 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_load_ps(&src[4])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
-            _mm_store_si128((__m128i *)&dst[0], _mm_xor_si128(_mm_packs_epi32(ints1, ints2), topbit));                                /* pack to sint16, xor top bit, store out. */
+            const __m128i ints1 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_loadu_ps(&src[0])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
+            const __m128i ints2 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_loadu_ps(&src[4])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
+            _mm_storeu_si128((__m128i *)&dst[0], _mm_xor_si128(_mm_packs_epi32(ints1, ints2), topbit));                                /* pack to sint16, xor top bit, store out. */
             i -= 8;
             src += 8;
             dst += 8;
