@@ -759,16 +759,14 @@ static void SDLCALL SDL_Convert_F32_to_U16_SSE2(SDL_AudioCVT *cvt)
         const __m128i topbit = _mm_set1_epi16(-32768);
         const __m128 one = _mm_set1_ps(1.0f);
         const __m128 negone = _mm_set1_ps(-1.0f);
-        __m128i *mmdst = (__m128i *)dst;
         while (i >= 8) {                                                                                                              /* 8 * float32 */
             const __m128i ints1 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_load_ps(&src[0])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
             const __m128i ints2 = _mm_cvtps_epi32(_mm_mul_ps(_mm_min_ps(_mm_max_ps(negone, _mm_load_ps(&src[4])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
-            _mm_store_si128(&mmdst[0], _mm_xor_si128(_mm_packs_epi32(ints1, ints2), topbit));                                         /* pack to sint16, xor top bit, store out. */
+            _mm_store_si128((__m128i *)&dst[0], _mm_xor_si128(_mm_packs_epi32(ints1, ints2), topbit));                                /* pack to sint16, xor top bit, store out. */
             i -= 8;
             src += 8;
-            mmdst++;
+            dst += 8;
         }
-        dst = (Uint16 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -858,13 +856,12 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
     /* Make sure src is aligned too. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
-        const int8_t *mmsrc = (const int8_t *)src;
         const float32x4_t divby128 = vdupq_n_f32(DIVBY128);
         while (i >= 16) {                                            /* 16 * 8-bit */
-            mmsrc -= 16;
+            src -= 16;
             dst -= 16;
             {
-            const int8x16_t bytes = vld1q_s8(&mmsrc[0]);             /* get 16 sint8 into a NEON register. */
+            const int8x16_t bytes = vld1q_s8(&src[0]);               /* get 16 sint8 into a NEON register. */
             const int16x8_t int16hi = vmovl_s8(vget_high_s8(bytes)); /* convert top 8 bytes to 8 int16 */
             const int16x8_t int16lo = vmovl_s8(vget_low_s8(bytes));  /* convert bottom 8 bytes to 8 int16 */
             /* split int16 to two int32, then convert to float, then multiply to normalize, store. */
@@ -875,8 +872,6 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
             }
             i -= 16;
         }
-
-        src = (const Sint8 *)mmsrc;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -910,14 +905,13 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
     /* Make sure src is aligned too. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
-        const uint8_t *mmsrc = (const uint8_t *)src;
         const float32x4_t divby128 = vdupq_n_f32(DIVBY128);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         while (i >= 16) {                                              /* 16 * 8-bit */
-            mmsrc -= 16;
+            src -= 16;
             dst -= 16;
             {
-            const uint8x16_t bytes = vld1q_u8(&mmsrc[0]);              /* get 16 uint8 into a NEON register. */
+            const uint8x16_t bytes = vld1q_u8(&src[0]);                /* get 16 uint8 into a NEON register. */
             const uint16x8_t uint16hi = vmovl_u8(vget_high_u8(bytes)); /* convert top 8 bytes to 8 uint16 */
             const uint16x8_t uint16lo = vmovl_u8(vget_low_u8(bytes));  /* convert bottom 8 bytes to 8 uint16 */
             /* split uint16 to two uint32, then convert to float, then multiply to normalize, subtract to adjust for sign, store. */
@@ -928,8 +922,6 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
             }
             i -= 16;
         }
-
-        src = (const Uint8 *)mmsrc;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1051,15 +1043,13 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby8388607 = vdupq_n_f32(DIVBY8388607);
-        const int32_t *mmsrc = (const int32_t *)src;
         while (i >= 4) { /* 4 * sint32 */
             /* shift out lowest bits so int fits in a float32. Small precision loss, but much faster. */
-            vst1q_f32(&dst[0], vmulq_f32(vcvtq_f32_s32(vshrq_n_s32(vld1q_s32(&mmsrc[0]), 8)), divby8388607));
+            vst1q_f32(&dst[0], vmulq_f32(vcvtq_f32_s32(vshrq_n_s32(vld1q_s32(&src[0]), 8)), divby8388607));
             i -= 4;
-            mmsrc += 4;
+            src += 4;
             dst += 4;
         }
-        src = (const Sint32 *)mmsrc;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1099,20 +1089,18 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
         const float32x4_t one = vdupq_n_f32(1.0f);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         const float32x4_t mulby127 = vdupq_n_f32(127.0f);
-        int8_t *mmdst = (int8_t *)dst;
         while (i >= 16) {                                                                                                       /* 16 * float32 */
-            const int32x4_t ints1 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), mulby127));      /* load 4 floats, clamp, convert to sint32 */
+            const int32x4_t ints1 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), mulby127));  /* load 4 floats, clamp, convert to sint32 */
             const int32x4_t ints2 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[4])), one), mulby127));  /* load 4 floats, clamp, convert to sint32 */
             const int32x4_t ints3 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[8])), one), mulby127));  /* load 4 floats, clamp, convert to sint32 */
             const int32x4_t ints4 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[12])), one), mulby127)); /* load 4 floats, clamp, convert to sint32 */
             const int8x8_t i8lo = vmovn_s16(vcombine_s16(vmovn_s32(ints1), vmovn_s32(ints2)));                                  /* narrow to sint16, combine, narrow to sint8 */
             const int8x8_t i8hi = vmovn_s16(vcombine_s16(vmovn_s32(ints3), vmovn_s32(ints4)));                                  /* narrow to sint16, combine, narrow to sint8 */
-            vst1q_s8(&mmdst[0], vcombine_s8(i8lo, i8hi));                                                                           /* combine to int8x16_t, store out */
+            vst1q_s8(&dst[0], vcombine_s8(i8lo, i8hi));                                                                         /* combine to int8x16_t, store out */
             i -= 16;
             src += 16;
-            mmdst += 16;
+            dst += 16;
         }
-        dst = (Sint8 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1159,7 +1147,6 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
         const float32x4_t one = vdupq_n_f32(1.0f);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         const float32x4_t mulby127 = vdupq_n_f32(127.0f);
-        uint8_t *mmdst = (uint8_t *)dst;
         while (i >= 16) {                                                                                                                         /* 16 * float32 */
             const uint32x4_t uints1 = vcvtq_u32_f32(vmulq_f32(vaddq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), one), mulby127));  /* load 4 floats, clamp, convert to uint32 */
             const uint32x4_t uints2 = vcvtq_u32_f32(vmulq_f32(vaddq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[4])), one), one), mulby127));  /* load 4 floats, clamp, convert to uint32 */
@@ -1167,13 +1154,11 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
             const uint32x4_t uints4 = vcvtq_u32_f32(vmulq_f32(vaddq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[12])), one), one), mulby127)); /* load 4 floats, clamp, convert to uint32 */
             const uint8x8_t ui8lo = vmovn_u16(vcombine_u16(vmovn_u32(uints1), vmovn_u32(uints2)));                                                /* narrow to uint16, combine, narrow to uint8 */
             const uint8x8_t ui8hi = vmovn_u16(vcombine_u16(vmovn_u32(uints3), vmovn_u32(uints4)));                                                /* narrow to uint16, combine, narrow to uint8 */
-            vst1q_u8(&mmdst[0], vcombine_u8(ui8lo, ui8hi));                                                                                       /* combine to uint8x16_t, store out */
+            vst1q_u8(&dst[0], vcombine_u8(ui8lo, ui8hi));                                                                                         /* combine to uint8x16_t, store out */
             i -= 16;
             src += 16;
-            mmdst += 16;
+            dst += 16;
         }
-
-        dst = (Uint8 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1220,16 +1205,14 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
         const float32x4_t one = vdupq_n_f32(1.0f);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         const float32x4_t mulby32767 = vdupq_n_f32(32767.0f);
-        int16_t *mmdst = (int16_t *)dst;
         while (i >= 8) {                                                                                                         /* 8 * float32 */
             const int32x4_t ints1 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
             const int32x4_t ints2 = vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[4])), one), mulby32767)); /* load 4 floats, clamp, convert to sint32 */
-            vst1q_s16(&mmdst[0], vcombine_s16(vmovn_s32(ints1), vmovn_s32(ints2)));                                              /* narrow to sint16, combine, store out. */
+            vst1q_s16(&dst[0], vcombine_s16(vmovn_s32(ints1), vmovn_s32(ints2)));                                              /* narrow to sint16, combine, store out. */
             i -= 8;
             src += 8;
-            mmdst += 8;
+            dst += 8;
         }
-        dst = (Sint16 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1276,16 +1259,14 @@ static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
         const float32x4_t one = vdupq_n_f32(1.0f);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         const float32x4_t mulby32767 = vdupq_n_f32(32767.0f);
-        uint16_t *mmdst = (uint16_t *)dst;
         while (i >= 8) {                                                                                                                           /* 8 * float32 */
             const uint32x4_t uints1 = vcvtq_u32_f32(vmulq_f32(vaddq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), one), mulby32767));     /* load 4 floats, clamp, convert to uint32 */
             const uint32x4_t uints2 = vcvtq_u32_f32(vmulq_f32(vaddq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[4])), one), one), mulby32767)); /* load 4 floats, clamp, convert to uint32 */
-            vst1q_u16(&mmdst[0], vcombine_u16(vmovn_u32(uints1), vmovn_u32(uints2)));                                                                  /* narrow to uint16, combine, store out. */
+            vst1q_u16(&dst[0], vcombine_u16(vmovn_u32(uints1), vmovn_u32(uints2)));                                                                  /* narrow to uint16, combine, store out. */
             i -= 8;
             src += 8;
-            mmdst += 8;
+            dst += 8;
         }
-        dst = (Uint16 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -1330,14 +1311,12 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
         const float32x4_t one = vdupq_n_f32(1.0f);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
         const float32x4_t mulby8388607 = vdupq_n_f32(8388607.0f);
-        int32_t *mmdst = (int32_t *)dst;
         while (i >= 4) { /* 4 * float32 */
-            vst1q_s32(&mmdst[0], vshlq_n_s32(vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), mulby8388607)), 8));
+            vst1q_s32(&dst[0], vshlq_n_s32(vcvtq_s32_f32(vmulq_f32(vminq_f32(vmaxq_f32(negone, vld1q_f32(&src[0])), one), mulby8388607)), 8));
             i -= 4;
             src += 4;
-            mmdst += 4;
+            dst += 4;
         }
-        dst = (Sint32 *)mmdst;
     }
 
     /* Finish off any leftovers with scalar operations. */
