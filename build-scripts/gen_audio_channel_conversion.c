@@ -273,15 +273,15 @@ static void write_converter(const int fromchans, const int tochans)
     }
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
         /*if (fromchans == 1) {
-            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d))) - %d;\n", tochans, tochans);
+            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d)));\n", tochans, tochans);
         } else */ if ((tochans % fromchans) == 0) {
-            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d))) - %d;\n", tochans / fromchans, tochans);
+            printf("    float *dst = (float *)(cvt->buf + (cvt->len_cvt * %d));\n", tochans / fromchans, tochans);
         } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %du) * %d))) - %d;\n", fromchans, tochans, tochans);
+            printf("    float *dst = (float *)(cvt->buf + ((cvt->len_cvt / %du) * %d));\n", fromchans, tochans, tochans);
         // } else {
-        //    printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d))) - %d;\n", fromchans, tochans, tochans);
+        //    printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d)));\n", fromchans, tochans, tochans);
         }
-        printf("    const float *src = ((const float *)(cvt->buf + cvt->len_cvt)) - %d;\n", fromchans);
+        printf("    const float *src = (const float *)(cvt->buf + cvt->len_cvt);\n", fromchans);
     } else {
         printf("    float *dst = (float *)cvt->buf;\n");
         printf("    const float *src = dst;\n");
@@ -319,7 +319,10 @@ static void write_converter(const int fromchans, const int tochans)
 
     if (convert_backwards) {
         printf("    /* convert backwards, since output is growing in-place. */\n");
-        printf("    for (i = num_samples; i; i--, src -= %d, dst -= %d) {\n", fromchans, tochans);
+        printf("    for (i = num_samples; i; i--) {\n");
+        printf("        src -= %d;\n", fromchans);
+        printf("        dst -= %d;\n", tochans);
+        printf("        {\n");
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
             if (input_channel_used[i] > 1) {  /* don't read it from src more than once. */
@@ -397,6 +400,7 @@ static void write_converter(const int fromchans, const int tochans)
 
             printf(";\n");
         }
+        printf("        }\n");
 
         printf("    }\n");
     } else {
