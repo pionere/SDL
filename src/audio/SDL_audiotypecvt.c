@@ -1137,9 +1137,9 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
             const int32x4_t ints3 = vreinterpretq_s32_f32(vaddq_f32(floats3, offset));
             const int32x4_t ints4 = vreinterpretq_s32_f32(vaddq_f32(floats4, offset));
 
-            const int8x8_t i8lo = vmovn_s16(vcombine_s16(vmovn_s32(ints1), vmovn_s32(ints2))); /* narrow to sint16, combine, narrow to sint8 */
-            const int8x8_t i8hi = vmovn_s16(vcombine_s16(vmovn_s32(ints3), vmovn_s32(ints4))); /* narrow to sint16, combine, narrow to sint8 */
-            vst1q_s8(&dst[0], vcombine_s8(i8lo, i8hi));                                        /* combine to int8x16_t, store out */
+            const int8x8_t i8lo = vqmovn_s16(vcombine_s16(vmovn_s32(ints1), vmovn_s32(ints2))); /* narrow to sint16, combine, saturating narrow to sint8 */
+            const int8x8_t i8hi = vqmovn_s16(vcombine_s16(vmovn_s32(ints3), vmovn_s32(ints4))); /* narrow to sint16, combine, saturating narrow to sint8 */
+            vst1q_s8(&dst[0], vcombine_s8(i8lo, i8hi));                                         /* combine to int8x16_t, store out */
 
             i -= 16;
             src += 16;
@@ -1190,9 +1190,9 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
             const uint32x4_t uints3 = vreinterpretq_u32_f32(vaddq_f32(floats3, offset));
             const uint32x4_t uints4 = vreinterpretq_u32_f32(vaddq_f32(floats4, offset));
 
-            const uint8x8_t ui8lo = vmovn_u16(vcombine_u16(vmovn_u32(uints1), vmovn_u32(uints2))); /* narrow to sint16, combine, narrow to sint8 */
-            const uint8x8_t ui8hi = vmovn_u16(vcombine_u16(vmovn_u32(uints3), vmovn_u32(uints4))); /* narrow to sint16, combine, narrow to sint8 */
-            vst1q_u8(&dst[0], vcombine_u8(ui8lo, ui8hi));                                          /* combine to int8x16_t, store out */
+            const uint8x8_t ui8lo = vqmovn_u16(vcombine_u16(vmovn_u32(uints1), vmovn_u32(uints2))); /* narrow to uint16, combine, saturating narrow to uint8 */
+            const uint8x8_t ui8hi = vqmovn_u16(vcombine_u16(vmovn_u32(uints3), vmovn_u32(uints4))); /* narrow to uint16, combine, saturating narrow to uint8 */
+            vst1q_u8(&dst[0], vcombine_u8(ui8lo, ui8hi));                                           /* combine to uint8x16_t, store out */
 
             i -= 16;
             src += 16;
