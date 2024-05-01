@@ -1050,6 +1050,272 @@ int audio_convertAudio()
     return TEST_COMPLETED;
 }
 
+static char* formatString(SDL_AudioFormat format)
+{
+#define FORMAT_CASE(x) case x: return #x;
+    switch (format) {
+    FORMAT_CASE(AUDIO_S8)
+    FORMAT_CASE(AUDIO_U8)
+    FORMAT_CASE(AUDIO_S16LSB)
+    FORMAT_CASE(AUDIO_S16MSB)
+    FORMAT_CASE(AUDIO_U16LSB)
+    FORMAT_CASE(AUDIO_U16MSB)
+    FORMAT_CASE(AUDIO_S32LSB)
+    FORMAT_CASE(AUDIO_S32MSB)
+    FORMAT_CASE(AUDIO_F32LSB)
+    FORMAT_CASE(AUDIO_F32MSB)
+    }
+
+    return "?";
+}
+
+static char* channelString(int channels)
+{
+    switch (channels) {
+    case 1: return "mono";
+    case 2: return "stereo";
+    case 3: return "2.1";
+    case 4: return "quad";
+    case 5: return "4.1";
+    case 6: return "5.1";
+    case 7: return "6.1";
+    case 8: return "7.1";
+    }
+    return "X";
+}
+
+static double sine_wave_sample(const Sint64 idx, const Sint64 rate, const Sint64 freq, const double phase);
+
+/**
+ * \brief Check signal-to-noise ratio and maximum error of audio conversion.
+ *
+ * \sa https://wiki.libsdl.org/SDL_BuildAudioCVT
+ * \sa https://wiki.libsdl.org/SDL_ConvertAudio
+ */
+int audio_conversionLoss()
+{
+    struct test_spec_t {
+        int time;
+        SDL_AudioFormat src_format;
+        int src_channels;
+        SDL_AudioFormat dst_format;
+        int dst_channels;
+        int max_error_int;
+        int freq;
+        double phase;
+        double signal_to_noise;
+        double max_error;
+        double overshoot;
+    } test_specs[] = {
+        /* format conversion tests */
+      { 20, AUDIO_S8, 1, AUDIO_U8, 1, 1, },
+      { 20, AUDIO_U8, 1, AUDIO_S8, 1, 1, },
+      { 20, AUDIO_S8, 1, AUDIO_S16, 1, 1, },
+      { 20, AUDIO_S8, 1, AUDIO_S32, 1, 1, },
+      { 20, AUDIO_S8, 1, AUDIO_F32, 1, 1, },
+      { 20, AUDIO_S16, 1, AUDIO_S8, 1, 255, },
+      { 20, AUDIO_S16, 1, AUDIO_U8, 1, 255, },
+      { 20, AUDIO_S16, 1, AUDIO_S32, 1, 1, },
+        /* channel conversion tests */
+      { 20, AUDIO_S8, 1, AUDIO_S8, 2, 1, },
+      { 20, AUDIO_S8, 1, AUDIO_U8, 2, 1, },
+        /* format+channel conversion tests */
+      { 20, AUDIO_S16, 2, AUDIO_S16, 1, 1, },
+      { 20, AUDIO_U16, 2, AUDIO_U16, 1, 1, },
+      { 20, AUDIO_S32, 2, AUDIO_S32, 1, 64, },
+        /* endianness tests */
+      { 20, AUDIO_S16LSB, 1, AUDIO_S16MSB, 1, 1, },
+        /* performance tests */
+      { 400, AUDIO_S8, 1, AUDIO_S16, 1, 1, },
+      { 400, AUDIO_S8, 1, AUDIO_S16, 2, 1, },
+      { 400, AUDIO_S8, 1, AUDIO_S32, 1, 1, },
+      { 400, AUDIO_S16, 1, AUDIO_S16, 2, 1, },
+      { 400, AUDIO_S16, 2, AUDIO_S16, 1, 1, },
+      { 0 }
+    };
+
+    const int rate = 22050;
+    int spec_idx;
+
+    for (spec_idx = 0; test_specs[spec_idx].time > 0; ++spec_idx) {
+        const struct test_spec_t *spec = &test_specs[spec_idx];
+        const int frames = spec->time * rate;
+        const int src_chans = spec->src_channels;
+        const int dst_chans = spec->dst_channels;
+        const int len_in = src_chans * frames * (SDL_AUDIO_BITSIZE(spec->src_format) / 8u);
+        const int len_target = dst_chans * frames * (SDL_AUDIO_BITSIZE(spec->dst_format) / 8u);
+
+        Uint64 tick_beg, tick_end;
+        Uint8 *input;
+        SDL_AudioCVT cvt1;
+        SDL_AudioCVT cvt2;
+        int i, j, ret, over = 0, max_error_int = 0;
+        double max_error = 0;
+        double sum_squared_error = 0;
+        double sum_squared_value = 0;
+        double signal_to_noise = 0;
+
+        SDLTest_Log("Test conversion of %i s %s %s to %s %s audio",
+            spec->time, channelString(spec->src_channels), formatString(spec->src_format), channelString(spec->dst_channels), formatString(spec->dst_format));
+
+        /* prepare input audio */
+        input = (Uint8 *)SDL_malloc(len_in);
+        SDLTest_AssertCheck(input != NULL, "Expected input buffer to be created.");
+        if (input == NULL) {
+            return TEST_ABORTED;
+        }
+        if (SDL_AUDIO_ISFLOAT(spec->src_format)) {
+            for (i = 0; i < frames; ++i) {
+                float value = (float)sine_wave_sample(i, rate, spec->freq, spec->phase);
+                for (j = 0; j < src_chans; j++) {
+                    *(((float *)input) + i * src_chans + j) = value;
+                }
+            }
+        } else {
+            int bits = SDL_AUDIO_BITSIZE(spec->src_format) / 8u;
+            for (i = 0; i < frames; ++i) {
+                Sint32 value = SDLTest_RandomIntegerInRange(SDL_MIN_SINT32, SDL_MAX_SINT32);
+                for (j = 0; j < src_chans; j++) {
+                    switch (bits) {
+                    case 1: *(((uint8_t *)input) + i * src_chans + j) = (uint8_t)(value & 0xFF);           break;
+                    case 2: *(((uint16_t *)input) + i * src_chans + j) = (uint16_t)(value & 0xFFFF);       break;
+                    case 4: *(((uint32_t *)input) + i * src_chans + j) = (uint32_t)(value & 0xFFFFFFFFFF); break;
+                    }
+                }
+            }
+        }
+
+        ret = SDL_BuildAudioCVT(&cvt1, spec->src_format, spec->src_channels, rate, spec->dst_format, spec->dst_channels, rate);
+        SDLTest_AssertPass("Call to SDL_BuildAudioCVT(&cvt, %s, %d, %i, %s, %d, %i)", formatString(spec->src_format), spec->src_channels, rate, formatString(spec->dst_format), spec->dst_channels, rate);
+        SDLTest_AssertCheck(ret == 1, "Expected SDL_BuildAudioCVT to succeed and conversion to be needed.");
+        if (ret != 1) {
+            return TEST_ABORTED;
+        }
+
+        cvt1.buf = (Uint8 *)SDL_malloc(len_in * cvt1.len_mult);
+        SDLTest_AssertCheck(cvt1.buf != NULL, "Expected input buffer of the first converter to be created.");
+        if (cvt1.buf == NULL) {
+            SDL_free(input);
+            return TEST_ABORTED;
+        }
+
+        cvt1.len = len_in;
+        SDL_memcpy(cvt1.buf, input, len_in);
+
+        tick_beg = SDL_GetPerformanceCounter();
+        ret = SDL_ConvertAudio(&cvt1);
+        tick_end = SDL_GetPerformanceCounter();
+        SDLTest_AssertPass("Call to SDL_ConvertAudio(&cvt)");
+        SDLTest_AssertCheck(ret == 0, "Expected SDL_ConvertAudio to succeed.");
+        SDLTest_AssertCheck(cvt1.len_cvt == len_target, "Expected output length %i, got %i.", len_target, cvt1.len_cvt);
+        if (ret != 0 || cvt1.len_cvt != len_target) {
+            SDL_free(input);
+            SDL_free(cvt1.buf);
+            return TEST_ABORTED;
+        }
+        SDLTest_Log("Conversion used %f seconds.", ((double)(tick_end - tick_beg)) / SDL_GetPerformanceFrequency());
+
+        /* convert back */
+        ret = SDL_BuildAudioCVT(&cvt2, spec->dst_format, spec->dst_channels, rate, spec->src_format, spec->src_channels, rate);
+        SDLTest_AssertPass("Call to SDL_BuildAudioCVT(&cvt, %s, %d, %i, %s, %d, %i)", formatString(spec->dst_format), spec->dst_channels, rate, formatString(spec->src_format), spec->src_channels, rate);
+        SDLTest_AssertCheck(ret == 1, "Expected SDL_BuildAudioCVT to succeed and conversion to be needed (back).");
+        if (ret != 1) {
+            SDL_free(input);
+            SDL_free(cvt1.buf);
+            return TEST_ABORTED;
+        }
+
+        cvt2.buf = (Uint8 *)SDL_malloc(len_target * cvt2.len_mult);
+        SDLTest_AssertCheck(cvt2.buf != NULL, "Expected input buffer of the converter to be created (back).");
+        if (cvt2.buf == NULL) {
+            SDL_free(input);
+            SDL_free(cvt1.buf);
+            return TEST_ABORTED;
+        }
+
+        cvt2.len = len_target;
+        SDL_memcpy(cvt2.buf, cvt1.buf, len_target);
+
+        ret = SDL_ConvertAudio(&cvt2);
+        SDLTest_AssertPass("Call to SDL_ConvertAudio(&cvt)");
+        SDLTest_AssertCheck(ret == 0, "Expected SDL_ConvertAudio to succeed.");
+        SDLTest_AssertCheck(cvt2.len_cvt == len_in, "Expected output length %i, got %i.", len_in, cvt2.len_cvt);
+        if (ret != 0 || cvt2.len_cvt != len_in) {
+            SDL_free(input);
+            SDL_free(cvt1.buf);
+            SDL_free(cvt2.buf);
+            return TEST_ABORTED;
+        }
+
+        /* check the result */
+        if (SDL_AUDIO_ISFLOAT(spec->src_format)) {
+            for (i = 0; i < frames; ++i) {
+                for (j = 0; j < src_chans; j++) {
+                    const float output = *(((float *)cvt2.buf) + i * src_chans + j);
+                    const float target = *(((float *)input) + i * src_chans + j);
+                    const double error = SDL_fabs(target - output);
+                    over += output < -1.0f || output > 1.0f;
+                    max_error = SDL_max(max_error, error);
+                    sum_squared_error += error * error;
+                    sum_squared_value += target * target;
+                }
+            }
+            signal_to_noise = 10 * SDL_log10(sum_squared_value / sum_squared_error); /* decibel */
+            SDLTest_AssertCheck(isfinite(sum_squared_value), "Sum of squared target should be finite.");
+            SDLTest_AssertCheck(isfinite(sum_squared_error), "Sum of squared error should be finite.");
+            /* Infinity is theoretically possible when there is very little to no noise */
+            SDLTest_AssertCheck(!isnan(signal_to_noise), "Signal-to-noise ratio should not be NaN.");
+            SDLTest_AssertCheck(isfinite(max_error), "Maximum conversion error should be finite.");
+            SDLTest_AssertCheck(signal_to_noise >= spec->signal_to_noise, "Conversion signal-to-noise ratio %f dB should be no less than %f dB.",
+                signal_to_noise, spec->signal_to_noise);
+            SDLTest_AssertCheck(max_error <= spec->max_error, "Maximum conversion error %.9f should be no more than %.4f.",
+                max_error, spec->max_error);
+            SDLTest_AssertCheck((double)over / len_target <= spec->overshoot, "Overshoot %.9f should be no more than %.4f.",
+                (double)over / len_target, spec->overshoot);
+        } else {
+            for (i = 0; i < frames; ++i) {
+                for (j = 0; j < src_chans; j++) {
+                    int output, target, error_int;
+                    switch (spec->src_format) {
+                    case AUDIO_S8:
+                        output = *(((int8_t *)cvt2.buf) + i * src_chans + j);
+                        target = *(((int8_t *)input) + i * src_chans + j);
+                        break;
+                    case AUDIO_U8:
+                        output = *(((uint8_t *)cvt2.buf) + i * src_chans + j);
+                        target = *(((uint8_t *)input) + i * src_chans + j);
+                        break;
+                    case AUDIO_S16:
+                        output = SDL_SwapLE16(*(((int16_t *)cvt2.buf) + i * src_chans + j));
+                        target = SDL_SwapLE16(*(((int16_t *)input) + i * src_chans + j));
+                        break;
+                    case AUDIO_U16:
+                        output = SDL_SwapLE16(*(((uint16_t *)cvt2.buf) + i * src_chans + j));
+                        target = SDL_SwapLE16(*(((uint16_t *)input) + i * src_chans + j));
+                        break;
+                    case AUDIO_S32:
+                        output = SDL_SwapLE32(*(((int32_t *)cvt2.buf) + i * src_chans + j));
+                        target = SDL_SwapLE32(*(((int32_t *)input) + i * src_chans + j));
+                        break;
+                    default:
+                        SDLTest_AssertCheck(0, "Unsupported format type.");
+                        return TEST_ABORTED;
+                    }
+                    error_int = SDL_abs(target - output);
+                    max_error_int = SDL_max(max_error_int, error_int);
+                }
+            }
+            SDLTest_AssertCheck(max_error_int <= spec->max_error_int, "Maximum conversion error %d should be no more than %d.",
+                max_error_int, spec->max_error_int);
+        }
+        SDL_free(input);
+        SDL_free(cvt1.buf);
+        SDL_free(cvt2.buf);
+    }
+
+    return TEST_COMPLETED;
+}
+
 /**
  * \brief Opens, checks current connected status, and closes a device.
  *
@@ -1179,7 +1445,7 @@ int audio_resampleLoss()
     double sum_squared_value = 0;
     double signal_to_noise = 0;
 
-    SDLTest_AssertPass("Test resampling of %i s %i Hz %f phase sine wave from sampling rate of %i Hz to %i Hz",
+    SDLTest_Log("Test resampling of %i s %i Hz %f phase sine wave from sampling rate of %i Hz to %i Hz",
                        spec->time, spec->freq, spec->phase, spec->rate_in, spec->rate_out);
 
     ret = SDL_BuildAudioCVT(&cvt, AUDIO_F32SYS, chans, spec->rate_in, AUDIO_F32SYS, chans, spec->rate_out);
@@ -1316,11 +1582,15 @@ static const SDLTest_TestCaseReference audioTest16 = {
     (SDLTest_TestCaseFp)audio_resampleLoss, "audio_resampleLoss", "Check signal-to-noise ratio and maximum error of audio resampling.", TEST_ENABLED
 };
 
+static const SDLTest_TestCaseReference audioTest17 = {
+    (SDLTest_TestCaseFp)audio_conversionLoss, "audio_conversionLoss", "Check signal-to-noise ratio and maximum error of audio conversion.", TEST_ENABLED
+};
+
 /* Sequence of Audio test cases */
 static const SDLTest_TestCaseReference *audioTests[] = {
     &audioTest1, &audioTest2, &audioTest3, &audioTest4, &audioTest5, &audioTest6,
     &audioTest7, &audioTest8, &audioTest9, &audioTest10, &audioTest11,
-    &audioTest12, &audioTest13, &audioTest14, &audioTest15, &audioTest16, NULL
+    &audioTest12, &audioTest13, &audioTest14, &audioTest15, &audioTest16, &audioTest17, NULL
 };
 
 /* Audio test suite (global) */
