@@ -231,6 +231,13 @@ static char *lowercase(const char *str)  /* this is NOT robust. */
     return retval;
 }
 
+static int stringlen(const char *str)
+{
+    int i;
+    for (i = 0; str[i]; i++) {}
+    return i;
+}
+
 static void write_converter(const int fromchans, const int tochans)
 {
     const char *fromstr = layout_names[fromchans-1];
@@ -239,6 +246,7 @@ static void write_converter(const int fromchans, const int tochans)
     const float *fptr;
     const int convert_backwards = (tochans > fromchans);
     int input_channel_used[NUM_CHANNELS];
+    int maxdstchlen = 0;
     int i, j;
 
     if (tochans == fromchans) {
@@ -259,6 +267,11 @@ static void write_converter(const int fromchans, const int tochans)
                 input_channel_used[i]++;
             }
         }
+        const char* name = channel_names[tochans-1][j];
+        i = stringlen(name);
+        if (i > maxdstchlen) {
+            maxdstchlen = i;
+        }
     }
 
     printf("static void SDLCALL SDL_Convert%sTo%s(SDL_AudioCVT *cvt)\n"
@@ -273,21 +286,21 @@ static void write_converter(const int fromchans, const int tochans)
     }
     if (convert_backwards) {  /* must convert backwards when growing the output in-place. */
         /*if (fromchans == 1) {
-            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d)));\n", tochans, tochans);
+            printf("    float *dst = ((float *)(cvt->buf + (cvt->len_cvt * %d)));\n", tochans);
         } else */ if ((tochans % fromchans) == 0) {
-            printf("    float *dst = (float *)(cvt->buf + (cvt->len_cvt * %d));\n", tochans / fromchans, tochans);
+            printf("    float *dst = (float *)(cvt->buf + (cvt->len_cvt * %d));\n", tochans / fromchans);
         } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
-            printf("    float *dst = (float *)(cvt->buf + ((cvt->len_cvt / %du) * %d));\n", fromchans, tochans, tochans);
+            printf("    float *dst = (float *)(cvt->buf + ((cvt->len_cvt / %du) * %d));\n", fromchans, tochans);
         // } else {
-        //    printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d)));\n", fromchans, tochans, tochans);
+        //    printf("    float *dst = ((float *)(cvt->buf + ((cvt->len_cvt / %d) * %d)));\n", fromchans, tochans);
         }
-        printf("    const float *src = (const float *)(cvt->buf + cvt->len_cvt);\n", fromchans);
+        printf("    const float *src = (const float *)(cvt->buf + cvt->len_cvt);\n");
     } else {
         printf("    float *dst = (float *)cvt->buf;\n");
         printf("    const float *src = dst;\n");
     }
 
-    printf("    int i;\n"
+    printf("    int i = num_samples;\n"
            "\n"
            "    LOG_DEBUG_CONVERT(\"%s\", \"%s\");\n"
            "\n", lowercase(fromstr), lowercase(tostr));
@@ -295,12 +308,12 @@ static void write_converter(const int fromchans, const int tochans)
     if ((fromchans > 1) && (tochans > 1)) {
         if (fromchans > tochans && (fromchans % tochans) == 0) { // -- fromchans is multiple of tochans -> use single division
             // if (((fromchans / tochans) & ((fromchans / tochans) - 1)) == 0) {
-                printf("    cvt->len_cvt = (cvt->len_cvt / %du);\n", (fromchans / tochans));
+                printf("    cvt->len_cvt = cvt->len_cvt / %du;\n", (fromchans / tochans));
             // } else {
             //    printf("    cvt->len_cvt = (cvt->len_cvt / %d);\n", (fromchans / tochans));
             // }
         } else if (tochans > fromchans && (tochans % fromchans) == 0) { // -- tochans is multiple of fromchans -> use single multiplication
-            printf("    cvt->len_cvt = (cvt->len_cvt * %d);\n", (tochans / fromchans));
+            printf("    cvt->len_cvt = cvt->len_cvt * %d;\n", (tochans / fromchans));
         } else { // if ((fromchans & (fromchans - 1)) == 0) { // -- fromchans is power of two -> use unsigned division which is converted to a shift
             printf("    cvt->len_cvt = (cvt->len_cvt / %du) * %d;\n", fromchans, tochans);
         // } else {
@@ -319,7 +332,7 @@ static void write_converter(const int fromchans, const int tochans)
 
     if (convert_backwards) {
         printf("    /* convert backwards, since output is growing in-place. */\n");
-        printf("    for (i = num_samples; i; i--) {\n");
+        printf("    for ( ; i; i--) {\n");
         printf("        src -= %d;\n", fromchans);
         printf("        dst -= %d;\n", tochans);
         printf("        {\n");
@@ -334,8 +347,12 @@ static void write_converter(const int fromchans, const int tochans)
             float coeff[NUM_CHANNELS];
             int groups[NUM_CHANNELS][NUM_CHANNELS] = { 0 };
             int num_groups = 0;
+            const char* name = channel_names[tochans-1][j];
             fptr = cvtmatrix + (fromchans * j);
-            printf("        dst[%d] /* %s */ =", j, channel_names[tochans-1][j]);
+            printf("        dst[%d] /* %s", j, name);
+            for (i = maxdstchlen - stringlen(name); i > 0; i--)
+                printf(" ");
+            printf(" */ =");
             for (i = fromchans - 1; i >= 0; i--) {
                 const float coefficient = fptr[i];
                 int idx, n;
@@ -404,7 +421,7 @@ static void write_converter(const int fromchans, const int tochans)
 
         printf("    }\n");
     } else {
-        printf("    for (i = num_samples; i; i--, src += %d, dst += %d) {\n", fromchans, tochans);
+        printf("    for ( ; i; i--, src += %d, dst += %d) {\n", fromchans, tochans);
 
         fptr = cvtmatrix;
         for (i = 0; i < fromchans; i++) {
@@ -417,8 +434,12 @@ static void write_converter(const int fromchans, const int tochans)
             float coeff[NUM_CHANNELS];
             int groups[NUM_CHANNELS][NUM_CHANNELS] = { 0 };
             int num_groups = 0;
+            const char* name = channel_names[tochans-1][j];
             fptr = cvtmatrix + (fromchans * j);
-            printf("        dst[%d] /* %s */ =", j, channel_names[tochans-1][j]);
+            printf("        dst[%d] /* %s", j, name);
+            for (i = maxdstchlen - stringlen(name); i > 0; i--)
+                printf(" ");
+            printf(" */ =");
             for (i = 0; i < fromchans; i++) {
                 const float coefficient = fptr[i];
                 int idx, n;

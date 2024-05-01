@@ -99,10 +99,11 @@
 /* Convert from stereo to mono. Average left and right. */
 static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
 {
+    const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     const __m128 divby2 = _mm_set1_ps(0.5f);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i = cvt->len_cvt / (sizeof(float) * 2u);
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "mono (using SSE3)");
 
@@ -110,18 +111,15 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
        Just use unaligned load/stores, if the memory at runtime is
        aligned it'll be just as fast on modern processors */
     while (i >= 4) { /* 4 * float32 */
-        _mm_storeu_ps(dst, _mm_mul_ps(_mm_hadd_ps(_mm_loadu_ps(src), _mm_loadu_ps(src + 4)), divby2));
+        _mm_storeu_ps(&dst[0], _mm_mul_ps(_mm_hadd_ps(_mm_loadu_ps(&src[0]), _mm_loadu_ps(&src[4])), divby2));
         i -= 4;
         src += 8;
         dst += 4;
     }
 
     /* Finish off any leftovers with scalar operations. */
-    while (i) {
-        *dst = (src[0] + src[1]) * 0.5f;
-        dst++;
-        i--;
-        src += 2;
+    for ( ; i; i--, src += 2, dst++) {
+        dst[0] = (src[0] + src[1]) * 0.5f;
     }
 
     cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
@@ -132,9 +130,10 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
 /* Convert from mono to stereo. Duplicate to stereo left and right. */
 static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
 {
+    const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i = cvt->len_cvt / (unsigned)sizeof(float);
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "stereo (using SSE)");
 
@@ -146,9 +145,9 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
         src -= 4;
         dst -= 8;
         {
-        const __m128 input = _mm_loadu_ps(src);                /* A B C D */
-        _mm_storeu_ps(dst, _mm_unpacklo_ps(input, input));     /* A A B B */
-        _mm_storeu_ps(dst + 4, _mm_unpackhi_ps(input, input)); /* C C D D */
+        const __m128 input = _mm_loadu_ps(&src[0]);            /* A B C D */
+        _mm_storeu_ps(&dst[0], _mm_unpacklo_ps(input, input)); /* A A B B */
+        _mm_storeu_ps(&dst[4], _mm_unpackhi_ps(input, input)); /* C C D D */
         }
         i -= 4;
     }

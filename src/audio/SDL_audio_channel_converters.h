@@ -28,14 +28,14 @@ static void SDLCALL SDL_ConvertMonoToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "stereo");
 
     cvt->len_cvt = cvt->len_cvt * 2;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 2;
         {
@@ -51,21 +51,21 @@ static void SDLCALL SDL_ConvertMonoTo21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 3));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "2.1");
 
     cvt->len_cvt = cvt->len_cvt * 3;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 3;
         {
         const float srcFC = src[0];
         dst[2] /* LFE */ = 0.0f;
-        dst[1] /* FR */ = srcFC;
-        dst[0] /* FL */ = srcFC;
+        dst[1] /* FR  */ = srcFC;
+        dst[0] /* FL  */ = srcFC;
         }
     }
 }
@@ -75,14 +75,14 @@ static void SDLCALL SDL_ConvertMonoToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 4));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "quad");
 
     cvt->len_cvt = cvt->len_cvt * 4;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 4;
         {
@@ -100,23 +100,23 @@ static void SDLCALL SDL_ConvertMonoTo41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 5));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "4.1");
 
     cvt->len_cvt = cvt->len_cvt * 5;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 5;
         {
         const float srcFC = src[0];
-        dst[4] /* BR */ = 0.0f;
-        dst[3] /* BL */ = 0.0f;
+        dst[4] /* BR  */ = 0.0f;
+        dst[3] /* BL  */ = 0.0f;
         dst[2] /* LFE */ = 0.0f;
-        dst[1] /* FR */ = srcFC;
-        dst[0] /* FL */ = srcFC;
+        dst[1] /* FR  */ = srcFC;
+        dst[0] /* FL  */ = srcFC;
         }
     }
 }
@@ -126,24 +126,24 @@ static void SDLCALL SDL_ConvertMonoTo51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 6));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "5.1");
 
     cvt->len_cvt = cvt->len_cvt * 6;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 6;
         {
         const float srcFC = src[0];
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = srcFC;
-        dst[0] /* FL */ = srcFC;
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = srcFC;
+        dst[0] /* FL  */ = srcFC;
         }
     }
 }
@@ -153,25 +153,25 @@ static void SDLCALL SDL_ConvertMonoTo61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "6.1");
 
     cvt->len_cvt = cvt->len_cvt * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 7;
         {
         const float srcFC = src[0];
-        dst[6] /* SR */ = 0.0f;
-        dst[5] /* SL */ = 0.0f;
-        dst[4] /* BC */ = 0.0f;
+        dst[6] /* SR  */ = 0.0f;
+        dst[5] /* SL  */ = 0.0f;
+        dst[4] /* BC  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = srcFC;
-        dst[0] /* FL */ = srcFC;
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = srcFC;
+        dst[0] /* FL  */ = srcFC;
         }
     }
 }
@@ -181,26 +181,26 @@ static void SDLCALL SDL_ConvertMonoTo71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 8));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "7.1");
 
     cvt->len_cvt = cvt->len_cvt * 8;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 1;
         dst -= 8;
         {
         const float srcFC = src[0];
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = srcFC;
-        dst[0] /* FL */ = srcFC;
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = srcFC;
+        dst[0] /* FL  */ = srcFC;
         }
     }
 }
@@ -210,13 +210,13 @@ static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 2u;
 
-    for (i = num_samples; i; i--, src += 2, dst += 1) {
+    for ( ; i; i--, src += 2, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] ) * 0.500000000f;
     }
 }
@@ -226,20 +226,20 @@ static void SDLCALL SDL_ConvertStereoTo21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 2u) * 3));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "2.1");
 
     cvt->len_cvt = (cvt->len_cvt / 2u) * 3;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 3;
         {
         dst[2] /* LFE */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -249,14 +249,14 @@ static void SDLCALL SDL_ConvertStereoToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "quad");
 
-    cvt->len_cvt = (cvt->len_cvt * 2);
+    cvt->len_cvt = cvt->len_cvt * 2;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 4;
         {
@@ -273,22 +273,22 @@ static void SDLCALL SDL_ConvertStereoTo41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 2u) * 5));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 2u) * 5;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 5;
         {
-        dst[4] /* BR */ = 0.0f;
-        dst[3] /* BL */ = 0.0f;
+        dst[4] /* BR  */ = 0.0f;
+        dst[3] /* BL  */ = 0.0f;
         dst[2] /* LFE */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -298,23 +298,23 @@ static void SDLCALL SDL_ConvertStereoTo51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 3));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "5.1");
 
-    cvt->len_cvt = (cvt->len_cvt * 3);
+    cvt->len_cvt = cvt->len_cvt * 3;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 6;
         {
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -324,24 +324,24 @@ static void SDLCALL SDL_ConvertStereoTo61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 2u) * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 2u) * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 7;
         {
-        dst[6] /* SR */ = 0.0f;
-        dst[5] /* SL */ = 0.0f;
-        dst[4] /* BC */ = 0.0f;
+        dst[6] /* SR  */ = 0.0f;
+        dst[5] /* SL  */ = 0.0f;
+        dst[4] /* BC  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -351,25 +351,25 @@ static void SDLCALL SDL_ConvertStereoTo71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 4));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("stereo", "7.1");
 
-    cvt->len_cvt = (cvt->len_cvt * 4);
+    cvt->len_cvt = cvt->len_cvt * 4;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 2;
         dst -= 8;
         {
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -379,13 +379,13 @@ static void SDLCALL SDL_Convert21ToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 3u;
 
-    for (i = num_samples; i; i--, src += 3, dst += 1) {
+    for ( ; i; i--, src += 3, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] ) * 0.333333343f;
     }
 }
@@ -395,13 +395,13 @@ static void SDLCALL SDL_Convert21ToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "stereo");
 
     cvt->len_cvt = (cvt->len_cvt / 3u) * 2;
 
-    for (i = num_samples; i; i--, src += 3, dst += 2) {
+    for ( ; i; i--, src += 3, dst += 2) {
         const float srcLFE = src[2];
         dst[0] /* FL */ = (src[0] * 0.800000012f) + (srcLFE * 0.200000003f);
         dst[1] /* FR */ = (src[1] * 0.800000012f) + (srcLFE * 0.200000003f);
@@ -413,14 +413,14 @@ static void SDLCALL SDL_Convert21ToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 3u) * 4));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "quad");
 
     cvt->len_cvt = (cvt->len_cvt / 3u) * 4;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 3;
         dst -= 4;
         {
@@ -438,22 +438,22 @@ static void SDLCALL SDL_Convert21To41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 3u) * 5));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 3u) * 5;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 3;
         dst -= 5;
         {
-        dst[4] /* BR */ = 0.0f;
-        dst[3] /* BL */ = 0.0f;
+        dst[4] /* BR  */ = 0.0f;
+        dst[3] /* BL  */ = 0.0f;
         dst[2] /* LFE */ = src[2];
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -463,23 +463,23 @@ static void SDLCALL SDL_Convert21To51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "5.1");
 
-    cvt->len_cvt = (cvt->len_cvt * 2);
+    cvt->len_cvt = cvt->len_cvt * 2;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 3;
         dst -= 6;
         {
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -489,24 +489,24 @@ static void SDLCALL SDL_Convert21To61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 3u) * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 3u) * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 3;
         dst -= 7;
         {
-        dst[6] /* SR */ = 0.0f;
-        dst[5] /* SL */ = 0.0f;
-        dst[4] /* BC */ = 0.0f;
+        dst[6] /* SR  */ = 0.0f;
+        dst[5] /* SL  */ = 0.0f;
+        dst[4] /* BC  */ = 0.0f;
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -516,25 +516,25 @@ static void SDLCALL SDL_Convert21To71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 3u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 3u) * 8));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("2.1", "7.1");
 
     cvt->len_cvt = (cvt->len_cvt / 3u) * 8;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 3;
         dst -= 8;
         {
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = 0.0f;
-        dst[4] /* BL */ = 0.0f;
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = 0.0f;
+        dst[4] /* BL  */ = 0.0f;
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -544,13 +544,13 @@ static void SDLCALL SDL_ConvertQuadToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 4u;
 
-    for (i = num_samples; i; i--, src += 4, dst += 1) {
+    for ( ; i; i--, src += 4, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] ) * 0.250000000f;
     }
 }
@@ -560,13 +560,13 @@ static void SDLCALL SDL_ConvertQuadToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "stereo");
 
-    cvt->len_cvt = (cvt->len_cvt / 2u);
+    cvt->len_cvt = cvt->len_cvt / 2u;
 
-    for (i = num_samples; i; i--, src += 4, dst += 2) {
+    for ( ; i; i--, src += 4, dst += 2) {
         const float srcBL = src[2];
         const float srcBR = src[3];
         dst[0] /* FL */ = (src[0] * 0.421000004f) + (srcBL * 0.358999997f) + (srcBR * 0.219999999f);
@@ -579,17 +579,17 @@ static void SDLCALL SDL_ConvertQuadTo21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "2.1");
 
     cvt->len_cvt = (cvt->len_cvt / 4u) * 3;
 
-    for (i = num_samples; i; i--, src += 4, dst += 3) {
+    for ( ; i; i--, src += 4, dst += 3) {
         const float srcBL = src[2];
         const float srcBR = src[3];
-        dst[0] /* FL */ = (src[0] * 0.421000004f) + (srcBL * 0.358999997f) + (srcBR * 0.219999999f);
-        dst[1] /* FR */ = (src[1] * 0.421000004f) + (srcBL * 0.219999999f) + (srcBR * 0.358999997f);
+        dst[0] /* FL  */ = (src[0] * 0.421000004f) + (srcBL * 0.358999997f) + (srcBR * 0.219999999f);
+        dst[1] /* FR  */ = (src[1] * 0.421000004f) + (srcBL * 0.219999999f) + (srcBR * 0.358999997f);
         dst[2] /* LFE */ = 0.0f;
     }
 }
@@ -599,22 +599,22 @@ static void SDLCALL SDL_ConvertQuadTo41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 4u) * 5));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 4u) * 5;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 4;
         dst -= 5;
         {
-        dst[4] /* BR */ = src[3];
-        dst[3] /* BL */ = src[2];
+        dst[4] /* BR  */ = src[3];
+        dst[3] /* BL  */ = src[2];
         dst[2] /* LFE */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -624,23 +624,23 @@ static void SDLCALL SDL_ConvertQuadTo51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 4u) * 6));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "5.1");
 
     cvt->len_cvt = (cvt->len_cvt / 4u) * 6;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 4;
         dst -= 6;
         {
-        dst[5] /* BR */ = src[3];
-        dst[4] /* BL */ = src[2];
+        dst[5] /* BR  */ = src[3];
+        dst[4] /* BL  */ = src[2];
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -650,26 +650,26 @@ static void SDLCALL SDL_ConvertQuadTo61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 4u) * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 4u) * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 4;
         dst -= 7;
         {
         const float srcBL = src[2];
         const float srcBR = src[3];
-        dst[6] /* SR */ = (srcBR * 0.796000004f);
-        dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
+        dst[6] /* SR  */ = (srcBR * 0.796000004f);
+        dst[5] /* SL  */ = (srcBL * 0.796000004f);
+        dst[4] /* BC  */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = (src[1] * 0.939999998f);
-        dst[0] /* FL */ = (src[0] * 0.939999998f);
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = (src[1] * 0.939999998f);
+        dst[0] /* FL  */ = (src[0] * 0.939999998f);
         }
     }
 }
@@ -679,25 +679,25 @@ static void SDLCALL SDL_ConvertQuadTo71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 4u);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("quad", "7.1");
 
-    cvt->len_cvt = (cvt->len_cvt * 2);
+    cvt->len_cvt = cvt->len_cvt * 2;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 4;
         dst -= 8;
         {
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = src[3];
-        dst[4] /* BL */ = src[2];
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = src[3];
+        dst[4] /* BL  */ = src[2];
         dst[3] /* LFE */ = 0.0f;
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -707,13 +707,13 @@ static void SDLCALL SDL_Convert41ToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 5u;
 
-    for (i = num_samples; i; i--, src += 5, dst += 1) {
+    for ( ; i; i--, src += 5, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] + src[4] ) * 0.200000003f;
     }
 }
@@ -723,13 +723,13 @@ static void SDLCALL SDL_Convert41ToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "stereo");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 2;
 
-    for (i = num_samples; i; i--, src += 5, dst += 2) {
+    for ( ; i; i--, src += 5, dst += 2) {
         const float srcLFE = src[2];
         const float srcBL = src[3];
         const float srcBR = src[4];
@@ -743,17 +743,17 @@ static void SDLCALL SDL_Convert41To21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "2.1");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 3;
 
-    for (i = num_samples; i; i--, src += 5, dst += 3) {
+    for ( ; i; i--, src += 5, dst += 3) {
         const float srcBL = src[3];
         const float srcBR = src[4];
-        dst[0] /* FL */ = (src[0] * 0.421000004f) + (srcBL * 0.358999997f) + (srcBR * 0.219999999f);
-        dst[1] /* FR */ = (src[1] * 0.421000004f) + (srcBL * 0.219999999f) + (srcBR * 0.358999997f);
+        dst[0] /* FL  */ = (src[0] * 0.421000004f) + (srcBL * 0.358999997f) + (srcBR * 0.219999999f);
+        dst[1] /* FR  */ = (src[1] * 0.421000004f) + (srcBL * 0.219999999f) + (srcBR * 0.358999997f);
         dst[2] /* LFE */ = src[2];
     }
 }
@@ -763,13 +763,13 @@ static void SDLCALL SDL_Convert41ToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "quad");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 4;
 
-    for (i = num_samples; i; i--, src += 5, dst += 4) {
+    for ( ; i; i--, src += 5, dst += 4) {
         const float srcLFE = src[2];
         dst[0] /* FL */ = (src[0] * 0.941176474f) + (srcLFE * 0.058823530f);
         dst[1] /* FR */ = (src[1] * 0.941176474f) + (srcLFE * 0.058823530f);
@@ -783,23 +783,23 @@ static void SDLCALL SDL_Convert41To51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 5u) * 6));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "5.1");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 6;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 5;
         dst -= 6;
         {
-        dst[5] /* BR */ = src[4];
-        dst[4] /* BL */ = src[3];
+        dst[5] /* BR  */ = src[4];
+        dst[4] /* BL  */ = src[3];
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -809,26 +809,26 @@ static void SDLCALL SDL_Convert41To61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 5u) * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 5;
         dst -= 7;
         {
         const float srcBL = src[3];
         const float srcBR = src[4];
-        dst[6] /* SR */ = (srcBR * 0.796000004f);
-        dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
+        dst[6] /* SR  */ = (srcBR * 0.796000004f);
+        dst[5] /* SL  */ = (srcBL * 0.796000004f);
+        dst[4] /* BC  */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = (src[1] * 0.939999998f);
-        dst[0] /* FL */ = (src[0] * 0.939999998f);
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = (src[1] * 0.939999998f);
+        dst[0] /* FL  */ = (src[0] * 0.939999998f);
         }
     }
 }
@@ -838,25 +838,25 @@ static void SDLCALL SDL_Convert41To71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 5u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 5u) * 8));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("4.1", "7.1");
 
     cvt->len_cvt = (cvt->len_cvt / 5u) * 8;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 5;
         dst -= 8;
         {
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = src[4];
-        dst[4] /* BL */ = src[3];
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = src[4];
+        dst[4] /* BL  */ = src[3];
         dst[3] /* LFE */ = src[2];
-        dst[2] /* FC */ = 0.0f;
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = 0.0f;
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -866,13 +866,13 @@ static void SDLCALL SDL_Convert51ToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 6u;
 
-    for (i = num_samples; i; i--, src += 6, dst += 1) {
+    for ( ; i; i--, src += 6, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[3] + src[4] + src[5] ) * 0.166666672f;
     }
 }
@@ -882,13 +882,13 @@ static void SDLCALL SDL_Convert51ToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "stereo");
 
-    cvt->len_cvt = (cvt->len_cvt / 3u);
+    cvt->len_cvt = cvt->len_cvt / 3u;
 
-    for (i = num_samples; i; i--, src += 6, dst += 2) {
+    for ( ; i; i--, src += 6, dst += 2) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         const float srcBL = src[4];
@@ -903,18 +903,18 @@ static void SDLCALL SDL_Convert51To21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "2.1");
 
-    cvt->len_cvt = (cvt->len_cvt / 2u);
+    cvt->len_cvt = cvt->len_cvt / 2u;
 
-    for (i = num_samples; i; i--, src += 6, dst += 3) {
+    for ( ; i; i--, src += 6, dst += 3) {
         const float srcFC = src[2];
         const float srcBL = src[4];
         const float srcBR = src[5];
-        dst[0] /* FL */ = (src[0] * 0.324000001f) + (srcFC * 0.229000002f) + (srcBL * 0.277000010f) + (srcBR * 0.170000002f);
-        dst[1] /* FR */ = (src[1] * 0.324000001f) + (srcFC * 0.229000002f) + (srcBL * 0.170000002f) + (srcBR * 0.277000010f);
+        dst[0] /* FL  */ = (src[0] * 0.324000001f) + (srcFC * 0.229000002f) + (srcBL * 0.277000010f) + (srcBR * 0.170000002f);
+        dst[1] /* FR  */ = (src[1] * 0.324000001f) + (srcFC * 0.229000002f) + (srcBL * 0.170000002f) + (srcBR * 0.277000010f);
         dst[2] /* LFE */ = src[3];
     }
 }
@@ -924,13 +924,13 @@ static void SDLCALL SDL_Convert51ToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "quad");
 
     cvt->len_cvt = (cvt->len_cvt / 6u) * 4;
 
-    for (i = num_samples; i; i--, src += 6, dst += 4) {
+    for ( ; i; i--, src += 6, dst += 4) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         dst[0] /* FL */ = (src[0] * 0.558095276f) + (srcFC * 0.394285709f) + (srcLFE * 0.047619049f);
@@ -945,19 +945,19 @@ static void SDLCALL SDL_Convert51To41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 6u) * 5;
 
-    for (i = num_samples; i; i--, src += 6, dst += 5) {
+    for ( ; i; i--, src += 6, dst += 5) {
         const float srcFC = src[2];
-        dst[0] /* FL */ = (src[0] * 0.586000025f) + (srcFC * 0.414000005f);
-        dst[1] /* FR */ = (src[1] * 0.586000025f) + (srcFC * 0.414000005f);
+        dst[0] /* FL  */ = (src[0] * 0.586000025f) + (srcFC * 0.414000005f);
+        dst[1] /* FR  */ = (src[1] * 0.586000025f) + (srcFC * 0.414000005f);
         dst[2] /* LFE */ = src[3];
-        dst[3] /* BL */ = (src[4] * 0.586000025f);
-        dst[4] /* BR */ = (src[5] * 0.586000025f);
+        dst[3] /* BL  */ = (src[4] * 0.586000025f);
+        dst[4] /* BR  */ = (src[5] * 0.586000025f);
     }
 }
 
@@ -966,26 +966,26 @@ static void SDLCALL SDL_Convert51To61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 6u) * 7));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 6u) * 7;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 6;
         dst -= 7;
         {
         const float srcBL = src[4];
         const float srcBR = src[5];
-        dst[6] /* SR */ = (srcBR * 0.796000004f);
-        dst[5] /* SL */ = (srcBL * 0.796000004f);
-        dst[4] /* BC */ = ( srcBR + srcBL ) * 0.500000000f;
+        dst[6] /* SR  */ = (srcBR * 0.796000004f);
+        dst[5] /* SL  */ = (srcBL * 0.796000004f);
+        dst[4] /* BC  */ = ( srcBR + srcBL ) * 0.500000000f;
         dst[3] /* LFE */ = src[3];
-        dst[2] /* FC */ = (src[2] * 0.939999998f);
-        dst[1] /* FR */ = (src[1] * 0.939999998f);
-        dst[0] /* FL */ = (src[0] * 0.939999998f);
+        dst[2] /* FC  */ = (src[2] * 0.939999998f);
+        dst[1] /* FR  */ = (src[1] * 0.939999998f);
+        dst[0] /* FL  */ = (src[0] * 0.939999998f);
         }
     }
 }
@@ -995,25 +995,25 @@ static void SDLCALL SDL_Convert51To71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 6u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 6u) * 8));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("5.1", "7.1");
 
     cvt->len_cvt = (cvt->len_cvt / 6u) * 8;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 6;
         dst -= 8;
         {
-        dst[7] /* SR */ = 0.0f;
-        dst[6] /* SL */ = 0.0f;
-        dst[5] /* BR */ = src[5];
-        dst[4] /* BL */ = src[4];
+        dst[7] /* SR  */ = 0.0f;
+        dst[6] /* SL  */ = 0.0f;
+        dst[5] /* BR  */ = src[5];
+        dst[4] /* BL  */ = src[4];
         dst[3] /* LFE */ = src[3];
-        dst[2] /* FC */ = src[2];
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = src[2];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -1023,13 +1023,13 @@ static void SDLCALL SDL_Convert61ToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 7u;
 
-    for (i = num_samples; i; i--, src += 7, dst += 1) {
+    for ( ; i; i--, src += 7, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[4] + src[5] + src[6] ) * 0.143142849f + (src[3] * 0.142857149f);
     }
 }
@@ -1039,13 +1039,13 @@ static void SDLCALL SDL_Convert61ToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "stereo");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 2;
 
-    for (i = num_samples; i; i--, src += 7, dst += 2) {
+    for ( ; i; i--, src += 7, dst += 2) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         const float srcBC = src[4];
@@ -1061,19 +1061,19 @@ static void SDLCALL SDL_Convert61To21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "2.1");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 3;
 
-    for (i = num_samples; i; i--, src += 7, dst += 3) {
+    for ( ; i; i--, src += 7, dst += 3) {
         const float srcFC = src[2];
         const float srcBC = src[4];
         const float srcSL = src[5];
         const float srcSR = src[6];
-        dst[0] /* FL */ = (src[0] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.245000005f) + (srcSR * 0.108999997f);
-        dst[1] /* FR */ = (src[1] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.108999997f) + (srcSR * 0.245000005f);
+        dst[0] /* FL  */ = (src[0] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.245000005f) + (srcSR * 0.108999997f);
+        dst[1] /* FR  */ = (src[1] * 0.268000007f) + ( srcFC + srcBC ) * 0.188999996f + (srcSL * 0.108999997f) + (srcSR * 0.245000005f);
         dst[2] /* LFE */ = src[3];
     }
 }
@@ -1083,13 +1083,13 @@ static void SDLCALL SDL_Convert61ToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "quad");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 4;
 
-    for (i = num_samples; i; i--, src += 7, dst += 4) {
+    for ( ; i; i--, src += 7, dst += 4) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         const float srcBC = src[4];
@@ -1107,22 +1107,22 @@ static void SDLCALL SDL_Convert61To41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 5;
 
-    for (i = num_samples; i; i--, src += 7, dst += 5) {
+    for ( ; i; i--, src += 7, dst += 5) {
         const float srcFC = src[2];
         const float srcBC = src[4];
         const float srcSL = src[5];
         const float srcSR = src[6];
-        dst[0] /* FL */ = (src[0] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSL * 0.175999999f);
-        dst[1] /* FR */ = (src[1] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSR * 0.175999999f);
+        dst[0] /* FL  */ = (src[0] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSL * 0.175999999f);
+        dst[1] /* FR  */ = (src[1] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSR * 0.175999999f);
         dst[2] /* LFE */ = src[3];
-        dst[3] /* BL */ = (srcBC * 0.340999991f) + (srcSL * 0.449000001f);
-        dst[4] /* BR */ = (srcBC * 0.340999991f) + (srcSR * 0.449000001f);
+        dst[3] /* BL  */ = (srcBC * 0.340999991f) + (srcSL * 0.449000001f);
+        dst[4] /* BR  */ = (srcBC * 0.340999991f) + (srcSR * 0.449000001f);
     }
 }
 
@@ -1131,22 +1131,22 @@ static void SDLCALL SDL_Convert61To51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "5.1");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 6;
 
-    for (i = num_samples; i; i--, src += 7, dst += 6) {
+    for ( ; i; i--, src += 7, dst += 6) {
         const float srcBC = src[4];
         const float srcSL = src[5];
         const float srcSR = src[6];
-        dst[0] /* FL */ = (src[0] * 0.611000001f) + (srcSL * 0.223000005f);
-        dst[1] /* FR */ = (src[1] * 0.611000001f) + (srcSR * 0.223000005f);
-        dst[2] /* FC */ = (src[2] * 0.611000001f);
+        dst[0] /* FL  */ = (src[0] * 0.611000001f) + (srcSL * 0.223000005f);
+        dst[1] /* FR  */ = (src[1] * 0.611000001f) + (srcSR * 0.223000005f);
+        dst[2] /* FC  */ = (src[2] * 0.611000001f);
         dst[3] /* LFE */ = src[3];
-        dst[4] /* BL */ = (srcBC * 0.432000011f) + (srcSL * 0.568000019f);
-        dst[5] /* BR */ = (srcBC * 0.432000011f) + (srcSR * 0.568000019f);
+        dst[4] /* BL  */ = (srcBC * 0.432000011f) + (srcSL * 0.568000019f);
+        dst[5] /* BR  */ = (srcBC * 0.432000011f) + (srcSR * 0.568000019f);
     }
 }
 
@@ -1155,26 +1155,26 @@ static void SDLCALL SDL_Convert61To71(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 7u);
     float *dst = (float *)(cvt->buf + ((cvt->len_cvt / 7u) * 8));
     const float *src = (const float *)(cvt->buf + cvt->len_cvt);
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("6.1", "7.1");
 
     cvt->len_cvt = (cvt->len_cvt / 7u) * 8;
 
     /* convert backwards, since output is growing in-place. */
-    for (i = num_samples; i; i--) {
+    for ( ; i; i--) {
         src -= 7;
         dst -= 8;
         {
         const float srcBC = src[4];
-        dst[7] /* SR */ = src[6];
-        dst[6] /* SL */ = src[5];
-        dst[5] /* BR */ = (srcBC * 0.707000017f);
-        dst[4] /* BL */ = (srcBC * 0.707000017f);
+        dst[7] /* SR  */ = src[6];
+        dst[6] /* SL  */ = src[5];
+        dst[5] /* BR  */ = (srcBC * 0.707000017f);
+        dst[4] /* BL  */ = (srcBC * 0.707000017f);
         dst[3] /* LFE */ = src[3];
-        dst[2] /* FC */ = src[2];
-        dst[1] /* FR */ = src[1];
-        dst[0] /* FL */ = src[0];
+        dst[2] /* FC  */ = src[2];
+        dst[1] /* FR  */ = src[1];
+        dst[0] /* FL  */ = src[0];
         }
     }
 }
@@ -1184,13 +1184,13 @@ static void SDLCALL SDL_Convert71ToMono(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "mono");
 
     cvt->len_cvt = cvt->len_cvt / 8u;
 
-    for (i = num_samples; i; i--, src += 8, dst += 1) {
+    for ( ; i; i--, src += 8, dst += 1) {
         dst[0] /* FC */ = ( src[0] + src[1] + src[2] + src[4] + src[5] + src[6] + src[7] ) * 0.125125006f + (src[3] * 0.125000000f);
     }
 }
@@ -1200,13 +1200,13 @@ static void SDLCALL SDL_Convert71ToStereo(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "stereo");
 
-    cvt->len_cvt = (cvt->len_cvt / 4u);
+    cvt->len_cvt = cvt->len_cvt / 4u;
 
-    for (i = num_samples; i; i--, src += 8, dst += 2) {
+    for ( ; i; i--, src += 8, dst += 2) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         const float srcBL = src[4];
@@ -1223,20 +1223,20 @@ static void SDLCALL SDL_Convert71To21(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "2.1");
 
     cvt->len_cvt = (cvt->len_cvt / 8u) * 3;
 
-    for (i = num_samples; i; i--, src += 8, dst += 3) {
+    for ( ; i; i--, src += 8, dst += 3) {
         const float srcFC = src[2];
         const float srcBL = src[4];
         const float srcBR = src[5];
         const float srcSL = src[6];
         const float srcSR = src[7];
-        dst[0] /* FL */ = (src[0] * 0.226999998f) + (srcFC * 0.160999998f) + (srcBL * 0.194000006f) + (srcBR * 0.119000003f) + (srcSL * 0.208000004f) + (srcSR * 0.092000000f);
-        dst[1] /* FR */ = (src[1] * 0.226999998f) + (srcFC * 0.160999998f) + (srcBL * 0.119000003f) + (srcBR * 0.194000006f) + (srcSL * 0.092000000f) + (srcSR * 0.208000004f);
+        dst[0] /* FL  */ = (src[0] * 0.226999998f) + (srcFC * 0.160999998f) + (srcBL * 0.194000006f) + (srcBR * 0.119000003f) + (srcSL * 0.208000004f) + (srcSR * 0.092000000f);
+        dst[1] /* FR  */ = (src[1] * 0.226999998f) + (srcFC * 0.160999998f) + (srcBL * 0.119000003f) + (srcBR * 0.194000006f) + (srcSL * 0.092000000f) + (srcSR * 0.208000004f);
         dst[2] /* LFE */ = src[3];
     }
 }
@@ -1246,13 +1246,13 @@ static void SDLCALL SDL_Convert71ToQuad(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "quad");
 
-    cvt->len_cvt = (cvt->len_cvt / 2u);
+    cvt->len_cvt = cvt->len_cvt / 2u;
 
-    for (i = num_samples; i; i--, src += 8, dst += 4) {
+    for ( ; i; i--, src += 8, dst += 4) {
         const float srcFC = src[2];
         const float srcLFE = src[3];
         const float srcSL = src[6];
@@ -1269,21 +1269,21 @@ static void SDLCALL SDL_Convert71To41(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "4.1");
 
     cvt->len_cvt = (cvt->len_cvt / 8u) * 5;
 
-    for (i = num_samples; i; i--, src += 8, dst += 5) {
+    for ( ; i; i--, src += 8, dst += 5) {
         const float srcFC = src[2];
         const float srcSL = src[6];
         const float srcSR = src[7];
-        dst[0] /* FL */ = (src[0] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSL * 0.175999999f);
-        dst[1] /* FR */ = (src[1] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSR * 0.175999999f);
+        dst[0] /* FL  */ = (src[0] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSL * 0.175999999f);
+        dst[1] /* FR  */ = (src[1] * 0.483000010f) + (srcFC * 0.340999991f) + (srcSR * 0.175999999f);
         dst[2] /* LFE */ = src[3];
-        dst[3] /* BL */ = (src[4] * 0.483000010f) + (srcSL * 0.449000001f);
-        dst[4] /* BR */ = (src[5] * 0.483000010f) + (srcSR * 0.449000001f);
+        dst[3] /* BL  */ = (src[4] * 0.483000010f) + (srcSL * 0.449000001f);
+        dst[4] /* BR  */ = (src[5] * 0.483000010f) + (srcSR * 0.449000001f);
     }
 }
 
@@ -1292,21 +1292,21 @@ static void SDLCALL SDL_Convert71To51(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "5.1");
 
     cvt->len_cvt = (cvt->len_cvt / 8u) * 6;
 
-    for (i = num_samples; i; i--, src += 8, dst += 6) {
+    for ( ; i; i--, src += 8, dst += 6) {
         const float srcSL = src[6];
         const float srcSR = src[7];
-        dst[0] /* FL */ = (src[0] * 0.518000007f) + (srcSL * 0.188999996f);
-        dst[1] /* FR */ = (src[1] * 0.518000007f) + (srcSR * 0.188999996f);
-        dst[2] /* FC */ = (src[2] * 0.518000007f);
+        dst[0] /* FL  */ = (src[0] * 0.518000007f) + (srcSL * 0.188999996f);
+        dst[1] /* FR  */ = (src[1] * 0.518000007f) + (srcSR * 0.188999996f);
+        dst[2] /* FC  */ = (src[2] * 0.518000007f);
         dst[3] /* LFE */ = src[3];
-        dst[4] /* BL */ = (src[4] * 0.518000007f) + (srcSL * 0.481999993f);
-        dst[5] /* BR */ = (src[5] * 0.518000007f) + (srcSR * 0.481999993f);
+        dst[4] /* BL  */ = (src[4] * 0.518000007f) + (srcSL * 0.481999993f);
+        dst[5] /* BR  */ = (src[5] * 0.518000007f) + (srcSR * 0.481999993f);
     }
 }
 
@@ -1315,22 +1315,22 @@ static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
     const int num_samples = cvt->len_cvt / (sizeof(float) * 8u);
     float *dst = (float *)cvt->buf;
     const float *src = dst;
-    int i;
+    int i = num_samples;
 
     LOG_DEBUG_CONVERT("7.1", "6.1");
 
     cvt->len_cvt = (cvt->len_cvt / 8u) * 7;
 
-    for (i = num_samples; i; i--, src += 8, dst += 7) {
+    for ( ; i; i--, src += 8, dst += 7) {
         const float srcBL = src[4];
         const float srcBR = src[5];
-        dst[0] /* FL */ = (src[0] * 0.541000009f);
-        dst[1] /* FR */ = (src[1] * 0.541000009f);
-        dst[2] /* FC */ = (src[2] * 0.541000009f);
+        dst[0] /* FL  */ = (src[0] * 0.541000009f);
+        dst[1] /* FR  */ = (src[1] * 0.541000009f);
+        dst[2] /* FC  */ = (src[2] * 0.541000009f);
         dst[3] /* LFE */ = src[3];
-        dst[4] /* BC */ = ( srcBL + srcBR ) * 0.287999988f;
-        dst[5] /* SL */ = (srcBL * 0.458999991f) + (src[6] * 0.541000009f);
-        dst[6] /* SR */ = (srcBR * 0.458999991f) + (src[7] * 0.541000009f);
+        dst[4] /* BC  */ = ( srcBL + srcBR ) * 0.287999988f;
+        dst[5] /* SL  */ = (srcBL * 0.458999991f) + (src[6] * 0.541000009f);
+        dst[6] /* SR  */ = (srcBR * 0.458999991f) + (src[7] * 0.541000009f);
     }
 }
 
