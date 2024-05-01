@@ -209,7 +209,7 @@ static void SDLCALL SDL_Convert_S32_to_F32_Scalar(SDL_AudioCVT *cvt)
     LOG_DEBUG_CONVERT("AUDIO_S32", "AUDIO_F32");
 
     for ( ; i; --i, ++src, ++dst) {
-        dst[0] = ((float)(src[0] >> 8)) * DIVBY8388607;
+        dst[0] = (float)src[0] * DIVBY2147483648;
     }
 }
 
