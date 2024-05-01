@@ -27,6 +27,9 @@
 #include "SDL_audio.h"
 
 /* These pointers get set during SDL_ChooseAudioConverters() to various SIMD implementations. */
+extern SDL_AudioFilter SDL_Convert_Byteswap16;
+extern SDL_AudioFilter SDL_Convert_Byteswap32;
+
 extern SDL_AudioFilter SDL_Convert_S8_to_F32;
 extern SDL_AudioFilter SDL_Convert_U8_to_F32;
 extern SDL_AudioFilter SDL_Convert_S16_to_F32;

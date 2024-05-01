@@ -52,6 +52,9 @@
 #endif
 
 /* Function pointers set to a CPU-specific implementation. */
+SDL_AudioFilter SDL_Convert_Byteswap16 = NULL;
+SDL_AudioFilter SDL_Convert_Byteswap32 = NULL;
+
 SDL_AudioFilter SDL_Convert_S8_to_F32 = NULL;
 SDL_AudioFilter SDL_Convert_U8_to_F32 = NULL;
 SDL_AudioFilter SDL_Convert_S16_to_F32 = NULL;
@@ -78,6 +81,34 @@ union float_bits {
 
 /* Create a bit-mask based on the sign-bit. Should optimize to a single arithmetic-shift-right */
 #define SIGNMASK(x) (Uint32)(0u - ((Uint32)(x) >> 31))
+
+static void SDLCALL SDL_Convert_Byteswap16_Scalar(SDL_AudioCVT *cvt)
+{
+    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
+    Uint16 *ptr = (Uint16 *)cvt->buf;
+    int i;
+#if DEBUG_CONVERT
+    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (16)\n");
+#endif
+
+    for (i = num_samples; i; --i, ++ptr) {
+        *ptr = SDL_Swap16(*ptr);
+    }
+}
+
+static void SDLCALL SDL_Convert_Byteswap32_Scalar(SDL_AudioCVT *cvt)
+{
+    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint32);
+    Uint32 *ptr = (Uint32 *)cvt->buf;
+    int i;
+#if DEBUG_CONVERT
+    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (32)\n");
+#endif
+    for (i = num_samples; i; --i, ++ptr) {
+        *ptr = SDL_Swap32(*ptr);
+    }
+}
+
 
 static void SDLCALL SDL_Convert_S8_to_F32_Scalar(SDL_AudioCVT *cvt)
 {
@@ -1345,6 +1376,9 @@ void SDL_ChooseAudioConverters(void)
 
     SDL_ChooseAudioChannelConverters();
     SDL_ChooseAudioResamplers();
+
+    SDL_Convert_Byteswap16 = SDL_Convert_Byteswap16_Scalar;
+    SDL_Convert_Byteswap32 = SDL_Convert_Byteswap32_Scalar;
 
 #define SET_CONVERTER_FUNCS(fntype)                           \
     SDL_Convert_S8_to_F32 = SDL_Convert_S8_to_F32_##fntype;   \

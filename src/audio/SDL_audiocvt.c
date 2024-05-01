@@ -220,33 +220,6 @@ int SDL_ConvertAudio(SDL_AudioCVT *cvt)
     }
 }
 
-static void SDLCALL SDL_Convert_Byteswap16(SDL_AudioCVT *cvt)
-{
-    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint16);
-    Uint16 *ptr = (Uint16 *)cvt->buf;
-    int i;
-#if DEBUG_CONVERT
-    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (16)\n");
-#endif
-
-    for (i = num_samples; i; --i, ++ptr) {
-        *ptr = SDL_Swap16(*ptr);
-    }
-}
-
-static void SDLCALL SDL_Convert_Byteswap32(SDL_AudioCVT *cvt)
-{
-    const int num_samples = (unsigned)cvt->len_cvt / sizeof(Uint32);
-    Uint32 *ptr = (Uint32 *)cvt->buf;
-    int i;
-#if DEBUG_CONVERT
-    SDL_Log("SDL_AUDIO_CONVERT: Converting byte order (32)\n");
-#endif
-    for (i = num_samples; i; --i, ++ptr) {
-        *ptr = SDL_Swap32(*ptr);
-    }
-}
-
 static int SDL_AddAudioCVTFilter(SDL_AudioCVT *cvt, SDL_AudioFilter filter)
 {
     SDL_assert(cvt->needed < SDL_AUDIOCVT_MAX_FILTERS);
