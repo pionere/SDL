@@ -818,6 +818,7 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt *= 4;
 
+    if (!((size_t)cvt->buf & 15)) {
     /* Get dst aligned to 16 bytes (since buffer is growing, we don't have to worry about overreading from src) */
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
@@ -826,9 +827,9 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
+    SDL_assert(!i || !((size_t)src & 15));
 
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby128 = vdupq_n_f32(DIVBY128);
         while (i >= 16) {                                            /* 16 * 8-bit */
@@ -846,6 +847,7 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
             }
             i -= 16;
         }
+    }
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -867,6 +869,7 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt *= 4;
 
+    if (!((size_t)cvt->buf & 15)) {
     /* Get dst aligned to 16 bytes (since buffer is growing, we don't have to worry about overreading from src) */
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
@@ -875,9 +878,9 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
+    SDL_assert(!i || !((size_t)src & 15));
 
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby128 = vdupq_n_f32(DIVBY128);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
@@ -896,6 +899,7 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
             }
             i -= 16;
         }
+    }
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -917,6 +921,7 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt *= 2;
 
+    if (!((size_t)cvt->buf & 15)) {
     /* Get dst aligned to 16 bytes (since buffer is growing, we don't have to worry about overreading from src) */
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
@@ -925,9 +930,9 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
+    SDL_assert(!i || !((size_t)src & 15));
 
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby32768 = vdupq_n_f32(DIVBY32768);
         while (i >= 8) {                                            /* 8 * 16-bit */
@@ -941,6 +946,7 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
             }
             i -= 8;
         }
+    }
     }
 
     /* Finish off any leftovers with scalar operations. */
@@ -962,6 +968,7 @@ static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt *= 2;
 
+    if (!((size_t)cvt->buf & 15)) {
     /* Get dst aligned to 16 bytes (since buffer is growing, we don't have to worry about overreading from src) */
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
@@ -970,9 +977,9 @@ static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
+    SDL_assert(!i || !((size_t)src & 15));
 
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby32768 = vdupq_n_f32(DIVBY32768);
         const float32x4_t negone = vdupq_n_f32(-1.0f);
@@ -988,7 +995,7 @@ static void SDLCALL SDL_Convert_U16_to_F32_NEON(SDL_AudioCVT *cvt)
             i -= 8;
         }
     }
-
+    }
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i) {
         src--;
@@ -1012,9 +1019,9 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
+    SDL_assert(!i || !((size_t)src & 15));
 
-    /* Make sure src is aligned too. */
-    if (!((size_t)src & 15)) {
+    {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t divby8388607 = vdupq_n_f32(DIVBY8388607);
         while (i >= 4) { /* 4 * sint32 */
@@ -1043,21 +1050,7 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt /= (unsigned)sizeof(float);
 
-    /* Get dst aligned to 16 bytes */
-    for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 127;
-        } else if (sample <= -1.0f) {
-            dst[0] = -128;
-        } else {
-            dst[0] = (Sint8)(sample * 127.0f);
-        }
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
+    /* Make sure src/dst are aligned to 16 bytes. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t one = vdupq_n_f32(1.0f);
@@ -1101,21 +1094,7 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt /= (unsigned)sizeof(float);
 
-    /* Get dst aligned to 16 bytes */
-    for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 255;
-        } else if (sample <= -1.0f) {
-            dst[0] = 0;
-        } else {
-            dst[0] = (Uint8)((sample + 1.0f) * 127.0f);
-        }
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
+    /* Make sure src/dst are aligned to 16 bytes. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t one = vdupq_n_f32(1.0f);
@@ -1159,21 +1138,7 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt /= 2u;
 
-    /* Get dst aligned to 16 bytes */
-    for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 32767;
-        } else if (sample <= -1.0f) {
-            dst[0] = -32768;
-        } else {
-            dst[0] = (Sint16)(sample * 32767.0f);
-        }
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
+    /* Make sure src/dst are aligned to 16 bytes. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t one = vdupq_n_f32(1.0f);
@@ -1213,21 +1178,7 @@ static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
 
     cvt->len_cvt /= 2u;
 
-    /* Get dst aligned to 16 bytes */
-    for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 65535;
-        } else if (sample <= -1.0f) {
-            dst[0] = 0;
-        } else {
-            dst[0] = (Uint16)((sample + 1.0f) * 32767.0f);
-        }
-    }
-
-    SDL_assert(!i || !((size_t)dst & 15));
-
-    /* Make sure src is aligned too. */
+    /* Make sure src/dst are aligned to 16 bytes. */
     if (!((size_t)src & 15)) {
         /* Aligned! Do NEON blocks as long as we have 16 bytes available. */
         const float32x4_t one = vdupq_n_f32(1.0f);
