@@ -532,26 +532,27 @@ static void SDLCALL SDL_Convert_S32_to_F32_SSE2(SDL_AudioCVT *cvt)
         i -= 16;
 
         {
-        const __m128i ints1 = _mm_loadu_si128((const __m128i *)&src[i]);
-        const __m128i ints2 = _mm_loadu_si128((const __m128i *)&src[i + 4]);
-        const __m128i ints3 = _mm_loadu_si128((const __m128i *)&src[i + 8]);
-        const __m128i ints4 = _mm_loadu_si128((const __m128i *)&src[i + 12]);
+        const __m128i ints1 = _mm_loadu_si128((const __m128i *)&src[0]);
+        const __m128i ints2 = _mm_loadu_si128((const __m128i *)&src[4]);
+        const __m128i ints3 = _mm_loadu_si128((const __m128i *)&src[8]);
+        const __m128i ints4 = _mm_loadu_si128((const __m128i *)&src[12]);
 
         const __m128 floats1 = _mm_mul_ps(_mm_cvtepi32_ps(ints1), scaler);
         const __m128 floats2 = _mm_mul_ps(_mm_cvtepi32_ps(ints2), scaler);
         const __m128 floats3 = _mm_mul_ps(_mm_cvtepi32_ps(ints3), scaler);
         const __m128 floats4 = _mm_mul_ps(_mm_cvtepi32_ps(ints4), scaler);
 
-        _mm_storeu_ps(&dst[i], floats1);
-        _mm_storeu_ps(&dst[i + 4], floats2);
-        _mm_storeu_ps(&dst[i + 8], floats3);
-        _mm_storeu_ps(&dst[i + 12], floats4);
+        _mm_storeu_ps(&dst[0], floats1);
+        _mm_storeu_ps(&dst[4], floats2);
+        _mm_storeu_ps(&dst[8], floats3);
+        _mm_storeu_ps(&dst[12], floats4);
         }
+        src += 16;
+        dst += 16;
     }
 
-    while (i) {
-        --i;
-        _mm_store_ss(&dst[i], _mm_mul_ss(_mm_cvt_si2ss(_mm_setzero_ps(), src[i]), scaler));
+    for ( ; i; i--, src++, dst++) {
+        _mm_store_ss(&dst[0], _mm_mul_ss(_mm_cvt_si2ss(_mm_setzero_ps(), src[0]), scaler));
     }
 }
 
