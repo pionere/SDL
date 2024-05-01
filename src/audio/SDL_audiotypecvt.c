@@ -823,7 +823,11 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
         dst--;
-        dst[0] = ((float)src[0]) * DIVBY128;
+        {
+        union float_bits x;
+        x.u32 = (Uint8)src[0] ^ 0x47800080u;
+        dst[0] = x.f32 - 65537.0f;
+        }
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
@@ -854,7 +858,11 @@ static void SDLCALL SDL_Convert_S8_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i; --i) {
         src--;
         dst--;
-        dst[0] = ((float)src[0]) * DIVBY128;
+        {
+        union float_bits x;
+        x.u32 = (Uint8)src[0] ^ 0x47800080u;
+        dst[0] = x.f32 - 65537.0f;
+        }
     }
 }
 
@@ -874,7 +882,11 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
         dst--;
-        dst[0] = (((float)src[0]) * DIVBY128) - 1.0f;
+        {
+        union float_bits x;
+        x.u32 = src[0] ^ 0x47800000u;
+        dst[0] = x.f32 - 65537.0f;
+        }
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
@@ -906,7 +918,11 @@ static void SDLCALL SDL_Convert_U8_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i; --i) {
         src--;
         dst--;
-        dst[0] = (((float)src[0]) * DIVBY128) - 1.0f;
+        {
+        union float_bits x;
+        x.u32 = src[0] ^ 0x47800000u;
+        dst[0] = x.f32 - 65537.0f;
+        }
     }
 }
 
@@ -926,7 +942,13 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i && ((size_t)dst & 15); --i) {
         src--;
         dst--;
-        dst[0] = ((float)src[0]) * DIVBY32768;
+        /* 1) Construct a float in the range [256.0, 258.0)
+         * 2) Shift the float range to [-1.0, 1.0) */
+        {
+        union float_bits x;
+        x.u32 = (Uint16)src[0] ^ 0x43808000u;
+        dst[0] = x.f32 - 257.0f;
+        }
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
@@ -953,7 +975,13 @@ static void SDLCALL SDL_Convert_S16_to_F32_NEON(SDL_AudioCVT *cvt)
     for ( ; i; --i) {
         src--;
         dst--;
-        dst[0] = ((float)src[0]) * DIVBY32768;
+        /* 1) Construct a float in the range [256.0, 258.0)
+         * 2) Shift the float range to [-1.0, 1.0) */
+        {
+        union float_bits x;
+        x.u32 = (Uint16)src[0] ^ 0x43808000u;
+        dst[0] = x.f32 - 257.0f;
+        }
     }
 }
 
@@ -1015,7 +1043,7 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
 
     /* Get dst aligned to 16 bytes */
     for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        dst[0] = ((float)(src[0] >> 8)) * DIVBY8388607;
+        dst[0] = (float)src[0] * DIVBY2147483648;
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
@@ -1035,7 +1063,7 @@ static void SDLCALL SDL_Convert_S32_to_F32_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        dst[0] = ((float)(src[0] >> 8)) * DIVBY8388607;
+        dst[0] = (float)src[0] * DIVBY2147483648;
     }
 }
 
@@ -1072,14 +1100,18 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        const float sample = *src;
-        if (sample >= 1.0f) {
-            dst[0] = 127;
-        } else if (sample <= -1.0f) {
-            dst[0] = -128;
-        } else {
-            dst[0] = (Sint8)(sample * 127.0f);
-        }
+        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
+         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
+         * 3) Clamp the value to [-128, 127] */
+        union float_bits x;
+        Uint32 y, z;
+        x.f32 = src[0] + 98304.0f;
+
+        y = x.u32 - 0x47C00000u;
+        z = 0x7Fu - (y ^ SIGNMASK(y));
+        y = y ^ (z & SIGNMASK(z));
+
+        dst[0] = (Sint8)(y & 0xFF);
     }
 }
 
@@ -1116,14 +1148,19 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 255;
-        } else if (sample <= -1.0f) {
-            dst[0] = 0;
-        } else {
-            dst[0] = (Uint8)((sample + 1.0f) * 127.0f);
-        }
+        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
+         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
+         * 3) Clamp the value to [-128, 127]
+         * 4) Shift the integer range from [-128, 127] to [0, 255] */
+        union float_bits x;
+        Uint32 y, z;
+        x.f32 = src[0] + 98304.0f;
+
+        y = x.u32 - 0x47C00000u;
+        z = 0x7Fu - (y ^ SIGNMASK(y));
+        y = (y ^ 0x80u) ^ (z & SIGNMASK(z));
+
+        dst[0] = (Uint8)(y & 0xFF);
     }
 }
 
@@ -1156,14 +1193,18 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        const float sample = *src;
-        if (sample >= 1.0f) {
-            *dst = 32767;
-        } else if (sample <= -1.0f) {
-            *dst = -32768;
-        } else {
-            *dst = (Sint16)(sample * 32767.0f);
-        }
+        /* 1) Shift the float range from [-1.0, 1.0] to [383.0, 385.0]
+         * 2) Shift the integer range from [0x43BF8000, 0x43C08000] to [-32768, 32768]
+         * 3) Clamp values outside the [-32768, 32767] range */
+        union float_bits x;
+        Uint32 y, z;
+        x.f32 = src[0] + 384.0f;
+
+        y = x.u32 - 0x43C00000u;
+        z = 0x7FFFu - (y ^ SIGNMASK(y));
+        y = y ^ (z & SIGNMASK(z));
+
+        dst[0] = (Sint16)(y & 0xFFFF);
     }
 }
 
@@ -1218,14 +1259,19 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
 
     /* Get dst aligned to 16 bytes */
     for ( ; i && ((size_t)dst & 15); --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 2147483647;
-        } else if (sample <= -1.0f) {
-            dst[0] = (-2147483647) - 1;
-        } else {
-            dst[0] = ((Sint32)(sample * 8388607.0f)) << 8;
-        }
+        /* 1) Shift the float range from [-1.0, 1.0] to [-2147483648.0, 2147483648.0]
+         * 2) Set values outside the [-2147483648.0, 2147483647.0] range to -2147483648.0
+         * 3) Convert the float to an integer, and fixup values outside the valid range */
+        union float_bits x;
+        Uint32 y, z;
+        x.f32 = src[0];
+
+        y = x.u32 + 0x0F800000u;
+        z = y - 0xCF000000u;
+        z &= SIGNMASK(y ^ z);
+        x.u32 = y - z;
+
+        dst[0] = (Sint32)x.f32 ^ (Sint32)SIGNMASK(z);
     }
 
     SDL_assert(!i || !((size_t)dst & 15));
@@ -1246,14 +1292,19 @@ static void SDLCALL SDL_Convert_F32_to_S32_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        const float sample = src[0];
-        if (sample >= 1.0f) {
-            dst[0] = 2147483647;
-        } else if (sample <= -1.0f) {
-            dst[0] = (-2147483647) - 1;
-        } else {
-            dst[0] = ((Sint32)(sample * 8388607.0f)) << 8;
-        }
+        /* 1) Shift the float range from [-1.0, 1.0] to [-2147483648.0, 2147483648.0]
+         * 2) Set values outside the [-2147483648.0, 2147483647.0] range to -2147483648.0
+         * 3) Convert the float to an integer, and fixup values outside the valid range */
+        union float_bits x;
+        Uint32 y, z;
+        x.f32 = src[0];
+
+        y = x.u32 + 0x0F800000u;
+        z = y - 0xCF000000u;
+        z &= SIGNMASK(y ^ z);
+        x.u32 = y - z;
+
+        dst[0] = (Sint32)x.f32 ^ (Sint32)SIGNMASK(z);
     }
 }
 #endif
