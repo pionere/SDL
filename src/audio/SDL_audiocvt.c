@@ -107,6 +107,8 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
 
     LOG_DEBUG_CONVERT("stereo", "mono (using SSE3)");
 
+    cvt->len_cvt /= 2u;
+
     /* Do SSE blocks as long as we have 16 bytes available.
        Just use unaligned load/stores, if the memory at runtime is
        aligned it'll be just as fast on modern processors */
@@ -121,8 +123,6 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE3(SDL_AudioCVT *cvt)
     for ( ; i; i--, src += 2, dst++) {
         dst[0] = (src[0] + src[1]) * 0.5f;
     }
-
-    cvt->len_cvt = (unsigned)cvt->len_cvt / 2;
 }
 #endif
 
@@ -136,6 +136,8 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
     int i = num_samples;
 
     LOG_DEBUG_CONVERT("mono", "stereo (using SSE)");
+
+    cvt->len_cvt *= 2;
 
     /* Do SSE blocks as long as we have 16 bytes available.
        Just use unaligned load/stores, if the memory at runtime is
@@ -162,8 +164,6 @@ static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
         dst[0] /* FL */ = srcFC;
         }
     }
-
-    cvt->len_cvt *= 2;
 }
 #endif
 
