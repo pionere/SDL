@@ -28,6 +28,10 @@
 #include "SDL_audio_c.h"
 #include "SDL_audioresampler.h"
 
+#ifdef __ARM_NEON
+#define HAVE_NEON_INTRINSICS 1
+#endif
+
 #ifdef __SSE__
 #define HAVE_SSE_INTRINSICS
 #endif
@@ -472,6 +476,74 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
 }
 #endif // HAVE_SSE_INTRINSICS
 
+#ifdef HAVE_NEON_INTRINSICS
+static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, const int outrate,
+                             const float *inbuffer, const int inframes,
+                             float *outbuffer, const int outframes)
+{
+    const int chans = channels;
+    float *dst = outbuffer;
+    int i, chan, j;
+
+    for (i = 0; i < outframes; i++) {
+        DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
+        const Sint64 pos = (Sint64)i * inrate;
+        const int srcindex = (int)(pos / outrate);
+        const int srcfraction = (int)(pos % outrate);
+        const float interpolation1 = ((float)srcfraction) / ((float)outrate);
+        const int filterindex1 = (srcfraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / outrate) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+
+        { /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
+            const float32x4_t filt1 = vld1q_f32(&ResamplerFilter[filterindex1]);
+            const float32x4_t filt_diff1 = vld1q_f32(&ResamplerFilterDifference[filterindex1]);
+            const float32x4_t ipol1 = vdupq_n_f32(interpolation1);
+            const float32x4_t filt_diff_ipol1 = vmulq_f32(filt_diff1, ipol1);
+            const float32x4_t scale1_back = vaddq_f32(filt1, filt_diff_ipol1); // [3, 2, 1, 0]
+            const float32x4_t scalerew = vrev64q_f32(scale1_back);             // [2, 3, 0, 1]
+            const float32x2_t scalelo = vget_low_f32(scalerew);                // [2, 3]
+            const float32x2_t scalehi = vget_high_f32(scalerew);               // [0, 1]
+            const float32x4_t scale1 = vcombine_f32(scalehi, scalelo);         // [0, 1, 2, 3]
+            vst1q_f32(&scales[0], scale1);
+        }
+
+        { /* Do the right wing! */
+            const float32x4_t filt2 = vld1q_f32(&ResamplerFilter[filterindex2]);
+            const float32x4_t filt_diff2 = vld1q_f32(&ResamplerFilterDifference[filterindex2]);
+            const float32x4_t ipol2 = vdupq_n_f32(interpolation2);
+            const float32x4_t filt_diff_ipol2 = vmulq_f32(filt_diff2, ipol2);
+            const float32x4_t scale2 = vaddq_f32(filt2, filt_diff_ipol2);
+            vst1q_f32(&scales[RESAMPLER_ZERO_CROSSINGS], scale2);
+        }
+
+        for (chan = 0; chan < chans; chan++) {
+            float outsample = 0.0f;
+            const float *s = src;
+
+            for (j = 0; j < 2 * RESAMPLER_ZERO_CROSSINGS; j++) {
+                const float insample = *s;
+                outsample += insample * scales[j];
+                s += chans;
+            }
+
+            dst[0] = outsample;
+
+            dst++;
+            src++;
+        }
+    }
+
+    return outframes * chans * sizeof(float);
+}
+
+static const SDL_AudioResampler SDL_Resampler_Mono_NEON = SDL_Resampler_Mono_Scalar;
+static const SDL_AudioResampler SDL_Resampler_Stereo_NEON = SDL_Resampler_Stereo_Scalar;
+#endif // HAVE_NEON_INTRINSICS
+
 void SDL_ChooseAudioResamplers(void)
 {
     SDL_assert(SDL_Resampler_Mono == NULL);
@@ -484,6 +556,13 @@ void SDL_ChooseAudioResamplers(void)
 #ifdef HAVE_SSE_INTRINSICS
     if (SDL_HasSSE()) {
         SET_RESAMPLER_FUNCS(SSE);
+        return;
+    }
+#endif
+
+#ifdef HAVE_NEON_INTRINSICS
+    if (SDL_HasNEON()) {
+        SET_RESAMPLER_FUNCS(NEON);
         return;
     }
 #endif
