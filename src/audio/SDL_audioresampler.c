@@ -121,7 +121,9 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const int inrate, 
                 s += chans;
             }
 
-            *(dst++) = outsample;
+            dst[0] = outsample;
+
+            dst++;
             src++;
         }
     }
@@ -144,7 +146,6 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
     int i, j;
 
     for (i = 0; i < outframes; i++) {
-        int filt_idx;
         /* Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
@@ -165,7 +166,7 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
 
         {
             float outsample = 0.0f;
-            // int filt_idx;
+            int filt_idx;
             const float *s = src;
 
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
@@ -182,7 +183,9 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
                 s += chans;
             }
 
-            *(dst++) = outsample;
+            dst[0] = outsample;
+
+            dst++;
             src++;
         }
     }
@@ -249,8 +252,10 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, c
                 s += chans;
             }
 
-            *(dst++) = outsample0;
-            *(dst++) = outsample1;
+            dst[0] = outsample0;
+            dst[1] = outsample1;
+
+            dst += chans;
             src += chans;
         }
     }
@@ -309,7 +314,9 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
                 s += chans;
             }
 
-            *(dst++) = outsample;
+            dst[0] = outsample;
+
+            dst++;
             src++;
         }
     }
@@ -362,9 +369,9 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
             __m128 filt_diff_ipol2 = _mm_mul_ps(filt_diff2, ipol2);
             __m128 scale2 = _mm_add_ps(filt2, filt_diff_ipol2);
 
-            __m128 inleft_back = _mm_loadu_ps(src);
+            __m128 inleft_back = _mm_loadu_ps(&src[0]);
             __m128 inleft = _mm_shuffle_ps(inleft_back, inleft_back, _MM_SHUFFLE(0, 1, 2, 3));
-            __m128 inright = _mm_loadu_ps(src + 4);
+            __m128 inright = _mm_loadu_ps(&src[4]);
             __m128 outsample = _mm_add_ps(_mm_mul_ps(inleft, scale1), _mm_mul_ps(inright, scale2));
 #if 0
             __m128 sums = _mm_hadd_ps(outsample, outsample);
@@ -376,7 +383,7 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
             sums        = _mm_add_ss(sums, shuf);
 #endif
 
-            _mm_store_ss(dst, sums);
+            _mm_store_ss(&dst[0], sums);
 
             dst++;
             src++;
@@ -420,10 +427,10 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
             __m128 filt_diff_ipol2 = _mm_mul_ps(filt_diff2, ipol2);
             __m128 scale2 = _mm_add_ps(filt2, filt_diff_ipol2);
 
-            __m128 inleft00 = _mm_loadu_ps(src);
-            __m128 inleft10 = _mm_loadu_ps(src + 4);
-            __m128 inright00 = _mm_loadu_ps(src + 8);
-            __m128 inright10 = _mm_loadu_ps(src + 12);
+            __m128 inleft00 = _mm_loadu_ps(&src[0]);
+            __m128 inleft10 = _mm_loadu_ps(&src[4]);
+            __m128 inright00 = _mm_loadu_ps(&src[8]);
+            __m128 inright10 = _mm_loadu_ps(&src[12]);
 
             __m128 inleft00_ = _mm_shuffle_ps(inleft00, inleft00, _MM_SHUFFLE(3, 1, 2, 0));
             __m128 inleft10_ = _mm_shuffle_ps(inleft10, inleft10, _MM_SHUFFLE(3, 1, 2, 0));
@@ -453,8 +460,8 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
             sums1        = _mm_add_ss(sums1, shuf1);
 #endif
 
-            _mm_store_ss(dst, sums0);
-            _mm_store_ss(dst + 1, sums1);
+            _mm_store_ss(&dst[0], sums0);
+            _mm_store_ss(&dst[1], sums1);
 
             dst += chans;
             src += chans;
