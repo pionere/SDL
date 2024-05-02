@@ -124,6 +124,9 @@ extern SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map);
 #elif defined(_MSC_VER)
 #define DECLARE_ALIGNED(t, v, a) __declspec(align(a)) t v
 #else
+#ifdef __SSE__
+#error "unaligned SSE"
+#endif
 #define DECLARE_ALIGNED(t, v, a) t v
 #endif
 
