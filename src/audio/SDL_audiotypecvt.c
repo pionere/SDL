@@ -231,18 +231,22 @@ static void SDLCALL SDL_Convert_F32_to_S8_Scalar(SDL_AudioCVT *cvt)
     cvt->len_cvt /= 4u;
 
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
-         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
-         * 3) Clamp the value to [-128, 127] */
+        /* 1) Shift the float range from [-1.0, 1.0] to [98304.0, 98306.0] ([0x47C00000, 0x47C00100])
+         * 2) Clamp the value to [0, 255]
+         * 3) Shift the integer range from [0, 255] to [-128, 127] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 98304.0f;
+        x.f32 = src[0] + 98305.0f;
 
-        y = x.u32 - 0x47C00000u;
-        z = 0x7Fu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32; // & 0x1FF;
+        // clamp the value
+        z = 0u - ((Uint16)y >> 8);
+        y = y | z;
+        // 3) convert from uint8 to int8
+        y = y ^ 0x80;
 
-        dst[0] = (Sint8)(y & 0xFF);
+        dst[0] = (Sint8)y;
     }
 }
 
@@ -258,19 +262,19 @@ static void SDLCALL SDL_Convert_F32_to_U8_Scalar(SDL_AudioCVT *cvt)
     cvt->len_cvt /= 4u;
 
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
-         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
-         * 3) Clamp the value to [-128, 127]
-         * 4) Shift the integer range from [-128, 127] to [0, 255] */
+        /* 1) Shift the float range from [-1.0, 1.0] to [98304.0, 98306.0] ([0x47C000000, 0x47C00100])
+         * 2) Clamp the value to [0, 255] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 98304.0f;
+        x.f32 = src[0] + 98305.0f;
 
-        y = x.u32 - 0x47C00000u;
-        z = 0x7Fu - (y ^ SIGNMASK(y));
-        y = (y ^ 0x80u) ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32; // & 0x1FF;
+        // clamp the value
+        z = 0u - ((Uint16)y >> 8);
+        y = y | z;
 
-        dst[0] = (Uint8)(y & 0xFF);
+        dst[0] = (Uint8)y;
     }
 }
 
@@ -286,18 +290,22 @@ static void SDLCALL SDL_Convert_F32_to_S16_Scalar(SDL_AudioCVT *cvt)
     cvt->len_cvt /= 2u;
 
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [383.0, 385.0]
-         * 2) Shift the integer range from [0x43BF8000, 0x43C08000] to [-32768, 32768]
-         * 3) Clamp values outside the [-32768, 32767] range */
+        /* 1) Shift the float range from [-1.0, 1.0] to [256.0, 258.0] ([0x43800000, 0x43810000])
+         * 2) Clamp values outside the [0, 65535] range
+         * 3) Shift the integer range from [0, 65535] to [-32768, 32767] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 384.0f;
+        x.f32 = src[0] + 257.0f;
 
-        y = x.u32 - 0x43C00000u;
-        z = 0x7FFFu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32 & 0x1FFFF;
+        // clamp the value
+        z = 0u - (y >> 16);
+        y = y | z;
+        // 3) convert from uint16 to int16
+        y = y ^ 0x8000;
 
-        dst[0] = (Sint16)(y & 0xFFFF);
+        dst[0] = (Sint16)y;
     }
 }
 
@@ -313,21 +321,19 @@ static void SDLCALL SDL_Convert_F32_to_U16_Scalar(SDL_AudioCVT *cvt)
     cvt->len_cvt /= 2u;
 
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [383.0, 385.0]
-         * 2) Shift the integer range from [0x43BF8000, 0x43C08000] to [-32768, 32768]
-         * 3) Clamp values outside the [-32768, 32767] range
-         * 4) Convert to U16 */
+        /* 1) Shift the float range from [-1.0, 1.0] to [256.0, 258.0] ([0x43800000, 0x43810000])
+         * 2) Clamp values outside the [0, 65535] range */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 384.0f;
+        x.f32 = src[0] + 257.0f;
 
-        y = x.u32 - 0x43C00000u;
-        z = 0x7FFFu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32 & 0x1FFFF;
+        // clamp the value
+        z = 0u - (y >> 16);
+        y = y | z;
 
-        y = y ^ 0x8000;
-
-        dst[0] = (Sint16)(y & 0xFFFF);
+        dst[0] = (Uint16)y;
     }
 }
 
@@ -1149,18 +1155,22 @@ static void SDLCALL SDL_Convert_F32_to_S8_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
-         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
-         * 3) Clamp the value to [-128, 127] */
+        /* 1) Shift the float range from [-1.0, 1.0] to [98304.0, 98306.0] ([0x47C00000, 0x47C00100])
+         * 2) Clamp the value to [0, 255]
+         * 3) Shift the integer range from [0, 255] to [-128, 127] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 98304.0f;
+        x.f32 = src[0] + 98305.0f;
 
-        y = x.u32 - 0x47C00000u;
-        z = 0x7Fu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32; // & 0x1FF;
+        // clamp the value
+        z = 0u - ((Uint16)y >> 8);
+        y = y | z;
+        // 3) convert from uint8 to int8
+        y = y ^ 0x80;
 
-        dst[0] = (Sint8)(y & 0xFF);
+        dst[0] = (Sint8)y;
     }
 }
 
@@ -1202,19 +1212,19 @@ static void SDLCALL SDL_Convert_F32_to_U8_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [98303.0, 98305.0]
-         * 2) Shift the integer range from [0x47BFFF80, 0x47C00080] to [-128, 128]
-         * 3) Clamp the value to [-128, 127]
-         * 4) Shift the integer range from [-128, 127] to [0, 255] */
+        /* 1) Shift the float range from [-1.0, 1.0] to [98304.0, 98306.0] ([0x47C000000, 0x47C00100])
+         * 2) Clamp the value to [0, 255] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 98304.0f;
+        x.f32 = src[0] + 98305.0f;
 
-        y = x.u32 - 0x47C00000u;
-        z = 0x7Fu - (y ^ SIGNMASK(y));
-        y = (y ^ 0x80u) ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32; // & 0x1FF;
+        // clamp the value
+        z = 0u - ((Uint16)y >> 8);
+        y = y | z;
 
-        dst[0] = (Uint8)(y & 0xFF);
+        dst[0] = (Uint8)y;
     }
 }
 
@@ -1257,18 +1267,22 @@ static void SDLCALL SDL_Convert_F32_to_S16_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [383.0, 385.0]
-         * 2) Shift the integer range from [0x43BF8000, 0x43C08000] to [-32768, 32768]
-         * 3) Clamp values outside the [-32768, 32767] range */
+        /* 1) Shift the float range from [-1.0, 1.0] to [256.0, 258.0] ([0x43800000, 0x43810000])
+         * 2) Clamp values outside the [0, 65535] range
+         * 3) Shift the integer range from [0, 65535] to [-32768, 32767] */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 384.0f;
+        x.f32 = src[0] + 257.0f;
 
-        y = x.u32 - 0x43C00000u;
-        z = 0x7FFFu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32 & 0x1FFFF;
+        // clamp the value
+        z = 0u - (y >> 16);
+        y = y | z;
+        // 3) convert from uint16 to int16
+        y = y ^ 0x8000;
 
-        dst[0] = (Sint16)(y & 0xFFFF);
+        dst[0] = (Sint16)y;
     }
 }
 
@@ -1313,21 +1327,19 @@ static void SDLCALL SDL_Convert_F32_to_U16_NEON(SDL_AudioCVT *cvt)
 
     /* Finish off any leftovers with scalar operations. */
     for ( ; i; --i, ++src, ++dst) {
-        /* 1) Shift the float range from [-1.0, 1.0] to [383.0, 385.0]
-         * 2) Shift the integer range from [0x43BF8000, 0x43C08000] to [-32768, 32768]
-         * 3) Clamp values outside the [-32768, 32767] range
-         * 4) Convert to U16 */
+        /* 1) Shift the float range from [-1.0, 1.0] to [256.0, 258.0] ([0x43800000, 0x43810000])
+         * 2) Clamp values outside the [0, 65535] range */
         union float_bits x;
         Uint32 y, z;
-        x.f32 = src[0] + 384.0f;
+        x.f32 = src[0] + 257.0f;
 
-        y = x.u32 - 0x43C00000u;
-        z = 0x7FFFu - (y ^ SIGNMASK(y));
-        y = y ^ (z & SIGNMASK(z));
+        // 2) select the significant bits
+        y = x.u32 & 0x1FFFF;
+        // clamp the value
+        z = 0u - (y >> 16);
+        y = y | z;
 
-        y = y ^ 0x8000;
-
-        dst[0] = (Sint16)(y & 0xFFFF);
+        dst[0] = (Uint16)y;
     }
 }
 
