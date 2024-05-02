@@ -169,10 +169,24 @@ int main(void)
         "#define RESAMPLER_BITS_PER_SAMPLE           %d\n"
         "#define RESAMPLER_SAMPLES_PER_ZERO_CROSSING (1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1))\n"
         "#define RESAMPLER_FILTER_SIZE               (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS)\n"
+        "\n"
+        "#ifdef __GNUC__\n"
+        "#define DECLARE_ALIGNED(t, v, a) t __attribute__((aligned(a))) v\n"
+        "#elif defined(_MSC_VER)\n"
+        "#define DECLARE_ALIGNED(t, v, a) __declspec(align(a)) t v\n"
+        "#else\n"
+        "#ifdef __ARM_NEON\n"
+        "#error \"unaligned Neon\"\n"
+        "#endif\n"
+        "#ifdef __SSE__\n"
+        "#error \"unaligned SSE\"\n"
+        "#endif\n"
+        "#define DECLARE_ALIGNED(t, v, a) t v\n"
+        "#endif\n"
         "\n", RESAMPLER_ZERO_CROSSINGS, RESAMPLER_BITS_PER_SAMPLE
     );
 
-    printf("static const float ResamplerFilter[RESAMPLER_FILTER_SIZE] = {");
+    printf("static const DECLARE_ALIGNED(float, ResamplerFilter[RESAMPLER_FILTER_SIZE], 16) = {");
     for (i = 0; i < RESAMPLER_FILTER_SIZE; i++) {
         if ((i % RESAMPLER_ZERO_CROSSINGS) == 0) {
             printf("\n   ");
@@ -181,7 +195,7 @@ int main(void)
     }
     printf("\n};\n\n");
 
-    printf("static const float ResamplerFilterDifference[RESAMPLER_FILTER_SIZE] = {");
+    printf("static const DECLARE_ALIGNED(float, ResamplerFilterDifference[RESAMPLER_FILTER_SIZE], 16) = {");
     for (i = 0; i < RESAMPLER_FILTER_SIZE; i++) {
         if ((i % RESAMPLER_ZERO_CROSSINGS) == 0) {
             printf("\n   ");

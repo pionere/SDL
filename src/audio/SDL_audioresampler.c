@@ -268,7 +268,7 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
     int i, chan, j;
 
     for (i = 0; i < outframes; i++) {
-        float scales[2 * RESAMPLER_ZERO_CROSSINGS];
+        DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -281,8 +281,8 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
 
         { /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
-            __m128 filt1 = _mm_loadu_ps(&ResamplerFilter[filterindex1]);
-            __m128 filt_diff1 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex1]);
+            __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
+            __m128 filt_diff1 = _mm_load_ps(&ResamplerFilterDifference[filterindex1]);
             __m128 ipol1 = _mm_set_ps1(interpolation1);
             __m128 filt_diff_ipol1 = _mm_mul_ps(filt_diff1, ipol1);
             __m128 scale1_back = _mm_add_ps(filt1, filt_diff_ipol1);
@@ -291,8 +291,8 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
         }
 
         { /* Do the right wing! */
-            __m128 filt2 = _mm_loadu_ps(&ResamplerFilter[filterindex2]);
-            __m128 filt_diff2 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex2]);
+            __m128 filt2 = _mm_load_ps(&ResamplerFilter[filterindex2]);
+            __m128 filt_diff2 = _mm_load_ps(&ResamplerFilterDifference[filterindex2]);
             __m128 ipol2 = _mm_set_ps1(interpolation2);
             __m128 filt_diff_ipol2 = _mm_mul_ps(filt_diff2, ipol2);
             __m128 scale2 = _mm_add_ps(filt2, filt_diff_ipol2);
@@ -350,14 +350,14 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
 
         {
-            __m128 filt1 = _mm_loadu_ps(&ResamplerFilter[filterindex1]);
-            __m128 filt_diff1 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex1]);
+            __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
+            __m128 filt_diff1 = _mm_load_ps(&ResamplerFilterDifference[filterindex1]);
             __m128 ipol1 = _mm_set_ps1(interpolation1);
             __m128 filt_diff_ipol1 = _mm_mul_ps(filt_diff1, ipol1);
             __m128 scale1 = _mm_add_ps(filt1, filt_diff_ipol1);
 
-            __m128 filt2 = _mm_loadu_ps(&ResamplerFilter[filterindex2]);
-            __m128 filt_diff2 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex2]);
+            __m128 filt2 = _mm_load_ps(&ResamplerFilter[filterindex2]);
+            __m128 filt_diff2 = _mm_load_ps(&ResamplerFilterDifference[filterindex2]);
             __m128 ipol2 = _mm_set_ps1(interpolation2);
             __m128 filt_diff_ipol2 = _mm_mul_ps(filt_diff2, ipol2);
             __m128 scale2 = _mm_add_ps(filt2, filt_diff_ipol2);
@@ -407,15 +407,15 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
 
         {
-            __m128 filt1 = _mm_loadu_ps(&ResamplerFilter[filterindex1]);
-            __m128 filt_diff1 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex1]);
+            __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
+            __m128 filt_diff1 = _mm_load_ps(&ResamplerFilterDifference[filterindex1]);
             __m128 ipol1 = _mm_set_ps1(interpolation1);
             __m128 filt_diff_ipol1 = _mm_mul_ps(filt_diff1, ipol1);
             __m128 scale1_back = _mm_add_ps(filt1, filt_diff_ipol1);
             __m128 scale1 = _mm_shuffle_ps(scale1_back, scale1_back, _MM_SHUFFLE(0, 1, 2, 3));
 
-            __m128 filt2 = _mm_loadu_ps(&ResamplerFilter[filterindex2]);
-            __m128 filt_diff2 = _mm_loadu_ps(&ResamplerFilterDifference[filterindex2]);
+            __m128 filt2 = _mm_load_ps(&ResamplerFilter[filterindex2]);
+            __m128 filt_diff2 = _mm_load_ps(&ResamplerFilterDifference[filterindex2]);
             __m128 ipol2 = _mm_set_ps1(interpolation2);
             __m128 filt_diff_ipol2 = _mm_mul_ps(filt_diff2, ipol2);
             __m128 scale2 = _mm_add_ps(filt2, filt_diff_ipol2);

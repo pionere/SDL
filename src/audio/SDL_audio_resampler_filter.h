@@ -26,7 +26,21 @@
 #define RESAMPLER_SAMPLES_PER_ZERO_CROSSING (1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1))
 #define RESAMPLER_FILTER_SIZE               (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS)
 
-static const float ResamplerFilter[RESAMPLER_FILTER_SIZE] = {
+#ifdef __GNUC__
+#define DECLARE_ALIGNED(t, v, a) t __attribute__((aligned(a))) v
+#elif defined(_MSC_VER)
+#define DECLARE_ALIGNED(t, v, a) __declspec(align(a)) t v
+#else
+#ifdef __ARM_NEON
+#error "unaligned Neon"
+#endif
+#ifdef __SSE__
+#error "unaligned SSE"
+#endif
+#define DECLARE_ALIGNED(t, v, a) t v
+#endif
+
+static const DECLARE_ALIGNED(float, ResamplerFilter[RESAMPLER_FILTER_SIZE], 16) = {
      1.000000000f,  0.000000000f, -0.000000000f,  0.000000000f,
      0.999992311f, -0.001340469f,  0.000202389f, -0.000012573f,
      0.999969304f, -0.002671704f,  0.000403044f, -0.000024969f,
@@ -541,7 +555,7 @@ static const float ResamplerFilter[RESAMPLER_FILTER_SIZE] = {
      0.001349704f, -0.000204123f,  0.000012750f, -0.000000021f,
 };
 
-static const float ResamplerFilterDifference[RESAMPLER_FILTER_SIZE] = {
+static const DECLARE_ALIGNED(float, ResamplerFilterDifference[RESAMPLER_FILTER_SIZE], 16) = {
     -0.000007676f, -0.001340469f,  0.000202389f, -0.000012573f,
     -0.000023028f, -0.001331234f,  0.000200655f, -0.000012396f,
     -0.000038379f, -0.001322000f,  0.000198924f, -0.000012221f,
