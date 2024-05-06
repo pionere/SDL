@@ -249,7 +249,7 @@ class HAIKU_SDL_MessageBox : public BAlert
 		for (int i = 0; i < aNumButtons; ++i) {
 			int btnIdx;
 			if (aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
-				btnIdx = messageboxdata->numbuttons - 1 - i;
+				btnIdx = aMessageBoxData->numbuttons - 1 - i;
 			} else {
 				btnIdx = i;
 			}
@@ -369,12 +369,12 @@ int HAIKU_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid
 
 	// Initialize button by real pushed value then.
 	if (pushedButton != G_CLOSE_BUTTON_ID) {
-		if (aMessageBoxData->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
+		if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
 			btnIdx = messageboxdata->numbuttons - 1 - pushedButton;
 		} else {
 			btnIdx = pushedButton;
 		}
-		pushedButton = aMessageBoxData->buttons[btnIdx].buttonid;
+		pushedButton = messageboxdata->buttons[btnIdx].buttonid;
 	}
 	*buttonid = pushedButton;
 

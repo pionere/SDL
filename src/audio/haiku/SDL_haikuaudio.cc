@@ -74,7 +74,7 @@ static void FillSound(void *device, void *stream, size_t len,
             got = SDL_PrivateAudioStreamGet(audio->stream, stream, ilen);
             SDL_assert(got <= ilen);
             if (got < ilen) {
-                SDL_memset(stream + got, audio->spec.silence, len - got);
+                SDL_memset((Uint8 *)stream + got, audio->spec.silence, len - got);
             }
         }
     }
