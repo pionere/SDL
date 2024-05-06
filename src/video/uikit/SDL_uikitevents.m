@@ -110,10 +110,11 @@ static BOOL UIKit_EventPumpEnabled = YES;
 
 void SDL_iPhoneSetEventPump(SDL_bool enabled)
 {
-    UIKit_EventPumpEnabled = enabled;
-
     static SDL_LifecycleObserver *lifecycleObserver;
     static dispatch_once_t onceToken;
+
+    UIKit_EventPumpEnabled = enabled;
+
     dispatch_once(&onceToken, ^{
         lifecycleObserver = [SDL_LifecycleObserver new];
     });
@@ -122,10 +123,6 @@ void SDL_iPhoneSetEventPump(SDL_bool enabled)
 
 void UIKit_PumpEvents(void)
 {
-    if (!UIKit_EventPumpEnabled) {
-        return;
-    }
-
     /* Let the run loop run for a short amount of time: long enough for
        touch events to get processed (which is important to get certain
        elements of Game Center's GKLeaderboardViewController to respond
@@ -136,6 +133,11 @@ void UIKit_PumpEvents(void)
 
     /* Pump most event types. */
     SInt32 result;
+
+    if (!UIKit_EventPumpEnabled) {
+        return;
+    }
+
     do {
         result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
     } while (result == kCFRunLoopRunHandledSource);
@@ -164,10 +166,11 @@ static void OnGCKeyboardConnected(GCKeyboard *keyboard) API_AVAILABLE(macos(11.0
     {
         SDL_SendKeyboardKey(pressed ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)keyCode);
     };
-
+    {
     dispatch_queue_t queue = dispatch_queue_create( "org.libsdl.input.keyboard", DISPATCH_QUEUE_SERIAL );
     dispatch_set_target_queue( queue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
     keyboard.handlerQueue = queue;
+    }
 }
 
 static void OnGCKeyboardDisconnected(GCKeyboard *keyboard) API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0))
@@ -306,6 +309,7 @@ static void OnGCMouseButtonChanged(SDL_MouseID mouseID, Uint8 button, BOOL press
 static void OnGCMouseConnected(GCMouse *mouse) API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0))
 {
     SDL_MouseID mouseID = mice_connected;
+    int auxiliary_button = SDL_BUTTON_X1;
 
     mouse.mouseInput.leftButton.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
     {
@@ -320,7 +324,6 @@ static void OnGCMouseConnected(GCMouse *mouse) API_AVAILABLE(macos(11.0), ios(14
         OnGCMouseButtonChanged(mouseID, SDL_BUTTON_RIGHT, pressed);
     };
 
-    int auxiliary_button = SDL_BUTTON_X1;
     for (GCControllerButtonInput *btn in mouse.mouseInput.auxiliaryButtons) {
         btn.pressedChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed)
         {
@@ -352,11 +355,11 @@ static void OnGCMouseConnected(GCMouse *mouse) API_AVAILABLE(macos(11.0), ios(14
         SDL_SendMouseWheel(SDL_GetMouseFocus(), mouseID, horizontal, vertical, mouse_scroll_direction);
     };
     UpdateScrollDirection();
-
+    {
     dispatch_queue_t queue = dispatch_queue_create( "org.libsdl.input.mouse", DISPATCH_QUEUE_SERIAL );
     dispatch_set_target_queue( queue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
     mouse.handlerQueue = queue;
-
+    }
     ++mice_connected;
 
     UpdatePointerLock();

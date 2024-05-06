@@ -1290,7 +1290,7 @@ static void IOS_MFIJoystickUpdate(SDL_Joystick *joystick)
             for (i = 0; i < SDL_arraysize(axes); i++) {
                 SDL_PrivateJoystickAxis(joystick, i, axes[i]);
             }
-
+            {
             Uint8 buttons[joystick->nbuttons];
             int button_count = 0;
             buttons[button_count++] = gamepad.buttonA.isPressed;
@@ -1299,6 +1299,7 @@ static void IOS_MFIJoystickUpdate(SDL_Joystick *joystick)
 
             for (i = 0; i < button_count; i++) {
                 SDL_PrivateJoystickButton(joystick, i, buttons[i]);
+            }
             }
         }
 #endif /* TARGET_OS_TV */

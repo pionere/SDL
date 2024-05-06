@@ -189,12 +189,12 @@ static UIImage *SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
+    NSString *screenname = nibNameOrNil;
+    NSBundle *bundle = nibBundleOrNil;
+
     if (!(self = [super initWithNibName:nil bundle:nil])) {
         return nil;
     }
-
-    NSString *screenname = nibNameOrNil;
-    NSBundle *bundle = nibBundleOrNil;
 
     /* A launch screen may not exist. Fall back to launch images in that case. */
     if (screenname) {
@@ -247,6 +247,7 @@ static UIImage *SDL_LoadLaunchImageNamed(NSString *name, int screenh)
                 }
 
 #if !TARGET_OS_TV
+                {
                 UIInterfaceOrientationMask orientmask = UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
                 NSString *orientstring = dict[@"UILaunchImageOrientation"];
 
@@ -265,6 +266,7 @@ static UIImage *SDL_LoadLaunchImageNamed(NSString *name, int screenh)
                 /* Ignore this image if the orientation doesn't match. */
                 if ((orientmask & (1 << curorient)) == 0) {
                     continue;
+                }
                 }
 #endif
 

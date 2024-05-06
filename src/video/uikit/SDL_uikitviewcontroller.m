@@ -158,10 +158,13 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 - (void)startAnimation
 {
+#ifdef __IPHONE_10_3
+    SDL_WindowData *data;
+#endif
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doLoop:)];
 
 #ifdef __IPHONE_10_3
-    SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
+    data = (__bridge SDL_WindowData *) window->driverdata;
 
     if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]
         && data != nil && data.uiwindow != nil
@@ -269,6 +272,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 /* Set ourselves up as a UITextFieldDelegate */
 - (void)initKeyboard
 {
+    NSNotificationCenter *center;
     obligateForBackspace = @"                                                                "; /* 64 space */
     textField = [[SDLUITextField alloc] initWithFrame:CGRectZero];
     textField.delegate = self;
@@ -288,7 +292,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     textField.hidden = YES;
     keyboardVisible = NO;
 
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    center = [NSNotificationCenter defaultCenter];
 #if !TARGET_OS_TV
     [center addObserver:self
                selector:@selector(keyboardWillShow:)
@@ -422,6 +426,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
     showingKeyboard = YES;
 #if !TARGET_OS_TV
+    {
     CGRect kbrect = [[notification userInfo][UIKeyboardFrameEndUserInfoKey] CGRectValue];
 
     /* The keyboard rect is in the coordinate space of the screen/window, but we
@@ -429,6 +434,7 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
     kbrect = [self.view convertRect:kbrect fromView:nil];
 
     [self setKeyboardHeight:(int)kbrect.size.height];
+    }
 #endif
 
     if (shouldStartTextInput) {
@@ -568,12 +574,13 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 
 static SDL_uikitviewcontroller *GetWindowViewController(SDL_Window * window)
 {
+    SDL_WindowData *data;
     if (!window || !window->driverdata) {
         SDL_SetError("Invalid window");
         return nil;
     }
 
-    SDL_WindowData *data = (__bridge SDL_WindowData *)window->driverdata;
+    data = (__bridge SDL_WindowData *)window->driverdata;
 
     return data.viewcontroller;
 }

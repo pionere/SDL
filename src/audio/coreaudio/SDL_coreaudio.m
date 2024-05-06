@@ -478,11 +478,11 @@ static BOOL update_audio_session(_THIS, SDL_bool open, SDL_bool allow_playandrec
                 if ([err code] == AVAudioSessionErrorCodeResourceNotAvailable &&
                     category == AVAudioSessionCategoryPlayAndRecord) {
                     return update_audio_session(this, open, SDL_FALSE);
+                } else {
+                    NSString *desc = err.description;
+                    SDL_SetError("Could not activate Audio Session: %s", desc.UTF8String);
+                    return NO;
                 }
-
-                NSString *desc = err.description;
-                SDL_SetError("Could not activate Audio Session: %s", desc.UTF8String);
-                return NO;
             }
             session_active = YES;
             resume_audio_devices();

@@ -37,13 +37,17 @@ static void UIKit_DelDisplay(UIScreen *uiscreen);
 - (instancetype)initWithScreen:(UIScreen*)screen
 {
     if (self = [super init]) {
+        NSDictionary* devices;
+        struct utsname systemInfo;
+        NSString* deviceName;
+        id foundDPI;
         self.uiscreen = screen;
 
         /*
          * A well up to date list of device info can be found here:
          * https://github.com/lmirosevic/GBDeviceInfo/blob/master/GBDeviceInfo/GBDeviceInfo_iOS.m
          */
-        NSDictionary* devices = @{
+        devices = @{
             @"iPhone1,1": @163,
             @"iPhone1,2": @163,
             @"iPhone2,1": @163,
@@ -141,11 +145,10 @@ static void UIKit_DelDisplay(UIScreen *uiscreen);
             @"iPod9,1": @326,
         };
 
-        struct utsname systemInfo;
         uname(&systemInfo);
-        NSString* deviceName =
+        deviceName =
             [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-        id foundDPI = devices[deviceName];
+        foundDPI = devices[deviceName];
         if (foundDPI) {
             self.screenDPI = (float)[foundDPI integerValue];
         } else {
@@ -328,10 +331,11 @@ int UIKit_AddDisplay(UIScreen *uiscreen, SDL_bool send_event)
 
     result = UIKit_InitDisplayMode(&current_mode, size.width, size.height, uiscreen, uiscreenmode);
     if (result == 0) {
+        SDL_DisplayData *data;
         SDL_zero(display);
 
         /* Allocate the display data */
-        SDL_DisplayData *data = [[SDL_DisplayData alloc] initWithScreen:uiscreen];
+        data = [[SDL_DisplayData alloc] initWithScreen:uiscreen];
         if (data) {
             display.driverdata = (void *) CFBridgingRetain(data);
             UIKit_GetDisplayModes(&display, &current_mode);

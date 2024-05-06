@@ -250,6 +250,7 @@ CGRect UIKit_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
      * https://bugzilla.libsdl.org/show_bug.cgi?id=3505
      * https://bugzilla.libsdl.org/show_bug.cgi?id=3465
      * https://forums.developer.apple.com/thread/65337 */
+    {
     UIInterfaceOrientation orient = [UIApplication sharedApplication].statusBarOrientation;
     BOOL landscape = UIInterfaceOrientationIsLandscape(orient) ||
                     !(UIKit_GetSupportedOrientations(window) & (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown));
@@ -261,6 +262,7 @@ CGRect UIKit_ComputeViewFrame(SDL_Window *window, UIScreen *screen)
         float height = frame.size.width;
         frame.size.width = frame.size.height;
         frame.size.height = height;
+    }
     }
 #endif
 

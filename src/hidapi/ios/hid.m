@@ -290,6 +290,8 @@ typedef enum
 {
 	static uint64_t s_unLastUpdateTick = 0;
 	static mach_timebase_info_data_t s_timebase_info;
+	uint64_t ticksNow;
+	NSArray<CBPeripheral *> *peripherals;
 
 	if ( self.centralManager == nil )
     {
@@ -301,7 +303,7 @@ typedef enum
 		mach_timebase_info( &s_timebase_info );
 	}
 
-	uint64_t ticksNow = mach_approximate_time();
+	ticksNow = mach_approximate_time();
 	if ( !bForce && ( ( (ticksNow - s_unLastUpdateTick) * s_timebase_info.numer ) / s_timebase_info.denom ) < (5ull * NSEC_PER_SEC) )
 		return (int)self.deviceMap.count;
 
@@ -318,7 +320,7 @@ typedef enum
 	if ( self.nPendingPairs > 0 )
 		return (int)self.deviceMap.count;
 
-	NSArray<CBPeripheral *> *peripherals = [self.centralManager retrieveConnectedPeripheralsWithServices: @[ [CBUUID UUIDWithString:@"180A"]]];
+	peripherals = [self.centralManager retrieveConnectedPeripheralsWithServices: @[ [CBUUID UUIDWithString:@"180A"]]];
 	for ( CBPeripheral *peripheral in peripherals )
 	{
 		// we already know this peripheral
@@ -328,8 +330,9 @@ typedef enum
 		NSLog( @"connected peripheral: %@", peripheral );
 		if ( [peripheral.name isEqualToString:@"SteamController"] )
 		{
+			HIDBLEDevice *steamController;
 			self.nPendingPairs += 1;
-			HIDBLEDevice *steamController = [[HIDBLEDevice alloc] initWithPeripheral:peripheral];
+			steamController = [[HIDBLEDevice alloc] initWithPeripheral:peripheral];
 			[self.deviceMap setObject:steamController forKey:peripheral];
 			[self.centralManager connectPeripheral:peripheral options:nil];
 		}
@@ -449,12 +452,13 @@ typedef enum
 {
 	NSString *localName = [advertisementData objectForKey:CBAdvertisementDataLocalNameKey];
 	NSString *log = [NSString stringWithFormat:@"Found '%@'", localName];
+	HIDBLEDevice *steamController;
 
 	if ( [localName isEqualToString:@"SteamController"] )
 	{
 		NSLog( @"%@ : %@ - %@", log, peripheral, advertisementData );
 		self.nPendingPairs += 1;
-		HIDBLEDevice *steamController = [[HIDBLEDevice alloc] initWithPeripheral:peripheral];
+		steamController = [[HIDBLEDevice alloc] initWithPeripheral:peripheral];
 		[self.deviceMap setObject:steamController forKey:peripheral];
 		[self.centralManager connectPeripheral:peripheral options:nil];
 	}
@@ -851,8 +855,9 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	     ( product_id == 0 || product_id == D0G_BLE2_PID ) )
 	{
 		HIDBLEManager *bleManager = HIDBLEManager.sharedInstance;
+		NSEnumerator<HIDBLEDevice *> *devices;
 		[bleManager updateConnectedSteamControllers:false];
-		NSEnumerator<HIDBLEDevice *> *devices = [bleManager.deviceMap objectEnumerator];
+		devices = [bleManager.deviceMap objectEnumerator];
 		for ( HIDBLEDevice *device in devices )
 		{
 			// there are several brief windows in connecting to an already paired device and
@@ -861,6 +866,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			// Steam Controller consumer, their additional SC setup work will fail
 			// in unusual/silent ways and we can actually corrupt the BLE stack for
 			// the entire system and kill the appletv remote's Menu button (!)
+			struct hid_device_info *device_info;
 			if ( device.bleSteamController.state != CBPeripheralStateConnected ||
 				 device.connected == NO || device.ready == NO )
 			{
@@ -872,7 +878,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 				}
 				continue;
 			}
-			struct hid_device_info *device_info = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info) );
+			device_info = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info) );
 			device_info->next = root;
 			root = device_info;
 			device_info->path = strdup( device.bleSteamController.identifier.UUIDString.UTF8String );
@@ -954,12 +960,13 @@ int HID_API_EXPORT hid_send_feature_report(hid_device *dev, const unsigned char 
 
 int HID_API_EXPORT hid_get_feature_report(hid_device *dev, unsigned char *data, size_t length)
 {
-    HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
+	HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
+	size_t written;
 
 	if ( !device_handle.connected )
 		return -1;
 
-	size_t written = [device_handle get_feature_report:data[0] into:data];
+	written = [device_handle get_feature_report:data[0] into:data];
 
 	return written == length-1 ? (int)length : (int)written;
 }
@@ -976,7 +983,8 @@ int HID_API_EXPORT hid_read(hid_device *dev, unsigned char *data, size_t length)
 
 int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t length, int milliseconds)
 {
-    HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
+	HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
+	int result;
 
 	if ( !device_handle.connected )
 		return -1;
@@ -985,7 +993,7 @@ int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t
 	{
 		NSLog( @"hid_read_timeout with non-zero wait" );
 	}
-	int result = (int)[device_handle read_input_report:data];
+	result = (int)[device_handle read_input_report:data];
 #if FEATURE_REPORT_LOGGING
 	NSLog( @"HIDBLE:hid_read_timeout (%d) [%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x]", result,
 		  data[1], data[2], data[3], data[4], data[5], data[6],
