@@ -116,13 +116,20 @@ void SDL_GestureQuit(void)
     SDL_gestureTouch = NULL;
 }
 
-static unsigned long SDL_HashDollar(SDL_FloatPoint *points)
+typedef union float_bits {
+    Uint32 u32;
+    float f32;
+} float_bits;
+static Uint64 SDL_HashDollar(SDL_FloatPoint *points)
 {
-    unsigned long hash = 5381;
+    Uint64 hash = 5381;
     int i;
     for (i = 0; i < DOLLARNPOINTS; i++) {
-        hash = ((hash << 5) + hash) + (unsigned long)points[i].x;
-        hash = ((hash << 5) + hash) + (unsigned long)points[i].y;
+        float_bits pos;
+        pos.f32 = points[i].x;
+        hash = ((hash << 5) + hash) + pos.u32;
+        pos.f32 = points[i].y;
+        hash = ((hash << 5) + hash) + pos.u32;
     }
     return hash;
 }
@@ -233,7 +240,7 @@ static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
             inTouch = &SDL_gestureTouch[i];
             index = SDL_AddDollarGesture_one(inTouch, path);
             if (index < 0) {
-                return -1;
+                return index;
             }
         }
         /* Use the index of the last one added. */
