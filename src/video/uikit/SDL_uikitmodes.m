@@ -535,9 +535,10 @@ void UIKit_QuitModes(void)
     }
 }
 
-#if !TARGET_OS_TV
+#ifdef __IPHONEOS__
 void SDL_OnApplicationDidChangeStatusBarOrientation(void)
 {
+#if !TARGET_OS_TV
     BOOL isLandscape = UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
     SDL_VideoDisplay *display = SDL_GetDisplay(0);
 
@@ -583,8 +584,9 @@ void SDL_OnApplicationDidChangeStatusBarOrientation(void)
         }
         SDL_SendDisplayEvent(display, SDL_DISPLAYEVENT_ORIENTATION, orientation);
     }
+#endif // !TARGET_OS_TV
 }
-#endif /* !TARGET_OS_TV */
+#endif // __IPHONEOS__
 
 #endif /* SDL_VIDEO_DRIVER_UIKIT */
 
