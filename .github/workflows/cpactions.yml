@@ -49,3 +49,10 @@ jobs:
           export LDFLAGS="-L/usr/local/lib"
           (cd build_autotools && ../configure --disable-static)
           gmake -C build_autotools -j`sysctl -n hw.ncpu` V=1
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        path: build_autotools/build/.libs/libSDL2.so
+        name: libSDL2_bsd.so

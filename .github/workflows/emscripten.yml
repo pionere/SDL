@@ -43,3 +43,10 @@ jobs:
             -DTEST_SHARED=FALSE \
             -DCMAKE_PREFIX_PATH=${{ env.SDL2_DIR }}
           cmake --build cmake_config_build --verbose
+      # Upload the created artifact
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          path: build/libSDL2.a
+          name: SDL2_ems.a

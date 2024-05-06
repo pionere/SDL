@@ -53,3 +53,10 @@ jobs:
         run: |
           export PKG_CONFIG_PATH=${{ env.SDL2_DIR }}/lib/pkgconfig
           cmake/test/test_pkgconfig.sh
+      # Upload the created artifact
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          path: build/libSDL2.a
+          name: libSDL2_n3ds.a

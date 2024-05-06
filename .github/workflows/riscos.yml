@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - { name: autotools, test_args: '-DTEST_SHARED=FALSE' } # FIXME: autotools should build and install shared libraries
-          - { name: CMake }
+          - { name: autotools, artifact: build_autotools/build/.libs/libSDL2.a, artifact-name: libSDL2_auto.a, test_args: '-DTEST_SHARED=FALSE' } # FIXME: autotools should build and install shared libraries
+          - { name: CMake, artifact: build/libSDL2.so, artifact-name: libSDL2_cmake.so }
 
     steps:
     - name: Setup dependencies
@@ -66,3 +66,10 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release \
           ${{ matrix.platform.test_args }}
         cmake --build cmake_config_build --verbose
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        path: ${{ matrix.platform.artifact }}
+        name: ${{ matrix.platform.artifact-name }}

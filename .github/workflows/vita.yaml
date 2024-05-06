@@ -16,8 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - { name: GLES (pib),                    os: windows-latest, pib: true }
-          - { name: GLES (PVR_PSP2 + gl4es4vita),  os: windows-latest, pvr: true }
+          - { name: GLES (pib),                    os: windows-latest, pib: true, artifact-name: libSDL2_vita_pib.a }
+          - { name: GLES (PVR_PSP2 + gl4es4vita),  os: windows-latest, pvr: true, artifact-name: libSDL2_vita_pvr.a }
     steps:
     - uses: actions/checkout@v4
     - name: Install build requirements
@@ -93,3 +93,10 @@ jobs:
         export CC=arm-vita-eabi-gcc
         export PKG_CONFIG_PATH=${{ env.SDL2_DIR }}/lib/pkgconfig
         cmake/test/test_pkgconfig.sh
+    # Upload the created artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        path: build/libSDL2.a
+        name: ${{ matrix.platform.artifact-name }}

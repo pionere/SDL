@@ -11,8 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows, makefile: Makefile.w32 }
-        - { name: OS/2,    makefile: Makefile.os2 }
+        - { name: Windows, makefile: Makefile.w32, artifact-name: SDL2_w32.dll }
+        - { name: OS/2,    makefile: Makefile.os2, artifact-name: SDL2_os2.dll }
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +29,13 @@ jobs:
         run: |
           cd test && wmake -f ${{ matrix.platform.makefile }} check-quick
           cd ..
+      # Upload the created artifact
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: error
+          path: SDL2.dll
+          name: ${{ matrix.platform.artifact-name }}
       - name: distclean
         run: |
           wmake -f ${{ matrix.platform.makefile }} distclean

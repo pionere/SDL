@@ -60,14 +60,21 @@ jobs:
         export PKG_CONFIG_PATH=${{ env.SDL2_DIR }}/lib/pkgconfig
         cmake/test/test_pkgconfig.sh
     
-    - name: Get short SHA
-      id: slug
-      run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+    #- name: Get short SHA
+    #  id: slug
+    #  run: echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
 
-    - name: Upload artifacts
-      if: ${{ success() }}
+    #- name: Upload artifacts
+    #  if: ${{ success() }}
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: tests-${{ steps.slug.outputs.sha8 }}
+    #    path: |
+    #      build/test
+    # Upload the created artifact
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: tests-${{ steps.slug.outputs.sha8 }}
-        path: |
-          build/test
+        if-no-files-found: error
+        path: build/libSDL2.a
+        name: libSDL2_ps2.a
