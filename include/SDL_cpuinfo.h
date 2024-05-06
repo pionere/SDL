@@ -115,7 +115,7 @@ _m_prefetch(void *__P)
 #endif
 #ifdef __loongarch_asx
 # if !defined(SDL_DISABLE_LASX)
-#  define SDL_LSX_INTRINSICS 1
+#  define SDL_LASX_INTRINSICS 1
 #  include <lasxintrin.h>
 # endif
 #endif
@@ -127,7 +127,7 @@ _m_prefetch(void *__P)
 # endif
 #endif
 
-#if (defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)) && !defined(__WATCOMC__)
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 # if defined(__ICC) && !defined(__3dNOW__)
 #  if !defined(SDL_DISABLE_3DNOW)
 #   define SDL_DISABLE_3DNOW
