@@ -3442,6 +3442,7 @@ endif()
 
 configure_file("${SDL2_SOURCE_DIR}/include/SDL_revision.h.cmake"
   "${SDL2_BINARY_DIR}/include/SDL2/SDL_revision.h")
+set(HAVE_VENDOR_INFO "${SDL_VENDOR_INFO}")
 
 # Copy all non-generated headers to "${SDL2_BINARY_DIR}/include/SDL2"
 # This is done to avoid the inclusion of a pre-generated SDL_config.h
