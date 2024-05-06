@@ -11,8 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows (x64),          flags: -A x64,   project: VisualC/SDL.sln, projectflags: '/p:Platform=x64', artifact: SDL2.dll, artifact-name: SDL2_gcc_x64.dll }
-        - { name: Windows (x86),          flags: -A Win32, project: VisualC/SDL.sln, projectflags: '/p:Platform=Win32', artifact: SDL2.dll, artifact-name: SDL2_gcc_x86.dll }
+        - { name: Windows (x64),          flags: -A x64,   project: VisualC/SDL.sln, projectflags: '/p:Platform=x64', artifact: SDL2.dll, artifact-name: SDL2_msvc_x64.dll }
+        - { name: Windows (x86),          flags: -A Win32, project: VisualC/SDL.sln, projectflags: '/p:Platform=Win32', artifact: SDL2.dll, artifact-name: SDL2_msvc_x86.dll }
         - { name: Windows static VCRT (x64), flags: -A x64 -DSDL_FORCE_STATIC_VCRT=ON, static: true }
         - { name: Windows static VCRT (x86), flags: -A Win32 -DSDL_FORCE_STATIC_VCRT=ON, static: true }
         - { name: Windows (clang-cl x64), flags: -T ClangCL -A x64, artifact: SDL2.dll, artifact-name: SDL2_clang_x64.dll }
