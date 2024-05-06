@@ -211,7 +211,7 @@ extern DECLSPEC SDL_AssertState SDLCALL SDL_ReportAssertion(SDL_AssertData *,
  if (__builtin_expect(!(cond), 0)) { \
     otherwise; \
 }
-#elif __cplusplus >= 202002
+#elif defined(__cplusplus) && __cplusplus >= 202002
 #define SDL_expect(cond, otherwise) \
  if (!(cond)) [[ unlikely ]] { \
     otherwise; \
