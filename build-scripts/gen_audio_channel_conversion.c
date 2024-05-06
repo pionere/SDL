@@ -249,9 +249,9 @@ static void write_converter(const int fromchans, const int tochans)
     int maxdstchlen = 0;
     int i, j;
 
-    if (tochans == fromchans) {
-        return;  /* nothing to convert, don't generate a converter. */
-    }
+    // if (tochans == fromchans) {
+    //    return;  /* nothing to convert, don't generate a converter. */
+    // }
 
     for (i = 0; i < fromchans; i++) {
         input_channel_used[i] = 0;
@@ -507,13 +507,12 @@ static void write_converter(const int fromchans, const int tochans)
         printf("    }\n");
     }
 
-    printf("}\n\n");
-
+    printf("}\n");
 }
 
 int main(void)
 {
-    int ini, outi;
+    int i, ini, outi;
 
     printf(
         "/*\n"
@@ -545,29 +544,62 @@ int main(void)
 
     for (ini = 1; ini <= NUM_CHANNELS; ini++) {
         for (outi = 1; outi <= NUM_CHANNELS; outi++) {
+            if (ini == outi)
+                continue;
+            if (ini <= 2 && outi <= 2) {
+                printf("#if !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT\n");
+            }
             write_converter(ini, outi);
+            if (ini <= 2 && outi <= 2) {
+                printf("#endif // !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT\n");
+            }
+            printf("\n");
         }
     }
 
-    printf("static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
-    for (ini = 1; ini <= NUM_CHANNELS; ini++) {
-        printf("    {");
-        for (outi = 1; outi <= NUM_CHANNELS; outi++) {
-            const char *fromstr = layout_names[ini-1];
-            const char *tostr = layout_names[outi-1];
-            int len;
-            if (ini == outi) {
-                len = printf(" NULL");
-            } else {
-                len = printf(" SDL_Convert%sTo%s", remove_dots(fromstr), remove_dots(tostr));
-            }
-            printf(",");
-            while (len < 24) {
-                len++;
-                printf(" ");
-            }
+    for (i = 0; i < 3; i++) {
+        switch (i) {
+        case 0:
+            printf("#if SDL_HAVE_NEON_SUPPORT\n");
+            break;
+        case 1:
+            printf("#if SDL_HAVE_SSE_SUPPORT\n");
+            break;
+        case 2:
+            printf("#if !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT\n");
+            break;
         }
-        printf(" }%s\n", (ini == NUM_CHANNELS) ? "" : ",");
+        printf("static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */\n", NUM_CHANNELS, NUM_CHANNELS);
+        for (ini = 1; ini <= NUM_CHANNELS; ini++) {
+            printf("    {");
+            for (outi = 1; outi <= NUM_CHANNELS; outi++) {
+                const char *fromstr = layout_names[ini - 1];
+                const char *tostr = layout_names[outi - 1];
+                int len;
+                if (ini == outi || (i < 2 && ini <= 2 && outi <= 2)) {
+                    len = printf(" NULL");
+                } else {
+                    len = printf(" SDL_Convert%sTo%s", remove_dots(fromstr), remove_dots(tostr));
+                }
+                printf(",");
+                while (len < 24) {
+                    len++;
+                    printf(" ");
+                }
+            }
+            printf(" }%s\n", (ini == NUM_CHANNELS) ? "" : ",");
+        }
+        switch (i) {
+        case 0:
+            printf("#endif // SDL_HAVE_NEON_SUPPORT\n");
+            break;
+        case 1:
+            printf("#endif // SDL_HAVE_SSE_SUPPORT\n");
+            break;
+        case 2:
+            printf("#endif // !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT\n");
+            break;
+        }
     }
 
     printf("};\n\n");

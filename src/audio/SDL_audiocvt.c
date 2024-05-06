@@ -247,30 +247,46 @@ static void SDLCALL SDL_ConvertMonoToStereo_NEON(SDL_AudioCVT *cvt)
 
 void SDL_ChooseAudioChannelConverters(void)
 {
-    SDL_assert(channel_converters[1][0] == SDL_ConvertStereoToMono);
-    SDL_assert(channel_converters[0][1] == SDL_ConvertMonoToStereo);
 #ifdef SDL_NEON_INTRINSICS
 #if SDL_HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
+    SDL_assert(channel_converters[1][0] == NULL);
+    SDL_assert(channel_converters[0][1] == NULL);
     if (1) {
 #else
+    SDL_assert(channel_converters[1][0] == SDL_ConvertStereoToMono);
+    SDL_assert(channel_converters[0][1] == SDL_ConvertMonoToStereo);
     if (SDL_HasNEON()) {
-#endif
+#endif // SDL_HAVE_NEON_SUPPORT
         channel_converters[1][0] = SDL_ConvertStereoToMono_NEON;
         channel_converters[0][1] = SDL_ConvertMonoToStereo_NEON;
     }
 #endif
 #ifdef SDL_SSE_INTRINSICS
 #if SDL_HAVE_SSE_SUPPORT
+#ifdef SDL_NEON_INTRINSICS
+    SDL_assert(channel_converters[1][0] == NULL || channel_converters[1][0] == SDL_ConvertStereoToMono_NEON);
+    SDL_assert(channel_converters[0][1] == NULL || channel_converters[0][1] == SDL_ConvertMonoToStereo_NEON);
+#else
+    SDL_assert(channel_converters[1][0] == NULL);
+    SDL_assert(channel_converters[0][1] == NULL);
+#endif
     SDL_assert(SDL_HasSSE());
     if (1) {
 #else
-    if (SDL_HasSSE()) {
+#ifdef SDL_NEON_INTRINSICS
+    SDL_assert(channel_converters[1][0] == SDL_ConvertStereoToMono || channel_converters[1][0] == SDL_ConvertStereoToMono_NEON);
+    SDL_assert(channel_converters[0][1] == SDL_ConvertMonoToStereo || channel_converters[0][1] == SDL_ConvertMonoToStereo_NEON);
+#else
+    SDL_assert(channel_converters[1][0] == SDL_ConvertStereoToMono);
+    SDL_assert(channel_converters[0][1] == SDL_ConvertMonoToStereo);
 #endif
+    if (SDL_HasSSE()) {
+#endif // SDL_HAVE_SSE_SUPPORT
         channel_converters[1][0] = SDL_ConvertStereoToMono_SSE;
         channel_converters[0][1] = SDL_ConvertMonoToStereo_SSE;
     }
-#endif
+#endif // SDL_SSE_INTRINSICS
 }
 
 static void SDL_PrivateConvertAudio(SDL_AudioCVT *cvt)

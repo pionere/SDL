@@ -23,6 +23,7 @@
 
 #define NUM_CHANNELS 8
 
+#if !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 static void SDLCALL SDL_ConvertMonoToStereo(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
@@ -45,6 +46,7 @@ static void SDLCALL SDL_ConvertMonoToStereo(SDL_AudioCVT *cvt)
         }
     }
 }
+#endif // !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 
 static void SDLCALL SDL_ConvertMonoTo21(SDL_AudioCVT *cvt)
 {
@@ -205,6 +207,7 @@ static void SDLCALL SDL_ConvertMonoTo71(SDL_AudioCVT *cvt)
     }
 }
 
+#if !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
@@ -220,6 +223,7 @@ static void SDLCALL SDL_ConvertStereoToMono(SDL_AudioCVT *cvt)
         dst[0] /* FC */ = ( src[0] + src[1] ) * 0.500000000f;
     }
 }
+#endif // !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 
 static void SDLCALL SDL_ConvertStereoTo21(SDL_AudioCVT *cvt)
 {
@@ -1334,6 +1338,29 @@ static void SDLCALL SDL_Convert71To61(SDL_AudioCVT *cvt)
     }
 }
 
+#if SDL_HAVE_NEON_SUPPORT
+static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */
+    { NULL,                    NULL,                    SDL_ConvertMonoTo21,     SDL_ConvertMonoToQuad,   SDL_ConvertMonoTo41,     SDL_ConvertMonoTo51,     SDL_ConvertMonoTo61,     SDL_ConvertMonoTo71,     },
+    { NULL,                    NULL,                    SDL_ConvertStereoTo21,   SDL_ConvertStereoToQuad, SDL_ConvertStereoTo41,   SDL_ConvertStereoTo51,   SDL_ConvertStereoTo61,   SDL_ConvertStereoTo71,   },
+    { SDL_Convert21ToMono,     SDL_Convert21ToStereo,   NULL,                    SDL_Convert21ToQuad,     SDL_Convert21To41,       SDL_Convert21To51,       SDL_Convert21To61,       SDL_Convert21To71,       },
+    { SDL_ConvertQuadToMono,   SDL_ConvertQuadToStereo, SDL_ConvertQuadTo21,     NULL,                    SDL_ConvertQuadTo41,     SDL_ConvertQuadTo51,     SDL_ConvertQuadTo61,     SDL_ConvertQuadTo71,     },
+    { SDL_Convert41ToMono,     SDL_Convert41ToStereo,   SDL_Convert41To21,       SDL_Convert41ToQuad,     NULL,                    SDL_Convert41To51,       SDL_Convert41To61,       SDL_Convert41To71,       },
+    { SDL_Convert51ToMono,     SDL_Convert51ToStereo,   SDL_Convert51To21,       SDL_Convert51ToQuad,     SDL_Convert51To41,       NULL,                    SDL_Convert51To61,       SDL_Convert51To71,       },
+    { SDL_Convert61ToMono,     SDL_Convert61ToStereo,   SDL_Convert61To21,       SDL_Convert61ToQuad,     SDL_Convert61To41,       SDL_Convert61To51,       NULL,                    SDL_Convert61To71,       },
+    { SDL_Convert71ToMono,     SDL_Convert71ToStereo,   SDL_Convert71To21,       SDL_Convert71ToQuad,     SDL_Convert71To41,       SDL_Convert71To51,       SDL_Convert71To61,       NULL,                    }
+#endif // SDL_HAVE_NEON_SUPPORT
+#if SDL_HAVE_SSE_SUPPORT
+static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */
+    { NULL,                    NULL,                    SDL_ConvertMonoTo21,     SDL_ConvertMonoToQuad,   SDL_ConvertMonoTo41,     SDL_ConvertMonoTo51,     SDL_ConvertMonoTo61,     SDL_ConvertMonoTo71,     },
+    { NULL,                    NULL,                    SDL_ConvertStereoTo21,   SDL_ConvertStereoToQuad, SDL_ConvertStereoTo41,   SDL_ConvertStereoTo51,   SDL_ConvertStereoTo61,   SDL_ConvertStereoTo71,   },
+    { SDL_Convert21ToMono,     SDL_Convert21ToStereo,   NULL,                    SDL_Convert21ToQuad,     SDL_Convert21To41,       SDL_Convert21To51,       SDL_Convert21To61,       SDL_Convert21To71,       },
+    { SDL_ConvertQuadToMono,   SDL_ConvertQuadToStereo, SDL_ConvertQuadTo21,     NULL,                    SDL_ConvertQuadTo41,     SDL_ConvertQuadTo51,     SDL_ConvertQuadTo61,     SDL_ConvertQuadTo71,     },
+    { SDL_Convert41ToMono,     SDL_Convert41ToStereo,   SDL_Convert41To21,       SDL_Convert41ToQuad,     NULL,                    SDL_Convert41To51,       SDL_Convert41To61,       SDL_Convert41To71,       },
+    { SDL_Convert51ToMono,     SDL_Convert51ToStereo,   SDL_Convert51To21,       SDL_Convert51ToQuad,     SDL_Convert51To41,       NULL,                    SDL_Convert51To61,       SDL_Convert51To71,       },
+    { SDL_Convert61ToMono,     SDL_Convert61ToStereo,   SDL_Convert61To21,       SDL_Convert61ToQuad,     SDL_Convert61To41,       SDL_Convert61To51,       NULL,                    SDL_Convert61To71,       },
+    { SDL_Convert71ToMono,     SDL_Convert71ToStereo,   SDL_Convert71To21,       SDL_Convert71ToQuad,     SDL_Convert71To41,       SDL_Convert71To51,       SDL_Convert71To61,       NULL,                    }
+#endif // SDL_HAVE_SSE_SUPPORT
+#if !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [from][to] */
     { NULL,                    SDL_ConvertMonoToStereo, SDL_ConvertMonoTo21,     SDL_ConvertMonoToQuad,   SDL_ConvertMonoTo41,     SDL_ConvertMonoTo51,     SDL_ConvertMonoTo61,     SDL_ConvertMonoTo71,     },
     { SDL_ConvertStereoToMono, NULL,                    SDL_ConvertStereoTo21,   SDL_ConvertStereoToQuad, SDL_ConvertStereoTo41,   SDL_ConvertStereoTo51,   SDL_ConvertStereoTo61,   SDL_ConvertStereoTo71,   },
@@ -1343,6 +1370,7 @@ static SDL_AudioFilter channel_converters[NUM_CHANNELS][NUM_CHANNELS] = { /* [fr
     { SDL_Convert51ToMono,     SDL_Convert51ToStereo,   SDL_Convert51To21,       SDL_Convert51ToQuad,     SDL_Convert51To41,       NULL,                    SDL_Convert51To61,       SDL_Convert51To71,       },
     { SDL_Convert61ToMono,     SDL_Convert61ToStereo,   SDL_Convert61To21,       SDL_Convert61ToQuad,     SDL_Convert61To41,       SDL_Convert61To51,       NULL,                    SDL_Convert61To71,       },
     { SDL_Convert71ToMono,     SDL_Convert71ToStereo,   SDL_Convert71To21,       SDL_Convert71ToQuad,     SDL_Convert71To41,       SDL_Convert71To51,       SDL_Convert71To61,       NULL,                    }
+#endif // !SDL_HAVE_NEON_SUPPORT && !SDL_HAVE_SSE_SUPPORT
 };
 
 /* vi: set ts=4 sw=4 expandtab: */
