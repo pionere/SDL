@@ -174,7 +174,7 @@ typedef enum
 @implementation METAL_TextureData
 @end
 
-static int IsMetalAvailable()
+static int IsMetalAvailable(void)
 {
     SDL_bool metalSupport = SDL_FALSE;
 #ifdef SDL_VIDEO_DRIVER_COCOA

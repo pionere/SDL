@@ -1937,7 +1937,7 @@ static void SDL_GameControllerLoadHints(void)
  * Usually this will just be SDL_HINT_GAMECONTROLLERCONFIG_FILE, but for
  * Android, we want to get the internal storage path.
  */
-static void SDL_InitControllerMappingFromFile()
+static void SDL_InitControllerMappingFromFile(void)
 {
     const char *path = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
 #if defined(__ANDROID__)

@@ -161,7 +161,7 @@ extern SDL_bool Cocoa_IsWindowInFullscreenSpace(SDL_Window * window);
 extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window * window, SDL_bool state);
 #endif
 
-static Uint32 SDL_DefaultGraphicsBackends()
+static Uint32 SDL_DefaultGraphicsBackends(void)
 {
 #if (defined(SDL_VIDEO_OPENGL) && defined(__MACOSX__)) || (defined(__IPHONEOS__) && !TARGET_OS_MACCATALYST) || defined(__ANDROID__) || defined(__NACL__) || defined(__HAIKU__) || defined(__EMSCRIPTEN__) || defined(__PSP__)
     if (current_video.GL_CreateContext) {
@@ -179,7 +179,7 @@ static Uint32 SDL_DefaultGraphicsBackends()
 static SDL_atomic_t SDL_messagebox_count;
 
 /* Convenience functions for driver-specific behavior */
-static SDL_bool DisableDisplayModeSwitching()
+static SDL_bool DisableDisplayModeSwitching(void)
 {
 #ifdef SDL_VIDEO_DRIVER_WAYLAND
     return SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_Wayland; // VIDEO_DEVICE_QUIRK_DISABLE_DISPLAY_MODE_SWITCHING
@@ -187,7 +187,7 @@ static SDL_bool DisableDisplayModeSwitching()
     return SDL_FALSE;
 #endif
 }
-static SDL_bool DisableUnsetFullscreenOnMinimize()
+static SDL_bool DisableUnsetFullscreenOnMinimize(void)
 {
 #ifdef SDL_VIDEO_DRIVER_WAYLAND
     return SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_Wayland; // VIDEO_DEVICE_QUIRK_DISABLE_UNSET_FULLSCREEN_ON_MINIMIZE
@@ -2537,7 +2537,7 @@ int SDL_SetWindowFullscreen(SDL_Window *window, Uint32 flags)
 }
 
 /* See if the user or application wants to specifically disable the framebuffer */
-static SDL_bool DisableFrameBuffer()
+static SDL_bool DisableFrameBuffer(void)
 {
     SDL_bool result = SDL_FALSE;
     const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);

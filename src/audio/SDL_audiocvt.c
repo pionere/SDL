@@ -635,7 +635,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     SDL_free(tmp);
 }
 
-static SDL_AudioFilter ChooseCVTResampler()
+static SDL_AudioFilter ChooseCVTResampler(void)
 {
 #ifdef HAVE_LIBSAMPLERATE_H
     if (SRC_available) {

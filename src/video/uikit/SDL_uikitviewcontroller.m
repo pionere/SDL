@@ -585,7 +585,7 @@ static SDL_uikitviewcontroller *GetWindowViewController(SDL_Window * window)
     return data.viewcontroller;
 }
 
-SDL_bool UIKit_HasScreenKeyboardSupport()
+SDL_bool UIKit_HasScreenKeyboardSupport(void)
 {
     return SDL_TRUE;
 }

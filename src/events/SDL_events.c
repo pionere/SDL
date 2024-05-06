@@ -1073,7 +1073,7 @@ static int SDL_WaitEventTimeout_Device(SDL_Window *wakeup_window, SDL_Event *eve
     return 0;
 }
 
-static SDL_Window *SDL_find_active_window()
+static SDL_Window *SDL_find_active_window(void)
 {
     SDL_Window *window = SDL_GetWindows();
     for ( ; window; window = window->next) {

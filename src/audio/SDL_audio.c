@@ -316,7 +316,7 @@ static void SDL_AudioUnlockDevice_Default(SDL_AudioDevice *device) SDL_NO_THREAD
     }
 }
 
-static void init_current_audio()
+static void init_current_audio(void)
 {
     // SDL_zeroa(open_devices);
     // SDL_zero(current_audio);
