@@ -2077,10 +2077,12 @@ elseif(WINDOWS)
     list(APPEND SOURCE_FILES ${WINRT_SOURCE_FILES})
   endif()
 
-  if(MSVC AND NOT SDL_LIBC)
-    # Prevent codegen that would use the VC runtime libraries.
+  if(MSVC)
+    # 1. turn off buffer checks
+    # 2. raise the default size of the stack to reduce the number of stack-probes (required by Intel C compiler)
     set_property(DIRECTORY . APPEND PROPERTY COMPILE_OPTIONS "/GS-;/Gs1048576")
-    if(NOT ARCH_64 AND HAVE_SSE)
+    # Prevent codegen that would use the VC runtime libraries.
+    if(NOT ARCH_64 AND NOT SDL_LIBC AND HAVE_SSE)
       set_property(DIRECTORY . APPEND PROPERTY COMPILE_OPTIONS "/arch:SSE")
     endif()
   endif()
