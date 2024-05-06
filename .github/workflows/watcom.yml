@@ -8,6 +8,7 @@ jobs:
     runs-on: windows-latest
 
     strategy:
+      fail-fast: false
       matrix:
         platform:
         - { name: Windows, makefile: Makefile.w32 }
