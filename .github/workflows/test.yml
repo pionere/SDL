@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-        - { name: Ubuntu 20.04 (Scalar),        os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so, cmake: '-DSDL_DUMMYVIDEO=ON -DSDL_DUMMYAUDIO=ON -DSDL_SSE=OFF' }
+        - { name: Ubuntu 20.04 (Scalar),        os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so, cmake: '-DSDL_DUMMYVIDEO=ON -DSDL_DUMMYAUDIO=ON -DSDL_SSE=OFF -DSDL_AVX=OFF' }
         - { name: Ubuntu 20.04 (SSE),           os: ubuntu-20.04,   shell: sh, artifact: libSDL2.so, artifact-name: libSDL2-28.0_ub20.04.so, cmake: '-DSDL_DUMMYVIDEO=ON -DSDL_DUMMYAUDIO=ON' }
         - { name: MacOS-NEON (NEON),            os: macos-latest,   shell: sh,    cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DSDL_DUMMYVIDEO=ON -DSDL_DUMMYAUDIO=ON', artifact: libSDL2.dylib, artifact-name: libSDL2-28.0.dylib }
 

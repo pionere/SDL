@@ -752,6 +752,21 @@ fi
 AC_ARG_ENABLE(assembly,
 [AS_HELP_STRING([--enable-assembly], [Enable assembly routines [default=yes]])],
               , enable_assembly=yes)
+allow_gcc_sse=no
+have_gcc_mmx=no
+have_gcc_3dnow=no
+have_gcc_sse=no
+have_gcc_sse2=no
+have_gcc_sse3=no
+have_gcc_sse4_1=no
+have_gcc_sse4_2=no
+have_gcc_avx=no
+have_gcc_avx2=no
+have_gcc_altivec=no
+have_gcc_lsx=no
+have_gcc_lasx=no
+have_gcc_neon=no
+have_gcc_avx512f=no
 if test x$enable_assembly = xyes; then
     have_assembly=yes
 
@@ -771,12 +786,10 @@ if test x$enable_assembly = xyes; then
             ;;
     esac
     AC_ARG_ENABLE(ssemath,
-[AS_HELP_STRING([--enable-ssemath], [Allow GCC to use SSE floating point math [default=maybe]])],
-                  , enable_ssemath=$default_ssemath)
-    if test x$enable_ssemath = xno; then
-        if test x$have_gcc_sse = xyes -o x$have_gcc_sse2 = xyes -o x$have_gcc_sse3 = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS -mfpmath=387"
-        fi
+[AS_HELP_STRING([--enable-ssemath], [Allow GCC to use SSE floating point math [default=yes]])],
+                  , enable_ssemath=yes)
+    if test x$enable_ssemath = xyes; then
+        allow_gcc_sse=yes
     fi
 
 dnl Check for various instruction support
@@ -785,33 +798,20 @@ dnl Check for various instruction support
                   , enable_mmx=yes)
     if test x$enable_mmx = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_mmx=no
         AC_MSG_CHECKING(for GCC -mmmx option)
         mmx_CFLAGS="-mmmx"
         CFLAGS="$save_CFLAGS $mmx_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifdef __MINGW32__
-        #include <_mingw.h>
-        #ifdef __MINGW64_VERSION_MAJOR
-        #include <intrin.h>
-        #else
         #include <mmintrin.h>
-        #endif
-        #else
-        #include <mmintrin.h>
-        #endif
-        #ifndef __MMX__
-        #error Assembler CPP flag not enabled
-        #endif
-        ]],[])], [have_gcc_mmx=yes],[])
+        void ints_add(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 2; size -= 2, dest += 2, a += 2, b += 2) {
+            *(__m64*)dest = _mm_add_pi32(*(__m64*)a, *(__m64*)b);
+          }
+        }
+        ]],[ints_add((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_mmx=yes],[])
         AC_MSG_RESULT($have_gcc_mmx)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_mmx = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $mmx_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} mmx"
-        fi
     fi
 
     AC_ARG_ENABLE(3dnow,
@@ -819,16 +819,12 @@ dnl Check for various instruction support
                   , enable_3dnow=yes)
     if test x$enable_3dnow = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_3dnow=no
         AC_MSG_CHECKING(for GCC -m3dnow option)
         amd3dnow_CFLAGS="-m3dnow"
         CFLAGS="$save_CFLAGS $amd3dnow_CFLAGS"
 
         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <mm3dnow.h>
-        #ifndef __3dNOW__
-        #error Assembler CPP flag not enabled
-        #endif
         ]], [[
         void *p = 0;
         _m_prefetch(p);
@@ -836,11 +832,6 @@ dnl Check for various instruction support
          [have_gcc_3dnow=yes],[])
         AC_MSG_RESULT($have_gcc_3dnow)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_3dnow = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $amd3dnow_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} 3dnow"
-        fi
     fi
 
     AC_ARG_ENABLE(sse,
@@ -848,33 +839,20 @@ dnl Check for various instruction support
                   , enable_sse=yes)
     if test x$enable_sse = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_sse=no
         AC_MSG_CHECKING(for GCC -msse option)
         sse_CFLAGS="-msse"
         CFLAGS="$save_CFLAGS $sse_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifdef __MINGW32__
-        #include <_mingw.h>
-        #ifdef __MINGW64_VERSION_MAJOR
-        #include <intrin.h>
-        #else
         #include <xmmintrin.h>
-        #endif
-        #else
-        #include <xmmintrin.h>
-        #endif
-        #ifndef __SSE__
-        #error Assembler CPP flag not enabled
-        #endif
-        ]],[])], [have_gcc_sse=yes],[])
+        void floats_add(float *dest, float *a, float *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            _mm_storeu_ps(dest, _mm_add_ps(_mm_loadu_ps(a), _mm_loadu_ps (b)));
+          }
+        }
+        ]],[floats_add((float*)0, (float*)0, (float*)0, 0);])], [have_gcc_sse=yes],[])
         AC_MSG_RESULT($have_gcc_sse)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_sse = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $sse_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} sse"
-        fi
     fi
 
     AC_ARG_ENABLE(sse2,
@@ -882,33 +860,20 @@ dnl Check for various instruction support
                   , enable_sse2=$enable_sse)
     if test x$enable_sse2 = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_sse2=no
         AC_MSG_CHECKING(for GCC -msse2 option)
         sse2_CFLAGS="-msse2"
         CFLAGS="$save_CFLAGS $sse2_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifdef __MINGW32__
-        #include <_mingw.h>
-        #ifdef __MINGW64_VERSION_MAJOR
-        #include <intrin.h>
-        #else
         #include <emmintrin.h>
-        #endif
-        #else
-        #include <emmintrin.h>
-        #endif
-        #ifndef __SSE2__
-        #error Assembler CPP flag not enabled
-        #endif
-        ]],[])], [have_gcc_sse2=yes],[])
+        void doubles_add(double *dest, double *a, double *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            _mm_store_pd(dest, _mm_add_pd(_mm_loadu_pd(a), _mm_loadu_pd(b)));
+          }
+        }
+        ]],[doubles_add((double*)0, (double*)0, (double*)0, 0);])], [have_gcc_sse2=yes],[])
         AC_MSG_RESULT($have_gcc_sse2)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_sse2 = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $sse2_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} sse2"
-        fi
     fi
 
     AC_ARG_ENABLE(sse3,
@@ -916,41 +881,125 @@ dnl Check for various instruction support
                   , enable_sse3=$enable_sse2)
     if test x$enable_sse3 = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_sse3=no
         AC_MSG_CHECKING(for GCC -msse3 option)
         sse3_CFLAGS="-msse3"
         CFLAGS="$save_CFLAGS $sse3_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifdef __MINGW32__
-        #include <_mingw.h>
-        #ifdef __MINGW64_VERSION_MAJOR
-        #include <intrin.h>
-        #else
         #include <pmmintrin.h>
-        #endif
-        #else
-        #include <pmmintrin.h>
-        #endif
-        #ifndef __SSE2__
-        #error Assembler CPP flag not enabled
-        #endif
-        ]],[])], [have_gcc_sse3=yes],[])
+        void ints_add(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            _mm_storeu_si128((__m128i*)dest, _mm_add_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
+          }
+        }
+        ]],[ints_add((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse3=yes],[])
         AC_MSG_RESULT($have_gcc_sse3)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_sse3 = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $sse3_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} sse3"
-        fi
     fi
 
-    AC_MSG_CHECKING(for immintrin.h)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <immintrin.h>]])],
-       [have_immintrin_h_hdr=yes],[have_immintrin_h_hdr=no])
-    AC_MSG_RESULT($have_immintrin_h_hdr)
-    if test x$have_immintrin_h_hdr = xyes; then
-        AC_DEFINE(HAVE_IMMINTRIN_H, 1, [ ])
+    AC_ARG_ENABLE(sse4_1,
+[AS_HELP_STRING([--enable-sse41], [use SSE4.1 assembly routines [default=yes]])],
+                  , enable_sse4_1=$enable_sse3)
+    if test x$enable_sse4_1 = xyes; then
+        save_CFLAGS="$CFLAGS"
+        AC_MSG_CHECKING(for GCC -msse4.1 option)
+        sse41_CFLAGS="-msse4.1"
+        CFLAGS="$save_CFLAGS $sse41_CFLAGS"
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <smmintrin.h>
+        void ints_mul(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
+          }
+        }
+        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse4_1=yes],[])
+        AC_MSG_RESULT($have_gcc_sse4_1)
+        CFLAGS="$save_CFLAGS"
+    fi
+
+    AC_ARG_ENABLE(sse4_2,
+[AS_HELP_STRING([--enable-sse42], [use SSE4.2 assembly routines [default=yes]])],
+                  , enable_sse4_2=$enable_sse4_1)
+    if test x$enable_sse4_2 = xyes; then
+        save_CFLAGS="$CFLAGS"
+        AC_MSG_CHECKING(for GCC -msse4.2 option)
+        sse42_CFLAGS="-msse4.2"
+        CFLAGS="$save_CFLAGS $sse42_CFLAGS"
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <smmintrin.h>
+        void ints_mul(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
+          }
+        }
+        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse4_2=yes],[])
+        AC_MSG_RESULT($have_gcc_sse4_2)
+        CFLAGS="$save_CFLAGS"
+    fi
+
+    AC_ARG_ENABLE(avx,
+[AS_HELP_STRING([--enable-avx], [use AVX assembly routines [default=yes]])],
+                  , enable_avx=yes)
+    if test x$enable_avx = xyes; then
+        save_CFLAGS="$CFLAGS"
+        AC_MSG_CHECKING(for GCC -mavx option)
+        avx_CFLAGS="-mavx"
+        CFLAGS="$save_CFLAGS $avx_CFLAGS"
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <immintrin.h>
+        void floats_add(float *dest, float *a, float *b, unsigned size) {
+          for (; size >= 8; size -= 8, dest += 8, a += 8, b += 8) {
+            _mm256_storeu_ps(dest, _mm256_add_ps(_mm256_loadu_ps(a), _mm256_loadu_ps(b)));
+          }
+        }
+        ]],[floats_add((float*)0, (float*)0, (float*)0, 0);])], [have_gcc_avx=yes],[])
+        AC_MSG_RESULT($have_gcc_avx)
+        CFLAGS="$save_CFLAGS"
+    fi
+
+    AC_ARG_ENABLE(avx2,
+[AS_HELP_STRING([--enable-avx2], [use AVX2 assembly routines [default=yes]])],
+                  , enable_avx2=$enable_avx)
+    if test x$enable_avx2 = xyes; then
+        save_CFLAGS="$CFLAGS"
+        AC_MSG_CHECKING(for GCC -mavx2 option)
+        avx2_CFLAGS="-mavx2"
+        CFLAGS="$save_CFLAGS $avx2_CFLAGS"
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <immintrin.h>
+        void ints_add(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 8; size -= 8, dest += 8, a += 8, b += 8) {
+            _mm256_storeu_si256((__m256i*)dest, _mm256_add_epi32(_mm256_loadu_si256((__m256i*)a), _mm256_loadu_si256((__m256i*)b)));
+          }
+        }
+        ]],[ints_add((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_avx2=yes],[])
+        AC_MSG_RESULT($have_gcc_avx2)
+        CFLAGS="$save_CFLAGS"
+    fi
+
+    AC_ARG_ENABLE(avx512f,
+[AS_HELP_STRING([--enable-avx512f], [use AVX512f assembly routines [default=yes]])],
+                  , enable_avx512f=$enable_avx2)
+    if test x$enable_avx512f = xyes; then
+        save_CFLAGS="$CFLAGS"
+        AC_MSG_CHECKING(for GCC -mavx512f option)
+        avx512f_CFLAGS="-mavx512f"
+        CFLAGS="$save_CFLAGS $avx512f_CFLAGS"
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <immintrin.h>
+        void floats_add(float *dest, float *a, float *b, unsigned size) {
+          for (; size >= 16; size -= 16, dest += 16, a += 16, b += 16) {
+            _mm512_storeu_ps(dest, _mm512_add_ps(_mm512_loadu_ps(a), _mm512_loadu_ps(b)));
+          }
+        }
+        ]],[floats_add((float*)0, (float*)0, (float*)0, 0);])], [have_gcc_avx512f=yes],[])
+        AC_MSG_RESULT($have_gcc_avx512f)
+        CFLAGS="$save_CFLAGS"
     fi
 
     AC_ARG_ENABLE(altivec,
@@ -958,8 +1007,6 @@ dnl Check for various instruction support
                   , enable_altivec=yes)
     if test x$enable_altivec = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_altivec=no
-        have_altivec_h_hdr=no
         altivec_CFLAGS="-maltivec"
         CFLAGS="$save_CFLAGS $altivec_CFLAGS"
 
@@ -971,64 +1018,16 @@ dnl Check for various instruction support
         }
         ]],[])], [
         have_gcc_altivec=yes
-        have_altivec_h_hdr=yes
         ],[])
         AC_MSG_RESULT($have_gcc_altivec)
-
-        if test x$have_gcc_altivec = xno; then
-            AC_MSG_CHECKING(for Altivec with GCC -maltivec option)
-            AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-            vector unsigned int vzero() {
-                return vec_splat_u32(0);
-            }
-            ]],[])], [have_gcc_altivec=yes],[])
-            AC_MSG_RESULT($have_gcc_altivec)
-        fi
-
-        if test x$have_gcc_altivec = xno; then
-            AC_MSG_CHECKING(for Altivec with GCC altivec.h and -faltivec option)
-            altivec_CFLAGS="-faltivec"
-            CFLAGS="$save_CFLAGS $altivec_CFLAGS"
-            AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-            #include <altivec.h>
-            vector unsigned int vzero() {
-                return vec_splat_u32(0);
-            }
-            ]],[])], [
-            have_gcc_altivec=yes
-            have_altivec_h_hdr=yes
-            ],[])
-            AC_MSG_RESULT($have_gcc_altivec)
-        fi
-
-        if test x$have_gcc_altivec = xno; then
-            AC_MSG_CHECKING(for Altivec with GCC -faltivec option)
-            AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-            vector unsigned int vzero() {
-                return vec_splat_u32(0);
-            }
-            ]],[])], [have_gcc_altivec=yes],[])
-            AC_MSG_RESULT($have_gcc_altivec)
-        fi
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_altivec = xyes; then
-            AC_DEFINE(SDL_ALTIVEC_BLITTERS, 1, [ ])
-            if test x$have_altivec_h_hdr = xyes; then
-              AC_DEFINE(HAVE_ALTIVEC_H, 1, [ ])
-            fi
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $altivec_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} altivec"
-        fi
     fi
-fi
 
     AC_ARG_ENABLE(lsx,
 [AS_HELP_STRING([--enable-lsx], [use LSX assembly routines [default=yes]])],
                   , enable_lsx=yes)
     if test x$enable_lsx = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_lsx=no
         AC_MSG_CHECKING(for GCC -mlsx option)
         lsx_CFLAGS="-mlsx"
         CFLAGS="$save_CFLAGS $lsx_CFLAGS"
@@ -1041,10 +1040,6 @@ fi
         AC_MSG_RESULT($have_gcc_lsx)
         CFLAGS="$save_CFLAGS"
 
-        if test x$have_gcc_lsx = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $lsx_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} lsx"
-        fi
     fi
 
     AC_MSG_CHECKING(for lsxintrin.h)
@@ -1060,7 +1055,6 @@ fi
                   , enable_LASX=yes)
     if test x$enable_LASX = xyes; then
         save_CFLAGS="$CFLAGS"
-        have_gcc_lasx=no
         AC_MSG_CHECKING(for GCC -mlasx option)
         lasx_CFLAGS="-mlasx"
         CFLAGS="$save_CFLAGS $lasx_CFLAGS"
@@ -1072,11 +1066,6 @@ fi
         ]], [])], [have_gcc_lasx=yes], [])
         AC_MSG_RESULT($have_gcc_lasx)
         CFLAGS="$save_CFLAGS"
-
-        if test x$have_gcc_lasx = xyes; then
-            EXTRA_CFLAGS="$EXTRA_CFLAGS $lasx_CFLAGS"
-            SUMMARY_math="${SUMMARY_math} lasx"
-        fi
     fi
 
     AC_MSG_CHECKING(for lasxintrin.h)
@@ -1086,6 +1075,117 @@ fi
     if test x$have_lasxintrin_h_hdr = xyes; then
         AC_DEFINE(HAVE_LASXINTRIN_H, 1, [ ])
     fi
+
+    AC_ARG_ENABLE(neon,
+[AS_HELP_STRING([--enable-neon], [use NEON assembly routines [default=yes]])],
+                  , enable_neon=yes)
+    if test x$enable_neon = xyes; then
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+        #include <arm_neon.h>
+        void floats_add(float *dest, float *a, float *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            vst1q_f32(dest, vaddq_f32(vld1q_f32(a), vld1q_f32(b)));
+          }
+        }
+        ]],
+        [[
+          floats_add((float*)0, (float*)0, (float*)0, 0);
+        ]])],
+         [have_gcc_neon=yes],[])
+        AC_MSG_RESULT($have_gcc_neon)
+    fi
+fi
+
+if test x$allow_gcc_sse = xyes; then
+    SUMMARY_math="${SUMMARY_math} sse"
+else
+    EXTRA_CFLAGS="$EXTRA_CFLAGS -mfpmath=387"
+fi
+if test x$have_gcc_mmx = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $mmx_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} mmx"
+else
+    AC_DEFINE(SDL_DISABLE_MMX, 1, [ ])
+fi
+if test x$have_gcc_3dnow = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $amd3dnow_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} 3dnow"
+else
+    AC_DEFINE(SDL_DISABLE_3DNOW, 1, [ ])
+fi
+if test x$have_gcc_sse = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} sse"
+else
+    AC_DEFINE(SDL_DISABLE_SSE, 1, [ ])
+fi
+if test x$have_gcc_sse2 = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse2_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} sse2"
+else
+    AC_DEFINE(SDL_DISABLE_SSE2, 1, [ ])
+fi
+if test x$have_gcc_sse3 = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse3_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} sse3"
+else
+    AC_DEFINE(SDL_DISABLE_SSE3, 1, [ ])
+fi
+if test x$have_gcc_sse4_1 = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse41_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} sse4.1"
+else
+    AC_DEFINE(SDL_DISABLE_SSE4_1, 1, [ ])
+fi
+if test x$have_gcc_sse4_2 = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse42_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} sse4.2"
+else
+    AC_DEFINE(SDL_DISABLE_SSE4_2, 1, [ ])
+fi
+if test x$have_gcc_avx = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $avx_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} avx"
+else
+    AC_DEFINE(SDL_DISABLE_AVX, 1, [ ])
+fi
+if test x$have_gcc_avx2 = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $avx2_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} avx2"
+else
+    AC_DEFINE(SDL_DISABLE_AVX2, 1, [ ])
+fi
+if test x$have_gcc_avx512f = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $avx512f_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} avx512f"
+else
+    AC_DEFINE(SDL_DISABLE_AVX512F, 1, [ ])
+fi
+if test x$have_gcc_altivec = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $altivec_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} altivec"
+else
+    AC_DEFINE(SDL_DISABLE_ALTIVEC, 1, [ ])
+fi
+if test x$have_gcc_lsx = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $lsx_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} lsx"
+else
+    AC_DEFINE(SDL_DISABLE_LSX, 1, [ ])
+fi
+if test x$have_gcc_lasx = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS $lasx_CFLAGS"
+    SUMMARY_intrin="${SUMMARY_intrin} lasx"
+else
+    AC_DEFINE(SDL_DISABLE_LASX, 1, [ ])
+fi
+if test x$have_gcc_neon = xyes; then
+    # EXTRA_CFLAGS="$EXTRA_CFLAGS -mfpu=neon"
+    SUMMARY_intrin="${SUMMARY_intrin} neon"
+else
+    AC_DEFINE(SDL_DISABLE_NEON, 1, [ ])
+fi
+
 
 dnl See if the OSS audio interface is supported
 CheckOSS()
@@ -5209,6 +5309,7 @@ else
     SUMMARY="${SUMMARY}Enable assembly routines : NO\n"
 fi
 SUMMARY="${SUMMARY}Assembly Math            :${SUMMARY_math}\n" 
+SUMMARY="${SUMMARY}SDL Intrinsics           :${SUMMARY_intrin}\n" 
 if test x$have_joystick_virtual = xyes; then
     SUMMARY="${SUMMARY}Enable virtual joystick APIs : YES\n"
 else

@@ -59,7 +59,7 @@
 #elif defined(__FreeBSD__) && defined(__powerpc__)
 #include <machine/cpu.h>
 #include <sys/auxv.h>
-#elif defined(SDL_ALTIVEC_BLITTERS) && defined(HAVE_SETJMP)
+#elif defined(SDL_ALTIVEC_INTRINSICS) && defined(HAVE_SETJMP)
 #include <signal.h>
 #include <setjmp.h>
 #endif
@@ -125,7 +125,7 @@
 #define CPU_CFG2_LSX  (1 << 6)
 #define CPU_CFG2_LASX (1 << 7)
 
-#if defined(SDL_ALTIVEC_BLITTERS) && defined(HAVE_SETJMP) && !defined(__MACOSX__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
+#if defined(SDL_ALTIVEC_INTRINSICS) && defined(HAVE_SETJMP) && !defined(__MACOSX__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 /* This is the brute force way of detecting instruction sets...
    the idea is borrowed from the libmpeg2 library - thanks!
  */
@@ -354,7 +354,7 @@ static int CPU_haveAltiVec(void)
     elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures));
     altivec = cpufeatures & PPC_FEATURE_HAS_ALTIVEC;
     return altivec;
-#elif defined(SDL_ALTIVEC_BLITTERS) && defined(HAVE_SETJMP)
+#elif defined(SDL_ALTIVEC_INTRINSICS) && defined(HAVE_SETJMP)
     void (*handler)(int sig);
     handler = signal(SIGILL, illegal_instruction);
     if (setjmp(jmpbuf) == 0) {
@@ -544,7 +544,7 @@ static int CPU_readCPUCFG(void)
 inline int
 CPU_have3DNow(void)
 {
-#if defined(__3dNOW__)
+#if defined(SDL_3DNOW_INTRINSICS)
     return 1;
 #else
     return 0;
@@ -567,37 +567,37 @@ static int CPU_have3DNow(void)
 
 #if defined(__e2k__)
 #define CPU_haveRDTSC() (0)
-#if defined(__MMX__)
+#if defined(SDL_MMX_INTRINSICS)
 #define CPU_haveMMX() (1)
 #else
 #define CPU_haveMMX() (0)
 #endif
-#if defined(__SSE__)
+#if defined(SDL_SSE_INTRINSICS)
 #define CPU_haveSSE() (1)
 #else
 #define CPU_haveSSE() (0)
 #endif
-#if defined(__SSE2__)
+#if defined(SDL_SSE2_INTRINSICS)
 #define CPU_haveSSE2() (1)
 #else
 #define CPU_haveSSE2() (0)
 #endif
-#if defined(__SSE3__)
+#if defined(SDL_SSE3_INTRINSICS)
 #define CPU_haveSSE3() (1)
 #else
 #define CPU_haveSSE3() (0)
 #endif
-#if defined(__SSE4_1__)
+#if defined(SDL_SSE4_1_INTRINSICS)
 #define CPU_haveSSE41() (1)
 #else
 #define CPU_haveSSE41() (0)
 #endif
-#if defined(__SSE4_2__)
+#if defined(SDL_SSE4_2_INTRINSICS)
 #define CPU_haveSSE42() (1)
 #else
 #define CPU_haveSSE42() (0)
 #endif
-#if defined(__AVX__)
+#if defined(SDL_AVX_INTRINSICS)
 #define CPU_haveAVX() (1)
 #else
 #define CPU_haveAVX() (0)
@@ -617,7 +617,7 @@ static int CPU_have3DNow(void)
 inline int
 CPU_haveAVX2(void)
 {
-#if defined(__AVX2__)
+#if defined(SDL_AVX2_INTRINSICS)
     return 1;
 #else
     return 0;

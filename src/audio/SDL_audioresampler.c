@@ -28,14 +28,6 @@
 #include "SDL_audio_c.h"
 #include "SDL_audioresampler.h"
 
-#ifdef __ARM_NEON
-#define HAVE_NEON_INTRINSICS 1
-#endif
-
-#ifdef __SSE__
-#define HAVE_SSE_INTRINSICS
-#endif
-
 /* Function pointers set to a CPU-specific implementation. */
 SDL_AudioResampler SDL_Resampler_Mono = NULL;
 SDL_AudioResampler SDL_Resampler_Stereo = NULL;
@@ -267,7 +259,7 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, c
     return outframes * chans * sizeof(float);
 }
 
-#ifdef HAVE_SSE_INTRINSICS
+#ifdef SDL_SSE_INTRINSICS
 static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
@@ -474,9 +466,9 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
 
     return outframes * chans * sizeof(float);
 }
-#endif // HAVE_SSE_INTRINSICS
+#endif // SDL_SSE_INTRINSICS
 
-#ifdef HAVE_NEON_INTRINSICS
+#ifdef SDL_NEON_INTRINSICS
 static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
@@ -542,7 +534,7 @@ static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, co
 
 static const SDL_AudioResampler SDL_Resampler_Mono_NEON = SDL_Resampler_Mono_Scalar;
 static const SDL_AudioResampler SDL_Resampler_Stereo_NEON = SDL_Resampler_Stereo_Scalar;
-#endif // HAVE_NEON_INTRINSICS
+#endif // SDL_NEON_INTRINSICS
 
 void SDL_ChooseAudioResamplers(void)
 {
@@ -553,7 +545,7 @@ void SDL_ChooseAudioResamplers(void)
     SDL_Resampler_Stereo = SDL_Resampler_Stereo_##fntype;   \
     SDL_Resampler_Generic = SDL_Resampler_Generic_##fntype; \
 
-#ifdef HAVE_SSE_INTRINSICS
+#ifdef SDL_SSE_INTRINSICS
 #if SDL_HAVE_SSE_SUPPORT
     SDL_assert(SDL_HasSSE());
     if (1) {
@@ -565,7 +557,7 @@ void SDL_ChooseAudioResamplers(void)
     }
 #endif
 
-#ifdef HAVE_NEON_INTRINSICS
+#ifdef SDL_NEON_INTRINSICS
 #if SDL_HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
     if (1) {

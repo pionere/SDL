@@ -31,10 +31,10 @@
 #elif defined(_MSC_VER)
 #define DECLARE_ALIGNED(t, v, a) __declspec(align(a)) t v
 #else
-#ifdef __ARM_NEON
+#ifdef SDL_NEON_INTRINSICS
 #error "unaligned Neon"
 #endif
-#ifdef __SSE__
+#ifdef SDL_SSE_INTRINSICS
 #error "unaligned SSE"
 #endif
 #define DECLARE_ALIGNED(t, v, a) t v

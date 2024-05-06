@@ -3,13 +3,14 @@
 #include "../../SDL_internal.h"
 
 #if SDL_HAVE_YUV
+#include "SDL_cpuinfo.h"
+
 #include "yuv_rgb.h"
 #include "yuv_rgb_internal.h"
 
-#include "SDL_cpuinfo.h"
 /*#include <x86intrin.h>*/
 
-#ifdef __SSE2__
+#ifdef SDL_SSE2_INTRINSICS
 
 /* SDL doesn't use these atm and compiling them adds seconds onto the build.  --ryan.
 #define SSE_FUNCTION_NAME	yuv420_rgb565_sse
@@ -386,7 +387,7 @@ V = _mm_srai_epi16(V, PRECISION);
 #endif
 
 /* SDL doesn't use these atm and compiling them adds seconds onto the build.  --ryan.
-void rgb24_yuv420_sse(uint32_t width, uint32_t height,
+void SDL_TARGETING("sse2") rgb24_yuv420_sse(uint32_t width, uint32_t height,
         const uint8_t *RGB, uint32_t RGB_pitch,
         uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch,
         YCbCrType yuv_type)
@@ -422,7 +423,7 @@ void rgb24_yuv420_sse(uint32_t width, uint32_t height,
         #undef SAVE_SI128
 }
 
-void rgb24_yuv420_sseu(uint32_t width, uint32_t height,
+void SDL_TARGETING("sse2") rgb24_yuv420_sseu(uint32_t width, uint32_t height,
         const uint8_t *RGB, uint32_t RGB_pitch,
         uint8_t *Y, uint8_t *U, uint8_t *V, uint32_t Y_pitch, uint32_t UV_pitch,
         YCbCrType yuv_type)
@@ -459,6 +460,6 @@ void rgb24_yuv420_sseu(uint32_t width, uint32_t height,
 }
 */
 
-#endif //__SSE2__
+#endif //SDL_SSE2_INTRINSICS
 
 #endif /* SDL_HAVE_YUV */

@@ -25,22 +25,13 @@
 #include "SDL_blit.h"
 #include "SDL_surface_c.h"
 
-#ifdef __SSE2__
-#define HAVE_SSE2_INTRINSICS
-#endif
-
-#ifdef __ARM_NEON
-#define HAVE_NEON_INTRINSICS 1
-#define CAST_uint8x8_t       (uint8x8_t)
-#define CAST_uint32x2_t      (uint32x2_t)
-#endif
-
+#ifdef SDL_NEON_INTRINSICS
 #if defined(__WINRT__) || defined(_MSC_VER)
-#ifdef HAVE_NEON_INTRINSICS
-#undef CAST_uint8x8_t
-#undef CAST_uint32x2_t
 #define CAST_uint8x8_t
 #define CAST_uint32x2_t
+#else
+#define CAST_uint8x8_t       (uint8x8_t)
+#define CAST_uint32x2_t      (uint32x2_t)
 #endif
 #endif
 
@@ -316,10 +307,10 @@ static void scale_mat(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch,
     }
 }
 
-#ifdef HAVE_SSE2_INTRINSICS
+#ifdef SDL_SSE2_INTRINSICS
 
 /* Interpolate between colors at s0 and s1 using frac_w and store the result to dst */
-static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, const __m128i v_frac_w0, const __m128i v_frac_w1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void SDL_TARGETING("sse2") INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, const __m128i v_frac_w0, const __m128i v_frac_w1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
     __m128i k0, l0, d0, e0;
@@ -343,7 +334,7 @@ static SDL_INLINE void INTERPOL_SSE2(const Uint32 *s0, const Uint32 *s1, const _
 }
 
 /* Interpolate between color pairs at s0 and s1 using frac_w0 and frac_w1 and store the result to dst */
-static SDL_INLINE void INTERPOLx2_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_w1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void SDL_TARGETING("sse2") INTERPOLx2_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w0, int frac_w1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* (Pixels in 4*uint8 in row) * 2 */
     __m128i v_frac_w0, v_frac_w1, k0, l0, d0, e0;
@@ -376,7 +367,7 @@ static SDL_INLINE void INTERPOLx2_SSE2(const Uint32 *s0, const Uint32 *s1, int f
     _mm_storeu_si64((Uint64 *)dst, e0);
 }
 
-static SDL_INLINE void INTERPOL_BILINEAR_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w, const __m128i v_frac_h0, const __m128i v_frac_h1, Uint32 *dst, const __m128i zero)
+static SDL_INLINE void SDL_TARGETING("sse2") INTERPOL_BILINEAR_SSE2(const Uint32 *s0, const Uint32 *s1, int frac_w, const __m128i v_frac_h0, const __m128i v_frac_h1, Uint32 *dst, const __m128i zero)
 {
     __m128i x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
     __m128i v_frac_w0, k0, l0, d0, e0;
@@ -415,7 +406,7 @@ static SDL_INLINE void INTERPOL_BILINEAR_SSE2(const Uint32 *s0, const Uint32 *s1
     *dst = _mm_cvtsi128_si32(e0);
 }
 
-static void scale_mat_SSE2(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
+static void SDL_TARGETING("sse2") scale_mat_SSE2(const Uint8 *src_ptr, int src_w, int src_h, int src_pitch, Uint8 *dst_ptr, int dst_w, int dst_h, int dst_skip)
 {
     BILINEAR___START
 
@@ -527,10 +518,9 @@ static void scale_mat_SSE2(const Uint8 *src_ptr, int src_w, int src_h, int src_p
         }
     }
 }
-#endif // HAVE_SSE2_INTRINSICS
+#endif // SDL_SSE2_INTRINSICS
 
-#ifdef HAVE_NEON_INTRINSICS
-
+#ifdef SDL_NEON_INTRINSICS
 static SDL_INLINE void INTERPOL_NEON(const Uint32 *s0, const Uint32 *s1, uint8x8_t v_frac_w0, uint8x8_t v_frac_w1, Uint32 *dst)
 {
     uint8x8_t x_00_01, x_10_11; /* Pixels in 4*uint8 in row */
@@ -780,11 +770,11 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
         }
     }
 }
-#endif // HAVE_NEON_INTRINSICS
+#endif // SDL_NEON_INTRINSICS
 
 static void SDL_ChooseStrecher(void)
 {
-#ifdef HAVE_SSE2_INTRINSICS
+#ifdef SDL_SSE2_INTRINSICS
 #if SDL_HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1) {
@@ -796,7 +786,7 @@ static void SDL_ChooseStrecher(void)
     }
 #endif
 
-#ifdef HAVE_NEON_INTRINSICS
+#ifdef SDL_NEON_INTRINSICS
 #if SDL_HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
     if (1) {

@@ -349,8 +349,8 @@ int SDL_SetupYUVInfo(SDL_YUVInfo *yuv_info, size_t offset)
     return 0;
 }
 
-#ifdef __SSE2__
-static SDL_bool yuv_rgb_sse(
+#ifdef SDL_SSE2_INTRINSICS
+static SDL_bool SDL_TARGETING("sse2") yuv_rgb_sse(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
     const Uint8 *y, const Uint8 *u, const Uint8 *v, Uint32 y_pitch, Uint32 uv_pitch,
@@ -454,9 +454,9 @@ static SDL_bool yuv_rgb_sse(
     }
     return SDL_FALSE;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 
-#ifdef __loongarch_sx
+#ifdef SDL_LSX_INTRINSICS
 static SDL_bool yuv_rgb_lsx(
     Uint32 src_format, Uint32 dst_format,
     Uint32 width, Uint32 height,
@@ -493,7 +493,7 @@ static SDL_bool yuv_rgb_lsx(
     }
     return SDL_FALSE;
 }
-#endif // __loongarch_sx
+#endif // SDL_LSX_INTRINSICS
 
 static SDL_bool yuv_rgb_std(
     Uint32 src_format, Uint32 dst_format,
@@ -609,7 +609,7 @@ static SDL_bool yuv_rgb_std(
 
 static int SDL_ConvertPixels_yuv_rgb(const SDL_YUVInfo *src_yuv_info, Uint32 dst_format, void *dst, int dst_pitch, YCbCrType yuv_type)
 {
-#ifdef __SSE2__
+#ifdef SDL_SSE2_INTRINSICS
 #if SDL_HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1) {
@@ -621,7 +621,7 @@ static int SDL_ConvertPixels_yuv_rgb(const SDL_YUVInfo *src_yuv_info, Uint32 dst
         }
     }
 #endif
-#ifdef __loongarch_sx
+#ifdef SDL_LSX_INTRINSICS
     if (SDL_HasLSX()) {
         if (yuv_rgb_lsx(src_yuv_info->yuv_format, dst_format, src_yuv_info->y_width, src_yuv_info->y_height, src_yuv_info->y_plane, src_yuv_info->u_plane, src_yuv_info->v_plane, src_yuv_info->y_pitch, src_yuv_info->uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
             return 0;
@@ -1275,8 +1275,8 @@ static int SDL_ConvertPixels_PackUVPlanes_to_NV_Scalar(const SDL_YUVInfo *src_yu
 
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_PackUVPlanes_to_NV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_PackUVPlanes_to_NV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1329,7 +1329,7 @@ static int SDL_ConvertPixels_PackUVPlanes_to_NV_SSE2(const SDL_YUVInfo *src_yuv_
 
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV) -> SDL_PIXELFORMAT_P010
 static int SDL_ConvertPixels_PackUVPlanes_to_P0_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
@@ -1370,8 +1370,8 @@ static int SDL_ConvertPixels_PackUVPlanes_to_P0_Scalar(const SDL_YUVInfo *src_yu
 
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_PackUVPlanes_to_P0_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_PackUVPlanes_to_P0_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1431,7 +1431,7 @@ static int SDL_ConvertPixels_PackUVPlanes_to_P0_SSE2(const SDL_YUVInfo *src_yuv_
 
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 //
 static int SDL_ConvertPixels_SplitNV_to_UVPlanes_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
@@ -1471,8 +1471,8 @@ static int SDL_ConvertPixels_SplitNV_to_UVPlanes_Scalar(const SDL_YUVInfo *src_y
 
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_SplitNV_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_SplitNV_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1530,7 +1530,7 @@ static int SDL_ConvertPixels_SplitNV_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv
 
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // SDL_PIXELFORMAT_P010 -> (SDL_PIXELFORMAT_YV12, SDL_PIXELFORMAT_IYUV)
 static int SDL_ConvertPixels_SplitP0_to_UVPlanes_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
@@ -1578,8 +1578,8 @@ static int SDL_ConvertPixels_SplitP0_to_UVPlanes_Scalar(const SDL_YUVInfo *src_y
 
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_SplitP0_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_SplitP0_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info, SDL_bool reverseUV)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1656,7 +1656,7 @@ static int SDL_ConvertPixels_SplitP0_to_UVPlanes_SSE2(const SDL_YUVInfo *src_yuv
 
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 //
 static int SDL_ConvertPixels_SwapNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -1687,8 +1687,8 @@ static int SDL_ConvertPixels_SwapNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_SwapNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_SwapNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1732,7 +1732,7 @@ static int SDL_ConvertPixels_SwapNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YU
     }
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // SDL_PIXELFORMAT_NV12 -> SDL_PIXELFORMAT_P010
 static int SDL_ConvertPixels_DecompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -1768,8 +1768,8 @@ static int SDL_ConvertPixels_DecompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SD
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_DecompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_DecompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1819,7 +1819,7 @@ static int SDL_ConvertPixels_DecompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_
     }
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // SDL_PIXELFORMAT_NV21 -> SDL_PIXELFORMAT_P010
 static int SDL_ConvertPixels_SwapAndDecompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -1855,8 +1855,8 @@ static int SDL_ConvertPixels_SwapAndDecompNV_Scalar(const SDL_YUVInfo *src_yuv_i
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_SwapAndDecompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_SwapAndDecompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -1910,7 +1910,7 @@ static int SDL_ConvertPixels_SwapAndDecompNV_SSE2(const SDL_YUVInfo *src_yuv_inf
     }
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // SDL_PIXELFORMAT_P010 -> SDL_PIXELFORMAT_NV12
 static int SDL_ConvertPixels_CompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -1956,8 +1956,8 @@ static int SDL_ConvertPixels_CompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_CompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_CompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -2017,7 +2017,7 @@ static int SDL_ConvertPixels_CompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YU
     }
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 // SDL_PIXELFORMAT_P010 -> SDL_PIXELFORMAT_NV21
 static int SDL_ConvertPixels_SwapAndCompNV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -2063,8 +2063,8 @@ static int SDL_ConvertPixels_SwapAndCompNV_Scalar(const SDL_YUVInfo *src_yuv_inf
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_SwapAndCompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_SwapAndCompNV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned UVwidth, UVheight, srcUVPitch, srcUVSkip, dstUVPitch, dstUVSkip;
@@ -2128,7 +2128,7 @@ static int SDL_ConvertPixels_SwapAndCompNV_SSE2(const SDL_YUVInfo *src_yuv_info,
     }
     return 0;
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 
 static int SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_Scalar(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -2215,8 +2215,8 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_Scalar(const SDL_YUVInfo 
     return SDL_SetError("SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_Scalar: Unsupported YUV conversion: %s -> %s", SDL_GetPixelFormatName(src_yuv_info->yuv_format),
                         SDL_GetPixelFormatName(dst_yuv_info->yuv_format));
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     switch (src_yuv_info->yuv_format) {
     case SDL_PIXELFORMAT_YV12:
@@ -2301,7 +2301,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_SSE2(const SDL_YUVInfo *s
     return SDL_SetError("SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_SSE2: Unsupported YUV conversion: %s -> %s", SDL_GetPixelFormatName(src_yuv_info->yuv_format),
                         SDL_GetPixelFormatName(dst_yuv_info->yuv_format));
 }
-#endif // __SSE2__
+#endif // SDL_SSE2_INTRINSICS
 static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     {   /* Copy Y plane */
@@ -2356,7 +2356,7 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
         }
     }
 
-#ifdef __SSE2__
+#ifdef SDL_SSE2_INTRINSICS
 #if SDL_HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1)
@@ -2368,12 +2368,12 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
     return SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_Scalar(src_yuv_info, dst_yuv_info);
 }
 
-#ifdef __AVX2__
+#ifdef SDL_AVX2_INTRINSICS
 #define AVX_MASK32(x3, x2, x1, x0, n) (((x3+4*(n)) << 24) | ((x2+4*(n)) << 16) | ((x1+4*(n)) << 8) | ((x0+4*(n)) << 0))
 #define AVX_MASK64(x3, x2, x1, x0, n) (((Uint64)AVX_MASK32(x3, x2, x1, x0, 2 * n + 1) << 32) | ((Uint64)AVX_MASK32(x3, x2, x1, x0, 2 * n) << 0))
 #define SDL_AVX_SHUFFLE_MASK(x3, x2, x1, x0) AVX_MASK64(x3, x2, x1, x0, 3), AVX_MASK64(x3, x2, x1, x0, 2), AVX_MASK64(x3, x2, x1, x0, 1), AVX_MASK64(x3, x2, x1, x0, 0)
 #endif
-#ifdef __SSE2__
+#ifdef SDL_SSE2_INTRINSICS
 #define PACKED4_TO_PACKED4_ROW_SSE2(shuffle)                      \
 {                                                                 \
     __m128i zero = _mm_setzero_si128();                           \
@@ -2443,8 +2443,8 @@ static int SDL_ConvertPixels_YUY2_to_UYVY(const SDL_YUVInfo *src_yuv_info, SDL_Y
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_YUY2_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_YUY2_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2503,9 +2503,9 @@ static int SDL_ConvertPixels_YUY2_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __SSE2__
-#ifdef __AVX2__
-static int SDL_ConvertPixels_YUY2_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static int SDL_TARGETING("avx2") SDL_ConvertPixels_YUY2_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2563,7 +2563,7 @@ static int SDL_ConvertPixels_YUY2_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __AVX2__
+#endif // SDL_AVX2_INTRINSICS
 
 static int SDL_ConvertPixels_YUY2_to_YVYU(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -2611,8 +2611,8 @@ static int SDL_ConvertPixels_YUY2_to_YVYU(const SDL_YUVInfo *src_yuv_info, SDL_Y
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_YUY2_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_YUY2_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2659,9 +2659,9 @@ static int SDL_ConvertPixels_YUY2_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __SSE2__
-#ifdef __AVX2__
-static int SDL_ConvertPixels_YUY2_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static int SDL_TARGETING("avx2") SDL_ConvertPixels_YUY2_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2717,7 +2717,7 @@ static int SDL_ConvertPixels_YUY2_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __AVX2__
+#endif // SDL_AVX2_INTRINSICS
 
 /*static int SDL_ConvertPixels_UYVY_to_YUY2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -2805,8 +2805,8 @@ static int SDL_ConvertPixels_UYVY_to_YVYU(const SDL_YUVInfo *src_yuv_info, SDL_Y
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_UYVY_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_UYVY_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2861,9 +2861,9 @@ static int SDL_ConvertPixels_UYVY_to_YVYU_SSE2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __SSE2__
-#ifdef __AVX2__
-static int SDL_ConvertPixels_UYVY_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static int SDL_TARGETING("avx2") SDL_ConvertPixels_UYVY_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -2917,7 +2917,7 @@ static int SDL_ConvertPixels_UYVY_to_YVYU_AVX2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __AVX2__
+#endif // SDL_AVX2_INTRINSICS
 
 /*static int SDL_ConvertPixels_YVYU_to_YUY2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -3006,8 +3006,8 @@ static int SDL_ConvertPixels_YVYU_to_UYVY(const SDL_YUVInfo *src_yuv_info, SDL_Y
     }
     return 0;
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_YVYU_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_YVYU_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -3063,9 +3063,9 @@ static int SDL_ConvertPixels_YVYU_to_UYVY_SSE2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __SSE2__
-#ifdef __AVX2__
-static int SDL_ConvertPixels_YVYU_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static int SDL_TARGETING("avx2") SDL_ConvertPixels_YVYU_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     unsigned x, y;
     unsigned YUVwidth, YUVheight, srcYUVPitch, srcYUVSkip, dstYUVPitch, dstYUVSkip;
@@ -3121,7 +3121,7 @@ static int SDL_ConvertPixels_YVYU_to_UYVY_AVX2(const SDL_YUVInfo *src_yuv_info, 
     }
     return 0;
 }
-#endif // __AVX2__
+#endif // SDL_AVX2_INTRINSICS
 
 static int SDL_ConvertPixels_Packed4_to_Packed4(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -3168,8 +3168,8 @@ static int SDL_ConvertPixels_Packed4_to_Packed4(const SDL_YUVInfo *src_yuv_info,
     return SDL_SetError("SDL_ConvertPixels_Packed4_to_Packed4: Unsupported YUV conversion: %s -> %s", SDL_GetPixelFormatName(src_yuv_info->yuv_format),
                         SDL_GetPixelFormatName(dst_yuv_info->yuv_format));
 }
-#ifdef __SSE2__
-static int SDL_ConvertPixels_Packed4_to_Packed4_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#ifdef SDL_SSE2_INTRINSICS
+static int SDL_TARGETING("sse2") SDL_ConvertPixels_Packed4_to_Packed4_SSE2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     switch (src_yuv_info->yuv_format) {
     case SDL_PIXELFORMAT_YUY2:
@@ -3214,9 +3214,9 @@ static int SDL_ConvertPixels_Packed4_to_Packed4_SSE2(const SDL_YUVInfo *src_yuv_
     return SDL_SetError("SDL_ConvertPixels_Packed4_to_Packed4_SSE: Unsupported YUV conversion: %s -> %s", SDL_GetPixelFormatName(src_yuv_info->yuv_format),
                         SDL_GetPixelFormatName(dst_yuv_info->yuv_format));
 }
-#endif // __SSE2__
-#ifdef __AVX2__
-static int SDL_ConvertPixels_Packed4_to_Packed4_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
+#endif // SDL_SSE2_INTRINSICS
+#ifdef SDL_AVX2_INTRINSICS
+static int SDL_TARGETING("avx2") SDL_ConvertPixels_Packed4_to_Packed4_AVX2(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
     switch (src_yuv_info->yuv_format) {
     case SDL_PIXELFORMAT_YUY2:
@@ -3261,7 +3261,7 @@ static int SDL_ConvertPixels_Packed4_to_Packed4_AVX2(const SDL_YUVInfo *src_yuv_
     return SDL_SetError("SDL_ConvertPixels_Packed4_to_Packed4_AVX2: Unsupported YUV conversion: %s -> %s", SDL_GetPixelFormatName(src_yuv_info->yuv_format),
                         SDL_GetPixelFormatName(dst_yuv_info->yuv_format));
 }
-#endif // __AVX2__
+#endif // SDL_AVX2_INTRINSICS
 
 static int SDL_ConvertPixels_Planar2x2_to_Packed4(const SDL_YUVInfo *src_yuv_info, SDL_YUVInfo *dst_yuv_info)
 {
@@ -3605,11 +3605,11 @@ int SDL_ConvertPixels_YUV_to_YUV(int width, int height,
         if (dst_yuv_info.yuv_layout != SDL_YUVLAYOUT_PACKED) {
             return SDL_ConvertPixels_Packed4_to_Planar2x2(&src_yuv_info, &dst_yuv_info);
         } else {
-#ifdef __AVX2__
+#ifdef SDL_AVX2_INTRINSICS
             if (SDL_HasAVX2())
                 return SDL_ConvertPixels_Packed4_to_Packed4_AVX2(&src_yuv_info, &dst_yuv_info);
 #endif
-#ifdef __SSE2__
+#ifdef SDL_SSE2_INTRINSICS
 #if SDL_HAVE_SSE2_SUPPORT
             SDL_assert(SDL_HasSSE2());
             if (1)

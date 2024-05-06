@@ -141,12 +141,6 @@
 #define HAVE_SYSCONF    1
 #define HAVE_SYSCTLBYNAME 1
 
-#if defined(__has_include) && (defined(__i386__) || defined(__x86_64))
-# if __has_include(<immintrin.h>)
-#   define HAVE_IMMINTRIN_H 1
-# endif
-#endif
-
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= 1070)
 #define HAVE_O_CLOEXEC 1
 #endif
@@ -269,10 +263,5 @@
 
 /* enable filesystem support */
 #define SDL_FILESYSTEM_COCOA   1
-
-/* Enable assembly routines */
-#ifdef __ppc__
-#define SDL_ALTIVEC_BLITTERS    1
-#endif
 
 #endif /* SDL_config_macosx_h_ */

@@ -50,10 +50,7 @@ enum blit_features
     BLIT_FEATURE_HAS_ARM_SIMD = 8
 };
 
-#ifdef SDL_ALTIVEC_BLITTERS
-#ifdef HAVE_ALTIVEC_H
-#include <altivec.h>
-#endif
+#ifdef SDL_ALTIVEC_INTRINSICS
 #ifdef __MACOSX__
 #include <sys/sysctl.h>
 static size_t GetL3CacheSize(void)
@@ -884,15 +881,15 @@ static void ConvertAltivec32to32_prefetch(const SDL_BlitInfo *info)
 #ifdef __MWERKS__
 #pragma altivec_model off
 #endif
-#endif // SDL_ALTIVEC_BLITTERS
+#endif // SDL_ALTIVEC_INTRINSICS
 
 static SDL_bool HasBlitFeatures(int feature)
 {
-#if defined(SDL_ALTIVEC_BLITTERS) || defined(SDL_ARM_SIMD_BLITTERS)
+#if defined(SDL_ALTIVEC_INTRINSICS) || defined(SDL_ARM_SIMD_BLITTERS)
     static int features = -1;
     /* Get the available CPU features */
     if (features < 0) {
-#ifdef SDL_ALTIVEC_BLITTERS
+#ifdef SDL_ALTIVEC_INTRINSICS
         /* Allow an override for testing .. */
         char *hint = SDL_getenv("SDL_ALTIVEC_BLIT_FEATURES");
         if (hint) {
@@ -918,13 +915,13 @@ static SDL_bool HasBlitFeatures(int feature)
 #endif
                         /* Feature 8 is has-ARMSimd */
                         | ((SDL_HasARMSIMD()) ? BLIT_FEATURE_HAS_ARM_SIMD : 0);
-#endif // SDL_ALTIVEC_BLITTERS
+#endif // SDL_ALTIVEC_INTRINSICS
     }
     return (features & feature) == feature;
 #else
     SDL_assert(feature == 0);
     return SDL_TRUE;
-#endif // SDL_ALTIVEC_BLITTERS || SDL_ARM_SIMD_BLITTERS
+#endif // SDL_ALTIVEC_INTRINSICS || SDL_ARM_SIMD_BLITTERS
 }
 
 #ifdef SDL_ARM_SIMD_BLITTERS
@@ -3230,7 +3227,7 @@ static const struct blit_table normal_blit_1[] = {
 };
 
 static const struct blit_table normal_blit_2[] = {
-#ifdef SDL_ALTIVEC_BLITTERS
+#ifdef SDL_ALTIVEC_INTRINSICS
     /* has-altivec */
     { 0x0000F800, 0x000007E0, 0x0000001F, 4, 0x00000000, 0x00000000, 0x00000000,
       BLIT_FEATURE_HAS_ALTIVEC, Blit_RGB565_32Altivec, NO_ALPHA | COPY_ALPHA | SET_ALPHA },
@@ -3297,7 +3294,7 @@ static const struct blit_table normal_blit_3[] = {
 };
 
 static const struct blit_table normal_blit_4[] = {
-#ifdef SDL_ALTIVEC_BLITTERS
+#ifdef SDL_ALTIVEC_INTRINSICS
     /* has-altivec | dont-use-prefetch */
     { 0x00000000, 0x00000000, 0x00000000, 4, 0x00000000, 0x00000000, 0x00000000,
       BLIT_FEATURE_HAS_ALTIVEC | BLIT_FEATURE_ALTIVEC_DONT_USE_PREFETCH, ConvertAltivec32to32_noprefetch, NO_ALPHA | COPY_ALPHA | SET_ALPHA },
@@ -3444,7 +3441,7 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
             } else if (dstfmt->BytesPerPixel == 1) {
                 result = BlitNto1Key;
             } else if (dstfmt->palette == NULL) {
-#ifdef SDL_ALTIVEC_BLITTERS
+#ifdef SDL_ALTIVEC_INTRINSICS
                 if ((srcfmt->BytesPerPixel == 4) && (dstfmt->BytesPerPixel == 4) && SDL_HasAltiVec()) {
                     result = Blit32to32KeyAltivec;
                 } else

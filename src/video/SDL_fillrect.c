@@ -24,7 +24,7 @@
 #include "SDL_blit.h"
 #include "SDL_cpuinfo.h"
 
-#ifdef __SSE__
+#ifdef SDL_SSE_INTRINSICS
 /* *INDENT-OFF* */ /* clang-format off */
 
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -126,7 +126,7 @@ DEFINE_SSE_FILLRECT(2, Uint16)
 DEFINE_SSE_FILLRECT(4, Uint32)
 
 /* *INDENT-ON* */ /* clang-format on */
-#endif            /* __SSE__ */
+#endif            /* SDL_SSE_INTRINSICS */
 
 static void SDL_FillRect1(Uint8 *pixels, int pitch, Uint32 color, int w, int h)
 {
@@ -392,7 +392,7 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
         {
             color |= (color << 8);
             color |= (color << 16);
-#ifdef __SSE__
+#ifdef SDL_SSE_INTRINSICS
 #if SDL_HAVE_SSE_SUPPORT
             SDL_assert(SDL_HasSSE());
             if (1) {
@@ -410,7 +410,7 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
         case 2:
         {
             color |= (color << 16);
-#ifdef __SSE__
+#ifdef SDL_SSE_INTRINSICS
 #if SDL_HAVE_SSE_SUPPORT
             SDL_assert(SDL_HasSSE());
             if (1) {
@@ -434,7 +434,7 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
 
         case 4:
         {
-#ifdef __SSE__
+#ifdef SDL_SSE_INTRINSICS
 #if SDL_HAVE_SSE_SUPPORT
             SDL_assert(SDL_HasSSE());
             if (1) {
