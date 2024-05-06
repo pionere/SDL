@@ -610,7 +610,12 @@ static SDL_bool yuv_rgb_std(
 static int SDL_ConvertPixels_yuv_rgb(const SDL_YUVInfo *src_yuv_info, Uint32 dst_format, void *dst, int dst_pitch, YCbCrType yuv_type)
 {
 #ifdef __SSE2__
+#if SDL_HAVE_SSE2_SUPPORT
+    SDL_assert(SDL_HasSSE2());
+    if (1) {
+#else
     if (SDL_HasSSE2()) {
+#endif
         if (yuv_rgb_sse(src_yuv_info->yuv_format, dst_format, src_yuv_info->y_width, src_yuv_info->y_height, src_yuv_info->y_plane, src_yuv_info->u_plane, src_yuv_info->v_plane, src_yuv_info->y_pitch, src_yuv_info->uv_pitch, (Uint8 *)dst, dst_pitch, yuv_type)) {
             return 0;
         }
@@ -2352,7 +2357,12 @@ static int SDL_ConvertPixels_Planar2x2_to_Planar2x2(const SDL_YUVInfo *src_yuv_i
     }
 
 #ifdef __SSE2__
+#if SDL_HAVE_SSE2_SUPPORT
+    SDL_assert(SDL_HasSSE2());
+    if (1)
+#else
     if (SDL_HasSSE2())
+#endif
         return SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_SSE2(src_yuv_info, dst_yuv_info);
 #endif
     return SDL_ConvertPixels_Planar2x2_to_Planar2x2_UV_Scalar(src_yuv_info, dst_yuv_info);
@@ -3600,7 +3610,12 @@ int SDL_ConvertPixels_YUV_to_YUV(int width, int height,
                 return SDL_ConvertPixels_Packed4_to_Packed4_AVX2(&src_yuv_info, &dst_yuv_info);
 #endif
 #ifdef __SSE2__
+#if SDL_HAVE_SSE2_SUPPORT
+            SDL_assert(SDL_HasSSE2());
+            if (1)
+#else
             if (SDL_HasSSE2())
+#endif
                 return SDL_ConvertPixels_Packed4_to_Packed4_SSE2(&src_yuv_info, &dst_yuv_info);
 #endif
             return SDL_ConvertPixels_Packed4_to_Packed4(&src_yuv_info, &dst_yuv_info);

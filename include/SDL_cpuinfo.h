@@ -124,6 +124,40 @@ _m_prefetch(void *__P)
 #endif
 #endif /* HAVE_IMMINTRIN_H */
 
+#if defined(__x86_64__)
+# ifdef __SSE__
+#  define SDL_HAVE_SSE_SUPPORT 1  /* x86_64 guarantees SSE2. */
+# endif
+# ifdef __SSE2__
+#  define SDL_HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
+# endif
+#elif defined(__MACOSX__)
+# ifdef __SSE__
+#  define SDL_HAVE_SSE_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
+# endif
+# ifdef __SSE2__
+#  define SDL_HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
+# endif
+#elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8)
+# ifdef __ARM_NEON
+#  define SDL_HAVE_NEON_SUPPORT 1 /* ARMv8+ promise NEON. */
+# endif
+#elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7)
+# ifdef __ARM_NEON
+#  define SDL_HAVE_NEON_SUPPORT 1 /* All Apple ARMv7 chips promise NEON support. */
+# endif
+#endif
+
+#ifndef SDL_HAVE_SSE_SUPPORT
+#define SDL_HAVE_SSE_SUPPORT 0
+#endif
+#ifndef SDL_HAVE_SSE2_SUPPORT
+#define SDL_HAVE_SSE2_SUPPORT 0
+#endif
+#ifndef SDL_HAVE_NEON_SUPPORT
+#define SDL_HAVE_NEON_SUPPORT 0
+#endif
+
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

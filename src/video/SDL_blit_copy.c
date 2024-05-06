@@ -128,7 +128,12 @@ void SDL_BlitCopy(const SDL_BlitInfo *info)
     }
 
 #ifdef __SSE__
+#if SDL_HAVE_SSE_SUPPORT
+    SDL_assert(SDL_HasSSE());
+    if (1 &&
+#else
     if (SDL_HasSSE() &&
+#endif
         !((uintptr_t)src & 15) && !(srcskip & 15) &&
         !((uintptr_t)dst & 15) && !(dstskip & 15)) {
         while (h--) {

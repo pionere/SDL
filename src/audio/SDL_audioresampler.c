@@ -554,14 +554,24 @@ void SDL_ChooseAudioResamplers(void)
     SDL_Resampler_Generic = SDL_Resampler_Generic_##fntype; \
 
 #ifdef HAVE_SSE_INTRINSICS
+#if SDL_HAVE_SSE_SUPPORT
+    SDL_assert(SDL_HasSSE());
+    if (1) {
+#else
     if (SDL_HasSSE()) {
+#endif
         SET_RESAMPLER_FUNCS(SSE);
         return;
     }
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
+#if SDL_HAVE_NEON_SUPPORT
+    SDL_assert(SDL_HasNEON());
+    if (1) {
+#else
     if (SDL_HasNEON()) {
+#endif
         SET_RESAMPLER_FUNCS(NEON);
         return;
     }

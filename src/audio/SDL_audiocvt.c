@@ -278,13 +278,23 @@ void SDL_ChooseAudioChannelConverters(void)
     SDL_assert(channel_converters[1][0] == SDL_ConvertStereoToMono);
     SDL_assert(channel_converters[0][1] == SDL_ConvertMonoToStereo);
 #ifdef HAVE_NEON_INTRINSICS
+#if SDL_HAVE_NEON_SUPPORT
+    SDL_assert(SDL_HasNEON());
+    if (1) {
+#else
     if (SDL_HasNEON()) {
+#endif
         channel_converters[1][0] = SDL_ConvertStereoToMono_NEON;
         channel_converters[0][1] = SDL_ConvertMonoToStereo_NEON;
     }
 #endif
 #ifdef HAVE_SSE_INTRINSICS
+#if SDL_HAVE_SSE_SUPPORT
+    SDL_assert(SDL_HasSSE());
+    if (1) {
+#else
     if (SDL_HasSSE()) {
+#endif
         channel_converters[1][0] = SDL_ConvertStereoToMono_SSE;
         channel_converters[0][1] = SDL_ConvertMonoToStereo_SSE;
     }

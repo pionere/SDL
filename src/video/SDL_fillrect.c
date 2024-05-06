@@ -350,7 +350,13 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
     }
 
 #ifdef SDL_ARM_NEON_BLITTERS
-    if (SDL_HasNEON() && dst->format->BytesPerPixel != 3 && !fill_function) {
+#if SDL_HAVE_NEON_SUPPORT
+    SDL_assert(SDL_HasNEON());
+    if (1)
+#else
+    if (SDL_HasNEON()
+#endif
+     && dst->format->BytesPerPixel != 3 && !fill_function) {
         switch (dst->format->BytesPerPixel) {
         case 1:
             fill_function = fill_8_neon;
@@ -387,7 +393,12 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
             color |= (color << 8);
             color |= (color << 16);
 #ifdef __SSE__
+#if SDL_HAVE_SSE_SUPPORT
+            SDL_assert(SDL_HasSSE());
+            if (1) {
+#else
             if (SDL_HasSSE()) {
+#endif
                 fill_function = SDL_FillRect1SSE;
                 break;
             }
@@ -400,7 +411,12 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
         {
             color |= (color << 16);
 #ifdef __SSE__
+#if SDL_HAVE_SSE_SUPPORT
+            SDL_assert(SDL_HasSSE());
+            if (1) {
+#else
             if (SDL_HasSSE()) {
+#endif
                 fill_function = SDL_FillRect2SSE;
                 break;
             }
@@ -419,7 +435,12 @@ int SDL_FillRects(SDL_Surface *dst, const SDL_Rect *rects, int count,
         case 4:
         {
 #ifdef __SSE__
+#if SDL_HAVE_SSE_SUPPORT
+            SDL_assert(SDL_HasSSE());
+            if (1) {
+#else
             if (SDL_HasSSE()) {
+#endif
                 fill_function = SDL_FillRect4SSE;
                 break;
             }

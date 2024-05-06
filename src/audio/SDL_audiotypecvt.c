@@ -34,23 +34,6 @@
 #define HAVE_SSE2_INTRINSICS
 #endif
 
-#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
-#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
-#elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8) && defined(HAVE_NEON_INTRINSICS)
-#define HAVE_NEON_SUPPORT 1 /* ARMv8+ promise NEON. */
-#elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7) && defined(HAVE_NEON_INTRINSICS)
-#define HAVE_NEON_SUPPORT 1 /* All Apple ARMv7 chips promise NEON support. */
-#endif
-
-#ifndef HAVE_SSE2_SUPPORT
-#define HAVE_SSE2_SUPPORT 0
-#endif
-#ifndef HAVE_NEON_SUPPORT
-#define HAVE_NEON_SUPPORT 0
-#endif
-
 /* Function pointers set to a CPU-specific implementation. */
 SDL_AudioFilter SDL_Convert_Byteswap16 = NULL;
 SDL_AudioFilter SDL_Convert_Byteswap32 = NULL;
@@ -1436,7 +1419,7 @@ void SDL_ChooseAudioConverters(void)
     SDL_Convert_F32_to_S32 = SDL_Convert_F32_to_S32_##fntype; \
 
 #ifdef HAVE_SSE2_INTRINSICS
-#if HAVE_SSE2_SUPPORT
+#if SDL_HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1) {
 #else
@@ -1448,7 +1431,7 @@ void SDL_ChooseAudioConverters(void)
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
-#if HAVE_NEON_SUPPORT
+#if SDL_HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
     if (1) {
 #else

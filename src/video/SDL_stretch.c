@@ -44,24 +44,6 @@
 #endif
 #endif
 
-#if defined(__x86_64__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* x86_64 guarantees SSE2. */
-#elif defined(__MACOSX__) && defined(HAVE_SSE2_INTRINSICS)
-#define HAVE_SSE2_SUPPORT 1  /* Mac OS X/Intel guarantees SSE2. */
-#elif defined(__ARM_ARCH) && (__ARM_ARCH >= 8) && defined(HAVE_NEON_INTRINSICS)
-#define HAVE_NEON_SUPPORT 1 /* ARMv8+ promise NEON. */
-#elif defined(__APPLE__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7) && defined(HAVE_NEON_INTRINSICS)
-#define HAVE_NEON_SUPPORT 1 /* All Apple ARMv7 chips promise NEON support. */
-#endif
-
-/* Set to zero if platform is guaranteed to use a SIMD codepath here. */
-#ifndef HAVE_SSE2_SUPPORT
-#define HAVE_SSE2_SUPPORT 0
-#endif
-#ifndef HAVE_NEON_SUPPORT
-#define HAVE_NEON_SUPPORT 0
-#endif
-
 #define SDL_STRETCH_LIMIT SDL_MAX_UINT16
 
 static void SDL_LowerSoftStretchNearest(SDL_Surface *src, const SDL_Rect *srcrect, SDL_Surface *dst, const SDL_Rect *dstrect);
@@ -803,7 +785,7 @@ static void scale_mat_NEON(const Uint8 *src_ptr, int src_w, int src_h, int src_p
 static void SDL_ChooseStrecher(void)
 {
 #ifdef HAVE_SSE2_INTRINSICS
-#if HAVE_SSE2_SUPPORT
+#if SDL_HAVE_SSE2_SUPPORT
     SDL_assert(SDL_HasSSE2());
     if (1) {
 #else
@@ -815,7 +797,7 @@ static void SDL_ChooseStrecher(void)
 #endif
 
 #ifdef HAVE_NEON_INTRINSICS
-#if HAVE_NEON_SUPPORT
+#if SDL_HAVE_NEON_SUPPORT
     SDL_assert(SDL_HasNEON());
     if (1) {
 #else
