@@ -903,10 +903,10 @@ if(MSVC)
   endif()
 endif()
 
-if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+if(MSVC)
   # Due to a limitation of Microsoft's LTO implementation, LTO must be disabled for memcpy and memset.
   # The same applies to various functions normally belonging in the C library (for x86 architecture).
-  set_property(SOURCE src/stdlib/SDL_mslibc.c APPEND_STRING PROPERTY COMPILE_FLAGS " /GL-")
+  #set_property(SOURCE src/stdlib/SDL_mslibc.c APPEND_STRING PROPERTY COMPILE_FLAGS " /GL-")
 endif()
 
 if(OPT_DEF_ASM)
