@@ -602,10 +602,10 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, //
             __m128 inright00_ = _mm_shuffle_ps(inright00, inright00, _MM_SHUFFLE(3, 1, 2, 0));
             __m128 inright10_ = _mm_shuffle_ps(inright10, inright10, _MM_SHUFFLE(3, 1, 2, 0));
 
-            __m128 inleft0 = _mm_castpd_ps(_mm_unpacklo_pd(_mm_castps_pd(inleft00_), _mm_castps_pd(inleft10_)));
-            __m128 inleft1 = _mm_castpd_ps(_mm_unpackhi_pd(_mm_castps_pd(inleft00_), _mm_castps_pd(inleft10_)));
-            __m128 inright0 = _mm_castpd_ps(_mm_unpacklo_pd(_mm_castps_pd(inright00_), _mm_castps_pd(inright10_)));
-            __m128 inright1 = _mm_castpd_ps(_mm_unpackhi_pd(_mm_castps_pd(inright00_), _mm_castps_pd(inright10_)));
+            __m128 inleft0 = _mm_movelh_ps(inleft00_, inleft10_);
+            __m128 inleft1 = _mm_movehl_ps(inleft10_, inleft00_);
+            __m128 inright0 = _mm_movelh_ps(inright00_, inright10_);
+            __m128 inright1 = _mm_movehl_ps(inright10_, inright00_);
 
             __m128 outval0 = _mm_add_ps(_mm_mul_ps(inleft0, scale1), _mm_mul_ps(inright0, scale2));
             __m128 outval1 = _mm_add_ps(_mm_mul_ps(inleft1, scale1), _mm_mul_ps(inright1, scale2));
