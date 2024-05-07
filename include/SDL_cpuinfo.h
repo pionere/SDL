@@ -96,7 +96,7 @@ _m_prefetch(void *__P)
 # define SDL_TARGETING(x)
 #endif
 
-#ifdef __loongarch64
+/*#ifdef __loongarch64
 # if !defined(SDL_DISABLE_LSX)
 #  define SDL_LSX_INTRINSICS 1
 #  include <lsxintrin.h>
@@ -105,7 +105,7 @@ _m_prefetch(void *__P)
 #  define SDL_LASX_INTRINSICS 1
 #  include <lasxintrin.h>
 # endif
-#endif
+#endif*/
 
 #ifdef __loongarch_sx
 # if !defined(SDL_DISABLE_LSX)

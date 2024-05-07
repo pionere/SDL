@@ -21002,7 +21002,7 @@ else $as_nop
   enable_sse2=$enable_sse
 fi
 
-    if test x$enable_sse2 = xyes; then
+    if test x$enable_sse2 = xyes -a x$have_gcc_sse = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -msse2 option" >&5
 printf %s "checking for GCC -msse2 option... " >&6; }
@@ -21041,7 +21041,7 @@ else $as_nop
   enable_sse3=$enable_sse2
 fi
 
-    if test x$enable_sse3 = xyes; then
+    if test x$enable_sse3 = xyes -a x$have_gcc_sse2 = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -msse3 option" >&5
 printf %s "checking for GCC -msse3 option... " >&6; }
@@ -21080,7 +21080,7 @@ else $as_nop
   enable_sse41=$enable_sse3
 fi
 
-    if test x$enable_sse41 = xyes; then
+    if test x$enable_sse41 = xyes -a x$have_gcc_sse3 = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -msse4.1 option" >&5
 printf %s "checking for GCC -msse4.1 option... " >&6; }
@@ -21119,7 +21119,7 @@ else $as_nop
   enable_sse42=$enable_sse41
 fi
 
-    if test x$enable_sse42 = xyes; then
+    if test x$enable_sse42 = xyes -a x$have_gcc_sse41 = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -msse4.2 option" >&5
 printf %s "checking for GCC -msse4.2 option... " >&6; }
@@ -21197,7 +21197,7 @@ else $as_nop
   enable_avx2=$enable_avx
 fi
 
-    if test x$enable_avx2 = xyes; then
+    if test x$enable_avx2 = xyes -a x$have_gcc_avx = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -mavx2 option" >&5
 printf %s "checking for GCC -mavx2 option... " >&6; }
@@ -21236,7 +21236,7 @@ else $as_nop
   enable_avx512f=$enable_avx2
 fi
 
-    if test x$enable_avx512f = xyes; then
+    if test x$enable_avx512f = xyes -a x$have_gcc_avx2 = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -mavx512f option" >&5
 printf %s "checking for GCC -mavx512f option... " >&6; }
@@ -21281,7 +21281,7 @@ fi
         CFLAGS="$save_CFLAGS $altivec_CFLAGS"
 
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Altivec with GCC altivec.h and -maltivec option" >&5
-printf %s "checking for Altivec with GCC altivec.h and -maltivec option... " >&6; }
+printf %s "checking for GCC -maltivec option... " >&6; }
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -21329,15 +21329,17 @@ printf %s "checking for GCC -mlsx option... " >&6; }
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-        #ifndef __loongarch_sx
-        #error Assembler CPP flag not enabled
-        #endif
+#include <lsxintrin.h>
+void ints_sub(int *dest, int *a, int *b, unsigned size) {
+    for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+        __lsx_vst((__m128i*)dest, __lsx_vsub_w(__lsx_vld((__m128i*)a), __lsx_vld((__m128i*)b)));
+    }
+}
 
 int
 main (void)
 {
-
-  ;
+  ints_sub((int*)0, (int*)0, (int*)0, 0);
   return 0;
 }
 _ACEOF
@@ -21351,34 +21353,6 @@ printf "%s\n" "$have_gcc_lsx" >&6; }
         CFLAGS="$save_CFLAGS"
     fi
 
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lsxintrin.h" >&5
-printf %s "checking for lsxintrin.h... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <lsxintrin.h>
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  have_lsxintrin_h_hdr=yes
-else $as_nop
-  have_lsxintrin_h_hdr=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_lsxintrin_h_hdr" >&5
-printf "%s\n" "$have_lsxintrin_h_hdr" >&6; }
-    if test x$have_lsxintrin_h_hdr = xyes; then
-
-printf "%s\n" "#define HAVE_LSXINTRIN_H 1" >>confdefs.h
-
-    fi
-
     # Check whether --enable-lasx was given.
 if test ${enable_lasx+y}
 then :
@@ -21387,7 +21361,7 @@ else $as_nop
   enable_lasx=yes
 fi
 
-    if test x$enable_lasx = xyes; then
+    if test x$enable_lasx = xyes -a x$have_gcc_lsx = xyes; then
         save_CFLAGS="$CFLAGS"
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -mlasx option" >&5
 printf %s "checking for GCC -mlasx option... " >&6; }
@@ -21397,15 +21371,17 @@ printf %s "checking for GCC -mlasx option... " >&6; }
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-        #ifndef __loongarch_asx
-        #error Assembler CPP flag not enabled
-        #endif
+#include <lasxintrin.h>
+void ints_add(int *dest, int *a, int *b, unsigned size) {
+    for (; size >= 8; size -= 8, dest += 8, a += 8, b += 8) {
+        __lasx_xvst((__m256i*)dest,  __lasx_xvadd_w(__lasx_xvld((__m256i*)a), __lasx_xvld((__m256i*)b)));
+    }
+}
 
 int
 main (void)
 {
-
-  ;
+  ints_add((int*)0, (int*)0, (int*)0, 0);
   return 0;
 }
 _ACEOF
@@ -21417,34 +21393,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_gcc_lasx" >&5
 printf "%s\n" "$have_gcc_lasx" >&6; }
         CFLAGS="$save_CFLAGS"
-    fi
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lasxintrin.h" >&5
-printf %s "checking for lasxintrin.h... " >&6; }
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <lasxintrin.h>
-int
-main (void)
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  have_lasxintrin_h_hdr=yes
-else $as_nop
-  have_lasxintrin_h_hdr=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_lasxintrin_h_hdr" >&5
-printf "%s\n" "$have_lasxintrin_h_hdr" >&6; }
-    if test x$have_lasxintrin_h_hdr = xyes; then
-
-printf "%s\n" "#define HAVE_LASXINTRIN_H 1" >>confdefs.h
-
     fi
 
     # Check whether --enable-neon was given.

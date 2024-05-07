@@ -858,7 +858,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(sse2,
 [AS_HELP_STRING([--enable-sse2], [use SSE2 assembly routines [default=yes]])],
                   , enable_sse2=$enable_sse)
-    if test x$enable_sse2 = xyes; then
+    if test x$enable_sse2 = xyes -a x$have_gcc_sse = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse2 option)
         sse2_CFLAGS="-msse2"
@@ -879,7 +879,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(sse3,
 [AS_HELP_STRING([--enable-sse3], [use SSE3 assembly routines [default=yes]])],
                   , enable_sse3=$enable_sse2)
-    if test x$enable_sse3 = xyes; then
+    if test x$enable_sse3 = xyes -a x$have_gcc_sse2 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse3 option)
         sse3_CFLAGS="-msse3"
@@ -900,7 +900,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(sse4_1,
 [AS_HELP_STRING([--enable-sse41], [use SSE4.1 assembly routines [default=yes]])],
                   , enable_sse4_1=$enable_sse3)
-    if test x$enable_sse4_1 = xyes; then
+    if test x$enable_sse4_1 = xyes -a x$have_gcc_sse3 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse4.1 option)
         sse41_CFLAGS="-msse4.1"
@@ -921,7 +921,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(sse4_2,
 [AS_HELP_STRING([--enable-sse42], [use SSE4.2 assembly routines [default=yes]])],
                   , enable_sse4_2=$enable_sse4_1)
-    if test x$enable_sse4_2 = xyes; then
+    if test x$enable_sse4_2 = xyes -a x$have_gcc_sse4_1 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse4.2 option)
         sse42_CFLAGS="-msse4.2"
@@ -963,7 +963,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(avx2,
 [AS_HELP_STRING([--enable-avx2], [use AVX2 assembly routines [default=yes]])],
                   , enable_avx2=$enable_avx)
-    if test x$enable_avx2 = xyes; then
+    if test x$enable_avx2 = xyes -a x$have_gcc_avx = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -mavx2 option)
         avx2_CFLAGS="-mavx2"
@@ -984,7 +984,7 @@ dnl Check for various instruction support
     AC_ARG_ENABLE(avx512f,
 [AS_HELP_STRING([--enable-avx512f], [use AVX512f assembly routines [default=yes]])],
                   , enable_avx512f=$enable_avx2)
-    if test x$enable_avx512f = xyes; then
+    if test x$enable_avx512f = xyes -a x$have_gcc_avx2 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -mavx512f option)
         avx512f_CFLAGS="-mavx512f"
@@ -1010,7 +1010,7 @@ dnl Check for various instruction support
         altivec_CFLAGS="-maltivec"
         CFLAGS="$save_CFLAGS $altivec_CFLAGS"
 
-        AC_MSG_CHECKING(for Altivec with GCC altivec.h and -maltivec option)
+        AC_MSG_CHECKING(for GCC -maltivec option)
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <altivec.h>
         vector unsigned int vzero() {
@@ -1033,53 +1033,49 @@ dnl Check for various instruction support
         CFLAGS="$save_CFLAGS $lsx_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifndef __loongarch_sx
-        #error Assembler CPP flag not enabled
-        #endif
-        ]], [])], [have_gcc_lsx=yes], [])
+        #include <lsxintrin.h>
+        void ints_sub(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
+            __lsx_vst((__m128i*)dest, __lsx_vsub_w(__lsx_vld((__m128i*)a), __lsx_vld((__m128i*)b)));
+          }
+        }
+        ]],
+        [[
+          ints_sub((int*)0, (int*)0, (int*)0, 0);
+        ]])], [have_gcc_lsx=yes], [])
         AC_MSG_RESULT($have_gcc_lsx)
         CFLAGS="$save_CFLAGS"
-
-    fi
-
-    AC_MSG_CHECKING(for lsxintrin.h)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <lsxintrin.h>]])],
-       [have_lsxintrin_h_hdr=yes],[have_lsxintrin_h_hdr=no])
-    AC_MSG_RESULT($have_lsxintrin_h_hdr)
-    if test x$have_lsxintrin_h_hdr = xyes; then
-        AC_DEFINE(HAVE_LSXINTRIN_H, 1, [ ])
     fi
 
     AC_ARG_ENABLE(lasx,
 [AS_HELP_STRING([--enable-lasx], [use LASX assembly routines [default=yes]])],
-                  , enable_LASX=yes)
-    if test x$enable_LASX = xyes; then
+                  , enable_lasx=yes)
+    if test x$enable_lasx = xyes -a x$have_gcc_lsx = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -mlasx option)
         lasx_CFLAGS="-mlasx"
         CFLAGS="$save_CFLAGS $lasx_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #ifndef __loongarch_asx
-        #error Assembler CPP flag not enabled
-        #endif
-        ]], [])], [have_gcc_lasx=yes], [])
+        #include <lasxintrin.h>
+        void ints_add(int *dest, int *a, int *b, unsigned size) {
+          for (; size >= 8; size -= 8, dest += 8, a += 8, b += 8) {
+            __lasx_xvst((__m256i*)dest,  __lasx_xvadd_w(__lasx_xvld((__m256i*)a), __lasx_xvld((__m256i*)b)));
+          }
+        }
+        ]],
+        [[
+          ints_add((int*)0, (int*)0, (int*)0, 0);
+        ]])], [have_gcc_lasx=yes], [])
         AC_MSG_RESULT($have_gcc_lasx)
         CFLAGS="$save_CFLAGS"
-    fi
-
-    AC_MSG_CHECKING(for lasxintrin.h)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <lasxintrin.h>]])],
-       [have_lasxintrin_h_hdr=yes],[have_lasxintrin_h_hdr=no])
-    AC_MSG_RESULT($have_lasxintrin_h_hdr)
-    if test x$have_lasxintrin_h_hdr = xyes; then
-        AC_DEFINE(HAVE_LASXINTRIN_H, 1, [ ])
     fi
 
     AC_ARG_ENABLE(neon,
 [AS_HELP_STRING([--enable-neon], [use NEON assembly routines [default=yes]])],
                   , enable_neon=yes)
     if test x$enable_neon = xyes; then
+        AC_MSG_CHECKING(for NEON intrinsics)
         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <arm_neon.h>
         void floats_add(float *dest, float *a, float *b, unsigned size) {
