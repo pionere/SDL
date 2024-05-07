@@ -24,7 +24,7 @@
 
 #include "../SDL_internal.h"
 
-typedef int (*SDL_AudioResampler) (const Uint8 channels, const int inrate, const int outrate,
+typedef int (*SDL_AudioResampler) (const Uint8 channels, const Uint64 step, // int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes);
 

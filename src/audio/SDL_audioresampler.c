@@ -47,7 +47,7 @@ SDL_AudioResampler SDL_Resampler_Generic = NULL;
  * @param outbuffer: the output audio data (must be at least 'outframes * framelen' bytes long)
  * @param outframes: the number of samples (per channel) in the output audio data
  */
-static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -61,15 +61,32 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const int inrate, 
     float *dst = outbuffer;
     int i, chan, j;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
         float scales[2 * RESAMPLER_ZERO_CROSSINGS];
         int filt_idx;
-        /* Calculating the following way avoids subtraction or modulo of large
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        const unsigned filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+    /*for (i = 0; i < outframes; i++) {
+        float scales[2 * RESAMPLER_ZERO_CROSSINGS];
+        int filt_idx;
+        / * Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
          * = (i / outrate * inrate) - floor(i / outrate * inrate)
          * = mod(i / outrate * inrate, 1)
-         * = mod(i * inrate, outrate) / outrate */
+         * = mod(i * inrate, outrate) / outrate * /
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -80,7 +97,7 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const int inrate, 
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
         const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
         for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
@@ -127,7 +144,7 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const int inrate, 
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Mono_Scalar(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -141,13 +158,53 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
     float *dst = outbuffer;
     int i, j;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
-        /* Calculating the following way avoids subtraction or modulo of large
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+#if 1
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+#else
+#if 1
+        const unsigned filterindex_ = srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING);
+        const float interpolation1 = (float)filterindex_ / (float)RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
+        const unsigned filterindex1 = filterindex0 * RESAMPLER_ZERO_CROSSINGS;
+#else
+#if 1
+        float_bits interpolation1;
+        interpolation1.f32 = (float)srcfraction;
+
+        Uint32 mask = srcfraction == 0 ? 0 : 0xFFFFFFFF;
+        interpolation1.u32 -= 0x4f800000;
+        interpolation1.u32 &= mask;
+#else
+        float_bits interpolation1;
+        interpolation1.f32 = (float)filterindex_;
+
+        Uint32 mask = filterindex_ == 0 ? 0 : 0xFFFFFFFF;
+        interpolation1.u32 -= 0x4b000000;
+        interpolation1.u32 &= mask;
+#endif
+#endif
+#endif
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        const unsigned filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+
+    /*for (i = 0; i < outframes; i++) {
+        / * Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
          * = (i / outrate * inrate) - floor(i / outrate * inrate)
          * = mod(i / outrate * inrate, 1)
-         * = mod(i * inrate, outrate) / outrate */
+         * = mod(i * inrate, outrate) / outrate * /
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -158,7 +215,7 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
         const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
             float outsample = 0.0f;
@@ -189,7 +246,7 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels, const int inrate, con
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Stereo_Scalar(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -203,13 +260,28 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, c
     float *dst = outbuffer;
     int i, j;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
-        /* Calculating the following way avoids subtraction or modulo of large
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        const unsigned filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+    /*for (i = 0; i < outframes; i++) {
+        / * Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
          * = (i / outrate * inrate) - floor(i / outrate * inrate)
          * = mod(i / outrate * inrate, 1)
-         * = mod(i * inrate, outrate) / outrate */
+         * = mod(i * inrate, outrate) / outrate * /
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -220,7 +292,7 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, c
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
         const int filterindex0 = filterindex1 + (RESAMPLER_ZERO_CROSSINGS - 1);
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
             float outsample0 = 0.0f;
@@ -260,7 +332,7 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels, const int inrate, c
 }
 
 #ifdef SDL_SSE_INTRINSICS
-static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Generic_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -268,7 +340,23 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
     float *dst = outbuffer;
     int i, chan, j;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
+        DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+
+    /*for (i = 0; i < outframes; i++) {
         DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
@@ -279,7 +367,7 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
         const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         { /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
             __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
@@ -320,7 +408,7 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels, const int inrate, con
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -334,13 +422,27 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
     float *dst = outbuffer;
     int i;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
-        /* Calculating the following way avoids subtraction or modulo of large
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+    /*for (i = 0; i < outframes; i++) {
+        / * Calculating the following way avoids subtraction or modulo of large
          * floats which have low result precision.
          *   interpolation1
          * = (i / outrate * inrate) - floor(i / outrate * inrate)
          * = mod(i / outrate * inrate, 1)
-         * = mod(i * inrate, outrate) / outrate */
+         * = mod(i * inrate, outrate) / outrate * /
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -350,7 +452,7 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
         const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
             __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
@@ -389,7 +491,7 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels, const int inrate, const 
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -397,7 +499,21 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
     float *dst = outbuffer;
     int i;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+    /*for (i = 0; i < outframes; i++) {
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
         const int srcfraction = (int)(pos % outrate);
@@ -407,7 +523,7 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
         const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
             __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
@@ -469,7 +585,7 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels, const int inrate, cons
 #endif // SDL_SSE_INTRINSICS
 
 #ifdef SDL_NEON_INTRINSICS
-static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, const int outrate,
+static int SDL_Resampler_Generic_NEON(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -477,7 +593,22 @@ static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, co
     float *dst = outbuffer;
     int i, chan, j;
 
+    // Uint64 step = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
+    Uint64 pos = 0;
     for (i = 0; i < outframes; i++) {
+        DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
+        const unsigned srcindex = (Uint32)(pos >> 32);
+        const unsigned srcfraction = (Uint32)pos;
+        const float interpolation1 = (float)srcfraction / ((float)0x100000000ul);
+        const unsigned filterindex1 = (srcfraction / (0x100000000ul / RESAMPLER_SAMPLES_PER_ZERO_CROSSING)) * RESAMPLER_ZERO_CROSSINGS;
+        const float interpolation2 = 1.0f - interpolation1;
+        const unsigned filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
+        const float *src = &inbuffer[srcindex * chans];
+        // shift to the first sample
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        // go to the next position
+        pos += step;
+    /*for (i = 0; i < outframes; i++) {
         DECLARE_ALIGNED(float, scales[2 * RESAMPLER_ZERO_CROSSINGS], 16);
         const Sint64 pos = (Sint64)i * inrate;
         const int srcindex = (int)(pos / outrate);
@@ -488,7 +619,7 @@ static int SDL_Resampler_Generic_NEON(const Uint8 channels, const int inrate, co
         const int filterindex2 = (RESAMPLER_SAMPLES_PER_ZERO_CROSSING - 1) * RESAMPLER_ZERO_CROSSINGS - filterindex1;
         const float *src = &inbuffer[srcindex * chans];
         // shift to the first sample
-        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;
+        src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         { /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
             const float32x4_t filt1 = vld1q_f32(&ResamplerFilter[filterindex1]);

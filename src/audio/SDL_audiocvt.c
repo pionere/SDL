@@ -581,6 +581,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const int inframes = srclen / framelen;
     const int outframes = (int)((Sint64)inframes * outrate / inrate);
     const int reslen = outframes * framelen;
+    Uint64 resampler_incr = (((Uint64)inrate << 32) | (outrate / 2u)) / outrate;
     SDL_AudioResampler resampler_impl;
 
     SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
@@ -626,7 +627,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     } else if (chans == 2) {
         resampler_impl = SDL_Resampler_Stereo;
     }
-    cvt->len_cvt = resampler_impl(chans, inrate, outrate, (const float *)workbuf, inframes, (float *)dst, outframes);
+    cvt->len_cvt = resampler_impl(chans, resampler_incr/* inrate, outrate*/, (const float *)workbuf, inframes, (float *)dst, outframes);
 
     SDL_assert(cvt->len_cvt == reslen);
 
@@ -906,6 +907,7 @@ struct _SDL_AudioStream
     SDL_boolean resampling_needed;
     Uint8 pre_resample_channels;
     int resampler_padding_len;
+    Uint64 resampler_incr;
     float *resampler_padding;
     void *resampler_state;
     SDL_ResampleAudioStreamFunc resampler_func;
@@ -1019,6 +1021,7 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     const int padding_len = stream->resampler_padding_len;
     Uint8 chans;
     int framelen, inframes, inrate, outrate, outframes, retval;
+    Uint64 resampler_incr;
 
     SDL_assert(inbuf != outbuf); /* SDL_AudioStreamPut() shouldn't allow in-place resamples. */
 
@@ -1036,8 +1039,9 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
     // SDL_assert(outbuflen >= outframes * framelen);
     outframes = (int)((Sint64)inframes * outrate / inrate);
+    resampler_incr = stream->resampler_incr;
 
-    retval = stream->resampler_impl(chans, inrate, outrate, inbuf, inframes, outbuf, outframes);
+    retval = stream->resampler_impl(chans, resampler_incr/*inrate, outrate*/, inbuf, inframes, outbuf, outframes);
 
     /* update our left padding with end of current input, for next run. */
     SDL_memcpy(stream->resampler_state, (Uint8 *)inbuf + inbuflen - padding_len, padding_len);
@@ -1165,6 +1169,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         /* calculate rate_incr only after the rates are 'validated' */
         retval->rate_incr = (double)retval->dst_rate / (double)retval->src_rate;
 #endif
+        retval->resampler_incr = (((Uint64)retval->src_rate << 32) | (retval->dst_rate / 2u)) / retval->dst_rate;
 #else
         SDL_Unsupported();
         return NULL;
