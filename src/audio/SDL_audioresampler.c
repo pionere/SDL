@@ -38,6 +38,13 @@ SDL_AudioResampler SDL_Resampler_Generic = NULL;
 
 #include "SDL_audio_resampler_filter.h"
 
+#define RESAMPLER_FIX_OVERSHOOT 1
+
+typedef union float_bits {
+    Uint32 u32;
+    float f32;
+} float_bits;
+
 /*
  * @param channels: the number of channels in the audio data
  * @param inrate: the current frequency of the the audio data
@@ -110,10 +117,11 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const Uint64 step,
         }
 
         for (chan = 0; chan < chans; chan++) {
-            float outsample = 0.0f;
+            float_bits outsample;
             // int filt_idx;
             const float *s = src;
 
+            outsample.f32 = 0.0f;
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
 //            for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
 //                const float insample = *s;
@@ -130,11 +138,16 @@ static int SDL_Resampler_Generic_Scalar(const Uint8 channels, const Uint64 step,
 
             for (j = 0; j < 2 * RESAMPLER_ZERO_CROSSINGS; j++) {
                 const float insample = *s;
-                outsample += insample * scales[j];
+                outsample.f32 += insample * scales[j];
                 s += chans;
             }
-
-            dst[0] = outsample;
+#if RESAMPLER_FIX_OVERSHOOT
+            // clamp the value
+            if ((outsample.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample.u32 = 0x3F800000 | (outsample.u32 & 0x80000000);
+            }
+#endif
+            dst[0] = outsample.f32;
 
             dst++;
             src++;
@@ -218,25 +231,31 @@ static int SDL_Resampler_Mono_Scalar(const Uint8 channels,  const Uint64 step, /
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
-            float outsample = 0.0f;
+            float_bits outsample;
             int filt_idx;
             const float *s = src;
 
+            outsample.f32 = 0.0f;
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
             for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
                 const float insample = *s;
-                outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx])));
+                outsample.f32 += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx])));
                 s += chans;
             }
 
             /* Do the right wing! */
             for (j = 0, filt_idx = filterindex2; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx++) {
                 const float insample = *s;
-                outsample += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx])));
+                outsample.f32 += (float) (insample * (ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx])));
                 s += chans;
             }
-
-            dst[0] = outsample;
+#if RESAMPLER_FIX_OVERSHOOT
+            // clamp the value
+            if ((outsample.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample.u32 = 0x3F800000 | (outsample.u32 & 0x80000000);
+            }
+#endif
+            dst[0] = outsample.f32;
 
             dst++;
             src++;
@@ -295,18 +314,20 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels,  const Uint64 step,
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
-            float outsample0 = 0.0f;
-            float outsample1 = 0.0f;
+            float_bits outsample0;
+            float_bits outsample1;
             int filt_idx;
             const float *s = src;
 
+            outsample0.f32 = 0.0f;
+            outsample1.f32 = 0.0f;
             /* do this twice to calculate the sample, once for the "left wing" and then same for the right. */
             for (j = 0, filt_idx = filterindex0; j < RESAMPLER_ZERO_CROSSINGS; j++, filt_idx--) {
                 const float insample0 = s[0];
                 const float insample1 = s[1];
                 const float w = ResamplerFilter[filt_idx] + (interpolation1 * ResamplerFilterDifference[filt_idx]);
-                outsample0 += insample0 * w;
-                outsample1 += insample1 * w;
+                outsample0.f32 += insample0 * w;
+                outsample1.f32 += insample1 * w;
                 s += chans;
             }
 
@@ -315,13 +336,22 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels,  const Uint64 step,
                 const float insample0 = s[0];
                 const float insample1 = s[1];
                 const float w = ResamplerFilter[filt_idx] + (interpolation2 * ResamplerFilterDifference[filt_idx]);
-                outsample0 += insample0 * w;
-                outsample1 += insample1 * w;
+                outsample0.f32 += insample0 * w;
+                outsample1.f32 += insample1 * w;
                 s += chans;
             }
-
-            dst[0] = outsample0;
-            dst[1] = outsample1;
+#if RESAMPLER_FIX_OVERSHOOT
+            // clamp the value
+            if ((outsample0.u32 & 0x7F800000) == 0x3F800000) {
+                outsample0.u32 = 0x3F800000 | (outsample0.u32 & 0x80000000);
+            }
+            // clamp the value
+            if ((outsample1.u32 & 0x7F800000) == 0x3F800000) {
+                outsample1.u32 = 0x3F800000 | (outsample1.u32 & 0x80000000);
+            }
+#endif
+            dst[0] = outsample0.f32;
+            dst[1] = outsample1.f32;
 
             dst += chans;
             src += chans;
@@ -389,16 +419,22 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels,  const Uint64 step, /
         }
 
         for (chan = 0; chan < chans; chan++) {
-            float outsample = 0.0f;
+            float_bits outsample;
             const float *s = src;
 
+            outsample.f32 = 0.0f;
             for (j = 0; j < 2 * RESAMPLER_ZERO_CROSSINGS; j++) {
                 const float insample = *s;
-                outsample += insample * scales[j];
+                outsample.f32 += insample * scales[j];
                 s += chans;
             }
-
-            dst[0] = outsample;
+#if RESAMPLER_FIX_OVERSHOOT
+            // clamp the value
+            if ((outsample.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample.u32 = 0x3F800000 | (outsample.u32 & 0x80000000);
+            }
+#endif
+            dst[0] = outsample.f32;
 
             dst++;
             src++;
@@ -455,6 +491,9 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // c
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
+#if RESAMPLER_FIX_OVERSHOOT
+            float_bits outsample;
+#endif
             __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
             __m128 filt_diff1 = _mm_load_ps(&ResamplerFilterDifference[filterindex1]);
             __m128 ipol1 = _mm_set_ps1(interpolation1);
@@ -470,18 +509,28 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // c
             __m128 inleft_back = _mm_loadu_ps(&src[0]);
             __m128 inleft = _mm_shuffle_ps(inleft_back, inleft_back, _MM_SHUFFLE(0, 1, 2, 3));
             __m128 inright = _mm_loadu_ps(&src[4]);
-            __m128 outsample = _mm_add_ps(_mm_mul_ps(inleft, scale1), _mm_mul_ps(inright, scale2));
+            __m128 outval = _mm_add_ps(_mm_mul_ps(inleft, scale1), _mm_mul_ps(inright, scale2));
 #if 0
-            __m128 sums = _mm_hadd_ps(outsample, outsample);
+            __m128 sums = _mm_hadd_ps(outval, outval);
             sums        = _mm_hadd_ps(sums, sums);
 #else
-            __m128 shuf = _mm_shuffle_ps(outsample, outsample, _MM_SHUFFLE(2, 3, 0, 1));
-            __m128 sums = _mm_add_ps(outsample, shuf);
+            __m128 shuf = _mm_shuffle_ps(outval, outval, _MM_SHUFFLE(2, 3, 0, 1));
+            __m128 sums = _mm_add_ps(outval, shuf);
             shuf        = _mm_movehl_ps(shuf, sums);
             sums        = _mm_add_ss(sums, shuf);
 #endif
 
+#if RESAMPLER_FIX_OVERSHOOT
+            outsample.f32 = _mm_cvtss_f32(sums);
+            // clamp the value
+            if ((outsample.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample.u32 = 0x3F800000 | (outsample.u32 & 0x80000000);
+            }
+
+            dst[0] = outsample.f32;
+#else
             _mm_store_ss(&dst[0], sums);
+#endif
 
             dst++;
             src++;
@@ -526,6 +575,10 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, //
         src -= (RESAMPLER_ZERO_CROSSINGS - 1) * chans;*/
 
         {
+#if RESAMPLER_FIX_OVERSHOOT
+            float_bits outsample0;
+            float_bits outsample1;
+#endif
             __m128 filt1 = _mm_load_ps(&ResamplerFilter[filterindex1]);
             __m128 filt_diff1 = _mm_load_ps(&ResamplerFilterDifference[filterindex1]);
             __m128 ipol1 = _mm_set_ps1(interpolation1);
@@ -554,26 +607,42 @@ static int SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, //
             __m128 inright0 = _mm_castpd_ps(_mm_unpacklo_pd(_mm_castps_pd(inright00_), _mm_castps_pd(inright10_)));
             __m128 inright1 = _mm_castpd_ps(_mm_unpackhi_pd(_mm_castps_pd(inright00_), _mm_castps_pd(inright10_)));
 
-            __m128 outsample0 = _mm_add_ps(_mm_mul_ps(inleft0, scale1), _mm_mul_ps(inright0, scale2));
-            __m128 outsample1 = _mm_add_ps(_mm_mul_ps(inleft1, scale1), _mm_mul_ps(inright1, scale2));
+            __m128 outval0 = _mm_add_ps(_mm_mul_ps(inleft0, scale1), _mm_mul_ps(inright0, scale2));
+            __m128 outval1 = _mm_add_ps(_mm_mul_ps(inleft1, scale1), _mm_mul_ps(inright1, scale2));
 #if 0
-            __m128 sums0 = _mm_hadd_ps(outsample0, outsample0);
-            __m128 sums1 = _mm_hadd_ps(outsample1, outsample1);
+            __m128 sums0 = _mm_hadd_ps(outval0, outval0);
+            __m128 sums1 = _mm_hadd_ps(outval1, outval1);
             sums0        = _mm_hadd_ps(sums0, sums0);
             sums1        = _mm_hadd_ps(sums1, sums1);
 #else
-            __m128 shuf0 = _mm_shuffle_ps(outsample0, outsample0, _MM_SHUFFLE(2, 3, 0, 1));
-            __m128 sums0 = _mm_add_ps(outsample0, shuf0);
-            __m128 shuf1 = _mm_shuffle_ps(outsample1, outsample1, _MM_SHUFFLE(2, 3, 0, 1));
-            __m128 sums1 = _mm_add_ps(outsample1, shuf1);
+            __m128 shuf0 = _mm_shuffle_ps(outval0, outval0, _MM_SHUFFLE(2, 3, 0, 1));
+            __m128 sums0 = _mm_add_ps(outval0, shuf0);
+            __m128 shuf1 = _mm_shuffle_ps(outval1, outval1, _MM_SHUFFLE(2, 3, 0, 1));
+            __m128 sums1 = _mm_add_ps(outval1, shuf1);
             shuf0        = _mm_movehl_ps(shuf0, sums0);
             sums0        = _mm_add_ss(sums0, shuf0);
             shuf1        = _mm_movehl_ps(shuf1, sums1);
             sums1        = _mm_add_ss(sums1, shuf1);
 #endif
 
+#if RESAMPLER_FIX_OVERSHOOT
+            outsample0.f32 = _mm_cvtss_f32(sums0);
+            outsample1.f32 = _mm_cvtss_f32(sums1);
+            // clamp the value
+            if ((outsample0.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample0.u32 = 0x3F800000 | (outsample0.u32 & 0x80000000);
+            }
+            // clamp the value
+            if ((outsample1.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample1.u32 = 0x3F800000 | (outsample1.u32 & 0x80000000);
+            }
+
+            dst[0] = outsample0.f32;
+            dst[1] = outsample1.f32;
+#else
             _mm_store_ss(&dst[0], sums0);
             _mm_store_ss(&dst[1], sums1);
+#endif
 
             dst += chans;
             src += chans;
@@ -644,16 +713,22 @@ static int SDL_Resampler_Generic_NEON(const Uint8 channels,  const Uint64 step, 
         }
 
         for (chan = 0; chan < chans; chan++) {
-            float outsample = 0.0f;
+            float_bits outsample;
             const float *s = src;
 
+            outsample.f32 = 0.0f;
             for (j = 0; j < 2 * RESAMPLER_ZERO_CROSSINGS; j++) {
                 const float insample = *s;
-                outsample += insample * scales[j];
+                outsample.f32 += insample * scales[j];
                 s += chans;
             }
-
-            dst[0] = outsample;
+#if RESAMPLER_FIX_OVERSHOOT
+            // clamp the value
+            if ((outsample.u32 & 0x7FFFFFFF) > 0x3F800000 /* 1.0f */) {
+                outsample.u32 = 0x3F800000 | (outsample.u32 & 0x80000000);
+            }
+#endif
+            dst[0] = outsample.f32;
 
             dst++;
             src++;
