@@ -351,7 +351,7 @@ static void SDLCALL SDL_TARGETING("sse2") SDL_Convert_S8_to_F32_SSE2(SDL_AudioCV
      * 3) Shift the float range to [-1.0, 1.0)
      * dst[i] = i2f((src[i] ^ 0x80) | 0x47800000) - 65537.0 */
     const __m128i zero = _mm_setzero_si128();
-    const __m128i flipper = _mm_set1_epi8(-0x80);
+    const __m128i flipper = _mm_set1_epi8(0x80);
     const __m128i caster = _mm_set1_epi16(0x4780 /* 0x47800000 = f2i(65536.0) */);
     const __m128 offset = _mm_set1_ps(-65537.0);
 
@@ -448,7 +448,7 @@ static void SDLCALL SDL_TARGETING("sse2") SDL_Convert_S16_to_F32_SSE2(SDL_AudioC
      * 2) Construct a float in the range [256.0, 258.0)
      * 3) Shift the float range to [-1.0, 1.0)
      * dst[i] = i2f((src[i] ^ 0x8000) | 0x43800000) - 257.0 */
-    const __m128i flipper = _mm_set1_epi16(-0x8000);
+    const __m128i flipper = _mm_set1_epi16(0x8000);
     const __m128i caster = _mm_set1_epi16(0x4380 /* 0x43800000 = f2i(256.0) */);
     const __m128 offset = _mm_set1_ps(-257.0f);
 
@@ -558,7 +558,7 @@ static void SDLCALL SDL_TARGETING("sse2") SDL_Convert_S32_to_F32_SSE2(SDL_AudioC
     }
 
     for ( ; i; i--, src++, dst++) {
-        _mm_store_ss(&dst[0], _mm_mul_ss(_mm_cvt_si2ss(_mm_setzero_ps(), src[0]), scaler));
+        _mm_store_ss(&dst[0], _mm_mul_ss(_mm_cvt_si2ss(scaler /*_mm_setzero_ps()*/, src[0]), scaler));
     }
 }
 
