@@ -43,14 +43,13 @@ SDL_FORCE_INLINE void FlushN3DSBuffer(const void *buffer, u32 bufsize, gfxScreen
 int N3DS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixels, int *pitch)
 {
     SDL_Surface *framebuffer;
-    SDL_DisplayMode mode;
+    Uint32 window_format = SDL_GetWindowPixelFormat(window);
     int w, h;
 
 
-    SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window), &mode);
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     SDL_assert(window->surface == NULL);
-    framebuffer = SDL_CreateRGBSurfaceWithFormat(0, w, h, SDL_BYTESPERPIXEL(mode.format), mode.format);
+    framebuffer = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, window_format);
 
     // SDL_SetWindowData(window, N3DS_SURFACE, framebuffer);
     if (!framebuffer) {
@@ -58,7 +57,7 @@ int N3DS_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixe
     }
 
     window->surface = framebuffer;
-    // *format = mode.format;
+    // *format = window_format;
     // *pixels = framebuffer->pixels;
     // *pitch = framebuffer->pitch;
     return 0;
