@@ -92,6 +92,7 @@ static int get_driindex(void)
     long devindex;
     DIR *folder;
     const char *hint;
+    struct dirent *res;
 
     hint = SDL_GetHint(SDL_HINT_KMSDRM_DEVICE_INDEX);
     if (hint && *hint) {
@@ -111,7 +112,7 @@ static int get_driindex(void)
 
     SDL_strlcpy(device + kmsdrm_dri_pathsize, kmsdrm_dri_devname,
                 sizeof(device) - kmsdrm_dri_devnamesize);
-    for (struct dirent *res; (res = readdir(folder));) {
+    while((res = readdir(folder)) != NULL) {
         const char *resname = res->d_name;
         if (SDL_strncmp(resname, kmsdrm_dri_devname, kmsdrm_dri_devnamesize) == 0) {
             resname += kmsdrm_dri_devnamesize;

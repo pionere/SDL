@@ -143,6 +143,12 @@ static int X11_SafetyNetErrHandler(Display *d, XErrorEvent *e)
     return 0;
 }
 
+static SDL_bool X11_IsXWayland(Display *d)
+{
+    int opcode, event, error;
+    return X11_XQueryExtension(d, "XWAYLAND", &opcode, &event, &error) == True;
+}
+
 static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
 {
     X11_VideoData *data = &x11VideoData;
@@ -315,6 +321,8 @@ static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
 
     /* Hit-testing */
     device->SetWindowHitTest = X11_SetWindowHitTest;
+
+    data->is_xwayland = X11_IsXWayland(x11_display);
 
     /* Tell window that app enabled drag'n'drop events */
     device->AcceptDragAndDrop = X11_AcceptDragAndDrop;

@@ -33,14 +33,15 @@
 #include "SDL_video.h"
 #include "SDL_version.h"
 
-/**
- *  \brief SDL_syswm.h
+/*
+ *  \file SDL_syswm.h
  *
- *  Your application has access to a special type of event ::SDL_SYSWMEVENT,
+ *  Your application has access to a special type of event SDL_SYSWMEVENT,
  *  which contains window-manager specific information and arrives whenever
  *  an unhandled window event occurs.  This event is ignored by default, but
  *  you can enable it with SDL_EventState().
  */
+
 struct SDL_SysWMinfo;
 
 #if !defined(SDL_PROTOTYPES_ONLY)
@@ -129,10 +130,11 @@ extern "C" {
 #endif
 
 #if !defined(SDL_PROTOTYPES_ONLY)
+
 /**
- *  These are the various supported windowing subsystems
+ * These are the various supported windowing subsystems
  */
-typedef enum
+typedef enum SDL_SYSWM_TYPE
 {
     SDL_SYSWM_UNKNOWN,
     SDL_SYSWM_WINDOWS,
@@ -152,7 +154,7 @@ typedef enum
 } SDL_SYSWM_TYPE;
 
 /**
- *  The custom event structure.
+ * The custom event structure.
  */
 struct SDL_SysWMmsg
 {
@@ -218,10 +220,10 @@ struct SDL_SysWMmsg
 };
 
 /**
- *  The custom window manager information structure.
+ * The custom window manager information structure.
  *
- *  When this structure is returned, it holds information about which
- *  low level system it is using, and will be one of SDL_SYSWM_TYPE.
+ * When this structure is returned, it holds information about which low level
+ * system it is using, and will be one of SDL_SYSWM_TYPE.
  */
 struct SDL_SysWMinfo
 {

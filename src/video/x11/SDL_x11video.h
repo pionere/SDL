@@ -161,6 +161,8 @@ typedef struct X11_VideoData
     SDL_boolean is_steam_deck;
     SDL_boolean steam_keyboard_open;
 
+    SDL_bool is_xwayland;
+
 } X11_VideoData;
 
 extern X11_VideoData x11VideoData;

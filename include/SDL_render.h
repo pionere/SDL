@@ -61,7 +61,7 @@ extern "C" {
 /**
  * Flags used when creating a rendering context
  */
-typedef enum
+typedef enum SDL_RendererFlags
 {
     SDL_RENDERER_SOFTWARE = 0x00000001,         /**< The renderer is a software fallback */
     SDL_RENDERER_ACCELERATED = 0x00000002,      /**< The renderer uses hardware
@@ -80,7 +80,7 @@ typedef enum
 typedef struct SDL_RendererInfo
 {
     const char *name;           /**< The name of the renderer */
-    Uint32 flags;               /**< Supported ::SDL_RendererFlags */
+    Uint32 flags;               /**< Supported SDL_RendererFlags */
     Uint32 num_texture_formats; /**< The number of available texture formats */
     Uint32 texture_formats[16]; /**< The available texture formats */
     int max_texture_width;      /**< The maximum texture width */
@@ -88,7 +88,7 @@ typedef struct SDL_RendererInfo
 } SDL_RendererInfo;
 
 /**
- *  Vertex structure
+ * Vertex structure
  */
 typedef struct SDL_Vertex
 {
@@ -100,7 +100,7 @@ typedef struct SDL_Vertex
 /**
  * The scaling mode for a texture.
  */
-typedef enum
+typedef enum SDL_ScaleMode
 {
     SDL_ScaleModeNearest, /**< nearest pixel sampling */
     SDL_ScaleModeLinear,  /**< linear filtering */
@@ -110,7 +110,7 @@ typedef enum
 /**
  * The access pattern allowed for a texture.
  */
-typedef enum
+typedef enum SDL_TextureAccess
 {
     SDL_TEXTUREACCESS_STATIC    = 0x00000000, /**< Changes rarely, not lockable, can not be used as a render target */
     SDL_TEXTUREACCESS_STREAMING = 0x00000001, /**< Changes frequently, lockable */
@@ -120,7 +120,7 @@ typedef enum
 /**
  * The texture channel modulation used in SDL_RenderCopy().
  */
-typedef enum
+typedef enum SDL_TextureModulate
 {
     SDL_TEXTUREMODULATE_NONE = 0x00000000,     /**< No modulation */
     SDL_TEXTUREMODULATE_COLOR = 0x00000001,    /**< srcC = srcC * color */
@@ -130,7 +130,7 @@ typedef enum
 /**
  * Flip constants for SDL_RenderCopyEx
  */
-typedef enum
+typedef enum SDL_RendererFlip
 {
     SDL_FLIP_NONE = 0x00000000,     /**< Do not flip */
     SDL_FLIP_HORIZONTAL = 0x00000001,    /**< flip horizontally */
