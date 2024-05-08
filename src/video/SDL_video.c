@@ -240,14 +240,25 @@ static int SDLCALL cmpmodes(const void *A, const void *B)
         return b->w - a->w;
     } else if (a->h != b->h) {
         return b->h - a->h;
-    } else if (SDL_BITSPERPIXEL(a->format) != SDL_BITSPERPIXEL(b->format)) {
-        return SDL_BITSPERPIXEL(b->format) - SDL_BITSPERPIXEL(a->format);
-    } else if (SDL_PIXELLAYOUT(a->format) != SDL_PIXELLAYOUT(b->format)) {
-        return SDL_PIXELLAYOUT(b->format) - SDL_PIXELLAYOUT(a->format);
-    } else if (a->refresh_rate != b->refresh_rate) {
+    } else if (a->format != b->format) {
+        SDL_assert(SDL_PIXELFLAG(a->format) && SDL_PIXELFLAG(b->format));
+        if (SDL_PIXELTYPE(a->format) != SDL_PIXELTYPE(b->format)) {
+            return SDL_PIXELTYPE(b->format) - SDL_PIXELTYPE(a->format);
+        }
+        if (SDL_PIXELLAYOUT(a->format) != SDL_PIXELLAYOUT(b->format)) {
+            return SDL_PIXELLAYOUT(b->format) - SDL_PIXELLAYOUT(a->format);
+        }
+        SDL_assert(SDL_PIXELBPP(a->format) == SDL_PIXELBPP(b->format));
+        SDL_assert(SDL_BITSPERPIXEL(a->format) == SDL_BITSPERPIXEL(b->format));
+
+        SDL_assert(SDL_PIXELORDER(a->format) != SDL_PIXELORDER(b->format));
+        // if (SDL_PIXELORDER(a->format) != SDL_PIXELORDER(b->format)) {
+            return SDL_PIXELORDER(b->format) - SDL_PIXELORDER(a->format);
+        // }
+    } else { // if (a->refresh_rate != b->refresh_rate) {
         return b->refresh_rate - a->refresh_rate;
     }
-    return 0;
+    // return 0;
 }
 
 static int SDL_UninitializedVideo(void)
@@ -899,10 +910,10 @@ static SDL_DisplayMode *SDL_GetClosestDisplayModeForDisplay(SDL_VideoDisplay *di
             break;
         }
         if (current->h && (current->h < mode->h)) {
-            if (current->w && (current->w == mode->w)) {
-                /* Out of sorted modes large enough here */
-                break;
-            }
+            // if (current->w && (current->w == mode->w)) {
+            //    /* Out of sorted modes large enough here */
+            //    break;
+            // }
             /* Wider, but not tall enough, due to a different
                aspect ratio. This mode must be skipped, but closer
                modes may still follow. */
@@ -912,18 +923,36 @@ static SDL_DisplayMode *SDL_GetClosestDisplayModeForDisplay(SDL_VideoDisplay *di
             match = current;
             continue;
         }
-        if (current->format != match->format && match->format != target_format) {
-            /* Sorted highest depth to lowest */
-            if (current->format == target_format ||
-                (SDL_BITSPERPIXEL(current->format) >=
-                     SDL_BITSPERPIXEL(target_format) &&
-                 SDL_PIXELTYPE(current->format) ==
-                     SDL_PIXELTYPE(target_format))) {
+        SDL_assert(current->w == match->w && current->h == match->h);
+        // matching dimensions -> try to choose based on the format
+        if (current->format != match->format) {
+            int mw = 0, cw = 0;
+            if (SDL_PIXELTYPE(match->format) == SDL_PIXELTYPE(target_format)) {
+                mw |= 4;
+            }
+            if (SDL_PIXELTYPE(current->format) == SDL_PIXELTYPE(target_format)) {
+                cw |= 4;
+            }
+            if (SDL_PIXELLAYOUT(match->format) == SDL_PIXELLAYOUT(target_format)) {
+                mw |= 2;
+            }
+            if (SDL_PIXELLAYOUT(current->format) == SDL_PIXELLAYOUT(target_format)) {
+                cw |= 2;
+            }
+            if (SDL_PIXELORDER(match->format) == SDL_PIXELORDER(target_format)) {
+                mw |= 1;
+            }
+            if (SDL_PIXELORDER(current->format) == SDL_PIXELORDER(target_format)) {
+                cw |= 1;
+            }
+            if (cw > mw) {
                 match = current;
             }
             continue;
         }
-        if (current->refresh_rate != match->refresh_rate && match->refresh_rate != target_refresh_rate) {
+        // everything is the same except for the refresh rate -> select the closest match
+        SDL_assert(current->refresh_rate != match->refresh_rate);
+        {
             /* Sorted highest refresh to lowest */
             if (current->refresh_rate >= target_refresh_rate) {
                 match = current;
