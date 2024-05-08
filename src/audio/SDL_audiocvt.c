@@ -69,7 +69,7 @@
 
 #ifdef SDL_SSE_INTRINSICS
 /* Convert from stereo to mono. Average left and right. */
-static void SDLCALL SDL_ConvertStereoToMono_SSE(SDL_AudioCVT *cvt)
+static void SDLCALL SDL_TARGETING("sse") SDL_ConvertStereoToMono_SSE(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt / (sizeof(float) * 2u);
     const __m128 divby2 = _mm_set1_ps(0.5f);
@@ -108,7 +108,7 @@ static void SDLCALL SDL_ConvertStereoToMono_SSE(SDL_AudioCVT *cvt)
 }
 
 /* Convert from mono to stereo. Duplicate to stereo left and right. */
-static void SDLCALL SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
+static void SDLCALL SDL_TARGETING("sse") SDL_ConvertMonoToStereo_SSE(SDL_AudioCVT *cvt)
 {
     const int num_samples = cvt->len_cvt / (unsigned)sizeof(float);
     float *dst = (float *)(cvt->buf + (cvt->len_cvt * 2));

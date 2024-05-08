@@ -57,7 +57,7 @@
 #define SSE_END
 
 #define DEFINE_SSE_FILLRECT(bpp, type) \
-static void SDL_FillRect##bpp##SSE(Uint8 *pixels, int pitch, Uint32 color, int w, int h) \
+static void SDL_TARGETING("sse") SDL_FillRect##bpp##SSE(Uint8 *pixels, int pitch, Uint32 color, int w, int h) \
 { \
     int i, n; \
     Uint8 *p = NULL; \
@@ -94,7 +94,7 @@ static void SDL_FillRect##bpp##SSE(Uint8 *pixels, int pitch, Uint32 color, int w
     SSE_END; \
 }
 
-static void SDL_FillRect1SSE(Uint8 *pixels, int pitch, Uint32 color, int w, int h)
+static void SDL_TARGETING("sse") SDL_FillRect1SSE(Uint8 *pixels, int pitch, Uint32 color, int w, int h)
 {
     int i, n;
 

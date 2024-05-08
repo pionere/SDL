@@ -362,7 +362,7 @@ static int SDL_Resampler_Stereo_Scalar(const Uint8 channels,  const Uint64 step,
 }
 
 #ifdef SDL_SSE_INTRINSICS
-static int SDL_Resampler_Generic_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,const int inrate, const int outrate,
+static int SDL_TARGETING("sse") SDL_Resampler_Generic_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -444,7 +444,7 @@ static int SDL_Resampler_Generic_SSE(const Uint8 channels,  const Uint64 step, /
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
+static int SDL_TARGETING("sse") SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
@@ -540,7 +540,7 @@ static int SDL_Resampler_Mono_SSE(const Uint8 channels,  const Uint64 step, // c
     return outframes * chans * sizeof(float);
 }
 
-static int SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
+static int SDL_TARGETING("sse") SDL_Resampler_Stereo_SSE(const Uint8 channels,  const Uint64 step, // const int inrate, const int outrate,
                              const float *inbuffer, const int inframes,
                              float *outbuffer, const int outframes)
 {
