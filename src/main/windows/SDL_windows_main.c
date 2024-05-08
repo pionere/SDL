@@ -3,17 +3,17 @@
 
     The WinMain function -- calls your program's main() function
 */
-#include "SDL_config.h"
+#include "../../SDL_internal.h"
 
 #ifdef __WIN32__
+
+/* Include the SDL main definition header */
+#include "SDL_main.h"
+#include "SDL_messagebox.h"
 
 /* Include this so we define UNICODE properly */
 #include "../../core/windows/SDL_windows.h"
 #include <shellapi.h> /* CommandLineToArgvW() */
-
-/* Include the SDL main definition header */
-#include "SDL.h"
-#include "SDL_main.h"
 
 #ifdef main
 #undef main
