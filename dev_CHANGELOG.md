@@ -123,7 +123,7 @@ Major (meaningful) changes:
  - add SDL_expect (adf970aa4622e732d45cfb37bba73a6361a44137 + 3a9282e706e9db0e69d2761d30cd5a42a4edda28)
  - add SDL_boolean type (d85661761a2ed4f5e137e0e832bf18e7ecf916d6)
  - add SDL_UINT_MAX/SDL_INT_MAX (97758491f6f69813b4c0c40380647d0573f7fefe)
-  - optimize the framebuffers (2d245a6a45fa69a0c61e5ca4e1793169afd52af3 + cd9b1a0e2e6cde065bbf3870a2ded0bdec9a67f2 + 3f607fde11551cd93b77417eee2cffba7d99e081 + 1a515522bbdaf78502da0ed7ee039f336b494f17)
+  - optimize the framebuffers (2d245a6a45fa69a0c61e5ca4e1793169afd52af3 + cd9b1a0e2e6cde065bbf3870a2ded0bdec9a67f2 + 3f607fde11551cd93b77417eee2cffba7d99e081 + 1a515522bbdaf78502da0ed7ee039f336b494f17 + 2229188f9fbd29d98a90e38226360c5012363d1f)
 - disable *CreateSDLWindowFrom (d6298f80c72036fa3419b6d6b7c6783058cf5da0)
 - never check/set SDL_COPY_RLE_DESIRED/SDL_RLEACCEL flags if RLE is disabled (91cf232af4a31130dc36be5909f20d83459c1840)
 - ignore SDL_HINT_VIDEO_HIGHDPI_DISABLED (2545e75549574c85b503055fb192346d3bde84f2)
@@ -381,3 +381,4 @@ Bugfixes:
 - fix SDL_OnApplicationDidChangeStatusBarOrientation (uikit) (0d13a6b9c9c3cef78ce66968314d114bf5a492b9)
 - fix SDL_HashDollar (258bd7b2aa7abe4f601abde55442facb933b380e)
 - fix the includes in SDL_windows_main.c (b8be485ca7f08141018333ed4d1e0212490f106f)
+- fix display-mode selection (49bc22ca191448240a4ec397eaba733c4fef947c)
