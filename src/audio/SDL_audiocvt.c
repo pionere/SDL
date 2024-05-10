@@ -1176,7 +1176,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
 #endif /* !SDL_RESAMPLER_DISABLED */
     }
 
-    retval->queue = SDL_NewDataQueue(AUDIO_PACKET_LEN, AUDIO_PACKET_LEN * 2);
+    retval->queue = SDL_NewDataQueue(AUDIO_PACKET_LEN, 2);
     if (!retval->queue) {
         SDL_FreeAudioStream(retval);
         return NULL; /* SDL_NewDataQueue should have called SDL_SetError. */
@@ -1514,7 +1514,7 @@ void SDL_AudioStreamClear(SDL_AudioStream *stream)
         SDL_InvalidParamError("stream");
     } else {
         SDL_assert(stream->queue != NULL);
-        SDL_ClearDataQueue(stream->queue, AUDIO_PACKET_LEN * 2);
+        SDL_ClearDataQueue(stream->queue, 2);
 #ifndef SDL_RESAMPLER_DISABLED
         if (stream->reset_resampler_func) {
             stream->reset_resampler_func(stream);

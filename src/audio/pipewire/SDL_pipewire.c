@@ -1077,7 +1077,7 @@ static void input_callback(void *data)
         }
     } else { /* Flush the buffer when paused */
         if (SDL_CountDataQueue(data_queue) != 0) {
-            SDL_ClearDataQueue(data_queue, this->hidden->input_buffer_packet_size);
+            SDL_ClearDataQueue(data_queue, 1);
         }
     }
 
@@ -1107,7 +1107,7 @@ static void stream_add_buffer_callback(void *data, struct pw_buffer *buffer)
          * A packet size of 2 periods should be more than is ever needed.
          */
         this->hidden->input_buffer_packet_size = SPA_MAX(this->spec.size, buffer->buffer->datas[0].maxsize) * 2;
-        this->hidden->buffer = SDL_NewDataQueue(this->hidden->input_buffer_packet_size, this->hidden->input_buffer_packet_size);
+        this->hidden->buffer = SDL_NewDataQueue(this->hidden->input_buffer_packet_size, 1);
         if (!this->hidden->buffer) {
             PIPEWIRE_pw_stream_set_error(this->hidden->stream, -EINVAL, "Out of memory");
         }

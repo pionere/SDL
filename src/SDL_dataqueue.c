@@ -50,16 +50,14 @@ static void SDL_FreeDataQueueList(SDL_DataQueuePacket *packet)
     }
 }
 
-SDL_DataQueue *SDL_NewDataQueue(const size_t _packetlen, const size_t initialslack)
+SDL_DataQueue *SDL_NewDataQueue(const size_t _packetlen, const unsigned wantpackets)
 {
     SDL_DataQueue *queue = (SDL_DataQueue *)SDL_calloc(1, sizeof(SDL_DataQueue));
-
-    if (!queue) {
-        SDL_OutOfMemory();
-    } else {
-        const size_t packetlen = _packetlen ? _packetlen : 1024;
-        const size_t wantpackets = (initialslack + (packetlen - 1)) / packetlen;
-        size_t i;
+    SDL_assert(_packetlen != 0);
+    if (queue) {
+        const size_t packetlen = _packetlen; //  ? _packetlen : 1024;
+        // const size_t wantpackets = (initialslack + (packetlen - 1)) / packetlen;
+        unsigned i;
 
         queue->packet_size = packetlen;
 
@@ -78,6 +76,8 @@ SDL_DataQueue *SDL_NewDataQueue(const size_t _packetlen, const size_t initialsla
                 queue->pool = packet;
             }
         }
+    } else {
+        SDL_OutOfMemory();
     }
 
     return queue;
@@ -93,13 +93,13 @@ void SDL_FreeDataQueue(SDL_DataQueue *queue)
     }
 }
 
-void SDL_ClearDataQueue(SDL_DataQueue *queue, const size_t slack)
+void SDL_ClearDataQueue(SDL_DataQueue *queue, const unsigned slackpackets)
 {
-    const size_t packet_size = queue ? queue->packet_size : 1;
-    const size_t slackpackets = (slack + (packet_size - 1)) / packet_size;
+    // const size_t packet_size = queue ? queue->packet_size : 1;
+    // const size_t slackpackets = (slack + (packet_size - 1)) / packet_size;
     SDL_DataQueuePacket *packet;
     SDL_DataQueuePacket *prev = NULL;
-    size_t i;
+    unsigned i;
 
     SDL_assert(queue != NULL);
 

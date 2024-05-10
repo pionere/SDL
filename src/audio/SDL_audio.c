@@ -630,7 +630,7 @@ void SDL_ClearQueuedAudio(SDL_AudioDeviceID devid)
     current_audio.impl.LockDevice(device);
 
     /* Keep up to two packets in the pool to reduce future memory allocation pressure. */
-    SDL_ClearDataQueue(device->buffer_queue, SDL_AUDIOBUFFERQUEUE_PACKETLEN * 2);
+    SDL_ClearDataQueue(device->buffer_queue, 2);
 
     current_audio.impl.UnlockDevice(device);
 }
@@ -1413,7 +1413,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
 
     if (device->spec.callback == NULL) { /* use buffer queueing? */
         /* pool a few packets to start. Enough for two callbacks. */
-        device->buffer_queue = SDL_NewDataQueue(SDL_AUDIOBUFFERQUEUE_PACKETLEN, device->callbackspec.size * 2);
+        device->buffer_queue = SDL_NewDataQueue(device->callbackspec.size, 2);
         if (!device->buffer_queue) {
             close_audio_device(device);
             SDL_SetError("Couldn't create audio buffer queue");

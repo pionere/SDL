@@ -26,9 +26,9 @@
 struct SDL_DataQueue;
 typedef struct SDL_DataQueue SDL_DataQueue;
 
-SDL_DataQueue *SDL_NewDataQueue(const size_t packetlen, const size_t initialslack);
+SDL_DataQueue *SDL_NewDataQueue(const size_t packetlen, const unsigned wantpackets);
 void SDL_FreeDataQueue(SDL_DataQueue *queue);
-void SDL_ClearDataQueue(SDL_DataQueue *queue, const size_t slack);
+void SDL_ClearDataQueue(SDL_DataQueue *queue, const unsigned slackpackets);
 int SDL_WriteToDataQueue(SDL_DataQueue *queue, const void *data, const size_t len);
 size_t SDL_ReadFromDataQueue(SDL_DataQueue *queue, void *buf, const size_t len);
 size_t SDL_PeekIntoDataQueue(SDL_DataQueue *queue, void *buf, const size_t len);
