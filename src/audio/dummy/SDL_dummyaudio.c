@@ -57,7 +57,7 @@ static SDL_bool DUMMYAUDIO_Init(SDL_AudioDriverImpl *impl)
     // impl->PlayDevice = xxx;
     // impl->GetDeviceBuf = xxx;
     impl->CaptureFromDevice = DUMMYAUDIO_CaptureFromDevice;
-    // impl->FlushCapture = xxx;
+    impl->FlushCapture = SDL_AudioDriver_NoOp;
     // impl->CloseDevice = xxx;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;

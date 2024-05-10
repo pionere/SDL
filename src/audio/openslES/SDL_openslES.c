@@ -724,7 +724,7 @@ static SDL_bool openslES_Init(SDL_AudioDriverImpl *impl)
     impl->PlayDevice = openslES_PlayDevice;
     impl->GetDeviceBuf = openslES_GetDeviceBuf;
     impl->CaptureFromDevice = openslES_CaptureFromDevice;
-    // impl->FlushCapture = xxx;
+    impl->FlushCapture = SDL_AudioDriver_NoOp;
     impl->CloseDevice = openslES_CloseDevice;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;

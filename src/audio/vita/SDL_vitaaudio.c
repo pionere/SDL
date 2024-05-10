@@ -201,7 +201,7 @@ static SDL_bool VITAAUD_Init(SDL_AudioDriverImpl *impl)
     impl->PlayDevice = VITAAUD_PlayDevice;
     impl->GetDeviceBuf = VITAAUD_GetDeviceBuf;
     impl->CaptureFromDevice = VITAAUD_CaptureFromDevice;
-    // impl->FlushCapture = xxx;
+    impl->FlushCapture = SDL_AudioDriver_NoOp;
     impl->CloseDevice = VITAAUD_CloseDevice;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;

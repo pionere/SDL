@@ -269,7 +269,7 @@ static SDL_bool N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
     impl->PlayDevice = N3DSAUDIO_PlayDevice;
     impl->GetDeviceBuf = N3DSAUDIO_GetDeviceBuf;
     impl->CaptureFromDevice = N3DSAUDIO_CaptureFromDevice;
-    // impl->FlushCapture = xxx;
+    impl->FlushCapture = SDL_AudioDriver_NoOp;
     impl->CloseDevice = N3DSAUDIO_CloseDevice;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;

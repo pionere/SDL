@@ -234,6 +234,10 @@ static SDL_AudioDevice *get_audio_device(SDL_AudioDeviceID id)
 }
 
 /* stubs for audio drivers that don't need a specific entry point... */
+void SDL_AudioDriver_NoOp(_THIS)
+{ /* no-op. */
+}
+
 static void SDL_AudioDetectDevices_Default(void)
 {
     SDL_AddAudioDevice(SDL_FALSE, DEFAULT_OUTPUT_DEVNAME, NULL, (void *)((size_t)0x1));
@@ -261,15 +265,6 @@ static void SDL_AudioPlayDevice_Default(_THIS)
 static Uint8 *SDL_AudioGetDeviceBuf_Default(_THIS)
 {
     return NULL;
-}
-
-static int SDL_AudioCaptureFromDevice_Default(_THIS, void *buffer, int buflen)
-{
-    return -1; /* just fail immediately. */
-}
-
-static void SDL_AudioFlushCapture_Default(_THIS)
-{ /* no-op. */
 }
 
 static void SDL_AudioCloseDevice_Default(_THIS)
@@ -336,8 +331,6 @@ static void init_current_audio(void)
     FILL_STUB(WaitDevice);
     FILL_STUB(PlayDevice);
     FILL_STUB(GetDeviceBuf);
-    FILL_STUB(CaptureFromDevice);
-    FILL_STUB(FlushCapture);
     FILL_STUB(CloseDevice);
     FILL_STUB(LockDevice);
     FILL_STUB(UnlockDevice);
@@ -1012,7 +1005,8 @@ int SDL_AudioInit(const char *driver_name)
 
     current_audio.name = bootstrap[i]->name;
     current_audio.detectionLock = SDL_CreateMutex();
-    SDL_assert(!current_audio.impl.HasCaptureSupport || current_audio.impl.CaptureFromDevice != SDL_AudioCaptureFromDevice_Default || current_audio.impl.ProvidesOwnCallbackThread);
+    SDL_assert(!current_audio.impl.HasCaptureSupport || current_audio.impl.CaptureFromDevice != NULL || current_audio.impl.ProvidesOwnCallbackThread);
+    SDL_assert(current_audio.impl.CaptureFromDevice == NULL || current_audio.impl.FlushCapture != NULL);
     /* Make sure we have a list of devices available at startup. */
     current_audio.impl.DetectDevices();
 

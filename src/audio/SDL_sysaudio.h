@@ -90,6 +90,8 @@ typedef struct SDL_AudioDriverImpl
     SDL_boolean SupportsNonPow2Samples;
 } SDL_AudioDriverImpl;
 
+void SDL_AudioDriver_NoOp(_THIS);
+
 typedef struct SDL_AudioDeviceItem
 {
     void *handle;

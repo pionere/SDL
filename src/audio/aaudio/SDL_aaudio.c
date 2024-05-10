@@ -413,7 +413,7 @@ static SDL_bool aaudio_Init(SDL_AudioDriverImpl *impl)
     impl->PlayDevice = aaudio_PlayDevice;
     impl->GetDeviceBuf = aaudio_GetDeviceBuf;
     impl->CaptureFromDevice = aaudio_CaptureFromDevice;
-    // impl->FlushCapture = xxx;
+    impl->FlushCapture = SDL_AudioDriver_NoOp;
     impl->CloseDevice = aaudio_CloseDevice;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;
