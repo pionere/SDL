@@ -51,6 +51,16 @@ extern void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle);
    as appropriate so SDL's list of devices is accurate. */
 extern void SDL_OpenedAudioDeviceDisconnected(SDL_AudioDevice *device);
 
+/* Create a new audio-stream with the given parameters.
+   Assumes the parameters are valid (non-zero).
+ */
+extern SDL_AudioStream *SDL_PrivateNewAudioStream(const SDL_AudioFormat src_format,
+                   const Uint8 src_channels,
+                   const int src_rate,
+                   const SDL_AudioFormat dst_format,
+                   const Uint8 dst_channels,
+                   const int dst_rate, const unsigned queue_packet_size);
+
 /* This is the size of a packet when using SDL_QueueAudio(). We allocate
    these as necessary and pool them, under the assumption that we'll
    eventually end up with a handful that keep recycling, meeting whatever

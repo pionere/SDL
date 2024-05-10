@@ -1395,15 +1395,16 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
     device->callbackspec = *obtained;
 
     if (build_stream) {
+        const SDL_AudioSpec *src, *dst;
         if (iscapture) {
-            device->stream = SDL_NewAudioStream(device->spec.format,
-                                                device->spec.channels, device->spec.freq,
-                                                device->callbackspec.format, device->callbackspec.channels, device->callbackspec.freq);
+            src = &device->spec;
+            dst = &device->callbackspec;
         } else {
-            device->stream = SDL_NewAudioStream(device->callbackspec.format, device->callbackspec.channels,
-                                                device->callbackspec.freq, device->spec.format,
-                                                device->spec.channels, device->spec.freq);
+            src = &device->callbackspec;
+            dst = &device->spec;
         }
+        device->stream = SDL_PrivateNewAudioStream(src->format, src->channels, src->freq,
+                                                dst->format, dst->channels, dst->freq, dst->size);
 
         if (!device->stream) {
             close_audio_device(device);

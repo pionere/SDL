@@ -1060,28 +1060,16 @@ static void SDL_CleanupAudioStreamResampler(SDL_AudioStream *stream)
     SDL_free(stream->resampler_state);
 }
 #endif /* !SDL_RESAMPLER_DISABLED */
-SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
+SDL_AudioStream *SDL_PrivateNewAudioStream(const SDL_AudioFormat src_format,
                    const Uint8 src_channels,
                    const int src_rate,
                    const SDL_AudioFormat dst_format,
                    const Uint8 dst_channels,
-                   const int dst_rate)
+                   const int dst_rate, const unsigned queue_packet_size)
 {
     SDL_AudioStream *retval;
 #ifndef SDL_RESAMPLER_DISABLED
     Uint8 pre_resample_channels;
-#endif
-    if (src_channels == 0) {
-        SDL_InvalidParamError("src_channels");
-        return NULL;
-    }
-
-    if (dst_channels == 0) {
-        SDL_InvalidParamError("dst_channels");
-        return NULL;
-    }
-#ifndef SDL_RESAMPLER_DISABLED
-    pre_resample_channels = SDL_min(src_channels, dst_channels);
 #endif
     retval = (SDL_AudioStream *)SDL_calloc(1, sizeof(SDL_AudioStream));
     if (!retval) {
@@ -1096,6 +1084,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
     retval->src_sample_frame_size = (SDL_AUDIO_BITSIZE(src_format) / 8) * src_channels;
     retval->dst_sample_frame_size = (SDL_AUDIO_BITSIZE(dst_format) / 8) * dst_channels;
 #ifndef SDL_RESAMPLER_DISABLED
+    pre_resample_channels = SDL_min(src_channels, dst_channels);
     retval->src_rate = src_rate;
     retval->dst_rate = dst_rate;
     retval->first_run = SDL_TRUE;
@@ -1178,13 +1167,33 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
 #endif /* !SDL_RESAMPLER_DISABLED */
     }
 
-    retval->queue = SDL_NewDataQueue(AUDIO_PACKET_LEN, 2);
+    retval->queue = SDL_NewDataQueue(queue_packet_size, 2);
     if (!retval->queue) {
         SDL_FreeAudioStream(retval);
         return NULL; /* SDL_NewDataQueue should have called SDL_SetError. */
     }
 
     return retval;
+}
+SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
+                   const Uint8 src_channels,
+                   const int src_rate,
+                   const SDL_AudioFormat dst_format,
+                   const Uint8 dst_channels,
+                   const int dst_rate)
+{
+    if (src_channels == 0) {
+        SDL_InvalidParamError("src_channels");
+        return NULL;
+    }
+
+    if (dst_channels == 0) {
+        SDL_InvalidParamError("dst_channels");
+        return NULL;
+    }
+    // TODO: validate the src/dst_format!
+    return SDL_PrivateNewAudioStream(src_format, src_channels, src_rate,
+                   dst_format, dst_channels, dst_rate, AUDIO_PACKET_LEN);
 }
 
 static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, int len, int *maxputbytes)
