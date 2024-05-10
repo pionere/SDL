@@ -293,14 +293,25 @@ static SDL_bool DSP_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = DSP_DetectDevices;
     impl->OpenDevice = DSP_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
     impl->PlayDevice = DSP_PlayDevice;
     impl->GetDeviceBuf = DSP_GetDeviceBuf;
-    impl->CloseDevice = DSP_CloseDevice;
     impl->CaptureFromDevice = DSP_CaptureFromDevice;
     impl->FlushCapture = DSP_FlushCapture;
-
-    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    impl->CloseDevice = DSP_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

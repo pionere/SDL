@@ -394,14 +394,28 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
 /* *INDENT-ON* */ /* clang-format on */
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
+    // impl->PlayDevice = xxx;
+    // impl->GetDeviceBuf = xxx;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
     /* no threads here */
-    impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
-
-    impl->PreventSimultaneousOpens = SDL_TRUE;
+    impl->LockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
+    impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
     impl->ProvidesOwnCallbackThread = SDL_TRUE;
     impl->HasCaptureSupport = capture_available;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;
 }

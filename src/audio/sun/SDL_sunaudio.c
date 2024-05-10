@@ -378,12 +378,25 @@ static SDL_bool SUNAUDIO_Init(SDL_AudioDriverImpl * impl)
     /* Set the function pointers */
     impl->DetectDevices = SUNAUDIO_DetectDevices;
     impl->OpenDevice = SUNAUDIO_OpenDevice;
-    impl->PlayDevice = SUNAUDIO_PlayDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = SUNAUDIO_WaitDevice;
+    impl->PlayDevice = SUNAUDIO_PlayDevice;
     impl->GetDeviceBuf = SUNAUDIO_GetDeviceBuf;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = SUNAUDIO_CloseDevice;
-
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    // impl->HasCaptureSupport = SDL_FALSE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
     impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

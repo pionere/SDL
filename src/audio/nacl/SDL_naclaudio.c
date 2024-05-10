@@ -132,16 +132,27 @@ static SDL_bool NACLAUDIO_Init(SDL_AudioDriverImpl * impl)
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = NACLAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
+    // impl->PlayDevice = xxx;
+    // impl->GetDeviceBuf = xxx;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = NACLAUDIO_CloseDevice;
-    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = NACLAUDIO_Deinitialize;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
     impl->ProvidesOwnCallbackThread = SDL_TRUE;
-    /*
-     *    impl->WaitDevice = NACLAUDIO_WaitDevice;
-     *    impl->GetDeviceBuf = NACLAUDIO_GetDeviceBuf;
-     *    impl->PlayDevice = NACLAUDIO_PlayDevice;
-     *    impl->Deinitialize = NACLAUDIO_Deinitialize;
-     */
+    // impl->HasCaptureSupport = SDL_FALSE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;
 }

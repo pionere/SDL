@@ -1347,10 +1347,27 @@ static void COREAUDIO_Deinitialize(void)
 static SDL_bool COREAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = COREAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
+    // impl->PlayDevice = xxx;
+    // impl->GetDeviceBuf = xxx;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = COREAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = COREAUDIO_Deinitialize;
     impl->GetDefaultAudioInfo = COREAUDIO_GetDefaultAudioInfo;
+    /* Set the driver flags */
+    impl->ProvidesOwnCallbackThread = SDL_TRUE;
+    impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    impl->SupportsNonPow2Samples = SDL_TRUE;
 
 #ifdef MACOSX_COREAUDIO
     impl->DetectDevices = COREAUDIO_DetectDevices;
@@ -1358,10 +1375,6 @@ static SDL_bool COREAUDIO_Init(SDL_AudioDriverImpl *impl)
 #else
     impl->PreventSimultaneousOpens = SDL_TRUE;
 #endif
-
-    impl->ProvidesOwnCallbackThread = SDL_TRUE;
-    impl->HasCaptureSupport = SDL_TRUE;
-    impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

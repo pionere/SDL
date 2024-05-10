@@ -150,14 +150,28 @@ static SDL_bool PS2AUDIO_Init(SDL_AudioDriverImpl *impl)
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = PS2AUDIO_OpenDevice;
-    impl->PlayDevice = PS2AUDIO_PlayDevice;
-    impl->WaitDevice = PS2AUDIO_WaitDevice;
-    impl->GetDeviceBuf = PS2AUDIO_GetDeviceBuf;
-    impl->CloseDevice = PS2AUDIO_CloseDevice;
     impl->ThreadInit = PS2AUDIO_ThreadInit;
+    // impl->ThreadDeinit = xxx;
+    impl->WaitDevice = PS2AUDIO_WaitDevice;
+    impl->PlayDevice = PS2AUDIO_PlayDevice;
+    impl->GetDeviceBuf = PS2AUDIO_GetDeviceBuf;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
+    impl->CloseDevice = PS2AUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = PS2AUDIO_Deinitialize;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    // impl->HasCaptureSupport = SDL_FALSE;
     impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
+
     return SDL_TRUE; /* this audio target is available. */
 }
 // "PS2 audio driver"

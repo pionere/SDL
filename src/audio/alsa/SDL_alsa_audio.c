@@ -979,15 +979,24 @@ static SDL_bool ALSA_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = ALSA_DetectDevices;
     impl->OpenDevice = ALSA_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = ALSA_WaitDevice;
-    impl->GetDeviceBuf = ALSA_GetDeviceBuf;
     impl->PlayDevice = ALSA_PlayDevice;
-    impl->CloseDevice = ALSA_CloseDevice;
-    impl->Deinitialize = ALSA_Deinitialize;
+    impl->GetDeviceBuf = ALSA_GetDeviceBuf;
     impl->CaptureFromDevice = ALSA_CaptureFromDevice;
     impl->FlushCapture = ALSA_FlushCapture;
-
+    impl->CloseDevice = ALSA_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    impl->Deinitialize = ALSA_Deinitialize;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
     impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */

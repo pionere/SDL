@@ -164,17 +164,26 @@ static int DISKAUDIO_OpenDevice(_THIS, const char *devname)
 static SDL_bool DISKAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = DISKAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = DISKAUDIO_WaitDevice;
     impl->PlayDevice = DISKAUDIO_PlayDevice;
     impl->GetDeviceBuf = DISKAUDIO_GetDeviceBuf;
     impl->CaptureFromDevice = DISKAUDIO_CaptureFromDevice;
     impl->FlushCapture = DISKAUDIO_FlushCapture;
-
     impl->CloseDevice = DISKAUDIO_CloseDevice;
-
-    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
     impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */

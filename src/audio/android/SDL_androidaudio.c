@@ -118,16 +118,25 @@ static SDL_bool ANDROIDAUDIO_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = Android_DetectDevices;
     impl->OpenDevice = ANDROIDAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
     impl->PlayDevice = ANDROIDAUDIO_PlayDevice;
     impl->GetDeviceBuf = ANDROIDAUDIO_GetDeviceBuf;
-    impl->CloseDevice = ANDROIDAUDIO_CloseDevice;
     impl->CaptureFromDevice = ANDROIDAUDIO_CaptureFromDevice;
     impl->FlushCapture = ANDROIDAUDIO_FlushCapture;
-    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
-
-    /* and the capabilities */
+    impl->CloseDevice = ANDROIDAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
     impl->PreventSimultaneousOpens = SDL_TRUE;
+    impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

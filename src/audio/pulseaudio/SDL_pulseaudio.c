@@ -970,16 +970,24 @@ static SDL_bool PULSEAUDIO_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = PULSEAUDIO_DetectDevices;
     impl->OpenDevice = PULSEAUDIO_OpenDevice;
-    impl->PlayDevice = PULSEAUDIO_PlayDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = PULSEAUDIO_WaitDevice;
+    impl->PlayDevice = PULSEAUDIO_PlayDevice;
     impl->GetDeviceBuf = PULSEAUDIO_GetDeviceBuf;
-    impl->CloseDevice = PULSEAUDIO_CloseDevice;
-    impl->Deinitialize = PULSEAUDIO_Deinitialize;
     impl->CaptureFromDevice = PULSEAUDIO_CaptureFromDevice;
     impl->FlushCapture = PULSEAUDIO_FlushCapture;
+    impl->CloseDevice = PULSEAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    impl->Deinitialize = PULSEAUDIO_Deinitialize;
     impl->GetDefaultAudioInfo = PULSEAUDIO_GetDefaultAudioInfo;
-
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
     impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */

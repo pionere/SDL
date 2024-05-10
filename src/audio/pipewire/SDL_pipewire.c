@@ -1390,12 +1390,24 @@ static SDL_bool PIPEWIRE_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = PIPEWIRE_DetectDevices;
     impl->OpenDevice = PIPEWIRE_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
+    // impl->PlayDevice = xxx;
+    // impl->GetDeviceBuf = xxx;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = PIPEWIRE_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = PIPEWIRE_Deinitialize;
     impl->GetDefaultAudioInfo = PIPEWIRE_GetDefaultAudioInfo;
-
-    impl->HasCaptureSupport = SDL_TRUE;
+    /* Set the driver flags */
     impl->ProvidesOwnCallbackThread = SDL_TRUE;
+    impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
     impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE;

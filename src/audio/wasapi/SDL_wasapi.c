@@ -590,18 +590,25 @@ static SDL_bool WASAPI_Init(SDL_AudioDriverImpl *impl)
 
     /* Set the function pointers */
     impl->DetectDevices = WASAPI_DetectDevices;
+    impl->OpenDevice = WASAPI_OpenDevice;
     impl->ThreadInit = WASAPI_ThreadInit;
     impl->ThreadDeinit = WASAPI_ThreadDeinit;
-    impl->OpenDevice = WASAPI_OpenDevice;
-    impl->PlayDevice = WASAPI_PlayDevice;
     impl->WaitDevice = WASAPI_WaitDevice;
+    impl->PlayDevice = WASAPI_PlayDevice;
     impl->GetDeviceBuf = WASAPI_GetDeviceBuf;
     impl->CaptureFromDevice = WASAPI_CaptureFromDevice;
     impl->FlushCapture = WASAPI_FlushCapture;
     impl->CloseDevice = WASAPI_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = WASAPI_Deinitialize;
     impl->GetDefaultAudioInfo = WASAPI_GetDefaultAudioInfo;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
     impl->SupportsNonPow2Samples = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */

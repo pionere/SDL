@@ -716,18 +716,27 @@ static SDL_bool openslES_Init(SDL_AudioDriverImpl *impl)
     LOGI("openslES_Init() - set pointers");
 
     /* Set the function pointers */
-    /* impl->DetectDevices = openslES_DetectDevices; */
+    // impl->DetectDevices = openslES_DetectDevices;
     impl->OpenDevice = openslES_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = openslES_WaitDevice;
     impl->PlayDevice = openslES_PlayDevice;
     impl->GetDeviceBuf = openslES_GetDeviceBuf;
     impl->CaptureFromDevice = openslES_CaptureFromDevice;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = openslES_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = openslES_DestroyEngine;
-
-    /* and the capabilities */
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
     impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     LOGI("openslES_Init() - success");
 

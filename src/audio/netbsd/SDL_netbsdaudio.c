@@ -313,14 +313,25 @@ static SDL_bool NETBSDAUDIO_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     impl->DetectDevices = NETBSDAUDIO_DetectDevices;
     impl->OpenDevice = NETBSDAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
     impl->PlayDevice = NETBSDAUDIO_PlayDevice;
     impl->GetDeviceBuf = NETBSDAUDIO_GetDeviceBuf;
-    impl->CloseDevice = NETBSDAUDIO_CloseDevice;
     impl->CaptureFromDevice = NETBSDAUDIO_CaptureFromDevice;
     impl->FlushCapture = NETBSDAUDIO_FlushCapture;
-
+    impl->CloseDevice = NETBSDAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
     impl->AllowsArbitraryDeviceNames = SDL_TRUE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

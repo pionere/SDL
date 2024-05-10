@@ -193,18 +193,27 @@ static void VITAAUD_ThreadInit(_THIS)
 static SDL_bool VITAAUD_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = VITAAUD_OpenDevice;
-    impl->PlayDevice = VITAAUD_PlayDevice;
-    impl->WaitDevice = VITAAUD_WaitDevice;
-    impl->GetDeviceBuf = VITAAUD_GetDeviceBuf;
-    impl->CloseDevice = VITAAUD_CloseDevice;
     impl->ThreadInit = VITAAUD_ThreadInit;
-
+    // impl->ThreadDeinit = xxx;
+    impl->WaitDevice = VITAAUD_WaitDevice;
+    impl->PlayDevice = VITAAUD_PlayDevice;
+    impl->GetDeviceBuf = VITAAUD_GetDeviceBuf;
     impl->CaptureFromDevice = VITAAUD_CaptureFromDevice;
-
-    /* and the capabilities */
+    // impl->FlushCapture = xxx;
+    impl->CloseDevice = VITAAUD_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
     impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceName = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

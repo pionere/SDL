@@ -582,19 +582,30 @@ static SDL_bool QSA_Init(SDL_AudioDriverImpl * impl)
     qsa_playback_devices = 0;
     qsa_capture_devices = 0;
 
-    /* Set function pointers                                     */
+    /* Set the function pointers                                 */
     /* DeviceLock and DeviceUnlock functions are used default,   */
     /* provided by SDL, which uses pthread_mutex for lock/unlock */
     impl->DetectDevices = QSA_DetectDevices;
     impl->OpenDevice = QSA_OpenDevice;
     impl->ThreadInit = QSA_ThreadInit;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = QSA_WaitDevice;
     impl->PlayDevice = QSA_PlayDevice;
     impl->GetDeviceBuf = QSA_GetDeviceBuf;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = QSA_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = QSA_Deinitialize;
-
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

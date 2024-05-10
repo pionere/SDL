@@ -272,13 +272,27 @@ static SDL_bool SDL_FS_Init(SDL_AudioDriverImpl * impl)
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = SDL_FS_OpenDevice;
-    impl->PlayDevice = SDL_FS_PlayDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = SDL_FS_WaitDevice;
+    impl->PlayDevice = SDL_FS_PlayDevice;
     impl->GetDeviceBuf = SDL_FS_GetDeviceBuf;
+    // impl->CaptureFromDevice = xxx;
+    // impl->FlushCapture = xxx;
     impl->CloseDevice = SDL_FS_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = SDL_FS_Deinitialize;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    // impl->HasCaptureSupport = SDL_FALSE;
     impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

@@ -409,15 +409,27 @@ static SDL_bool JACK_Init(SDL_AudioDriverImpl *impl)
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = JACK_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = JACK_WaitDevice;
+    // impl->PlayDevice = xxx;
     impl->GetDeviceBuf = JACK_GetDeviceBuf;
-    impl->CloseDevice = JACK_CloseDevice;
-    impl->Deinitialize = JACK_Deinitialize;
     impl->CaptureFromDevice = JACK_CaptureFromDevice;
     impl->FlushCapture = JACK_FlushCapture;
-    impl->PreventSimultaneousOpens = SDL_TRUE;
+    impl->CloseDevice = JACK_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    impl->Deinitialize = JACK_Deinitialize;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

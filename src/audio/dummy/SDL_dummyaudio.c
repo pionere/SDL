@@ -49,11 +49,27 @@ static int DUMMYAUDIO_CaptureFromDevice(_THIS, void *buffer, int buflen)
 static SDL_bool DUMMYAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = DUMMYAUDIO_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    // impl->WaitDevice = xxx;
+    // impl->PlayDevice = xxx;
+    // impl->GetDeviceBuf = xxx;
     impl->CaptureFromDevice = DUMMYAUDIO_CaptureFromDevice;
-
-    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->FlushCapture = xxx;
+    // impl->CloseDevice = xxx;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

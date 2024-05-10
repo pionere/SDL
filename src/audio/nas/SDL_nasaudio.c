@@ -413,17 +413,27 @@ static SDL_bool NAS_Init(SDL_AudioDriverImpl * impl)
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = NAS_OpenDevice;
-    impl->PlayDevice = NAS_PlayDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = NAS_WaitDevice;
+    impl->PlayDevice = NAS_PlayDevice;
     impl->GetDeviceBuf = NAS_GetDeviceBuf;
     impl->CaptureFromDevice = NAS_CaptureFromDevice;
     impl->FlushCapture = NAS_FlushCapture;
     impl->CloseDevice = NAS_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = NAS_Deinitialize;
-
-    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

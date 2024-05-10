@@ -423,14 +423,25 @@ static SDL_bool WINMM_Init(SDL_AudioDriverImpl * impl)
     /* Set the function pointers */
     impl->DetectDevices = WINMM_DetectDevices;
     impl->OpenDevice = WINMM_OpenDevice;
-    impl->PlayDevice = WINMM_PlayDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = WINMM_WaitDevice;
+    impl->PlayDevice = WINMM_PlayDevice;
     impl->GetDeviceBuf = WINMM_GetDeviceBuf;
     impl->CaptureFromDevice = WINMM_CaptureFromDevice;
     impl->FlushCapture = WINMM_FlushCapture;
     impl->CloseDevice = WINMM_CloseDevice;
-
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;   /* this audio target is available. */
 }

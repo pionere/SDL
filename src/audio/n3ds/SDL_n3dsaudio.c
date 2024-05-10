@@ -261,17 +261,29 @@ static void N3DSAUDIO_ThreadInit(_THIS)
 static SDL_bool N3DSAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = N3DSAUDIO_OpenDevice;
-    impl->PlayDevice = N3DSAUDIO_PlayDevice;
-    impl->WaitDevice = N3DSAUDIO_WaitDevice;
-    impl->GetDeviceBuf = N3DSAUDIO_GetDeviceBuf;
-    impl->CloseDevice = N3DSAUDIO_CloseDevice;
     impl->ThreadInit = N3DSAUDIO_ThreadInit;
-    impl->PreventSimultaneousOpens = SDL_TRUE;
-
+    // impl->ThreadDeinit = xxx;
+    impl->WaitDevice = N3DSAUDIO_WaitDevice;
+    impl->PlayDevice = N3DSAUDIO_PlayDevice;
+    impl->GetDeviceBuf = N3DSAUDIO_GetDeviceBuf;
+    impl->CaptureFromDevice = N3DSAUDIO_CaptureFromDevice;
+    // impl->FlushCapture = xxx;
+    impl->CloseDevice = N3DSAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = xxx;
     /* Should be possible, but micInit would fail */
     impl->HasCaptureSupport = SDL_FALSE;
-    impl->CaptureFromDevice = N3DSAUDIO_CaptureFromDevice;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
 
     return SDL_TRUE; /* this audio target is available. */
 }

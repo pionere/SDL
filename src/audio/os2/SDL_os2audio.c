@@ -577,14 +577,26 @@ static SDL_bool OS2_Init(SDL_AudioDriverImpl * impl)
 {
     /* Set the function pointers */
     impl->DetectDevices = OS2_DetectDevices;
-    impl->OpenDevice    = OS2_OpenDevice;
-    impl->PlayDevice    = OS2_PlayDevice;
-    impl->WaitDevice    = OS2_WaitDevice;
-    impl->GetDeviceBuf  = OS2_GetDeviceBuf;
-    impl->CloseDevice   = OS2_CloseDevice;
-    impl->CaptureFromDevice = OS2_CaptureFromDevice ;
+    impl->OpenDevice = OS2_OpenDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
+    impl->WaitDevice = OS2_WaitDevice;
+    impl->PlayDevice = OS2_PlayDevice;
+    impl->GetDeviceBuf = OS2_GetDeviceBuf;
+    impl->CaptureFromDevice = OS2_CaptureFromDevice;
     impl->FlushCapture = OS2_FlushCapture;
+    impl->CloseDevice = OS2_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
     impl->HasCaptureSupport = SDL_TRUE;
+    // impl->PreventSimultaneousOpens = SDL_FALSE;
+    // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE; /* this audio target is available. */
 }
