@@ -1070,6 +1070,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
     SDL_AudioStream *retval;
 #ifndef SDL_RESAMPLER_DISABLED
     Uint8 pre_resample_channels;
+#endif
     if (src_channels == 0) {
         SDL_InvalidParamError("src_channels");
         return NULL;
@@ -1079,6 +1080,7 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         SDL_InvalidParamError("dst_channels");
         return NULL;
     }
+#ifndef SDL_RESAMPLER_DISABLED
     pre_resample_channels = SDL_min(src_channels, dst_channels);
 #endif
     retval = (SDL_AudioStream *)SDL_calloc(1, sizeof(SDL_AudioStream));
