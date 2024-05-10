@@ -246,21 +246,10 @@ static void SDL_AudioDetectDevices_Default(void)
     }
 }
 
-static void SDL_AudioThreadInit_Default(_THIS)
-{ /* no-op. */
-}
-
-static void SDL_AudioThreadDeinit_Default(_THIS)
-{ /* no-op. */
-}
-
-static void SDL_AudioWaitDevice_Default(_THIS)
-{ /* no-op. */
-}
-
-static void SDL_AudioPlayDevice_Default(_THIS)
-{ /* no-op. */
-}
+#define SDL_AudioThreadInit_Default SDL_AudioDriver_NoOp
+#define SDL_AudioThreadDeinit_Default SDL_AudioDriver_NoOp
+#define SDL_AudioWaitDevice_Default SDL_AudioDriver_NoOp
+#define SDL_AudioPlayDevice_Default SDL_AudioDriver_NoOp
 
 static Uint8 *SDL_AudioGetDeviceBuf_Default(_THIS)
 {
