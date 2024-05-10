@@ -602,7 +602,7 @@ static SDL_bool QSA_Init(SDL_AudioDriverImpl * impl)
     // impl->GetDefaultAudioInfo = xxx;
     /* Set the driver flags */
     // impl->ProvidesOwnCallbackThread = SDL_FALSE;
-    impl->HasCaptureSupport = SDL_TRUE;
+    // impl->HasCaptureSupport = SDL_TRUE;
     // impl->PreventSimultaneousOpens = SDL_FALSE;
     // impl->AllowsArbitraryDeviceNames = SDL_FALSE;
     // impl->SupportsNonPow2Samples = SDL_FALSE;

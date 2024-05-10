@@ -1012,7 +1012,7 @@ int SDL_AudioInit(const char *driver_name)
 
     current_audio.name = bootstrap[i]->name;
     current_audio.detectionLock = SDL_CreateMutex();
-
+    SDL_assert(!current_audio.impl.HasCaptureSupport || current_audio.impl.CaptureFromDevice != SDL_AudioCaptureFromDevice_Default || current_audio.impl.ProvidesOwnCallbackThread);
     /* Make sure we have a list of devices available at startup. */
     current_audio.impl.DetectDevices();
 
