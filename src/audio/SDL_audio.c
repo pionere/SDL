@@ -1398,10 +1398,10 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
         if (iscapture) {
             device->stream = SDL_NewAudioStream(device->spec.format,
                                                 device->spec.channels, device->spec.freq,
-                                                obtained->format, obtained->channels, obtained->freq);
+                                                device->callbackspec.format, device->callbackspec.channels, device->callbackspec.freq);
         } else {
-            device->stream = SDL_NewAudioStream(obtained->format, obtained->channels,
-                                                obtained->freq, device->spec.format,
+            device->stream = SDL_NewAudioStream(device->callbackspec.format, device->callbackspec.channels,
+                                                device->callbackspec.freq, device->spec.format,
                                                 device->spec.channels, device->spec.freq);
         }
 
@@ -1413,7 +1413,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
 
     if (device->spec.callback == NULL) { /* use buffer queueing? */
         /* pool a few packets to start. Enough for two callbacks. */
-        device->buffer_queue = SDL_NewDataQueue(SDL_AUDIOBUFFERQUEUE_PACKETLEN, obtained->size * 2);
+        device->buffer_queue = SDL_NewDataQueue(SDL_AUDIOBUFFERQUEUE_PACKETLEN, device->callbackspec.size * 2);
         if (!device->buffer_queue) {
             close_audio_device(device);
             SDL_SetError("Couldn't create audio buffer queue");
