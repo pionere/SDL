@@ -30,7 +30,7 @@ Major (meaningful) changes:
 
 - rework the handling of the audio-singleton ()
  1. get rid of AudioBootStrap.demand_only (70120e9beabe2f562ac2dc8e1a9d48e48b6152c4)
- 2. general code cleanup (1fe0f74562f4331f5b9e24b06ab2b8805a237727 + 542ff64cb0fc5fa713c6974c2e39cb615710c8e3 + 05fffed04ff2cfe6a089ac759f1b003ba1c6357d + 0a0d98346674a06c87e50794160bcb9672e89a43 + 8f53f13164115f1402cf54eb5f599075f7d7a6dc + 04bee0944566756a72a4b5800e4f92004ff7b4a6 + dc03ce95815c7766f05aeb5fc2d37e3b73f28a1a + 8387cc6f32125c2f40df5cbcfb4dfddcd77e121e + 38ea9b5ff639eacf163ec95eff2946045cbb9dc2 + 739de8ea2eeb479b80b3163da5eadcff59629377 + a25736cb35132337ae3d4fdf6af33ff402718f21 + ad1f6239fda0d5b679b67eea23eafc633274c52f + 16e4fb570b733c5b461583bcec3e8592e77f6a61 + 163c19625e38cb24c1ab6fff30043154d7519b34 + 241d3f52a30b8b5a1680c2c9b772675dbb782fba + b6f5e1dd0fd70d50879e834ca62b35587822e00d + 3988a1a211c6459f149868a3182df1e9d428f4fc + 388044c0e83242c12402ab713665d3ca047164ce + ef3b333fa20a5c99a23ad45a53783f0dce810414 + 5ee822a593f443b345a1f434f5c341de6694fe09)
+ 2. general code cleanup (1fe0f74562f4331f5b9e24b06ab2b8805a237727 + 542ff64cb0fc5fa713c6974c2e39cb615710c8e3 + 05fffed04ff2cfe6a089ac759f1b003ba1c6357d + 0a0d98346674a06c87e50794160bcb9672e89a43 + 8f53f13164115f1402cf54eb5f599075f7d7a6dc + 04bee0944566756a72a4b5800e4f92004ff7b4a6 + dc03ce95815c7766f05aeb5fc2d37e3b73f28a1a + 8387cc6f32125c2f40df5cbcfb4dfddcd77e121e + 38ea9b5ff639eacf163ec95eff2946045cbb9dc2 + 739de8ea2eeb479b80b3163da5eadcff59629377 + a25736cb35132337ae3d4fdf6af33ff402718f21 + ad1f6239fda0d5b679b67eea23eafc633274c52f + 16e4fb570b733c5b461583bcec3e8592e77f6a61 + 163c19625e38cb24c1ab6fff30043154d7519b34 + 241d3f52a30b8b5a1680c2c9b772675dbb782fba + b6f5e1dd0fd70d50879e834ca62b35587822e00d + 3988a1a211c6459f149868a3182df1e9d428f4fc + 388044c0e83242c12402ab713665d3ca047164ce + ef3b333fa20a5c99a23ad45a53783f0dce810414 + 5ee822a593f443b345a1f434f5c341de6694fe09 + f0e653dd891d4a4ba9d97d2d3c02f6eb98beb878 + 8cfe6de82b03b7a35e4f7773859b8c10adb41f2d + 8adbf039188f6aa84e19aad0957e981e8b25dbed + 9a0e617a7722defc39500d916aa67354e859a570)
  3. bypass checks internally (98aa786f9f339d43dbda257ecbd82f12a29dd939 + 6bceb08d3618669d1bcc51055dff1301b62e19bd)
  4. improve the handling of SDL_AudioDevice.buffer_queue (b207c359ad3140ee3f74a607c6dd226f7afb0b7e)
  5. improve the handling of the failure of SDL_AudioStreamPut (14a94175e753d73eac716a398028687ce4633909 + c6377191c22498fa75f75625d486d8d654086d78)
@@ -51,6 +51,9 @@ Major (meaningful) changes:
  20. optimize the resamplers (80c9e43787728f6423afbc5691bb939409506348 + f10629e24ba7ef6da1d7145c742865fff5403a2b + 488f0c1f39a05807306e85ce8e11654243a4317c + 2898316e9d843267c707ad9ea141c57ea846e638 + 17bd4fe8308ca67285bfdff17651815659298175 + 3b06f974aa25839399dbeb712ac07f4cb186f53d + 9d2c186d1b501a604be1374fc69828cf9f614af3 + 806cd693f42e2961f040cfc0277cee57b1c1585c + 30aca2268acf0ae94faec6130991cc2d52cb478e + 641dc73152c412eef10ef6c5eb42b20e94dae841 + 866e45b4d97af94621dfbacd5c7e4a3096adb07e + 18bd73a3e361a7b1daa7c13629f0f5d6283f8f9f + 18fcb11ee9bb879606f025c189438b210a6e5c79 + 047db05bba1d502e833d68e14468f8093c077041 + ca382e76fdfbf5bb2a41ebbe712c7b955087b159 + f2a3f9b41e9c38d0abc67d2d5c284a9725b61ee2 + 5d5d674067b81b4923602267f23df390adc7bc45 + c5263499fc80d37eb44b9656a06c8f4ea06bba1c)
  21. optimize the audio converters (df22b90b4521f898a9107a6c2f5debce3e38c985 + 7fc5fbfa51bacca42e737dca75a2ce1690c93831 + 709acef17a464058038038894bfaebd46dcbb1d1 + 9f522ed65ce412b88a1ad3b125684a0af1728a17)
  22. fix overshoot in the resamplers (8f991e36d6d1e9edb984ff2e6145df610b532651)
+ 23. optimize data-queues (0228cccb33756ed84b4bc98c6b2562b0e9276833 + (fee69e3b8c300ec7fd94a8db4e445d8fb59aceca + 9f2ac95d6e18e923b04f9e94a940d7b4160829c4) + 6e23ff5f0d0a4699e7f58cc8388d66760e4d0fab)
+ 24. improve the latency of audio-playback in case of resampling is needed (bbc5cf2c97fe6a32425db48cc15a6e3115aefb6c + 16ffc270273f28037eab10e4f210aa6f34c2ded3)
+ 25. complete the audio-driver interfaces (037355754f396dbd82fc10f0faf70cc1f287fd8b)
 
 - rework the handling of the video-singleton (5a92985b75c415e241453f4fc7b3b40374555d73 + 093c642b8ca6a3a161ae107d5b4e4941f283af8a + 34a80f9924d205fcd14b5d02e9203523c45f7db3 + 59f1facb533cebe4deb8f69f0aa0b012745883b7 + )
   1. do not select offscreen (or dummy) video if not explicitly requested (51273a4aa8ba6fb7d3685de96fd9387176e5590a)
@@ -359,7 +362,7 @@ Bugfixes:
 - fix hid_get_*_string of (b124eeb9bbbc0d950f7e907f5fd6b6ce7c4e3f45 + 13ded05c2f3271b3c17f133e7fe1d08bbd00f1f0)
 - fix and cleanup the handling of strings in android/hid.cpp (e7af9b68a45ef429018df60a19ab6c2b38d75484)
 - handle out-of-memory in utf8_to_wchar_t (linux/hid.c) (7396598a274cd8ab57349514d2b6256bab57309e)
-- cleanup and fix the handling of SDL_AudioStream (25f5f4f83e181dfb087b88a5bf8374dd0850240a)
+- cleanup and fix the handling of SDL_AudioStream (25f5f4f83e181dfb087b88a5bf8374dd0850240a + f7da902fda7dd9e3acb1d4c2b5b7fd5fc4e04d86)
 - ensure the saved off bytes are flushed even if the staging buffer is not used (8c967b318546c73e4ff6a4af4b8b03cc3034e8bf)
 - reset the resampler at the end of SDL_AudioStreamFlush (451b057773a0a8f0706658f0dcbec4c37ddb32a1)
 - fix the calculation of the workbuffer-length in SDL_AudioStreamPutInternal (da3a7220e33d987a55e5972375e7b715a6c91be9)
@@ -382,3 +385,5 @@ Bugfixes:
 - fix SDL_HashDollar (258bd7b2aa7abe4f601abde55442facb933b380e)
 - fix the includes in SDL_windows_main.c (b8be485ca7f08141018333ed4d1e0212490f106f)
 - fix display-mode selection (49bc22ca191448240a4ec397eaba733c4fef947c)
+- fix (disable) capture on qsa-audio (7e0afc426de649dfea8565146b79c9e049090a49)
+- validate src_rate/dst_rate in SDL_NewAudioStream (9b4c591143af6ec4cabc06f94b20820b719a5104)
