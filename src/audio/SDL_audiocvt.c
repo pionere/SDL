@@ -1205,6 +1205,14 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
                    dst_format, dst_channels, dst_rate, AUDIO_PACKET_LEN);
 }
 
+void SDL_PadAudioStream(SDL_AudioStream *stream)
+{
+    if (stream->resampling_needed) {
+        stream->first_run = SDL_FALSE;
+        // SDL_ResetAudioStreamResampler(stream);
+    }
+}
+
 static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, int len, int *maxputbytes)
 {
     int buflen = len;

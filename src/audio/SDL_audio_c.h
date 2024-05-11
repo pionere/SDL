@@ -71,6 +71,7 @@ extern SDL_AudioStream *SDL_PrivateNewAudioStream(const SDL_AudioFormat src_form
                    const SDL_AudioFormat dst_format,
                    const Uint8 dst_channels,
                    const int dst_rate, const unsigned queue_packet_size);
+extern void SDL_PadAudioStream(SDL_AudioStream *stream);
 
 #endif /* SDL_audio_c_h_ */
 

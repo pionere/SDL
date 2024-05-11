@@ -1416,6 +1416,11 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
             close_audio_device(device);
             return 0;
         }
+        /* Improve latency by adding an artficial padding. Effective only if there was no 
+           rounding when the samples were calculated (samples * device->spec.freq / obtained->freq == device->spec.samples) */
+        if (!iscapture) {
+            SDL_PadAudioStream(device->stream);
+        }
     }
 
     if (device->spec.callback == NULL) { /* use buffer queueing? */
