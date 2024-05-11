@@ -1191,6 +1191,15 @@ SDL_AudioStream *SDL_NewAudioStream(const SDL_AudioFormat src_format,
         SDL_InvalidParamError("dst_channels");
         return NULL;
     }
+    if (src_rate == 0) {
+        SDL_InvalidParamError("src_rate");
+        return NULL;
+    }
+
+    if (dst_rate == 0) {
+        SDL_InvalidParamError("dst_rate");
+        return NULL;
+    }
     // TODO: validate the src/dst_format!
     return SDL_PrivateNewAudioStream(src_format, src_channels, src_rate,
                    dst_format, dst_channels, dst_rate, AUDIO_PACKET_LEN);
