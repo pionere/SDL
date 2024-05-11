@@ -32,7 +32,7 @@ extern SDL_AudioResampler SDL_Resampler_Mono;
 extern SDL_AudioResampler SDL_Resampler_Stereo;
 extern SDL_AudioResampler SDL_Resampler_Generic;
 
-extern int ResamplerPadding(const int inrate, const int outrate);
+extern int ResamplerPadding();
 
 #endif /* SDL_audioresampler_h_ */
 

@@ -537,7 +537,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
     const float *src;
     int paddingsamples, srclen, dstlen;
     float *padding, *lpaddingend, *dst;
-    const int padding_steps = ResamplerPadding(inrate, outrate);
+    const int padding_steps = ResamplerPadding();
     const Uint8 chans = cvt->dst_channels;
     size_t padding_len;
 
@@ -570,7 +570,7 @@ static void SDLCALL SDL_ResampleCVT(SDL_AudioCVT *cvt)
 
     SDL_memmove(cvt->buf, dst, cvt->len_cvt); /* !!! FIXME: remove this if we can get the resampler to work in-place again. */
 #endif
-    const int padding_steps = ResamplerPadding(inrate, outrate);
+    const int padding_steps = ResamplerPadding();
     const Uint8 chans = cvt->dst_channels;
     Uint8 *workbuf, *tmp = NULL;
     int paddingsamples, padding_len, indatalen, dstlen;
@@ -1100,7 +1100,7 @@ SDL_AudioStream *SDL_PrivateNewAudioStream(const SDL_AudioFormat src_format,
         }
     } else {
 #ifndef SDL_RESAMPLER_DISABLED
-        int padding_steps = ResamplerPadding(src_rate, dst_rate);
+        int padding_steps = ResamplerPadding();
         int padding_samples;
 
         retval->resampling_needed = SDL_TRUE;

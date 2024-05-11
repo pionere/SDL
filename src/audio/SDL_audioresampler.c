@@ -782,19 +782,9 @@ void SDL_ChooseAudioResamplers(void)
     SDL_assert(SDL_Resampler_Mono != NULL);
 }
 
-int ResamplerPadding(const int inrate, const int outrate)
+int ResamplerPadding()
 {
-    /* This function uses integer arithmetics to avoid precision loss caused
-     * by large floating point numbers. Sint32 is needed for the large number
-     * multiplication. The integers are assumed to be non-negative so that
-     * division rounds by truncation. */
-    SDL_assert(inrate != outrate);
-
-    if (inrate > outrate) {
-        SDL_assert(inrate <= (SDL_INT_MAX - (outrate - 1)) / RESAMPLER_SAMPLES_PER_ZERO_CROSSING);
-        return (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * inrate + outrate - 1) / outrate;
-    }
-    return RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
+    return RESAMPLER_ZERO_CROSSINGS;
 }
 
 #endif // !SDL_RESAMPLER_DISABLED
