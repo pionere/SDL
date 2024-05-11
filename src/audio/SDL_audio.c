@@ -1248,6 +1248,7 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
     SDL_AudioDevice *device;
     SDL_bool build_stream;
     void *handle = NULL;
+    Uint16 samples;
     int i = 0;
 
     if (!SDL_GetCurrentAudioDriver()) {
@@ -1382,9 +1383,14 @@ static SDL_AudioDeviceID open_audio_device(const char *devname, SDL_bool iscaptu
             build_stream = SDL_TRUE;
         }
     }
-    if (device->spec.samples != obtained->samples) {
+    samples = device->spec.samples;
+    if (obtained->freq != device->spec.freq) {
+        samples = (samples * obtained->freq + device->spec.freq - 1) / device->spec.freq;
+        // SDL_assert(samples * device->spec.freq / obtained->freq =~= device->spec.samples);
+    }
+    if (samples != obtained->samples) {
         if (allowed_changes & SDL_AUDIO_ALLOW_SAMPLES_CHANGE) {
-            obtained->samples = device->spec.samples;
+            obtained->samples = samples;
         } else {
             build_stream = SDL_TRUE;
         }
