@@ -93,15 +93,16 @@ void WASAPI_PlatformThreadInit(_THIS)
 
 void WASAPI_PlatformThreadDeinit(_THIS)
 {
+    SDL_PrivateAudioData *audiodata = this->hidden;
     /* Set this thread back to normal priority. */
-    if (this->hidden->task && pAvRevertMmThreadCharacteristics) {
-        pAvRevertMmThreadCharacteristics(this->hidden->task);
-        this->hidden->task = NULL;
+    if (audiodata->task && pAvRevertMmThreadCharacteristics) {
+        pAvRevertMmThreadCharacteristics(audiodata->task);
+        audiodata->task = NULL;
     }
 
-    if (this->hidden->coinitialized) {
+    if (audiodata->coinitialized) {
         WIN_CoUninitialize();
-        this->hidden->coinitialized = SDL_FALSE;
+        audiodata->coinitialized = SDL_FALSE;
     }
 }
 

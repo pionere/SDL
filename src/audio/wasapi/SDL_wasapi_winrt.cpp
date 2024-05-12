@@ -321,11 +321,7 @@ int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
         return SDL_SetError("Failed to query WASAPI client interface");
     }
 
-    if (WASAPI_PrepDevice(_this, isrecovery) == -1) {
-        return -1;
-    }
-
-    return 0;
+    return WASAPI_PrepDevice(_this, isrecovery);
 }
 
 void WASAPI_PlatformThreadInit(_THIS)
@@ -335,7 +331,7 @@ void WASAPI_PlatformThreadInit(_THIS)
 
 void WASAPI_PlatformThreadDeinit(_THIS)
 {
-    // !!! FIXME: set this thread to "Pro Audio" priority.
+    // !!! FIXME: Set this thread back to normal priority.
 }
 
 /* Everything below was copied from SDL_wasapi.c, before it got moved to SDL_immdevice.c! */

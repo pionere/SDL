@@ -263,6 +263,7 @@ static int WASAPI_CaptureFromDevice(_THIS, void *buffer, int buflen)
             const int cpy = SDL_min(buflen, total);
             const int leftover = total - cpy;
             const SDL_bool silent = (flags & AUDCLNT_BUFFERFLAGS_SILENT) ? SDL_TRUE : SDL_FALSE;
+            int retval;
 
             if (silent) {
                 SDL_memset(buffer, this->spec.silence, cpy);
@@ -276,8 +277,9 @@ static int WASAPI_CaptureFromDevice(_THIS, void *buffer, int buflen)
                     SDL_memset(ptr, this->spec.silence, leftover); /* I guess this is safe? */
                 }
 
-                if (SDL_AudioStreamPut(stream, ptr, leftover) == -1) {
-                    return -1; /* uhoh, out of memory, etc. Kill device.  :( */
+                retval = SDL_AudioStreamPut(stream, ptr, leftover);
+                if (retval < 0) {
+                    return retval; /* uhoh, out of memory, etc. Kill device.  :( */
                 }
             }
 
@@ -317,40 +319,41 @@ static void WASAPI_FlushCapture(_THIS)
 
 static void ReleaseWasapiDevice(_THIS)
 {
-    if (this->hidden->client) {
-        IAudioClient_Stop(this->hidden->client);
-        IAudioClient_Release(this->hidden->client);
-        this->hidden->client = NULL;
+    SDL_PrivateAudioData *audiodata = this->hidden;
+    if (audiodata->client) {
+        IAudioClient_Stop(audiodata->client);
+        IAudioClient_Release(audiodata->client);
+        audiodata->client = NULL;
     }
 
-    if (this->hidden->render) {
-        IAudioRenderClient_Release(this->hidden->render);
-        this->hidden->render = NULL;
+    if (audiodata->render) {
+        IAudioRenderClient_Release(audiodata->render);
+        audiodata->render = NULL;
     }
 
-    if (this->hidden->capture) {
-        IAudioCaptureClient_Release(this->hidden->capture);
-        this->hidden->capture = NULL;
+    if (audiodata->capture) {
+        IAudioCaptureClient_Release(audiodata->capture);
+        audiodata->capture = NULL;
     }
 
-    if (this->hidden->waveformat) {
-        CoTaskMemFree(this->hidden->waveformat);
-        this->hidden->waveformat = NULL;
+    if (audiodata->waveformat) {
+        CoTaskMemFree(audiodata->waveformat);
+        audiodata->waveformat = NULL;
     }
 
-    if (this->hidden->capturestream) {
-        SDL_FreeAudioStream(this->hidden->capturestream);
-        this->hidden->capturestream = NULL;
+    if (audiodata->capturestream) {
+        SDL_FreeAudioStream(audiodata->capturestream);
+        audiodata->capturestream = NULL;
     }
 #if defined(__WINRT__)
-    if (this->hidden->activation_handler) {
-        WASAPI_PlatformDeleteActivationHandler(this->hidden->activation_handler);
-        this->hidden->activation_handler = NULL;
+    if (audiodata->activation_handler) {
+        WASAPI_PlatformDeleteActivationHandler(audiodata->activation_handler);
+        audiodata->activation_handler = NULL;
     }
 #endif
-    if (this->hidden->event) {
-        CloseHandle(this->hidden->event);
-        this->hidden->event = NULL;
+    if (audiodata->event) {
+        CloseHandle(audiodata->event);
+        audiodata->event = NULL;
     }
 }
 
@@ -532,7 +535,7 @@ static int WASAPI_OpenDevice(_THIS, const char *devname)
     LPCWSTR devid = (LPCWSTR)this->handle;
 
     /* Initialize all variables that we clean on shutdown */
-    this->hidden = (struct SDL_PrivateAudioData *) SDL_calloc(1, sizeof(*this->hidden));
+    this->hidden = (SDL_PrivateAudioData *) SDL_calloc(1, sizeof(*this->hidden));
     if (!this->hidden) {
         return SDL_OutOfMemory();
     }

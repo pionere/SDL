@@ -36,7 +36,7 @@ extern "C" {
 #define _THIS SDL_AudioDevice *this
 #endif
 
-struct SDL_PrivateAudioData
+typedef struct SDL_PrivateAudioData
 {
     SDL_atomic_t refcount;
     WCHAR *devid;
@@ -55,7 +55,7 @@ struct SDL_PrivateAudioData
     void *activation_handler;
     SDL_atomic_t just_activated;
 #endif
-};
+} SDL_PrivateAudioData;
 
 /* win32 and winrt implementations call into these. */
 int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream);
