@@ -52,8 +52,10 @@ struct SDL_PrivateAudioData
     int framesize;
     int default_device_generation;
     SDL_bool device_lost;
+#if defined(__WINRT__)
     void *activation_handler;
     SDL_atomic_t just_activated;
+#endif
 };
 
 /* win32 and winrt implementations call into these. */

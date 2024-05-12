@@ -342,12 +342,12 @@ static void ReleaseWasapiDevice(_THIS)
         SDL_FreeAudioStream(this->hidden->capturestream);
         this->hidden->capturestream = NULL;
     }
-
+#if defined(__WINRT__)
     if (this->hidden->activation_handler) {
         WASAPI_PlatformDeleteActivationHandler(this->hidden->activation_handler);
         this->hidden->activation_handler = NULL;
     }
-
+#endif
     if (this->hidden->event) {
         CloseHandle(this->hidden->event);
         this->hidden->event = NULL;
