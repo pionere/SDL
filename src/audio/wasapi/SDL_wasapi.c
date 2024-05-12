@@ -475,9 +475,8 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     /* Match the callback size to the period size to cut down on the number of
        interrupts waited for in each call to WaitDevice */
     {
-        const float period_millis = default_period / 10000.0f;
-        const float period_frames = period_millis * this->spec.freq / 1000.0f;
-        this->spec.samples = (Uint16)SDL_ceilf(period_frames);
+        const Uint64 period_length = (Uint64)default_period * this->spec.freq;
+        this->spec.samples = (period_length + 10000 * 1000 - 1) / (10000 * 1000);
     }
 
     /* regardless of what we calculated for the period size, clamp it to the expected hardware buffer size. */
