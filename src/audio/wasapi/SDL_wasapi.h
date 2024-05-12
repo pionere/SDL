@@ -49,7 +49,6 @@ struct SDL_PrivateAudioData
     HANDLE task;
     SDL_threadID open_threadid;
     SDL_bool coinitialized;
-    int framesize;
     int default_device_generation;
     SDL_bool device_lost;
 #if defined(__WINRT__)

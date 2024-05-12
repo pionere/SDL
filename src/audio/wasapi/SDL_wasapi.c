@@ -259,7 +259,7 @@ static int WASAPI_CaptureFromDevice(_THIS, void *buffer, int buflen)
         if ((ret == AUDCLNT_S_BUFFER_EMPTY) || !frames) {
             WASAPI_WaitDevice(this);
         } else if (ret == S_OK) {
-            const int total = ((int)frames) * this->hidden->framesize;
+            const int total = ((int)frames) * (SDL_AUDIO_BITSIZE(this->spec.format) / 8) * this->spec.channels;
             const int cpy = SDL_min(buflen, total);
             const int leftover = total - cpy;
             const SDL_bool silent = (flags & AUDCLNT_BUFFERFLAGS_SILENT) ? SDL_TRUE : SDL_FALSE;
@@ -487,8 +487,6 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
 
     /* Update the fragment size as size in bytes */
     SDL_CalculateAudioSpec(&this->spec);
-
-    this->hidden->framesize = (SDL_AUDIO_BITSIZE(this->spec.format) / 8) * this->spec.channels;
 
     if (this->iscapture) {
         this->hidden->capturestream = SDL_NewAudioStream(this->spec.format, this->spec.channels, this->spec.freq, this->spec.format, this->spec.channels, this->spec.freq);
