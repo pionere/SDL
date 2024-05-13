@@ -106,7 +106,7 @@ void WASAPI_PlatformThreadDeinit(_THIS)
     }
 }
 
-int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
+int WASAPI_ActivateDevice(_THIS)
 {
     IMMDevice *device = NULL;
     HRESULT ret;
@@ -127,7 +127,7 @@ int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
 
     SDL_assert(this->hidden->client != NULL);
 
-    return WASAPI_PrepDevice(this, isrecovery); /* good to go or not async, fire it right away.. */
+    return WASAPI_PrepDevice(this); /* good to go or not async, fire it right away.. */
 }
 
 void WASAPI_EnumerateEndpoints(void)

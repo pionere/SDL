@@ -137,11 +137,13 @@ static SDL_bool RecoverWasapiDevice(_THIS)
        devices try to reinitialize whatever the new default is, so it's more
        likely to carry on here, but this handles a non-default device that
        simply had its format changed in the Windows Control Panel. */
-    if (WASAPI_ActivateDevice(this, SDL_TRUE) < 0) {
+    {
+    const SDL_AudioSpec oldspec = this->spec;
+    if (WASAPI_ActivateDevice(this) < 0 || UpdateAudioStream(this, &oldspec) < 0) {
         SDL_OpenedAudioDeviceDisconnected(this);
         return SDL_FALSE;
     }
-
+    }
     this->hidden->device_lost = SDL_FALSE;
 
     return SDL_TRUE; /* okay, carry on with new device details! */
@@ -387,7 +389,7 @@ void WASAPI_UnrefDevice(_THIS)
 }
 
 /* This is called once a device is activated, possibly asynchronously. */
-int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
+int WASAPI_PrepDevice(_THIS)
 {
     /* !!! FIXME: we could request an exclusive mode stream, which is lower latency;
        !!!  it will write into the kernel's audio buffer directly instead of
@@ -400,7 +402,6 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
        !!!  wins actually look like. Maybe add a hint to force exclusive mode at
        !!!  some point. To be sure, defaulting to shared mode is the right thing to
        !!!  do in any case. */
-    const SDL_AudioSpec oldspec = this->spec;
     const AUDCLNT_SHAREMODE sharemode = AUDCLNT_SHAREMODE_SHARED;
     UINT32 bufsize = 0; /* this is in sample frames, not samples, not bytes. */
     REFERENCE_TIME default_period = 0;
@@ -521,10 +522,6 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
         }
     }
 
-    if (updatestream) {
-        return UpdateAudioStream(this, &oldspec);
-    }
-
     return 0; /* good to go. */
 }
 
@@ -562,7 +559,7 @@ static int WASAPI_OpenDevice(_THIS, const char *devname)
        an SDL_AudioStream to convert, if necessary, once the activation
        completes. */
 
-    return WASAPI_ActivateDevice(this, SDL_FALSE);
+    return WASAPI_ActivateDevice(this);
 }
 
 static void WASAPI_ThreadInit(_THIS)

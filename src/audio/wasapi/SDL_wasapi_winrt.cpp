@@ -258,7 +258,7 @@ int WASAPI_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int iscapture)
     return SDL_Unsupported();
 }
 
-int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
+int WASAPI_ActivateDevice(_THIS)
 {
     LPCWSTR devid = _this->hidden->devid;
     Platform::String ^ defdevid;
@@ -321,7 +321,7 @@ int WASAPI_ActivateDevice(_THIS, const SDL_bool isrecovery)
         return SDL_SetError("Failed to query WASAPI client interface");
     }
 
-    return WASAPI_PrepDevice(_this, isrecovery);
+    return WASAPI_PrepDevice(_this);
 }
 
 void WASAPI_PlatformThreadInit(_THIS)
