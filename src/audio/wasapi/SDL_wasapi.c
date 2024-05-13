@@ -489,7 +489,7 @@ int WASAPI_PrepDevice(_THIS, const SDL_bool updatestream)
     SDL_CalculateAudioSpec(&this->spec);
 
     if (this->iscapture) {
-        this->hidden->capturestream = SDL_NewAudioStream(this->spec.format, this->spec.channels, this->spec.freq, this->spec.format, this->spec.channels, this->spec.freq);
+        this->hidden->capturestream = SDL_PrivateNewAudioStream(this->spec.format, this->spec.channels, this->spec.freq, this->spec.format, this->spec.channels, this->spec.freq, this->spec.size);
         if (!this->hidden->capturestream) {
             return -1; /* already set SDL_Error */
         }
