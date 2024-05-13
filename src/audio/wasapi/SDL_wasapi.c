@@ -79,22 +79,18 @@ static int UpdateAudioStream(_THIS, const SDL_AudioSpec *oldspec)
        the audio stream that the higher level uses to convert data, so
        SDL keeps firing the callback as if nothing happened here. */
 
-    if ((this->callbackspec.channels == this->spec.channels) &&
-        (this->callbackspec.format == this->spec.format) &&
-        (this->callbackspec.freq == this->spec.freq) &&
-        (this->callbackspec.samples == this->spec.samples)) {
-        /* no need to buffer/convert in an AudioStream! */
-        SDL_FreeAudioStream(this->stream);
-        this->stream = NULL;
-    } else if ((oldspec->channels == this->spec.channels) &&
-               (oldspec->format == this->spec.format) &&
-               (oldspec->freq == this->spec.freq) &&
-               (oldspec->samples == this->spec.samples)) {
+    if ((oldspec->channels == this->spec.channels) &&
+        (oldspec->format == this->spec.format) &&
+        (oldspec->freq == this->spec.freq) &&
+        (oldspec->samples == this->spec.samples)) {
         /* The existing audio stream is okay to keep using. */
-    } else {
-        /* replace the audiostream for new format */
+    } else if (this->stream != NULL ||                          // there was a stream -> keep using a stream
+        (this->callbackspec.channels != this->spec.channels) || // new format requires a stream -> add a stream
+        (this->callbackspec.format != this->spec.format) ||
+        (this->callbackspec.freq != this->spec.freq) ||
+        (this->callbackspec.samples != this->spec.samples)) {
         const SDL_AudioSpec *src, *dst;
-        SDL_FreeAudioStream(this->stream);
+        SDL_AudioStream *newstream;
 
         if (this->iscapture) {
             src = &this->spec;
@@ -103,11 +99,13 @@ static int UpdateAudioStream(_THIS, const SDL_AudioSpec *oldspec)
             src = &this->callbackspec;
             dst = &this->spec;
         }
-        this->stream = SDL_PrivateNewAudioStream(src->format, src->channels, src->freq,
+        newstream = SDL_PrivateNewAudioStream(src->format, src->channels, src->freq,
                                                 dst->format, dst->channels, dst->freq, dst->size);
-        if (!this->stream) {
+        if (!newstream) {
             return -1; /* SDL_PrivateNewAudioStream should have called SDL_SetError. */
         }
+        SDL_FreeAudioStream(this->stream);
+        this->stream = newstream;
     }
 
     /* make sure our scratch buffer can cover the new device spec. */
