@@ -79,16 +79,10 @@ static int UpdateAudioStream(_THIS, const SDL_AudioSpec *oldspec)
        the audio stream that the higher level uses to convert data, so
        SDL keeps firing the callback as if nothing happened here. */
 
-    if ((oldspec->channels == this->spec.channels) &&
-        (oldspec->format == this->spec.format) &&
-        (oldspec->freq == this->spec.freq) &&
-        (oldspec->samples == this->spec.samples)) {
+    if (SDL_AudioSpec_Equal(oldspec, &this->spec)) {
         /* The existing audio stream is okay to keep using. */
-    } else if (this->stream != NULL ||                          // there was a stream -> keep using a stream
-        (this->callbackspec.channels != this->spec.channels) || // new format requires a stream -> add a stream
-        (this->callbackspec.format != this->spec.format) ||
-        (this->callbackspec.freq != this->spec.freq) ||
-        (this->callbackspec.samples != this->spec.samples)) {
+    } else if (this->stream != NULL ||                            // there was a stream -> keep using a stream
+        !SDL_AudioSpec_Equal(&this->callbackspec, &this->spec)) { // new format requires a stream -> add a stream
         const SDL_AudioSpec *src, *dst;
         SDL_AudioStream *newstream;
 

@@ -195,6 +195,14 @@ typedef struct SDL_AudioSpec
     SDL_AudioCallback callback; /**< Callback that feeds the audio device (NULL to use SDL_QueueAudio()). */
     void *userdata;             /**< Userdata passed to callback (ignored for NULL callbacks). */
 } SDL_AudioSpec;
+/*
+ * Compares two SDL_AudioSpec entities. Ignores the callback, the userdata and the calculated size fields.
+ * WARNING: It checks the padding fields!
+ */
+SDL_FORCE_INLINE SDL_bool SDL_AudioSpec_Equal(const SDL_AudioSpec *a, const SDL_AudioSpec *b)
+{
+    return (a->freq == b->freq && (*(const Uint32*)&a->format == *(const Uint32*)&b->format) && (*(const Uint32*)&a->samples == *(const Uint32*)&b->samples)) ? SDL_TRUE : SDL_FALSE;
+}
 
 
 struct SDL_AudioCVT;
