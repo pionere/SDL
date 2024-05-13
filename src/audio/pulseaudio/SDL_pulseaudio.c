@@ -754,19 +754,14 @@ static SDL_AudioFormat PulseFormatToSDLFormat(pa_sample_format_t format)
 /* This is called when PulseAudio adds an output ("sink") device. */
 static void SinkInfoCallback(pa_context *c, const pa_sink_info *i, int is_last, void *data)
 {
-    SDL_AudioSpec spec;
     SDL_bool add = (SDL_bool)((intptr_t)data);
     if (i) {
-        spec.freq = i->sample_spec.rate;
-        spec.channels = i->sample_spec.channels;
-        spec.format = PulseFormatToSDLFormat(i->sample_spec.format);
-        spec.silence = 0;
-        spec.samples = 0;
-        spec.size = 0;
-        spec.callback = NULL;
-        spec.userdata = NULL;
-
         if (add) {
+            SDL_AudioSpec spec;
+            SDL_zero(spec);
+            spec.freq = i->sample_spec.rate;
+            spec.channels = i->sample_spec.channels;
+            spec.format = PulseFormatToSDLFormat(i->sample_spec.format);
             SDL_AddAudioDevice(SDL_FALSE, i->description, &spec, (void *)((intptr_t)i->index + 1));
         }
 
@@ -783,21 +778,16 @@ static void SinkInfoCallback(pa_context *c, const pa_sink_info *i, int is_last, 
 /* This is called when PulseAudio adds a capture ("source") device. */
 static void SourceInfoCallback(pa_context *c, const pa_source_info *i, int is_last, void *data)
 {
-    SDL_AudioSpec spec;
     SDL_bool add = (SDL_bool)((intptr_t)data);
     if (i) {
         /* Maybe skip "monitor" sources. These are just output from other sinks. */
         if (include_monitors || (i->monitor_of_sink == PA_INVALID_INDEX)) {
-            spec.freq = i->sample_spec.rate;
-            spec.channels = i->sample_spec.channels;
-            spec.format = PulseFormatToSDLFormat(i->sample_spec.format);
-            spec.silence = 0;
-            spec.samples = 0;
-            spec.size = 0;
-            spec.callback = NULL;
-            spec.userdata = NULL;
-
             if (add) {
+                SDL_AudioSpec spec;
+                SDL_zero(spec);
+                spec.freq = i->sample_spec.rate;
+                spec.channels = i->sample_spec.channels;
+                spec.format = PulseFormatToSDLFormat(i->sample_spec.format);
                 SDL_AddAudioDevice(SDL_TRUE, i->description, &spec, (void *)((intptr_t)i->index + 1));
             }
 
