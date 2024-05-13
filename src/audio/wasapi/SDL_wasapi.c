@@ -141,6 +141,7 @@ static SDL_bool RecoverWasapiDevice(_THIS)
     const SDL_AudioSpec oldspec = this->spec;
     if (WASAPI_ActivateDevice(this) < 0 || UpdateAudioStream(this, &oldspec) < 0) {
         SDL_OpenedAudioDeviceDisconnected(this);
+        this->spec = oldspec; // restore spec to enable subsequent tries in case UpdateAudioStream failed
         return SDL_FALSE;
     }
     }
