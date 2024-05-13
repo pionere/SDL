@@ -88,7 +88,8 @@ static int UpdateAudioStream(_THIS, const SDL_AudioSpec *oldspec)
         this->stream = NULL;
     } else if ((oldspec->channels == this->spec.channels) &&
                (oldspec->format == this->spec.format) &&
-               (oldspec->freq == this->spec.freq)) {
+               (oldspec->freq == this->spec.freq) &&
+               (oldspec->samples == this->spec.samples)) {
         /* The existing audio stream is okay to keep using. */
     } else {
         /* replace the audiostream for new format */
