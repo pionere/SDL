@@ -65,12 +65,6 @@ extern void SDL_ChooseAudioResamplers(void);
 
 /* Internal helper functions of SDL_audiocvt.c */
 extern int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len);
-extern SDL_AudioStream *SDL_PrivateNewAudioStream(const SDL_AudioFormat src_format,
-                   const Uint8 src_channels,
-                   const int src_rate,
-                   const SDL_AudioFormat dst_format,
-                   const Uint8 dst_channels,
-                   const int dst_rate, const unsigned queue_packet_size);
 extern void SDL_PadAudioStream(SDL_AudioStream *stream);
 
 #endif /* SDL_audio_c_h_ */

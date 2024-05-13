@@ -92,22 +92,20 @@ static int UpdateAudioStream(_THIS, const SDL_AudioSpec *oldspec)
         /* The existing audio stream is okay to keep using. */
     } else {
         /* replace the audiostream for new format */
+        const SDL_AudioSpec *src, *dst;
         SDL_FreeAudioStream(this->stream);
-        if (this->iscapture) {
-            this->stream = SDL_NewAudioStream(this->spec.format,
-                                              this->spec.channels, this->spec.freq,
-                                              this->callbackspec.format,
-                                              this->callbackspec.channels,
-                                              this->callbackspec.freq);
-        } else {
-            this->stream = SDL_NewAudioStream(this->callbackspec.format,
-                                              this->callbackspec.channels,
-                                              this->callbackspec.freq, this->spec.format,
-                                              this->spec.channels, this->spec.freq);
-        }
 
+        if (this->iscapture) {
+            src = &this->spec;
+            dst = &this->callbackspec;
+        } else {
+            src = &this->callbackspec;
+            dst = &this->spec;
+        }
+        this->stream = SDL_PrivateNewAudioStream(src->format, src->channels, src->freq,
+                                                dst->format, dst->channels, dst->freq, dst->size);
         if (!this->stream) {
-            return -1; /* SDL_NewAudioStream should have called SDL_SetError. */
+            return -1; /* SDL_PrivateNewAudioStream should have called SDL_SetError. */
         }
     }
 
