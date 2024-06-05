@@ -27,9 +27,6 @@
 #include "../SDL_syshaptic.h"
 #include "SDL_haptic.h"
 #include "../../core/android/SDL_android.h"
-#include "SDL_joystick.h"
-#include "../../joystick/SDL_sysjoystick.h"     /* For the real SDL_Joystick */
-#include "../../joystick/android/SDL_sysjoystick_c.h"     /* For joystick hwdata */
 
 
 typedef struct SDL_hapticlist_item
@@ -77,19 +74,6 @@ static SDL_hapticlist_item *HapticByOrder(int index)
     return item;
 }
 
-static SDL_hapticlist_item *HapticByJoystick(const SDL_Joystick *joystick)
-{
-    int device_id = ((const joystick_hwdata *)joystick->hwdata)->device_id;
-    SDL_hapticlist_item *item;
-    for (item = SDL_hapticlist; item; item = item->next) {
-        if (device_id == item->device_id) {
-            /*SDL_Log("=+=+=+=+=+= HapticByDevId id [%d]", device_id);*/
-            return item;
-        }
-    }
-    return NULL;
-}
-
 const char *SDL_SYS_HapticName(int index)
 {
     SDL_hapticlist_item *item = HapticByOrder(index);
@@ -131,18 +115,17 @@ int SDL_SYS_HapticMouse(void)
 
 int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
 {
-    SDL_hapticlist_item *item = HapticByJoystick(joystick);
-    return (item) ? SDL_TRUE : SDL_FALSE;
+    return 0;
 }
 
 int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
 {
-    return OpenHaptic(haptic, HapticByJoystick(joystick));
+    return SDL_Unsupported();
 }
 
 int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick)
 {
-    return ((SDL_hapticlist_item *)haptic->hwdata)->device_id == ((joystick_hwdata *)joystick->hwdata)->device_id ? 1 : 0;
+    return 0;
 }
 
 void SDL_SYS_HapticClose(SDL_Haptic *haptic)

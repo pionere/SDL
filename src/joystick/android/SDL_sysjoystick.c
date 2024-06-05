@@ -302,7 +302,7 @@ int Android_OnHat(int device_id, int hat_id, int x, int y)
     return -1;
 }
 
-int Android_AddJoystick(int device_id, const char *name, const char *desc, int vendor_id, int product_id, int button_mask, int naxes, int axis_mask, int nhats)
+int Android_AddJoystick(int device_id, const char *name, const char *desc, int vendor_id, int product_id, int button_mask, int naxes, int axis_mask, int nhats, SDL_bool can_rumble)
 {
     SDL_joylist_item *item;
     SDL_JoystickGUID guid;
@@ -379,6 +379,7 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
     }
     item->naxes = naxes;
     item->nhats = nhats;
+    item->can_rumble = can_rumble;
     item->device_instance = SDL_GetNextJoystickInstanceID();
     if (!SDL_joylist_tail) {
         SDL_joylist = SDL_joylist_tail = item;
@@ -581,7 +582,14 @@ static int ANDROID_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
 static int ANDROID_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
-    return SDL_Unsupported();
+    SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
+    float low_frequency_intensity = (float)low_frequency_rumble / SDL_MAX_UINT16;
+    float high_frequency_intensity = (float)high_frequency_rumble / SDL_MAX_UINT16;
+    if (!item->can_rumble) {
+        return SDL_Unsupported();
+    }
+    Android_JNI_HapticRumble(item->device_id, low_frequency_intensity, high_frequency_intensity, 5000);
+    return 0;
 }
 
 static int ANDROID_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
@@ -591,7 +599,8 @@ static int ANDROID_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_ru
 
 static Uint32 ANDROID_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
-    return 0;
+    SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
+    return item->can_rumble ? SDL_JOYCAP_RUMBLE : 0;
 }
 
 static int ANDROID_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
