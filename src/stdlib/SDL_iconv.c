@@ -123,16 +123,16 @@ static const uint8_t encoding_base[NUM_ENCODINGS] = {
 /* ENCODING_ASCII */   1,
 /* ENCODING_LATIN1 */  1,
 /* ENCODING_UTF8 */    1,
-/* ENCODING_UTF16 */   2,
 /* ENCODING_UTF16BE */ 2,
 /* ENCODING_UTF16LE */ 2,
-/* ENCODING_UTF32 */   4,
 /* ENCODING_UTF32BE */ 4,
 /* ENCODING_UTF32LE */ 4,
 /* ENCODING_UCS2BE */  2,
 /* ENCODING_UCS2LE */  2,
 /* ENCODING_UCS4BE */  4,
 /* ENCODING_UCS4LE */  4,
+/* ENCODING_UTF16 */   2,
+/* ENCODING_UTF32 */   4,
 };
 
 static const struct
