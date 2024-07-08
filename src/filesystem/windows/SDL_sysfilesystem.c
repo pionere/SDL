@@ -65,11 +65,12 @@ static SDL_bool TryAppendDir(const char *dir, SDL_iconv_t cd, WCHAR **cursor, si
     size_t convres;
     size_t dirLen = SDL_strlen(dir);
 
-    **cursor = L'\\';
-    ++*cursor;
-    if (*wleft-- == 0) {
+    if (*wleft == 0) {
         return SDL_FALSE;
     }
+    --*wleft;
+    **cursor = L'\\';
+    ++*cursor;
     convres = SDL_iconv(cd, &dir, &dirLen, (char **)cursor, wleft);
     switch (convres) {
     case SDL_ICONV_E2BIG:
