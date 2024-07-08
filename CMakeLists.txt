@@ -2266,7 +2266,7 @@ elseif(WINDOWS)
     list(APPEND SOURCE_FILES ${WINRT_SOURCE_FILES})
   endif()
 
-  if(MSVC)
+  if(MSVC AND NOT SDL_LIBC)
     # 1. turn off buffer checks
     # 2. raise the default size of the stack to reduce the number of stack-probes (required by Intel C compiler)
     set_property(DIRECTORY . APPEND PROPERTY COMPILE_OPTIONS "/GS-;/Gs1048576")
