@@ -1035,10 +1035,10 @@ static int SDL_ResampleAudioStream(SDL_AudioStream *stream, const void *_inbuf, 
     outrate = stream->dst_rate;
     SDL_assert(outrate <= SDL_MAX_SINT64 / inframes);
     SDL_assert(((Sint64)inframes * outrate / inrate) <= SDL_INT_MAX);
+    outframes = (int)((Sint64)inframes * outrate / inrate);
     SDL_assert(inrate <= SDL_MAX_SINT64 / outframes);
     SDL_assert(((Sint64)outframes * inrate / outrate) <= SDL_INT_MAX);
     // SDL_assert(outbuflen >= outframes * framelen);
-    outframes = (int)((Sint64)inframes * outrate / inrate);
     resampler_incr = stream->resampler_incr;
 
     retval = stream->resampler_impl(chans, resampler_incr/*inrate, outrate*/, inbuf, inframes, outbuf, outframes);
