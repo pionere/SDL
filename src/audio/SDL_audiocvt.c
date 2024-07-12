@@ -1264,11 +1264,9 @@ static int SDL_AudioStreamPutInternal(SDL_AudioStream *stream, const void *buf, 
         SDL_Log("AUDIOSTREAM: will resample %d bytes to %d (ratio=%.6f)\n", workbuflen, resamplebuflen, (double)stream->dst_rate / (double)stream->src_rate);
 #endif
         }
-        workbuflen += resamplebuflen;
+        SDL_assert(stream->cvt_after_resampling.needed || stream->cvt_after_resampling.len_mult == 1);
+        workbuflen += resamplebuflen * stream->cvt_after_resampling.len_mult;
         workbuflen += neededpaddingbytes; // add space for the padding bytes stored by the resampler function
-        if (stream->cvt_after_resampling.needed) {
-            workbuflen = SDL_max(workbuflen, resamplebuflen * stream->cvt_after_resampling.len_mult);
-        }
     } else
 #endif
       if (stream->cvt_after_resampling.needed) {
