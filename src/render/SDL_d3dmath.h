@@ -65,13 +65,13 @@ typedef struct
     };
 } Float4X4;
 
-void MatrixIdentity(Float4X4 *m);
-void MatrixMultiply(Float4X4 *m, const Float4X4 *M1, const Float4X4 *M2);
-void MatrixScaling(Float4X4 *m, float x, float y, float z);
-void MatrixTranslation(Float4X4 *m, float x, float y, float z);
-void MatrixRotationX(Float4X4 *m, float r);
-void MatrixRotationY(Float4X4 *m, float r);
-void MatrixRotationZ(Float4X4 *m, float r);
+extern void MatrixIdentity(Float4X4 *m);
+extern void MatrixMultiply(Float4X4 *m, const Float4X4 *M1, const Float4X4 *M2);
+extern void MatrixScaling(Float4X4 *m, float x, float y, float z);
+extern void MatrixTranslation(Float4X4 *m, float x, float y, float z);
+extern void MatrixRotationX(Float4X4 *m, float r);
+extern void MatrixRotationY(Float4X4 *m, float r);
+extern void MatrixRotationZ(Float4X4 *m, float r);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

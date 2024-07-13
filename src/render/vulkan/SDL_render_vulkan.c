@@ -3087,7 +3087,7 @@ static int VULKAN_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
      * then return:
      */
     *pixels = textureData->stagingBuffer.mappedBufferPtr;
-    *pitch = length;
+    *pitch = (int)length;
     return 0;
 
 }
@@ -3363,10 +3363,10 @@ static int VULKAN_UpdateViewport(VULKAN_RenderData *rendererData)
 
     // MatrixMultiply(&rendererData->vertexShaderConstantsData.projectionAndView, &view, &projection);
 
-    vkViewport.x = viewport->x;
-    vkViewport.y = viewport->y;
-    vkViewport.width = viewport->w;
-    vkViewport.height = viewport->h;
+    vkViewport.x = (float)viewport->x;
+    vkViewport.y = (float)viewport->y;
+    vkViewport.width = (float)viewport->w;
+    vkViewport.height = (float)viewport->h;
     vkViewport.minDepth = 0.0f;
     vkViewport.maxDepth = 1.0f;
     vkCmdSetViewport(rendererData->currentCommandBuffer, 0, 1, &vkViewport);
@@ -4081,7 +4081,7 @@ static int VULKAN_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
         VULKAN_VkFormatToSDLPixelFormat(vkFormat),
         renderer->target ? renderer->target->colorspace : renderer->output_colorspace,
         readbackBuffer.mappedBufferPtr,
-        length);
+        (int)length);
 #else
     // output = SDL_CreateSurfaceFrom(readbackBuffer.mappedBufferPtr, rect->w, rect->h, length, VULKAN_VkFormatToSDLPixelFormat(vkFormat));
 
@@ -4092,7 +4092,7 @@ static int VULKAN_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
         rect->w, rect->h,
         VULKAN_VkFormatToSDLPixelFormat(vkFormat),
         readbackBuffer.mappedBufferPtr,
-        length,
+        (int)length,
         format,
         pixels,
         pitch);
