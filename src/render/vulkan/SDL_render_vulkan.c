@@ -2899,7 +2899,7 @@ static int VULKAN_UpdateTextureInternal(SDL_Renderer *renderer, VULKAN_Image *ma
             length = pitch;
         }
         for (VkDeviceSize row = h; row--; ) {
-            SDL_memcpy(dst, src, length);
+            SDL_memcpy(dst, src, (size_t)length);
             src += pitch;
             dst += length;
         }
