@@ -204,7 +204,6 @@ extern const AudioBootStrap DUMMYAUDIO_bootstrap;
 extern const AudioBootStrap FUSIONSOUND_bootstrap;
 extern const AudioBootStrap aaudio_bootstrap;
 extern const AudioBootStrap openslES_bootstrap;
-extern const AudioBootStrap ANDROIDAUDIO_bootstrap;
 extern const AudioBootStrap PS2AUDIO_bootstrap;
 extern const AudioBootStrap PSPAUDIO_bootstrap;
 extern const AudioBootStrap VITAAUD_bootstrap;
