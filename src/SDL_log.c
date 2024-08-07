@@ -474,9 +474,14 @@ void SDL_LogMessageV(int category, SDL_LogPriority priority, const char *fmt, va
     }
 }
 
-#if defined(__WIN32__) && !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
-/* Flag tracking the attachment of the console: 0=unattached, 1=attached to a console, 2=attached to a file, -1=error */
-static int consoleAttached = 0;
+#if defined(__WIN32__) && !defined(__WINRT__) && !defined(__GDK__)
+enum {
+    CONSOLE_UNATTACHED = 0,
+    CONSOLE_ATTACHED_CONSOLE = 1,
+    CONSOLE_ATTACHED_FILE = 2,
+    CONSOLE_ATTACHED_MSVC = 3,
+    CONSOLE_ATTACHED_ERROR = -1,
+} consoleAttached = CONSOLE_UNATTACHED;
 
 /* Handle to stderr output of console. */
 static HANDLE stderrHandle = NULL;
@@ -494,58 +499,68 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
         LPTSTR tstr;
         SDL_bool isstack;
 
-#if !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
+#if !defined(__WINRT__) && !defined(__GDK__)
         BOOL attachResult;
         DWORD attachError;
-        DWORD charsWritten;
         DWORD consoleMode;
+#if !defined(HAVE_STDIO_H)
+        DWORD charsWritten;
+#endif
 
         /* Maybe attach console and get stderr handle */
-        if (consoleAttached == 0) {
+        if (consoleAttached == CONSOLE_UNATTACHED) {
             attachResult = AttachConsole(ATTACH_PARENT_PROCESS);
             if (!attachResult) {
                 attachError = GetLastError();
                 if (attachError == ERROR_INVALID_HANDLE) {
                     /* This is expected when running from Visual Studio */
                     /*OutputDebugString(TEXT("Parent process has no console\r\n"));*/
-                    consoleAttached = -1;
+                    consoleAttached = CONSOLE_ATTACHED_MSVC;
                 } else if (attachError == ERROR_GEN_FAILURE) {
                     OutputDebugString(TEXT("Could not attach to console of parent process\r\n"));
-                    consoleAttached = -1;
+                    consoleAttached = CONSOLE_ATTACHED_ERROR;
                 } else if (attachError == ERROR_ACCESS_DENIED) {
                     /* Already attached */
-                    consoleAttached = 1;
+                    consoleAttached = CONSOLE_ATTACHED_CONSOLE;
                 } else {
                     OutputDebugString(TEXT("Error attaching console\r\n"));
-                    consoleAttached = -1;
+                    consoleAttached = CONSOLE_ATTACHED_ERROR;
                 }
             } else {
                 /* Newly attached */
-                consoleAttached = 1;
+                consoleAttached = CONSOLE_ATTACHED_CONSOLE;
             }
 
-            if (consoleAttached == 1) {
+            if (consoleAttached == CONSOLE_ATTACHED_CONSOLE) {
                 stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
 
                 if (GetConsoleMode(stderrHandle, &consoleMode) == 0) {
                     /* WriteConsole fails if the output is redirected to a file. Must use WriteFile instead. */
-                    consoleAttached = 2;
+                    consoleAttached = CONSOLE_ATTACHED_FILE;
                 }
             }
         }
 #endif /* !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__) */
-
         length = SDL_strlen(SDL_priority_prefixes[priority]) + 2 + SDL_strlen(message) + 1 + 1 + 1;
         output = SDL_small_alloc(char, length, &isstack);
         (void)SDL_snprintf(output, length, "%s: %s\r\n", SDL_priority_prefixes[priority], message);
         tstr = WIN_UTF8ToString(output);
 
+
+#if defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
+        /* When running in MSVC and using stdio, rely on forwarding of stderr to the debug stream */
+        if (consoleAttached != CONSOLE_ATTACHED_MSVC) {
+            /* Output to debugger */
+            OutputDebugString(tstr);
+        }
+#else
         /* Output to debugger */
         OutputDebugString(tstr);
+#endif
 
 #if !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
         /* Screen output to stderr, if console was attached. */
-        if (consoleAttached == 1) {
+        if (consoleAttached == CONSOLE_ATTACHED_CONSOLE) {
             if (!WriteConsole(stderrHandle, tstr, (DWORD)SDL_tcslen(tstr), &charsWritten, NULL)) {
                 OutputDebugString(TEXT("Error calling WriteConsole\r\n"));
                 if (GetLastError() == ERROR_NOT_ENOUGH_MEMORY) {
@@ -553,7 +568,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
                 }
             }
 
-        } else if (consoleAttached == 2) {
+        } else if (consoleAttached == CONSOLE_ATTACHED_FILE) {
             if (!WriteFile(stderrHandle, output, (DWORD)SDL_strlen(output), &charsWritten, NULL)) {
                 OutputDebugString(TEXT("Error calling WriteFile\r\n"));
             }
