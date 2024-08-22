@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
                             haptic = SDL_HapticOpenFromJoystick(joystick);
                             if (haptic) {
                                 SDL_Log("Joy Haptic Opened\n");
-                                if (SDL_HapticRumbleInit(haptic) != 0) {
+                                if (SDL_HapticRumbleInit(haptic) < 0) {
                                     SDL_Log("Could not init Rumble!: %s\n", SDL_GetError());
                                     SDL_HapticClose(haptic);
                                     haptic = NULL;

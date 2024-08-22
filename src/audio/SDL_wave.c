@@ -680,14 +680,14 @@ static int MS_ADPCM_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len)
 
         /* Initialize decoder with the values from the block header. */
         result = MS_ADPCM_DecodeBlockHeader(&state);
-        if (result == -1) {
+        if (result < 0) {
             SDL_free(state.output.data);
             return -1;
         }
 
         /* Decode the block data. It stores the samples directly in the output. */
         result = MS_ADPCM_DecodeBlockData(&state);
-        if (result == -1) {
+        if (result < 0) {
             /* Unexpected end. Stop decoding and return partial data if necessary. */
             if (file->trunchint == TruncVeryStrict || file->trunchint == TruncStrict) {
                 SDL_free(state.output.data);
@@ -1082,7 +1082,7 @@ static int IMA_ADPCM_Decode(WaveFile *file, Uint8 **audio_buf, Uint32 *audio_len
             result = IMA_ADPCM_DecodeBlockData(&state);
         }
 
-        if (result == -1) {
+        if (result < 0) {
             /* Unexpected end. Stop decoding and return partial data if necessary. */
             if (file->trunchint == TruncVeryStrict || file->trunchint == TruncStrict) {
                 SDL_free(state.output.data);

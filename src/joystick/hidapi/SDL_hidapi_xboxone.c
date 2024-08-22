@@ -234,7 +234,7 @@ static void SendAckIfNeeded(SDL_HIDAPI_Device *device, const Uint8 *data, int si
 #ifdef DEBUG_XBOX_PROTOCOL
         HIDAPI_DumpPacket("Xbox One sending ACK packet: size = %d", ack_packet, sizeof(ack_packet));
 #endif
-        if (SDL_HIDAPI_LockRumble() != 0 ||
+        if (SDL_HIDAPI_LockRumble() < 0 ||
             SDL_HIDAPI_SendRumbleAndUnlock(device, ack_packet, sizeof(ack_packet)) != sizeof(ack_packet)) {
             SDL_SetError("Couldn't send ack packet");
         }
@@ -480,7 +480,7 @@ static int HIDAPI_DriverXboxOne_UpdateRumble(SDL_HIDAPI_Device *device)
     /* We're no longer pending, even if we fail to send the rumble below */
     ctx->rumble_pending = SDL_FALSE;
 
-    if (SDL_HIDAPI_LockRumble() != 0) {
+    if (SDL_HIDAPI_LockRumble() < 0) {
         return -1;
     }
 

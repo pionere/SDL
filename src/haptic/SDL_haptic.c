@@ -467,7 +467,7 @@ int SDL_HapticNewEffect(SDL_Haptic *haptic, SDL_HapticEffect *effect)
         if (haptic->effects[i].hweffect == NULL) {
 
             /* Now let the backend create the real effect */
-            if (SDL_SYS_HapticNewEffect(haptic, &haptic->effects[i], effect) != 0) {
+            if (SDL_SYS_HapticNewEffect(haptic, &haptic->effects[i], effect) < 0) {
                 return -1; /* Backend failed to create effect */
             }
 

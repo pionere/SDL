@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     }
 
     if (SDL_BuildAudioCVT(&cvt, spec.format, spec.channels, spec.freq,
-                          spec.format, cvtchans, cvtfreq) == -1) {
+                          spec.format, cvtchans, cvtfreq) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "failed to build CVT: %s\n", SDL_GetError());
         SDL_FreeWAV(data);
         SDL_Quit();
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     SDL_WriteLE32(io, cvt.len_cvt);                            /* size */
     SDL_RWwrite(io, cvt.buf, cvt.len_cvt, 1);
 
-    if (SDL_RWclose(io) == -1) {
+    if (SDL_RWclose(io) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "fclose('%s') failed: %s\n", argv[2], SDL_GetError());
         SDL_free(cvt.buf);
         SDL_FreeWAV(data);

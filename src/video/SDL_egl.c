@@ -1193,7 +1193,7 @@ EGLSurface *SDL_EGL_CreateSurface(_THIS, NativeWindowType nw)
 
     SDL_assert(USE_FUNC(eglGetProcAddress) != NULL);
 
-    if (SDL_EGL_ChooseConfig(_this) != 0) {
+    if (SDL_EGL_ChooseConfig(_this) < 0) {
         return EGL_NO_SURFACE;
     }
 
@@ -1260,7 +1260,7 @@ SDL_EGL_CreateOffscreenSurface(_THIS, int width, int height)
 
     SDL_assert(USE_FUNC(eglCreatePbufferSurface) != NULL);
 
-    if (SDL_EGL_ChooseConfig(_this) != 0) {
+    if (SDL_EGL_ChooseConfig(_this) < 0) {
         return EGL_NO_SURFACE;
     }
 
