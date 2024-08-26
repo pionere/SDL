@@ -2422,14 +2422,14 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
                 scale = (float)h / renderer->logical_h;
                 viewport.y = 0;
                 viewport.h = h;
-                viewport.w = (int)SDL_floor(renderer->logical_w * scale);
+                viewport.w = (int)SDL_floorf(renderer->logical_w * scale);
                 viewport.x = (w - viewport.w) / 2;
             } else {
                 /* We want a wider aspect ratio than is available - letterbox it */
                 scale = (float)w / renderer->logical_w;
                 viewport.x = 0;
                 viewport.w = w;
-                viewport.h = (int)SDL_floor(renderer->logical_h * scale);
+                viewport.h = (int)SDL_floorf(renderer->logical_h * scale);
                 viewport.y = (h - viewport.h) / 2;
             }
         } else {
@@ -2441,14 +2441,14 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
                 scale = (float)w / renderer->logical_w;
                 viewport.x = 0;
                 viewport.w = w;
-                viewport.h = (int)SDL_floor(renderer->logical_h * scale);
+                viewport.h = (int)SDL_floorf(renderer->logical_h * scale);
                 viewport.y = (h - viewport.h) / 2;
             } else {
                 /* We want a narrower aspect ratio than is available - use side-bars */
                 scale = (float)h / renderer->logical_h;
                 viewport.y = 0;
                 viewport.h = h;
-                viewport.w = (int)SDL_floor(renderer->logical_w * scale);
+                viewport.w = (int)SDL_floorf(renderer->logical_w * scale);
                 viewport.x = (w - viewport.w) / 2;
             }
         }
