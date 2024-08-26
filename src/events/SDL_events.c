@@ -161,7 +161,7 @@ static void SDLCALL SDL_EventLoggingChanged(void *userdata, const char *name, co
 {
     SDL_EventLoggingVerbosity = (hint && *hint) ? SDL_clamp(SDL_atoi(hint), 0, 3) : 0;
 }
-
+#ifndef SDL_LOGGING_DISABLED
 static void SDL_LogEvent(const SDL_Event *event)
 {
     char name[64];
@@ -542,7 +542,7 @@ static void SDL_LogEvent(const SDL_Event *event)
 
 #undef uint
 }
-
+#endif // SDL_LOGGING_DISABLED
 /* Public functions */
 
 void SDL_StopEventLoop(void)
