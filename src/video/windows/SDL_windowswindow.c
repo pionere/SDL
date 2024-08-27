@@ -590,11 +590,13 @@ void WIN_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
     BITMAPINFOHEADER *bmi;
     Uint8 *dst;
     SDL_bool isstack;
+    DWORD imageSize = icon->h * icon->w;
+    imageSize *= sizeof(Uint32);
 
     /* Create temporary buffer for ICONIMAGE structure */
-    SDL_COMPILE_TIME_ASSERT(WIN_SetWindowIcon_uses_BITMAPINFOHEADER_to_prepare_an_ICONIMAGE, sizeof(BITMAPINFOHEADER) == 40);
+    SDL_INLINE_COMPILE_TIME_ASSERT(WIN_SetWindowIcon_uses_BITMAPINFOHEADER_to_prepare_an_ICONIMAGE, sizeof(BITMAPINFOHEADER) == 40);
     mask_len = (icon->h * (icon->w + 7) / 8u);
-    icon_len = sizeof(BITMAPINFOHEADER) + icon->h * icon->w * sizeof(Uint32) + mask_len;
+    icon_len = sizeof(BITMAPINFOHEADER) + imageSize + mask_len;
     icon_bmp = SDL_small_alloc(BYTE, icon_len, &isstack);
 
     /* Write the BITMAPINFO header */
@@ -605,7 +607,7 @@ void WIN_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
     bmi->biPlanes = SDL_SwapLE16(1);
     bmi->biBitCount = SDL_SwapLE16(32);
     bmi->biCompression = SDL_SwapLE32(BI_RGB);
-    bmi->biSizeImage = SDL_SwapLE32(icon->h * icon->w * sizeof(Uint32));
+    bmi->biSizeImage = SDL_SwapLE32(imageSize);
     bmi->biXPelsPerMeter = SDL_SwapLE32(0);
     bmi->biYPelsPerMeter = SDL_SwapLE32(0);
     bmi->biClrUsed = SDL_SwapLE32(0);

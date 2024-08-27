@@ -1926,7 +1926,7 @@ static int GLES2_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     int status;
 
     temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
-    temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
+    temp_pixels = SDL_malloc((size_t)(rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();
     }

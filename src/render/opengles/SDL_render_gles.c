@@ -418,7 +418,7 @@ static int GLES_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     srcPitch = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     src = (Uint8 *)pixels;
     if (pitch != srcPitch) {
-        blob = (Uint8 *)SDL_malloc(srcPitch * rect->h);
+        blob = (Uint8 *)SDL_malloc((size_t)rect->h * srcPitch);
         if (!blob) {
             return SDL_OutOfMemory();
         }
@@ -597,7 +597,7 @@ static int GLES_QueueGeometry(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SD
     GLfloat *verts;
     int sz = 2 + 4 + (texture ? 2 : 0);
 
-    verts = (GLfloat *)SDL_AllocateRenderVertices(renderer, count * sz * sizeof(GLfloat), 0, &cmd->data.draw.first);
+    verts = (GLfloat *)SDL_AllocateRenderVertices(renderer, (size_t)count * sz * sizeof(GLfloat), 0, &cmd->data.draw.first);
     if (!verts) {
         return -1;
     }
@@ -908,7 +908,7 @@ static int GLES_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
     data = (GLES_RenderData *)renderer->driverdata;
     temp_format = renderer->target ? renderer->target->format : SDL_PIXELFORMAT_RGBA32;
     temp_pitch = rect->w * SDL_PIXELFORMAT_BPP(temp_format);
-    temp_pixels = SDL_malloc((rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
+    temp_pixels = SDL_malloc((size_t)(rect->h + (renderer->target ? 0 : 1)) * temp_pitch);
     if (!temp_pixels) {
         return SDL_OutOfMemory();
     }

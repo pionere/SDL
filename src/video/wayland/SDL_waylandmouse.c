@@ -383,7 +383,7 @@ static int create_buffer_from_shm(Wayland_CursorData *d,
     int shm_fd;
 
     int stride = width * 4;
-    d->shm_data_size = stride * height;
+    d->shm_data_size = (size_t)stride * height;
 
     shm_fd = wayland_create_tmp_file(d->shm_data_size);
     if (shm_fd < 0) {
