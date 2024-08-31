@@ -474,7 +474,7 @@ void SDL_LogMessageV(int category, SDL_LogPriority priority, const char *fmt, va
     }
 }
 
-#if defined(__WIN32__) && !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
+#if defined(__WIN32__) && !defined(__WINRT__) && !defined(__GDK__)
 enum {
     CONSOLE_UNATTACHED = 0,
     CONSOLE_ATTACHED_CONSOLE = 1,
@@ -498,7 +498,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
         LPTSTR tstr;
         SDL_bool isstack;
 
-#if !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
+#if !defined(__WINRT__) && !defined(__GDK__)
         BOOL attachResult;
         DWORD attachError;
         DWORD consoleMode;
@@ -537,7 +537,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
                 }
             }
         }
-#endif /* !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__) */
+#endif /* !defined(__WINRT__) && !defined(__GDK__) */
         length = SDL_strlen(SDL_priority_prefixes[priority]) + 2 + SDL_strlen(message) + 1 + 1 + 1;
         output = SDL_small_alloc(char, length, &isstack);
         (void)SDL_snprintf(output, length, "%s: %s\r\n", SDL_priority_prefixes[priority], message);
@@ -546,7 +546,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
         /* Output to debugger */
         OutputDebugString(tstr);
 
-#if !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__)
+#if !defined(__WINRT__) && !defined(__GDK__)
         /* Screen output to stderr, if console was attached. */
         if (consoleAttached == CONSOLE_ATTACHED_CONSOLE) {
             if (!WriteConsole(stderrHandle, tstr, (DWORD)SDL_tcslen(tstr), &charsWritten, NULL)) {
@@ -561,7 +561,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
                 OutputDebugString(TEXT("Error calling WriteFile\r\n"));
             }
         }
-#endif /* !defined(HAVE_STDIO_H) && !defined(__WINRT__) && !defined(__GDK__) */
+#endif /* !defined(__WINRT__) && !defined(__GDK__) */
 
         SDL_free(tstr);
         SDL_small_free(output, isstack);
@@ -615,6 +615,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
 #endif
 #if defined(HAVE_STDIO_H) && \
     !(defined(__APPLE__) && (defined(SDL_VIDEO_DRIVER_COCOA) || defined(SDL_VIDEO_DRIVER_UIKIT))) && \
+    !(defined(__WIN32__)) && \
     !(defined(__SYMBIAN32__))
     fprintf(stderr, "%s: %s\n", SDL_priority_prefixes[priority], message);
 #ifdef __NACL__
