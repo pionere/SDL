@@ -44,6 +44,8 @@ class SdlPlatform(Enum):
     Tvos = "tvos"
     Msvc = "msvc"
     N3ds = "n3ds"
+    PowerPC = "powerpc"
+    PowerPC64 = "powerpc64"
     Ps2 = "ps2"
     Psp = "psp"
     Vita = "vita"
@@ -128,6 +130,8 @@ JOB_SPECS = {
     "emscripten": JobSpec(name="Emscripten",                                os=JobOs.UbuntuLatest,  platform=SdlPlatform.Emscripten,  artifact="SDL-emscripten", ),
     "haiku": JobSpec(name="Haiku",                                          os=JobOs.UbuntuLatest,  platform=SdlPlatform.Haiku,       artifact="SDL-haiku-x64",          container="ghcr.io/haiku/cross-compiler:x86_64-r1beta5", ),
     "n3ds": JobSpec(name="Nintendo 3DS",                                    os=JobOs.UbuntuLatest,  platform=SdlPlatform.N3ds,        artifact="SDL-n3ds",               container="devkitpro/devkitarm:latest", ),
+    "ppc": JobSpec(name="PowerPC",                                          os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC,     artifact="SDL-ppc",                container="dockcross/linux-ppc:latest", ),
+    "ppc64": JobSpec(name="PowerPC64",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC64,   artifact="SDL-ppc64le",            container="dockcross/linux-ppc64le:latest", ),
     "ps2": JobSpec(name="Sony PlayStation 2",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Ps2,         artifact="SDL-ps2",                container="ps2dev/ps2dev:latest", ),
     "psp": JobSpec(name="Sony PlayStation Portable",                        os=JobOs.UbuntuLatest,  platform=SdlPlatform.Psp,         artifact="SDL-psp",                container="pspdev/pspdev:latest", ),
     "vita-pib": JobSpec(name="Sony PlayStation Vita (GLES w/ pib)",         os=JobOs.UbuntuLatest,  platform=SdlPlatform.Vita,        artifact="SDL-vita-pib",           container="vitasdk/vitasdk:latest", vita_gles=VitaGLES.Pib,  ),
@@ -603,6 +607,17 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             ))
             job.shared_lib = SharedLibType.SO_0
             job.static_lib = StaticLibType.A
+        case SdlPlatform.PowerPC64 | SdlPlatform.PowerPC:
+            # FIXME: Enable SDL_WERROR
+            job.werror = False
+            job.run_tests = False
+            job.sudo = ""
+            job.apt_packages = []
+            job.shared_lib = SharedLibType.SO_0
+            job.static_lib = StaticLibType.A
+            job.cmake_arguments.extend((
+                "-DSDL_UNIX_CONSOLE_BUILD=ON",
+            ))
         case SdlPlatform.N3ds:
             job.shared = False
             job.apt_packages = ["ninja-build", "binutils"]
