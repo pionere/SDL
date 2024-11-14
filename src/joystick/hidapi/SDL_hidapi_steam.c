@@ -944,6 +944,7 @@ static bool UpdateSteamControllerState(const uint8_t *pData, int nDataSize, Stea
 
 typedef struct
 {
+    SDL_bool connected;
     SDL_bool report_sensors;
     uint32_t update_rate_in_us;
     Uint32 timestamp_us;
@@ -1007,10 +1008,11 @@ static SDL_bool HIDAPI_DriverSteam_InitDevice(SDL_HIDAPI_Device *device)
             return SDL_FALSE;
         }
 
-        // We will enumerate any attached controllers in UpdateDevices()
+        // We will enumerate any attached controllers in UpdateDevice()
         return SDL_TRUE;
     } else {
         // Wired and BLE controllers are always connected if HIDAPI can see them
+        ctx->connected = true;
         return HIDAPI_JoystickConnected(device, NULL);
     }
 }
@@ -1215,22 +1217,24 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
             }
 
             ctx->m_last_state = ctx->m_state;
-        } else if (joystick && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
+        } else if (ctx->connected && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
             // Controller has disconnected from the wireless dongle
             HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
             joystick = NULL;
-        } else if (!joystick && D0G_IS_WIRELESS_CONNECT(pPacket, nPacketLength)) {
+            ctx->connected = false;
+        } else if (!ctx->connected && D0G_IS_WIRELESS_CONNECT(pPacket, nPacketLength)) {
             // Controller has connected to the wireless dongle
             if (!HIDAPI_JoystickConnected(device, NULL)) {
                 return false;
             }
 
             joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
+            ctx->connected = true;
         }
 
         if (r <= 0) {
             /* Failed to read from controller */
-            if (joystick) {
+            if (ctx->connected) {
                 HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
             }
             return SDL_FALSE;
