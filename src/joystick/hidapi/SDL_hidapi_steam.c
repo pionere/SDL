@@ -212,10 +212,9 @@ static void ResetSteamControllerPacketAssembler(SteamControllerPacketAssembler *
     pAssembler->nExpectedSegmentNumber = 0;
 }
 
-static void InitializeSteamControllerPacketAssembler(SteamControllerPacketAssembler *pAssembler)
+static void InitializeSteamControllerPacketAssembler(SteamControllerPacketAssembler *pAssembler, bool bIsBle)
 {
-    /* We only support BLE devices right now */
-    pAssembler->bIsBle = true;
+    pAssembler->bIsBle = bIsBle;
     ResetSteamControllerPacketAssembler(pAssembler);
 }
 
@@ -282,14 +281,13 @@ static int WriteSegmentToSteamControllerPacketAssembler(SteamControllerPacketAss
 
 #define BLE_MAX_READ_RETRIES 8
 
-static int SetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65], int nActualDataLen)
+static int SetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65], int nActualDataLen)
 {
     int nRet = -1;
-    bool bBle = true; // only wireless/BLE for now, though macOS could do wired in the future
 
     DPRINTF("SetFeatureReport %p %p %d\n", dev, uBuffer, nActualDataLen);
 
-    if (bBle) {
+    if (dev->is_bluetooth) {
         int nSegmentNumber = 0;
         uint8_t uPacketBuffer[MAX_REPORT_SEGMENT_SIZE];
         unsigned char *pBufferPtr = uBuffer + 1;
@@ -315,29 +313,31 @@ static int SetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65], int 
             pBufferPtr += nBytesInPacket;
             nSegmentNumber++;
 
-            nRet = SDL_hid_send_feature_report(dev, uPacketBuffer, sizeof(uPacketBuffer));
-            DPRINTF("SetFeatureReport() ret = %d\n", nRet);
+            nRet = SDL_hid_send_feature_report(dev->dev, uPacketBuffer, sizeof(uPacketBuffer));
         }
+    } else {
+        nRet = SDL_hid_send_feature_report(dev->dev, uBuffer, 65);
     }
+
+    DPRINTF("SetFeatureReport() ret = %d\n", nRet);
 
     return nRet;
 }
 
-static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
+static int GetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65])
 {
     int nRet = -1;
-    bool bBle = true;
 
     DPRINTF("GetFeatureReport( %p %p )\n", dev, uBuffer);
 
-    if (bBle) {
+    if (dev->is_bluetooth) {
         int nRetries = 0;
         uint8_t uSegmentBuffer[MAX_REPORT_SEGMENT_SIZE + 1];
         uint8_t ucBytesToRead = MAX_REPORT_SEGMENT_SIZE;
         uint8_t ucDataStartOffset = 0;
 
         SteamControllerPacketAssembler assembler;
-        InitializeSteamControllerPacketAssembler(&assembler);
+        InitializeSteamControllerPacketAssembler(&assembler, dev->is_bluetooth);
 
         // On Windows and macOS, BLE devices get 2 copies of the feature report ID, one that is removed by ReadFeatureReport,
         // and one that's included in the buffer we receive. We pad the bytes to read and skip over the report ID
@@ -350,7 +350,7 @@ static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
         while (nRetries < BLE_MAX_READ_RETRIES) {
             SDL_memset(uSegmentBuffer, 0, sizeof(uSegmentBuffer));
             uSegmentBuffer[0] = BLE_REPORT_NUMBER;
-            nRet = SDL_hid_get_feature_report(dev, uSegmentBuffer, ucBytesToRead);
+            nRet = SDL_hid_get_feature_report(dev->dev, uSegmentBuffer, ucBytesToRead);
 
             DPRINTF("GetFeatureReport ble ret=%d\n", nRet);
             HEXDUMP(uSegmentBuffer, nRet);
@@ -376,12 +376,18 @@ static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
             }
         }
         return SDL_SetError("Could not get a full ble packet after %d retries", nRetries);
+    } else {
+        SDL_memset(uBuffer, 0, 65);
+        nRet = SDL_hid_get_feature_report(dev->dev, uBuffer, 65);
+
+        DPRINTF("GetFeatureReport USB ret=%d\n", nRet);
+        HEXDUMP(uBuffer, nRet);
     }
 
     return nRet;
 }
 
-static int ReadResponse(SDL_hid_device *dev, uint8_t uBuffer[65], int nExpectedResponse)
+static int ReadResponse(SDL_HIDAPI_Device *dev, uint8_t uBuffer[65], int nExpectedResponse)
 {
     int nRet = GetFeatureReport(dev, uBuffer);
 
@@ -404,7 +410,7 @@ static int ReadResponse(SDL_hid_device *dev, uint8_t uBuffer[65], int nExpectedR
 //---------------------------------------------------------------------------
 // Reset steam controller (unmap buttons and pads) and re-fetch capability bits
 //---------------------------------------------------------------------------
-static bool ResetSteamController(SDL_hid_device *dev, uint32_t *punUpdateRateUS)
+static bool ResetSteamController(SDL_HIDAPI_Device *dev, uint32_t *punUpdateRateUS)
 {
     // Firmware quirk: Set Feature and Get Feature requests always require a 65-byte buffer.
     unsigned char buf[65];
@@ -577,7 +583,7 @@ static int ReadSteamController(SDL_hid_device *dev, uint8_t *pData, int nDataSiz
 //---------------------------------------------------------------------------
 // Close a Steam Controller
 //---------------------------------------------------------------------------
-static void CloseSteamController(SDL_hid_device *dev)
+static void CloseSteamController(SDL_HIDAPI_Device *dev)
 {
     // Switch the Steam Controller back to lizard mode so it works with the OS
     unsigned char buf[65];
@@ -995,14 +1001,14 @@ static SDL_bool HIDAPI_DriverSteam_OpenJoystick(SDL_HIDAPI_Device *device, SDL_J
     SDL_zero(ctx->m_state);
     SDL_zero(ctx->m_last_state);
 
-    if (!ResetSteamController(device->dev, &ctx->update_rate_in_us)) {
+    if (!ResetSteamController(device, &ctx->update_rate_in_us)) {
         return SDL_FALSE;
     }
     if (ctx->update_rate_in_us > 0) {
         update_rate_in_hz = 1000000.0f / ctx->update_rate_in_us;
     }
 
-    InitializeSteamControllerPacketAssembler(&ctx->m_assembler);
+    InitializeSteamControllerPacketAssembler(&ctx->m_assembler, device->is_bluetooth);
 
     /* Initialize the joystick capabilities */
     joystick->nbuttons = 17;
@@ -1056,7 +1062,7 @@ static int HIDAPI_DriverSteam_SetSensorsEnabled(SDL_HIDAPI_Device *device, SDL_J
         ADD_SETTING(SETTING_IMU_MODE, SETTING_GYRO_MODE_OFF);
     }
     buf[2] = nSettings * 3;
-    if (SetFeatureReport(device->dev, buf, 3 + nSettings * 3) < 0) {
+    if (SetFeatureReport(device, buf, 3 + nSettings * 3) < 0) {
         return SDL_SetError("Couldn't write feature report");
     }
 
@@ -1189,7 +1195,7 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 
 static void HIDAPI_DriverSteam_CloseJoystick(SDL_HIDAPI_Device *device, SDL_Joystick *joystick)
 {
-    CloseSteamController(device->dev);
+    CloseSteamController(device);
 }
 
 static void HIDAPI_DriverSteam_FreeDevice(SDL_HIDAPI_Device *device)
