@@ -741,6 +741,11 @@ static void HandlePendingRemovals(void)
 static SDL_bool SteamControllerConnectedCallback(const char *name, SDL_JoystickGUID guid, int *device_instance)
 {
     SDL_joylist_item *item;
+    Uint16 vendor, product, version;
+    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
+    if (SDL_ShouldIgnoreJoystick(&SDL_LINUX_JoystickDriver, vendor, product, version, name)) {
+        return false;
+    }
 
     item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));
     if (!item) {

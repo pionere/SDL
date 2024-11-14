@@ -3261,7 +3261,7 @@ static SDL_JoystickType SDL_GetJoystickGUIDType(SDL_JoystickGUID guid)
 
 SDL_bool SDL_ShouldIgnoreJoystick(const struct _SDL_JoystickDriver *driver, Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
-#ifdef SDL_JOYSTICK_LINUX
+#if defined(SDL_JOYSTICK_LINUX) && defined(SDL_JOYSTICK_HIDAPI)
     if (driver == &SDL_LINUX_JoystickDriver && SDL_LINUX_IsVirtualJoystick(vendor, product, version, name)) {
         ; // not sure why is this necessary...
     } else
