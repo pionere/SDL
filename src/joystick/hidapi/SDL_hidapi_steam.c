@@ -137,6 +137,8 @@ typedef struct SteamControllerStateInternal_t
 #define D0G_WIRELESS_NEWLYPAIRED               3
 
 #define D0G_IS_WIRELESS_DISCONNECT(data, len) (D0G_IS_VALID_WIRELESS_EVENT(data, len) && D0G_GET_WIRELESS_EVENT_TYPE(data) == D0G_WIRELESS_DISCONNECTED)
+#define D0G_IS_WIRELESS_CONNECT(data, len)    (D0G_IS_VALID_WIRELESS_EVENT(data, len) && D0G_GET_WIRELESS_EVENT_TYPE(data) != D0G_WIRELESS_DISCONNECTED)
+
 
 #define MAX_REPORT_SEGMENT_PAYLOAD_SIZE 18
 /*
@@ -316,7 +318,14 @@ static int SetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65], i
             nRet = SDL_hid_send_feature_report(dev->dev, uPacketBuffer, sizeof(uPacketBuffer));
         }
     } else {
-        nRet = SDL_hid_send_feature_report(dev->dev, uBuffer, 65);
+        for (int nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
+            nRet = SDL_hid_send_feature_report(dev->dev, uBuffer, 65);
+            if (nRet >= 0) {
+                break;
+            }
+
+            SDL_DelayNS(RADIO_WORKAROUND_SLEEP_DURATION_US * 1000);
+        }
     }
 
     DPRINTF("SetFeatureReport() ret = %d\n", nRet);
@@ -378,7 +387,15 @@ static int GetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65])
         return SDL_SetError("Could not get a full ble packet after %d retries", nRetries);
     } else {
         SDL_memset(uBuffer, 0, 65);
-        nRet = SDL_hid_get_feature_report(dev->dev, uBuffer, 65);
+
+        for (int nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
+            nRet = SDL_hid_get_feature_report(dev->dev, uBuffer, 65);
+            if (nRet >= 0) {
+                break;
+            }
+
+            SDL_DelayNS(RADIO_WORKAROUND_SLEEP_DURATION_US * 1000);
+        }
 
         DPRINTF("GetFeatureReport USB ret=%d\n", nRet);
         HEXDUMP(uBuffer, nRet);
@@ -977,7 +994,25 @@ static SDL_bool HIDAPI_DriverSteam_InitDevice(SDL_HIDAPI_Device *device)
 
     HIDAPI_SetDeviceName(device, "Steam Controller");
 
-    return HIDAPI_JoystickConnected(device, NULL);
+    // If this is a wireless dongle, request a wireless state update
+    if (device->product_id == USB_PRODUCT_VALVE_STEAM_CONTROLLER_DONGLE) {
+        unsigned char buf[65];
+        int res;
+
+        buf[0] = 0;
+        buf[1] = ID_DONGLE_GET_WIRELESS_STATE;
+        res = SetFeatureReport(device, buf, 2);
+        if (res < 0) {
+            SDL_SetError("Failed to send ID_DONGLE_GET_WIRELESS_STATE request");
+            return SDL_FALSE;
+        }
+
+        // We will enumerate any attached controllers in UpdateDevices()
+        return SDL_TRUE;
+    } else {
+        // Wired and BLE controllers are always connected if HIDAPI can see them
+        return HIDAPI_JoystickConnected(device, NULL);
+    }
 }
 
 static int HIDAPI_DriverSteam_GetDevicePlayerIndex(SDL_HIDAPI_Device *device, SDL_JoystickID instance_id)
@@ -1078,8 +1113,6 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 
     if (device->num_joysticks > 0) {
         joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
-    } else {
-        return SDL_FALSE;
     }
 
     for (;;) {
@@ -1092,10 +1125,6 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
             break;
         }
 
-        if (!joystick) {
-            continue;
-        }
-
         nPacketLength = 0;
         if (r > 0) {
             nPacketLength = WriteSegmentToSteamControllerPacketAssembler(&ctx->m_assembler, data, r);
@@ -1104,6 +1133,10 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
         pPacket = ctx->m_assembler.uBuffer;
 
         if (nPacketLength > 0 && UpdateSteamControllerState(pPacket, nPacketLength, &ctx->m_state)) {
+            if (!joystick) {
+                continue;
+            }
+
             if (ctx->m_state.ulButtons != ctx->m_last_state.ulButtons) {
                 SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_A,
                                           (ctx->m_state.ulButtons & STEAM_BUTTON_3_MASK) ? SDL_PRESSED : SDL_RELEASED);
@@ -1182,11 +1215,24 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
             }
 
             ctx->m_last_state = ctx->m_state;
+        } else if (joystick && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
+            // Controller has disconnected from the wireless dongle
+            HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+            joystick = NULL;
+        } else if (!joystick && D0G_IS_WIRELESS_CONNECT(pPacket, nPacketLength)) {
+            // Controller has connected to the wireless dongle
+            if (!HIDAPI_JoystickConnected(device, NULL)) {
+                return false;
+            }
+
+            joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
         }
 
         if (r <= 0) {
             /* Failed to read from controller */
-            HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+            if (joystick) {
+                HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+            }
             return SDL_FALSE;
         }
     }
