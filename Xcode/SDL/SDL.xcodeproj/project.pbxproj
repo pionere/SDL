@@ -3148,12 +3148,6 @@
 		A7D8BBB423E2514500DCD162 /* SDL_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A94423E2514000DCD162 /* SDL_assert.c */; };
 		A7D8BBB523E2514500DCD162 /* SDL_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A94423E2514000DCD162 /* SDL_assert.c */; };
 		A7D8BBB623E2514500DCD162 /* SDL_assert.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A94423E2514000DCD162 /* SDL_assert.c */; };
-		A7D8BBB923E2560500DCD162 /* SDL_steamcontroller.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A7A723E2513E00DCD162 /* SDL_steamcontroller.c */; };
-		A7D8BBBA23E2560600DCD162 /* SDL_steamcontroller.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A7A723E2513E00DCD162 /* SDL_steamcontroller.c */; };
-		A7D8BBC523E2561500DCD162 /* SDL_steamcontroller.c in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A7A723E2513E00DCD162 /* SDL_steamcontroller.c */; };
-		A7D8BBC723E2561500DCD162 /* SDL_steamcontroller.h in Headers */ = {isa = PBXBuildFile; fileRef = A7D8A7A523E2513E00DCD162 /* SDL_steamcontroller.h */; };
-		A7D8BBCB23E2561600DCD162 /* SDL_steamcontroller.h in Headers */ = {isa = PBXBuildFile; fileRef = A7D8A7A523E2513E00DCD162 /* SDL_steamcontroller.h */; };
-		A7D8BBCF23E2561600DCD162 /* SDL_steamcontroller.h in Headers */ = {isa = PBXBuildFile; fileRef = A7D8A7A523E2513E00DCD162 /* SDL_steamcontroller.h */; };
 		A7D8BBD223E2574800DCD162 /* SDL_uikitappdelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = A7D8A62F23E2513D00DCD162 /* SDL_uikitappdelegate.h */; };
 		A7D8BBD323E2574800DCD162 /* SDL_uikitappdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A7D8A61E23E2513D00DCD162 /* SDL_uikitappdelegate.m */; };
 		A7D8BBD423E2574800DCD162 /* SDL_uikitclipboard.h in Headers */ = {isa = PBXBuildFile; fileRef = A7D8A62123E2513D00DCD162 /* SDL_uikitclipboard.h */; };
@@ -3986,8 +3980,6 @@
 		A7D8A78823E2513E00DCD162 /* SDL_sysmutex_c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_sysmutex_c.h; sourceTree = "<group>"; };
 		A7D8A79E23E2513E00DCD162 /* SDL_gamecontrollerdb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_gamecontrollerdb.h; sourceTree = "<group>"; };
 		A7D8A7A023E2513E00DCD162 /* SDL_sysjoystick.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_sysjoystick.c; sourceTree = "<group>"; };
-		A7D8A7A523E2513E00DCD162 /* SDL_steamcontroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_steamcontroller.h; sourceTree = "<group>"; };
-		A7D8A7A723E2513E00DCD162 /* SDL_steamcontroller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_steamcontroller.c; sourceTree = "<group>"; };
 		A7D8A7A923E2513E00DCD162 /* SDL_joystick.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_joystick.c; sourceTree = "<group>"; };
 		A7D8A7AD23E2513E00DCD162 /* SDL_gamecontroller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_gamecontroller.c; sourceTree = "<group>"; };
 		A7D8A7C223E2513E00DCD162 /* SDL_hidapi_xbox360.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_xbox360.c; sourceTree = "<group>"; };
@@ -5053,7 +5045,6 @@
 				A7D8A79F23E2513E00DCD162 /* dummy */,
 				A7D8A7BE23E2513E00DCD162 /* hidapi */,
 				A7D8A7AA23E2513E00DCD162 /* iphoneos */,
-				A7D8A7A123E2513E00DCD162 /* steam */,
 				75E09157241EA924004729E1 /* virtual */,
 				F362B91F2B33916600D30B94 /* controller_list.h */,
 				F3820712284F3609004DD584 /* controller_type.c */,
@@ -5076,15 +5067,6 @@
 				A7D8A7A023E2513E00DCD162 /* SDL_sysjoystick.c */,
 			);
 			path = dummy;
-			sourceTree = "<group>";
-		};
-		A7D8A7A123E2513E00DCD162 /* steam */ = {
-			isa = PBXGroup;
-			children = (
-				A7D8A7A723E2513E00DCD162 /* SDL_steamcontroller.c */,
-				A7D8A7A523E2513E00DCD162 /* SDL_steamcontroller.h */,
-			);
-			path = steam;
 			sourceTree = "<group>";
 		};
 		A7D8A7AA23E2513E00DCD162 /* iphoneos */ = {
@@ -6944,7 +6926,6 @@
 				AA7558481595D4D800BBD41B /* SDL_shape.h in Headers */,
 				A7D8AC0923E2514100DCD162 /* SDL_shape_internals.h in Headers */,
 				AA75584A1595D4D800BBD41B /* SDL_stdinc.h in Headers */,
-				A7D8BBC723E2561500DCD162 /* SDL_steamcontroller.h in Headers */,
 				AA75584C1595D4D800BBD41B /* SDL_surface.h in Headers */,
 				A7D8B85A23E2514400DCD162 /* SDL_sysaudio.h in Headers */,
 				A7D8AAD423E2514100DCD162 /* SDL_syshaptic.h in Headers */,
@@ -9161,7 +9142,6 @@
 				A7D8AAB623E2514100DCD162 /* SDL_haptic.c in Sources */,
 				A7D8AF2423E2514100DCD162 /* SDL_cocoametalview.m in Sources */,
 				A7D8B86023E2514400DCD162 /* SDL_audiotypecvt.c in Sources */,
-				A7D8BBC523E2561500DCD162 /* SDL_steamcontroller.c in Sources */,
 				A7D8AD3223E2514100DCD162 /* SDL_blit_N.c in Sources */,
 				A7D8BB7B23E2514500DCD162 /* SDL_dropevents.c in Sources */,
 				F362B95B2B33EB7300D30B94 /* SDL_steam_virtual_gamepad.c in Sources */,

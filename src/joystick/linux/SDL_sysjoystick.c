@@ -48,7 +48,6 @@
 #include "../../events/SDL_events_c.h"
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
-#include "../steam/SDL_steamcontroller.h"
 #include "SDL_sysjoystick_c.h"
 #include "../hidapi/SDL_hidapijoystick_c.h"
 
@@ -249,9 +248,6 @@ typedef struct SDL_joylist_item
     int steam_virtual_gamepad_slot;
     struct joystick_hwdata *hwdata;
     struct SDL_joylist_item *next;
-
-    /* Steam Controller support */
-    SDL_bool m_bSteamController;
 
     SDL_bool checked_mapping;
     SDL_GamepadMapping *mapping;
@@ -738,65 +734,6 @@ static void HandlePendingRemovals(void)
     }
 }
 
-static SDL_bool SteamControllerConnectedCallback(const char *name, SDL_JoystickGUID guid, int *device_instance)
-{
-    SDL_joylist_item *item;
-    Uint16 vendor, product, version;
-    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
-    if (SDL_ShouldIgnoreJoystick(&SDL_LINUX_JoystickDriver, vendor, product, version, name)) {
-        return SDL_FALSE;
-    }
-
-    item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));
-    if (!item) {
-        return SDL_FALSE;
-    }
-
-    item->path = SDL_strdup("");
-    item->name = SDL_strdup(name);
-    item->guid = guid;
-    item->m_bSteamController = SDL_TRUE;
-
-    if ((!item->path) || (!item->name)) {
-        FreeJoylistItem(item);
-        return SDL_FALSE;
-    }
-
-    *device_instance = item->device_instance = SDL_GetNextJoystickInstanceID();
-    SDL_LockJoysticks();
-    if (!SDL_joylist_tail) {
-        SDL_joylist = SDL_joylist_tail = item;
-    } else {
-        SDL_joylist_tail->next = item;
-        SDL_joylist_tail = item;
-    }
-
-    /* Need to increment the joystick count before we post the event */
-    ++numjoysticks;
-
-    SDL_PrivateJoystickAdded(item->device_instance);
-    SDL_UnlockJoysticks();
-
-    return SDL_TRUE;
-}
-
-static void SteamControllerDisconnectedCallback(int device_instance)
-{
-    SDL_joylist_item *item;
-    SDL_joylist_item *prev = NULL;
-
-    SDL_LockJoysticks();
-    for (item = SDL_joylist; item; item = item->next) {
-        /* found it, remove it. */
-        if (item->device_instance == device_instance) {
-            RemoveJoylistItem(item, prev);
-            break;
-        }
-        prev = item;
-    }
-    SDL_UnlockJoysticks();
-}
-
 static int StrHasPrefix(const char *string, const char *prefix)
 {
     return SDL_strncmp(string, prefix, SDL_strlen(prefix)) == 0;
@@ -1103,8 +1040,6 @@ static void LINUX_JoystickDetect(void)
     }
 
     HandlePendingRemovals();
-
-    SDL_UpdateSteamControllers();
 }
 
 static int LINUX_JoystickInit(void)
@@ -1133,9 +1068,6 @@ static int LINUX_JoystickInit(void)
         }
         SDL_free(envcopy);
     }
-
-    SDL_InitSteamControllers(SteamControllerConnectedCallback,
-                             SteamControllerDisconnectedCallback);
 
     /* Force immediate joystick detection if using fallback */
     last_joy_detect_time = 0;
@@ -1580,58 +1512,50 @@ static void ConfigJoystick(SDL_Joystick *joystick, int fd, int fd_sensor)
    on error. Returns -1 on error, 0 on success. */
 static int PrepareJoystickHwdata(SDL_Joystick *joystick, SDL_joylist_item *item, SDL_sensorlist_item *item_sensor)
 {
+    int fd, fd_sensor = -1;
     SDL_AssertJoysticksLocked();
 
     joystick->hwdata->item = item;
     joystick->hwdata->item_sensor = item_sensor;
     joystick->hwdata->guid = item->guid;
     joystick->hwdata->effect.id = -1;
-    joystick->hwdata->m_bSteamController = item->m_bSteamController;
     SDL_memset(joystick->hwdata->key_map, 0xFF, sizeof(joystick->hwdata->key_map));
     SDL_memset(joystick->hwdata->abs_map, 0xFF, sizeof(joystick->hwdata->abs_map));
 
-    if (item->m_bSteamController) {
-        joystick->hwdata->fd = -1;
-        joystick->hwdata->fd_sensor = -1;
-        SDL_GetSteamControllerInputs(&joystick->nbuttons,
-                                     &joystick->naxes,
-                                     &joystick->nhats);
-    } else {
-        int fd = -1, fd_sensor = -1;
-        /* Try read-write first, so we can do rumble */
-        fd = open(item->path, O_RDWR | O_CLOEXEC, 0);
-        if (fd < 0) {
-            /* Try read-only again, at least we'll get events in this case */
-            fd = open(item->path, O_RDONLY | O_CLOEXEC, 0);
-        }
-        if (fd < 0) {
-            return SDL_SetError("Unable to open %s", item->path);
-        }
-        /* If opening sensor fail, continue with buttons and axes only */
-        if (item_sensor) {
-            fd_sensor = open(item_sensor->path, O_RDONLY | O_CLOEXEC, 0);
-        }
-
-        joystick->hwdata->fd = fd;
-        joystick->hwdata->fd_sensor = fd_sensor;
-        joystick->hwdata->fname = SDL_strdup(item->path);
-        if (!joystick->hwdata->fname) {
-            close(fd);
-            if (fd_sensor >= 0) {
-                close(fd_sensor);
-            }
-            return SDL_OutOfMemory();
-        }
-
-        /* Set the joystick to non-blocking read mode */
-        fcntl(fd, F_SETFL, O_NONBLOCK);
-        if (fd_sensor >= 0) {
-            fcntl(fd_sensor, F_SETFL, O_NONBLOCK);
-        }
-
-        /* Get the number of buttons and axes on the joystick */
-        ConfigJoystick(joystick, fd, fd_sensor);
+    /* Try read-write first, so we can do rumble */
+    fd = open(item->path, O_RDWR | O_CLOEXEC, 0);
+    if (fd < 0) {
+        /* Try read-only again, at least we'll get events in this case */
+        fd = open(item->path, O_RDONLY | O_CLOEXEC, 0);
     }
+    if (fd < 0) {
+        return SDL_SetError("Unable to open %s", item->path);
+    }
+    /* If opening sensor fail, continue with buttons and axes only */
+    if (item_sensor) {
+        fd_sensor = open(item_sensor->path, O_RDONLY | O_CLOEXEC, 0);
+    }
+
+    joystick->hwdata->fd = fd;
+    joystick->hwdata->fd_sensor = fd_sensor;
+    joystick->hwdata->fname = SDL_strdup(item->path);
+    if (!joystick->hwdata->fname) {
+        close(fd);
+        if (fd_sensor >= 0) {
+            close(fd_sensor);
+        }
+        return SDL_OutOfMemory();
+    }
+
+    /* Set the joystick to non-blocking read mode */
+    fcntl(fd, F_SETFL, O_NONBLOCK);
+    if (fd_sensor >= 0) {
+        fcntl(fd_sensor, F_SETFL, O_NONBLOCK);
+    }
+
+    /* Get the number of buttons and axes on the joystick */
+    ConfigJoystick(joystick, fd, fd_sensor);
+
     return 0;
 }
 
@@ -2256,11 +2180,6 @@ static void LINUX_JoystickUpdate(SDL_Joystick *joystick)
 
     SDL_AssertJoysticksLocked();
 
-    if (joystick->hwdata->m_bSteamController) {
-        SDL_UpdateSteamController(joystick);
-        return;
-    }
-
     if (joystick->hwdata->classic) {
         HandleClassicEvents(joystick);
     } else {
@@ -2348,8 +2267,6 @@ static void LINUX_JoystickQuit(void)
         SDL_UDEV_Quit();
     }
 #endif
-
-    SDL_QuitSteamControllers();
 }
 
 /*

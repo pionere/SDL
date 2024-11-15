@@ -29206,7 +29206,6 @@ printf "%s\n" "#define SDL_JOYSTICK_LINUX 1" >>confdefs.h
 
                     SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
-                    SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
                 fi
             ;;
@@ -29217,7 +29216,6 @@ printf "%s\n" "#define SDL_JOYSTICK_LINUX 1" >>confdefs.h
 
                     SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
-                    SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
                 fi
             ;;
@@ -29227,7 +29225,6 @@ printf "%s\n" "#define SDL_JOYSTICK_ANDROID 1" >>confdefs.h
 
                 SUMMARY_joystick="${SUMMARY_joystick} android"
                 SOURCES="$SOURCES $srcdir/src/joystick/android/*.c"
-                SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                 have_joystick=yes
             ;;
           esac
@@ -29725,7 +29722,6 @@ printf "%s\n" "#define SDL_JOYSTICK_MFI 1" >>confdefs.h
             SUMMARY_joystick="${SUMMARY_joystick} ios"
             SUMMARY_joystick="${SUMMARY_joystick} mfi"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
-            SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
             have_joystick=yes
         else
             # Need this code for accelerometer as joystick support

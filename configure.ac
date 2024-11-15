@@ -4213,7 +4213,6 @@ case "$host" in
                     AC_DEFINE(SDL_JOYSTICK_LINUX, 1, [ ])
                     SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
-                    SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
                 fi
             ;;
@@ -4222,7 +4221,6 @@ case "$host" in
                     AC_DEFINE(SDL_JOYSTICK_LINUX, 1, [ ])
                     SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
-                    SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
                 fi
             ;;
@@ -4230,7 +4228,6 @@ case "$host" in
                 AC_DEFINE(SDL_JOYSTICK_ANDROID, 1, [ ])
                 SUMMARY_joystick="${SUMMARY_joystick} android"
                 SOURCES="$SOURCES $srcdir/src/joystick/android/*.c"
-                SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                 have_joystick=yes
             ;;
           esac
@@ -4609,7 +4606,6 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             SUMMARY_joystick="${SUMMARY_joystick} ios"
             SUMMARY_joystick="${SUMMARY_joystick} mfi"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
-            SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
             have_joystick=yes
         else
             # Need this code for accelerometer as joystick support
