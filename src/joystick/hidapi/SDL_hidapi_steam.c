@@ -32,6 +32,9 @@
 
 #ifdef SDL_JOYSTICK_HIDAPI_STEAM
 
+// Define this if you want to log all packets from the controller
+// #define DEBUG_STEAM_PROTOCOL
+
 #define SDL_HINT_JOYSTICK_HIDAPI_STEAM_PAIRING_ENABLED    "SDL_JOYSTICK_HIDAPI_STEAM_PAIRING_ENABLED"
 
 #define bool SDL_bool
@@ -202,11 +205,7 @@ static uint8_t GetSegmentHeader(int nSegmentNumber, bool bLastPacket)
 #ifdef DEBUG_STEAM_CONTROLLER
 static void hexdump(const uint8_t *ptr, int len)
 {
-    int i;
-    for (i = 0; i < len; ++i) {
-        printf("%02x ", ptr[i]);
-    }
-    printf("\n");
+    HIDAPI_DumpPacket("Data", ptr, len);
 }
 #endif
 static void ResetSteamControllerPacketAssembler(SteamControllerPacketAssembler *pAssembler)
@@ -409,22 +408,26 @@ static int GetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65])
 
 static int ReadResponse(SDL_HIDAPI_Device *dev, uint8_t uBuffer[65], int nExpectedResponse)
 {
-    int nRet = GetFeatureReport(dev, uBuffer);
+    int nRetries;
+    for (nRetries = 0; nRetries < 10; nRetries++) {
+        int nRet = GetFeatureReport(dev, uBuffer);
 
-    DPRINTF("ReadResponse( %p %p %d )\n", dev, uBuffer, nExpectedResponse);
+        DPRINTF("ReadResponse( %p %p 0x%x )\n", dev, uBuffer, nExpectedResponse);
 
-    if (nRet < 0) {
+        if (nRet < 0) {
+            continue;
+        }
+
+        DPRINTF("ReadResponse got %d bytes of data: ", nRet);
+        HEXDUMP(uBuffer, nRet);
+
+        if (uBuffer[1] != nExpectedResponse) {
+            continue;
+        }
+
         return nRet;
     }
-
-    DPRINTF("ReadResponse got %d bytes of data: ", nRet);
-    HEXDUMP(uBuffer, nRet);
-
-    if (uBuffer[1] != nExpectedResponse) {
-        return -1;
-    }
-
-    return nRet;
+    return -1;
 }
 
 //---------------------------------------------------------------------------
@@ -1200,15 +1203,23 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
         const Uint8 *pPacket;
 
         r = ReadSteamController(device->dev, data, sizeof(data));
-        if (r == 0) {
+        if (r <= 0) {
+            if (r < 0) {
+                // Failed to read from controller
+                if (ctx->connected) {
+                    HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+                    ctx->connected = false;
+                }
+                return false;
+            }
             break;
         }
 
-        nPacketLength = 0;
-        if (r > 0) {
-            nPacketLength = WriteSegmentToSteamControllerPacketAssembler(&ctx->m_assembler, data, r);
-        }
+#ifdef DEBUG_STEAM_PROTOCOL
+        HIDAPI_DumpPacket("Steam Controller packet: size = %d", data, r);
+#endif
 
+        nPacketLength = WriteSegmentToSteamControllerPacketAssembler(&ctx->m_assembler, data, r);
         pPacket = ctx->m_assembler.uBuffer;
 
         if (nPacketLength > 0 && UpdateSteamControllerState(pPacket, nPacketLength, &ctx->m_state)) {
@@ -1294,11 +1305,6 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
             }
 
             ctx->m_last_state = ctx->m_state;
-        } else if (ctx->connected && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
-            // Controller has disconnected from the wireless dongle
-            HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
-            joystick = NULL;
-            ctx->connected = false;
         } else if (!ctx->connected && D0G_IS_WIRELESS_CONNECT(pPacket, nPacketLength)) {
             // Controller has connected to the wireless dongle
             if (!HIDAPI_JoystickConnected(device, NULL)) {
@@ -1310,17 +1316,14 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 
             joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
             ctx->connected = true;
-        }
-
-        if (r <= 0) {
-            /* Failed to read from controller */
-            if (ctx->connected) {
-                HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
-            }
-            return SDL_FALSE;
+        } else if (ctx->connected && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
+            // Controller has disconnected from the wireless dongle
+            HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+            joystick = NULL;
+            ctx->connected = false;
         }
     }
-    return SDL_TRUE;
+    return true;
 }
 
 static void HIDAPI_DriverSteam_CloseJoystick(SDL_HIDAPI_Device *device, SDL_Joystick *joystick)
