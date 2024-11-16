@@ -41,6 +41,11 @@
 #define true SDL_TRUE
 #define false SDL_FALSE
 
+#define PAIRING_STATE_DURATION_SECONDS  60
+
+
+/*****************************************************************************************************/
+
 #include "steam/controller_constants.h"
 #include "steam/controller_structs.h"
 
@@ -613,7 +618,7 @@ static void SetPairingState(SDL_HIDAPI_Device *dev, bool bEnablePairing)
     buf[1] = ID_ENABLE_PAIRING;
     buf[2] = 2; // 2 payload bytes: bool + timeout
     buf[3] = bEnablePairing ? 1 : 0;
-    buf[4] = bEnablePairing ? 60 : 0;
+    buf[4] = bEnablePairing ? PAIRING_STATE_DURATION_SECONDS : 0;
     SetFeatureReport(dev, buf, 5);
 }
 
@@ -980,6 +985,7 @@ typedef struct
     bool report_sensors;
     uint32_t update_rate_in_us;
     Uint32 timestamp_us;
+    Uint64 pairing_time;
 
     SteamControllerPacketAssembler m_assembler;
     SteamControllerStateInternal_t m_state;
@@ -1031,9 +1037,21 @@ static void HIDAPI_DriverSteam_SetPairingState(SDL_DriverSteam_Context *ctx, boo
     SetPairingState(ctx->device, enabled);
 
     if (enabled) {
+        ctx->pairing_time = SDL_GetTicks64();
         s_PairingContext = ctx;
     } else {
+        ctx->pairing_time = 0;
         s_PairingContext = NULL;
+    }
+}
+
+static void HIDAPI_DriverSteam_RenewPairingState(SDL_DriverSteam_Context *ctx)
+{
+    Uint64 now = SDL_GetTicks64();
+
+    if (now >= ctx->pairing_time + PAIRING_STATE_DURATION_SECONDS * 1000) {
+        SetPairingState(ctx->device, true);
+        ctx->pairing_time = now;
     }
 }
 
@@ -1220,6 +1238,10 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 
     if (device->num_joysticks > 0) {
         joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
+    }
+
+    if (ctx->pairing_time) {
+        HIDAPI_DriverSteam_RenewPairingState(ctx);
     }
 
     for (;;) {
