@@ -1188,6 +1188,31 @@ static int HIDAPI_DriverSteam_SetSensorsEnabled(SDL_HIDAPI_Device *device, SDL_J
     return 0;
 }
 
+static SDL_bool ControllerConnected(SDL_HIDAPI_Device *device, SDL_Joystick **joystick)
+{
+    SDL_DriverSteam_Context *ctx = (SDL_DriverSteam_Context *)device->context;
+
+    if (!HIDAPI_JoystickConnected(device, NULL)) {
+        return false;
+    }
+
+    // We'll automatically accept this controller if we're in pairing mode
+    HIDAPI_DriverSteam_CommitPairing(ctx);
+
+    *joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
+    ctx->connected = true;
+    return true;
+}
+
+static void ControllerDisconnected(SDL_HIDAPI_Device *device, SDL_Joystick **joystick)
+{
+    SDL_DriverSteam_Context *ctx = (SDL_DriverSteam_Context *)device->context;
+
+    HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
+    ctx->connected = false;
+    *joystick = NULL;
+}
+
 static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 {
     SDL_DriverSteam_Context *ctx = (SDL_DriverSteam_Context *)device->context;
@@ -1206,10 +1231,7 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
         if (r <= 0) {
             if (r < 0) {
                 // Failed to read from controller
-                if (ctx->connected) {
-                    HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
-                    ctx->connected = false;
-                }
+                ControllerDisconnected(device, &joystick);
                 return false;
             }
             break;
@@ -1223,6 +1245,11 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
         pPacket = ctx->m_assembler.uBuffer;
 
         if (nPacketLength > 0 && UpdateSteamControllerState(pPacket, nPacketLength, &ctx->m_state)) {
+            if (!ctx->connected) {
+                // Maybe we missed a wireless status packet?
+                ControllerConnected(device, &joystick);
+            }
+
             if (!joystick) {
                 continue;
             }
@@ -1306,21 +1333,9 @@ static SDL_bool HIDAPI_DriverSteam_UpdateDevice(SDL_HIDAPI_Device *device)
 
             ctx->m_last_state = ctx->m_state;
         } else if (!ctx->connected && D0G_IS_WIRELESS_CONNECT(pPacket, nPacketLength)) {
-            // Controller has connected to the wireless dongle
-            if (!HIDAPI_JoystickConnected(device, NULL)) {
-                return false;
-            }
-
-            // We'll automatically accept this controller if we're in pairing mode
-            HIDAPI_DriverSteam_CommitPairing(ctx);
-
-            joystick = SDL_JoystickFromInstanceID(device->joysticks[0]);
-            ctx->connected = true;
+            ControllerConnected(device, &joystick);
         } else if (ctx->connected && D0G_IS_WIRELESS_DISCONNECT(pPacket, nPacketLength)) {
-            // Controller has disconnected from the wireless dongle
-            HIDAPI_JoystickDisconnected(device, device->joysticks[0]);
-            joystick = NULL;
-            ctx->connected = false;
+            ControllerDisconnected(device, &joystick);
         }
     }
     return true;
