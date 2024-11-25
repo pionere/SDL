@@ -414,12 +414,7 @@ int WASAPI_PrepDevice(_THIS)
 
     SDL_assert(client != NULL);
 
-#if defined(__WINRT__) || defined(__GDK__) /* CreateEventEx() arrived in Vista, so we need an #ifdef for XP. */
-    this->hidden->event = CreateEventEx(NULL, NULL, 0, EVENT_ALL_ACCESS);
-#else
-    this->hidden->event = CreateEventW(NULL, 0, 0, NULL);
-#endif
-
+    this->hidden->event = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!this->hidden->event) {
         return WIN_SetError("WASAPI can't create an event handle");
     }
