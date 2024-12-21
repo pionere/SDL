@@ -541,6 +541,9 @@ extern DECLSPEC int SDLCALL SDL_SetMemoryFunctions(SDL_malloc_func malloc_func,
 /**
  * Get the number of outstanding (unfreed) allocations
  *
+ * \returns the number of allocations or
+ *          -1 if allocation counting is disabled.
+ *
  * \since This function is available since SDL 2.0.7.
  */
 extern DECLSPEC int SDLCALL SDL_GetNumAllocations(void);
