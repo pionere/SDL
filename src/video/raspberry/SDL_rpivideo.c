@@ -64,7 +64,7 @@ static void RPI_DeleteDevice(_THIS)
 {
 }
 
-static int RPI_GetRefreshRate()
+static int RPI_GetRefreshRate(void)
 {
     TV_DISPLAY_STATE_T tvstate;
     if (vc_tv_get_display_state(&tvstate) == 0) {

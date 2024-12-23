@@ -316,7 +316,9 @@
 
 - (void)layoutSubviews
 {
-    int width, height;
+    int width;
+    int height;
+
     [super layoutSubviews];
 
     width  = (int) (self.bounds.size.width * self.contentScaleFactor);

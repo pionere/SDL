@@ -388,7 +388,7 @@ static int WINRT_AddDisplaysForOutput(IDXGIAdapter1 *dxgiAdapter1, int outputInd
         UINT numModes;
         DXGI_MODE_DESC *dxgiModes = NULL;
         SDL_DisplayMode mode;
-        displayName = WIN_StringToUTF8(dxgiOutputDesc.DeviceName);
+        displayName = WIN_StringToUTF8W(dxgiOutputDesc.DeviceName);
         display.name = displayName;
         WINRT_DXGIModeToSDLDisplayMode(&closestMatch, &mode);
         display.desktop_mode = mode;

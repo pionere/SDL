@@ -452,10 +452,10 @@ typedef enum
 {
 	NSString *localName = [advertisementData objectForKey:CBAdvertisementDataLocalNameKey];
 	NSString *log = [NSString stringWithFormat:@"Found '%@'", localName];
-	HIDBLEDevice *steamController;
 
 	if ( [localName isEqualToString:@"SteamController"] )
 	{
+		HIDBLEDevice *steamController;
 		NSLog( @"%@ : %@ - %@", log, peripheral, advertisementData );
 		self.nPendingPairs += 1;
 		steamController = [[HIDBLEDevice alloc] initWithPeripheral:peripheral];
@@ -854,19 +854,19 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 	if ( ( vendor_id == 0 || vendor_id == VALVE_USB_VID ) &&
 	     ( product_id == 0 || product_id == D0G_BLE2_PID ) )
 	{
-		HIDBLEManager *bleManager = HIDBLEManager.sharedInstance;
 		NSEnumerator<HIDBLEDevice *> *devices;
+		HIDBLEManager *bleManager = HIDBLEManager.sharedInstance;
 		[bleManager updateConnectedSteamControllers:false];
 		devices = [bleManager.deviceMap objectEnumerator];
 		for ( HIDBLEDevice *device in devices )
 		{
+			struct hid_device_info *device_info;
 			// there are several brief windows in connecting to an already paired device and
 			// one long window waiting for users to confirm pairing where we don't want
 			// to consider a device ready - if we hand it back to SDL or another
 			// Steam Controller consumer, their additional SC setup work will fail
 			// in unusual/silent ways and we can actually corrupt the BLE stack for
 			// the entire system and kill the appletv remote's Menu button (!)
-			struct hid_device_info *device_info;
 			if ( device.bleSteamController.state != CBPeripheralStateConnected ||
 				 device.connected == NO || device.ready == NO )
 			{
@@ -960,8 +960,8 @@ int HID_API_EXPORT hid_send_feature_report(hid_device *dev, const unsigned char 
 
 int HID_API_EXPORT hid_get_feature_report(hid_device *dev, unsigned char *data, size_t length)
 {
-	HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
 	size_t written;
+    HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
 
 	if ( !device_handle.connected )
 		return -1;
@@ -983,8 +983,8 @@ int HID_API_EXPORT hid_read(hid_device *dev, unsigned char *data, size_t length)
 
 int HID_API_EXPORT hid_read_timeout(hid_device *dev, unsigned char *data, size_t length, int milliseconds)
 {
-	HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
 	int result;
+    HIDBLEDevice *device_handle = (__bridge HIDBLEDevice *)dev->device_handle;
 
 	if ( !device_handle.connected )
 		return -1;

@@ -36,9 +36,15 @@
 
 
 /* PSP declarations */
+#include "SDL_pspmessagebox.h"
 #include "SDL_pspvideo.h"
 #include "SDL_pspevents_c.h"
 #include "SDL_pspgl_c.h"
+
+#include <psputility.h>
+#include <pspgu.h>
+#include <pspdisplay.h>
+#include <vram.h>
 #include "../../render/psp/SDL_render_psp.h"
 
 #ifdef SDL_VIDEO_VULKAN
@@ -59,7 +65,7 @@ int PSP_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
     SDL_Renderer *renderer = SDL_GetRenderer(window);
 
     SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
-    if (w != 480) {
+    if (w != PSP_SCREEN_WIDTH) {
         return SDL_SetError("Unexpected window size");
     }
 
@@ -282,6 +288,147 @@ static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
 
     return SDL_TRUE;
 }
+
+static void configure_dialog(pspUtilityMsgDialogParams *dialog, size_t dialog_size)
+{
+	/* clear structure and setup size */
+	SDL_memset(dialog, 0, dialog_size);
+	dialog->base.size = dialog_size;
+
+	/* set language */
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &dialog->base.language);
+
+	/* set X/O swap */
+	sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &dialog->base.buttonSwap);
+
+	/* set thread priorities */
+	/* TODO: understand how these work */
+	dialog->base.soundThread = 0x10;
+	dialog->base.graphicsThread = 0x11;
+	dialog->base.fontThread = 0x12;
+	dialog->base.accessThread = 0x13;
+}
+
+static void *setup_temporal_gu(void *list)
+{
+    // Using GU_PSM_8888 for the framebuffer
+	int bpp = 4;
+	
+	void *doublebuffer = vramalloc(PSP_FRAME_BUFFER_SIZE * bpp * 2);
+    void *backbuffer = doublebuffer;
+    void *frontbuffer = ((uint8_t *)doublebuffer) + PSP_FRAME_BUFFER_SIZE * bpp;
+
+    sceGuInit();
+
+    sceGuStart(GU_DIRECT,list);
+	sceGuDrawBuffer(GU_PSM_8888, vrelptr(frontbuffer), PSP_FRAME_BUFFER_WIDTH);
+    sceGuDispBuffer(PSP_SCREEN_WIDTH, PSP_SCREEN_HEIGHT, vrelptr(backbuffer), PSP_FRAME_BUFFER_WIDTH);
+
+    sceGuOffset(2048 - (PSP_SCREEN_WIDTH >> 1), 2048 - (PSP_SCREEN_HEIGHT >> 1));
+    sceGuViewport(2048, 2048, PSP_SCREEN_WIDTH, PSP_SCREEN_HEIGHT);
+
+    sceGuDisable(GU_DEPTH_TEST);
+
+    /* Scissoring */
+    sceGuScissor(0, 0, PSP_SCREEN_WIDTH, PSP_SCREEN_HEIGHT);
+    sceGuEnable(GU_SCISSOR_TEST);
+
+    sceGuFinish();
+    sceGuSync(0,0);
+    
+    sceDisplayWaitVblankStart();
+    sceGuDisplay(GU_TRUE);
+
+	return doublebuffer;
+}
+
+static void term_temporal_gu(void *guBuffer)
+{
+	sceGuTerm();
+	vfree(guBuffer);
+	sceDisplayWaitVblankStart();
+}
+
+int PSP_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+{
+	unsigned char list[64] __attribute__((aligned(64)));
+	pspUtilityMsgDialogParams dialog;
+	int status;
+	void *guBuffer = NULL;
+
+	/* check if it's possible to use existing video context */
+	if (SDL_GetFocusWindow() == NULL) {
+		guBuffer = setup_temporal_gu(list);
+	}
+
+	/* configure dialog */
+	configure_dialog(&dialog, sizeof(dialog));
+
+	/* setup dialog options for text */
+	dialog.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+	dialog.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+
+	/* copy the message in, 512 bytes max */
+	SDL_snprintf(dialog.message, sizeof(dialog.message), "%s\r\n\r\n%s", messageboxdata->title, messageboxdata->message);
+
+	/* too many buttons */
+	if (messageboxdata->numbuttons > 2)
+		return SDL_SetError("messageboxdata->numbuttons valid values are 0, 1, 2");
+
+	/* we only have two options, "yes/no" or "ok" */
+	if (messageboxdata->numbuttons == 2)
+		dialog.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS | PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;
+
+	/* start dialog */
+	if (sceUtilityMsgDialogInitStart(&dialog) != 0)
+		return SDL_SetError("sceUtilityMsgDialogInitStart() failed for some reason");
+
+	/* loop while the dialog is active */
+	status = PSP_UTILITY_DIALOG_NONE;
+	do
+	{
+		sceGuStart(GU_DIRECT, list);
+		sceGuClearColor(0);
+		sceGuClearDepth(0);
+		sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
+		sceGuFinish();
+		sceGuSync(0,0);
+
+		status = sceUtilityMsgDialogGetStatus();
+
+		switch (status)
+		{
+			case PSP_UTILITY_DIALOG_VISIBLE:
+				sceUtilityMsgDialogUpdate(1);
+				break;
+
+			case PSP_UTILITY_DIALOG_QUIT:
+				sceUtilityMsgDialogShutdownStart();
+				break;
+		}
+
+		sceDisplayWaitVblankStart();
+		sceGuSwapBuffers();
+
+	} while (status != PSP_UTILITY_DIALOG_NONE);
+
+	/* cleanup */
+	if (guBuffer)
+	{
+		term_temporal_gu(guBuffer);
+	}
+
+	/* success */
+	if (dialog.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES)
+		*buttonid = messageboxdata->buttons[0].buttonid;
+	else if (dialog.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_NO)
+		*buttonid = messageboxdata->buttons[1].buttonid;
+	else
+		*buttonid = messageboxdata->buttons[0].buttonid;
+
+	return 0;
+}
+
 /* "PSP Video Driver" */
 const VideoBootStrap PSP_bootstrap = {
     "PSP", PSP_CreateDevice
@@ -302,8 +449,8 @@ int PSP_VideoInit(_THIS)
 
     /* 32 bpp for default */
     current_mode.format = SDL_PIXELFORMAT_ABGR8888;
-    current_mode.w = 480;
-    current_mode.h = 272;
+    current_mode.w = PSP_SCREEN_WIDTH;
+    current_mode.h = PSP_SCREEN_HEIGHT;
     current_mode.refresh_rate = 60;
     current_mode.driverdata = NULL;
 
@@ -442,13 +589,79 @@ SDL_bool PSP_GetWindowWMInfo(SDL_Window * window, struct SDL_SysWMinfo *info)
 #endif
 
 
-/* TO Write Me */
-/*SDL_bool PSP_HasScreenKeyboardSupport()
+
+SDL_bool PSP_HasScreenKeyboardSupport(void)
 {
-    return SDL_FALSE;
+    return SDL_TRUE;
 }
+
 void PSP_ShowScreenKeyboard(SDL_Window *window)
 {
+    char list[0x20000] __attribute__((aligned(64)));  // Needed for sceGuStart to work
+    int i;
+    int done = 0;
+    int input_text_length = 32; // SDL_SendKeyboardText supports up to 32 characters per event
+    unsigned short outtext[input_text_length];
+    char text_string[input_text_length];
+
+    SceUtilityOskData data;
+    SceUtilityOskParams params;
+
+    SDL_memset(outtext, 0, input_text_length * sizeof(unsigned short));
+
+    data.language = PSP_UTILITY_OSK_LANGUAGE_DEFAULT;
+    data.lines = 1;
+    data.unk_24 = 1;
+    data.inputtype = PSP_UTILITY_OSK_INPUTTYPE_ALL;
+    data.desc = NULL;
+    data.intext = NULL;
+    data.outtextlength = input_text_length;
+    data.outtextlimit = input_text_length;
+    data.outtext = outtext;
+
+    params.base.size = sizeof(params);
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language);
+    sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &params.base.buttonSwap);
+    params.base.graphicsThread = 17;
+    params.base.accessThread = 19;
+    params.base.fontThread = 18;
+    params.base.soundThread = 16;
+    params.datacount = 1;
+    params.data = &data;
+
+    sceUtilityOskInitStart(&params);
+
+    while(!done) {
+        sceGuStart(GU_DIRECT, list);
+        sceGuClearColor(0);
+        sceGuClearDepth(0);
+        sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
+        sceGuFinish();
+        sceGuSync(0,0);
+
+        switch(sceUtilityOskGetStatus())
+        {
+            case PSP_UTILITY_DIALOG_VISIBLE:
+                sceUtilityOskUpdate(1);
+                break;
+            case PSP_UTILITY_DIALOG_QUIT:
+                sceUtilityOskShutdownStart();
+                break;
+            case PSP_UTILITY_DIALOG_NONE:
+                done = 1;
+                break;
+            default :
+                break;
+        }
+        sceDisplayWaitVblankStart();
+        sceGuSwapBuffers();
+    }
+
+    // Convert input list to string
+    for (i = 0; i < input_text_length; i++) {
+        text_string[i] = outtext[i];
+    }
+    SDL_SendKeyboardText((const char *) text_string);
 }
 void PSP_HideScreenKeyboard(SDL_Window *window)
 {

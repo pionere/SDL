@@ -260,12 +260,25 @@ static SDL_bool keyboard_repeat_key_is_set(SDL_WaylandKeyboardRepeat *repeat_inf
     return repeat_info->is_initialized && repeat_info->is_key_down && key == repeat_info->key;
 }
 
+static void sync_done_handler(void *data, struct wl_callback *callback, uint32_t callback_data)
+{
+    /* Nothing to do, just destroy the callback */
+    wl_callback_destroy(callback);
+}
+
+static struct wl_callback_listener sync_listener = {
+    sync_done_handler
+};
+
 void Wayland_SendWakeupEvent(SDL_Window *window)
 {
     Wayland_VideoData *d = &waylandVideoData;
 
-    /* TODO: Maybe use a pipe to avoid the compositor roundtrip? */
-    wl_display_sync(d->display);
+    /* Queue a sync event to unblock the event queue fd if it's empty and being waited on.
+     * TODO: Maybe use a pipe to avoid the compositor roundtrip?
+     */
+    struct wl_callback *cb = wl_display_sync(d->display);
+    wl_callback_add_listener(cb, &sync_listener, NULL);
     WAYLAND_wl_display_flush(d->display);
 }
 
@@ -920,6 +933,28 @@ static void touch_handler_frame(void *data, struct wl_touch *touch)
 
 static void touch_handler_cancel(void *data, struct wl_touch *touch)
 {
+	struct SDL_WaylandTouchPoint *tp;
+	while ((tp = touch_points.head)) {
+		wl_fixed_t fx = 0, fy = 0;
+		struct wl_surface *surface = NULL;
+		int id = tp->id;
+
+		touch_del(id, &fx, &fy, &surface);
+
+		if (surface) {
+			SDL_WindowData *window_data = (SDL_WindowData *)wl_surface_get_user_data(surface);
+
+			if (window_data) {
+				const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
+				const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
+				const float x = dblx / window_data->sdlwindow->w;
+				const float y = dbly / window_data->sdlwindow->h;
+
+				SDL_SendTouch((SDL_TouchID)(intptr_t)touch, (SDL_FingerID)id,
+					      window_data->sdlwindow, SDL_FALSE, x, y, 1.0f);
+			}
+		}
+	}
 }
 
 static const struct wl_touch_listener touch_listener = {
@@ -1307,10 +1342,8 @@ static void keyboard_handle_key(void *data, struct wl_keyboard *keyboard,
         keyboard_input_get_text(text, input, key, SDL_RELEASED, &handled_by_ime);
     }
 
-    if (!handled_by_ime) {
-        scancode = Wayland_get_scancode_from_key(input, key + 8);
-        SDL_SendKeyboardKey(state == WL_KEYBOARD_KEY_STATE_PRESSED ? SDL_PRESSED : SDL_RELEASED, scancode);
-    }
+    scancode = Wayland_get_scancode_from_key(input, key + 8);
+    SDL_SendKeyboardKey(state == WL_KEYBOARD_KEY_STATE_PRESSED ? SDL_PRESSED : SDL_RELEASED, scancode);
 
     Wayland_data_device_set_serial(input->data_device, serial);
     Wayland_primary_selection_device_set_serial(input->primary_selection_device, serial);
@@ -2539,6 +2572,9 @@ void Wayland_display_destroy_input(void)
     primary_selection_device = input->primary_selection_device;
     if (primary_selection_device) {
         Wayland_primary_selection_offer_destroy(primary_selection_device->selection_offer);
+        if (primary_selection_device->primary_selection_device) {
+            zwp_primary_selection_device_v1_destroy(primary_selection_device->primary_selection_device);
+        }
         SDL_free(primary_selection_device);
     }
 

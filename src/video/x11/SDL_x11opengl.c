@@ -578,6 +578,7 @@ static int X11_GL_GetAttributes(_THIS, int *attribs, int size, Bool for_FBConfig
     }
 
     if (_this->gl_config.floatbuffers) {
+        attribs[i++] = GLX_RENDER_TYPE;
         attribs[i++] = GLX_RGBA_FLOAT_TYPE_ARB;
     }
 

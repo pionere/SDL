@@ -130,14 +130,12 @@ void UIKit_PumpEvents(void)
        delay in the rest of the app.
     */
     const CFTimeInterval seconds = 0.000002;
-
-    /* Pump most event types. */
     SInt32 result;
-
     if (!UIKit_EventPumpEnabled) {
         return;
     }
 
+    /* Pump most event types. */
     do {
         result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, seconds, TRUE);
     } while (result == kCFRunLoopRunHandledSource);
@@ -278,7 +276,7 @@ static void UpdateScrollDirection(void)
         /* Couldn't read the preference, assume natural scrolling direction */
         naturalScrollDirection = YES;
     }
-    if (naturalScrollDirection) {    
+    if (naturalScrollDirection) {
         mouse_scroll_direction = SDL_MOUSEWHEEL_FLIPPED;
     } else {
         mouse_scroll_direction = SDL_MOUSEWHEEL_NORMAL;

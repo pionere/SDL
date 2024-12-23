@@ -475,14 +475,15 @@ static BOOL update_audio_session(_THIS, SDL_bool open, SDL_bool allow_playandrec
 
         if ((open_playback_devices || open_capture_devices) && !session_active) {
             if (![session setActive:YES error:&err]) {
+                NSString *desc;
                 if ([err code] == AVAudioSessionErrorCodeResourceNotAvailable &&
                     category == AVAudioSessionCategoryPlayAndRecord) {
                     return update_audio_session(this, open, SDL_FALSE);
-                } else {
-                    NSString *desc = err.description;
-                    SDL_SetError("Could not activate Audio Session: %s", desc.UTF8String);
-                    return NO;
                 }
+
+                desc = err.description;
+                SDL_SetError("Could not activate Audio Session: %s", desc.UTF8String);
+                return NO;
             }
             session_active = YES;
             resume_audio_devices();
@@ -881,8 +882,8 @@ static int assign_device_to_audioqueue(_THIS)
     result = AudioObjectGetPropertyData(this->hidden->deviceID, &prop, 0, NULL, &devuidsize, &devuid);
     CHECK_RESULT(SDL_COREAUDIO_ERROR_GET_UID);
     result = AudioQueueSetProperty(this->hidden->audioQueue, kAudioQueueProperty_CurrentDevice, &devuid, devuidsize);
+    CFRelease(devuid);  /* Release devuid; we're done with it and AudioQueueSetProperty should have retained if it wants to keep it. */
     CHECK_RESULT(SDL_COREAUDIO_ERROR_SET_CURRENT);
-
     return 1;
 }
 #endif

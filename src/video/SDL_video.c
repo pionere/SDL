@@ -56,6 +56,10 @@
 #include <emscripten.h>
 #endif
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #ifdef __LINUX__
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -457,12 +461,12 @@ int SDL_VideoInit(const char *driver_name)
         SDL_DisableScreenSaver();
     }
 
-#if !defined(SDL_VIDEO_DRIVER_N3DS)
+#if !defined(SDL_VIDEO_DRIVER_N3DS) && !defined(SDL_VIDEO_DRIVER_PSP)
     /* In the initial state we don't want to pop up an on-screen keyboard,
      * but we do want to allow text input from other mechanisms.
      */
     SDL_StartTextInputPrivate(SDL_FALSE);
-#endif /* !SDL_VIDEO_DRIVER_N3DS */
+#endif /* !SDL_VIDEO_DRIVER_N3DS && !SDL_VIDEO_DRIVER_PSP */
 
     /* We're ready to go! */
     return 0;
@@ -3322,6 +3326,9 @@ void SDL_DestroyWindow(SDL_Window *window)
     if (SDL_GetKeyboardFocus() == window) {
         SDL_SetKeyboardFocus(NULL);
     }
+    if ((window->flags & SDL_WINDOW_MOUSE_CAPTURE)) {
+        SDL_UpdateMouseCapture(SDL_TRUE);
+    }
     if (SDL_GetMouseFocus() == window) {
         SDL_SetMouseFocus(NULL);
     }
@@ -4722,6 +4729,23 @@ int SDL_ShowSimpleMessageBox(Uint32 flags, const char *title, const char *messag
         alert(UTF8ToString($0) + "\n\n" + UTF8ToString($1));
     },
             title, message);
+    return 0;
+#elif defined(__3DS__)
+    errorConf errCnf;
+    bool hasGpuRight;
+
+    /* If the video subsystem has not been initialised, set up graphics temporarily */
+    hasGpuRight = gspHasGpuRight();
+    if (!hasGpuRight)
+        gfxInitDefault();
+
+    errorInit(&errCnf, ERROR_TEXT_WORD_WRAP, CFG_LANGUAGE_EN);
+    errorText(&errCnf, message);
+    errorDisp(&errCnf);
+
+    if (!hasGpuRight)
+        gfxExit();
+
     return 0;
 #else
     SDL_MessageBoxData data;

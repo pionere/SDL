@@ -254,6 +254,8 @@
 #include "SDL_assert.h"
 #include "SDL_log.h"
 
+extern void SDL_InitMainThread(void);
+
 /* Override SDL_*Log functions.
   Necessary to eliminate the calls and the strings as well. */
 #if defined(SDL_LOGGING_DISABLED) && !defined(SDL_DYNAMIC_API)

@@ -677,9 +677,10 @@ static void X11_HandleClipboardEvent(const XEvent *xevent)
                                            &overflow, &seln_data) == Success) {
                     if (seln_format != None) {
                         X11_XChangeProperty(display, req->requestor, req->property,
-                                            sevent.xselection.target, seln_format, PropModeReplace,
+                                            req->target, 8, PropModeReplace,
                                             seln_data, nbytes);
                         sevent.xselection.property = req->property;
+                        sevent.xselection.target = req->target;
                         X11_XFree(seln_data);
                         break;
                     } else {

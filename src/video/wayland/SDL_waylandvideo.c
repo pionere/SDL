@@ -58,6 +58,7 @@
 #include "primary-selection-unstable-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
 #include "cursor-shape-v1-client-protocol.h"
+#include "xdg-toplevel-icon-v1-client-protocol.h"
 
 #ifdef HAVE_LIBDECOR_H
 #include <libdecor.h>
@@ -86,7 +87,7 @@ static void Wayland_VideoQuit(_THIS);
 
 /* Find out what class name we should use
  * Based on src/video/x11/SDL_x11video.c */
-static char *get_classname()
+static char *get_classname(void)
 {
     /* !!! FIXME: this is probably wrong, albeit harmless in many common cases. From protocol spec:
         "The surface class identifies the general class of applications
@@ -230,7 +231,7 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
     device->CreateSDLWindow = Wayland_CreateSDLWindow;
     // device->CreateSDLWindowFrom = Wayland_CreateSDLWindowFrom;
     device->SetWindowTitle = Wayland_SetWindowTitle;
-    // device->SetWindowIcon = Wayland_SetWindowIcon;
+    device->SetWindowIcon = Wayland_SetWindowIcon;
     // device->SetWindowPosition = Wayland_SetWindowPosition;
     device->SetWindowSize = Wayland_SetWindowSize;
     device->SetWindowMinimumSize = Wayland_SetWindowMinimumSize;
@@ -660,6 +661,11 @@ static void display_handle_done(void *data,
 
     if (driverdata->index >= 0) {
         dpy = SDL_GetDisplay(driverdata->index);
+
+        /* XXX: This can never happen, but jump threading during aggressive LTO can generate a warning without this check. */
+        if (!dpy) {
+            dpy = &driverdata->placeholder;
+        }
     } else {
         dpy = &driverdata->placeholder;
     }
@@ -778,6 +784,9 @@ static void Wayland_free_display(uint32_t id)
                 zxdg_output_v1_destroy(data->xdg_output);
             }
             output = data->output;
+            /* Surface leave events may be implicit when an output is destroyed, so make sure that
+             * no windows retain a reference to a destroyed output.
+             */
             for (window = SDL_GetWindows(); window; window = window->next) {
                 Wayland_RemoveOutputFromWindow(window->driverdata, output);
             }
@@ -899,6 +908,8 @@ static void display_handle_global(void *data, struct wl_registry *registry, uint
         if (d->input) {
             Wayland_CreateCursorShapeDevice(d->input);
         }
+    } else if (SDL_strcmp(interface, "xdg_toplevel_icon_manager_v1") == 0) {
+            d->xdg_toplevel_icon_manager_v1 = wl_registry_bind(d->registry, id, &xdg_toplevel_icon_manager_v1_interface, 1);
 #ifdef SDL_VIDEO_DRIVER_WAYLAND_QT_TOUCH
     } else if (SDL_strcmp(interface, "qt_touch_extension") == 0) {
         Wayland_touch_create(id);
@@ -1149,6 +1160,11 @@ static void Wayland_VideoCleanup()
     if (data->cursor_shape_manager) {
         wp_cursor_shape_manager_v1_destroy(data->cursor_shape_manager);
         data->cursor_shape_manager = NULL;
+    }
+
+    if (data->xdg_toplevel_icon_manager_v1) {
+        xdg_toplevel_icon_manager_v1_destroy(data->xdg_toplevel_icon_manager_v1);
+        data->xdg_toplevel_icon_manager_v1 = NULL;
     }
 
     if (data->compositor) {

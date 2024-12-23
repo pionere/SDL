@@ -330,7 +330,7 @@ static SDL_Scancode WindowsScanCodeToSDLScanCode(LPARAM lParam, WPARAM wParam)
 }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-static SDL_bool WIN_ShouldIgnoreFocusClick()
+static SDL_bool WIN_ShouldIgnoreFocusClick(void)
 {
     return !SDL_GetHintBoolean(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, SDL_FALSE);
 }
@@ -634,6 +634,11 @@ WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
         return CallNextHookEx(NULL, nCode, wParam, lParam);
     }
 
+    if (hookData->scanCode == 0x21d) {
+	    /* Skip fake LCtrl when RAlt is pressed */
+	    return 1;
+    }
+
     switch (hookData->vkCode) {
     case VK_LWIN:
         scanCode = SDL_SCANCODE_LGUI;
@@ -686,6 +691,40 @@ WIN_KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 }
 
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
+
+
+/* Return SDL_TRUE if spurious LCtrl is pressed. LCtrl is sent when RAltGR is pressed. */
+static SDL_bool SkipAltGrLeftControl(WPARAM wParam, LPARAM lParam)
+{
+    MSG next_msg;
+    DWORD msg_time;
+
+    if (wParam != VK_CONTROL) {
+        return SDL_FALSE;
+    }
+
+    /* Is this an extended key (i.e. right key)? */
+    if (lParam & 0x01000000) {
+        return SDL_FALSE;
+    }
+
+#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    /* Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only
+       want the RALT message, so we try to see if the next message
+       is a RALT message. In that case, this is a false LCTRL! */
+    msg_time = GetMessageTime();
+    if (PeekMessage(&next_msg, NULL, 0, 0, PM_NOREMOVE)) {
+        if (next_msg.message == WM_KEYDOWN ||
+            next_msg.message == WM_SYSKEYDOWN) {
+            if (next_msg.wParam == VK_MENU && (next_msg.lParam & 0x01000000) && next_msg.time == msg_time) {
+                /* Next message is a RALT down message, which means that this is NOT a proper LCTRL message! */
+                return SDL_TRUE;
+            }
+        }
+    }
+#endif // !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+    return SDL_FALSE;
+}
 
 LRESULT CALLBACK
 WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1004,6 +1043,11 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         SDL_Scancode code = WindowsScanCodeToSDLScanCode(lParam, wParam);
         const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
+        if (SkipAltGrLeftControl(wParam, lParam)) {
+            returnCode = 0;
+            break;
+        }
+
         /* Detect relevant keyboard shortcuts */
         if (keyboardState[SDL_SCANCODE_LALT] == SDL_PRESSED || keyboardState[SDL_SCANCODE_RALT] == SDL_PRESSED) {
             /* ALT+F4: Close window */
@@ -1025,6 +1069,11 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         SDL_Scancode code = WindowsScanCodeToSDLScanCode(lParam, wParam);
         const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+
+        if (SkipAltGrLeftControl(wParam, lParam)) {
+            returnCode = 0;
+            break;
+        }
 
         if (code != SDL_SCANCODE_UNKNOWN) {
             if (code == SDL_SCANCODE_PRINTSCREEN &&
@@ -1733,7 +1782,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-static void WIN_UpdateClipCursorForWindows()
+static void WIN_UpdateClipCursorForWindows(void)
 {
     SDL_Window *window;
     Uint32 now = SDL_GetTicks();
@@ -1752,7 +1801,7 @@ static void WIN_UpdateClipCursorForWindows()
         }
 }
 
-static void WIN_UpdateMouseCapture()
+static void WIN_UpdateMouseCapture(void)
 {
     SDL_Window *focusWindow = SDL_GetKeyboardFocus();
 
@@ -2023,7 +2072,7 @@ int SDL_RegisterApp(const char *name, Uint32 style, void *hInst)
 }
 
 /* Unregisters the windowclass registered in SDL_RegisterApp above. */
-void SDL_UnregisterApp()
+void SDL_UnregisterApp(void)
 {
     WNDCLASSEX wcex;
 

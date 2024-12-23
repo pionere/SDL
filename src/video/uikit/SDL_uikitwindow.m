@@ -482,7 +482,7 @@ UIView *UIKit_GetWindowView(SDL_Window * window)
     return data.uiwindow.rootViewController.view;
 }
 
-int SDL_iPhoneSetAnimationCallback(SDL_Window * window, int interval, void (*callback)(void*), void *callbackParam)
+int SDL_iPhoneSetAnimationCallback(SDL_Window * window, int interval, SDL_iOSAnimationCallback callback, void *callbackParam)
 {
     if (!window || !window->driverdata) {
         return SDL_SetError("Invalid window");

@@ -338,6 +338,10 @@ typedef struct WIN_VideoData
     BOOL (WINAPI *AdjustWindowRectExForDpi)( LPRECT, DWORD, BOOL, DWORD, UINT );
     UINT (WINAPI *GetDpiForWindow)( HWND );
     BOOL (WINAPI *AreDpiAwarenessContextsEqual)(DPI_AWARENESS_CONTEXT, DPI_AWARENESS_CONTEXT);
+    /* DisplayConfig functions */
+    LONG (WINAPI *GetDisplayConfigBufferSizes)( UINT32, UINT32*, UINT32* );
+    LONG (WINAPI *QueryDisplayConfig)( UINT32, UINT32*, DISPLAYCONFIG_PATH_INFO*, UINT32*, DISPLAYCONFIG_MODE_INFO*, DISPLAYCONFIG_TOPOLOGY_ID*);
+    LONG (WINAPI *DisplayConfigGetDeviceInfo)( DISPLAYCONFIG_DEVICE_INFO_HEADER*);
 
     void *shcoreDLL;
     HRESULT (WINAPI *GetDpiForMonitor)( HMONITOR         hmonitor,

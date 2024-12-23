@@ -20,20 +20,20 @@
 */
 
 /**
- *  \file SDL_hints.h
+ * # CategoryHints
  *
- *  Official documentation for SDL configuration variables
+ * Official documentation for SDL configuration variables
  *
- *  This file contains functions to set and get configuration hints,
- *  as well as listing each of them alphabetically.
+ * This file contains functions to set and get configuration hints, as well as
+ * listing each of them alphabetically.
  *
- *  The convention for naming hints is SDL_HINT_X, where "SDL_X" is
- *  the environment variable that can be used to override the default.
+ * The convention for naming hints is SDL_HINT_X, where "SDL_X" is the
+ * environment variable that can be used to override the default.
  *
- *  In general these hints are just that - they may or may not be
- *  supported or applicable on any given platform, but they provide
- *  a way for an application or user to give the library a hint as
- *  to how they would like the library to work.
+ * In general these hints are just that - they may or may not be supported or
+ * applicable on any given platform, but they provide a way for an application
+ * or user to give the library a hint as to how they would like the library to
+ * work.
  */
 
 #ifndef SDL_hints_h_
@@ -426,20 +426,6 @@ extern "C" {
  * activated.
  */
 #define SDL_HINT_ENABLE_SCREEN_KEYBOARD "SDL_ENABLE_SCREEN_KEYBOARD"
-
-/**
- * A variable that controls whether Steam Controllers should be exposed using
- * the SDL joystick and game controller APIs
- *
- * The variable can be set to the following values:
- *
- * - "0": Do not scan for Steam Controllers
- * - "1": Scan for Steam Controllers (the default)
- *
- * The default value is "1". This hint must be set before initializing the
- * joystick subsystem.
- */
-#define SDL_HINT_ENABLE_STEAM_CONTROLLERS "SDL_ENABLE_STEAM_CONTROLLERS"
 
 /**
  * A variable controlling verbosity of the logging of SDL events pushed onto
@@ -1655,6 +1641,20 @@ extern "C" {
 #define SDL_HINT_MOUSE_RELATIVE_WARP_MOTION  "SDL_MOUSE_RELATIVE_WARP_MOTION"
 
 /**
+ * A variable controlling whether the hardware cursor stays visible when
+ * relative mode is active.
+ *
+ * This variable can be set to the following values: "0" - The cursor will be
+ * hidden while relative mode is active (default) "1" - The cursor will remain
+ * visible while relative mode is active
+ *
+ * Note that for systems without raw hardware inputs, relative mode is
+ * implemented using warping, so the hardware cursor will visibly warp between
+ * frames if this is enabled on those systems.
+ */
+#define SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE  "SDL_MOUSE_RELATIVE_CURSOR_VISIBLE"
+
+/**
  * A variable controlling whether mouse events should generate synthetic touch
  * events
  *
@@ -2211,6 +2211,7 @@ extern "C" {
  * Since it's driver-specific, it's only supported where possible and
  * implemented. Currently supported the following drivers:
  *
+ * - Wayland (wayland)
  * - KMSDRM (kmsdrm)
  * - Raspberry Pi (raspberrypi)
  */
@@ -3090,6 +3091,27 @@ extern "C" {
  */
 #define SDL_HINT_SHUTDOWN_DBUS_ON_QUIT "SDL_SHUTDOWN_DBUS_ON_QUIT"
 
+/**
+ * Specify if SDL_RWFromFile should use the resource dir on Apple platforms.
+ *
+ * SDL2 has always done this on Apple platforms, but it can be surprising to
+ * try opening a path to discover that SDL adjusts the path to elsewhere, so
+ * this hint allows that behavior to be disabled.
+ *
+ * If running from a App Bundle, this will be MyApp.app/Contents/Resources. If
+ * running as a normal Unix-like process, this will be the directory where the
+ * running binary lives. Setting this hint to 0 avoids this and just uses the
+ * requested path as-is.
+ *
+ * This variable can be set to the following values:
+ *
+ * - "0": SDL will not use the app resource directory.
+ * - "1": SDL will use the app's resource directory (default).
+ *
+ * This hint is available since SDL 2.32.0.
+ */
+#define SDL_HINT_APPLE_RWFROMFILE_USE_RESOURCES "SDL_APPLE_RWFROMFILE_USE_RESOURCES"
+
 
 /**
  * An enumeration of hint priorities
@@ -3109,9 +3131,9 @@ typedef enum SDL_HintPriority
  * value. Hints will replace existing hints of their priority and lower.
  * Environment variables are considered to have override priority.
  *
- * \param name the hint to set
- * \param value the value of the hint variable
- * \param priority the SDL_HintPriority level for the hint
+ * \param name the hint to set.
+ * \param value the value of the hint variable.
+ * \param priority the SDL_HintPriority level for the hint.
  * \returns SDL_TRUE if the hint was set, SDL_FALSE otherwise.
  *
  * \since This function is available since SDL 2.0.0.
@@ -3130,8 +3152,8 @@ extern DECLSPEC SDL_bool SDLCALL SDL_SetHintWithPriority(const char *name,
  * variable that takes precedence. You can use SDL_SetHintWithPriority() to
  * set the hint with override priority instead.
  *
- * \param name the hint to set
- * \param value the value of the hint variable
+ * \param name the hint to set.
+ * \param value the value of the hint variable.
  * \returns SDL_TRUE if the hint was set, SDL_FALSE otherwise.
  *
  * \since This function is available since SDL 2.0.0.
@@ -3149,7 +3171,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_SetHint(const char *name,
  * the environment isn't set. Callbacks will be called normally with this
  * change.
  *
- * \param name the hint to set
+ * \param name the hint to set.
  * \returns SDL_TRUE if the hint was set, SDL_FALSE otherwise.
  *
  * \since This function is available since SDL 2.24.0.
@@ -3177,7 +3199,7 @@ extern DECLSPEC void SDLCALL SDL_ResetHints(void);
 /**
  * Get the value of a hint.
  *
- * \param name the hint to query
+ * \param name the hint to query.
  * \returns the string value of a hint or NULL if the hint isn't set.
  *
  * \since This function is available since SDL 2.0.0.
@@ -3190,8 +3212,8 @@ extern DECLSPEC const char * SDLCALL SDL_GetHint(const char *name);
 /**
  * Get the boolean value of a hint variable.
  *
- * \param name the name of the hint to get the boolean value from
- * \param default_value the value to return if the hint does not exist
+ * \param name the name of the hint to get the boolean value from.
+ * \param default_value the value to return if the hint does not exist.
  * \returns the boolean value of a hint or the provided default value if the
  *          hint does not exist.
  *
@@ -3205,20 +3227,20 @@ extern DECLSPEC SDL_bool SDLCALL SDL_GetHintBoolean(const char *name, SDL_bool d
 /**
  * Type definition of the hint callback function.
  *
- * \param userdata what was passed as `userdata` to SDL_AddHintCallback()
- * \param name what was passed as `name` to SDL_AddHintCallback()
- * \param oldValue the previous hint value
- * \param newValue the new value hint is to be set to
+ * \param userdata what was passed as `userdata` to SDL_AddHintCallback().
+ * \param name what was passed as `name` to SDL_AddHintCallback().
+ * \param oldValue the previous hint value.
+ * \param newValue the new value hint is to be set to.
  */
 typedef void (SDLCALL *SDL_HintCallback)(void *userdata, const char *name, const char *oldValue, const char *newValue);
 
 /**
  * Add a function to watch a particular hint.
  *
- * \param name the hint to watch
+ * \param name the hint to watch.
  * \param callback An SDL_HintCallback function that will be called when the
- *                 hint value changes
- * \param userdata a pointer to pass to the callback function
+ *                 hint value changes.
+ * \param userdata a pointer to pass to the callback function.
  *
  * \since This function is available since SDL 2.0.0.
  *
@@ -3231,10 +3253,10 @@ extern DECLSPEC void SDLCALL SDL_AddHintCallback(const char *name,
 /**
  * Remove a function watching a particular hint.
  *
- * \param name the hint being watched
+ * \param name the hint being watched.
  * \param callback An SDL_HintCallback function that will be called when the
- *                 hint value changes
- * \param userdata a pointer being passed to the callback function
+ *                 hint value changes.
+ * \param userdata a pointer being passed to the callback function.
  *
  * \since This function is available since SDL 2.0.0.
  *

@@ -19,10 +19,12 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+/* WIKI CATEGORY: StdInc */
+
 /**
- *  \file SDL_stdinc.h
+ * # CategoryStdInc
  *
- *  This is a general header that includes C language support.
+ * This is a general header that includes C language support.
  */
 
 #ifndef SDL_stdinc_h_
@@ -192,58 +194,59 @@ typedef uint8_t SDL_boolean;
 /**
  * A signed 8-bit integer type.
  */
+typedef int8_t Sint8;
 #define SDL_MAX_SINT8   ((Sint8)0x7F)           /* 127 */
 #define SDL_MIN_SINT8   ((Sint8)(~0x7F))        /* -128 */
-typedef int8_t Sint8;
 
 /**
  * An unsigned 8-bit integer type.
  */
+typedef uint8_t Uint8;
 #define SDL_MAX_UINT8   ((Uint8)0xFF)           /* 255 */
 #define SDL_MIN_UINT8   ((Uint8)0x00)           /* 0 */
-typedef uint8_t Uint8;
 
 /**
  * A signed 16-bit integer type.
  */
+typedef int16_t Sint16;
 #define SDL_MAX_SINT16  ((Sint16)0x7FFF)        /* 32767 */
 #define SDL_MIN_SINT16  ((Sint16)(~0x7FFF))     /* -32768 */
-typedef int16_t Sint16;
 
 /**
  * An unsigned 16-bit integer type.
  */
+typedef uint16_t Uint16;
 #define SDL_MAX_UINT16  ((Uint16)0xFFFF)        /* 65535 */
 #define SDL_MIN_UINT16  ((Uint16)0x0000)        /* 0 */
-typedef uint16_t Uint16;
 
 /**
  * A signed 32-bit integer type.
  */
+typedef int32_t Sint32;
 #define SDL_MAX_SINT32  ((Sint32)0x7FFFFFFF)    /* 2147483647 */
 #define SDL_MIN_SINT32  ((Sint32)(~0x7FFFFFFF)) /* -2147483648 */
-typedef int32_t Sint32;
 
 /**
  * An unsigned 32-bit integer type.
  */
+typedef uint32_t Uint32;
 #define SDL_MAX_UINT32  ((Uint32)0xFFFFFFFFu)   /* 4294967295 */
 #define SDL_MIN_UINT32  ((Uint32)0x00000000)    /* 0 */
-typedef uint32_t Uint32;
 
 /**
  * A signed 64-bit integer type.
  */
+typedef int64_t Sint64;
 #define SDL_MAX_SINT64  ((Sint64)0x7FFFFFFFFFFFFFFFll)      /* 9223372036854775807 */
 #define SDL_MIN_SINT64  ((Sint64)(~0x7FFFFFFFFFFFFFFFll))   /* -9223372036854775808 */
-typedef int64_t Sint64;
 
 /**
  * An unsigned 64-bit integer type.
  */
+typedef uint64_t Uint64;
 #define SDL_MAX_UINT64  ((Uint64)0xFFFFFFFFFFFFFFFFull)     /* 18446744073709551615 */
 #define SDL_MIN_UINT64  ((Uint64)(0x0000000000000000ull))   /* 0 */
-typedef uint64_t Uint64;
+
 
 /* @} *//* Basic data types */
 
@@ -276,21 +279,21 @@ typedef uint64_t Uint64;
  * <stdint.h> should define these but this is not true all platforms.
  * (for example win32) */
 #ifndef SDL_PRIs64
-#ifdef PRIs64
-#define SDL_PRIs64 PRIs64
-#elif defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__) || defined(__GDK__)
 #define SDL_PRIs64 "I64d"
-#elif defined(__LP64__) && !defined(__APPLE__)
+#elif defined(PRId64)
+#define SDL_PRIs64 PRId64
+#elif defined(__LP64__) && !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
 #define SDL_PRIs64 "ld"
 #else
 #define SDL_PRIs64 "lld"
 #endif
 #endif
 #ifndef SDL_PRIu64
-#ifdef PRIu64
-#define SDL_PRIu64 PRIu64
-#elif defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__) || defined(__GDK__)
 #define SDL_PRIu64 "I64u"
+#elif defined(PRIu64)
+#define SDL_PRIu64 PRIu64
 #elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIu64 "lu"
 #else
@@ -298,10 +301,10 @@ typedef uint64_t Uint64;
 #endif
 #endif
 #ifndef SDL_PRIx64
-#ifdef PRIx64
-#define SDL_PRIx64 PRIx64
-#elif defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__) || defined(__GDK__)
 #define SDL_PRIx64 "I64x"
+#elif defined(PRIx64)
+#define SDL_PRIx64 PRIx64
 #elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIx64 "lx"
 #else
@@ -309,10 +312,10 @@ typedef uint64_t Uint64;
 #endif
 #endif
 #ifndef SDL_PRIX64
-#ifdef PRIX64
-#define SDL_PRIX64 PRIX64
-#elif defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__) || defined(__GDK__)
 #define SDL_PRIX64 "I64X"
+#elif defined(PRIX64)
+#define SDL_PRIX64 PRIX64
 #elif defined(__LP64__) && !defined(__APPLE__)
 #define SDL_PRIX64 "lX"
 #else
@@ -400,9 +403,12 @@ typedef uint64_t Uint64;
 
 #ifndef SDL_COMPILE_TIME_ASSERT
 #if defined(__cplusplus)
+/* Keep C++ case alone: Some versions of gcc will define __STDC_VERSION__ even when compiling in C++ mode. */
 #if (__cplusplus >= 201103L)
 #define SDL_COMPILE_TIME_ASSERT(name, x)  static_assert(x, #x)
 #endif
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 202311L)
+#define SDL_COMPILE_TIME_ASSERT(name, x)  static_assert(x, #x)
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
 #define SDL_COMPILE_TIME_ASSERT(name, x) _Static_assert(x, #x)
 #endif
@@ -516,8 +522,9 @@ extern DECLSPEC int SDLCALL SDL_GetNumAllocations(void);
 extern DECLSPEC char *SDLCALL SDL_getenv(const char *name);
 extern DECLSPEC int SDLCALL SDL_setenv(const char *name, const char *value, int overwrite);
 
-extern DECLSPEC void SDLCALL SDL_qsort(void *base, size_t nmemb, size_t size, int (SDLCALL *compare) (const void *, const void *));
-extern DECLSPEC void * SDLCALL SDL_bsearch(const void *key, const void *base, size_t nmemb, size_t size, int (SDLCALL *compare) (const void *, const void *));
+typedef int (SDLCALL *SDL_CompareCallback)(const void *, const void *);
+extern DECLSPEC void SDLCALL SDL_qsort(void *base, size_t nmemb, size_t size, SDL_CompareCallback compare);
+extern DECLSPEC void * SDLCALL SDL_bsearch(const void *key, const void *base, size_t nmemb, size_t size, SDL_CompareCallback compare);
 
 extern DECLSPEC int SDLCALL SDL_abs(int x);
 
@@ -760,6 +767,9 @@ size_t wcslcpy(wchar_t *dst, const wchar_t *src, size_t size);
 #ifndef HAVE_WCSLCAT
 size_t wcslcat(wchar_t *dst, const wchar_t *src, size_t size);
 #endif
+
+/* strdup is not ANSI but POSIX, and its prototype might be hidden... */
+char *strdup(const char *str);
 
 /* Starting LLVM 16, the analyser errors out if these functions do not have
    their prototype defined (clang-diagnostic-implicit-function-declaration) */

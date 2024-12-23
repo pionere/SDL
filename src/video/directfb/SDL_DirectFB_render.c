@@ -399,7 +399,7 @@ static int DirectFB_CreateTexture(SDL_Renderer * renderer, SDL_Texture * texture
     return -1;
 }
 
-static void DirectFB_SetTextureScaleMode(SDL_Renderer *renderer, SDL_Texture *texture, SDL_ScaleMode scaleMode)
+static void DirectFB_SetTextureScaleMode(SDL_Renderer * renderer, SDL_Texture * texture, SDL_ScaleMode scaleMode)
 {
 #if (DFB_VERSION_ATLEAST(1,2,0))
     DirectFB_TextureData *data = (DirectFB_TextureData *) texture->driverdata;

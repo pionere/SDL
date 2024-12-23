@@ -29,6 +29,7 @@
 #include "../../events/SDL_touch_c.h"
 
 #include "SDL_waylandvideo.h"
+#include "SDL_waylandshmbuffer.h"
 
 struct SDL_WaylandInput;
 
@@ -88,6 +89,9 @@ typedef struct
     struct xdg_activation_token_v1 *activation_token;
     struct wp_viewport *draw_viewport;
     struct wp_fractional_scale_v1 *fractional_scale;
+    struct xdg_toplevel_icon_v1 *xdg_toplevel_icon_v1;
+
+    struct Wayland_SHMBuffer icon;
 
     /* floating dimensions for restoring from maximized and fullscreen */
     int floating_width, floating_height;
@@ -115,6 +119,7 @@ typedef struct
     SDL_boolean is_fullscreen;
     SDL_boolean in_fullscreen_transition;
     Uint32 fullscreen_flags;
+    SDL_bool double_buffer; 
 } SDL_WindowData;
 
 extern void Wayland_ShowWindow(SDL_Window *window);
@@ -140,6 +145,8 @@ extern int Wayland_SetWindowModalFor(SDL_Window *modal_window, SDL_Window *paren
 extern void Wayland_SetWindowTitle(SDL_Window *window);
 extern void Wayland_DestroyWindow(SDL_Window *window);
 extern void Wayland_SuspendScreenSaver(SDL_bool suspend);
+extern void Wayland_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+
 extern SDL_bool
 Wayland_GetWindowWMInfo(SDL_Window * window, SDL_SysWMinfo * info);
 extern int Wayland_SetWindowHitTest(SDL_Window *window, SDL_bool enabled);

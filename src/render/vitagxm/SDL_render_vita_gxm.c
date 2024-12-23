@@ -372,6 +372,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
     length = rect->w * SDL_PIXELFORMAT_BPP(texture->format);
     if (length == pitch && length == dpitch) {
         SDL_memcpy(dst, pixels, length * rect->h);
+        pixels += pitch * rect->h;
     } else {
         for (row = 0; row < rect->h; ++row) {
             SDL_memcpy(dst, pixels, length);
@@ -399,6 +400,7 @@ static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
         // U plane
         if (length == uv_src_pitch && length == uv_pitch) {
             SDL_memcpy(Udst, pixels, length * UVrect.h);
+            pixels += uv_src_pitch * UVrect.h;
         } else {
             for (row = 0; row < UVrect.h; ++row) {
                 SDL_memcpy(Udst, pixels, length);

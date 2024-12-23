@@ -92,11 +92,11 @@ static const AudioBootStrap *const bootstrap[] = {
 #ifdef SDL_AUDIO_DRIVER_FUSIONSOUND
     &FUSIONSOUND_bootstrap,
 #endif
-#ifdef SDL_AUDIO_DRIVER_AAUDIO
-    &aaudio_bootstrap,
-#endif
 #ifdef SDL_AUDIO_DRIVER_OPENSLES
     &openslES_bootstrap,
+#endif
+#ifdef SDL_AUDIO_DRIVER_AAUDIO
+    &aaudio_bootstrap,
 #endif
 #ifdef SDL_AUDIO_DRIVER_ANDROID
     &ANDROIDAUDIO_bootstrap,
@@ -670,11 +670,9 @@ static int SDLCALL SDL_RunAudio(void *userdata)
 
     /* Loop, filling the audio buffers */
     while (!SDL_AtomicGet(&device->shutdown)) {
-        data_len = device->callbackspec.size;
-
         /* Fill the current buffer with sound */
         if (!device->stream && SDL_AtomicGet(&device->enabled)) {
-            SDL_assert(data_len == device->spec.size);
+            SDL_assert(device->callbackspec.size == device->spec.size);
             data = current_audio.impl.GetDeviceBuf(device);
         } else {
             /* if the device isn't enabled, we still write to the
@@ -689,6 +687,8 @@ static int SDLCALL SDL_RunAudio(void *userdata)
         if (data == NULL) {
             data = device->work_buffer;
         }
+
+        data_len = device->callbackspec.size;
 
         /* !!! FIXME: this should be LockDevice. */
         SDL_LockMutex(device->mixer_lock);

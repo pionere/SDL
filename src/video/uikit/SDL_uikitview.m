@@ -53,7 +53,11 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 {
     if ((self = [super initWithFrame:frame])) {
 #if TARGET_OS_TV
-        UISwipeGestureRecognizer *swipeUp, *swipeDown, *swipeLeft, *swipeRight;
+        UISwipeGestureRecognizer *swipeUp;
+        UISwipeGestureRecognizer *swipeDown;
+        UISwipeGestureRecognizer *swipeLeft;
+        UISwipeGestureRecognizer *swipeRight;
+
         /* Apple TV Remote touchpad swipe gestures. */
         swipeUp = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeGesture:)];
         swipeUp.direction = UISwipeGestureRecognizerDirectionUp;
@@ -258,10 +262,10 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         }
 #endif
         if (!handled) {
+            CGPoint locationInView;
             SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
-            CGPoint locationInView;
 
             if (SDL_AddTouch(touchId, touchType, "") < 0) {
                 continue;
@@ -314,10 +318,10 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         }
 #endif
         if (!handled) {
+            CGPoint locationInView;
             SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
-            CGPoint locationInView;
 
             if (SDL_AddTouch(touchId, touchType, "") < 0) {
                 continue;
@@ -351,10 +355,10 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
         }
 #endif
         if (!handled) {
+            CGPoint locationInView;
             SDL_TouchDeviceType touchType = [self touchTypeForTouch:touch];
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
-            CGPoint locationInView;
 
             if (SDL_AddTouch(touchId, touchType, "") < 0) {
                 continue;

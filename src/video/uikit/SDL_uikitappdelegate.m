@@ -191,7 +191,6 @@ static UIImage *SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 {
     NSString *screenname = nibNameOrNil;
     NSBundle *bundle = nibBundleOrNil;
-
     if (!(self = [super initWithNibName:nil bundle:nil])) {
         return nil;
     }

@@ -19,10 +19,17 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/**
- *  \file SDL_syswm.h
+/* WIKI CATEGORY: SYSWM */
+
+/*
+ * # CategorySYSWM
  *
- *  Include file for SDL custom system window manager hooks.
+ * Include file for SDL custom system window manager hooks.
+ *
+ * Your application has access to a special type of event SDL_SYSWMEVENT,
+ * which contains window-manager specific information and arrives whenever
+ * an unhandled window event occurs.  This event is ignored by default, but
+ * you can enable it with SDL_EventState().
  */
 
 #ifndef SDL_syswm_h_
@@ -32,15 +39,6 @@
 #include "SDL_error.h"
 #include "SDL_video.h"
 #include "SDL_version.h"
-
-/*
- *  \file SDL_syswm.h
- *
- *  Your application has access to a special type of event SDL_SYSWMEVENT,
- *  which contains window-manager specific information and arrives whenever
- *  an unhandled window event occurs.  This event is ignored by default, but
- *  you can enable it with SDL_EventState().
- */
 
 struct SDL_SysWMinfo;
 
@@ -365,8 +363,8 @@ typedef struct SDL_SysWMinfo SDL_SysWMinfo;
  * `SDL_VERSION(&info.version)`, and then this function will fill in the rest
  * of the structure with information about the given window.
  *
- * \param window the window about which information is being requested
- * \param info an SDL_SysWMinfo structure filled in with window information
+ * \param window the window about which information is being requested.
+ * \param info an SDL_SysWMinfo structure filled in with window information.
  * \returns SDL_TRUE if the function is implemented and the `version` member
  *          of the `info` struct is valid, or SDL_FALSE if the information
  *          could not be retrieved; call SDL_GetError() for more information.

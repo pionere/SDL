@@ -40,7 +40,7 @@ static void subsystemsTearDown(void *arg)
  * \sa SDL_QuitSubSystem
  *
  */
-static int subsystems_referenceCount()
+static int subsystems_referenceCount(void)
 {
     const int system = SDL_INIT_VIDEO;
     int result;
@@ -95,7 +95,7 @@ static int subsystems_referenceCount()
  * \sa SDL_QuitSubSystem
  *
  */
-static int subsystems_dependRefCountInitAllQuitByOne()
+static int subsystems_dependRefCountInitAllQuitByOne(void)
 {
     int result;
     /* Ensure that we start with reset subsystems. */
@@ -105,6 +105,8 @@ static int subsystems_dependRefCountInitAllQuitByOne()
     /* Following should init SDL_INIT_EVENTS and give it +3 ref counts. */
     result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
     SDLTest_AssertCheck(result == 0, "Check result from SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK), expected: 0, got: 0x%x", result);
+    result = SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
+    SDLTest_AssertCheck(result == (SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK), "Check result from SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK), expected: 0x%x, got: 0x%x", (SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK), result);
     result = SDL_WasInit(SDL_INIT_EVENTS);
     SDLTest_AssertCheck(result == SDL_INIT_EVENTS, "Check result from SDL_WasInit(SDL_INIT_EVENTS), expected: 0x4000, got: 0x%x", result);
 
@@ -133,7 +135,7 @@ static int subsystems_dependRefCountInitAllQuitByOne()
  * \sa SDL_QuitSubSystem
  *
  */
-static int subsystems_dependRefCountInitByOneQuitAll()
+static int subsystems_dependRefCountInitByOneQuitAll(void)
 {
     int result;
     /* Ensure that we start with reset subsystems. */
@@ -168,7 +170,7 @@ static int subsystems_dependRefCountInitByOneQuitAll()
  * \sa SDL_QuitSubSystem
  *
  */
-static int subsystems_dependRefCountWithExtraInit()
+static int subsystems_dependRefCountWithExtraInit(void)
 {
     int result;
     /* Ensure that we start with reset subsystems. */

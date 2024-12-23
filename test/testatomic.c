@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "SDL.h"
+#include "SDL_test.h"
 
 /*
   Absolutely basic tests just to see if we get the expected value
@@ -31,7 +32,7 @@ tf(SDL_bool _tf)
     return f;
 }
 
-static void RunBasicTest()
+static void RunBasicTest(void)
 {
     int value;
     SDL_SpinLock lock = 0;
@@ -153,7 +154,7 @@ static void runAdder(void)
     SDL_Log("Finished in %f sec\n", (end - start) / 1000.f);
 }
 
-static void RunEpicTest()
+static void RunEpicTest(void)
 {
     int b;
     atomicValue v;
@@ -700,11 +701,28 @@ static void RunFIFOTest(SDL_bool lock_free)
 
 int main(int argc, char *argv[])
 {
+    SDLTest_CommonState *state;
+
+    state = SDLTest_CommonCreateState(argv, 0);
+    if (!state) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDLTest_CommonCreateState failed: %s\n", SDL_GetError());
+        return 1;
+    }
+
     /* Enable standard application logging */
     SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 #ifdef SDL_ATOMIC_DISABLED
     SDL_Log("Skipping atomic test because the subsystem is disabled.\n");
 #else
+    if (!SDLTest_CommonDefaultArgs(state, argc, argv)) {
+        return 1;
+    }
+
+    if (!SDLTest_CommonInit(state)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
+        return 1;
+    }
+
     RunBasicTest();
 
     if (SDL_getenv("SDL_TESTS_QUICK") != NULL) {
@@ -719,6 +737,7 @@ int main(int argc, char *argv[])
 #endif
     RunFIFOTest(SDL_TRUE);
 #endif /* SDL_ATOMIC_DISABLED */
+    SDLTest_CommonQuit(state);
     return 0;
 }
 

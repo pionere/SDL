@@ -110,6 +110,21 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
         return -1;
     }
 
+    /* By default, we wait for Wayland frame callback and then issue pageflip (eglSwapBuffers),
+     * but if we want low latency (double buffer scheme), we issue the pageflip
+     * and then wait immediately for Wayland frame callback.
+     */
+
+    if (data->double_buffer) {
+        /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
+        result = SDL_EGL_SwapBuffers(data->egl_surface);
+        if (result != 0) {
+            return result;
+        }
+
+        WAYLAND_wl_display_flush(videodata->display);
+    }
+
     /* Control swap interval ourselves. See comments on Wayland_GLES_SetSwapInterval */
     if (swap_interval != 0) {
         struct wl_display *display = videodata->display;
@@ -151,13 +166,17 @@ int Wayland_GLES_SwapWindow(_THIS, SDL_Window *window)
         SDL_AtomicSet(&data->swap_interval_ready, 0);
     }
 
-    /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
-    result = SDL_EGL_SwapBuffers(data->egl_surface);
-    if (result == 0) {
+    if (!data->double_buffer) {
+        /* Feed the frame to Wayland. This will set it so the wl_surface_frame callback can fire again. */
+        result = SDL_EGL_SwapBuffers(data->egl_surface);
+        if (result != 0) {
+            return result;
+        }
+
         WAYLAND_wl_display_flush(videodata->display);
     }
 
-    return result;
+    return 0;
 }
 
 int Wayland_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context)

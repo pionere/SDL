@@ -175,7 +175,8 @@
 #define PSP_BOOTSTRAP       BOOTSTRAP_INSTANCE(PSP_bootstrap)
 #define PSP_BOOTSTRAP_ENUM  SDL_VIDEODRIVER_PSP,
 #define PSP_BOOTSTRAP_ENTRY &PSP_bootstrap,
-#define PSP_MSGBOX_ENTRY    NULL,
+#include "psp/SDL_pspmessagebox.h"
+#define PSP_MSGBOX_ENTRY    &PSP_ShowMessageBox,
 #else
 #define PSP_BOOTSTRAP
 #define PSP_BOOTSTRAP_ENUM

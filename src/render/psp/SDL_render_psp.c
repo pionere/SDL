@@ -40,13 +40,6 @@
 #include "SDL_render_psp.h"
 
 /* PSP renderer implementation, based on the PGE  */
-
-#define PSP_SCREEN_WIDTH  480
-#define PSP_SCREEN_HEIGHT 272
-
-#define PSP_FRAME_BUFFER_WIDTH 512
-#define PSP_FRAME_BUFFER_SIZE  (PSP_FRAME_BUFFER_WIDTH * PSP_SCREEN_HEIGHT)
-
 static unsigned int __attribute__((aligned(16))) DisplayList[262144];
 
 #define COL5650(r, g, b, a) ((r >> 3) | ((g >> 2) << 5) | ((b >> 3) << 11))
@@ -1260,8 +1253,6 @@ static void PSP_DestroyRenderer(SDL_Renderer *renderer)
     PSP_RenderData *data = (PSP_RenderData *)renderer->driverdata;
     SDL_assert(data != NULL);
     if (1) {
-        StartDrawing(renderer);
-
         sceKernelDisableSubIntr(PSP_VBLANK_INT, 0);
         sceKernelReleaseSubIntrHandler(PSP_VBLANK_INT, 0);
         sceDisplayWaitVblankStart();

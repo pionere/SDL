@@ -938,7 +938,7 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
             [context movedToNewScreen];
         }
     }
-#endif
+#endif /* SDL_VIDEO_OPENGL_CGL */
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification *)aNotification
@@ -2336,7 +2336,10 @@ void Cocoa_DestroyWindow(SDL_Window * window)
     SDL_WindowData *data = (SDL_WindowData *) CFBridgingRelease(window->driverdata);
 
     if (data) {
+#ifdef SDL_VIDEO_OPENGL_CGL
         NSArray *contexts;
+#endif
+
         if ([data.listener isInFullscreenSpace]) {
             [NSMenu setMenuBarVisible:YES];
         }

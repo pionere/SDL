@@ -143,13 +143,13 @@ static int pipewire_dlsym(const char *fn, void **addr)
         return -1;                                             \
     }
 
-static int load_pipewire_library()
+static int load_pipewire_library(void)
 {
     pipewire_handle = SDL_LoadObject(pipewire_library);
     return pipewire_handle ? 0 : -1;
 }
 
-static void unload_pipewire_library()
+static void unload_pipewire_library(void)
 {
     if (pipewire_handle) {
         SDL_UnloadObject(pipewire_handle);
@@ -161,18 +161,18 @@ static void unload_pipewire_library()
 
 #define SDL_PIPEWIRE_SYM(x) PIPEWIRE_##x = x
 
-static int load_pipewire_library()
+static int load_pipewire_library(void)
 {
     return 0;
 }
 
-static void unload_pipewire_library()
+static void unload_pipewire_library(void)
 { /* Nothing to do */
 }
 
 #endif /* SDL_AUDIO_DRIVER_PIPEWIRE_DYNAMIC */
 
-static int load_pipewire_syms()
+static int load_pipewire_syms(void)
 {
     SDL_PIPEWIRE_SYM(pw_get_library_version);
     SDL_PIPEWIRE_SYM(pw_init);
@@ -214,7 +214,7 @@ SDL_FORCE_INLINE SDL_bool pipewire_version_at_least(int major, int minor, int pa
            (pipewire_version_major > major || pipewire_version_minor > minor || pipewire_version_patch >= patch);
 }
 
-static int init_pipewire_library()
+static int init_pipewire_library(void)
 {
     if (!load_pipewire_library()) {
         if (!load_pipewire_syms()) {
@@ -236,7 +236,7 @@ static int init_pipewire_library()
     return -1;
 }
 
-static void deinit_pipewire_library()
+static void deinit_pipewire_library(void)
 {
     PIPEWIRE_pw_deinit();
     unload_pipewire_library();
@@ -342,7 +342,7 @@ static void io_list_remove(Uint32 id)
     }
 }
 
-static void io_list_sort()
+static void io_list_sort(void)
 {
     struct io_node *default_sink = NULL, *default_source = NULL;
     struct io_node *n, *temp;
@@ -367,7 +367,7 @@ static void io_list_sort()
     }
 }
 
-static void io_list_clear()
+static void io_list_clear(void)
 {
     struct io_node *n, *temp;
 
@@ -428,7 +428,7 @@ static void pending_list_remove(Uint32 id)
     }
 }
 
-static void pending_list_clear()
+static void pending_list_clear(void)
 {
     struct node_object *node, *temp;
 
@@ -753,7 +753,7 @@ static const struct pw_registry_events registry_events = { PW_VERSION_REGISTRY_E
                                                            .global_remove = registry_event_remove_callback };
 
 /* The hotplug thread */
-static int hotplug_loop_init()
+static int hotplug_loop_init(void)
 {
     int res;
 
@@ -796,7 +796,7 @@ static int hotplug_loop_init()
     return 0;
 }
 
-static void hotplug_loop_destroy()
+static void hotplug_loop_destroy(void)
 {
     if (hotplug_loop) {
         PIPEWIRE_pw_thread_loop_stop(hotplug_loop);
@@ -1363,7 +1363,7 @@ failed:
     return ret;
 }
 
-static void PIPEWIRE_Deinitialize()
+static void PIPEWIRE_Deinitialize(void)
 {
     if (pipewire_initialized) {
         hotplug_loop_destroy();
