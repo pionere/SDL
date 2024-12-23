@@ -605,7 +605,7 @@ SDL_FORCE_INLINE void BlitBto4Key(const SDL_BlitInfo *info, const Uint32 srcbpp)
     }
 }
 
-static void BlitBtoNAlpha(SDL_BlitInfo *info)
+static void BlitBtoNAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
@@ -682,7 +682,7 @@ static void BlitBtoNAlpha(SDL_BlitInfo *info)
     }
 }
 
-static void BlitBtoNAlphaKey(SDL_BlitInfo *info)
+static void BlitBtoNAlphaKey(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
     int height = info->dst_h;
