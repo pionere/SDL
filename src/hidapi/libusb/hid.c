@@ -1756,7 +1756,7 @@ uint16_t get_usb_code_for_current_locale(void)
 	char *locale = NULL;
 	char search_string[64];
 	char *ptr;
-	struct lang_map_entry *lang;
+	const struct lang_map_entry *lang;
 
 	/* Get the current locale. */
 #ifdef HAVE_SETLOCALE
