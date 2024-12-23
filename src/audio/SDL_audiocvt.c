@@ -926,7 +926,7 @@ static Uint8 *EnsureStreamBufferSize(SDL_AudioStream *stream, int len)
     } else {
         const size_t alignment_1 = SDL_SIMDGetAlignment() - 1;
         const size_t padding = (alignment_1 + 1 - (len & alignment_1)) & alignment_1;
-        len += padding;
+        len += (int)padding;
         retval = (Uint8 *)SDL_realloc(stream->work_buffer_base, alignment_1 + len);
         if (retval) {
             stream->work_buffer_base = retval;
