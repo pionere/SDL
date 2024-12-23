@@ -122,11 +122,11 @@ instead to differentiate between interfaces on a composite HID device. */
 /*#define INVASIVE_GET_USAGE*/
 
 /* Linked List of input reports received from the device. */
-typedef struct {
+struct input_report {
 	uint8_t *data;
 	size_t len;
 	struct input_report *next;
-} input_report;
+};
 
 
 struct hid_device_ {
@@ -164,8 +164,8 @@ struct hid_device_ {
 	int no_output_reports_on_intr_ep;
 
 	/* List of received input reports. */
-	input_report *input_reports;
-	input_report* input_reports_tail;
+	struct input_report *input_reports;
+	struct input_report *input_reports_tail;
 	unsigned num_input_reports;
 };
 
@@ -921,7 +921,7 @@ static void LIBUSB_CALL read_callback(struct libusb_transfer *transfer)
 
 	switch (transfer->status) {
 	case LIBUSB_TRANSFER_COMPLETED: {
-		input_report *rpt = (input_report*) SDL_malloc(sizeof(*rpt));
+		struct input_report *rpt = (struct input_report*) SDL_malloc(sizeof(*rpt));
 		if (!rpt) {
 			LOG("Unable to queue the report. Out of memory.\n");
 			break;
@@ -1349,7 +1349,7 @@ static int return_data(hid_device *dev, unsigned char *data, size_t length)
 {
 	/* Copy the data out of the linked list item (rpt) into the
 	   return buffer (data), and delete the liked list item. */
-	input_report *rpt = dev->input_reports;
+	struct input_report *rpt = dev->input_reports;
 	size_t len = (length < rpt->len)? length: rpt->len;
 	if (data && len > 0)
 		memcpy(data, rpt->data, len);
