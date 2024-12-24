@@ -1032,9 +1032,11 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
 /* Called from surfaceCreated() */
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceCreated)(JNIEnv *env, jclass jcls)
 {
+    ANativeWindow *wnd;
+
     SDL_LockMutex(Android_ActivityMutex);
 
-    ANativeWindow *wnd = Android_JNI_GetNativeWindow();
+    wnd = Android_JNI_GetNativeWindow();
     if (wnd == NULL) {
         SDL_SetError("Could not fetch native window from UI thread");
     }
