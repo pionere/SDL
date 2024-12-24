@@ -101,9 +101,9 @@ SDL_bool SDL_ResetHint(const char *name)
     SDL_Hint *hint;
     SDL_HintWatch *entry;
 
-    if (!name) {
-        return SDL_FALSE;
-    }
+    // if (!name) {
+    //    return SDL_FALSE;
+    // }
 
     env = SDL_getenv(name);
     for (hint = SDL_hints; hint; hint = hint->next) {
@@ -161,9 +161,9 @@ const char *SDL_GetHint(const char *name)
     const char *env;
     SDL_Hint *hint;
 
-    if (!name) {
-        return NULL;
-    }
+    // if (!name) {
+    //    return NULL;
+    // }
 
     env = SDL_getenv(name);
     for (hint = SDL_hints; hint; hint = hint->next) {
