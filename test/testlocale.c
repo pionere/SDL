@@ -70,7 +70,13 @@ int main(int argc, char **argv)
     }
 
     if (!SDLTest_CommonInit(state)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n", SDL_GetError());
+#ifndef SDL_DUMMYVIDEO
+        SDL_Log("Error of locale-test is ignored because the dummy video driver is disabled.");
+        return 0;
+#else
         return 1;
+#endif
     }
 
     /* Print locales and languages */
