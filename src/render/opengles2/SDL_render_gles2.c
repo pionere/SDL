@@ -1039,12 +1039,16 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
             switch (texture->format) {
             case SDL_PIXELFORMAT_BGRA32:
                 switch (renderer->target->format) {
-                case SDL_PIXELFORMAT_RGBA32:
+                // case SDL_PIXELFORMAT_RGBA32:
                 case SDL_PIXELFORMAT_RGBX32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
                     break;
                 case SDL_PIXELFORMAT_BGRX32:
+                case SDL_PIXELFORMAT_ABGR32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
+                    break;
+                default:
+                    SDL_assume(!"Unknown target-pixel format");
                     break;
                 }
                 break;
@@ -1055,34 +1059,45 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
                     break;
                 case SDL_PIXELFORMAT_RGBX32:
+                case SDL_PIXELFORMAT_ABGR32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
                     break;
+                default:
+                    SDL_assume(!"Unknown target-pixel format");
                 }
                 break;
             case SDL_PIXELFORMAT_BGRX32:
                 switch (renderer->target->format) {
-                case SDL_PIXELFORMAT_RGBA32:
-                    sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
-                    break;
                 case SDL_PIXELFORMAT_BGRA32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_BGR;
                     break;
+                case SDL_PIXELFORMAT_ABGR32:
+                    sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
+                    break;
+                // case SDL_PIXELFORMAT_RGBA32:
                 case SDL_PIXELFORMAT_RGBX32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
                     break;
+                default:
+                    SDL_assume(!"Unknown target-pixel format");
                 }
                 break;
             case SDL_PIXELFORMAT_RGBX32:
                 switch (renderer->target->format) {
-                case SDL_PIXELFORMAT_RGBA32:
-                    sourceType = GLES2_IMAGESOURCE_TEXTURE_BGR;
-                    break;
+                // case SDL_PIXELFORMAT_RGBA32:
+                //    sourceType = GLES2_IMAGESOURCE_TEXTURE_BGR;
+                //    break;
                 case SDL_PIXELFORMAT_BGRA32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_RGB;
+                    break;
+                case SDL_PIXELFORMAT_ABGR32:
+                    sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
                     break;
                 case SDL_PIXELFORMAT_BGRX32:
                     sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
                     break;
+                default:
+                    SDL_assume(!"Unknown target-pixel format");
                 }
                 break;
 #if SDL_HAVE_YUV
@@ -1114,6 +1129,9 @@ static int SetCopyState(SDL_Renderer *renderer, const SDL_RenderCommand *cmd, vo
             sourceType = GLES2_IMAGESOURCE_TEXTURE_ARGB;
             break;
         case SDL_PIXELFORMAT_RGBA32:
+            sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
+            break;
+        case SDL_PIXELFORMAT_ABGR32:
             sourceType = GLES2_IMAGESOURCE_TEXTURE_ABGR;
             break;
         case SDL_PIXELFORMAT_BGRX32:
@@ -1449,7 +1467,7 @@ static int GLES2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     default:
         SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_BGRA32:
-    case SDL_PIXELFORMAT_RGBA32:
+    case SDL_PIXELFORMAT_ABGR32:
     case SDL_PIXELFORMAT_BGRX32:
     case SDL_PIXELFORMAT_RGBX32:
         format = GL_RGBA;
