@@ -174,9 +174,10 @@ void Android_DestroyWindow(SDL_Window *window)
     SDL_LockMutex(Android_ActivityMutex);
 
     if (window == Android_Window) {
+        SDL_WindowData *data;
         Android_Window = NULL;
 
-        SDL_WindowData *data = (SDL_WindowData *)window->driverdata;
+        data = (SDL_WindowData *)window->driverdata;
         if (data) {
 #ifdef SDL_VIDEO_OPENGL_EGL
             SDL_EGL_DestroySurface(data->egl_surface);
