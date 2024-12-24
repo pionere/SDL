@@ -48,10 +48,9 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
     } else {
         const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
-        const SDL_bool specific_accelerated_renderer = (hint && *hint != '0' && *hint != '1' &&
-                                                        SDL_strcasecmp(hint, "true") != 0 &&
-                                                        SDL_strcasecmp(hint, "false") != 0 &&
-                                                        SDL_strcasecmp(hint, "software") != 0);
+        const SDL_bool specific_accelerated_renderer = (hint && *hint != '1' &&
+                                                        SDL_strcasecmp(hint, "true") != 0);
+        SDL_assert(hint == NULL || (*hint != '0' && SDL_strcasecmp(hint, "false") != 0 && SDL_strcasecmp(hint, "software") != 0));
         /* Check to see if there's a specific driver requested */
         if (specific_accelerated_renderer) {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
