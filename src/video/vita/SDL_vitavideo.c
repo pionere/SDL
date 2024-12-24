@@ -295,8 +295,10 @@ int VITA_CreateSDLWindow(_THIS, SDL_Window *window)
     SDL_WindowData *wdata;
 #if defined(SDL_VIDEO_VITA_PVR)
     Psp2NativeWindow win;
+#if defined(SDL_VIDEO_VITA_PVR_OGL)
     SDL_bool pvrOgl;
     int temp_major, temp_minor, temp_profile;
+#endif
     EGLSurface egl_surface;
 #endif
 
