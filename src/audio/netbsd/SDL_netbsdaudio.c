@@ -270,7 +270,7 @@ static int NETBSDAUDIO_OpenDevice(_THIS, const char *devname)
         break;
     default:
         SDL_assume(!"Unknown audio format");
-        continue;
+        return SDL_SetError("%s: Unsupported audio format", "netbsd");
     }
     prinfo->encoding = encoding;
     prinfo->precision = SDL_AUDIO_BITSIZE(test_format);
