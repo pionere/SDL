@@ -478,7 +478,8 @@ int WASAPI_PrepDevice(_THIS)
        interrupts waited for in each call to WaitDevice */
     {
         const Uint64 period_length = (Uint64)default_period * this->spec.freq;
-        this->spec.samples = (period_length + 10000 * 1000 - 1) / (10000 * 1000);
+        const Uint64 period_frames = (period_length + 10000 * 1000 - 1) / (10000 * 1000);
+        this->spec.samples = (Uint16)period_frames;
     }
 
     /* regardless of what we calculated for the period size, clamp it to the expected hardware buffer size. */
