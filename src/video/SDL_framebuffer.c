@@ -48,11 +48,15 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
     } else {
         const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
-        const SDL_bool specific_accelerated_renderer = (hint && *hint != '1' &&
-                                                        SDL_strcasecmp(hint, "true") != 0);
         SDL_assert(hint == NULL || (*hint != '0' && SDL_strcasecmp(hint, "false") != 0 && SDL_strcasecmp(hint, "software") != 0));
+        if (hint == NULL || *hint == '1' || SDL_strcasecmp(hint, "true") == 0) {
+            hint = SDL_GetHint(SDL_HINT_RENDER_DRIVER);
+            if (hint && SDL_strcasecmp(hint, "software") == 0) {
+                hint = NULL;
+            }
+        }
         /* Check to see if there's a specific driver requested */
-        if (specific_accelerated_renderer) {
+        if (hint) {
             for (i = 0; i < SDL_GetNumRenderDrivers(); ++i) {
                 info = SDL_PrivateGetRenderDriverInfo(i);
                 if (SDL_strcasecmp(info->name, hint) == 0) {
@@ -80,8 +84,8 @@ int SDL_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pixel
         }
 
         if (!renderer) {
-            if (specific_accelerated_renderer) {
-                SDL_SetError("Requested renderer for " SDL_HINT_FRAMEBUFFER_ACCELERATION " is not available");
+            if (hint) {
+                SDL_SetError("Renderer '%s' for framebuffer acceleration is not available", hint);
             } else {
                 SDL_SetError("No hardware accelerated renderers available");
             }
