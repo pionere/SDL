@@ -116,8 +116,7 @@ static struct wl_buffer_listener buffer_listener = {
 
 int Wayland_AllocSHMBuffer(int width, int height, struct Wayland_SHMBuffer *shmBuffer)
 {
-    SDL_VideoDevice *vd = SDL_GetVideoDevice();
-    SDL_VideoData *data = vd->driverdata;
+    Wayland_VideoData *data = &waylandVideoData;
     struct wl_shm_pool *shm_pool;
     int shm_fd;
     int stride;

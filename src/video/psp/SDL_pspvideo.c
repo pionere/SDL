@@ -265,10 +265,10 @@ static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
     // device->IsTextInputShown = PSP_IsTextInputShown;
 
     /* Screen keyboard */
-    // device->HasScreenKeyboardSupport = PSP_HasScreenKeyboardSupport;
-    // device->ShowScreenKeyboard = PSP_ShowScreenKeyboard;
-    // device->HideScreenKeyboard = PSP_HideScreenKeyboard;
-    // device->IsScreenKeyboardShown = PSP_IsScreenKeyboardShown;
+    device->HasScreenKeyboardSupport = PSP_HasScreenKeyboardSupport;
+    device->ShowScreenKeyboard = PSP_ShowScreenKeyboard;
+    device->HideScreenKeyboard = PSP_HideScreenKeyboard;
+    device->IsScreenKeyboardShown = PSP_IsScreenKeyboardShown;
 
     /* Clipboard */
     // device->SetClipboardText = PSP_SetClipboardText;
@@ -669,7 +669,7 @@ void PSP_HideScreenKeyboard(SDL_Window *window)
 SDL_bool PSP_IsScreenKeyboardShown(SDL_Window *window)
 {
     return SDL_FALSE;
-}*/
+}
 
 #endif /* SDL_VIDEO_DRIVER_PSP */
 

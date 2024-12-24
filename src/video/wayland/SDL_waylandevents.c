@@ -947,8 +947,8 @@ static void touch_handler_cancel(void *data, struct wl_touch *touch)
 			if (window_data) {
 				const double dblx = wl_fixed_to_double(fx) * window_data->pointer_scale_x;
 				const double dbly = wl_fixed_to_double(fy) * window_data->pointer_scale_y;
-				const float x = dblx / window_data->sdlwindow->w;
-				const float y = dbly / window_data->sdlwindow->h;
+				const float x = dblx / window_data->sdlwindow->wrect.w;
+				const float y = dbly / window_data->sdlwindow->wrect.h;
 
 				SDL_SendTouch((SDL_TouchID)(intptr_t)touch, (SDL_FingerID)id,
 					      window_data->sdlwindow, SDL_FALSE, x, y, 1.0f);

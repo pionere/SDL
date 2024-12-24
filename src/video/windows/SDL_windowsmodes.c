@@ -194,8 +194,9 @@ static SDL_bool WIN_GetDisplayMode(LPCWSTR deviceName, DWORD index, SDL_DisplayM
     return SDL_TRUE;
 }
 
-static char *WIN_GetDisplayNameVista(SDL_VideoData *videodata, const WCHAR *deviceName)
+static char *WIN_GetDisplayNameVista(const WCHAR *deviceName)
 {
+    const WIN_VideoData *videodata = &winVideoData;
     DISPLAYCONFIG_PATH_INFO *paths = NULL;
     DISPLAYCONFIG_MODE_INFO *modes = NULL;
     char *retval = NULL;
@@ -348,7 +349,7 @@ static void WIN_AddDisplay(HMONITOR hMonitor, const MONITORINFOEXW *info, int *d
     displaydata->IsValid = SDL_TRUE;
 
     SDL_zero(display);
-    display.name = WIN_GetDisplayNameVista(_this->driverdata, info->szDevice);
+    display.name = WIN_GetDisplayNameVista(info->szDevice);
     if (!display.name) {
         DISPLAY_DEVICEW device;
         SDL_zero(device);
