@@ -22,6 +22,9 @@
 #include "../../SDL_internal.h"
 #include "../SDL_thread_c.h"
 
+void SDL_SYS_InitTLSData(void)
+{
+}
 
 SDL_TLSData *
 SDL_SYS_GetTLSData(void)
@@ -34,6 +37,10 @@ int
 SDL_SYS_SetTLSData(SDL_TLSData *data)
 {
     return SDL_SetError("SDL not built with thread support");
+}
+
+void SDL_SYS_QuitTLSData(void)
+{
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
