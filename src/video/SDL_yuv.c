@@ -141,7 +141,7 @@ int SDL_InitYUVInfo(int width, int height, Uint32 format, const void *yuv, int y
             s1 = s1 / 2;
             sz_channel_w = s1;
 
-            yuv_info->uv_width = s1;
+            yuv_info->uv_width = (int)s1;
         }
 
         switch (format) {
@@ -154,7 +154,7 @@ int SDL_InitYUVInfo(int width, int height, Uint32 format, const void *yuv, int y
             /* pitch == sz_channel_w * 4; */
             if (yuv_pitch == 0) {
                 p1 = 4 * sz_channel_w;
-                yuv_pitch = p1;
+                yuv_pitch = (int)p1;
             }
 
             /* dst_size == pitch * h; */
@@ -186,8 +186,8 @@ int SDL_InitYUVInfo(int width, int height, Uint32 format, const void *yuv, int y
             s3 = s1 * s2;
             sz_plane_chroma = s3;
 
-            yuv_info->uv_width = s1;
-            yuv_info->uv_height = s2;
+            yuv_info->uv_width = (int)s1;
+            yuv_info->uv_height = (int)s2;
         }
 
         {
