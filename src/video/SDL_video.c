@@ -28,6 +28,7 @@
 #include "SDL_shape.h"
 #include "SDL_sysvideo.h"
 #include "SDL_framebuffer.h"
+#include "../SDL_hints_c.h"
 #include "../events/SDL_events_c.h"
 #include "../timer/SDL_timer_c.h"
 
@@ -2587,12 +2588,12 @@ int SDL_SetWindowFullscreen(SDL_Window *window, Uint32 flags)
 /* See if the user or application wants to specifically disable the framebuffer */
 static SDL_bool DisableFrameBuffer(void)
 {
-    SDL_bool result = SDL_FALSE;
+    SDL_bool result;
     const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
-    if (hint) {
-        if ((*hint == '0') || (SDL_strcasecmp(hint, "false") == 0) || (SDL_strcasecmp(hint, "software") == 0)) {
-            result = SDL_TRUE;
-        }
+    if (hint && SDL_strcasecmp(hint, "software") == 0) {
+        result = SDL_TRUE;
+    } else {
+        result = SDL_GetStringBoolean(hint, SDL_TRUE) ? SDL_FALSE : SDL_TRUE;
     }
     return result;
 }
@@ -3199,7 +3200,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
             return SDL_TRUE;
         }
     }
-    return SDL_GetHintBoolean(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, SDL_FALSE);
+    return SDL_GetStringBoolean(hint, SDL_FALSE);
 }
 
 void SDL_OnWindowFocusLost(SDL_Window *window)
