@@ -1055,7 +1055,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
 
         /* Get a good video mode, the closest one possible */
         if (!SDL_GetClosestDisplayModeForDisplay(display, &display_mode, &display_mode)) {
-            return SDL_SetError("No video mode large enough for %dx%d", display_mode.w, display_mode.h);
+            return SDL_SetError("No video mode large enough for %dx%d", display_mode.w, display_mode.h); // this should never happen
         }
     } else {
         display_mode = display->desktop_mode;
@@ -1069,7 +1069,7 @@ static int SDL_SetDisplayModeForDisplay(SDL_VideoDisplay *display, const SDL_Dis
 
     /* Actually change the display mode */
     if (!current_video.SetDisplayMode) {
-        return SDL_SetError("SDL video driver doesn't support changing display mode");
+        return SDL_SetError("SDL video driver doesn't support changing display mode"); // this should never happen
     }
     result = current_video.SetDisplayMode(display, &display_mode);
     if (result < 0) {
@@ -1328,7 +1328,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
         /* If we're switching between a fullscreen Space and "normal" fullscreen, we need to get back to normal first. */
         if (fullscreen && ((window->last_fullscreen_flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP) && ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN)) {
             if (!Cocoa_SetWindowFullscreenSpace(window, SDL_FALSE)) {
-                return -1;
+                // return -1;
             }
         } else if (fullscreen && ((window->last_fullscreen_flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN) && ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN_DESKTOP)) {
             display = SDL_GetDisplayForWindow(window);
@@ -1423,11 +1423,11 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
                 /* only do the mode change if we want exclusive fullscreen */
                 if ((other->flags & SDL_WINDOW_FULLSCREEN_MASK) == SDL_WINDOW_FULLSCREEN) {
                     if (SDL_SetDisplayModeForDisplay(display, &fullscreen_mode) < 0) {
-                        return -1;
+                        // return -1;
                     }
                 } else {
                     if (SDL_SetDisplayModeForDisplay(display, NULL) < 0) {
-                        return -1;
+                        // return -1;
                     }
                 }
 
