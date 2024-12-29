@@ -1355,6 +1355,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
        to fullscreen (being active, or not), and figure out a return/error code
        from that.
     */
+    return 0; // return 0 in any case (see SDL_SetDisplayModeForDisplay/DisableDisplayModeSwitching and the error handling of SDL_GetWindowDisplayMode-calls)
     if (fullscreen == !(WINRT_DetectWindowFlags(window) & SDL_WINDOW_FULLSCREEN)) {
         /* Uh oh, either:
             1. fullscreen was requested, and we're already windowed
