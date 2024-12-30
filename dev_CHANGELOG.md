@@ -87,6 +87,7 @@ Major (meaningful) changes:
   22. optimize SDL_CalculateWindowDisplayIndex/GetPointDisplayIndex (cd85c219f4c654487f533845445ee168f5b7c8bb)
   23. use SDL_Rect for x, y, w, h in SDL_Window (da878291e49734301fd09de560f83dc2d201389d + ebeb95dd9cad94e322606120b293f116264d0033 + 7aefe0379b9351f638b2249e602af299ba914a41 + 84f8a2d19d0a754d5d57a086b2ebbae7bf199469)
   24. cleanup SDL_PremultiplyAlpha (4c69d359f47561815c40340e6e23fb503445b910)
+  25. cleanup SDL_UpdateFullscreenMode (b172f88a33b04e418a88e40b72edb17630120895 + 3bd5a0e6e9d63154532db8413b0a22c949d8239e)
   26. general optimizations (c718a97c8e05f5df0ccf92698971a16add3e5a3d + 210542a4ea732b715856ee65240d50ff3a519cc6)
   27. ensure 16-byte alignment for SDL_FillRect*SSE (d31cd363d624b54454f0d12411746cd530701aa0)
 
@@ -145,6 +146,7 @@ Major (meaningful) changes:
 - revert 'Make sure we're actually running on Windows before using D3D renderers' / e22c89536a4cc834f0c45de5fcfd9e641b08a037
 - revert 'render: Manage memory for SDL_Renderer* at higher level.' / 944dc4701cd758b84447aa638990acf27ee896b1
 - revert 'Clean up any renderer in SDL_DestroyWindowSurface()' / a3f0c373d3435e7943924cccbe92a24df20fe5fb
+- stick to the latest MINOR_VERSION/PATCHLEVEL (88cc141e5d9bf46552b6aaf2602b1fab9fdfa8eb)
 
 Minor changes:
 - handle the joystick subsystem like the others (2adda5b42f4733470d0db47981b753a185c44031 + 6ddd5bdebe8dbec382795be01328a1ab2ba10469)
@@ -175,7 +177,7 @@ Minor changes:
 - prevent redefinition of _USE_MATH_DEFINES (daece4f51048120779df1bed50dc3b4786a630d7)
 - revert part of Clang-Tidy fixes (SDL_audio.c) (f3cdb1db49c1e75252e02becf27f8b90a37fec51)
 - simplify memory handling (c51c2e6e0be8138bb91c1836656d5677a13d05e4 + ae8ba6fc19b4f94d3d6cf06b28884fd95e3d8f1b)
-- load hints only once (bb3de967afa26c938fdaa916b5160a071ef045c0)
+- load hints only once (bb3de967afa26c938fdaa916b5160a071ef045c0 + 4fd67dc6a48e2743a0fa44672ccd2c5751ae7a4d)
 - minor cleanup SDL_GetPrefPath of unix/SDL_sysfilesystem.c (202cd041545e8f239a6a05214596afff689d0c24 + f47b03501cfac63e04ef9a167682a7a2b2bb1f13)
 - sort the library function-names to check (e361bda5a19230182ad74c07159c9e02ec5e52d0)
 - use _i64toa, _ui64toa and strtoull functions of the standard libc (MSVC) (2b30ea81f6c054f727a6579c8e7c36c6f2856111 + f3a81ebea0a5b5fc1a31f1c4a9ac3431adf8eaf1)
