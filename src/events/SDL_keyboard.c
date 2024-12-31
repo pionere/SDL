@@ -45,7 +45,7 @@ struct SDL_Keyboard
     SDL_Window *focus;
     Uint16 modstate;
     Uint8 keysource[SDL_NUM_SCANCODES];
-    Uint8 keystate[SDL_NUM_SCANCODES];
+    Uint8 keystate[SDL_NUM_SCANCODES];     /* SDL_PRESSED or SDL_RELEASED */
     SDL_Keycode keymap[SDL_NUM_SCANCODES];
     SDL_bool autorelease_pending;
     Uint32 hardware_timestamp;
@@ -684,7 +684,7 @@ void SDL_ResetKeyboard(void)
     printf("Resetting keyboard\n");
 #endif
     for (scancode = (SDL_Scancode)0; scancode < SDL_NUM_SCANCODES; ++scancode) {
-        if (keyboard->keystate[scancode] == SDL_PRESSED) {
+        if (keyboard->keystate[scancode] != SDL_RELEASED) {
             SDL_SendKeyboardKey(SDL_RELEASED, scancode);
         }
     }
@@ -825,21 +825,12 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
 #endif
 
     /* Figure out what type of event this is */
-    switch (state) {
-    case SDL_PRESSED:
-        type = SDL_KEYDOWN;
-        break;
-    case SDL_RELEASED:
-        type = SDL_KEYUP;
-        break;
-    default:
-        /* Invalid state -- bail */
-        return 0;
-    }
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
+    type = state != SDL_RELEASED ? SDL_KEYDOWN : SDL_KEYUP;
 
     /* Drop events that don't change state */
-    if (state) {
-        if (keyboard->keystate[scancode]) {
+    if (state != SDL_RELEASED) {
+        if (keyboard->keystate[scancode] != SDL_RELEASED) {
             if (!(keyboard->keysource[scancode] & source)) {
                 keyboard->keysource[scancode] |= source;
                 return 0;
@@ -848,7 +839,7 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
         }
         keyboard->keysource[scancode] |= source;
     } else {
-        if (!keyboard->keystate[scancode]) {
+        if (keyboard->keystate[scancode] == SDL_RELEASED) {
             return 0;
         }
         keyboard->keysource[scancode] = 0;
@@ -937,7 +928,7 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
        minimize the window when we receive Alt+Tab, unless the application
        has explicitly opted out of this behavior. */
     if (keycode == SDLK_TAB &&
-        state == SDL_PRESSED &&
+        state != SDL_RELEASED &&
         (keyboard->modstate & KMOD_ALT) &&
         keyboard->focus &&
         (keyboard->focus->flags & SDL_WINDOW_KEYBOARD_GRABBED) &&

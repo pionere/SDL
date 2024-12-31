@@ -301,7 +301,7 @@ static void SDL_LogEvent(const SDL_Event *event)
 #define PRINT_KEY_EVENT(event)                                                                                                   \
     (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u windowid=%u state=%s repeat=%s scancode=%u keycode=%u mod=%u)", \
                        (uint)event->key.timestamp, (uint)event->key.windowID,                                                    \
-                       event->key.state == SDL_PRESSED ? "pressed" : "released",                                                 \
+                       event->key.state != SDL_RELEASED ? "pressed" : "released",                                                \
                        event->key.repeat ? "true" : "false",                                                                     \
                        (uint)event->key.keysym.scancode,                                                                         \
                        (uint)event->key.keysym.sym,                                                                              \
@@ -336,7 +336,7 @@ static void SDL_LogEvent(const SDL_Event *event)
     (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u windowid=%u which=%u button=%u state=%s clicks=%u x=%d y=%d)", \
                        (uint)event->button.timestamp, (uint)event->button.windowID,                                             \
                        (uint)event->button.which, (uint)event->button.button,                                                   \
-                       event->button.state == SDL_PRESSED ? "pressed" : "released",                                             \
+                       event->button.state != SDL_RELEASED ? "pressed" : "released",                                            \
                        (uint)event->button.clicks, (int)event->button.x, (int)event->button.y)
         SDL_EVENT_CASE(SDL_MOUSEBUTTONDOWN)
         PRINT_MBUTTON_EVENT(event);
@@ -375,7 +375,7 @@ static void SDL_LogEvent(const SDL_Event *event)
 #define PRINT_JBUTTON_EVENT(event)                                                              \
     (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u which=%d button=%u state=%s)", \
                        (uint)event->jbutton.timestamp, (int)event->jbutton.which,               \
-                       (uint)event->jbutton.button, event->jbutton.state == SDL_PRESSED ? "pressed" : "released")
+                       (uint)event->jbutton.button, event->jbutton.state != SDL_RELEASED ? "pressed" : "released")
         SDL_EVENT_CASE(SDL_JOYBUTTONDOWN)
         PRINT_JBUTTON_EVENT(event);
         break;
@@ -402,7 +402,7 @@ static void SDL_LogEvent(const SDL_Event *event)
 #define PRINT_CBUTTON_EVENT(event)                                                              \
     (void)SDL_snprintf(details, sizeof(details), " (timestamp=%u which=%d button=%u state=%s)", \
                        (uint)event->cbutton.timestamp, (int)event->cbutton.which,               \
-                       (uint)event->cbutton.button, event->cbutton.state == SDL_PRESSED ? "pressed" : "released")
+                       (uint)event->cbutton.button, event->cbutton.state != SDL_RELEASED ? "pressed" : "released")
         SDL_EVENT_CASE(SDL_CONTROLLERBUTTONDOWN)
         PRINT_CBUTTON_EVENT(event);
         break;

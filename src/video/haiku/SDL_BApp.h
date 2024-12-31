@@ -299,15 +299,16 @@ class SDL_BLooper : public BLooper
             msg->FindInt32("key-scancode", &scancode) != B_OK) {
             return;
         }
+        SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
 
         /* Make sure this isn't a repeated event (key pressed and held) */
-        if (state == SDL_PRESSED && HAIKU_GetKeyState(scancode) == SDL_PRESSED) {
+        if (state != SDL_RELEASED && HAIKU_GetKeyState(scancode) != SDL_RELEASED) {
             return;
         }
         HAIKU_SetKeyState(scancode, state);
         SDL_SendKeyboardKey(state, HAIKU_GetScancodeFromBeKey(scancode));
 
-        if (state == SDL_PRESSED && SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
+        if (state != SDL_RELEASED && SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
             const int8 *keyUtf8;
             ssize_t count;
             if (msg->FindData("key-utf8", B_INT8_TYPE, (const void **)&keyUtf8, &count) == B_OK) {

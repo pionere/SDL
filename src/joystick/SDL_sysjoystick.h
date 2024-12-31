@@ -46,7 +46,7 @@ typedef struct _SDL_JoystickAxisInfo
 
 typedef struct _SDL_JoystickTouchpadFingerInfo
 {
-    Uint8 state;
+    Uint8 state;    /* SDL_PRESSED or SDL_RELEASED */
     float x;
     float y;
     float pressure;

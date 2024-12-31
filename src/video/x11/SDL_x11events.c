@@ -425,7 +425,7 @@ void X11_ReconcileKeyboardState(void)
     for (keycode = 0; keycode < SDL_arraysize(viddata->key_layout); ++keycode) {
         SDL_Scancode scancode = viddata->key_layout[keycode];
         SDL_bool x11KeyPressed = (keys[keycode / 8u] & (1 << (keycode % 8u))) != 0;
-        SDL_bool sdlKeyPressed = keyboardState[scancode] == SDL_PRESSED;
+        SDL_bool sdlKeyPressed = keyboardState[scancode] != SDL_RELEASED;
 
         if (x11KeyPressed && !sdlKeyPressed) {
             /* Only update modifier state for keys that are pressed in another application */

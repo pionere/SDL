@@ -285,7 +285,7 @@ static void HandleJoystickButton(SDL_GameController *gamecontroller, int button,
         if (binding->inputType == SDL_CONTROLLER_BINDTYPE_BUTTON &&
             button == binding->input.button) {
             if (binding->outputType == SDL_CONTROLLER_BINDTYPE_AXIS) {
-                int value = state ? binding->output.axis.axis_max : binding->output.axis.axis_min;
+                int value = state != SDL_RELEASED ? binding->output.axis.axis_max : binding->output.axis.axis_min;
                 SDL_PrivateGameControllerAxis(gamecontroller, binding->output.axis.axis, (Sint16)value);
             } else {
                 SDL_PrivateGameControllerButtonEvent(gamecontroller, binding->output.button, state);
@@ -3400,23 +3400,13 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
     if (button == SDL_CONTROLLER_BUTTON_INVALID) {
         return 0;
     }
-
-    switch (state) {
-    case SDL_PRESSED:
-        event.type = SDL_CONTROLLERBUTTONDOWN;
-        break;
-    case SDL_RELEASED:
-        event.type = SDL_CONTROLLERBUTTONUP;
-        break;
-    default:
-        /* Invalid state -- bail */
-        return 0;
-    }
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
+    event.type = state != SDL_RELEASED ? SDL_CONTROLLERBUTTONDOWN : SDL_CONTROLLERBUTTONUP;
 #endif /* !SDL_EVENTS_DISABLED */
 
     if (button == SDL_CONTROLLER_BUTTON_GUIDE) {
         Uint32 now = SDL_GetTicks();
-        if (state == SDL_PRESSED) {
+        if (state != SDL_RELEASED) {
             gamecontroller->guide_button_down = now;
 
             if (gamecontroller->joystick->delayed_guide_button) {

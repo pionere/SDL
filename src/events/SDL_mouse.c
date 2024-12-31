@@ -703,11 +703,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     /* SDL_HINT_MOUSE_TOUCH_EVENTS: controlling whether mouse events should generate synthetic touch events */
     if (mouse->mouse_touch_events) {
         if (mouseID != SDL_TOUCH_MOUSEID && button == SDL_BUTTON_LEFT) {
-            if (state == SDL_PRESSED) {
-                track_mouse_down = SDL_TRUE;
-            } else {
-                track_mouse_down = SDL_FALSE;
-            }
+            track_mouse_down = state != SDL_RELEASED ? SDL_TRUE : SDL_FALSE;
             if (window) {
                 float fx = (float)mouse->x / (float)window->wrect.w;
                 float fy = (float)mouse->y / (float)window->wrect.h;
@@ -724,22 +720,17 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     }
 
     /* Figure out which event to perform */
-    switch (state) {
-    case SDL_PRESSED:
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
+    if (state != SDL_RELEASED) {
         type = SDL_MOUSEBUTTONDOWN;
         buttonstate |= SDL_BUTTON(button);
-        break;
-    case SDL_RELEASED:
+    } else {
         type = SDL_MOUSEBUTTONUP;
         buttonstate &= ~SDL_BUTTON(button);
-        break;
-    default:
-        /* Invalid state -- bail */
-        return 0;
     }
 
     /* We do this after calculating buttonstate so button presses gain focus */
-    if (window && state == SDL_PRESSED) {
+    if (window && state != SDL_RELEASED) {
         SDL_UpdateMouseFocus(window, mouse->x, mouse->y, buttonstate, SDL_TRUE);
     }
 
@@ -752,7 +743,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     if (clicks < 0) {
         SDL_MouseClickState *clickstate = GetMouseClickState(mouse, button);
         if (clickstate) {
-            if (state == SDL_PRESSED) {
+            if (state != SDL_RELEASED) {
                 Uint32 now = SDL_GetTicks();
 
                 if (SDL_TICKS_PASSED(now, clickstate->last_timestamp + mouse->double_click_time) ||

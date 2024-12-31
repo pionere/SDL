@@ -1049,7 +1049,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         /* Detect relevant keyboard shortcuts */
-        if (keyboardState[SDL_SCANCODE_LALT] == SDL_PRESSED || keyboardState[SDL_SCANCODE_RALT] == SDL_PRESSED) {
+        if (keyboardState[SDL_SCANCODE_LALT] != SDL_RELEASED || keyboardState[SDL_SCANCODE_RALT] != SDL_RELEASED) {
             /* ALT+F4: Close window */
             if (code == SDL_SCANCODE_F4 && ShouldGenerateWindowCloseOnAltF4()) {
                 SDL_SendWindowEvent(window, SDL_WINDOWEVENT_CLOSE, 0, 0);
@@ -1946,10 +1946,10 @@ void WIN_PumpEvents(void)
        key you released. Take heroic measures and check the keystate as of the last handled event,
        and if we think a key is pressed when Windows doesn't, unstick it in SDL's state. */
     keystate = SDL_GetKeyboardState(NULL);
-    if ((keystate[SDL_SCANCODE_LSHIFT] == SDL_PRESSED) && !(GetKeyState(VK_LSHIFT) & 0x8000)) {
+    if ((keystate[SDL_SCANCODE_LSHIFT] != SDL_RELEASED) && !(GetKeyState(VK_LSHIFT) & 0x8000)) {
         SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LSHIFT);
     }
-    if ((keystate[SDL_SCANCODE_RSHIFT] == SDL_PRESSED) && !(GetKeyState(VK_RSHIFT) & 0x8000)) {
+    if ((keystate[SDL_SCANCODE_RSHIFT] != SDL_RELEASED) && !(GetKeyState(VK_RSHIFT) & 0x8000)) {
         SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_RSHIFT);
     }
 
@@ -1958,10 +1958,10 @@ void WIN_PumpEvents(void)
        will return inaccurate results for VK_LWIN and VK_RWIN but we don't need it anyway. */
     focusWindow = SDL_GetKeyboardFocus();
     if (!focusWindow || !(focusWindow->flags & SDL_WINDOW_KEYBOARD_GRABBED)) {
-        if ((keystate[SDL_SCANCODE_LGUI] == SDL_PRESSED) && !(GetKeyState(VK_LWIN) & 0x8000)) {
+        if ((keystate[SDL_SCANCODE_LGUI] != SDL_RELEASED) && !(GetKeyState(VK_LWIN) & 0x8000)) {
             SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_LGUI);
         }
-        if ((keystate[SDL_SCANCODE_RGUI] == SDL_PRESSED) && !(GetKeyState(VK_RWIN) & 0x8000)) {
+        if ((keystate[SDL_SCANCODE_RGUI] != SDL_RELEASED) && !(GetKeyState(VK_RWIN) & 0x8000)) {
             SDL_SendKeyboardKey(SDL_RELEASED, SDL_SCANCODE_RGUI);
         }
     }

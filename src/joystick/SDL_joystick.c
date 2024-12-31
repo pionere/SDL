@@ -1350,16 +1350,16 @@ int SDL_JoystickGetBall(SDL_Joystick *joystick, int ball, int *dx, int *dy)
 Uint8 SDL_JoystickGetButton(SDL_Joystick *joystick, int button)
 {
     Uint8 state;
-
+    SDL_COMPILE_TIME_ASSERT(joy_state, SDL_RELEASED == 0 && SDL_PRESSED == 1);
     SDL_LockJoysticks();
     {
-        CHECK_JOYSTICK_MAGIC(joystick, 0);
+        CHECK_JOYSTICK_MAGIC(joystick, SDL_RELEASED);
 
         if (button < joystick->nbuttons) {
             state = joystick->buttons[button];
         } else {
             SDL_SetError("Joystick only has %d buttons", joystick->nbuttons);
-            state = 0;
+            state = SDL_RELEASED;
         }
     }
     SDL_UnlockJoysticks();
@@ -2293,17 +2293,8 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
 
     SDL_AssertJoysticksLocked();
 
-    switch (state) {
-    case SDL_PRESSED:
-        event.type = SDL_JOYBUTTONDOWN;
-        break;
-    case SDL_RELEASED:
-        event.type = SDL_JOYBUTTONUP;
-        break;
-    default:
-        /* Invalid state -- bail */
-        return 0;
-    }
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
+    event.type = state != SDL_RELEASED ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
 #endif /* !SDL_EVENTS_DISABLED */
 
     SDL_AssertJoysticksLocked();
@@ -2319,7 +2310,7 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
     /* We ignore events if we don't have keyboard focus, except for button
      * release. */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
-        if (state == SDL_PRESSED) {
+        if (state != SDL_RELEASED) {
             return 0;
         }
     }
