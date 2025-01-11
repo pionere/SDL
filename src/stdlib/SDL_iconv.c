@@ -176,7 +176,7 @@ static const struct
     { "UCS-4-INTERNAL", ENCODING_UCS4NATIVE },
 /* *INDENT-ON* */ /* clang-format on */
 };
-
+#ifndef SDL_LOCALE_DISABLED
 static const char *getlocale(char *buffer, size_t bufsize)
 {
     const char *lang;
@@ -210,7 +210,7 @@ static const char *getlocale(char *buffer, size_t bufsize)
 
     return buffer;
 }
-
+#endif // !SDL_LOCALE_DISABLED
 SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
 {
     int src_fmt = -1;
