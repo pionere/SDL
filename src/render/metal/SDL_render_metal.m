@@ -869,8 +869,9 @@ static void METAL_UnlockTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     id<MTLBlitCommandEncoder> blitcmd;
     SDL_Rect rect = texturedata.lockedrect;
     int pitch = SDL_PIXELFORMAT_BPP(texture->format) * rect.w;
+#if SDL_HAVE_YUV
     SDL_Rect UVrect = {rect.x / 2u, rect.y / 2u, (rect.w + 1) / 2u, (rect.h + 1) / 2u};
-
+#endif
     if (texturedata.lockedbuffer == nil) {
         return;
     }
