@@ -424,7 +424,7 @@ static void Blit1to4Key(const SDL_BlitInfo *info)
         dstp += dstskip;
     }
 }
-
+#if SDL_HAVE_BLIT_TRANSFORM
 static void Blit1toNAlpha(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -505,7 +505,7 @@ static void Blit1toNAlphaKey(const SDL_BlitInfo *info)
         dst += dstskip;
     }
 }
-
+#endif // SDL_HAVE_BLIT_TRANSFORM
 static const SDL_BlitFunc one_bitmap_blit[] = {
     Blit1to1, Blit1to2, Blit1to3, Blit1to4
 };
