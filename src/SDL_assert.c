@@ -31,7 +31,7 @@
 #include "SDL_assert.h"
 #include "SDL_assert_c.h"
 #include "video/SDL_sysvideo.h"
-
+#if SDL_ASSERT_LEVEL > 0
 #if defined(__WIN32__) || defined(__GDK__)
 #ifndef WS_OVERLAPPEDWINDOW
 #define WS_OVERLAPPEDWINDOW 0
@@ -149,6 +149,7 @@ extern SDL_NORETURN void SDL_ExitProcess(int exitcode);
 static void SDL_AbortAssertion(void);
 #pragma aux SDL_AbortAssertion aborts;
 #endif
+
 static SDL_NORETURN void SDL_AbortAssertion(void)
 {
     SDL_Quit();
@@ -335,10 +336,12 @@ static SDL_assert_state SDLCALL SDL_PromptAssertion(const SDL_assert_data *data,
 
     return state;
 }
+#endif /* SDL_ASSERT_LEVEL > 0 */
 
 SDL_assert_state SDL_ReportAssertion(SDL_assert_data *data, const char *func, const char *file, int line)
 {
     SDL_assert_state state = SDL_ASSERTION_IGNORE;
+#if SDL_ASSERT_LEVEL > 0
     static int assertion_running = 0;
 
 #if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
@@ -402,7 +405,7 @@ SDL_assert_state SDL_ReportAssertion(SDL_assert_data *data, const char *func, co
 #if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
     SDL_UnlockMutex(assertion_mutex);
 #endif
-
+#endif /* SDL_ASSERT_LEVEL > 0 */
     return state;
 }
 
@@ -421,6 +424,7 @@ void SDL_AssertionsQuit(void)
 
 void SDL_SetAssertionHandler(SDL_AssertionHandler handler, void *userdata)
 {
+#if SDL_ASSERT_LEVEL > 0
     if (handler != NULL) {
         assertion_handler = handler;
         assertion_userdata = userdata;
@@ -428,15 +432,21 @@ void SDL_SetAssertionHandler(SDL_AssertionHandler handler, void *userdata)
         assertion_handler = SDL_PromptAssertion;
         assertion_userdata = NULL;
     }
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 const SDL_assert_data *SDL_GetAssertionReport(void)
 {
+#if SDL_ASSERT_LEVEL > 0
     return triggered_assertions;
+#else
+    return NULL;
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 void SDL_ResetAssertionReport(void)
 {
+#if SDL_ASSERT_LEVEL > 0
     SDL_assert_data *next = NULL;
     SDL_assert_data *item;
     for (item = triggered_assertions; item; item = next) {
@@ -447,19 +457,28 @@ void SDL_ResetAssertionReport(void)
     }
 
     triggered_assertions = NULL;
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 SDL_AssertionHandler SDL_GetDefaultAssertionHandler(void)
 {
+#if SDL_ASSERT_LEVEL > 0
     return SDL_PromptAssertion;
+#else
+    return NULL;
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 SDL_AssertionHandler SDL_GetAssertionHandler(void **userdata)
 {
+#if SDL_ASSERT_LEVEL > 0
     if (userdata) {
         *userdata = assertion_userdata;
     }
     return assertion_handler;
+#else
+    return NULL;
+#endif /* SDL_ASSERT_LEVEL > 0 */
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
