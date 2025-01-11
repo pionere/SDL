@@ -52,7 +52,7 @@
 /* 0x57696E20 == "Win " */
 #define LCS_WINDOWS_COLOR_SPACE 0x57696E20
 #endif
-
+#ifndef SDL_FILE_DISABLED
 static SDL_bool readRlePixels(SDL_Surface *surface, SDL_RWops *src, int isRle8)
 {
     /*
@@ -194,7 +194,7 @@ static void CorrectAlphaChannel(SDL_Surface *surface)
         }
     }
 }
-
+#endif // !SDL_FILE_DISABLED
 SDL_Surface *SDL_LoadBMP_RW(SDL_RWops *src, int freesrc)
 {
 #ifdef SDL_FILE_DISABLED
