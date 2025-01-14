@@ -133,7 +133,7 @@ static Uint64 SDL_HashDollar(SDL_FloatPoint *points)
     }
     return hash;
 }
-
+#ifndef SDL_FILE_DISABLED
 static int SaveTemplate(SDL_DollarTemplate *templ, SDL_RWops *dst)
 {
     if (!dst) {
@@ -167,7 +167,7 @@ static int SaveTemplate(SDL_DollarTemplate *templ, SDL_RWops *dst)
 
     return 1;
 }
-
+#endif /* !SDL_FILE_DISABLED */
 int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
 {
 #ifdef SDL_FILE_DISABLED

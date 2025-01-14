@@ -26,7 +26,7 @@
 #include "SDL_audio.h"
 #include "SDL_wave.h"
 #include "SDL_audio_c.h"
-
+#ifndef SDL_FILE_DISABLED
 typedef struct ADPCM_DecoderState
 {
     Uint32 channels;        /* Number of channels. */
@@ -2055,7 +2055,7 @@ static int WaveLoad(SDL_RWops *src, WaveFile *file, SDL_AudioSpec *spec, Uint8 *
 
     return 0;
 }
-
+#endif // !SDL_FILE_DISABLED
 SDL_AudioSpec *SDL_LoadWAV_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len)
 {
 #ifdef SDL_FILE_DISABLED
