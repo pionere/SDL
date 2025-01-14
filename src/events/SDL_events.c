@@ -140,7 +140,7 @@ static void SDLCALL SDL_PollSentinelChanged(void *userdata, const char *name, co
 {
     (void)SDL_EventState(SDL_POLLSENTINEL, SDL_GetStringBoolean(hint, SDL_TRUE) ? SDL_ENABLE : SDL_DISABLE);
 }
-
+#ifndef SDL_LOGGING_DISABLED
 /**
  * Verbosity of logged events as defined in SDL_HINT_EVENT_LOGGING:
  *  - 0: (default) no logging
@@ -154,7 +154,7 @@ static void SDLCALL SDL_EventLoggingChanged(void *userdata, const char *name, co
 {
     SDL_EventLoggingVerbosity = (hint && *hint) ? SDL_clamp(SDL_atoi(hint), 0, 3) : 0;
 }
-#ifndef SDL_LOGGING_DISABLED
+
 static void SDL_LogEvent(const SDL_Event *event)
 {
     char name[64];
