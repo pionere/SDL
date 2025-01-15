@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -3110,6 +3110,12 @@ void SDL_OnWindowMoved(SDL_Window *window)
     if (!window->is_destroying) {
         UpdateWindowDisplay(window);
     }
+}
+
+void SDL_OnWindowLiveResizeUpdate(SDL_Window *window)
+{
+    /* Send an expose event so the application can redraw */
+    SDL_SendWindowEvent(window, SDL_WINDOWEVENT_EXPOSED, 0, 0);
 }
 
 void SDL_OnWindowMinimized(SDL_Window *window)

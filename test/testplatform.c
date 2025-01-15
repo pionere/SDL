@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -285,7 +285,7 @@ static LL_Test LL_Tests[] = {
     { "_allmul", &TST_allmul, 0x0000000080000000ll, 0xFFFFFFFFFFFFFFFEll, 0, 0xFFFFFFFF00000000ll },
     { "_allmul", &TST_allmul, 0xFFFFFFFFFFFFFFFEll, 0x0000000080000008ll, 0, 0xFFFFFFFEFFFFFFF0ll },
     { "_allmul", &TST_allmul, 0x0000000080000008ll, 0xFFFFFFFFFFFFFFFEll, 0, 0xFFFFFFFEFFFFFFF0ll },
-    { "_allmul", &TST_allmul, 0x00000000FFFFFFFFll, 0x00000000FFFFFFFFll, 0, 0xFFFFFFFE00000001ll },
+    /* UNDEFINED { "_allmul", &TST_allmul, 0x00000000FFFFFFFFll, 0x00000000FFFFFFFFll, 0, 0xFFFFFFFE00000001ll }, */
 
     { "_alldiv", &TST_alldiv, 0x0000000000000000ll, 0x0000000000000001ll, 0, 0x0000000000000000ll },
     { "_alldiv", &TST_alldiv, 0x0000000000000000ll, 0xFFFFFFFFFFFFFFFFll, 0, 0x0000000000000000ll },

@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -113,13 +113,15 @@ typedef struct
     int window_width, window_height;
     int system_min_required_width;
     int system_min_required_height;
+    int toplevel_bounds_width;
+    int toplevel_bounds_height;
     SDL_boolean needs_resize_event;
     SDL_boolean floating_resize_pending;
     SDL_boolean was_floating;
     SDL_boolean is_fullscreen;
     SDL_boolean in_fullscreen_transition;
     Uint32 fullscreen_flags;
-    SDL_bool double_buffer; 
+    SDL_bool double_buffer;
 } SDL_WindowData;
 
 extern void Wayland_ShowWindow(SDL_Window *window);
