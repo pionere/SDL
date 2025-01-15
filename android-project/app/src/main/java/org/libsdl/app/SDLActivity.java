@@ -222,6 +222,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     // This is what SDL runs in. It invokes SDL_main(), eventually
     protected static Thread mSDLThread;
+    protected static boolean mDispatchingKeyEvent = false;
 
     protected static SDLGenericMotionListener_API14 getMotionListener() {
         if (mMotionListener == null) {
@@ -672,7 +673,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             ) {
             return false;
         }
-        return super.dispatchKeyEvent(event);
+        mDispatchingKeyEvent = true;
+        boolean result = super.dispatchKeyEvent(event);
+        mDispatchingKeyEvent = false;
+        return result;
+    }
+
+    public static boolean dispatchingKeyEvent() {
+        return mDispatchingKeyEvent;
     }
 
     /* Transition to next state */
@@ -1371,6 +1379,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            onNativeKeyDown(keyCode);
+
             if (isTextInputEvent(event)) {
                 if (ic != null) {
                     ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);
@@ -1378,7 +1388,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     SDLInputConnection.nativeCommitText(String.valueOf((char) event.getUnicodeChar()), 1);
                 }
             }
-            onNativeKeyDown(keyCode);
             return true;
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
             onNativeKeyUp(keyCode);
@@ -2073,18 +2082,20 @@ class SDLInputConnection extends BaseInputConnection {
 
         if (matchLength < text.length()) {
             String pendingText = text.subSequence(matchLength, text.length()).toString();
-            for (offset = 0; offset < pendingText.length(); ) {
-                int codePoint = pendingText.codePointAt(offset);
-                if (codePoint == '\n') {
-                    if (SDLActivity.onNativeSoftReturnKey()) {
-                        return;
+            if (!SDLActivity.dispatchingKeyEvent()) {
+                for (offset = 0; offset < pendingText.length(); ) {
+                    int codePoint = pendingText.codePointAt(offset);
+                    if (codePoint == '\n') {
+                        if (SDLActivity.onNativeSoftReturnKey()) {
+                            return;
+                        }
                     }
+                    /* Higher code points don't generate simulated scancodes */
+                    if (codePoint > 0 && codePoint < 128) {
+                        nativeGenerateScancodeForUnichar((char)codePoint);
+                    }
+                    offset += Character.charCount(codePoint);
                 }
-                /* Higher code points don't generate simulated scancodes */
-                if (codePoint < 128) {
-                    nativeGenerateScancodeForUnichar((char)codePoint);
-                }
-                offset += Character.charCount(codePoint);
             }
             SDLInputConnection.nativeCommitText(pendingText, 0);
         }
