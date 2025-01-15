@@ -120,8 +120,8 @@ typedef struct
     SDL_boolean was_floating;
     SDL_boolean is_fullscreen;
     SDL_boolean in_fullscreen_transition;
+    SDL_boolean double_buffer;
     Uint32 fullscreen_flags;
-    SDL_bool double_buffer;
 } SDL_WindowData;
 
 extern void Wayland_ShowWindow(SDL_Window *window);
