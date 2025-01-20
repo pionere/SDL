@@ -400,7 +400,7 @@ static Uint32 VULKAN_VkFormatToSDLPixelFormat(VkFormat vkFormat)
     case VK_FORMAT_B8G8R8A8_UNORM:
         return SDL_PIXELFORMAT_ARGB8888;
     case VK_FORMAT_A2R10G10B10_UNORM_PACK32:
-        return SDL_PIXELFORMAT_XBGR2101010;
+        return SDL_PIXELFORMAT_ABGR2101010;
     case VK_FORMAT_R16G16B16A16_SFLOAT:
         return SDL_PIXELFORMAT_RGBA64_FLOAT;
     default:
@@ -448,12 +448,11 @@ static VkFormat SDLPixelFormatToVkTextureFormat(Uint32 format) // , Uint32 color
     switch (format) {
     case SDL_PIXELFORMAT_RGBA64_FLOAT:
         return VK_FORMAT_R16G16B16A16_SFLOAT;
-    case SDL_PIXELFORMAT_XBGR2101010:
+    case SDL_PIXELFORMAT_ABGR2101010:
         return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
     default:
         SDL_assume(!"Unknown pixel format");
     case SDL_PIXELFORMAT_ARGB8888:
-    case SDL_PIXELFORMAT_XRGB8888:
         // if (colorspace == SDL_COLORSPACE_SRGB_LINEAR) {
         //    return VK_FORMAT_B8G8R8A8_SRGB;
         // }
@@ -4444,8 +4443,7 @@ const SDL_RenderDriver VULKAN_RenderDriver = {
         4,                           /* num_texture_formats */
         {                            /* texture_formats */
           SDL_PIXELFORMAT_ARGB8888,
-          SDL_PIXELFORMAT_XRGB8888,
-          SDL_PIXELFORMAT_XBGR2101010,
+          SDL_PIXELFORMAT_ABGR2101010,
           SDL_PIXELFORMAT_RGBA64_FLOAT },
         16384, /* max_texture_width */
         16384  /* max_texture_height */
