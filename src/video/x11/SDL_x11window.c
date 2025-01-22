@@ -279,8 +279,8 @@ static int SetupWindowData(SDL_Window *window, Window w)
                                             1) *
                                                sizeof(*windowlist));
         if (!windowlist) {
-            SDL_free(data);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto error_cleanup;
         }
         windowlist[numwindows] = data;
         videodata->numwindows++;
@@ -325,9 +325,35 @@ static int SetupWindowData(SDL_Window *window, Window w)
         }
     }
 
+#ifdef SDL_VIDEO_OPENGL_EGL
+    if (window->flags & SDL_WINDOW_OPENGL) {
+#ifdef SDL_VIDEO_OPENGL_GLX
+        if (_this->gl_config.gl_type != 0) { // TODO: _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES, SDL_HINT_VIDEO_X11_FORCE_EGL ?
+#else
+        {
+#endif // SDL_VIDEO_OPENGL_GLX
+            /* Create the GLES window surface */
+            data->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
+
+            if (data->egl_surface == EGL_NO_SURFACE) {
+                goto error_cleanup;
+            }
+        }
+    }
+#endif /* SDL_VIDEO_OPENGL_EGL */
+
     /* All done! */
     window->driverdata = data;
     return 0;
+
+error_cleanup:
+#ifdef X_HAVE_UTF8_STRING
+    if (data->ic) {
+        X11_XDestroyIC(data->ic);
+    }
+#endif
+    SDL_free(data);
+    return -1;
 }
 
 static void SetWindowBordered(Display *display, int screen, Window window, SDL_bool border)
@@ -628,23 +654,6 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
         return -1;
     }
     windowdata = (SDL_WindowData *)window->driverdata;
-
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (window->flags & SDL_WINDOW_OPENGL) {
-#ifdef SDL_VIDEO_OPENGL_GLX
-        if (_this->gl_config.gl_type != 0) { // TODO: _this->gl_config.profile_mask == SDL_GL_CONTEXT_PROFILE_ES, SDL_HINT_VIDEO_X11_FORCE_EGL ?
-#else
-        {
-#endif // SDL_VIDEO_OPENGL_GLX
-            /* Create the GLES window surface */
-            windowdata->egl_surface = SDL_EGL_CreateSurface(_this, (NativeWindowType)w);
-
-            if (windowdata->egl_surface == EGL_NO_SURFACE) {
-                return -1;
-            }
-        }
-    }
-#endif /* SDL_VIDEO_OPENGL_EGL */
 
 #ifdef X_HAVE_UTF8_STRING
     if (SDL_X11_HAVE_UTF8 && windowdata->ic) {
