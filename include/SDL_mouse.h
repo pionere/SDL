@@ -424,8 +424,7 @@ extern DECLSPEC void SDLCALL SDL_FreeCursor(SDL_Cursor * cursor);
  * \param toggle `SDL_ENABLE` to show the cursor, `SDL_DISABLE` to hide it,
  *               `SDL_QUERY` to query the current state without changing it.
  * \returns `SDL_ENABLE` if the cursor is shown, or `SDL_DISABLE` if the
- *          cursor is hidden, or a negative error code on failure; call
- *          SDL_GetError() for more information.
+ *          cursor is hidden.
  *
  * \since This function is available since SDL 2.0.0.
  *
