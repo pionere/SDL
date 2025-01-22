@@ -242,7 +242,7 @@ Uint32 X11_GetNetWMState(SDL_Window *window, Window xwindow)
     return flags;
 }
 
-static int SetupWindowData(SDL_Window *window, Window w)
+static int SetupWindowData(_THIS, SDL_Window *window, Window w)
 {
     X11_VideoData *videodata = &x11VideoData;
     SDL_WindowData *data;
@@ -649,7 +649,7 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
         X11_XSetWMProtocols(display, w, protocols, proto_count);
     }
 
-    if (SetupWindowData(window, w) < 0) {
+    if (SetupWindowData(_this, window, w) < 0) {
         X11_XDestroyWindow(display, w);
         return -1;
     }
@@ -684,7 +684,7 @@ int X11_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     window->title = X11_GetWindowTitle(w);
 
-    return SetupWindowData(window, w);
+    return SetupWindowData(_this, window, w);
 }
 #endif
 char *X11_GetWindowTitle(Window xwindow)
