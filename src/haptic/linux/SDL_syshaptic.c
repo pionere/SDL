@@ -439,7 +439,7 @@ int SDL_SYS_HapticOpen(SDL_Haptic *haptic)
     /* Try to create the haptic. */
     ret = SDL_SYS_HapticOpenFromFD(haptic, fd); /* Already closes on error. */
     if (ret < 0) {
-        return -1;
+        return ret;
     }
 
     /* Set the fname. */
@@ -552,7 +552,7 @@ int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
     }
     ret = SDL_SYS_HapticOpenFromFD(haptic, fd); /* Already closes on error. */
     if (ret < 0) {
-        return -1;
+        return ret;
     }
 
     haptic->hwdata->fname = SDL_strdup(joystick->hwdata->fname);
@@ -700,6 +700,7 @@ static int SDL_SYS_ToDirection(Uint16 *dest, SDL_HapticDirection *src)
  */
 static int SDL_SYS_ToFFEffect(struct ff_effect *dest, SDL_HapticEffect *src)
 {
+    int retval;
     SDL_HapticConstant *constant;
     SDL_HapticPeriodic *periodic;
     SDL_HapticCondition *condition;
@@ -715,8 +716,9 @@ static int SDL_SYS_ToFFEffect(struct ff_effect *dest, SDL_HapticEffect *src)
 
         /* Header */
         dest->type = FF_CONSTANT;
-        if (SDL_SYS_ToDirection(&dest->direction, &constant->direction) == -1) {
-            return -1;
+        retval = SDL_SYS_ToDirection(&dest->direction, &constant->direction);
+        if (retval < 0) {
+            return retval;
         }
 
         /* Replay */
@@ -750,8 +752,9 @@ static int SDL_SYS_ToFFEffect(struct ff_effect *dest, SDL_HapticEffect *src)
 
         /* Header */
         dest->type = FF_PERIODIC;
-        if (SDL_SYS_ToDirection(&dest->direction, &periodic->direction) == -1) {
-            return -1;
+        retval = SDL_SYS_ToDirection(&dest->direction, &periodic->direction);
+        if (retval < 0) {
+            return retval;
         }
 
         /* Replay */
@@ -808,8 +811,9 @@ static int SDL_SYS_ToFFEffect(struct ff_effect *dest, SDL_HapticEffect *src)
             dest->type = FF_FRICTION;
         }
 
-        if (SDL_SYS_ToDirection(&dest->direction, &condition->direction) == -1) {
-            return -1;
+        retval = SDL_SYS_ToDirection(&dest->direction, &condition->direction);
+        if (retval < 0) {
+            return retval;
         }
 
         /* Replay */
@@ -847,8 +851,9 @@ static int SDL_SYS_ToFFEffect(struct ff_effect *dest, SDL_HapticEffect *src)
 
         /* Header */
         dest->type = FF_RAMP;
-        if (SDL_SYS_ToDirection(&dest->direction, &ramp->direction) == -1) {
-            return -1;
+        retval = SDL_SYS_ToDirection(&dest->direction, &ramp->direction);
+        if (retval < 0) {
+            return retval;
         }
 
         /* Replay */
@@ -915,7 +920,7 @@ int SDL_SYS_HapticNewEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
 
     /* Prepare the ff_effect */
     linux_effect = &effect->hweffect->effect;
-    if (SDL_SYS_ToFFEffect(linux_effect, base) != 0) {
+    if (SDL_SYS_ToFFEffect(linux_effect, base) < 0) {
         goto new_effect_err;
     }
     linux_effect->id = -1; /* Have the kernel give it an id */
@@ -948,8 +953,9 @@ int SDL_SYS_HapticUpdateEffect(SDL_Haptic *haptic,
     struct ff_effect linux_effect;
 
     /* Create the new effect */
-    if (SDL_SYS_ToFFEffect(&linux_effect, data) != 0) {
-        return -1;
+    int retval = SDL_SYS_ToFFEffect(&linux_effect, data);
+    if (retval < 0) {
+        return retval;
     }
     linux_effect.id = effect->hweffect->effect.id;
 
