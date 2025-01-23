@@ -647,9 +647,7 @@ void SDL_FreeFormat(SDL_PixelFormat *format)
 
     SDL_AtomicUnlock(&formats_lock);
 
-    if (format->palette) {
-        SDL_FreePalette(format->palette);
-    }
+    SDL_FreePalette(format->palette);
     SDL_free(format);
 }
 
@@ -702,15 +700,12 @@ int SDL_SetPixelFormatPalette(SDL_PixelFormat *format, SDL_Palette *palette)
         return 0;
     }
 
-    if (format->palette) {
-        SDL_FreePalette(format->palette);
-    }
+    SDL_FreePalette(format->palette);
 
+    if (palette) {
+        ++palette->refcount;
+    }
     format->palette = palette;
-
-    if (format->palette) {
-        ++format->palette->refcount;
-    }
 
     return 0;
 }
@@ -744,7 +739,6 @@ int SDL_SetPaletteColors(SDL_Palette *palette, const SDL_Color *colors,
 void SDL_FreePalette(SDL_Palette *palette)
 {
     if (!palette) {
-        SDL_InvalidParamError("palette");
         return;
     }
     if (--palette->refcount > 0) {
