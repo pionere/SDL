@@ -54,13 +54,14 @@ extern "C" {
  * \since This function is available since SDL 2.0.0.
  *
  * \sa SDL_TICKS_PASSED
+ * \sa SDL_TICKS_AFTER
  */
 extern DECLSPEC Uint32 SDLCALL SDL_GetTicks(void);
 
 /**
  * Get the number of milliseconds since SDL library initialization.
  *
- * Note that you should not use the SDL_TICKS_PASSED macro with values
+ * Note that you should not use the SDL_TICKS_PASSED/AFTER macros with values
  * returned by this function, as that macro does clever math to compensate for
  * the 32-bit overflow every ~49 days that SDL_GetTicks() suffers from. 64-bit
  * values from this function can be safely compared directly.
@@ -101,9 +102,49 @@ extern DECLSPEC Uint64 SDLCALL SDL_GetTicks64(void);
  *
  * Note that this does not handle tick differences greater than 2^31 so take
  * care when using the above kind of code with large timeout delays (tens of
- * days).
+ * days) or consider using SDL_TICKS_AFTER instead.
+ *
+ * \sa SDL_TICKS_AFTER
  */
 #define SDL_TICKS_PASSED(A, B)  ((Sint32)((B) - (A)) <= 0)
+
+/**
+ * Compare 32-bit SDL ticks values to a delta milliseconds, and return true
+ * if `A` is after `B` more than `C` milliseconds assuming `A` is not
+ * earlier than `B`. The false negative result is reduced to `C` milliseconds
+ * after every overflow. 
+ *
+ * This should be used with results from SDL_GetTicks(), as this macro
+ * attempts to deal with the 32-bit counter wrapping back to zero every ~49
+ * days, but should _not_ be used with SDL_GetTicks64(), which does not have
+ * that problem.
+ *
+ * Example 1.: check rare reoccurring events:
+ * ```c
+ * static Uint32 lastClickTc;
+ * bool doubleClick() {
+ *   const Uint32 now = SDL_GetTicks();
+ *   bool result = !SDL_TICKS_AFTER(now, lastClickTc, 100);
+ *   lastClickTc = now;
+ *   return result;
+ * }
+ * ```
+ * Example 2.: suppress rare reoccurring events from triggering twice in a
+ *  short timeframe:
+ * ```c
+ * static Uint32 lastEventTc;
+ * bool suppressEvent() {
+ *   const Uint32 now = SDL_GetTicks();
+ *   if (SDL_TICKS_AFTER(now, lastEventTc, 200)) {
+ *     lastEventTc = now;
+ *     return false;
+ *   }
+ *   return true;
+ * }
+ * ```
+ * \sa SDL_TICKS_PASSED
+ */
+#define SDL_TICKS_AFTER(A, B, C) ((Uint32)((A) - (B)) >= (Uint32)(C))
 
 /**
  * Get the current value of the high resolution counter.

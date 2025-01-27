@@ -746,7 +746,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
             if (state != SDL_RELEASED) {
                 Uint32 now = SDL_GetTicks();
 
-                if (SDL_TICKS_PASSED(now, clickstate->last_timestamp + mouse->double_click_time) ||
+                if (SDL_TICKS_AFTER(now, clickstate->last_timestamp, mouse->double_click_time) ||
                     SDL_abs(mouse->x - clickstate->last_x) > mouse->double_click_radius ||
                     SDL_abs(mouse->y - clickstate->last_y) > mouse->double_click_radius) {
                     clickstate->click_count = 0;
