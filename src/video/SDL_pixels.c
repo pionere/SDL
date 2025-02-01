@@ -667,7 +667,7 @@ SDL_Palette *SDL_AllocPalette(int ncolors)
         return NULL;
     }
     palette->colors =
-        (SDL_Color *)SDL_malloc(ncolors * sizeof(*palette->colors));
+        (SDL_Color *)SDL_calloc(ncolors, sizeof(*palette->colors));
     if (!palette->colors) {
         SDL_free(palette);
         SDL_OutOfMemory();
@@ -676,9 +676,9 @@ SDL_Palette *SDL_AllocPalette(int ncolors)
     palette->ncolors = ncolors;
     palette->version = 1;
     palette->refcount = 1;
-
+#if 0
     SDL_memset(palette->colors, 0xFF, ncolors * sizeof(*palette->colors));
-
+#endif
     return palette;
 }
 
