@@ -960,19 +960,17 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *
 {
     Uint8 *map;
     int i;
+    const SDL_bool identity = (src == dst ||
+            (src->ncolors <= dst->ncolors && SDL_memcmp(src->colors, dst->colors,
+                src->ncolors * sizeof(SDL_Color)) == 0)) ? SDL_TRUE : SDL_FALSE;
 
     SDL_assert(identical != NULL);
-    if (src->ncolors <= dst->ncolors) {
+    *identical = identity;
+    if (identity) {
         /* If an identical palette, no need to map */
-        if (src == dst ||
-            (SDL_memcmp(src->colors, dst->colors,
-                src->ncolors * sizeof(SDL_Color)) == 0)) {
-            *identical = SDL_TRUE;
-            return NULL;
-        }
+        return NULL;
     }
-    *identical = SDL_FALSE;
-
+    SDL_assert(src->ncolors <= 256);
     map = (Uint8 *)SDL_malloc(256 * sizeof(Uint8));
     if (!map) {
         SDL_OutOfMemory();
@@ -996,6 +994,7 @@ static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, cons
     const Uint8 Bmod = info->color.b;
     const Uint8 Amod = info->color.a;
 
+    SDL_assert(pal->ncolors <= 256);
     bpp = dst->BytesPerPixel;
     mbp = (bpp == 3) ? 4 : bpp;
     map = (Uint8 *)SDL_malloc(256 * mbp);
@@ -1090,7 +1089,6 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     SDL_InvalidateMap(map);
 
     /* Figure out what kind of mapping we're doing */
-    map->identity = SDL_FALSE;
     srcfmt = src->format;
     dstfmt = dst->format;
     if (srcfmt->palette) {
@@ -1115,6 +1113,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
             if (!map->info.table) {
                 return -1;
             }
+            map->identity = SDL_FALSE;
         }
     } else {
         if (dstfmt->palette) {
@@ -1129,9 +1128,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
             map->identity = SDL_FALSE; /* Don't optimize to copy */
         } else {
             /* BitField --> BitField */
-            if (srcfmt == dstfmt) {
-                map->identity = SDL_TRUE;
-            }
+            map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE;
         }
     }
 
