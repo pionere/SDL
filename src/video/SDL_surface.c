@@ -1650,9 +1650,9 @@ void SDL_FreeSurface(SDL_Surface *surface)
         /* Normal */
         SDL_free(surface->pixels);
     }
-    if (surface->map) {
+    // if (surface->map) {
         SDL_FreeBlitMap(surface->map);
-    }
+    // }
     SDL_free(surface);
 }
 

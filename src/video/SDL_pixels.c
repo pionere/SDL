@@ -1160,10 +1160,10 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
 
 void SDL_FreeBlitMap(SDL_BlitMap *map)
 {
-    if (map) {
+    // if (map) {
         SDL_InvalidateMap(map);
         SDL_free(map);
-    }
+    // }
 }
 
 void SDL_CalculateGammaRamp(float gamma, Uint16 * ramp)
