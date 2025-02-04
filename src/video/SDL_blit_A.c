@@ -1403,7 +1403,10 @@ SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map)
     SDL_BlitFunc result = NULL;
 
     SDL_assert(map->info.flags & SDL_COPY_BLEND);
+    /* We don't support destinations less than 8-bits*/
     SDL_assert(df->BitsPerPixel >= 8);
+    /* We don't support blitting from palette */
+    SDL_assert(sf->palette == NULL);
 
     switch (map->info.flags & SDL_COPY_NON_RLE_MASK) {
     case SDL_COPY_BLEND:
