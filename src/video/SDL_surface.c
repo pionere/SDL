@@ -292,6 +292,7 @@ int SDL_SetSurfacePalette(SDL_Surface *surface, SDL_Palette *palette)
     if (retval < 0) {
         return retval;
     }
+    SDL_InvalidateAllBlitMap(surface);
     SDL_InvalidateMap(surface->map);
 
     return 0;
