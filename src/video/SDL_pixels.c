@@ -1067,8 +1067,8 @@ void SDL_InvalidateMap(SDL_BlitMap *map)
         SDL_ListRemove((SDL_ListNode **)&(map->dst->list_blitmap), map);
     }
     map->dst = NULL;
-    map->src_palette_version = 0;
-    map->dst_palette_version = 0;
+    //map->src_palette_version = 0;
+    //map->dst_palette_version = 0;
     SDL_free(map->info.table);
     map->info.table = NULL;
 }
