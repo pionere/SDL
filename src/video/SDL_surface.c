@@ -284,11 +284,13 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormatFrom(void *pixels,
 
 int SDL_SetSurfacePalette(SDL_Surface *surface, SDL_Palette *palette)
 {
+    int retval;
     if (!surface) {
         return SDL_InvalidParamError("surface");
     }
-    if (SDL_SetPixelFormatPalette(surface->format, palette) < 0) {
-        return -1;
+    retval = SDL_SetPixelFormatPalette(surface->format, palette);
+    if (retval < 0) {
+        return retval;
     }
     SDL_InvalidateMap(surface->map);
 
@@ -735,8 +737,9 @@ int SDL_LowerBlit(SDL_Surface *src, SDL_Rect *srcrect,
          src->map->dst_palette_version != dst->format->palette->version) ||
         (src->format->palette &&
          src->map->src_palette_version != src->format->palette->version)) {
-        if (SDL_MapSurface(src, dst) < 0) {
-            return -1;
+        int retval = SDL_MapSurface(src, dst);
+        if (retval < 0) {
+            return retval;
         }
         /* just here for debugging */
         /*         printf */
