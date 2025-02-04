@@ -962,7 +962,7 @@ void SDL_GetRGBA(Uint32 pixel, const SDL_PixelFormat *format,
 }
 
 /* Map from Palette to Palette */
-static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *identical)
+static int Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_BlitMap *blitMap)
 {
     Uint8 *map;
     int i;
@@ -970,44 +970,46 @@ static Uint8 *Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_bool *
             (src->ncolors <= dst->ncolors && SDL_memcmp(src->colors, dst->colors,
                 src->ncolors * sizeof(SDL_Color)) == 0)) ? SDL_TRUE : SDL_FALSE;
 
-    SDL_assert(identical != NULL);
-    *identical = identity;
+    blitMap->identity = identity;
     if (identity) {
         /* If an identical palette, no need to map */
-        return NULL;
+        SDL_free(blitMap->info.table);
+        blitMap->info.table = NULL;
+        return 0;
     }
     SDL_assert(src->ncolors <= 256);
-    map = (Uint8 *)SDL_malloc(256 * sizeof(Uint8));
+    map = (Uint8 *)SDL_realloc(blitMap->info.table, 256 * sizeof(Uint8));
     if (!map) {
-        SDL_OutOfMemory();
-        return NULL;
+        return SDL_OutOfMemory();
     }
+    blitMap->info.table = map;
     for (i = 0; i < src->ncolors; ++i) {
         map[i] = SDL_FindColor(dst, src->colors[i]);
     }
-    return map;
+    return 0;
 }
 
 /* Map from Palette to BitField */
-static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, const SDL_PixelFormat *dst)
+static int Map1toN(const SDL_PixelFormat *src, const SDL_PixelFormat *dst, SDL_BlitMap *blitMap)
 {
     Uint8 *map;
     int i;
     int bpp, mbp;
     const SDL_Palette *pal = src->palette;
-    const Uint8 Rmod = info->color.r;
-    const Uint8 Gmod = info->color.g;
-    const Uint8 Bmod = info->color.b;
-    const Uint8 Amod = info->color.a;
+    const Uint8 Rmod = blitMap->info.color.r;
+    const Uint8 Gmod = blitMap->info.color.g;
+    const Uint8 Bmod = blitMap->info.color.b;
+    const Uint8 Amod = blitMap->info.color.a;
 
+    // blitMap->identity = SDL_FALSE;
     SDL_assert(pal->ncolors <= 256);
     bpp = dst->BytesPerPixel;
     mbp = (bpp == 3) ? 4 : bpp;
-    map = (Uint8 *)SDL_malloc(256 * mbp);
+    map = (Uint8 *)SDL_realloc(blitMap->info.table, 256 * mbp);
     if (!map) {
-        SDL_OutOfMemory();
-        return NULL;
+        return SDL_OutOfMemory();
     }
+    blitMap->info.table = map;
 
     /* We memory copy to the pixel map so the endianness is preserved */
     for (i = 0; i < pal->ncolors; ++i) {
@@ -1017,11 +1019,11 @@ static Uint8 *Map1toN(const SDL_PixelFormat *src, const SDL_BlitInfo *info, cons
         Uint8 A = (Uint8)((pal->colors[i].a * Amod) / 255);
         ASSEMBLE_RGBA(&map[i * mbp], bpp, dst, (Uint32)R, (Uint32)G, (Uint32)B, (Uint32)A);
     }
-    return map;
+    return 0;
 }
 
 /* Map from BitField to Dithered-Palette to Palette */
-static Uint8 *MapNto1(const SDL_Palette *dst, SDL_bool *identical)
+static int MapNto1(const SDL_Palette *dst, SDL_BlitMap *blitMap)
 {
     /* Generate a 256 color dither palette */
     SDL_Palette dithered;
@@ -1030,7 +1032,7 @@ static Uint8 *MapNto1(const SDL_Palette *dst, SDL_bool *identical)
     dithered.ncolors = 256;
     SDL_DitherColors(colors);
     dithered.colors = colors;
-    return Map1to1(&dithered, dst, identical);
+    return Map1to1(&dithered, dst, blitMap);
 }
 
 SDL_BlitMap *SDL_AllocBlitMap(void)
@@ -1079,12 +1081,13 @@ void SDL_InvalidateMap(SDL_BlitMap *map)
     map->dst = NULL;
     //map->src_palette_version = 0;
     //map->dst_palette_version = 0;
-    SDL_free(map->info.table);
-    map->info.table = NULL;
+    //SDL_free(map->info.table);
+    //map->info.table = NULL;
 }
 
 int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
 {
+    int retval;
     SDL_PixelFormat *srcfmt;
     SDL_PixelFormat *dstfmt;
     SDL_BlitMap *map;
@@ -1106,12 +1109,9 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
         if (dstfmt->palette) {
             /* Palette --> Palette */
             SDL_assert(SDL_ISPIXELFORMAT_INDEXED(dstfmt->format));
-            map->info.table =
-                Map1to1(srcfmt->palette, dstfmt->palette, &map->identity);
-            if (!map->identity) {
-                if (!map->info.table) {
-                    return -1;
-                }
+            retval = Map1to1(srcfmt->palette, dstfmt->palette, map);
+            if (retval < 0) {
+                return retval;
             }
             if (srcfmt->BitsPerPixel != dstfmt->BitsPerPixel) {
 #if SDL_HAVE_BLIT_0 || SDL_HAVE_BLIT_1
@@ -1123,10 +1123,9 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
         } else {
 #if SDL_HAVE_BLIT_0 || SDL_HAVE_BLIT_1
             /* Palette --> BitField */
-            map->info.table =
-                Map1toN(srcfmt, &src->map->info, dstfmt);
-            if (!map->info.table) {
-                return -1;
+            retval = Map1toN(srcfmt, dstfmt, map);
+            if (retval < 0) {
+                return retval;
             }
             map->identity = SDL_FALSE;
 #else
@@ -1139,11 +1138,9 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
 #if SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO
             /* BitField --> Palette */
             SDL_assert(SDL_ISPIXELFORMAT_INDEXED(dstfmt->format));
-            map->info.table = MapNto1(dstfmt->palette, &map->identity);
-            if (!map->identity) {
-                if (!map->info.table) {
-                    return -1;
-                }
+            retval = MapNto1(dstfmt->palette, map);
+            if (retval < 0) {
+                return retval;
             }
             map->identity = SDL_FALSE; /* Don't optimize to copy */
 #else
@@ -1152,6 +1149,9 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
         } else {
             /* BitField --> BitField */
             map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE;
+            // Most probably no need to setup the table, but whatever...
+            SDL_free(map->info.table);
+            map->info.table = NULL;
         }
 #else
 #if SDL_HAVE_RLE
@@ -1161,6 +1161,8 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
 #endif // SDL_HAVE_RLE
         map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE
         // No need to setup the table. Either SDL_BlitCopy is selected which does not use this field or the blit combination is not supported
+        // SDL_free(map->info.table);
+        // map->info.table = NULL;
 #endif // SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO || SDL_HAVE_BLIT_SLOW
     }
 
@@ -1190,7 +1192,8 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
 void SDL_FreeBlitMap(SDL_BlitMap *map)
 {
     // if (map) {
-        SDL_InvalidateMap(map);
+        //SDL_InvalidateMap(map);
+        SDL_free(map->info.table);
         SDL_free(map);
     // }
 }
