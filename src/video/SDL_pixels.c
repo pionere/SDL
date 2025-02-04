@@ -1045,6 +1045,7 @@ SDL_BlitMap *SDL_AllocBlitMap(void)
 
 void SDL_InvalidateAllBlitMap(SDL_Surface *surface)
 {
+#if 0
     SDL_ListNode *l = surface->list_blitmap;
 
     surface->list_blitmap = NULL;
@@ -1055,6 +1056,7 @@ void SDL_InvalidateAllBlitMap(SDL_Surface *surface)
         l = l->next;
         SDL_free(tmp);
     }
+#endif
 }
 
 void SDL_InvalidateMap(SDL_BlitMap *map)
@@ -1062,10 +1064,12 @@ void SDL_InvalidateMap(SDL_BlitMap *map)
     if (!map) {
         return;
     }
+#if 0
     if (map->dst) {
         /* Un-register from the destination surface */
         SDL_ListRemove((SDL_ListNode **)&(map->dst->list_blitmap), map);
     }
+#endif
     map->dst = NULL;
     //map->src_palette_version = 0;
     //map->dst_palette_version = 0;
@@ -1155,12 +1159,12 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
     }
 
     map->dst = dst;
-
+#if 0
     if (map->dst) {
         /* Register BlitMap to the destination surface, to be invalidated when needed */
         SDL_ListAdd((SDL_ListNode **)&(map->dst->list_blitmap), map);
     }
-
+#endif
     if (dstfmt->palette) {
         map->dst_palette_version = dstfmt->palette->version;
     } else {
