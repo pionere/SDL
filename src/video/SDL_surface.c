@@ -1625,13 +1625,14 @@ void SDL_FreeSurface(SDL_Surface *surface)
     if (surface->flags & SDL_DONTFREE) {
         return;
     }
-    SDL_InvalidateMap(surface->map);
-
-    SDL_InvalidateAllBlitMap(surface);
 
     if (--surface->refcount > 0) {
         return;
     }
+
+    SDL_InvalidateAllBlitMap(surface);
+    SDL_InvalidateMap(surface->map);
+
     while (surface->locked > 0) {
         SDL_UnlockSurface(surface);
     }
