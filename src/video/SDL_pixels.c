@@ -1159,7 +1159,7 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
             return SDL_SetError("Blit combination not supported");
         }
 #endif // SDL_HAVE_RLE
-        map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE
+        map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE;
         // No need to setup the table. Either SDL_BlitCopy is selected which does not use this field or the blit combination is not supported
         // SDL_free(map->info.table);
         // map->info.table = NULL;
