@@ -3365,7 +3365,7 @@ SDL_BlitFunc SDL_CalculateBlitN(const SDL_BlitMap *map)
 
     /* We don't support destinations less than 8-bits*/
     if (dstfmt->BitsPerPixel >= 8) {
-        switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
+        switch (map->info.flags & SDL_COPY_NON_RLE_MASK) {
         case 0:
             if (dstfmt->BytesPerPixel == 1) {
                 if ((srcfmt->BytesPerPixel == 4) &&

@@ -888,7 +888,7 @@ SDL_BlitFunc SDL_CalculateBlit0(const SDL_BlitInfo *info)
 
     src_bpp = src_bpp <= 2 ? src_bpp - 1 : 2;
 
-    switch (info->flags & ~SDL_COPY_RLE_MASK) {
+    switch (info->flags & SDL_COPY_NON_RLE_MASK) {
     case 0:
         result = bitmap_blit[src_bpp][dst_Bpp - 1];
         break;

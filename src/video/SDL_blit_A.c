@@ -1405,7 +1405,7 @@ SDL_BlitFunc SDL_CalculateBlitA(const SDL_BlitMap *map)
     SDL_assert(map->info.flags & SDL_COPY_BLEND);
     SDL_assert(df->BitsPerPixel >= 8);
 
-    switch (map->info.flags & ~SDL_COPY_RLE_MASK) {
+    switch (map->info.flags & SDL_COPY_NON_RLE_MASK) {
     case SDL_COPY_BLEND:
         /* Per-pixel alpha blits */
         result = BlitNtoNPixelAlpha;

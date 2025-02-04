@@ -524,7 +524,7 @@ SDL_BlitFunc SDL_CalculateBlit1(const SDL_BlitInfo *info)
     SDL_assert(dst_Bpp > 0 && dst_Bpp <= 4);
     SDL_assert(info->dst_fmt->BitsPerPixel >= 8);
 
-    switch (info->flags & ~SDL_COPY_RLE_MASK) {
+    switch (info->flags & SDL_COPY_NON_RLE_MASK) {
     case 0:
         result = one_bitmap_blit[dst_Bpp - 1];
         break;

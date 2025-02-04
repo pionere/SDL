@@ -136,7 +136,7 @@ static SDL_BlitFunc SDL_CalculateBlitAuto(const SDL_BlitInfo *info)
     Uint32 src_format = info->src_fmt->format;
     Uint32 dst_format = info->dst_fmt->format;
     int flags = info->flags;
-    int i, flagcheck = (flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL | SDL_COPY_COLORKEY | SDL_COPY_NEAREST));
+    int i, flagcheck = (flags & SDL_COPY_NON_RLE_MASK);
 #if 0
     static int features = -1;
     /* Get the available CPU features */
