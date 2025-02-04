@@ -674,7 +674,11 @@ SDL_Palette *SDL_AllocPalette(int ncolors)
         return NULL;
     }
     palette->ncolors = ncolors;
+#if 0
     palette->version = 1;
+#else
+    palette->version = 0;
+#endif
     palette->refcount = 1;
 #if 0
     SDL_memset(palette->colors, 0xFF, ncolors * sizeof(*palette->colors));
@@ -729,9 +733,11 @@ int SDL_SetPaletteColors(SDL_Palette *palette, const SDL_Color *colors,
                    ncolors * sizeof(*colors));
     }
     ++palette->version;
+#if 0
     if (!palette->version) {
         palette->version = 1;
     }
+#endif
 
     return status;
 }
