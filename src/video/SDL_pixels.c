@@ -1104,9 +1104,14 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
                 }
             }
             if (srcfmt->BitsPerPixel != dstfmt->BitsPerPixel) {
+#if SDL_HAVE_BLIT_0 || SDL_HAVE_BLIT_1
                 map->identity = SDL_FALSE;
+#else
+                return SDL_SetError("Blit combination not supported");
+#endif
             }
         } else {
+#if SDL_HAVE_BLIT_0 || SDL_HAVE_BLIT_1
             /* Palette --> BitField */
             map->info.table =
                 Map1toN(srcfmt, &src->map->info, dstfmt);
@@ -1114,9 +1119,14 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
                 return -1;
             }
             map->identity = SDL_FALSE;
+#else
+            return SDL_SetError("Blit combination not supported");
+#endif
         }
     } else {
-        if (dstfmt->palette) {
+#if SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO || SDL_HAVE_BLIT_SLOW
+       if (dstfmt->palette) {
+#if SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO
             /* BitField --> Palette */
             SDL_assert(SDL_ISPIXELFORMAT_INDEXED(dstfmt->format));
             map->info.table = MapNto1(dstfmt->palette, &map->identity);
@@ -1126,10 +1136,22 @@ int SDL_MapSurface(SDL_Surface *src, SDL_Surface *dst)
                 }
             }
             map->identity = SDL_FALSE; /* Don't optimize to copy */
+#else
+           return SDL_SetError("Blit combination not supported");
+#endif // SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO
         } else {
             /* BitField --> BitField */
             map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE;
         }
+#else
+#if SDL_HAVE_RLE
+        if (dstfmt->palette || srcfmt != dstfmt) {
+            return SDL_SetError("Blit combination not supported");
+        }
+#endif // SDL_HAVE_RLE
+        map->identity = srcfmt == dstfmt ? SDL_TRUE : SDL_FALSE
+        // No need to setup the table. Either SDL_BlitCopy is selected which does not use this field or the blit combination is not supported
+#endif // SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO || SDL_HAVE_BLIT_SLOW
     }
 
     map->dst = dst;
