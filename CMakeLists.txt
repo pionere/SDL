@@ -1122,17 +1122,19 @@ if(OPT_DEF_ASM)
     if(SDL_SSE4_2 AND HAVE_SSE4_1)
       cmake_push_check_state()
       if(USE_GCC OR USE_CLANG OR USE_INTELCC)
-        string(APPEND CMAKE_REQUIRED_FLAGS " -msse4.2")
+        string(APPEND CMAKE_REQUIRED_FLAGS " -msse4.2 -mcrc32")
       endif()
       check_c_source_compiles("
-        #include <smmintrin.h>
-        void ints_mul(int *dest, int *a, int *b, unsigned size) {
-          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
-            _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
-          }
+        #include <nmmintrin.h>
+        unsigned calc_crc32c(const char *text, unsigned len) {
+            unsigned crc32c = ~0;
+            for (; len >= 4; len -= 4, text += 4) {
+              crc32c = (unsigned)_mm_crc32_u32(crc32c, *(unsigned*)text);
+            }
+            return crc32c;
         }
         int main(int argc, char **argv) {
-          ints_mul((int*)0, (int*)0, (int*)0, 0);
+          calc_crc32c(\"SDL_SSE4\",8);
           return 0;
         }" HAVE_SSE4_2)
       cmake_pop_check_state()
