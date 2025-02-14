@@ -239,7 +239,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                 relative = motionListener.inRelativeMode();
 
                 SDLActivity.onNativeMouse(buttonState, action, x, y, relative);
-            } else if (toolType == MotionEvent.TOOL_TYPE_FINGER) {
+            } else if (toolType == MotionEvent.TOOL_TYPE_FINGER || toolType == MotionEvent.TOOL_TYPE_UNKNOWN) {
                 int pointerId = event.getPointerId(i);
                 x = getNormalized(event.getX(i), mWidth);
                 y = getNormalized(event.getY(i), mHeight);
