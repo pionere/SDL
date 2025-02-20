@@ -142,7 +142,7 @@ void SDL_SYS_SetupThread(const char *name)
         /* Presumably some version of Visual Studio will understand SetThreadDescription(),
            but we still need to deal with older OSes and debuggers. Set it with the arcane
            exception magic, too. */
-
+#ifndef NDEBUG
         if (IsDebuggerPresent()) {
             THREADNAME_INFO inf;
 
@@ -161,6 +161,7 @@ void SDL_SYS_SetupThread(const char *name)
             /* The debugger catches this, renames the thread, continues on. */
             RaiseException(0x406D1388, 0, sizeof(inf) / sizeof(ULONG), (const ULONG_PTR *)&inf);
         }
+#endif
     }
 }
 
