@@ -97,7 +97,9 @@ struct SDL_BlitMap
 {
     SDL_Surface *dst;
     SDL_bool identity;
+#if SDL_HAVE_RLE
     SDL_blit blit;
+#endif
     void *data;
     SDL_BlitInfo info;
 
@@ -109,6 +111,10 @@ struct SDL_BlitMap
 
 /* Functions found in SDL_blit.c */
 extern int SDL_CalculateBlit(SDL_Surface *surface);
+#if !SDL_HAVE_RLE
+extern int SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
+                                SDL_Surface *dst, SDL_Rect *dstrect);
+#endif
 
 /* Functions found in SDL_blit_*.c */
 extern SDL_BlitFunc SDL_CalculateBlit0(const SDL_BlitInfo *info);

@@ -748,7 +748,11 @@ int SDL_LowerBlit(SDL_Surface *src, SDL_Rect *srcrect,
         /*              src, dst->flags, src->map->info.flags, dst, dst->flags, */
         /*              dst->map->info.flags, src->map->blit); */
     }
+#if SDL_HAVE_RLE
     return src->map->blit(src, srcrect, dst, dstrect);
+#else
+    return SDL_SoftBlit(src, srcrect, dst, dstrect);
+#endif
 }
 
 int SDL_UpperBlit(SDL_Surface *src, const SDL_Rect *srcrect,
