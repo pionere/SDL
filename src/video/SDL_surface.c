@@ -1050,7 +1050,33 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(src->format->format));
             ret = SDL_SoftStretch(src, srcrect, dst, dstrect);
         } else {
-            ret = SDL_LowerBlit(src, srcrect, dst, dstrect);
+            /* Use intermediate surface */
+            int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
+            SDL_Color colorMod = src->map->info.color;
+
+            {
+                SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(0, dstrect->w, dstrect->h, 0, src->format->format);
+                if (tmp2 != NULL) {
+                    ret = SDL_SoftStretch(src, srcrect, tmp2, NULL);
+
+                    tmp2->map->info.color = colorMod;
+                    tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
+                    SDL_InvalidateMap(tmp2->map);
+
+                    if (ret == 0) {
+                        SDL_Rect tmprect;
+                        tmprect.x = 0;
+                        tmprect.y = 0;
+                        tmprect.w = dstrect->w;
+                        tmprect.h = dstrect->h;
+
+                        ret = SDL_LowerBlit(tmp2, &tmprect, dst, dstrect);
+                    }
+                    SDL_FreeSurface(tmp2);
+                } else {
+                    ret = -1;
+                }
+            }
         }
     } else {
         if (!(src->map->info.flags & complex_copy_flags) &&
