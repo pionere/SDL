@@ -1030,11 +1030,12 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     static const Uint32 complex_copy_flags = (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA |
                                               SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL |
                                               SDL_COPY_COLORKEY);
+    int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
 
     SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
     if (scaleMode == SDL_ScaleModeNearest) {
-        if (!(src->map->info.flags & complex_copy_flags) &&
+        if (!is_complex_copy_flags &&
             src->format->format == dst->format->format &&
             (src->format->palette == dst->format->palette ||
             (src->format->palette->ncolors <= dst->format->palette->ncolors && SDL_memcmp(src->format->palette->colors, dst->format->palette->colors,
@@ -1043,7 +1044,6 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             ret = SDL_SoftStretch(src, srcrect, dst, dstrect);
         } else {
             /* Use intermediate surface */
-            int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
             SDL_Color colorMod = src->map->info.color;
 
             {
@@ -1053,7 +1053,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
                     tmp2->map->info.color = colorMod;
                     tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
-                    SDL_InvalidateMap(tmp2->map);
+                    // SDL_InvalidateMap(tmp2->map);
 
                     if (ret == 0) {
                         SDL_Rect tmprect;
@@ -1071,7 +1071,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             }
         }
     } else {
-        if (!(src->map->info.flags & complex_copy_flags) &&
+        if (!is_complex_copy_flags &&
             src->format->format == dst->format->format &&
             src->format->palette == NULL &&
             src->format->BytesPerPixel == 4 &&
@@ -1083,7 +1083,6 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             /* Use intermediate surface(s) */
             SDL_Surface *tmp1 = NULL;
             SDL_Rect srcrect2;
-            int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
             SDL_Color colorMod = src->map->info.color;
             ret = 0;
 
@@ -1095,10 +1094,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             // SDL_GetSurfaceColorMod(src, &r, &g, &b);
             // SDL_GetSurfaceAlphaMod(src, &alpha);
             // SDL_GetSurfaceBlendMode(src, &blendMode);
-            srcrect2.x = srcrect->x;
-            srcrect2.y = srcrect->y;
-            srcrect2.w = srcrect->w;
-            srcrect2.h = srcrect->h;
+            srcrect2 = *srcrect;
 
             /* Change source format if not appropriate for scaling */
             if (src->format->BytesPerPixel != 4 || src->format->format == SDL_PIXELFORMAT_ARGB2101010) {
@@ -1124,7 +1120,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                     // SDL_SetSurfaceBlendMode(tmp1, blendMode);
                     tmp1->map->info.color = colorMod;
                     tmp1->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
-                    SDL_InvalidateMap(tmp1->map);
+                    // SDL_InvalidateMap(tmp1->map);
 
                     src = tmp1;
                 } else {
@@ -1144,7 +1140,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                         // SDL_SetSurfaceBlendMode(tmp2, blendMode);
                         tmp2->map->info.color = colorMod;
                         tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
-                        SDL_InvalidateMap(tmp2->map);
+                        // SDL_InvalidateMap(tmp2->map);
                     } else {
                         ret = -1;
                     }
