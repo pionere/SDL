@@ -1063,7 +1063,7 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
         } else {
             /* Use intermediate surface(s) */
             SDL_Surface *tmp1 = NULL;
-            int ret;
+            int ret = 0;
             SDL_Rect srcrect2;
             int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
             SDL_Color colorMod = src->map->info.color;
@@ -1095,41 +1095,52 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                     fmt = SDL_PIXELFORMAT_ARGB8888;
                 }
                 tmp1 = SDL_CreateRGBSurfaceWithFormat(0, src->w, src->h, 0, fmt);
-                SDL_LowerBlit(src, srcrect, tmp1, &tmprect);
+                if (tmp1 != NULL) {
+                    ret = SDL_LowerBlit(src, srcrect, tmp1, &tmprect);
 
-                srcrect2.x = 0;
-                srcrect2.y = 0;
-                // SDL_SetSurfaceColorMod(tmp1, r, g, b);
-                // SDL_SetSurfaceAlphaMod(tmp1, alpha);
-                // SDL_SetSurfaceBlendMode(tmp1, blendMode);
-                tmp1->map->info.color = colorMod;
-                tmp1->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
-                SDL_InvalidateMap(tmp1->map);
+                    srcrect2.x = 0;
+                    srcrect2.y = 0;
+                    // SDL_SetSurfaceColorMod(tmp1, r, g, b);
+                    // SDL_SetSurfaceAlphaMod(tmp1, alpha);
+                    // SDL_SetSurfaceBlendMode(tmp1, blendMode);
+                    tmp1->map->info.color = colorMod;
+                    tmp1->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
+                    SDL_InvalidateMap(tmp1->map);
 
-                src = tmp1;
+                    src = tmp1;
+                } else {
+                    ret = -1;
+                }
             }
 
             /* Intermediate scaling */
-            if (is_complex_copy_flags || src->format->format != dst->format->format) {
-                SDL_Rect tmprect;
-                SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(0, dstrect->w, dstrect->h, 0, src->format->format);
-                SDL_SoftStretchLinear(src, &srcrect2, tmp2, NULL);
+            if (ret == 0) {
+                if (is_complex_copy_flags || src->format->format != dst->format->format) {
+                    SDL_Surface *tmp2 = SDL_CreateRGBSurfaceWithFormat(0, dstrect->w, dstrect->h, 0, src->format->format);
+                    if (tmp2 != NULL) {
+                        ret = SDL_SoftStretchLinear(src, &srcrect2, tmp2, NULL);
 
-                // SDL_SetSurfaceColorMod(tmp2, r, g, b);
-                // SDL_SetSurfaceAlphaMod(tmp2, alpha);
-                // SDL_SetSurfaceBlendMode(tmp2, blendMode);
-                tmp2->map->info.color = colorMod;
-                tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
-                SDL_InvalidateMap(tmp2->map);
-
-                tmprect.x = 0;
-                tmprect.y = 0;
-                tmprect.w = dstrect->w;
-                tmprect.h = dstrect->h;
-                ret = SDL_LowerBlit(tmp2, &tmprect, dst, dstrect);
-                SDL_FreeSurface(tmp2);
-            } else {
-                ret = SDL_SoftStretchLinear(src, &srcrect2, dst, dstrect);
+                        // SDL_SetSurfaceColorMod(tmp2, r, g, b);
+                        // SDL_SetSurfaceAlphaMod(tmp2, alpha);
+                        // SDL_SetSurfaceBlendMode(tmp2, blendMode);
+                        tmp2->map->info.color = colorMod;
+                        tmp2->map->info.flags |= is_complex_copy_flags & (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK);
+                        SDL_InvalidateMap(tmp2->map);
+                    } else {
+                        ret = -1;
+                    }
+                    if (ret == 0) {
+                        SDL_Rect tmprect;
+                        tmprect.x = 0;
+                        tmprect.y = 0;
+                        tmprect.w = dstrect->w;
+                        tmprect.h = dstrect->h;
+                        ret = SDL_LowerBlit(tmp2, &tmprect, dst, dstrect);
+                    }
+                    SDL_FreeSurface(tmp2);
+                } else {
+                    ret = SDL_SoftStretchLinear(src, &srcrect2, dst, dstrect);
+                }
             }
 
             SDL_FreeSurface(tmp1);
