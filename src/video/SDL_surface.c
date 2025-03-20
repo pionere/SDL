@@ -732,6 +732,9 @@ void SDL_GetClipRect(SDL_Surface *surface, SDL_Rect *rect)
 int SDL_LowerBlit(SDL_Surface *src, SDL_Rect *srcrect,
                   SDL_Surface *dst, SDL_Rect *dstrect)
 {
+    SDL_assert(srcrect->w <= SDL_MAX_UINT16 && srcrect->h <= SDL_MAX_UINT16);
+    SDL_assert(dstrect->w <= SDL_MAX_UINT16 && dstrect->h <= SDL_MAX_UINT16);
+
     /* Check to make sure the blit mapping is valid */
     if ((src->map->dst != dst) ||
         (dst->format->palette &&
@@ -1009,6 +1012,9 @@ end:
 int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect)
 {
+    SDL_assert(srcrect->w <= SDL_MAX_UINT16 && srcrect->h <= SDL_MAX_UINT16);
+    SDL_assert(dstrect->w <= SDL_MAX_UINT16 && dstrect->h <= SDL_MAX_UINT16);
+
     if (SDL_RectEmpty(srcrect) || SDL_RectEmpty(dstrect)) {
         /* No-op */
         return 0;
@@ -1027,10 +1033,6 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 
     SDL_assert(!SDL_RectEmpty(srcrect) && !SDL_RectEmpty(dstrect));
 
-    if (srcrect->w > SDL_MAX_UINT16 || srcrect->h > SDL_MAX_UINT16 ||
-        dstrect->w > SDL_MAX_UINT16 || dstrect->h > SDL_MAX_UINT16) {
-        return SDL_SetError("Size too large for scaling");
-    }
     if (scaleMode == SDL_ScaleModeNearest) {
         if (!(src->map->info.flags & complex_copy_flags) &&
             src->format->format == dst->format->format &&
