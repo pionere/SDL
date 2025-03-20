@@ -10,6 +10,7 @@ Major (meaningful) changes:
 - add option to enable/disable audio resampler (8b04d76bcbbae56be9432d645efae5f0b8e14e2f + e67cbee778d2142e8493f971a36d7af10bcb4cc1 + 0ab351d753504700ff331f8971f5885e7af5b8e8)
 - add option to enable/disable the override of the memory-allocators (SDL_DYN_MEMFUNCS) (37cf21dcac3511df9379935f02843c7caaef4f74 + 8203321c2a577f3a44bc48e0885d0d9759b06f15)
 - simplified handling of the subsystems (923e0b6c395b5fa84b827fe1386682b2e126b0b8 + b03eec5cb1f0b2dd6eefda6672dcbcbefaed8532 + d11072bdcfc5521c0bb270ea6ebc8aacafc6dad6 + f6da326b15066ad9bfbbd9685e1290d17f9b672b + 0d8c4df12bd015bbe31db2617116f1ecfe8e26a9 + 2b5a0a11d8ab5cb432ba260b752758257a5cf8a0 + f98c7e9f80aee16ff79c5bcddb5d2b93f23cb208 + 48ea1cf1024d24c284e09dfe0b476f4d21b4e0ac + 56a346e9a59298627b296cf850f4ecfb9256967d)
+- prevent thread-naming in release mode (fb08ea38b89cd68b7241dab0608b2c25a45bcc5d)
 - use getenv functions of the standard libc (MSVC) (d1012dc150e0cbcc679f119d3e806a7c8c19f4fa + ba35d1b6974931ecabafa510ddf77ae06b1bbd34)
   1. makes SDL_getenv thread-safe
   2. does not leak memory
@@ -17,7 +18,12 @@ Major (meaningful) changes:
 - adjust the handling of the format's palette (7647bcdac2eee0205aebe8fcda8ef0846b555d8c + f50998138b92177b66302a66c4be8403817c8cae)
   1. assume only indexed formats have palette
   2. allow surface conversion even if the palette is empty (8f53947f9b476836805bd9d126e525f1b51c6595)
-  3. do not initialize the palette-colors in SDL_CreateRGBSurfaceWithFormat (ccdba1f3cfcc2b388c69b9c9b2ef8ff27b325d81)
+  3. zero initialize the palette-colors in SDL_CreateRGBSurfaceWithFormat/SDL_AllocPalette (ccdba1f3cfcc2b388c69b9c9b2ef8ff27b325d81 + 2f8e16bc29354171270828809f7b19679ad3fc89)
+
+- adjust the scaling logic (SDL_*BlitScaled)
+  1. use intermediate surface to stretch with SDL_ScaleModeNearest when SDL_SoftStretch is not usable (2cc3aca8ec610aab0143a6382304e0f1556b3aee + 27fa616e70aecaf75d388f60408f3eddfc7b775f)
+  2. enable fast path to stretch surface with a palette using SDL_ScaleModeNearest (8ddc26aa6e4584ecfe801cd68953a432ee033884)
+  3. generic cleanup (823d61bbde2738a3cbde284c763559d37bac580b + 21dd2556594eeff9b8d3cf8bb9a2ae1eed7b712b + 45cb425846b9c2489a910c619912726d57657549)
 
 - rework the handling of YUV-format
  1. support SDL_PIXELFORMAT_P010 (e78c15894c4d3e9424132d3b7447c8cc767b54d3 + 0c2dbf97132342d4e3c3dd5473992e9b7b9b2d02 + 22cc26211f555be684f09065345d31a5b0308970 + a2ff60afcf25399d4bad9f84475e17a4fec8d8e1 + 808348042a71d918d52e88ebe8a41a4319936b01 + 0f9cf2304a3f685c6881db76881495d724245224 + 9fcedbc5a488b89dd9ee99eae96a48d2da515cf3)
@@ -41,7 +47,7 @@ Major (meaningful) changes:
  10. simplify the format selection ((6aaa13d67115a2c5729fc7b731705acc9c401474 + f719d2dc959ff8efb4a29241886157ffcb7e14ec) + 2752ac4a9c6877edc8074d40d9b30ba7cd3b6b89 + 1944bbe97d607a2f1be5d4b39dd903a5389338f3 + 1bfbd633faffbb2c7ca54bcb989b8a2639cf73dc + (14eb4592b540b7a133b9202eeaf506b8d75e6768 + 7865784fd3c005034705d703736895005b61406b))
  11. improve tests (7360d526386c99ad3a5fe800f8a11a2a7347feb8 + 07fbe33ceea2da1e3839ce21e39d8f0204e3a03f + 8f5970630ca22d46bc13f5e291b65c8430342fc4 + (139134d365456e6a156c06a5500fd4ab4812a529 + ec7f5d8df21a2a8ead1a300918a247518cdf3e06) + 5de01a78bd53d9dc825c1e28f68f97d9c0856ecc + db01bac98c02571b597691af2791719947e38f43 + 6d3b761a826f3745d7c5e5a6e347a2d98e6291cf + c31414e2052d16623e219007035ae6c100f6e9ac + d1e3141250ad81d409e2877d54f15ad3b9fc1880)
  12. optimize SDL_BuildAudioCVT (e701b559686ab30dbeb88a4f7ef0cb834d99398d + 6fe4f05092737614bedd32c86f14941a4a5d08a5 + 2eefbf6f41c14f798011651a87182cc517a350f8 + bd3734cbb2b893911887b6bca501eba599ee9e40 + 427b2a98bbf8918068c45391711a750cf56d2a23 + 33911d14e896523931fbeb56a35f405df4c36154 + 0451b0bfcac7bd0e00bd45392624371a2812c53d + e6784d7f46fa0ba0f2a9f42527c13d739b128da8 + 8da4938c25e20a197599dd2dd681ae5c53692166 + bb399f789dd18cfa30d84719cdb43e146adec698 + (8774a0447eba073aa0f67ef271c71eb6d918f4ff + 725154044d43edd194710425065b63f752dec7b8) + ae230dfbc0ea8b08cd2346ef21abab6fb354e3d3 + 185960adb0eed5cc8bb202a1444a5223d47af50b + 4ad3f56657e408dcf6c234c60f75d9e645f4425a)
- 13. port improvements from SDL3 (cfb83a5312d73f398e7debd2efa8cdbfebd53e04 + 29451f13bb1348a3a4f2368d5e88a4f109191b17 + 6e234b19b392723663a8d5ade64801f1865efb4f + e6669cedb2d04f80749d0dbfd07e4f719ebe39f0 + (48f5a9b9a98a8aace23edc534e025625c28c52a8 + b14239aedab3ac432d7068b9af1a1f1678cb5d2e) + 783508ebf5dd6b498422519a4f09a8610ad0551a)
+ 13. port improvements from SDL3 (cfb83a5312d73f398e7debd2efa8cdbfebd53e04 + 29451f13bb1348a3a4f2368d5e88a4f109191b17 + 6e234b19b392723663a8d5ade64801f1865efb4f + e6669cedb2d04f80749d0dbfd07e4f719ebe39f0 + (48f5a9b9a98a8aace23edc534e025625c28c52a8 + b14239aedab3ac432d7068b9af1a1f1678cb5d2e) + 783508ebf5dd6b498422519a4f09a8610ad0551a + 7ab06ed9e82251d35b3c94105a7489af6141da93)
  14. add separate SDL_Convert_Byteswap16/32 (79f99cead1edade7098298beadb5d7b56cab7a8b)
  15. improve the ResamplerFilter-table (0f7848af0777dfa21d449ed7c22ed49356430eff + 65a23c4f48192fbc833dc75ec51e32ed6ae5e3e1 + 0f96d85a99de4d3caae68165dfb237fa697fe7a1 + 3871bcd68d6b0e1b2f585e45d5e904d828e3dfca + aaff6055fd59b98491e18a583bc9262b84ebbfcd + b27373a9ad2035d17adaedf94480cffd917b647e + 879b848477b5182bc4857ee1bed35c09e05ea4f7 + d7c642b239fb04a39c69aaead2f0b5e698595980)
  16. general optimizations (b10ceddf4dcb9cebd911efdfd2396a0849bdcaa4 + 4f0f7b78ac7ea9c8ab5d44b61ec5d7c636b92389 + 105370b087144434e6742cfbf4317f1e4b3ec727 + b7b298a085203880320df0aa2b5cac7ffe0404c1 + 20c2983ba37dd23d05348ad570b2f9c170a96e8a + ec385d194f577f8cdb688ea68ebf6d97602f07ae)
@@ -115,7 +121,7 @@ Major (meaningful) changes:
   8. support filling of complete surfaces in case bits-per-pixel is less than 8 (5ee0ecc66f16d227a44b28a4e3192f17241c55c5)
 
 - rework the handling of the intrinsics (94c3549898a68a421a6c9a71396063425b16d316 + 2a6c804e4d6467695b7a0702937f5a36a1c961f3 + 86a8ac180d01f8d5787a5cda209f95335f85f0b5)
- 1 port improvements from SDL3((c60a2afdd3b8b0a99d259fdf450cf0faecf999cc + 6616583797df0d6ebb62670d1b8557b33bb2d54c) + fe4e107cd1aa24acbb4c2a75456811529ff83c3b + be0fb3345835a20d13d21b025a89086f5f5b32cf + 9d7e3a2edb5001fc0a5c15982354930847c27cdb)
+ 1 port improvements from SDL3((c60a2afdd3b8b0a99d259fdf450cf0faecf999cc + 6616583797df0d6ebb62670d1b8557b33bb2d54c + 66d2010eddd3280ad49d30f1c1709087d0c1098c) + fe4e107cd1aa24acbb4c2a75456811529ff83c3b + be0fb3345835a20d13d21b025a89086f5f5b32cf + 9d7e3a2edb5001fc0a5c15982354930847c27cdb)
  2. make SSE2/3 dependent on SSE/2 (21bc10008ceda14f7300f801c8cb6098e414079f)
  3. disconnect SSEMATH from the SSEx settings (cc5774cd2a31a364657f4282617b365a22e7593f)
  4. add SDL_CPU_UNDEFINED to mark 'mixed' architectures (c0e82d366e1e88807956642de1f5569ad938f590)
@@ -133,6 +139,7 @@ Major (meaningful) changes:
       with 'Respect SDL_HINT_RENDER_DRIVER when creating an accelerated window surface' / 8299e7adf52a76540d4a94fbc456846cb0c5507e)
 - disable *CreateSDLWindowFrom (d6298f80c72036fa3419b6d6b7c6783058cf5da0)
 - never check/set SDL_COPY_RLE_DESIRED/SDL_RLEACCEL flags if RLE is disabled (91cf232af4a31130dc36be5909f20d83459c1840)
+- hide SDL_BlitMap.blit when RLE is disabled (!SDL_HAVE_RLE) (69992be27e3cd6161265ccc062fa7cb52b32b1d0)
 - ignore SDL_HINT_VIDEO_HIGHDPI_DISABLED (2545e75549574c85b503055fb192346d3bde84f2)
   use window flags (or SDL_HINT_WINDOWS_DPI_SCALING in case of windows) to control this behavior
 - comment out pointless WIN_ResetDeadKeys (d569b02db33cbc6ebc8ba54010cfc5d47089726e)
@@ -201,7 +208,7 @@ Minor changes:
 - eliminate code-duplication in SDL_InitFormat (0081f8300df2afb335fee9cd634839b220b45047)
 - optimize SDL_CreateTexture (63618c078a17479c1b0bdd7bcc3f939bf400441e)
 - use SDL_ConvertSurfaceFormat instead of SDL_ConvertSurface (6210adec67371a7ff3c15e3f344582b787431231 + 2512f9b9764c245bafd0d9261d2f98b65ada73c6)
-- call SDL_CreateRGBSurfaceWithFormat instead of SDL_CreateRGBSurface (65194cd6dbe9a25d5f911d5d8f60ca96d8503631 + b7191d17ff0af104581f435a7bd5304c7a37c5e4)
+- call SDL_CreateRGBSurfaceWithFormat instead of SDL_CreateRGBSurface (65194cd6dbe9a25d5f911d5d8f60ca96d8503631 + b7191d17ff0af104581f435a7bd5304c7a37c5e4 + 3b426e2bcc4fe1b105398e915a04b5d2c5e00632)
 - do not pass unused parameters to SDL_CreateRGBSurfaceWithFormat (530d4a5d5e9f1bde6bc95e4ed2416cef9a7d1bb7)
 - call SDL_CreateRGBSurfaceWithFormatFrom from SDL_CreateRGBSurfaceFrom (21a4cc0b9a6c37af60b710138761ee21ee050b7b)
 - assign the new palette without extra round-trips in SDL_CreateRGBSurfaceWithFormat (9cc843c2bc8595f443561d0b974adea9f8c06082)
@@ -406,4 +413,5 @@ Bugfixes:
 - fix possible stack overflow error (2b4b7dcf0f7bfd64b29ee9558859b32649842c2f)
 - fix warnings of possible overflow after multiplication (839e98c66a22f6792cf60f67002c22e1f40d3296)
 - fix the handling of the supported pixel-formats in the gles2 renderer (d7e259490643fd692c59ae16361c3137eb39706f)
-- fix the documentation of SDL_ShowCursor (d1dee65f42c4f4190933f6c255057076fb380a40)
+- fix the documentation of SDL_ShowCursor (d1dee65f42c4f4190933f6c255057076fb380a40)
+- fix error handling in SDL_PrivateLowerBlitScaled when scaleMode != SDL_ScaleModeNearest (2a9089e0874cb1ea412f40a64b0146617d005e76)
