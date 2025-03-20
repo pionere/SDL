@@ -1026,6 +1026,7 @@ int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
 static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
                                SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode)
 {
+    int ret;
     static const Uint32 complex_copy_flags = (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA |
                                               SDL_COPY_BLEND | SDL_COPY_ADD | SDL_COPY_MOD | SDL_COPY_MUL |
                                               SDL_COPY_COLORKEY);
@@ -1047,9 +1048,9 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             src->format->format == dst->format->format &&
             src->format->palette == NULL) {
             SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(src->format->format));
-            return SDL_SoftStretch(src, srcrect, dst, dstrect);
+            ret = SDL_SoftStretch(src, srcrect, dst, dstrect);
         } else {
-            return SDL_LowerBlit(src, srcrect, dst, dstrect);
+            ret = SDL_LowerBlit(src, srcrect, dst, dstrect);
         }
     } else {
         if (!(src->map->info.flags & complex_copy_flags) &&
@@ -1059,14 +1060,14 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             src->format->format != SDL_PIXELFORMAT_ARGB2101010) {
             SDL_assert(!SDL_ISPIXELFORMAT_INDEXED(src->format->format));
             /* fast path */
-            return SDL_SoftStretchLinear(src, srcrect, dst, dstrect);
+            ret = SDL_SoftStretchLinear(src, srcrect, dst, dstrect);
         } else {
             /* Use intermediate surface(s) */
             SDL_Surface *tmp1 = NULL;
-            int ret = 0;
             SDL_Rect srcrect2;
             int is_complex_copy_flags = (src->map->info.flags & complex_copy_flags);
             SDL_Color colorMod = src->map->info.color;
+            ret = 0;
 
             // Uint8 r, g, b;
             // Uint8 alpha;
@@ -1144,9 +1145,9 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
             }
 
             SDL_FreeSurface(tmp1);
-            return ret;
         }
     }
+    return ret;
 }
 
 /*
