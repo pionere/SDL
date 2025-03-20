@@ -533,6 +533,9 @@ sub output_copyfunc
     $da =~ s/[A8]//g;
     $matching_or_reverse_colors = (!$modulate && !$blend) ? 1 : 0;
 
+    if ( $scale ) {
+        print FILE "#if 0\n";
+    }
     output_copyfuncname("static void", $combination, $modulate, $blend, $scale, 1, "\n");
     print FILE <<__EOF__;
 {
@@ -684,10 +687,13 @@ __EOF__
     }
 __EOF__
     }
-    print FILE <<__EOF__;
-}
+    print FILE "}\n";
 
-__EOF__
+    if ( $scale ) {
+        print FILE "#endif\n";
+    }
+
+    print FILE "\n";
 }
 
 sub output_copyfunc_h
@@ -720,7 +726,12 @@ __EOF__
                 for (my $blend = 0; $blend <= 1; ++$blend) {
                     for (my $scale = 0; $scale <= 1; ++$scale) {
                         if ( $modulate || $blend || $scale ) {
-                            print FILE "    { SDL_PIXELFORMAT_$src, SDL_PIXELFORMAT_$dst, ";
+                            if ( $scale ) {
+                                print FILE "//";
+                            } else {
+                                print FILE "  ";
+                            }
+                            print FILE "  { SDL_PIXELFORMAT_$src, SDL_PIXELFORMAT_$dst, ";
                             my $flags = "";
                             my $flag = "";
                             if ( $modulate ) {

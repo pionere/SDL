@@ -818,12 +818,6 @@ int SDL_UpperBlit(SDL_Surface *src, const SDL_Rect *srcrect,
         r_dst = tmp;
     }
 
-    /* Switch back to a fast blit if we were previously stretching */
-    if (src->map->info.flags & SDL_COPY_NEAREST) {
-        src->map->info.flags &= ~SDL_COPY_NEAREST;
-        SDL_InvalidateMap(src->map);
-    }
-
     SDL_assert(r_dst.w == r_src.w && r_dst.h == r_src.h);
     SDL_assert(!SDL_RectEmpty(&r_src) && !SDL_RectEmpty(&r_dst));
 
@@ -1037,12 +1031,6 @@ static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
         dstrect->w > SDL_MAX_UINT16 || dstrect->h > SDL_MAX_UINT16) {
         return SDL_SetError("Size too large for scaling");
     }
-
-    if (!(src->map->info.flags & SDL_COPY_NEAREST)) {
-        src->map->info.flags |= SDL_COPY_NEAREST;
-        SDL_InvalidateMap(src->map);
-    }
-
     if (scaleMode == SDL_ScaleModeNearest) {
         if (!(src->map->info.flags & complex_copy_flags) &&
             src->format->format == dst->format->format &&

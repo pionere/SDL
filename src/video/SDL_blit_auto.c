@@ -32,6 +32,7 @@
 #define FIXED_POINT(i) ((Uint32)(i) << 16)
 #define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
 
+#if 0
 static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -63,6 +64,7 @@ static void SDL_Blit_RGB888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -117,6 +119,7 @@ static void SDL_Blit_RGB888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -180,6 +183,7 @@ static void SDL_Blit_RGB888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -216,6 +220,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -261,6 +266,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -333,6 +339,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -414,6 +421,7 @@ static void SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -450,6 +458,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -495,6 +504,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -567,6 +577,7 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -648,7 +659,9 @@ static void SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -684,6 +697,7 @@ static void SDL_Blit_RGB888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -739,6 +753,7 @@ static void SDL_Blit_RGB888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -803,6 +818,7 @@ static void SDL_Blit_RGB888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -841,6 +857,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -888,6 +905,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -961,6 +979,7 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1043,7 +1062,9 @@ static void SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1079,6 +1100,7 @@ static void SDL_Blit_BGR888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -1133,6 +1155,7 @@ static void SDL_Blit_BGR888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1196,6 +1219,7 @@ static void SDL_Blit_BGR888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -1232,6 +1256,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1277,6 +1302,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -1349,6 +1375,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1430,6 +1457,7 @@ static void SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -1466,6 +1494,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1511,6 +1540,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -1583,6 +1613,7 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1664,7 +1695,9 @@ static void SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1701,6 +1734,7 @@ static void SDL_Blit_BGR888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -1756,6 +1790,7 @@ static void SDL_Blit_BGR888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1820,6 +1855,7 @@ static void SDL_Blit_BGR888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -1858,6 +1894,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -1905,6 +1942,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -1978,6 +2016,7 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2060,7 +2099,9 @@ static void SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2095,6 +2136,7 @@ static void SDL_Blit_ARGB8888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -2157,6 +2199,7 @@ static void SDL_Blit_ARGB8888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2228,6 +2271,7 @@ static void SDL_Blit_ARGB8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -2264,6 +2308,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2309,6 +2354,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -2383,6 +2429,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2466,6 +2513,7 @@ static void SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -2502,6 +2550,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2547,6 +2596,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -2621,6 +2671,7 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2704,7 +2755,9 @@ static void SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2736,6 +2789,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -2799,6 +2853,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2871,6 +2926,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -2911,6 +2967,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -2960,6 +3017,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -3035,6 +3093,7 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3119,7 +3178,9 @@ static void SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3154,6 +3215,7 @@ static void SDL_Blit_RGBA8888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -3216,6 +3278,7 @@ static void SDL_Blit_RGBA8888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3287,6 +3350,7 @@ static void SDL_Blit_RGBA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -3323,6 +3387,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3368,6 +3433,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -3442,6 +3508,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3525,6 +3592,7 @@ static void SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -3561,6 +3629,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3606,6 +3675,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -3680,6 +3750,7 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3763,7 +3834,9 @@ static void SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3798,6 +3871,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -3861,6 +3935,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -3933,6 +4008,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -3973,6 +4049,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4022,6 +4099,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -4097,6 +4175,7 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4181,7 +4260,9 @@ static void SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4217,6 +4298,7 @@ static void SDL_Blit_ABGR8888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -4279,6 +4361,7 @@ static void SDL_Blit_ABGR8888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4350,6 +4433,7 @@ static void SDL_Blit_ABGR8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -4386,6 +4470,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4431,6 +4516,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -4505,6 +4591,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4588,6 +4675,7 @@ static void SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -4624,6 +4712,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4669,6 +4758,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -4743,6 +4833,7 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4826,7 +4917,9 @@ static void SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4862,6 +4955,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -4925,6 +5019,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -4997,6 +5092,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -5037,6 +5133,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5086,6 +5183,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -5161,6 +5259,7 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5245,7 +5344,9 @@ static void SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5281,6 +5382,7 @@ static void SDL_Blit_BGRA8888_RGB888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
 {
@@ -5343,6 +5445,7 @@ static void SDL_Blit_BGRA8888_RGB888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5414,6 +5517,7 @@ static void SDL_Blit_BGRA8888_RGB888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
 {
@@ -5450,6 +5554,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5495,6 +5600,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -5569,6 +5675,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5652,6 +5759,7 @@ static void SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
 {
@@ -5688,6 +5796,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5733,6 +5842,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -5807,6 +5917,7 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5890,7 +6001,9 @@ static void SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale(const SDL_BlitInfo *in
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
+#if 0
 static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -5925,6 +6038,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
 {
@@ -5988,6 +6102,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -6060,6 +6175,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Blend_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
 {
@@ -6100,6 +6216,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -6149,6 +6266,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale(const SDL_BlitInfo *info)
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
 {
@@ -6224,6 +6342,7 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend(const SDL_BlitInfo *info)
     }
 }
 
+#if 0
 static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *info)
 {
     int width = info->dst_w;
@@ -6308,169 +6427,170 @@ static void SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale(const SDL_BlitInfo *
         dst = (Uint32 *)((Uint8 *)dst + dstskip);
     }
 }
+#endif
 
 SDL_BlitFuncEntry SDL_GeneratedBlitFuncTable[] = {
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_RGB888_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGB888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_RGB888_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGB888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGB888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_RGB888_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGR888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGB888_RGB888_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGB888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGR888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGR888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGR888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGR888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ARGB8888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ARGB8888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ARGB8888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ARGB8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGBA8888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGBA8888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_RGBA8888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_RGBA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ABGR8888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_ARGB8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ARGB8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ABGR8888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_ABGR8888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_ABGR8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_ABGR8888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGRA8888_RGB888_Modulate },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_RGB888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_RGB888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_RGB888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK), SDL_Blit_RGBA8888_RGB888_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_RGBA8888_RGB888_Blend_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGRA8888_BGR888_Modulate },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_BGR888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_BGR888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_BGR888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_BGR888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_BGR888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Scale },
 #if SDL_HAVE_BLIT_TRANSFORM
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_ARGB8888_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Blend_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA), SDL_Blit_BGRA8888_ARGB8888_Modulate },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Modulate_Scale },
     { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK), SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend },
-    { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale },
+//  { SDL_PIXELFORMAT_BGRA8888, SDL_PIXELFORMAT_ARGB8888, (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA | SDL_COPY_BLEND_MASK | SDL_COPY_NEAREST), SDL_Blit_BGRA8888_ARGB8888_Modulate_Blend_Scale },
 #endif /* SDL_HAVE_BLIT_TRANSFORM */
     { 0, 0, 0, NULL }
 };

@@ -40,8 +40,12 @@ static int SDL_INLINE detect_format(SDL_PixelFormat *pf)
     }
 }
 
+#if 0
 #define FIXED_POINT(i) ((Uint32)(i) << 16)
 #define SRC_INDEX(fp)  ((Uint32)(fp) >> 16)
+#else
+#define SRC_INDEX(fp)  (fp)
+#endif
 
 /* The ONE TRUE BLITTER
  * This puppy has to handle all the unoptimized cases - yes, it's slow.
@@ -77,9 +81,13 @@ void SDL_Blit_Slow(const SDL_BlitInfo *info)
 
     srcfmt_val = detect_format(src_fmt);
     dstfmt_val = detect_format(dst_fmt);
-
+#if 0
     incy = FIXED_POINT(info->src_h) / height;
     incx = FIXED_POINT(info->src_w) / width;
+#else
+    incy = 1;
+    incx = 1;
+#endif
     posy = incy / 2; /* start at the middle of pixel */
 
     while (height--) {
