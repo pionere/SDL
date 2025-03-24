@@ -166,6 +166,8 @@ struct joystick_hwdata
     WindowsGamingInputGamepadState *wgi_slot;
 #endif
 
+    bool triggers_rumbling;
+
     SDL_RAWINPUT_Device *device;
 };
 typedef struct joystick_hwdata RAWINPUT_DeviceContext;
@@ -1442,7 +1444,7 @@ static int RAWINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_
 
 #ifdef SDL_JOYSTICK_RAWINPUT_XINPUT
     /* Prefer XInput over WGI because it allows rumble in the background */
-    if (!rumbled && ctx->xinput_correlated) {
+    if (!rumbled && ctx->xinput_correlated && !ctx->triggers_rumbling) {
         XINPUT_VIBRATION XVibration;
 
         if (!XINPUTSETSTATE) {
@@ -1460,11 +1462,12 @@ static int RAWINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_
 #endif /* SDL_JOYSTICK_RAWINPUT_XINPUT */
 
 #ifdef SDL_JOYSTICK_RAWINPUT_WGI
+    // Save off the motor state in case trigger rumble is started
+    WindowsGamingInputGamepadState *gamepad_state = ctx->wgi_slot;
+    HRESULT hr;
+    gamepad_state->vibration.LeftMotor = (DOUBLE)low_frequency_rumble / SDL_MAX_UINT16;
+    gamepad_state->vibration.RightMotor = (DOUBLE)high_frequency_rumble / SDL_MAX_UINT16;
     if (!rumbled && ctx->wgi_correlated) {
-        WindowsGamingInputGamepadState *gamepad_state = ctx->wgi_slot;
-        HRESULT hr;
-        gamepad_state->vibration.LeftMotor = (DOUBLE)low_frequency_rumble / SDL_MAX_UINT16;
-        gamepad_state->vibration.RightMotor = (DOUBLE)high_frequency_rumble / SDL_MAX_UINT16;
         hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_put_Vibration(gamepad_state->gamepad, gamepad_state->vibration);
         if (SUCCEEDED(hr)) {
             rumbled = SDL_TRUE;
@@ -1496,6 +1499,7 @@ static int RAWINPUT_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_r
         if (!SUCCEEDED(hr)) {
             return SDL_SetError("Setting vibration failed: 0x%lx\n", hr);
         }
+        ctx->triggers_rumbling = (left_rumble > 0 || right_rumble > 0);
         return 0;
     } else {
         return SDL_SetError("Controller isn't correlated yet, try hitting a button first");
