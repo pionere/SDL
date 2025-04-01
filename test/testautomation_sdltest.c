@@ -240,11 +240,12 @@ int sdltest_randomBoundaryNumberUint8(void *arg)
         "Validate result value for parameters(0,255,SDL_FALSE); expected: 0, got: %" SDL_PRIs64, uresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -349,11 +350,12 @@ int sdltest_randomBoundaryNumberUint16(void *arg)
         "Validate result value for parameters(0,0xffff,SDL_FALSE); expected: 0, got: %" SDL_PRIs64, uresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -458,11 +460,12 @@ int sdltest_randomBoundaryNumberUint32(void *arg)
         "Validate result value for parameters(0,0xffffffff,SDL_FALSE); expected: 0, got: %" SDL_PRIs64, uresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -567,11 +570,12 @@ int sdltest_randomBoundaryNumberUint64(void *arg)
         "Validate result value for parameters(0,0xffffffffffffffff,SDL_FALSE); expected: 0, got: %" SDL_PRIs64, uresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -676,11 +680,12 @@ int sdltest_randomBoundaryNumberSint8(void *arg)
         "Validate result value for parameters(SCHAR_MIN,SCHAR_MAX,SDL_FALSE); expected: %d, got: %" SDL_PRIs64, SCHAR_MIN, sresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -785,11 +790,12 @@ int sdltest_randomBoundaryNumberSint16(void *arg)
         "Validate result value for parameters(SHRT_MIN,SHRT_MAX,SDL_FALSE); expected: %d, got: %" SDL_PRIs64, SHRT_MIN, sresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -901,11 +907,12 @@ int sdltest_randomBoundaryNumberSint32(void *arg)
         "Validate result value for parameters(LONG_MIN,LONG_MAX,SDL_FALSE); expected: %" SDL_PRIs32 ", got: %" SDL_PRIs64, long_min, sresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -1010,11 +1017,12 @@ int sdltest_randomBoundaryNumberSint64(void *arg)
         "Validate result value for parameters(LLONG_MIN,LLONG_MAX,SDL_FALSE); expected: %" SDL_PRIs64 ", got: %" SDL_PRIs64, INT64_MIN, sresult);
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -1168,11 +1176,12 @@ int sdltest_randomAsciiStringWithMaximumLength(void *arg)
     SDLTest_AssertCheck(result == NULL, "Validate that result is NULL");
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
@@ -1221,11 +1230,12 @@ int sdltest_randomAsciiStringOfSize(void *arg)
     SDLTest_AssertCheck(result == NULL, "Validate that result is NULL");
     lastError = (char *)SDL_GetError();
     SDLTest_AssertPass("SDL_GetError()");
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     SDLTest_AssertCheck(lastError != NULL && SDL_strcmp(lastError, expectedError) == 0,
                         "SDL_GetError(): expected message '%s', was message: '%s'",
                         expectedError,
                         lastError);
-
+#endif
     /* Clear error messages */
     SDL_ClearError();
     SDLTest_AssertPass("SDL_ClearError()");
