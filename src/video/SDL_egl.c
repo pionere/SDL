@@ -134,7 +134,7 @@
 
 /* Instance */
 SDL_EGL_VideoData egl_data;
-
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 static const char *SDL_EGL_GetErrorName(EGLint eglErrorCode)
 {
 #define SDL_EGL_ERROR_TRANSLATE(e) \
@@ -162,7 +162,6 @@ static const char *SDL_EGL_GetErrorName(EGLint eglErrorCode)
 
 int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName)
 {
-#ifndef SDL_VERBOSE_ERROR_DISABLED
     EGLint eglErrorCode = USE_FUNC(eglGetError)();
     const char *errorText = SDL_EGL_GetErrorName(eglErrorCode);
     char altErrorText[32];
@@ -172,10 +171,8 @@ int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName)
         errorText = altErrorText;
     }
     return SDL_SetError("%s (call to %s failed, reporting an error of %s)", message, eglFunctionName, errorText);
-#else
-    return -1;
-#endif
 }
+#endif
 
 /* EGL implementation of SDL OpenGL ES support */
 

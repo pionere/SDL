@@ -173,8 +173,15 @@ extern int SDL_EGL_MakeCurrent(EGLSurface egl_surface, SDL_GLContext context);
 extern int SDL_EGL_SwapBuffers(EGLSurface egl_surface);
 
 /* SDL Error-reporting */
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 extern int SDL_EGL_SetErrorEx(const char *message, const char *eglFunctionName);
 #define SDL_EGL_SetError(message, eglFunctionName) SDL_EGL_SetErrorEx(message, eglFunctionName)
+#else
+static inline int SDL_EGL_SetError(const char *message, const char *eglFunctionName)
+{
+    return -1;
+}
+#endif
 
 /* A few of useful macros */
 
