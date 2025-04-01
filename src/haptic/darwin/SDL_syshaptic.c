@@ -84,7 +84,7 @@ static int HIDGetDeviceProduct(io_service_t dev, char *name);
 static SDL_hapticlist_item *SDL_hapticlist = NULL;
 static SDL_hapticlist_item *SDL_hapticlist_tail = NULL;
 static int numhaptics = -1;
-
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 /*
  * Like strerror but for force feedback errors.
  */
@@ -142,12 +142,9 @@ static const char *FFStrError(unsigned int err)
 
 int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result)
 {
-#ifndef SDL_VERBOSE_ERROR_DISABLED
     return SDL_SetError("%s (%s)", prefix, FFStrError(result));
-#else
-    return -1;
-#endif
 }
+#endif
 
 /*
  * Initializes the haptic subsystem.

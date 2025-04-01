@@ -18,6 +18,7 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#include "../../SDL_internal.h"
 
 /* Things named "Master" were renamed to "Main" in macOS 12.0's SDK. */
 #include <AvailabilityMacros.h>
@@ -27,6 +28,13 @@
 
 extern int MacHaptic_MaybeAddDevice(io_object_t device);
 extern int MacHaptic_MaybeRemoveDevice(io_object_t device);
+#ifndef SDL_VERBOSE_ERROR_DISABLED
 extern int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result);
+#else
+static inline int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result)
+{
+    return -1;
+}
+#endif
 
 /* vi: set ts=4 sw=4 expandtab: */
