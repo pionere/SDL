@@ -753,7 +753,7 @@ void SDL_FreePalette(SDL_Palette *palette)
     SDL_free(palette->colors);
     SDL_free(palette);
 }
-
+#if SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO
 /*
  * Calculate an 8-bit (3 red, 3 green, 2 blue) dithered palette of colors
  */
@@ -778,7 +778,7 @@ static void SDL_DitherColors(SDL_Color *colors)
         colors[i].a = SDL_ALPHA_OPAQUE;
     }
 }
-
+#endif
 /*
  * Match an RGB value to a particular palette index
  */
@@ -988,7 +988,7 @@ static int Map1to1(const SDL_Palette *src, const SDL_Palette *dst, SDL_BlitMap *
     }
     return 0;
 }
-
+#if SDL_HAVE_BLIT_0 || SDL_HAVE_BLIT_1
 /* Map from Palette to BitField */
 static int Map1toN(const SDL_PixelFormat *src, const SDL_PixelFormat *dst, SDL_BlitMap *blitMap)
 {
@@ -1021,7 +1021,8 @@ static int Map1toN(const SDL_PixelFormat *src, const SDL_PixelFormat *dst, SDL_B
     }
     return 0;
 }
-
+#endif
+#if SDL_HAVE_BLIT_A || SDL_HAVE_BLIT_N || SDL_HAVE_BLIT_AUTO
 /* Map from BitField to Dithered-Palette to Palette */
 static int MapNto1(const SDL_Palette *dst, SDL_BlitMap *blitMap)
 {
@@ -1034,7 +1035,7 @@ static int MapNto1(const SDL_Palette *dst, SDL_BlitMap *blitMap)
     dithered.colors = colors;
     return Map1to1(&dithered, dst, blitMap);
 }
-
+#endif
 SDL_BlitMap *SDL_AllocBlitMap(void)
 {
     SDL_BlitMap *map;
