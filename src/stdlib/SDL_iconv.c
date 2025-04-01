@@ -227,7 +227,8 @@ SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
     }
 #else
     if (!fromcode || !tocode) {
-        return (SDL_iconv_t)SDL_InvalidParamError("fromcode/tocode");
+        SDL_InvalidParamError("fromcode/tocode");
+        return (SDL_iconv_t)-1;
     }
 #endif
     for (i = 0; i < SDL_arraysize(encodings); ++i) {
