@@ -236,7 +236,7 @@ static const DWORD D3D11_PixelShader_Textures[] = {
 #else
 #error "An appropriate 'textures' pixel shader is not defined"
 #endif
-
+#if SDL_HAVE_YUV
 /* The yuv-rendering pixel shader:
 
     --- D3D11_PixelShader_YUV_JPEG.hlsl ---
@@ -1712,7 +1712,7 @@ static const DWORD D3D11_PixelShader_NV21_BT709[] = {
 #else
 #error "An appropriate 'yuv' pixel shader is not defined."
 #endif
-
+#endif // SDL_HAVE_YUV
 /* The sole vertex shader:
 
    --- D3D11_VertexShader.hlsl ---

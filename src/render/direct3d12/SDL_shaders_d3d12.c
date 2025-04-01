@@ -764,7 +764,7 @@ static unsigned char D3D12_PixelShader_Textures[] = {
     0x1b, 0x58, 0x68, 0x80, 0x06, 0x61, 0x10, 0x20, 0x00, 0x00, 0x00, 0x00,
     0x00
 };
-
+#if SDL_HAVE_YUV
 /* The yuv-rendering pixel shader:
 
     --- D3D12_PixelShader_YUV_JPEG.hlsl ---
@@ -4919,7 +4919,7 @@ static unsigned char D3D12_PixelShader_NV21_BT709[] = {
     0x7c, 0x30, 0x06, 0x77, 0x70, 0x07, 0x70, 0x10, 0x21, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00
 };
-
+#endif // SDL_HAVE_YUV
 /* The sole vertex shader (have to build 4x for different root signatures):
 
    --- D3D12_VertexShader.hlsl ---
