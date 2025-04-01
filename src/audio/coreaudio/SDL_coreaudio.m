@@ -533,6 +533,7 @@ static BOOL update_audio_session(_THIS, SDL_bool open, SDL_bool allow_playandrec
 
 static int prepare_error_message(_THIS)
 {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     const char* msg;
 
     switch (this->hidden->error_id) {
@@ -579,8 +580,9 @@ static int prepare_error_message(_THIS)
         msg = ""; /* shouldn't happen, but just in case... */
         break;
     }
-    this->hidden->error_id = SDL_COREAUDIO_ERROR_NO;
     SDL_SetError(msg, this->hidden->error_param);
+#endif
+    this->hidden->error_id = SDL_COREAUDIO_ERROR_NO;
     return -1;
 }
 
