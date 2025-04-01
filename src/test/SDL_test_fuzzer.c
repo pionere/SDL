@@ -248,7 +248,7 @@ static Uint64 SDLTest_GenerateUnsignedBoundaryValues(const Uint64 maxValue, Uint
 
     if (index == 0) {
         /* There are no valid boundaries */
-        SDL_Unsupported();
+        SDL_Error(SDL_UNSUPPORTED);
         return 0;
     }
 
@@ -374,7 +374,7 @@ static Sint64 SDLTest_GenerateSignedBoundaryValues(const Sint64 minValue, const 
 
     if (index == 0) {
         /* There are no valid boundaries */
-        SDL_Unsupported();
+        SDL_Error(SDL_UNSUPPORTED);
         return minValue;
     }
 
@@ -467,7 +467,7 @@ char *SDLTest_RandomAsciiStringWithMaximumLength(int maxLength)
     int size;
 
     if (maxLength < 1) {
-        SDL_InvalidParamError("maxLength");
+        SDL_SetError("Parameter '%s' is invalid", "maxLength");
         return NULL;
     }
 
@@ -484,7 +484,7 @@ char *SDLTest_RandomAsciiStringOfSize(int size)
     int counter;
 
     if (size < 1) {
-        SDL_InvalidParamError("size");
+        SDL_SetError("Parameter '%s' is invalid", "size");
         return NULL;
     }
 

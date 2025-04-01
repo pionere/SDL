@@ -275,10 +275,21 @@ extern void SDL_InitMainThread(void);
 /* Override SDL_*Error functions.
   Necessary to eliminate the calls and the strings as well. */
 #if defined(SDL_VERBOSE_ERROR_DISABLED) && !defined(SDL_DYNAMIC_API)
-#define SDL_SetError(fmt, ...) -1
-#define SDL_GetError() ""
+static inline int SDL_SetErrorEx()
+{
+    return -1;
+}
+#define SDL_SetError(fmt, ...) SDL_SetErrorEx()
+#define SDL_GetError() NULL
 #define SDL_ClearError()
 #define SDL_GetErrorMsg(errstr, maxlen) errstr
+#define SDL_OutOfMemory() SDL_SetErrorEx()
+#define SDL_Unsupported() SDL_SetErrorEx()
+#define SDL_InvalidParamError(param) SDL_SetErrorEx()
+#else
+#define SDL_OutOfMemory()   SDL_SetError("Out of memory")
+#define SDL_Unsupported()   SDL_SetError("That operation is not supported")
+#define SDL_InvalidParamError(param)    SDL_SetError("Parameter '%s' is invalid", (param))
 #endif
 
 #define SDL_UINT_MAX ((unsigned)~0)

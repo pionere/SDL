@@ -136,9 +136,6 @@ extern DECLSPEC void SDLCALL SDL_ClearError(void);
  *  Private error reporting function - used internally.
  */
 /* @{ */
-#define SDL_OutOfMemory()   SDL_Error(SDL_ENOMEM)
-#define SDL_Unsupported()   SDL_Error(SDL_UNSUPPORTED)
-#define SDL_InvalidParamError(param)    SDL_SetError("Parameter '%s' is invalid", (param))
 typedef enum
 {
     SDL_ENOMEM,

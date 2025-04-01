@@ -36,7 +36,6 @@ GetNearbyFilename(const char *file)
 
         if (!path) {
             SDL_free(base);
-            SDL_OutOfMemory();
             return NULL;
         }
 
@@ -54,9 +53,6 @@ GetNearbyFilename(const char *file)
     }
 
     path = SDL_strdup(file);
-    if (!path) {
-        SDL_OutOfMemory();
-    }
     return path;
 }
 
@@ -74,10 +70,6 @@ GetResourceFilename(const char *user_specified, const char *def)
 {
     if (user_specified) {
         char *ret = SDL_strdup(user_specified);
-
-        if (!ret) {
-            SDL_OutOfMemory();
-        }
 
         return ret;
     } else {

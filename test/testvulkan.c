@@ -237,7 +237,6 @@ static void createInstance(void)
     }
     extensions = (const char **)SDL_malloc(sizeof(const char *) * extensionCount);
     if (!extensions) {
-        SDL_OutOfMemory();
         quit(2);
     }
     if (!SDL_Vulkan_GetInstanceExtensions(NULL, &extensionCount, extensions)) {
@@ -313,7 +312,6 @@ static void findPhysicalDevice(void)
     }
     physicalDevices = (VkPhysicalDevice *)SDL_malloc(sizeof(VkPhysicalDevice) * physicalDeviceCount);
     if (!physicalDevices) {
-        SDL_OutOfMemory();
         quit(2);
     }
     result = vkEnumeratePhysicalDevices(vulkanContext->instance, &physicalDeviceCount, physicalDevices);
@@ -349,7 +347,6 @@ static void findPhysicalDevice(void)
             if (!queueFamiliesProperties) {
                 SDL_free(physicalDevices);
                 SDL_free(deviceExtensions);
-                SDL_OutOfMemory();
                 quit(2);
             }
         }
@@ -411,7 +408,6 @@ static void findPhysicalDevice(void)
             if (!deviceExtensions) {
                 SDL_free(physicalDevices);
                 SDL_free(queueFamiliesProperties);
-                SDL_OutOfMemory();
                 quit(2);
             }
         }
@@ -569,7 +565,6 @@ static void getSurfaceFormats(void)
         vulkanContext->surfaceFormats = (VkSurfaceFormatKHR *)SDL_malloc(sizeof(VkSurfaceFormatKHR) * vulkanContext->surfaceFormatsAllocatedCount);
         if (!vulkanContext->surfaceFormats) {
             vulkanContext->surfaceFormatsCount = 0;
-            SDL_OutOfMemory();
             quit(2);
         }
     }
@@ -602,7 +597,6 @@ static void getSwapchainImages(void)
     }
     vulkanContext->swapchainImages = SDL_malloc(sizeof(VkImage) * vulkanContext->swapchainImageCount);
     if (!vulkanContext->swapchainImages) {
-        SDL_OutOfMemory();
         quit(2);
     }
     result = vkGetSwapchainImagesKHR(vulkanContext->device,
@@ -774,7 +768,6 @@ static void createFences(void)
 
     vulkanContext->fences = SDL_malloc(sizeof(VkFence) * vulkanContext->swapchainImageCount);
     if (!vulkanContext->fences) {
-        SDL_OutOfMemory();
         quit(2);
     }
     for (i = 0; i < vulkanContext->swapchainImageCount; i++) {
