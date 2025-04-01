@@ -44,8 +44,9 @@
 static void Cocoa_GetDisplayModes(SDL_VideoDisplay * display, SDL_DisplayMode *desktop_mode);
 static void Cocoa_FreeVideoDisplay(SDL_VideoDisplay * display);
 
-static int CG_SetError(const char *prefix, CGDisplayErr result)
+static void CG_SetError(const char *prefix, CGDisplayErr result)
 {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
     const char *error;
 
     switch (result) {
@@ -83,7 +84,8 @@ static int CG_SetError(const char *prefix, CGDisplayErr result)
         error = "Unknown Error";
         break;
     }
-    return SDL_SetError("%s: %s", prefix, error);
+    SDL_SetError("%s: %s", prefix, error);
+#endif
 }
 
 static int GetDisplayModeRefreshRate(CGDisplayModeRef vidmode, CVDisplayLinkRef link)
