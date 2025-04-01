@@ -117,8 +117,10 @@ SDL_SensorID SDL_GetNextSensorInstanceID(void)
  */
 static SDL_bool SDL_GetDriverAndSensorIndex(int device_index, const SDL_SensorDriver **driver, int *driver_index)
 {
-    int i, num_sensors, total_sensors = 0;
-
+    int i, num_sensors;
+#ifdef DEBUG_SENSOR
+    int total_sensors = 0;
+#endif
     if (device_index >= 0) {
         for (i = 0; i < SDL_arraysize(SDL_sensor_drivers); ++i) {
             num_sensors = SDL_sensor_drivers[i]->GetCount();
@@ -128,11 +130,16 @@ static SDL_bool SDL_GetDriverAndSensorIndex(int device_index, const SDL_SensorDr
                 return SDL_TRUE;
             }
             device_index -= num_sensors;
+#ifdef DEBUG_SENSOR
             total_sensors += num_sensors;
+#endif
         }
     }
-
+#ifdef DEBUG_SENSOR
     SDL_SetError("There are %d sensors available", total_sensors);
+#else
+    SDL_SetError("Invalid sensor device ID");
+#endif
     return SDL_FALSE;
 }
 
