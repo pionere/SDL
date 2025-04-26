@@ -3693,6 +3693,7 @@
 		F3ADAB912576F0B400A6B1D9 /* SDL_sysurl.m in Sources */ = {isa = PBXBuildFile; fileRef = F3ADAB8D2576F0B300A6B1D9 /* SDL_sysurl.m */; };
 		F3ADAB922576F0B400A6B1D9 /* SDL_sysurl.m in Sources */ = {isa = PBXBuildFile; fileRef = F3ADAB8D2576F0B300A6B1D9 /* SDL_sysurl.m */; };
 		F3ADAB932576F0B400A6B1D9 /* SDL_sysurl.m in Sources */ = {isa = PBXBuildFile; fileRef = F3ADAB8D2576F0B300A6B1D9 /* SDL_sysurl.m */; };
+		F3B6B80A2DC3EA54004954FD /* SDL_hidapi_gip.c in Sources */ = {isa = PBXBuildFile; fileRef = F3B6B8092DC3EA54004954FD /* SDL_hidapi_gip.c */; };
 		F3D60A8328C16A1900788A3A /* SDL_hidapi_wii.c in Sources */ = {isa = PBXBuildFile; fileRef = F3D60A8228C16A1800788A3A /* SDL_hidapi_wii.c */; };
 		F3D60A8428C16A1900788A3A /* SDL_hidapi_wii.c in Sources */ = {isa = PBXBuildFile; fileRef = F3D60A8228C16A1800788A3A /* SDL_hidapi_wii.c */; };
 		F3D60A8528C16A1900788A3A /* SDL_hidapi_wii.c in Sources */ = {isa = PBXBuildFile; fileRef = F3D60A8228C16A1800788A3A /* SDL_hidapi_wii.c */; };
@@ -4236,6 +4237,7 @@
 		F3984CCF25BCC92800374F43 /* SDL_hidapi_stadia.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_stadia.c; sourceTree = "<group>"; };
 		F3A4909D2554D38500E92A8B /* SDL_hidapi_ps5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_ps5.c; sourceTree = "<group>"; };
 		F3ADAB8D2576F0B300A6B1D9 /* SDL_sysurl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDL_sysurl.m; sourceTree = "<group>"; };
+		F3B6B8092DC3EA54004954FD /* SDL_hidapi_gip.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_gip.c; sourceTree = "<group>"; };
 		F3D60A8228C16A1800788A3A /* SDL_hidapi_wii.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_wii.c; sourceTree = "<group>"; };
 		F3F07D59269640160074468B /* SDL_hidapi_luna.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_hidapi_luna.c; sourceTree = "<group>"; };
 		F59C710300D5CB5801000001 /* ReadMe.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
@@ -5083,6 +5085,7 @@
 			children = (
 				F32305FE28939F6400E66D30 /* SDL_hidapi_combined.c */,
 				A7D8A7C923E2513E00DCD162 /* SDL_hidapi_gamecube.c */,
+				F3B6B8092DC3EA54004954FD /* SDL_hidapi_gip.c */,
 				F3F07D59269640160074468B /* SDL_hidapi_luna.c */,
 				F362B93C2B33920400D30B94 /* SDL_hidapi_nintendo.h */,
 				F388C95428B5F6F600661ECF /* SDL_hidapi_ps3.c */,
@@ -9248,6 +9251,7 @@
 				A7D8BA5B23E2514400DCD162 /* SDL_shaders_gles2.c in Sources */,
 				A7D8B14023E2514200DCD162 /* SDL_blit_1.c in Sources */,
 				A7D8BBDB23E2574800DCD162 /* SDL_uikitmetalview.m in Sources */,
+				F3B6B80A2DC3EA54004954FD /* SDL_hidapi_gip.c in Sources */,
 				A7D8BB1523E2514500DCD162 /* SDL_mouse.c in Sources */,
 				A7D8BAD923E2514500DCD162 /* e_rem_pio2.c in Sources */,
 				A7D8BB0F23E2514500DCD162 /* SDL_dataqueue.c in Sources */,

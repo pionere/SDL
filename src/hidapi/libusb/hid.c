@@ -624,20 +624,24 @@ static int is_xboxone(unsigned short vendor_id, const struct libusb_interface_de
 	static const int XB1_IFACE_SUBCLASS = 71;
 	static const int XB1_IFACE_PROTOCOL = 208;
 	static const int SUPPORTED_VENDORS[] = {
-        0x03f0, /* HP */
+		0x03f0, /* HP */
 		0x044f, /* Thrustmaster */
 		0x045e, /* Microsoft */
 		0x0738, /* Mad Catz */
 		0x0b05, /* ASUS */
 		0x0e6f, /* PDP */
 		0x0f0d, /* Hori */
-        0x10f5, /* Turtle Beach */
+		0x10f5, /* Turtle Beach */
 		0x1532, /* Razer Wildcat */
 		0x20d6, /* PowerA */
 		0x24c6, /* PowerA */
+		0x294b, /* Snakebyte */
 		0x2dc8, /* 8BitDo */
 		0x2e24, /* Hyperkin */
-        0x3537, /* GameSir */
+		0x2e95, /* SCUF */
+		0x3285, /* Nacon */
+		0x3537, /* GameSir */
+		0x366c, /* ByoWave */
 	};
 
 	if (intf_desc->bInterfaceNumber == 0 &&

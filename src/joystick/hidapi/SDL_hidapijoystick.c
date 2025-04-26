@@ -86,6 +86,9 @@ static SDL_HIDAPI_DeviceDriver *const SDL_HIDAPI_drivers[] = {
     &SDL_HIDAPI_DriverXbox360,
     &SDL_HIDAPI_DriverXbox360W,
 #endif
+#ifdef SDL_JOYSTICK_HIDAPI_GIP
+    &SDL_HIDAPI_DriverGIP,
+#endif
 #ifdef SDL_JOYSTICK_HIDAPI_XBOXONE
     &SDL_HIDAPI_DriverXboxOne,
 #endif
@@ -299,9 +302,13 @@ static SDL_GameControllerType SDL_GetJoystickGameControllerProtocol(const char *
             0x1532, /* Razer */
             0x20d6, /* PowerA */
             0x24c6, /* PowerA */
+            0x294b, /* Snakebyte */
             0x2dc8, /* 8BitDo */
             0x2e24, /* Hyperkin */
+            0x2e95, /* SCUF */
+            0x3285, /* Nacon */
             0x3537, /* GameSir */
+            0x366c, /* ByoWave */
         };
 
         int i;

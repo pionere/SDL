@@ -45,6 +45,7 @@
 #define SDL_JOYSTICK_HIDAPI_XBOX360
 #define SDL_JOYSTICK_HIDAPI_XBOXONE
 #define SDL_JOYSTICK_HIDAPI_SHIELD
+#define SDL_JOYSTICK_HIDAPI_GIP
 
 /* Whether HIDAPI is enabled by default */
 #if defined(__ANDROID__) || \
@@ -133,6 +134,7 @@ typedef struct _SDL_HIDAPI_DeviceDriver
 /* HIDAPI device support */
 extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverCombined;
 extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverGameCube;
+extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverGIP;
 extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverJoyCons;
 extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverLuna;
 extern SDL_HIDAPI_DeviceDriver SDL_HIDAPI_DriverNintendoClassic;
