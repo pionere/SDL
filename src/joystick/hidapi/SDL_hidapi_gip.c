@@ -224,6 +224,7 @@
 
 /* Internal constants, not part of protocol */
 #define GIP_HELLO_TIMEOUT 2000
+#define GIP_ACME_TIMEOUT 10
 
 #define GIP_DEFAULT_IN_SYSTEM_MESSAGES 0x5e
 #define GIP_DEFAULT_OUT_SYSTEM_MESSAGES 0x472
@@ -355,14 +356,8 @@ static const GIP_Quirks quirks[] = {
     { USB_VENDOR_POWERA, USB_PRODUCT_BDA_XB1_FIGHTPAD, 0,
       .filtered_features = GIP_FEATURE_MOTOR_CONTROL },
 
-    /*
-     * The controller can attempt to resend the metadata too quickly, but has
-     * bugs handling reliable message handling if things get out of sync.
-     * However, since it just lets us bypass the metadata exchange, let's just
-     * do that instead of having an unreliable init
-     */
     { USB_VENDOR_POWERA, USB_PRODUCT_BDA_XB1_CLASSIC, 0,
-      .quirks = GIP_QUIRK_BROKEN_METADATA | GIP_QUIRK_NO_IMPULSE_VIBRATION },
+      .quirks = GIP_QUIRK_NO_IMPULSE_VIBRATION },
 
     { USB_VENDOR_RAZER, USB_PRODUCT_RAZER_ATROX, 0,
       .filtered_features = GIP_FEATURE_MOTOR_CONTROL,
@@ -490,6 +485,7 @@ typedef struct GIP_Device
     Uint64 hello_deadline;
     bool got_hello;
     bool reset_for_metadata;
+    int timeout;
 
     GIP_Attachment *attachments[MAX_ATTACHMENTS];
 } GIP_Device;
@@ -771,7 +767,7 @@ static bool GIP_SendSystemMessage(
         GIP_SequenceNext(attachment, message_type, true),
         bytes,
         num_bytes,
-        true,
+        false,
         NULL,
         NULL);
 }
@@ -1237,6 +1233,7 @@ static void GIP_EnsureMetadata(GIP_Attachment *attachment)
             GIP_SetMetadataDefaults(attachment);
             GIP_SendInitSequence(attachment);
         } else if (attachment->device->got_hello) {
+            attachment->device->timeout = GIP_ACME_TIMEOUT;
             attachment->got_metadata = GIP_METADATA_PENDING;
             attachment->metadata_next = SDL_GetTicks() + 500;
             attachment->metadata_retries = 0;
@@ -2611,7 +2608,8 @@ static SDL_bool HIDAPI_DriverGIP_UpdateDevice(SDL_HIDAPI_Device *device)
     bool perform_reset = false;
     Uint64 timestamp;
 
-    while ((num_bytes = SDL_hid_read_timeout(device->dev, bytes, sizeof(bytes), 0)) > 0) {
+    while ((num_bytes = SDL_hid_read_timeout(device->dev, bytes, sizeof(bytes), ctx->timeout)) > 0) {
+        ctx->timeout = 0;
         int parsed = GIP_ReceivePacket(ctx, bytes, num_bytes);
         if (parsed <= 0) {
             break;
