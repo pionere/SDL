@@ -40,6 +40,7 @@
 
 #include "SDL_cpuinfo.h"
 #include "SDL_assert.h"
+#include "SDL_endian.h"
 
 #include "SDL_cpuinfo_c.h"
 
@@ -728,55 +729,30 @@ int SDL_GetCPUCount(void)
     return SDL_CPUCount;
 }
 
+static char SDL_CPUType[12];
 #if defined(__e2k__)
-inline const char *
+inline void
 SDL_GetCPUType(void)
 {
-    return "E2K MACHINE";
+    SDL_memcpy(SDL_CPUType, "E2K MACHINE", sizeof("E2K MACHINE"));
 }
 #else
 /* Oh, such a sweet sweet trick, just not very useful. :) */
-static const char *SDL_GetCPUType(void)
+static void SDL_GetCPUType(void)
 {
-    static char SDL_CPUType[13];
-
     if (!SDL_CPUType[0]) {
-        int i = 0;
-
         CPU_calcCPUIDFeatures();
         if (CPU_CPUIDMaxFunction > 0) { /* do we have CPUID at all? */
             int a, b, c, d;
             cpuid(0x00000000, a, b, c, d);
             (void)a;
-            SDL_CPUType[i++] = (char)(b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char)(b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char)(b & 0xff);
-            b >>= 8;
-            SDL_CPUType[i++] = (char)(b & 0xff);
-
-            SDL_CPUType[i++] = (char)(d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char)(d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char)(d & 0xff);
-            d >>= 8;
-            SDL_CPUType[i++] = (char)(d & 0xff);
-
-            SDL_CPUType[i++] = (char)(c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char)(c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char)(c & 0xff);
-            c >>= 8;
-            SDL_CPUType[i++] = (char)(c & 0xff);
-        }
-        if (!SDL_CPUType[0]) {
+            *(uint32_t*)&SDL_CPUType[0] = SDL_SwapLE32(b);
+            *(uint32_t*)&SDL_CPUType[4] = SDL_SwapLE32(d);
+            *(uint32_t*)&SDL_CPUType[8] = SDL_SwapLE32(c);
+        } else {
             SDL_memcpy(SDL_CPUType, "Unknown", sizeof("Unknown"));
         }
     }
-    return SDL_CPUType;
 }
 #endif
 
@@ -916,17 +892,17 @@ static const char *SDL_GetCPUName(void)
 
 int SDL_GetCPUCacheLineSize(void)
 {
-    const char *cpuType = SDL_GetCPUType();
     int cacheline_size = SDL_CACHELINE_SIZE; /* initial guess */
     int a, b, c, d;
     (void)a;
     (void)b;
     (void)c;
     (void)d;
-    if (SDL_strcmp(cpuType, "GenuineIntel") == 0 || SDL_strcmp(cpuType, "CentaurHauls") == 0 || SDL_strcmp(cpuType, "  Shanghai  ") == 0) {
+    SDL_GetCPUType();
+    if (SDL_memcmp(SDL_CPUType, "GenuineIntel", sizeof(SDL_CPUType)) == 0 || SDL_memcmp(SDL_CPUType, "CentaurHauls", sizeof(SDL_CPUType)) == 0 || SDL_memcmp(SDL_CPUType, "  Shanghai  ", sizeof(SDL_CPUType)) == 0) {
         cpuid(0x00000001, a, b, c, d);
         cacheline_size = ((b >> 8) & 0xff) * 8;
-    } else if (SDL_strcmp(cpuType, "AuthenticAMD") == 0 || SDL_strcmp(cpuType, "HygonGenuine") == 0) {
+    } else if (SDL_memcmp(SDL_CPUType, "AuthenticAMD", sizeof(SDL_CPUType)) == 0 || SDL_memcmp(SDL_CPUType, "HygonGenuine", sizeof(SDL_CPUType)) == 0) {
         cpuid(0x80000005, a, b, c, d);
         cacheline_size = c & 0xff;
     } else {
@@ -1333,7 +1309,8 @@ void SDL_SIMDFree(void *ptr)
 int main(void)
 {
     printf("CPU count: %d\n", SDL_GetCPUCount());
-    printf("CPU type: %s\n", SDL_GetCPUType());
+    SDL_GetCPUType();
+    printf("CPU type: %.*s\n", sizeof(SDL_CPUType), SDL_CPUType);
     printf("CPU name: %s\n", SDL_GetCPUName());
     printf("CacheLine size: %d\n", SDL_GetCPUCacheLineSize());
     printf("RDTSC: %d\n", SDL_HasRDTSC());
