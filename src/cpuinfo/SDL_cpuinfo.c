@@ -943,74 +943,77 @@ static
 #endif
 void SDL_InitCPUFeatures(void)
 {
+        Uint32 cpuFeatures = 0, simdAlignment = 0;
         CPU_calcCPUIDFeatures();
-        SDL_CPUFeatures = 0;
         if (CPU_haveRDTSC()) {
-            SDL_CPUFeatures |= CPU_HAS_RDTSC;
+            cpuFeatures |= CPU_HAS_RDTSC;
         }
         if (CPU_haveMMX()) {
-            SDL_CPUFeatures |= CPU_HAS_MMX;
-            SDL_SIMDAlignment = 8;
+            cpuFeatures |= CPU_HAS_MMX;
+            simdAlignment = 8;
         }
         if (CPU_have3DNow()) {
-            SDL_CPUFeatures |= CPU_HAS_3DNOW;
-            SDL_SIMDAlignment = 8;
+            cpuFeatures |= CPU_HAS_3DNOW;
+            simdAlignment = 8;
         }
         if (CPU_haveAltiVec()) {
-            SDL_CPUFeatures |= CPU_HAS_ALTIVEC;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_ALTIVEC;
+            simdAlignment = 16;
         }
         if (CPU_haveSSE()) {
-            SDL_CPUFeatures |= CPU_HAS_SSE;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_SSE;
+            simdAlignment = 16;
         }
         if (CPU_haveSSE2()) {
-            SDL_CPUFeatures |= CPU_HAS_SSE2;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_SSE2;
+            simdAlignment = 16;
         }
         if (CPU_haveSSE3()) {
-            SDL_CPUFeatures |= CPU_HAS_SSE3;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_SSE3;
+            simdAlignment = 16;
         }
         if (CPU_haveSSE41()) {
-            SDL_CPUFeatures |= CPU_HAS_SSE41;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_SSE41;
+            simdAlignment = 16;
         }
         if (CPU_haveSSE42()) {
-            SDL_CPUFeatures |= CPU_HAS_SSE42;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_SSE42;
+            simdAlignment = 16;
         }
         if (CPU_haveARMSIMD()) {
-            SDL_CPUFeatures |= CPU_HAS_ARM_SIMD;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_ARM_SIMD;
+            simdAlignment = 16;
         }
         if (CPU_haveNEON()) {
-            SDL_CPUFeatures |= CPU_HAS_NEON;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_NEON;
+            simdAlignment = 16;
         }
         if (CPU_haveLSX()) {
-            SDL_CPUFeatures |= CPU_HAS_LSX;
-            SDL_SIMDAlignment = 16;
+            cpuFeatures |= CPU_HAS_LSX;
+            simdAlignment = 16;
         }
         if (CPU_haveLASX()) {
-            SDL_CPUFeatures |= CPU_HAS_LASX;
-            SDL_SIMDAlignment = 32;
+            cpuFeatures |= CPU_HAS_LASX;
+            simdAlignment = 32;
         }
         if (CPU_haveAVX()) {
-            SDL_CPUFeatures |= CPU_HAS_AVX;
-            SDL_SIMDAlignment = 32;
+            cpuFeatures |= CPU_HAS_AVX;
+            simdAlignment = 32;
         }
         if (CPU_haveAVX2()) {
-            SDL_CPUFeatures |= CPU_HAS_AVX2;
-            SDL_SIMDAlignment = 32;
+            cpuFeatures |= CPU_HAS_AVX2;
+            simdAlignment = 32;
         }
         if (CPU_haveAVX512F()) {
-            SDL_CPUFeatures |= CPU_HAS_AVX512F;
-            SDL_SIMDAlignment = 64;
+            cpuFeatures |= CPU_HAS_AVX512F;
+            simdAlignment = 64;
         }
-        if (SDL_SIMDAlignment < sizeof(void *)) {
-            SDL_SIMDAlignment = sizeof(void *); /* SDL_SIMDAlloc needs space for the real address */
+        if (simdAlignment < sizeof(void *)) {
+            simdAlignment = sizeof(void *); /* SDL_SIMDAlloc needs space for the real address */
         }
+
+        SDL_CPUFeatures = cpuFeatures;
+        SDL_SIMDAlignment = simdAlignment;
 }
 
 #ifndef SDL_SANITIZE_ACCESS_DISABLED
