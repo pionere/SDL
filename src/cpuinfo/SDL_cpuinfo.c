@@ -374,7 +374,13 @@ static int CPU_haveAltiVec(void)
     return altivec;
 }
 
-#if (defined(__ARM_ARCH) && (__ARM_ARCH >= 6)) || defined(__aarch64__)
+#if defined(SDL_CPUINFO_DISABLED)
+static int CPU_haveARMSIMD(void)
+{
+    return 0;
+}
+
+#elif (defined(__ARM_ARCH) && (__ARM_ARCH >= 6)) || defined(__aarch64__)
 static int CPU_haveARMSIMD(void)
 {
     return 1;
@@ -534,7 +540,7 @@ static int CPU_haveNEON(void)
 static int CPU_readCPUCFG(void)
 {
     uint32_t cfg2 = 0;
-#if defined __loongarch__
+#if !defined(SDL_CPUINFO_DISABLED) && defined(__loongarch__)
     __asm__ volatile(
         "cpucfg %0, %1 \n\t"
         : "+&r"(cfg2)
@@ -546,37 +552,29 @@ static int CPU_readCPUCFG(void)
 #define CPU_haveLSX()  (CPU_readCPUCFG() & CPU_CFG2_LSX)
 #define CPU_haveLASX() (CPU_readCPUCFG() & CPU_CFG2_LASX)
 
-#if defined(__e2k__)
-inline int
-CPU_have3DNow(void)
-{
-#if defined(SDL_3DNOW_INTRINSICS)
-    return 1;
-#else
-    return 0;
-#endif
-}
-#else
-static int CPU_have3DNow(void)
-{
-    if (CPU_CPUIDMaxFunction > 0) { /* that is, do we have CPUID at all? */
-        int a, b, c, d;
-        cpuid(0x80000000, a, b, c, d);
-        if (a >= 0x80000001) {
-            cpuid(0x80000001, a, b, c, d);
-            return d & 0x80000000;
-        }
-    }
-    return 0;
-}
-#endif
-
-#if defined(__e2k__)
+#if defined(SDL_CPUINFO_DISABLED)
+#define CPU_haveRDTSC() (0)
+#define CPU_haveMMX()   (0)
+#define CPU_have3DNow() (0)
+#define CPU_haveSSE()   (0)
+#define CPU_haveSSE2()  (0)
+#define CPU_haveSSE3()  (0)
+#define CPU_haveSSE41() (0)
+#define CPU_haveSSE42() (0)
+#define CPU_haveAVX()   (0)
+#define CPU_haveAVX2()  (0)
+#define CPU_haveAVX512F() (0)
+#elif defined(__e2k__)
 #define CPU_haveRDTSC() (0)
 #if defined(SDL_MMX_INTRINSICS)
 #define CPU_haveMMX() (1)
 #else
 #define CPU_haveMMX() (0)
+#endif
+#if defined(SDL_3DNOW_INTRINSICS)
+#define CPU_have3DNow() (1)
+#else
+#define CPU_have3DNow() (0)
 #endif
 #if defined(SDL_SSE_INTRINSICS)
 #define CPU_haveSSE() (1)
@@ -608,28 +606,33 @@ static int CPU_have3DNow(void)
 #else
 #define CPU_haveAVX() (0)
 #endif
+#if defined(SDL_AVX2_INTRINSICS)
+#define CPU_haveAVX2() (1)
+#else
+#define CPU_haveAVX2() (0)
+#endif
+#define CPU_haveAVX512F() (0)
 #else
 #define CPU_haveRDTSC() (CPU_CPUIDFeatures[3] & 0x00000010)
 #define CPU_haveMMX()   (CPU_CPUIDFeatures[3] & 0x00800000)
+static int CPU_have3DNow(void)
+{
+    if (CPU_CPUIDMaxFunction > 0) { /* that is, do we have CPUID at all? */
+        int a, b, c, d;
+        cpuid(0x80000000, a, b, c, d);
+        if (a >= 0x80000001) {
+            cpuid(0x80000001, a, b, c, d);
+            return d & 0x80000000;
+        }
+    }
+    return 0;
+}
 #define CPU_haveSSE()   (CPU_CPUIDFeatures[3] & 0x02000000)
 #define CPU_haveSSE2()  (CPU_CPUIDFeatures[3] & 0x04000000)
 #define CPU_haveSSE3()  (CPU_CPUIDFeatures[2] & 0x00000001)
 #define CPU_haveSSE41() (CPU_CPUIDFeatures[2] & 0x00080000)
 #define CPU_haveSSE42() (CPU_CPUIDFeatures[2] & 0x00100000)
 #define CPU_haveAVX()   (CPU_OSSavesYMM && (CPU_CPUIDFeatures[2] & 0x10000000))
-#endif
-
-#if defined(__e2k__)
-inline int
-CPU_haveAVX2(void)
-{
-#if defined(SDL_AVX2_INTRINSICS)
-    return 1;
-#else
-    return 0;
-#endif
-}
-#else
 static int CPU_haveAVX2(void)
 {
     if (CPU_OSSavesYMM && (CPU_CPUIDMaxFunction >= 7)) {
@@ -643,15 +646,7 @@ static int CPU_haveAVX2(void)
     }
     return 0;
 }
-#endif
 
-#if defined(__e2k__)
-inline int
-CPU_haveAVX512F(void)
-{
-    return 0;
-}
-#else
 static int CPU_haveAVX512F(void)
 {
     if (CPU_OSSavesZMM && (CPU_CPUIDMaxFunction >= 7)) {
