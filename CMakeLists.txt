@@ -88,8 +88,8 @@ endif()
 
 # See docs/release_checklist.md
 set(SDL_MAJOR_VERSION 2)
-set(SDL_MINOR_VERSION 30)
-set(SDL_MICRO_VERSION 10)
+set(SDL_MINOR_VERSION 32)
+set(SDL_MICRO_VERSION 6)
 set(SDL_VERSION "${SDL_MAJOR_VERSION}.${SDL_MINOR_VERSION}.${SDL_MICRO_VERSION}")
 
 # Set defaults preventing destination file conflicts
@@ -2320,8 +2320,10 @@ elseif(WINDOWS)
       set(HAVE_DIRECTX TRUE)
       if(NOT MINGW AND NOT USE_WINSDK_DIRECTX)
       # TODO: change $ENV{DXSDL_DIR} to get the path from the include checks
-        target_link_directories(sdl-build-options INTERFACE "$$ENV{DXSDK_DIR}\\lib\\${PROCESSOR_ARCH}")
-        target_include_directories(sdl-build-options INTERFACE "$ENV{DXSDK_DIR}\\Include")
+        file(TO_CMAKE_PATH "$ENV{DXSDK_DIR}\\lib\\${PROCESSOR_ARCH}" SDL2_TMP_DXSDK_LIB_DIR)
+        target_link_directories(sdl-build-options INTERFACE "${SDL2_TMP_DXSDK_LIB_DIR}")
+        file(TO_CMAKE_PATH "$ENV{DXSDK_DIR}\\Include" SDL2_TMP_DXSDK_INCLUDE_DIR)
+        target_include_directories(sdl-build-options INTERFACE "${SDL2_TMP_DXSDK_INCLUDE_DIR}")
       endif()
     endif()
   endif()
