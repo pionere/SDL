@@ -345,6 +345,43 @@ static void CPU_calcCPUIDFeatures(void)
 
                 CPU_OtherFeatures = otherFeatures;
             }
+#if defined(__e2k__)
+        } else {
+            int c = 0, d = 0, otherFeatures = 0;
+#if defined(SDL_MMX_INTRINSICS)
+            d |= 0x00800000;             // MMX
+#endif
+#if defined(SDL_SSE_INTRINSICS)
+            d |= 0x02000000;             // SSE
+#endif
+#if defined(SDL_SSE2_INTRINSICS)
+            d |= 0x04000000;             // SSE2
+#endif
+            CPU_CPUIDFeatures2[1] = d;
+#if defined(SDL_SSE3_INTRINSICS)
+            c |= 0x00000001;             // SSE3
+#endif
+#if defined(SDL_SSE4_1_INTRINSICS)
+            c |= 0x00080000;             // SSE41
+#endif
+#if defined(SDL_SSE4_2_INTRINSICS)
+            c |= 0x00100000;             // SSE42
+#endif
+            CPU_CPUIDFeatures2[0] = c;
+#if defined(SDL_AVX_INTRINSICS)
+            otherFeatures |= 0x10000000; // AVX
+#endif
+#if defined(SDL_AVX2_INTRINSICS)
+            otherFeatures |= 0x00000020; // AVX2
+#endif
+#if defined(SDL_AVX512F_INTRINSICS)
+            otherFeatures |= 0x00010000; // AVX512F
+#endif
+#if defined(SDL_3DNOW_INTRINSICS)
+            otherFeatures |= 0x80000000; // 3DNow
+#endif
+            CPU_OtherFeatures = otherFeatures;
+#endif
         }
     }
 }
@@ -614,54 +651,6 @@ static int CPU_readCPUCFG(void)
 #define CPU_haveAVX()   (0)
 #define CPU_haveAVX2()  (0)
 #define CPU_haveAVX512F() (0)
-#elif defined(__e2k__)
-#define CPU_haveRDTSC() (0)
-#if defined(SDL_MMX_INTRINSICS)
-#define CPU_haveMMX() (1)
-#else
-#define CPU_haveMMX() (0)
-#endif
-#if defined(SDL_3DNOW_INTRINSICS)
-#define CPU_have3DNow() (1)
-#else
-#define CPU_have3DNow() (0)
-#endif
-#if defined(SDL_SSE_INTRINSICS)
-#define CPU_haveSSE() (1)
-#else
-#define CPU_haveSSE() (0)
-#endif
-#if defined(SDL_SSE2_INTRINSICS)
-#define CPU_haveSSE2() (1)
-#else
-#define CPU_haveSSE2() (0)
-#endif
-#if defined(SDL_SSE3_INTRINSICS)
-#define CPU_haveSSE3() (1)
-#else
-#define CPU_haveSSE3() (0)
-#endif
-#if defined(SDL_SSE4_1_INTRINSICS)
-#define CPU_haveSSE41() (1)
-#else
-#define CPU_haveSSE41() (0)
-#endif
-#if defined(SDL_SSE4_2_INTRINSICS)
-#define CPU_haveSSE42() (1)
-#else
-#define CPU_haveSSE42() (0)
-#endif
-#if defined(SDL_AVX_INTRINSICS)
-#define CPU_haveAVX() (1)
-#else
-#define CPU_haveAVX() (0)
-#endif
-#if defined(SDL_AVX2_INTRINSICS)
-#define CPU_haveAVX2() (1)
-#else
-#define CPU_haveAVX2() (0)
-#endif
-#define CPU_haveAVX512F() (0)
 #else
 #define CPU_haveRDTSC() (CPU_CPUIDFeatures2[1] & 0x00000010)
 #define CPU_haveMMX()   (CPU_CPUIDFeatures2[1] & 0x00800000)
@@ -716,14 +705,6 @@ int SDL_GetCPUCount(void)
 }
 
 static char SDL_CPUType[12];
-#if defined(__e2k__)
-inline void
-SDL_GetCPUType(void)
-{
-    SDL_memcpy(SDL_CPUType, "E2K MACHINE", sizeof("E2K MACHINE"));
-}
-#else
-/* Oh, such a sweet sweet trick, just not very useful. :) */
 static void SDL_GetCPUType(void)
 {
     if (!SDL_CPUType[0]) {
@@ -736,24 +717,16 @@ static void SDL_GetCPUType(void)
             *(uint32_t*)&SDL_CPUType[4] = SDL_SwapLE32(d);
             *(uint32_t*)&SDL_CPUType[8] = SDL_SwapLE32(c);
         } else {
+#if defined(__e2k__)
+            SDL_memcpy(SDL_CPUType, "E2K MACHINE", sizeof("E2K MACHINE"));
+#else
             SDL_memcpy(SDL_CPUType, "Unknown", sizeof("Unknown"));
+#endif
         }
     }
 }
-#endif
 
 #ifdef TEST_MAIN /* !!! FIXME: only used for test at the moment. */
-#if defined(__e2k__)
-inline const char *
-SDL_GetCPUName(void)
-{
-    static char SDL_CPUName[48];
-
-    SDL_strlcpy(SDL_CPUName, __builtin_cpu_name(), sizeof(SDL_CPUName));
-
-    return SDL_CPUName;
-}
-#else
 static const char *SDL_GetCPUName(void)
 {
     static char SDL_CPUName[48];
@@ -868,12 +841,15 @@ static const char *SDL_GetCPUName(void)
             }
         }
         if (!SDL_CPUName[0]) {
+#if defined(__e2k__)
+            SDL_strlcpy(SDL_CPUName, __builtin_cpu_name(), sizeof(SDL_CPUName));
+#else
             SDL_memcpy(SDL_CPUName, "Unknown", sizeof("Unknown"));
+#endif
         }
     }
     return SDL_CPUName;
 }
-#endif
 #endif
 
 int SDL_GetCPUCacheLineSize(void)
