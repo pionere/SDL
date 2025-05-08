@@ -67,6 +67,7 @@
 #define USB_PRODUCT_GAMESIR_G7                            0x1001
 #define USB_PRODUCT_BDA_XB1_CLASSIC                       0x581a
 #define USB_PRODUCT_BDA_XB1_FIGHTPAD                      0x791a
+#define USB_PRODUCT_BDA_XB1_SPECTRA_PRO                   0x592a
 #define USB_PRODUCT_GOOGLE_STADIA_CONTROLLER              0x9400
 #define USB_PRODUCT_EVORETRO_GAMECUBE_ADAPTER1            0x1843
 #define USB_PRODUCT_EVORETRO_GAMECUBE_ADAPTER2            0x1846
