@@ -281,9 +281,8 @@ done:
 #endif
 
 static int CPU_CPUIDFeatures[4];
+static int CPU_OtherFeatures = 0;
 static int CPU_CPUIDMaxFunction = 0;
-static SDL_bool CPU_OSSavesYMM = SDL_FALSE;
-static SDL_bool CPU_OSSavesZMM = SDL_FALSE;
 
 static void CPU_calcCPUIDFeatures(void)
 {
@@ -303,6 +302,7 @@ static void CPU_calcCPUIDFeatures(void)
 
                 /* Check to make sure we can call xgetbv */
                 if (c & 0x08000000) {
+                    SDL_bool CPU_OSSavesYMM, CPU_OSSavesZMM;
                     /* Call xgetbv to see if YMM (etc) register state is saved */
 #if (defined(__GNUC__) || defined(__llvm__)) && (defined(__i386__) || defined(__x86_64__))
                     __asm__(".byte 0x0f, 0x01, 0xd0"
@@ -320,7 +320,20 @@ static void CPU_calcCPUIDFeatures(void)
                         }
 #endif
                     CPU_OSSavesYMM = ((a & 6) == 6) ? SDL_TRUE : SDL_FALSE;
-                    CPU_OSSavesZMM = (CPU_OSSavesYMM && ((a & 0xe0) == 0xe0)) ? SDL_TRUE : SDL_FALSE;
+                    if (CPU_OSSavesYMM) {
+                        CPU_OSSavesZMM = ((a & 0xe0) == 0xe0) ? SDL_TRUE : SDL_FALSE;
+
+                        CPU_OtherFeatures |= c & 0x10000000; // AVX
+
+                        if (CPU_CPUIDMaxFunction >= 7) {
+                            cpuid(7, a, b, c, d);
+                            CPU_OtherFeatures |= b & 0x00000020; // AVX2
+
+                            if (CPU_OSSavesZMM) {
+                                CPU_OtherFeatures |= b & 0x00010000; // AVX512F
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -660,34 +673,9 @@ static int CPU_have3DNow(void)
 #define CPU_haveSSE3()  (CPU_CPUIDFeatures[2] & 0x00000001)
 #define CPU_haveSSE41() (CPU_CPUIDFeatures[2] & 0x00080000)
 #define CPU_haveSSE42() (CPU_CPUIDFeatures[2] & 0x00100000)
-#define CPU_haveAVX()   (CPU_OSSavesYMM && (CPU_CPUIDFeatures[2] & 0x10000000))
-static int CPU_haveAVX2(void)
-{
-    if (CPU_OSSavesYMM && (CPU_CPUIDMaxFunction >= 7)) {
-        int a, b, c, d;
-        (void)a;
-        (void)b;
-        (void)c;
-        (void)d; /* compiler warnings... */
-        cpuid(7, a, b, c, d);
-        return b & 0x00000020;
-    }
-    return 0;
-}
-
-static int CPU_haveAVX512F(void)
-{
-    if (CPU_OSSavesZMM && (CPU_CPUIDMaxFunction >= 7)) {
-        int a, b, c, d;
-        (void)a;
-        (void)b;
-        (void)c;
-        (void)d; /* compiler warnings... */
-        cpuid(7, a, b, c, d);
-        return b & 0x00010000;
-    }
-    return 0;
-}
+#define CPU_haveAVX()   (CPU_OtherFeatures & 0x10000000)
+#define CPU_haveAVX2()  (CPU_OtherFeatures & 0x00000020)
+#define CPU_haveAVX512F() (CPU_OtherFeatures & 0x00010000)
 #endif
 
 static int SDL_CPUCount = 0;
