@@ -335,6 +335,14 @@ static void CPU_calcCPUIDFeatures(void)
                         }
                     }
                 }
+
+                {
+                    cpuid(0x80000000, a, b, c, d);
+                    if (a >= 0x80000001) {
+                        cpuid(0x80000001, a, b, c, d);
+                        CPU_OtherFeatures |= d & 0x80000000; // 3DNow
+                    }
+                }
             }
         }
     }
@@ -656,18 +664,7 @@ static int CPU_readCPUCFG(void)
 #else
 #define CPU_haveRDTSC() (CPU_CPUIDFeatures[3] & 0x00000010)
 #define CPU_haveMMX()   (CPU_CPUIDFeatures[3] & 0x00800000)
-static int CPU_have3DNow(void)
-{
-    if (CPU_CPUIDMaxFunction > 0) { /* that is, do we have CPUID at all? */
-        int a, b, c, d;
-        cpuid(0x80000000, a, b, c, d);
-        if (a >= 0x80000001) {
-            cpuid(0x80000001, a, b, c, d);
-            return d & 0x80000000;
-        }
-    }
-    return 0;
-}
+#define CPU_have3DNow() (CPU_OtherFeatures & 0x80000000)
 #define CPU_haveSSE()   (CPU_CPUIDFeatures[3] & 0x02000000)
 #define CPU_haveSSE2()  (CPU_CPUIDFeatures[3] & 0x04000000)
 #define CPU_haveSSE3()  (CPU_CPUIDFeatures[2] & 0x00000001)
