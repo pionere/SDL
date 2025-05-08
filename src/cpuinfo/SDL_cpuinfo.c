@@ -294,6 +294,7 @@ static void CPU_calcCPUIDFeatures(void)
             cpuid(0, a, b, c, d);
             CPU_CPUIDMaxFunction = a;
             if (CPU_CPUIDMaxFunction >= 1) {
+                int otherFeatures = 0;
                 cpuid(1, a, b, c, d);
                 CPU_CPUIDFeatures2[0] = c;
                 CPU_CPUIDFeatures2[1] = d;
@@ -321,14 +322,14 @@ static void CPU_calcCPUIDFeatures(void)
                     if (CPU_OSSavesYMM) {
                         CPU_OSSavesZMM = ((a & 0xe0) == 0xe0) ? SDL_TRUE : SDL_FALSE;
 
-                        CPU_OtherFeatures |= c & 0x10000000; // AVX
+                        otherFeatures |= c & 0x10000000; // AVX
 
                         if (CPU_CPUIDMaxFunction >= 7) {
                             cpuid(7, a, b, c, d);
-                            CPU_OtherFeatures |= b & 0x00000020; // AVX2
+                            otherFeatures |= b & 0x00000020; // AVX2
 
                             if (CPU_OSSavesZMM) {
-                                CPU_OtherFeatures |= b & 0x00010000; // AVX512F
+                                otherFeatures |= b & 0x00010000; // AVX512F
                             }
                         }
                     }
@@ -338,9 +339,11 @@ static void CPU_calcCPUIDFeatures(void)
                     cpuid(0x80000000, a, b, c, d);
                     if (a >= 0x80000001) {
                         cpuid(0x80000001, a, b, c, d);
-                        CPU_OtherFeatures |= d & 0x80000000; // 3DNow
+                        otherFeatures |= d & 0x80000000; // 3DNow
                     }
                 }
+
+                CPU_OtherFeatures = otherFeatures;
             }
         }
     }
