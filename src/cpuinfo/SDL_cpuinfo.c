@@ -280,7 +280,7 @@ done:
     } while (0)
 #endif
 
-static int CPU_CPUIDFeatures[4];
+static int CPU_CPUIDFeatures2[2];
 static int CPU_OtherFeatures = 0;
 static int CPU_CPUIDMaxFunction = 0;
 
@@ -295,10 +295,8 @@ static void CPU_calcCPUIDFeatures(void)
             CPU_CPUIDMaxFunction = a;
             if (CPU_CPUIDMaxFunction >= 1) {
                 cpuid(1, a, b, c, d);
-                CPU_CPUIDFeatures[0] = a;
-                CPU_CPUIDFeatures[1] = b;
-                CPU_CPUIDFeatures[2] = c;
-                CPU_CPUIDFeatures[3] = d;
+                CPU_CPUIDFeatures2[0] = c;
+                CPU_CPUIDFeatures2[1] = d;
 
                 /* Check to make sure we can call xgetbv */
                 if (c & 0x08000000) {
@@ -662,14 +660,14 @@ static int CPU_readCPUCFG(void)
 #endif
 #define CPU_haveAVX512F() (0)
 #else
-#define CPU_haveRDTSC() (CPU_CPUIDFeatures[3] & 0x00000010)
-#define CPU_haveMMX()   (CPU_CPUIDFeatures[3] & 0x00800000)
+#define CPU_haveRDTSC() (CPU_CPUIDFeatures2[1] & 0x00000010)
+#define CPU_haveMMX()   (CPU_CPUIDFeatures2[1] & 0x00800000)
 #define CPU_have3DNow() (CPU_OtherFeatures & 0x80000000)
-#define CPU_haveSSE()   (CPU_CPUIDFeatures[3] & 0x02000000)
-#define CPU_haveSSE2()  (CPU_CPUIDFeatures[3] & 0x04000000)
-#define CPU_haveSSE3()  (CPU_CPUIDFeatures[2] & 0x00000001)
-#define CPU_haveSSE41() (CPU_CPUIDFeatures[2] & 0x00080000)
-#define CPU_haveSSE42() (CPU_CPUIDFeatures[2] & 0x00100000)
+#define CPU_haveSSE()   (CPU_CPUIDFeatures2[1] & 0x02000000)
+#define CPU_haveSSE2()  (CPU_CPUIDFeatures2[1] & 0x04000000)
+#define CPU_haveSSE3()  (CPU_CPUIDFeatures2[0] & 0x00000001)
+#define CPU_haveSSE41() (CPU_CPUIDFeatures2[0] & 0x00080000)
+#define CPU_haveSSE42() (CPU_CPUIDFeatures2[0] & 0x00100000)
 #define CPU_haveAVX()   (CPU_OtherFeatures & 0x10000000)
 #define CPU_haveAVX2()  (CPU_OtherFeatures & 0x00000020)
 #define CPU_haveAVX512F() (CPU_OtherFeatures & 0x00010000)
