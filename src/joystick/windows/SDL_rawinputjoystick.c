@@ -164,6 +164,7 @@ struct joystick_hwdata
     Uint8 wgi_correlation_count;
     Uint8 wgi_uncorrelate_count;
     WindowsGamingInputGamepadState *wgi_slot;
+    struct __x_ABI_CWindows_CGaming_CInput_CGamepadVibration vibration;
 #endif
 
     bool triggers_rumbling;
@@ -455,7 +456,6 @@ typedef struct WindowsGamingInputGamepadState
     SDL_bool used;      /* Is currently mapped to an SDL device */
     SDL_bool connected; /* Just used during update to track disconnected */
     Uint8 correlation_id;
-    struct __x_ABI_CWindows_CGaming_CInput_CGamepadVibration vibration;
 } WindowsGamingInputGamepadState;
 
 static struct
@@ -1463,12 +1463,11 @@ static int RAWINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_
 
 #ifdef SDL_JOYSTICK_RAWINPUT_WGI
     // Save off the motor state in case trigger rumble is started
-    WindowsGamingInputGamepadState *gamepad_state = ctx->wgi_slot;
-    HRESULT hr;
-    gamepad_state->vibration.LeftMotor = (DOUBLE)low_frequency_rumble / SDL_MAX_UINT16;
-    gamepad_state->vibration.RightMotor = (DOUBLE)high_frequency_rumble / SDL_MAX_UINT16;
+    ctx->vibration.LeftMotor = (DOUBLE)low_frequency_rumble / SDL_MAX_UINT16;
+    ctx->vibration.RightMotor = (DOUBLE)high_frequency_rumble / SDL_MAX_UINT16;
     if (!rumbled && ctx->wgi_correlated) {
-        hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_put_Vibration(gamepad_state->gamepad, gamepad_state->vibration);
+        WindowsGamingInputGamepadState *gamepad_state = ctx->wgi_slot;
+        HRESULT hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_put_Vibration(gamepad_state->gamepad, ctx->vibration);
         if (SUCCEEDED(hr)) {
             rumbled = SDL_TRUE;
         }
@@ -1490,12 +1489,11 @@ static int RAWINPUT_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_r
 #if defined(SDL_JOYSTICK_RAWINPUT_WGI)
     RAWINPUT_DeviceContext *ctx = joystick->hwdata;
 
+    ctx->vibration.LeftTrigger = (DOUBLE)left_rumble / SDL_MAX_UINT16;
+    ctx->vibration.RightTrigger = (DOUBLE)right_rumble / SDL_MAX_UINT16;
     if (ctx->wgi_correlated) {
         WindowsGamingInputGamepadState *gamepad_state = ctx->wgi_slot;
-        HRESULT hr;
-        gamepad_state->vibration.LeftTrigger = (DOUBLE)left_rumble / SDL_MAX_UINT16;
-        gamepad_state->vibration.RightTrigger = (DOUBLE)right_rumble / SDL_MAX_UINT16;
-        hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_put_Vibration(gamepad_state->gamepad, gamepad_state->vibration);
+        HRESULT hr = __x_ABI_CWindows_CGaming_CInput_CIGamepad_put_Vibration(gamepad_state->gamepad, ctx->vibration);
         if (!SUCCEEDED(hr)) {
             return SDL_SetError("Setting vibration failed: 0x%lx\n", hr);
         }
