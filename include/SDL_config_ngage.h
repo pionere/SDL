@@ -34,6 +34,7 @@ typedef unsigned int       uint32_t;
 typedef signed long long   int64_t;
 typedef unsigned long long uint64_t;
 typedef unsigned long      uintptr_t;
+typedef unsigned int       size_t;
 
 #define HAVE_STDARG_H    1
 #define HAVE_STDDEF_H    1
@@ -57,16 +58,29 @@ typedef unsigned long      uintptr_t;
 #define LACKS_SYS_MMAN_H 1
 
 /* Enable the N-Gage thread support (src/thread/ngage/\*.c) */
-#define SDL_THREAD_NGAGE 1
+//#define SDL_THREAD_NGAGE 1
 
 /* Enable the N-Gage timer support (src/timer/ngage/\*.c) */
+#ifndef SDL_TIMER_NGAGE
 #define SDL_TIMER_NGAGE  1
+#endif
 
-/* Enable the N-Gage video driver (src/video/ngage/\*.c) */
+/* Enable the N-Gage video driver (src/video/ngage/\*.cpp) */
 #define SDL_VIDEO_DRIVER_NGAGE 1
 
+/* Enable appropriate renderer(s) */
+#ifndef SDL_VIDEO_RENDER_NGAGE
+#define SDL_VIDEO_RENDER_NGAGE    1
+#endif
+
+/* Enable the N-Gage audio driver (src/audio/ngage/\*.c and src/audio/ngage/\*.cpp) */
+#ifndef SDL_AUDIO_DRIVER_NGAGE
+#define SDL_AUDIO_DRIVER_NGAGE  1
+#endif
 /* Enable the dummy audio driver (src/audio/dummy/\*.c) */
-#define SDL_AUDIO_DRIVER_DUMMY  1
+//#ifndef SDL_AUDIO_DRIVER_DUMMY
+//#define SDL_AUDIO_DRIVER_DUMMY  1
+//#endif
 
 /* Enable the stub joystick driver (src/joystick/dummy/\*.c) */
 #define SDL_JOYSTICK_DISABLED   1
@@ -77,13 +91,22 @@ typedef unsigned long      uintptr_t;
 /* Enable the stub HIDAPI */
 #define SDL_HIDAPI_DISABLED 1
 
+/* Turn off the power driver (src/power/\*.c) */
+#define SDL_POWER_DISABLED 1
+
 /* Enable the stub sensor driver (src/sensor/dummy/\*.c) */
 #define SDL_SENSOR_DISABLED 1
 
 /* Enable the stub shared object loader (src/loadso/dummy/\*.c) */
 #define SDL_LOADSO_DISABLED 1
 
+/* Enable the N-Gage filesystem driver (src/filesystem/ngage/\*.c and src/filesystem/ngage/\*.cpp) */
+#ifndef SDL_FILESYSTEM_NGAGE
+#define SDL_FILESYSTEM_NGAGE  1
+#endif
 /* Enable the dummy filesystem driver (src/filesystem/dummy/\*.c) */
-#define SDL_FILESYSTEM_DUMMY 1
+//#ifndef SDL_FILESYSTEM_DUMMY
+//#define SDL_FILESYSTEM_DUMMY  1
+//#endif
 
 #endif /* SDL_config_ngage_h_ */

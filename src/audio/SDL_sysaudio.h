@@ -209,6 +209,7 @@ extern const AudioBootStrap PS2AUDIO_bootstrap;
 extern const AudioBootStrap PSPAUDIO_bootstrap;
 extern const AudioBootStrap VITAAUD_bootstrap;
 extern const AudioBootStrap N3DSAUDIO_bootstrap;
+extern const AudioBootStrap NGAGEAUDIO_bootstrap;
 extern const AudioBootStrap EMSCRIPTENAUDIO_bootstrap;
 extern const AudioBootStrap OS2AUDIO_bootstrap;
 

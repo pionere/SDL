@@ -157,14 +157,18 @@ static int HandleWsEvent(const TWsEvent &aWsEvent)
         SDL_SendKeyboardKey(SDL_RELEASED, ConvertScancode(aWsEvent.Key()->iScanCode));
         break;
     case EEventFocusGained: /* SDL window got focus */
+#ifdef USE_NGAGE_FRAMEBUFFER
         phdata->NGAGE_IsWindowFocused = ETrue;
+#endif
         /* Draw window background and screen buffer */
         DisableKeyBlocking();
         RedrawWindowL();
         break;
     case EEventFocusLost: /* SDL window lost focus */
     {
+#ifdef USE_NGAGE_FRAMEBUFFER
         phdata->NGAGE_IsWindowFocused = EFalse;
+#endif
         RWsSession s;
         s.Connect();
         RWindowGroup g(s);

@@ -210,6 +210,10 @@ static SDL_bool IsFullscreenOnly(void) // VIDEO_DEVICE_QUIRK_FULLSCREEN_ONLY
     if (SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_NACL)
         return SDL_TRUE;
 #endif
+#ifdef SDL_VIDEO_DRIVER_NGAGE
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_NGAGE);
+    return SDL_TRUE;
+#endif
     return SDL_FALSE;
 }
 

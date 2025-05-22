@@ -50,6 +50,7 @@ class SdlPlatform(Enum):
     Riscos = "riscos"
     FreeBSD = "freebsd"
     NetBSD = "netbsd"
+    NGage = "ngage"
     Watcom = "watcom"
 
 
@@ -138,11 +139,12 @@ JOB_SPECS = {
     "watcom-os2": JobSpec(name="Watcom (OS/2)",                             os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",  no_cmake=True, watcom_platform=WatcomPlatform.OS2 ),
     # "watcom-win32"
     # "watcom-os2"
+    "ngage": JobSpec(name="N-Gage",                                         os=JobOs.WindowsLatest,     platform=SdlPlatform.NGage,       artifact="SDL-ngage", ),
 }
 
 
 class StaticLibType(Enum):
-    MSVC = "SDL2-static.lib"
+    STATIC_LIB = "SDL2-static.lib"
     A = "libSDL2.a"
 
 
@@ -220,6 +222,7 @@ class JobDetails:
     setup_vita_gles_type: str = ""
     check_sources: bool = False
     watcom_makefile: str = ""
+    setup_gage_sdk_path: str = ""
 
     def to_workflow(self, enable_artifacts: bool) -> dict[str, str|bool]:
         data = {
@@ -285,6 +288,7 @@ class JobDetails:
             "setup-gdk-folder": self.setup_gdk_folder,
             "check-sources": self.check_sources,
             "watcom-makefile": self.watcom_makefile,
+            "setup-ngage-sdk-path": self.setup_gage_sdk_path,
         }
         return {k: v for k, v in data.items() if v != ""}
 
@@ -355,7 +359,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.msvc_project_flags.append("-p:TreatWarningsAsError=true")
             job.test_pkg_config = False
             job.shared_lib = SharedLibType.WIN32
-            job.static_lib = StaticLibType.MSVC
+            job.static_lib = StaticLibType.STATIC_LIB
             job.cmake_arguments.extend((
                 "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=ProgramDatabase",
                 "-DCMAKE_EXE_LINKER_FLAGS=-DEBUG",
@@ -671,6 +675,18 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     job.run_tests = True
                 case _:
                     raise ValueError(f"Unsupported watcom_platform=${spec.watcom_platform}")
+        case SdlPlatform.NGage:
+            build_parallel = False
+            job.cmake_build_type = "Release"
+            job.setup_ninja = True
+            job.static_lib = StaticLibType.STATIC_LIB
+            job.shared_lib = None
+            job.werror = False  # FIXME: enable SDL_WERROR
+            job.shared = False
+            job.run_tests = False
+            job.setup_gage_sdk_path = "C:/ngagesdk"
+            job.cmake_toolchain_file = "C:/ngagesdk/cmake/ngage-toolchain.cmake"
+            job.test_pkg_config = False
         case _:
             raise ValueError(f"Unsupported platform={spec.platform}")
 

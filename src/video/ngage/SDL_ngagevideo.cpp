@@ -53,6 +53,9 @@ extern "C" {
 #error "OpenGL is configured, but not implemented for ngage."
 #endif
 
+#define NGAGE_SCREEN_WIDTH  176
+#define NGAGE_SCREEN_HEIGHT 208
+
 /* Instance */
 Ngage_VideoData ngageVideoData;
 
@@ -73,12 +76,13 @@ static void NGAGE_DeleteDevice(_THIS)
         if (phdata->NGAGE_WsEventStatus != KRequestPending) {
             phdata->NGAGE_WsSession.EventReadyCancel();
         }
+#ifdef USE_NGAGE_FRAMEBUFFER
         if (phdata->NGAGE_RedrawEventStatus != KRequestPending) {
             phdata->NGAGE_WsSession.RedrawReadyCancel();
         }
 
         free(phdata->NGAGE_DrawDevice);
-
+#endif
         if (phdata->NGAGE_WsWindow.WsHandle()) {
             phdata->NGAGE_WsWindow.Close();
         }
@@ -98,6 +102,11 @@ static void NGAGE_DeleteDevice(_THIS)
         }
 
         SDL_zero(ngageVideoData);
+}
+
+static void NGAGE_SuspendScreenSaver(SDL_bool suspend)
+{
+    NGAGE_SuspendScreenSaverInternal(suspend);
 }
 
 static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
@@ -143,9 +152,11 @@ static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
     // device->SetWindowMouseGrab = NGAGE_SetWindowMouseGrab;
     // device->SetWindowKeyboardGrab = NGAGE_SetWindowKeyboardGrab;
     device->DestroyWindow = NGAGE_DestroyWindow;
+#ifdef USE_NGAGE_FRAMEBUFFER
     device->CreateWindowFramebuffer = NGAGE_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = NGAGE_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = NGAGE_DestroyWindowFramebuffer;
+#endif
     // device->OnWindowEnter = NGAGE_OnWindowEnter;
     // device->FlashWindow = NGAGE_FlashWindow;
     /* Shaped-window functions */
@@ -191,7 +202,7 @@ static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
     device->PumpEvents = NGAGE_PumpEvents;
 
     /* Screensaver */
-    // device->SuspendScreenSaver = NGAGE_SuspendScreenSaver;
+    device->SuspendScreenSaver = NGAGE_SuspendScreenSaver;
 
     /* Text input */
     // device->StartTextInput = NGAGE_StartTextInput;
@@ -237,8 +248,8 @@ int NGAGE_VideoInit(_THIS)
 
     /* Use 12-bpp desktop mode */
     current_mode.format = SDL_PIXELFORMAT_RGB444;
-    current_mode.w = 176;
-    current_mode.h = 208;
+    current_mode.w = NGAGE_SCREEN_WIDTH;
+    current_mode.h = NGAGE_SCREEN_HEIGHT;
     current_mode.refresh_rate = 0;
     current_mode.driverdata = NULL;
 

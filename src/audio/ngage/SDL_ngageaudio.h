@@ -19,15 +19,30 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* Do our best to make sure va_copy is working */
-#if (defined(_MSC_VER) && _MSC_VER <= 1800) || defined(__SYMBIAN32__)
-/* Visual Studio 2013 tries to link with _vacopy in the C runtime. Newer versions do an inline assignment */
-#undef va_copy
-#define va_copy(dst, src) dst = src
+#ifndef SDL_ngageaudio_h
+#define SDL_ngageaudio_h
 
-#elif defined(__GNUC__) && (__GNUC__ < 3)
-#define va_copy(dst, src) __va_copy(dst, src)
-
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/* vi: set ts=4 sw=4 expandtab: */
+#include "../SDL_sysaudio.h"
+
+    /* Hidden "this" pointer for the audio functions */
+#define _THIS SDL_AudioDevice *this
+
+#define NUM_BUFFERS 2u
+
+struct SDL_PrivateAudioData
+{
+    Uint8 *buffer;
+    int next_buffer;
+};
+
+SDL_AudioDevice *NGAGE_GetAudioDeviceAddr();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SDL_ngageaudio_h

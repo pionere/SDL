@@ -92,8 +92,9 @@ static void ConstructWindowL(void)
     phdata->NGAGE_WsWindow.SetVisible(ETrue);
 
     phdata->NGAGE_WsWindowGroupID = phdata->NGAGE_WsWindowGroup.Identifier();
+#ifdef USE_NGAGE_FRAMEBUFFER
     phdata->NGAGE_IsWindowFocused = EFalse;
-
+#endif
     DisableKeyBlocking();
 }
 

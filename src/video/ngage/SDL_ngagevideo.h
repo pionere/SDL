@@ -30,7 +30,9 @@
 #include <e32svr.h>
 #include <bitdev.h>
 #include <w32std.h>
+#ifdef USE_NGAGE_FRAMEBUFFER
 #include "bitdraw.h" // CFbsDrawDevice
+#endif
 
 typedef struct Ngage_VideoData
 {
@@ -42,8 +44,9 @@ typedef struct Ngage_VideoData
     CWsScreenDevice *NGAGE_WsScreen;
     CWindowGc *NGAGE_WindowGc;
     TRequestStatus NGAGE_WsEventStatus;
-    TRequestStatus NGAGE_RedrawEventStatus;
     TWsEvent NGAGE_WsEvent;
+#ifdef USE_NGAGE_FRAMEBUFFER
+    TRequestStatus NGAGE_RedrawEventStatus;
     CFbsDrawDevice *NGAGE_DrawDevice;
     TBool NGAGE_IsWindowFocused; /* Not used yet */
 
@@ -58,7 +61,7 @@ typedef struct Ngage_VideoData
     TPoint NGAGE_ScreenOffset;
 
     CFbsBitGc::TGraphicsOrientation NGAGE_ScreenOrientation;
-
+#endif
 } Ngage_VideoData;
 
 extern Ngage_VideoData ngageVideoData;

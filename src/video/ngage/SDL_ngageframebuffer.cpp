@@ -23,6 +23,8 @@
 
 #ifdef SDL_VIDEO_DRIVER_NGAGE
 
+#ifdef USE_NGAGE_FRAMEBUFFER
+
 #include <SDL.h>
 
 #include "../SDL_sysvideo.h"
@@ -400,6 +402,8 @@ void RedrawWindowL()
     fullScreen.h = screen->h;
     DirectUpdate(screen, 1, &fullScreen);
 }
+
+#endif // USE_NGAGE_FRAMEBUFFER
 
 #endif /* SDL_VIDEO_DRIVER_NGAGE */
 

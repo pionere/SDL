@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2024 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -18,16 +18,43 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#include "../../SDL_internal.h"
 
-/* Do our best to make sure va_copy is working */
-#if (defined(_MSC_VER) && _MSC_VER <= 1800) || defined(__SYMBIAN32__)
-/* Visual Studio 2013 tries to link with _vacopy in the C runtime. Newer versions do an inline assignment */
-#undef va_copy
-#define va_copy(dst, src) dst = src
+#include <e32base.h>
+#include <e32std.h>
+#include <f32file.h>
+#include <utf.h>
 
-#elif defined(__GNUC__) && (__GNUC__ < 3)
-#define va_copy(dst, src) __va_copy(dst, src)
-
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/* vi: set ts=4 sw=4 expandtab: */
+void NGAGE_GetAppPath(char* path)
+{
+    TBuf<512> aPath;
+
+    TFileName fullExePath = RProcess().FileName();
+
+    TParsePtrC parser(fullExePath);
+    aPath.Copy(parser.DriveAndPath());
+
+    TBuf8<512> utf8Path; // Temporary buffer for UTF-8 data.
+    CnvUtfConverter::ConvertFromUnicodeToUtf8(utf8Path, aPath);
+
+    // Copy UTF-8 data to the provided char* buffer.
+    strncpy(path, (const char*)utf8Path.Ptr(), utf8Path.Length());
+    path[utf8Path.Length()] = '\0';
+
+    // Replace backslashes with forward slashes.
+    for (int i = 0; i < utf8Path.Length(); i++)
+    {
+        if (path[i] == '\\')
+        {
+            path[i] = '/';
+        }
+    }
+}
+
+#ifdef __cplusplus
+}
+#endif

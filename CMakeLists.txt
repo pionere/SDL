@@ -78,6 +78,7 @@ include(${SDL2_SOURCE_DIR}/cmake/macros.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlchecks.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/sdlplatform.cmake)
 include(${SDL2_SOURCE_DIR}/cmake/CheckCPUArchitecture.cmake)
+include(${SDL2_SOURCE_DIR}/cmake/PreseedNokiaNGageCache.cmake)
 
 # Enable large file support on 32-bit glibc, so that we can access files
 # with large inode numbers
@@ -203,7 +204,7 @@ endif()
 #  so we'll just use libusb when it's available. libusb does not support iOS,
 #  so we default to yes on iOS.
 #  TODO: Windows can support libusb, the hid.c file just depends on Unix APIs
-if((WINDOWS AND NOT WINDOWS_STORE) OR IOS OR TVOS OR VISIONOS OR WATCHOS OR ANDROID)
+if((WINDOWS AND NOT WINDOWS_STORE) OR IOS OR TVOS OR VISIONOS OR WATCHOS OR ANDROID OR NGAGE)
   set(HIDAPI_SKIP_LIBUSB TRUE)
 else()
   set(HIDAPI_SKIP_LIBUSB FALSE)
@@ -265,7 +266,7 @@ set(OPT_DEF_DYNAPI ON)
 if(ANDROID OR IOS OR EMSCRIPTEN OR WINDOWS_STORE OR RISCOS OR PS2 OR PSP OR VITA OR N3DS OR NGAGE OR clang_analyzer OR SDL_THREAD_SAFETY_ANALYSIS OR native_client)
   set(OPT_DEF_DYNAPI OFF)
 endif()
-if(UNIX OR MINGW OR MSYS OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP OR PS2 OR N3DS OR NINTENDO_SWITCH OR SDL_CPU_ARM64EC)
+if(UNIX OR MINGW OR MSYS OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP OR PS2 OR N3DS OR NGAGE OR NINTENDO_SWITCH OR SDL_CPU_ARM64EC)
   set(OPT_DEF_LIBC ON)
 endif()
 if(WINDOWS OR MACOS OR IOS OR TVOS OR VISIONOS OR WATCHOS)
@@ -382,7 +383,7 @@ if(EMSCRIPTEN)
   set(SDL_CPUINFO_ENABLED_BY_DEFAULT OFF)
 endif()
 
-if(VITA OR PSP OR PS2 OR N3DS)
+if(VITA OR PSP OR PS2 OR N3DS OR NGAGE)
   set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
   set(SDL_LOADSO_ENABLED_BY_DEFAULT OFF)
 endif()
@@ -532,6 +533,7 @@ set_option(SDL_RENDER_D3D12        "Enable the Direct3D 12.x render driver" ${WI
 set_option(SDL_RENDER_GL           "Enable the OpenGL render driver" ON)
 set_option(SDL_RENDER_GLES         "Enable the OpenGL ES render driver" ON)
 set_option(SDL_RENDER_GLES2        "Enable the OpenGL ES2 render driver" ON)
+dep_option(SDL_RENDER_NGAGE        "Enable the render driver of Nokia N-Gage" ON "NGAGE" OFF)
 set_option(SDL_RENDER_DIRECTFB     "Enable the DirectFB render driver" ${UNIX_SYS})
 set_option(SDL_RENDER_METAL        "Enable the Metal render driver" ${APPLE})
 set_option(SDL_RENDER_VULKAN       "Enable the Vulkan render driver" ${OPT_DEF_VULKAN})
@@ -598,6 +600,24 @@ endif()
 if(VITA)
   set_option(VIDEO_VITA_PIB  "Build with PSVita piglet gles2 support" OFF)
   set_option(VIDEO_VITA_PVR  "Build with PSVita PVR gles/gles2 support" OFF)
+endif()
+
+if(NGAGE)
+  #set(SDL_GPU              OFF)
+  #set(SDL_CAMERA           OFF)
+  set(SDL_JOYSTICK         OFF)
+  set(SDL_HAPTIC           OFF)
+  set(SDL_HIDAPI           OFF)
+  set(SDL_POWER            OFF)
+  set(SDL_SENSOR           OFF)
+  #set(SDL_DIALOG           OFF)
+  set(SDL_DISKAUDIO        OFF)
+  set(SDL_DUMMYAUDIO       OFF)
+  #set(SDL_DUMMYCAMERA      OFF)
+  set(SDL_DUMMYVIDEO       OFF)
+  set(SDL_OFFSCREEN        OFF)
+  #set(SDL_RENDER_GPU       OFF)
+  set(SDL_VIRTUAL_JOYSTICK OFF)
 endif()
 
 # General source files
@@ -3489,6 +3509,113 @@ elseif(N3DS)
     endif()
     list(APPEND EXTRA_LIBS ${lib})
   endforeach()
+
+elseif(NGAGE)
+
+  enable_language(CXX)
+
+  #set(SDL_MAIN_USE_CALLBACKS 1)
+  #file(GLOB MAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/ngage/*.c ${SDL2_SOURCE_DIR}/src/main/ngage/SDL_sysmain_main.cpp)
+  file(GLOB MAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/ngage/SDL_ngage_main.cpp)
+  set(SDLMAIN_SOURCES ${SDLMAIN_SOURCES} ${MAIN_SOURCES})
+  #set(HAVE_SDL_MAIN_CALLBACKS TRUE)
+
+  ##file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/ngage/*.cpp)
+  ##list(APPEND SOURCE_FILES ${CORE_SOURCES})
+
+  if(SDL_AUDIO)
+    set(SDL_AUDIO_DRIVER_NGAGE 1)
+    file(GLOB NGAGE_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/ngage/*.c ${SDL2_SOURCE_DIR}/src/audio/ngage/*.cpp)
+    list(APPEND SOURCE_FILES ${NGAGE_AUDIO_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+  endif()
+
+  if(SDL_FILESYSTEM)
+    set(SDL_FILESYSTEM_NGAGE 1)
+    #sdl_glob_sources("${SDL2_SOURCE_DIR}/src/filesystem/posix/*.c")
+    file(GLOB NGAGE_FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/ngage/*.c ${SDL2_SOURCE_DIR}/src/filesystem/ngage/*.cpp)
+    list(APPEND SOURCE_FILES ${NGAGE_FILESYSTEM_SOURCES})
+    set(HAVE_SDL_FILESYSTEM TRUE)
+  endif()
+
+  if(SDL_LOCALE)
+    file(GLOB LOCALE_SOURCES ${SDL2_SOURCE_DIR}/src/locale/ngage/*.cpp)
+    list(APPEND SOURCE_FILES ${LOCALE_SOURCES})
+    set(HAVE_SDL_LOCALE TRUE)
+  endif()
+
+  set(SDL_FSOPS_POSIX        1)
+
+  if(SDL_VIDEO)
+    set(SDL_VIDEO_DRIVER_NGAGE 1)
+    if(SDL_RENDER_NGAGE)
+      set(SDL_VIDEO_RENDER_NGAGE 1)
+      set(HAVE_RENDER_NGAGE TRUE)
+      file(GLOB NGAGE_RENDER_SOURCES ${SDL2_SOURCE_DIR}/src/render/ngage/*.cpp)
+      list(APPEND SOURCE_FILES ${NGAGE_RENDER_SOURCES})
+    endif()
+    file(GLOB NGAGE_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/ngage/*.cpp)
+    list(APPEND SOURCE_FILES ${NGAGE_VIDEO_SOURCES})
+    set(HAVE_SDL_VIDEO TRUE)
+  endif()
+
+  if(SDL_TIMERS)
+    set(SDL_TIMER_NGAGE 1)
+    #sdl_glob_sources("${SDL2_SOURCE_DIR}/src/timer/unix/*.c")
+    file(GLOB NGAGE_TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/ngage/*.cpp)
+    list(APPEND SOURCE_FILES ${NGAGE_TIMER_SOURCES})
+    set(HAVE_SDL_TIMERS TRUE)
+  endif()
+
+  set_option(SDL_LEAN_AND_MEAN "Enable lean and mean" ON)
+  if(SDL_LEAN_AND_MEAN)
+    sdl_compile_definitions(
+      PRIVATE
+      SDL_LEAN_AND_MEAN
+    )
+  endif()
+
+  #sdl_link_dependency(ngage
+  #  LINK_OPTIONS "SHELL:-s MAIN_COMPAT=0"
+  #  PKG_CONFIG_LINK_OPTIONS "-s;MAIN_COMPAT=0"
+  #  LIBS
+  #    NRenderer
+  #    3dtypes
+  #    cone
+  #    libgcc
+  #    libgcc_ngage
+  #    mediaclientaudiostream
+  #    charconv
+  #    bitgdi
+  #    euser
+  #    estlib
+  #    ws32
+  #    hal
+  #    fbscli
+  #    efsrv
+  #    scdv
+  #    gdi
+  #)
+  list(APPEND EXTRA_LIBS
+      NRenderer
+      3dtypes
+      cone
+      libgcc
+      libgcc_ngage
+      mediaclientaudiostream
+      charconv
+      bitgdi
+      euser
+      estlib
+      ws32
+      hal
+      fbscli
+      efsrv
+      scdv
+      gdi
+  )
+  list(APPEND EXTRA_LDFLAGS "SHELL:-s MAIN_COMPAT=0")
+  list(APPEND PKGCONFIG_LDFLAGS "-s;MAIN_COMPAT=0")
 endif()
 
 if(HAVE_VULKAN AND NOT SDL_LOADSO)
@@ -3563,8 +3690,8 @@ endif()
 
 # We always need to have threads and timers around
 if(NOT HAVE_SDL_THREADS)
-  # The emscripten platform has been carefully vetted to work without threads
-  if (EMSCRIPTEN)
+  # The Emscripten and N-Gage platform has been carefully vetted to work without threads
+  if(EMSCRIPTEN OR NGAGE)
     set(SDL_THREADS_DISABLED 1)
   endif()
   set(SDL_THREAD_DUMMY 1)

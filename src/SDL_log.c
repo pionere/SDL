@@ -408,6 +408,26 @@ void SDL_LogMessageV(int category, SDL_LogPriority priority, const char *fmt, va
         return;
     }
 
+#if defined(__SYMBIAN32__)
+#if 0
+    extern void NGAGE_vnprintf(char *buf, size_t size, const char *fmt, va_list ap);
+    char buf[1024];
+    NGAGE_vnprintf(buf, sizeof(buf), fmt, ap);
+#endif
+#ifdef ENABLE_FILE_LOG
+    FILE* file;
+    file = fopen("E:/SDL_Log.txt", "a");
+    if (file)
+    {
+        vfprintf(file, fmt, ap);
+        fprintf(file, "\n");
+        (void)fclose(file);
+    }
+#endif
+
+    return;
+#endif
+
     if (!log_function_mutex) {
         /* this mutex creation can race if you log from two threads at startup. You should have called SDL_Init first! */
         log_function_mutex = SDL_CreateMutex();
@@ -585,9 +605,14 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
             (void)fclose(pFile);
         }
     }
+#elif defined(__SYMBIAN32__)
+    {
+        /* Nothing to do here. */
+    }
 #endif
 #if defined(HAVE_STDIO_H) && \
-    !(defined(__APPLE__) && (defined(SDL_VIDEO_DRIVER_COCOA) || defined(SDL_VIDEO_DRIVER_UIKIT)))
+    !(defined(__APPLE__) && (defined(SDL_VIDEO_DRIVER_COCOA) || defined(SDL_VIDEO_DRIVER_UIKIT))) && \
+    !(defined(__SYMBIAN32__))
     fprintf(stderr, "%s: %s\n", SDL_priority_prefixes[priority], message);
 #ifdef __NACL__
     fflush(stderr);
