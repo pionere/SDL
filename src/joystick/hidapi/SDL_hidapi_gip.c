@@ -833,7 +833,7 @@ static void GIP_MetadataFree(GIP_Metadata *metadata)
     SDL_memset(metadata, 0, sizeof(*metadata));
 }
 
-static bool GIP_ParseDeviceMetadata(GIP_Metadata *metadata, const Uint8 *bytes, int num_bytes, int* offset)
+static bool GIP_ParseDeviceMetadata(GIP_Metadata *metadata, const Uint8 *bytes, int num_bytes, int *offset)
 {
     GIP_DeviceMetadata *device = &metadata->device;
     int buffer_offset;
@@ -980,7 +980,7 @@ static bool GIP_ParseDeviceMetadata(GIP_Metadata *metadata, const Uint8 *bytes, 
     return true;
 }
 
-static bool GIP_ParseMessageMetadata(GIP_MessageMetadata *metadata, const Uint8 *bytes, int num_bytes, int* offset)
+static bool GIP_ParseMessageMetadata(GIP_MessageMetadata *metadata, const Uint8 *bytes, int num_bytes, int *offset)
 {
     Uint16 length;
 
@@ -1115,7 +1115,8 @@ static bool GIP_Acknowledge(
         NULL);
 }
 
-static bool GIP_FragmentFailed(GIP_Attachment *attachment, const GIP_Header *header) {
+static bool GIP_FragmentFailed(GIP_Attachment *attachment, const GIP_Header *header)
+{
     attachment->fragment_retries++;
     if (attachment->fragment_retries > 8) {
         if (attachment->fragment_data) {
@@ -1140,14 +1141,11 @@ static bool GIP_EnableEliteButtons(GIP_Attachment *attachment) {
          */
         static const Uint8 enable_raw_report[] = { 7, 0 };
 
-        if (!GIP_SendVendorMessage(attachment,
+        return GIP_SendVendorMessage(attachment,
             GIP_SL_ELITE_CONFIG,
             0,
             enable_raw_report,
-            sizeof(enable_raw_report)))
-        {
-            return false;
-        }
+            sizeof(enable_raw_report));
     }
 
     return true;
@@ -1586,10 +1584,10 @@ static bool GIP_HandleCommandMetadataRespose(
             "GIP: Controller was missing expected GUID. This controller probably won't work on an actual Xbox.");
     }
 
-    if ((attachment->features & GIP_CMD_GUIDE_COLOR) &&
+    if ((attachment->features & GIP_FEATURE_GUIDE_COLOR) &&
         !GIP_SupportsVendorMessage(attachment, GIP_CMD_GUIDE_COLOR, false))
     {
-        attachment->features &= ~GIP_CMD_GUIDE_COLOR;
+        attachment->features &= ~GIP_FEATURE_GUIDE_COLOR;
     }
 
     GIP_HandleQuirks(attachment);
@@ -1681,9 +1679,9 @@ static bool GIP_HandleCommandFirmware(
             } else {
                 attachment->paddle_format = GIP_PADDLES_XBE2;
             }
+            return GIP_EnableEliteButtons(attachment);
         }
-
-        return GIP_EnableEliteButtons(attachment);
+        return true;
     } else {
         SDL_LogDebug(SDL_LOG_CATEGORY_INPUT, "GIP: Unimplemented Firmware message");
 
@@ -1729,7 +1727,6 @@ static bool GIP_HandleCommandRawReport(
     }
     return true;
 }
-
 
 static bool GIP_HandleCommandHidReport(
     GIP_Attachment *attachment,
@@ -1900,8 +1897,6 @@ static void GIP_HandleNavigationReport(
         } else {
             SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, (bytes[1] & 0x10) ? SDL_PRESSED : SDL_RELEASED);
             SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, (bytes[1] & 0x20) ? SDL_PRESSED : SDL_RELEASED);
-            SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK, (bytes[1] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
-            SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK, (bytes[1] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
         }
     }
 }
@@ -1913,6 +1908,10 @@ static void GIP_HandleGamepadReport(
     int num_bytes)
 {
     Sint16 axis;
+
+    SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_LEFTSTICK, (bytes[1] & 0x40) ? SDL_PRESSED : SDL_RELEASED);
+    SDL_PrivateJoystickButton(joystick, SDL_CONTROLLER_BUTTON_RIGHTSTICK, (bytes[1] & 0x80) ? SDL_PRESSED : SDL_RELEASED);
+
     axis = bytes[2];
     axis |= bytes[3] << 8;
     axis = SDL_clamp(axis, 0, 1023);
@@ -2241,7 +2240,7 @@ static bool GIP_HandleSystemMessage(
     }
 }
 
-static GIP_Attachment * GIP_EnsureAttachment(GIP_Device *device, Uint8 attachment_index)
+static GIP_Attachment *GIP_EnsureAttachment(GIP_Device *device, Uint8 attachment_index)
 {
     GIP_Attachment *attachment = device->attachments[attachment_index];
     if (!attachment) {
@@ -2280,7 +2279,7 @@ static bool GIP_HandleMessage(
         case GIP_LL_BUTTON_INFO_REPORT:
             return GIP_HandleLLButtonInfoReport(attachment, header, bytes, num_bytes);
         case GIP_LL_OVERFLOW_INPUT_REPORT:
-            return  GIP_HandleLLOverflowInputReport(attachment, header, bytes, num_bytes);
+            return GIP_HandleLLOverflowInputReport(attachment, header, bytes, num_bytes);
         }
     }
     SDL_LogWarn(SDL_LOG_CATEGORY_INPUT,
