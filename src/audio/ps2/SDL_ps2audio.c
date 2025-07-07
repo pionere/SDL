@@ -20,6 +20,8 @@
 */
 #include "../../SDL_internal.h"
 
+#ifdef SDL_AUDIO_DRIVER_PS2
+
 /* Output audio to nowhere... */
 
 #include "SDL_timer.h"
@@ -178,5 +180,7 @@ static SDL_bool PS2AUDIO_Init(SDL_AudioDriverImpl *impl)
 const AudioBootStrap PS2AUDIO_bootstrap = {
     "ps2", PS2AUDIO_Init
 };
+
+#endif /* SDL_AUDIO_DRIVER_PS2 */
 
 /* vi: set ts=4 sw=4 expandtab: */
