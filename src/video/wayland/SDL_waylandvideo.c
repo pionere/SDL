@@ -168,9 +168,6 @@ static void Wayland_DeleteDevice(_THIS)
         WAYLAND_wl_display_flush(waylandVideoData.display);
         WAYLAND_wl_display_disconnect(waylandVideoData.display);
     }
-    if (_this->wakeup_lock) {
-        SDL_DestroyMutex(_this->wakeup_lock);
-    }
     SDL_zero(waylandVideoData);
     SDL_WAYLAND_UnloadSymbols();
 }
@@ -216,7 +213,6 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
     data->input = input;
 
     /* Initialize all variables that we clean on shutdown */
-    device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
     /* Initialization/Query functions */

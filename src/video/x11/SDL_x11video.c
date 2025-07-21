@@ -108,9 +108,6 @@ static void X11_DeleteDevice(_THIS)
         X11_XCloseDisplay(data->request_display);
     }
     SDL_free(data->windowlist);
-    if (_this->wakeup_lock) {
-        SDL_DestroyMutex(_this->wakeup_lock);
-    }
     SDL_zero(x11VideoData);
 
     SDL_X11_UnloadSymbols();
@@ -187,8 +184,6 @@ static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
         return SDL_FALSE;
     }
     data->display = x11_display;
-
-    device->wakeup_lock = SDL_CreateMutex();
 
 #ifdef X11_DEBUG
     X11_XSynchronize(data->display, True);

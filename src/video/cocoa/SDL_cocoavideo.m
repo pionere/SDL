@@ -53,9 +53,6 @@ static void Cocoa_VideoQuit(_THIS);
 static void Cocoa_DeleteDevice(_THIS)
 { @autoreleasepool
 {
-    if (_this->wakeup_lock) {
-        SDL_DestroyMutex(_this->wakeup_lock);
-    }
     CFBridgingRelease((__bridge void *)cocoaVideoData);
     // CFRelease((__bridge CFTypeRef)cocoaVideoData);
     cocoaVideoData = nil;
@@ -76,7 +73,6 @@ static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
         return SDL_FALSE;
     }
     cocoaVideoData = (__bridge Cocoa_VideoData *)CFBridgingRetain(data);
-    device->wakeup_lock = SDL_CreateMutex();
 
     /* Set the function pointers */
     /* Initialization/Query functions */

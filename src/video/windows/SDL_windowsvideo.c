@@ -96,9 +96,6 @@ static void WIN_DeleteDevice(_THIS)
         SDL_UnloadObject(winVideoData.shcoreDLL);
     }
 #endif
-    if (_this->wakeup_lock) {
-        SDL_DestroyMutex(_this->wakeup_lock);
-    }
     SDL_zero(winVideoData);
 }
 
@@ -110,7 +107,6 @@ static SDL_bool WIN_CreateDevice(SDL_VideoDevice *device)
 
     /* Initialize all variables that we clean on shutdown */
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    device->wakeup_lock = SDL_CreateMutex();
 
     data->userDLL = SDL_LoadObject("USER32.DLL");
     if (data->userDLL) {

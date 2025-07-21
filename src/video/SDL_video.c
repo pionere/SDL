@@ -3373,9 +3373,7 @@ void SDL_DestroyWindow(SDL_Window *window)
         current_video.grabbed_window = NULL; /* ungrabbing input. */
     }
 
-    if (current_video.wakeup_window == window) {
-        current_video.wakeup_window = NULL;
-    }
+    SDL_AtomicCASPtr(&current_video.wakeup_window, window, NULL);
 
     /* Now invalidate magic */
     window->magic = NULL;
