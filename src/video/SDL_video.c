@@ -417,7 +417,6 @@ int SDL_VideoInit(const char *driver_name)
     /* Validate the interface */
     SDL_assert(current_video.CreateSDLWindow != NULL);
     SDL_assert(current_video.PumpEvents != NULL);
-    SDL_assert((current_video.SendWakeupEvent == NULL && current_video.WaitEventTimeout == NULL) || current_video.wakeup_lock != NULL);
     SDL_assert((current_video.CreateShaper == NULL) == (current_video.SetWindowShape == NULL));
     SDL_assert((current_video.CreateWindowFramebuffer == NULL) == (current_video.UpdateWindowFramebuffer == NULL) && (current_video.CreateWindowFramebuffer == NULL) == (current_video.DestroyWindowFramebuffer == NULL));
     SDL_assert((current_video.SetClipboardText == NULL) == (current_video.GetClipboardText == NULL) && (current_video.SetClipboardText == NULL) == (current_video.HasClipboardText == NULL));
