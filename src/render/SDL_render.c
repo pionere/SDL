@@ -642,11 +642,10 @@ const SDL_RendererInfo *SDL_PrivateGetRenderDriverInfo(int index)
 #endif
 }
 
-static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, int *logical_h, SDL_DRect *viewport, SDL_FPoint *scale)
+static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, SDL_DRect *viewport, SDL_FPoint *scale)
 {
     SDL_LockMutex(renderer->target_mutex);
     *logical_w = renderer->target ? renderer->logical_w_backup : renderer->logical_w;
-    *logical_h = renderer->target ? renderer->logical_h_backup : renderer->logical_h;
     *viewport = renderer->target ? renderer->viewport_backup : renderer->viewport;
     *scale = renderer->target ? renderer->scale_backup : renderer->scale;
     SDL_UnlockMutex(renderer->target_mutex);
@@ -750,10 +749,10 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
     } else if (event->type == SDL_MOUSEMOTION) {
         SDL_Window *window = SDL_GetWindowFromID(event->motion.windowID);
         if (window == renderer->window) {
-            int logical_w, logical_h;
+            int logical_w;
             SDL_DRect viewport;
             SDL_FPoint scale;
-            GetWindowViewportValues(renderer, &logical_w, &logical_h, &viewport, &scale);
+            GetWindowViewportValues(renderer, &logical_w, &viewport, &scale);
             if (logical_w) {
                 event->motion.x -= (int)(viewport.x * renderer->dpi_scale.x);
                 event->motion.y -= (int)(viewport.y * renderer->dpi_scale.y);
@@ -777,10 +776,10 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                event->type == SDL_MOUSEBUTTONUP) {
         SDL_Window *window = SDL_GetWindowFromID(event->button.windowID);
         if (window == renderer->window) {
-            int logical_w, logical_h;
+            int logical_w;
             SDL_DRect viewport;
             SDL_FPoint scale;
-            GetWindowViewportValues(renderer, &logical_w, &logical_h, &viewport, &scale);
+            GetWindowViewportValues(renderer, &logical_w, &viewport, &scale);
             if (logical_w) {
                 event->button.x -= (int)(viewport.x * renderer->dpi_scale.x);
                 event->button.y -= (int)(viewport.y * renderer->dpi_scale.y);
@@ -791,10 +790,10 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
     } else if (event->type == SDL_MOUSEWHEEL) {
         SDL_Window *window = SDL_GetWindowFromID(event->wheel.windowID);
         if (window == renderer->window) {
-            int logical_w, logical_h;
+            int logical_w;
             SDL_DRect viewport;
             SDL_FPoint scale;
-            GetWindowViewportValues(renderer, &logical_w, &logical_h, &viewport, &scale);
+            GetWindowViewportValues(renderer, &logical_w, &viewport, &scale);
             if (logical_w) {
                 event->wheel.mouseX -= (int)(viewport.x * renderer->dpi_scale.x);
                 event->wheel.mouseY -= (int)(viewport.y * renderer->dpi_scale.y);
@@ -805,11 +804,11 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
     } else if (event->type == SDL_FINGERDOWN ||
                event->type == SDL_FINGERUP ||
                event->type == SDL_FINGERMOTION) {
-        int logical_w, logical_h;
+        int logical_w;
         float physical_w, physical_h;
         SDL_DRect viewport;
         SDL_FPoint scale;
-        GetWindowViewportValues(renderer, &logical_w, &logical_h, &viewport, &scale);
+        GetWindowViewportValues(renderer, &logical_w, &viewport, &scale);
 
         /* !!! FIXME: we probably should drop events that are outside of the
            !!! FIXME: viewport, but we can't do that from an event watcher,
