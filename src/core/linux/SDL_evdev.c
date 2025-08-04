@@ -617,9 +617,7 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
     char name[64];
     struct input_absinfo abs_info;
 
-    if (!item->is_touchscreen) {
-        return 0;
-    }
+    SDL_assert(item->is_touchscreen);
 
     item->touchscreen_data = SDL_calloc(1, sizeof(*item->touchscreen_data));
     if (!item->touchscreen_data) {
@@ -628,20 +626,16 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
 
     ret = ioctl(item->fd, EVIOCGNAME(sizeof(name)), name);
     if (ret < 0) {
-        SDL_free(item->touchscreen_data);
         return SDL_SetError("Failed to get evdev touchscreen name");
     }
 
     item->touchscreen_data->name = SDL_strdup(name);
     if (!item->touchscreen_data->name) {
-        SDL_free(item->touchscreen_data);
         return SDL_OutOfMemory();
     }
 
     ret = ioctl(item->fd, EVIOCGABS(ABS_MT_SLOT), &abs_info);
     if (ret < 0) {
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
         return SDL_SetError("Failed to get evdev touchscreen limits");
     }
 
@@ -657,8 +651,6 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
 
     ret = ioctl(item->fd, xreq, &abs_info);
     if (ret < 0) {
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
         return SDL_SetError("Failed to get evdev touchscreen limits");
     }
     item->touchscreen_data->min_x = abs_info.minimum;
@@ -667,8 +659,6 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
 
     ret = ioctl(item->fd, yreq, &abs_info);
     if (ret < 0) {
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
         return SDL_SetError("Failed to get evdev touchscreen limits");
     }
     item->touchscreen_data->min_y = abs_info.minimum;
@@ -677,8 +667,6 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
 
     ret = ioctl(item->fd, EVIOCGABS(ABS_MT_PRESSURE), &abs_info);
     if (ret < 0) {
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
         return SDL_SetError("Failed to get evdev touchscreen limits");
     }
     item->touchscreen_data->min_pressure = abs_info.minimum;
@@ -689,8 +677,6 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
         item->touchscreen_data->max_slots,
         sizeof(*item->touchscreen_data->slots));
     if (!item->touchscreen_data->slots) {
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
         return SDL_OutOfMemory();
     }
 
@@ -698,17 +684,9 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
         item->touchscreen_data->slots[i].tracking_id = -1;
     }
 
-    ret = SDL_AddTouch(item->fd, /* I guess our fd is unique enough */
+    return SDL_AddTouch(item->fd, /* I guess our fd is unique enough */
                        (udev_class & SDL_UDEV_DEVICE_TOUCHPAD) ? SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE : SDL_TOUCH_DEVICE_DIRECT,
                        item->touchscreen_data->name);
-    if (ret < 0) {
-        SDL_free(item->touchscreen_data->slots);
-        SDL_free(item->touchscreen_data->name);
-        SDL_free(item->touchscreen_data);
-        return ret;
-    }
-
-    return 0;
 }
 
 static void SDL_EVDEV_destroy_touchscreen(SDL_evdevlist_item *item)
@@ -892,6 +870,11 @@ static int SDL_EVDEV_device_added(const char *dev_path, int udev_class)
         item->is_touchscreen = SDL_TRUE;
         ret = SDL_EVDEV_init_touchscreen(item, udev_class);
         if (ret < 0) {
+            if (item->touchscreen_data) {
+                SDL_free(item->touchscreen_data->slots);
+                SDL_free(item->touchscreen_data->name);
+                SDL_free(item->touchscreen_data);
+            }
             close(item->fd);
             SDL_free(item->path);
             SDL_free(item);
