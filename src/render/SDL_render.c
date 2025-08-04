@@ -2357,9 +2357,7 @@ static int UpdateLogicalSize(SDL_Renderer *renderer, SDL_bool flush_viewport_cmd
     float scale;
     SDL_Rect viewport;
 
-    if (!renderer->logical_w || !renderer->logical_h) {
-        return 0;
-    }
+    SDL_assert(renderer->logical_w && renderer->logical_h);
 
     SDL_PrivateGetRendererOutputSize(renderer, &w, &h);
 
@@ -2511,7 +2509,7 @@ int SDL_RenderSetIntegerScale(SDL_Renderer *renderer, SDL_bool enable)
 
     renderer->integer_scale = enable;
 
-    return UpdateLogicalSize(renderer, SDL_TRUE);
+    return renderer->logical_w == 0 ? 0 : UpdateLogicalSize(renderer, SDL_TRUE);
 }
 
 SDL_bool SDL_RenderGetIntegerScale(SDL_Renderer *renderer)
