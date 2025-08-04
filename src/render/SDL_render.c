@@ -2972,8 +2972,7 @@ static int RenderDrawLineBresenham(SDL_Renderer *renderer, int x1, int y1, int x
 static int RenderDrawLinesWithRectsF(SDL_Renderer *renderer,
                                      const SDL_FPoint *points, const int count)
 {
-    const float scale_x = renderer->current.scale.x;
-    const float scale_y = renderer->current.scale.y;
+    float scale_x, scale_y;
     SDL_FRect *frect;
     SDL_FRect *frects;
     int i, nrects = 0;
@@ -2989,6 +2988,8 @@ static int RenderDrawLinesWithRectsF(SDL_Renderer *renderer,
         return SDL_OutOfMemory();
     }
 
+    scale_x = renderer->current.scale.x;
+    scale_y = renderer->current.scale.y;
     for (i = 0; i < count - 1; ++i) {
         SDL_bool same_x = (points[i].x == points[i + 1].x);
         SDL_bool same_y = (points[i].y == points[i + 1].y);
