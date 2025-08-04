@@ -573,8 +573,6 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
         const SDL_Rect *confine = SDL_GetWindowMouseRect(window);
 
         SDL_GetWindowSize(window, &x_max, &y_max);
-        --x_max;
-        --y_max;
 
         if (confine) {
             SDL_Rect window_rect;
@@ -582,25 +580,25 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
 
             window_rect.x = 0;
             window_rect.y = 0;
-            window_rect.w = x_max + 1;
-            window_rect.h = y_max + 1;
+            window_rect.w = x_max;
+            window_rect.h = y_max;
             if (SDL_IntersectRect(confine, &window_rect, &mouse_rect)) {
                 x_min = mouse_rect.x;
                 y_min = mouse_rect.y;
-                x_max = x_min + mouse_rect.w - 1;
-                y_max = y_min + mouse_rect.h - 1;
+                x_max = x_min + mouse_rect.w;
+                y_max = y_min + mouse_rect.h;
             }
         }
 
-        if (mouse->x > x_max) {
-            mouse->x = x_max;
+        if (mouse->x >= x_max) {
+            mouse->x = x_max - 1;
         }
         if (mouse->x < x_min) {
             mouse->x = x_min;
         }
 
-        if (mouse->y > y_max) {
-            mouse->y = y_max;
+        if (mouse->y >= y_max) {
+            mouse->y = y_max - 1;
         }
         if (mouse->y < y_min) {
             mouse->y = y_min;
