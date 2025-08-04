@@ -323,7 +323,7 @@ void SDL_SetMouseFocus(SDL_Window *window)
 }
 
 /* Check to see if we need to synthesize focus events */
-static SDL_bool SDL_UpdateMouseFocus(SDL_Window *window, int x, int y, Uint32 buttonstate, SDL_bool send_mouse_motion)
+static SDL_bool SDL_UpdateMouseFocus(SDL_Window *window, int x, int y, SDL_bool send_mouse_motion)
 {
     SDL_Mouse *mouse = _this;
     SDL_bool inWindow = SDL_TRUE;
@@ -364,8 +364,7 @@ static SDL_bool SDL_UpdateMouseFocus(SDL_Window *window, int x, int y, Uint32 bu
 int SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y)
 {
     if (window && !relative) {
-        SDL_Mouse *mouse = _this;
-        if (!SDL_UpdateMouseFocus(window, x, y, GetButtonState(mouse, SDL_TRUE), (mouseID == SDL_TOUCH_MOUSEID) ? SDL_FALSE : SDL_TRUE)) {
+        if (!SDL_UpdateMouseFocus(window, x, y, (mouseID == SDL_TOUCH_MOUSEID) ? SDL_FALSE : SDL_TRUE)) {
             return 0;
         }
     }
@@ -731,7 +730,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
 
     /* We do this after calculating buttonstate so button presses gain focus */
     if (window && state != SDL_RELEASED) {
-        SDL_UpdateMouseFocus(window, mouse->x, mouse->y, buttonstate, SDL_TRUE);
+        SDL_UpdateMouseFocus(window, mouse->x, mouse->y, SDL_TRUE);
     }
 
     if (buttonstate == source->buttonstate) {
@@ -781,7 +780,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
 
     /* We do this after dispatching event so button releases can lose focus */
     if (window && state == SDL_RELEASED) {
-        SDL_UpdateMouseFocus(window, mouse->x, mouse->y, buttonstate, SDL_TRUE);
+        SDL_UpdateMouseFocus(window, mouse->x, mouse->y, SDL_TRUE);
     }
 
     /* Automatically capture the mouse while buttons are pressed */
