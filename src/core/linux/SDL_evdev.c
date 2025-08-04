@@ -152,11 +152,7 @@ static int SDL_EVDEV_SetRelativeMouseMode(SDL_bool enabled)
 
 static void SDL_EVDEV_UpdateKeyboardMute(void)
 {
-    if (SDL_EVDEV_GetDeviceCount(SDL_UDEV_DEVICE_KEYBOARD) > 0) {
-        SDL_EVDEV_kbd_set_muted(_this->kbd, SDL_TRUE);
-    } else {
-        SDL_EVDEV_kbd_set_muted(_this->kbd, SDL_FALSE);
-    }
+    SDL_EVDEV_kbd_set_muted(_this->kbd, SDL_EVDEV_GetDeviceCount(SDL_UDEV_DEVICE_KEYBOARD) > 0 ? SDL_TRUE : SDL_FALSE);
 }
 
 int SDL_EVDEV_Init(void)
@@ -691,9 +687,7 @@ static int SDL_EVDEV_init_touchscreen(SDL_evdevlist_item *item, int udev_class)
 
 static void SDL_EVDEV_destroy_touchscreen(SDL_evdevlist_item *item)
 {
-    if (!item->is_touchscreen) {
-        return;
-    }
+    SDL_assert(item->is_touchscreen);
 
     SDL_DelTouch(item->fd);
     SDL_free(item->touchscreen_data->slots);
