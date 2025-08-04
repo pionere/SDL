@@ -142,6 +142,24 @@ typedef enum
     SDL_RENDERLINEMETHOD_GEOMETRY,
 } SDL_RenderLineMethod;
 
+typedef struct SDL_RendererState {
+    /* The logical resolution for rendering */
+    int logical_w;
+    int logical_h;
+
+    /* The drawable area within the window */
+    SDL_DRect viewport;
+
+    /* The clip rectangle within the window */
+    SDL_DRect clip_rect;
+
+    /* Whether or not the clipping rectangle is used. */
+    SDL_boolean clipping_enabled;
+
+    /* The render output coordinate scale */
+    SDL_FPoint scale;
+} SDL_RendererState;
+
 /* Define the SDL renderer structure */
 struct SDL_Renderer
 {
@@ -212,36 +230,19 @@ struct SDL_Renderer
     SDL_Window *window;
     SDL_boolean hidden;
 
+    /* Whether or not to force the viewport to even integer intervals */
+    SDL_boolean integer_scale;
+
     /* Whether we should simulate vsync */
     SDL_boolean wanted_vsync;
     SDL_boolean simulate_vsync;
     Uint32 simulate_vsync_interval;
     Uint32 next_present;
 
-    /* The logical resolution for rendering */
-    int logical_w;
-    int logical_h;
-    int logical_w_backup;
-    int logical_h_backup;
-
-    /* Whether or not to force the viewport to even integer intervals */
-    SDL_bool integer_scale;
-
-    /* The drawable area within the window */
-    SDL_DRect viewport;
-    SDL_DRect viewport_backup;
-
-    /* The clip rectangle within the window */
-    SDL_DRect clip_rect;
-    SDL_DRect clip_rect_backup;
-
-    /* Whether or not the clipping rectangle is used. */
-    SDL_boolean clipping_enabled;
-    SDL_boolean clipping_enabled_backup;
-
-    /* The render output coordinate scale */
-    SDL_FPoint scale;
-    SDL_FPoint scale_backup;
+     /* Details of the current renderer target */
+    SDL_RendererState current;
+    /* Details of the backup renderer target */
+    SDL_RendererState backup;
 
     /* The pixel to point coordinate scale */
     SDL_FPoint dpi_scale;
