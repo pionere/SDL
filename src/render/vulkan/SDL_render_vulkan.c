@@ -2254,7 +2254,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     /* The width and height of the swap chain must be based on the display's
      * non-rotated size.
      */
-    SDL_GetWindowSizeInPixels(renderer->window, &w, &h);
+    VULKAN_GetOutputSize(renderer, &w, &h);
     rendererData->swapchainSize.width = SDL_clamp((uint32_t)w,
                                           rendererData->surfaceCapabilities.minImageExtent.width,
                                           rendererData->surfaceCapabilities.maxImageExtent.width);
