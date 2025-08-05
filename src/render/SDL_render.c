@@ -678,6 +678,25 @@ static void GetDisplayOutputSize(SDL_Renderer *renderer, int *w, int *h)
     }
 }
 
+static float ClampToViewport(float value, double view_min, double view_max, int physical)
+{
+    if (physical == 0) { /* nowhere for the touch to go, avoid division by zero and put it dead center. */
+        value = 0.5f;
+    } else {
+        const float physical_f = (float)physical;
+        const float normalized_viewport_x = (float)view_min / physical_f;
+        const float normalized_viewport_w = (float)view_max / physical_f;
+        if (value <= normalized_viewport_x) {
+            value = 0.0f; /* to the left of the viewport, clamp to the edge. */
+        } else if (value >= (normalized_viewport_x + normalized_viewport_w)) {
+            value = 1.0f; /* to the right of the viewport, clamp to the edge. */
+        } else {
+            value = (value - normalized_viewport_x) / normalized_viewport_w;
+        }
+    }
+    return value;
+}
+
 static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Renderer *renderer = (SDL_Renderer *)userdata;
@@ -808,7 +827,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                event->type == SDL_FINGERUP ||
                event->type == SDL_FINGERMOTION) {
         int logical_w;
-        float physical_w, physical_h;
+        int w, h;
         SDL_DRect viewport;
         SDL_FPoint scale;
         GetWindowViewportValues(renderer, &logical_w, &viewport, &scale);
@@ -820,40 +839,10 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
            !!! FIXME: events, which is a mess, so for now we just clamp these
            !!! FIXME: events to the edge. */
 
-        {
-            int w, h;
-            GetDisplayOutputSize(renderer, &w, &h);
-            physical_w = (float)w;
-            physical_h = (float)h;
-        }
+        GetDisplayOutputSize(renderer, &w, &h);
 
-        if (physical_w == 0.0f) { /* nowhere for the touch to go, avoid division by zero and put it dead center. */
-            event->tfinger.x = 0.5f;
-        } else {
-            const float normalized_viewport_x = ((float)viewport.x) / physical_w;
-            const float normalized_viewport_w = ((float)viewport.w) / physical_w;
-            if (event->tfinger.x <= normalized_viewport_x) {
-                event->tfinger.x = 0.0f; /* to the left of the viewport, clamp to the edge. */
-            } else if (event->tfinger.x >= (normalized_viewport_x + normalized_viewport_w)) {
-                event->tfinger.x = 1.0f; /* to the right of the viewport, clamp to the edge. */
-            } else {
-                event->tfinger.x = (event->tfinger.x - normalized_viewport_x) / normalized_viewport_w;
-            }
-        }
-
-        if (physical_h == 0.0f) { /* nowhere for the touch to go, avoid division by zero and put it dead center. */
-            event->tfinger.y = 0.5f;
-        } else {
-            const float normalized_viewport_y = ((float)viewport.y) / physical_h;
-            const float normalized_viewport_h = ((float)viewport.h) / physical_h;
-            if (event->tfinger.y <= normalized_viewport_y) {
-                event->tfinger.y = 0.0f; /* to the left of the viewport, clamp to the edge. */
-            } else if (event->tfinger.y >= (normalized_viewport_y + normalized_viewport_h)) {
-                event->tfinger.y = 1.0f; /* to the right of the viewport, clamp to the edge. */
-            } else {
-                event->tfinger.y = (event->tfinger.y - normalized_viewport_y) / normalized_viewport_h;
-            }
-        }
+        event->tfinger.x = ClampToViewport(event->tfinger.x, viewport.x, viewport.w, w);
+        event->tfinger.y = ClampToViewport(event->tfinger.y, viewport.y, viewport.h, h);
     }
 
     return 0;
