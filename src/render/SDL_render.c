@@ -650,12 +650,11 @@ static void GetWindowViewportValues(SDL_Renderer *renderer, int *logical_w, SDL_
     *scale = renderer->target ? renderer->backup.scale : renderer->current.scale;
     SDL_UnlockMutex(renderer->target_mutex);
 }
-// TODO: move to SDL_GetWindowSize in SDL_video.c?
-static void SDL_PrivateGetWindowSize(SDL_Window *window, int *w, int *h)
+
+static void SDL_PrivateGetWindowSize(const SDL_Renderer *renderer, int *w, int *h)
 {
-    SDL_assert(window != NULL);
-    *w = window->wrect.w;
-    *h = window->wrect.h;
+    *w = renderer->window->wrect.w;
+    *h = renderer->window->wrect.h;
 }
 
 static void UpdateDPIScale(SDL_Renderer *renderer)
@@ -664,7 +663,7 @@ static void UpdateDPIScale(SDL_Renderer *renderer)
         int window_w, window_h;
         int output_w, output_h;
         renderer->GetOutputSize(renderer, &output_w, &output_h);
-        SDL_PrivateGetWindowSize(renderer->window, &window_w, &window_h);
+        SDL_PrivateGetWindowSize(renderer, &window_w, &window_h);
         renderer->dpi_scale.x = (float)window_w / output_w;
         renderer->dpi_scale.y = (float)window_h / output_h;
     }
@@ -675,7 +674,7 @@ static void GetDisplayOutputSize(SDL_Renderer *renderer, int *w, int *h)
     if (renderer->GetOutputSize) {
         renderer->GetOutputSize(renderer, w, h);
     } else {
-        SDL_PrivateGetWindowSize(renderer->window, w, h);
+        SDL_PrivateGetWindowSize(renderer, w, h);
     }
 }
 
