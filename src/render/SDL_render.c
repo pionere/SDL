@@ -670,6 +670,15 @@ static void UpdateDPIScale(SDL_Renderer *renderer)
     }
 }
 
+static void GetDisplayOutputSize(SDL_Renderer *renderer, int *w, int *h)
+{
+    if (renderer->GetOutputSize) {
+        renderer->GetOutputSize(renderer, w, h);
+    } else {
+        SDL_PrivateGetWindowSize(renderer->window, w, h);
+    }
+}
+
 static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
 {
     SDL_Renderer *renderer = (SDL_Renderer *)userdata;
@@ -708,12 +717,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                 } else {
                     /* Window was resized, reset viewport */
                     int w, h;
-
-                    if (renderer->GetOutputSize) {
-                        renderer->GetOutputSize(renderer, &w, &h);
-                    } else {
-                        SDL_PrivateGetWindowSize(renderer->window, &w, &h);
-                    }
+                    GetDisplayOutputSize(renderer, &w, &h);
 
                     renderer->current.viewport.x = (double)0;
                     renderer->current.viewport.y = (double)0;
@@ -817,14 +821,9 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
            !!! FIXME: events, which is a mess, so for now we just clamp these
            !!! FIXME: events to the edge. */
 
-        if (renderer->GetOutputSize) {
+        {
             int w, h;
-            renderer->GetOutputSize(renderer, &w, &h);
-            physical_w = (float)w;
-            physical_h = (float)h;
-        } else {
-            int w, h;
-            SDL_PrivateGetWindowSize(renderer->window, &w, &h);
+            GetDisplayOutputSize(renderer, &w, &h);
             physical_w = (float)w;
             physical_h = (float)h;
         }
@@ -1171,12 +1170,8 @@ static void SDL_PrivateGetRendererOutputSize(SDL_Renderer *renderer, int *w, int
         // SDL_QueryTexture(texture, NULL, NULL, w, h);
         *w = texture->w;
         *h = texture->h;
-    } else if (renderer->GetOutputSize) {
-        renderer->GetOutputSize(renderer, w, h);
     } else {
-        SDL_Window *window = renderer->window;
-        SDL_assert(window != NULL);
-        SDL_PrivateGetWindowSize(window, w, h);
+        GetDisplayOutputSize(renderer, w, h);
     }
 }
 
