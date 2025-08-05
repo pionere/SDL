@@ -825,8 +825,8 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
         } else {
             int w, h;
             SDL_PrivateGetWindowSize(renderer->window, &w, &h);
-            physical_w = ((float)w) * renderer->dpi_scale.x;
-            physical_h = ((float)h) * renderer->dpi_scale.y;
+            physical_w = (float)w;
+            physical_h = (float)h;
         }
 
         if (physical_w == 0.0f) { /* nowhere for the touch to go, avoid division by zero and put it dead center. */
