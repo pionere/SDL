@@ -84,7 +84,7 @@ static int SDL_GetTouchIndex(SDL_TouchID id)
 SDL_Touch *SDL_GetTouch(SDL_TouchID id)
 {
     int index = SDL_GetTouchIndex(id);
-    if (index < 0 || index >= SDL_num_touch) {
+    if (index < 0) {
         SDL_SetError("Unknown touch device");
         return NULL;
     }
@@ -114,7 +114,7 @@ static int SDL_GetFingerIndex(const SDL_Touch *touch, SDL_FingerID fingerid)
 static SDL_Finger *SDL_GetFinger(const SDL_Touch *touch, SDL_FingerID id)
 {
     int index = SDL_GetFingerIndex(touch, id);
-    if (index < 0 || index >= touch->num_fingers) {
+    if (index < 0) {
         return NULL;
     }
     return touch->fingers[index];
