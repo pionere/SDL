@@ -1439,14 +1439,15 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             UINT i, num_inputs = LOWORD(wParam);
             SDL_bool isstack;
             PTOUCHINPUT inputs = SDL_small_alloc(TOUCHINPUT, num_inputs, &isstack);
+            if (!inputs) {
+                break;
+            }
             if (videodata->GetTouchInputInfo((HTOUCHINPUT)lParam, num_inputs, inputs, sizeof(TOUCHINPUT))) {
                 RECT rect;
                 float x, y;
 
                 if (!GetClientRect(hwnd, &rect) || WIN_IsRectEmpty(&rect)) {
-                    if (inputs) {
-                        SDL_small_free(inputs, isstack);
-                    }
+                    SDL_small_free(inputs, isstack);
                     break;
                 }
                 ClientToScreen(hwnd, (LPPOINT)&rect);
