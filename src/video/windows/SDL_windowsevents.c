@@ -830,7 +830,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSEMOVE:
     {
-        SDL_Mouse *mouse = SDL_GetMouse();
+        SDL_Mouse *mouse;
 
         if (!data->mouse_tracked) {
             TRACKMOUSEEVENT trackMouseEvent;
@@ -843,7 +843,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 data->mouse_tracked = SDL_TRUE;
             }
         }
-
+        mouse = SDL_GetMouse();
         if (!mouse->relative_mode || mouse->relative_mode_warp) {
             /* Only generate mouse events for real mouse */
             if (GetMouseMessageSource() != SDL_MOUSE_EVENT_SOURCE_TOUCH &&
@@ -1009,14 +1009,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSELEAVE:
         if (!(window->flags & SDL_WINDOW_MOUSE_CAPTURE)) {
-            if (SDL_GetMouseFocus() == window && !SDL_GetMouse()->relative_mode && !IsIconic(hwnd)) {
-                SDL_Mouse *mouse;
+            SDL_Mouse *mouse = SDL_GetMouse();
+            if (mouse->focus == window && !mouse->relative_mode && !IsIconic(hwnd)) {
                 POINT cursorPos;
                 SDL_MouseID mouseID;
                 GetCursorPos(&cursorPos);
                 ScreenToClient(hwnd, &cursorPos);
                 WIN_ClientPointToSDL(window, &cursorPos);
-                mouse = SDL_GetMouse();
                 if (!mouse->was_touch_mouse_events) { /* we're not a touch handler causing a mouse leave? */
                     mouseID = 0;
                 } else {                                       /* touch handling? */
@@ -1030,7 +1029,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 SDL_SendMouseMotion(window, mouseID, 0, cursorPos.x, cursorPos.y);
             }
 
-            if (!SDL_GetMouse()->relative_mode) {
+            if (!mouse->relative_mode) {
                 /* When WM_MOUSELEAVE is fired we can be assured that the cursor has left the window */
                 SDL_SetMouseFocus(NULL);
             }
