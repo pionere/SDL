@@ -502,24 +502,20 @@ int SDL_GestureAddTouch(SDL_TouchID touchId)
 
 int SDL_GestureDelTouch(SDL_TouchID touchId)
 {
-    int i;
-    for (i = 0; i < SDL_numGestureTouches; i++) {
-        if (SDL_gestureTouch[i].id == touchId) {
-            break;
-        }
-    }
-
-    if (i == SDL_numGestureTouches) {
+    SDL_GestureTouch *touch = SDL_GetGestureTouch(touchId);
+    SDL_GestureTouch *lastTouch;
+    if (touch == NULL) {
         /* not found */
         return -1;
     }
 
-    SDL_free(SDL_gestureTouch[i].dollarTemplate);
-    SDL_zero(SDL_gestureTouch[i]);
+    SDL_free(touch->dollarTemplate);
+    SDL_zero(*touch);
 
     SDL_numGestureTouches--;
-    if (i != SDL_numGestureTouches) {
-        SDL_copyp(&SDL_gestureTouch[i], &SDL_gestureTouch[SDL_numGestureTouches]);
+    lastTouch = &SDL_gestureTouch[SDL_numGestureTouches];
+    if (touch != lastTouch) {
+        SDL_copyp(touch, lastTouch);
     }
     return 0;
 }
