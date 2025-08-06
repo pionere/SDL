@@ -2286,6 +2286,8 @@ int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     if (texture) {
+        renderer->current.logical_w = texture->w;
+        renderer->current.logical_h = texture->h;
         renderer->current.viewport.x = (double)0;
         renderer->current.viewport.y = (double)0;
         renderer->current.viewport.w = (double)texture->w;
@@ -2294,8 +2296,6 @@ int SDL_SetRenderTarget(SDL_Renderer *renderer, SDL_Texture *texture)
         renderer->current.clipping_enabled = SDL_FALSE;
         renderer->current.scale.x = 1.0f;
         renderer->current.scale.y = 1.0f;
-        renderer->current.logical_w = texture->w;
-        renderer->current.logical_h = texture->h;
     } else {
         SDL_copyp(&renderer->current, &renderer->backup);
     }
