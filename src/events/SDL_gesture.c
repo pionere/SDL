@@ -228,10 +228,10 @@ static int SDL_AddDollarGesture_one(SDL_GestureTouch *inTouch, SDL_FloatPoint *p
 
 static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
 {
-    int index = -1;
+    int index;
     int i = 0;
     if (!inTouch) {
-        if (SDL_numGestureTouches == 0) {
+        if (SDL_numGestureTouches <= 0) {
             return SDL_SetError("no gesture touch devices registered");
         }
         for (i = 0; i < SDL_numGestureTouches; i++) {
@@ -264,7 +264,7 @@ int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
 #ifdef SDL_FILE_DISABLED
     return SDL_SetError("Unsupported, because SDL2 is compiled without FILE subsystem");
 #else
-    int i, loaded = 0;
+    int loaded = 0;
     SDL_GestureTouch *touch = NULL;
     if (!src) {
         return 0;
@@ -287,26 +287,14 @@ int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
         }
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-        for (i = 0; i < DOLLARNPOINTS; i++) {
+        for (int i = 0; i < DOLLARNPOINTS; i++) {
             SDL_FloatPoint *p = &templ.path[i];
             p->x = SDL_SwapFloatLE(p->x);
             p->y = SDL_SwapFloatLE(p->y);
         }
 #endif
 
-        if (touchId >= 0) {
-            /* printf("Adding loaded gesture to 1 touch\n"); */
-            if (SDL_AddDollarGesture(touch, templ.path) >= 0) {
-                loaded++;
-            }
-        } else {
-            /* printf("Adding to: %i touches\n",SDL_numGestureTouches); */
-            for (i = 0; i < SDL_numGestureTouches; i++) {
-                touch = &SDL_gestureTouch[i];
-                /* printf("Adding loaded gesture to + touches\n"); */
-                /* TODO: What if this fails? */
-                SDL_AddDollarGesture(touch, templ.path);
-            }
+        if (SDL_AddDollarGesture(touch, templ.path) >= 0) {
             loaded++;
         }
     }
