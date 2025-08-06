@@ -25,6 +25,7 @@
 #include "SDL_hints.h"
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_pixels_c.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels*/
 
 #include <kernel.h>
 #include <malloc.h> /* memalign() */
@@ -103,6 +104,11 @@ static int PixelFormatToPS2PSM(Uint32 format)
 
 static void PS2_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
 {
+}
+
+static void PS2_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+{
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static int PS2_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
@@ -665,6 +671,7 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     data->gsGlobal = gsGlobal;
 
     renderer->WindowEvent = PS2_WindowEvent;
+    renderer->GetOutputSize = PS2_GetOutputSize;
     renderer->CreateTexture = PS2_CreateTexture;
     renderer->UpdateTexture = PS2_UpdateTexture;
     renderer->LockTexture = PS2_LockTexture;

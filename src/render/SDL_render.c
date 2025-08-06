@@ -659,22 +659,13 @@ static void SDL_PrivateGetWindowSize(const SDL_Renderer *renderer, int *w, int *
 
 static void UpdateDPIScale(SDL_Renderer *renderer)
 {
-    if (renderer->GetOutputSize) {
+    {
         int window_w, window_h;
         int output_w, output_h;
         renderer->GetOutputSize(renderer, &output_w, &output_h);
         SDL_PrivateGetWindowSize(renderer, &window_w, &window_h);
         renderer->dpi_scale.x = (float)window_w / output_w;
         renderer->dpi_scale.y = (float)window_h / output_h;
-    }
-}
-
-static void GetDisplayOutputSize(SDL_Renderer *renderer, int *w, int *h)
-{
-    if (renderer->GetOutputSize) {
-        renderer->GetOutputSize(renderer, w, h);
-    } else {
-        SDL_PrivateGetWindowSize(renderer, w, h);
     }
 }
 
@@ -735,7 +726,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
                 } else {
                     /* Window was resized, reset viewport */
                     int w, h;
-                    GetDisplayOutputSize(renderer, &w, &h);
+                    renderer->GetOutputSize(renderer, &w, &h);
 
                     renderer->current.viewport.x = (double)0;
                     renderer->current.viewport.y = (double)0;
@@ -839,7 +830,7 @@ static int SDLCALL SDL_RendererEventWatch(void *userdata, SDL_Event *event)
            !!! FIXME: events, which is a mess, so for now we just clamp these
            !!! FIXME: events to the edge. */
 
-        GetDisplayOutputSize(renderer, &w, &h);
+        renderer->GetOutputSize(renderer, &w, &h);
 
         event->tfinger.x = ClampToViewport(event->tfinger.x, viewport.x, viewport.w, w);
         event->tfinger.y = ClampToViewport(event->tfinger.y, viewport.y, viewport.h, h);
@@ -872,6 +863,7 @@ static SDL_INLINE void VerifyDrawQueueFunctions(const SDL_Renderer *renderer)
 {
     /* all of these functions are required to be implemented, even as no-ops, so we don't
         have to check that they aren't NULL over and over. */
+    SDL_assert(renderer->GetOutputSize != NULL);
     SDL_assert(renderer->QueueSetViewport != NULL);
     SDL_assert(renderer->QueueSetDrawColor != NULL);
     SDL_assert(renderer->QueueDrawPoints != NULL);
@@ -1042,8 +1034,6 @@ SDL_Renderer *SDL_CreateRenderer(SDL_Window *window, int index, Uint32 flags)
     renderer->target_mutex = SDL_CreateMutex();
     renderer->current.scale.x = 1.0f;
     renderer->current.scale.y = 1.0f;
-    renderer->dpi_scale.x = 1.0f;
-    renderer->dpi_scale.y = 1.0f;
 
     /* Default value, if not specified by the renderer back-end */
     if (renderer->rect_index_order[0] == 0 && renderer->rect_index_order[1] == 0) {
@@ -1159,7 +1149,7 @@ static void SDL_PrivateGetRendererOutputSize(SDL_Renderer *renderer, int *w, int
         *w = texture->w;
         *h = texture->h;
     } else {
-        GetDisplayOutputSize(renderer, w, h);
+        renderer->GetOutputSize(renderer, w, h);
     }
 }
 

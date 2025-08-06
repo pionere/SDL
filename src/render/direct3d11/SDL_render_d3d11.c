@@ -1069,12 +1069,10 @@ static void D3D11_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *eve
     }
 }
 
-#if !defined(__WINRT__)
 static void D3D11_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
 {
     SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
-#endif
 
 static SDL_bool D3D11_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
 {
@@ -2357,9 +2355,7 @@ SDL_Renderer *D3D11_CreateRenderer(SDL_Window *window, Uint32 flags)
     MatrixIdentity(&data->vertexShaderConstantsData.model);
 
     renderer->WindowEvent = D3D11_WindowEvent;
-#if !defined(__WINRT__)
     renderer->GetOutputSize = D3D11_GetOutputSize;
-#endif
     renderer->SupportsBlendMode = D3D11_SupportsBlendMode;
     renderer->CreateTexture = D3D11_CreateTexture;
     renderer->UpdateTexture = D3D11_UpdateTexture;

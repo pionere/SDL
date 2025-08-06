@@ -27,6 +27,7 @@
 
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_pixels_c.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels*/
 
 #include <stdio.h>
 #include <string.h>
@@ -49,6 +50,8 @@
 static SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags);
 
 static void VITA_GXM_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event);
+
+static void VITA_GXM_GetOutputSize(SDL_Renderer *renderer, int *w, int *h);
 
 static SDL_bool VITA_GXM_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode);
 
@@ -236,6 +239,7 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
 
     renderer->WindowEvent = VITA_GXM_WindowEvent;
+    renderer->GetOutputSize = VITA_GXM_GetOutputSize;
     renderer->SupportsBlendMode = VITA_GXM_SupportsBlendMode;
     renderer->CreateTexture = VITA_GXM_CreateTexture;
     renderer->UpdateTexture = VITA_GXM_UpdateTexture;
@@ -281,6 +285,11 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
 
 static void VITA_GXM_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
 {
+}
+
+static void VITA_GXM_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+{
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static SDL_bool VITA_GXM_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)

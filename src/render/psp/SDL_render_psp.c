@@ -25,6 +25,7 @@
 #include "SDL_hints.h"
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_pixels_c.h"
+#include "../../video/SDL_sysvideo.h" /* For SDL_PrivateGetWindowSizeInPixels*/
 
 #include <pspkernel.h>
 #include <pspdisplay.h>
@@ -488,6 +489,11 @@ static int TextureBindAsTarget(PSP_RenderData *data, PSP_TextureData *psp_textur
 
 static void PSP_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
 {
+}
+
+static void PSP_GetOutputSize(SDL_Renderer *renderer, int *w, int *h)
+{
+    SDL_PrivateGetWindowSizeInPixels(renderer->window, w, h);
 }
 
 static int PSP_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
@@ -1295,6 +1301,7 @@ SDL_Renderer *PSP_CreateRenderer(SDL_Window *window, Uint32 flags)
     }
 
     renderer->WindowEvent = PSP_WindowEvent;
+    renderer->GetOutputSize = PSP_GetOutputSize;
     renderer->CreateTexture = PSP_CreateTexture;
     renderer->UpdateTexture = PSP_UpdateTexture;
     renderer->LockTexture = PSP_LockTexture;
