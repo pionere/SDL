@@ -782,11 +782,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg) {
     case WM_SHOWWINDOW:
     {
+        Uint8 windowevent;
         if (wParam) {
-            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_SHOWN, 0, 0);
+            windowevent = SDL_WINDOWEVENT_SHOWN;
         } else {
-            SDL_SendWindowEvent(window, SDL_WINDOWEVENT_HIDDEN, 0, 0);
+            windowevent = SDL_WINDOWEVENT_HIDDEN;
         }
+        SDL_SendWindowEvent(window, windowevent, 0, 0);
     } break;
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -996,11 +998,13 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         short amount = GET_WHEEL_DELTA_WPARAM(wParam);
         float fAmount = (float)amount / WHEEL_DELTA;
+        float x = 0.0f, y = 0.0f;
         if (msg == WM_MOUSEWHEEL) {
-            SDL_SendMouseWheel(window, 0, 0.0f, fAmount, SDL_MOUSEWHEEL_NORMAL);
+            y = fAmount;
         } else {
-            SDL_SendMouseWheel(window, 0, fAmount, 0.0f, SDL_MOUSEWHEEL_NORMAL);
+            x = fAmount;
         }
+        SDL_SendMouseWheel(window, 0, x, y, SDL_MOUSEWHEEL_NORMAL);
     } break;
 
     case WM_MOUSELEAVE:
@@ -1008,20 +1012,22 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             if (SDL_GetMouseFocus() == window && !SDL_GetMouse()->relative_mode && !IsIconic(hwnd)) {
                 SDL_Mouse *mouse;
                 POINT cursorPos;
+                SDL_MouseID mouseID;
                 GetCursorPos(&cursorPos);
                 ScreenToClient(hwnd, &cursorPos);
                 WIN_ClientPointToSDL(window, &cursorPos);
                 mouse = SDL_GetMouse();
                 if (!mouse->was_touch_mouse_events) { /* we're not a touch handler causing a mouse leave? */
-                    SDL_SendMouseMotion(window, 0, 0, cursorPos.x, cursorPos.y);
+                    mouseID = 0;
                 } else {                                       /* touch handling? */
                     mouse->was_touch_mouse_events = SDL_FALSE; /* not anymore */
                     if (mouse->touch_mouse_events) {           /* convert touch to mouse events */
-                        SDL_SendMouseMotion(window, SDL_TOUCH_MOUSEID, 0, cursorPos.x, cursorPos.y);
+                        mouseID = SDL_TOUCH_MOUSEID;
                     } else { /* normal handling */
-                        SDL_SendMouseMotion(window, 0, 0, cursorPos.x, cursorPos.y);
+                        mouseID = 0;
                     }
                 }
+                SDL_SendMouseMotion(window, mouseID, 0, cursorPos.x, cursorPos.y);
             }
 
             if (!SDL_GetMouse()->relative_mode) {
