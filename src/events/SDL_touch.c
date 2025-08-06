@@ -451,16 +451,11 @@ void SDL_DelTouch(SDL_TouchID id)
     int i, index;
     SDL_Touch *touch;
 
-    if (SDL_num_touch == 0) {
-        /* We've already cleaned up, we won't find this device */
-        return;
-    }
-
     index = SDL_GetTouchIndex(id);
-    touch = SDL_GetTouch(id);
-    if (!touch) {
+    if (index < 0) {
         return;
     }
+    touch = SDL_touchDevices[index];
 
     for (i = 0; i < touch->max_fingers; ++i) {
         SDL_free(touch->fingers[i]);
