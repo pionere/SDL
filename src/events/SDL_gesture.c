@@ -247,6 +247,18 @@ static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
     return SDL_AddDollarGesture_one(inTouch, path);
 }
 
+static SDL_GestureTouch *SDL_GetGestureTouch(SDL_TouchID id)
+{
+    int i;
+    for (i = 0; i < SDL_numGestureTouches; i++) {
+        /* printf("%i ?= %i\n",SDL_gestureTouch[i].id,id); */
+        if (SDL_gestureTouch[i].id == id) {
+            return &SDL_gestureTouch[i];
+        }
+    }
+    return NULL;
+}
+
 int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
 {
 #ifdef SDL_FILE_DISABLED
@@ -258,11 +270,7 @@ int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
         return 0;
     }
     if (touchId >= 0) {
-        for (i = 0; i < SDL_numGestureTouches; i++) {
-            if (SDL_gestureTouch[i].id == touchId) {
-                touch = &SDL_gestureTouch[i];
-            }
-        }
+        touch = SDL_GetGestureTouch(touchId);
         if (!touch) {
             return SDL_SetError("given touch id not found");
         }
@@ -526,18 +534,6 @@ int SDL_GestureDelTouch(SDL_TouchID touchId)
         SDL_copyp(&SDL_gestureTouch[i], &SDL_gestureTouch[SDL_numGestureTouches]);
     }
     return 0;
-}
-
-static SDL_GestureTouch *SDL_GetGestureTouch(SDL_TouchID id)
-{
-    int i;
-    for (i = 0; i < SDL_numGestureTouches; i++) {
-        /* printf("%i ?= %i\n",SDL_gestureTouch[i].id,id); */
-        if (SDL_gestureTouch[i].id == id) {
-            return &SDL_gestureTouch[i];
-        }
-    }
-    return NULL;
 }
 
 static void SDL_SendGestureMulti(SDL_GestureTouch *touch, float dTheta, float dDist)
