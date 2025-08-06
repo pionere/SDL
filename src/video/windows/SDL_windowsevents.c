@@ -1983,16 +1983,8 @@ static int app_registered = 0;
 LPTSTR SDL_Appname = NULL;
 HINSTANCE SDL_Instance = NULL;
 
-static void WIN_CleanRegisterApp(WNDCLASSEX wcex)
+static void WIN_CleanRegisterApp()
 {
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (wcex.hIcon) {
-        DestroyIcon(wcex.hIcon);
-    }
-    if (wcex.hIconSm) {
-        DestroyIcon(wcex.hIconSm);
-    }
-#endif
     SDL_free(SDL_Appname);
     SDL_Appname = NULL;
 }
@@ -2064,7 +2056,7 @@ int SDL_RegisterApp(const char *name, Uint32 style, void *hInst)
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
 
     if (!RegisterClassEx(&wcex)) {
-        WIN_CleanRegisterApp(wcex);
+        WIN_CleanRegisterApp();
         return SDL_SetError("Couldn't register application class");
     }
 
@@ -2075,24 +2067,16 @@ int SDL_RegisterApp(const char *name, Uint32 style, void *hInst)
 /* Unregisters the windowclass registered in SDL_RegisterApp above. */
 void SDL_UnregisterApp(void)
 {
-    WNDCLASSEX wcex;
-
     /* SDL_RegisterApp might not have been called before */
     if (!app_registered) {
         return;
     }
     --app_registered;
     if (app_registered == 0) {
-        /* Ensure the icons are initialized. */
-        wcex.hIcon = NULL;
-        wcex.hIconSm = NULL;
-        /* Check for any registered window classes. */
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-        if (GetClassInfoEx(SDL_Instance, SDL_Appname, &wcex)) {
-            UnregisterClass(SDL_Appname, SDL_Instance);
-        }
+        UnregisterClass(SDL_Appname, SDL_Instance);
 #endif
-        WIN_CleanRegisterApp(wcex);
+        WIN_CleanRegisterApp();
     }
 }
 
