@@ -74,12 +74,12 @@ typedef struct
     int numDollarTemplates;
     SDL_DollarTemplate *dollarTemplate;
 
-    SDL_bool recording;
+    int recording;
+    int recordAll;
 } SDL_GestureTouch;
 
 static SDL_GestureTouch *SDL_gestureTouch;
 static int SDL_numGestureTouches = 0;
-static SDL_bool recordAll;
 
 #if 0
 static void PrintPath(SDL_FloatPoint *path)
@@ -96,15 +96,13 @@ static void PrintPath(SDL_FloatPoint *path)
 int SDL_RecordGesture(SDL_TouchID touchId)
 {
     int i;
-    if (touchId < 0) {
-        recordAll = SDL_TRUE;
-    }
     for (i = 0; i < SDL_numGestureTouches; i++) {
         if ((touchId < 0) || (SDL_gestureTouch[i].id == touchId)) {
-            SDL_gestureTouch[i].recording = SDL_TRUE;
+            SDL_gestureTouch[i].recording++;
             if (touchId >= 0) {
                 return 1;
             }
+            SDL_gestureTouch[i].recordAll++;
         }
     }
     return touchId < 0;
@@ -625,16 +623,17 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 
 #if defined(ENABLE_DOLLAR)
             if (inTouch->recording) {
-                inTouch->recording = SDL_FALSE;
                 dollarNormalize(&inTouch->dollarPath, path, SDL_TRUE);
                 /* PrintPath(path); */
-                if (recordAll) {
+                if (inTouch->recordAll) {
                     index = SDL_AddDollarGesture(NULL, path);
                     for (i = 0; i < SDL_numGestureTouches; i++) {
-                        SDL_gestureTouch[i].recording = SDL_FALSE;
+                        SDL_gestureTouch[i].recording--;
+                        SDL_gestureTouch[i].recordAll--;
                     }
                 } else {
                     index = SDL_AddDollarGesture(inTouch, path);
+                    inTouch->recording--;
                 }
 
                 if (index >= 0) {
