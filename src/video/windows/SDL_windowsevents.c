@@ -1851,11 +1851,7 @@ int WIN_WaitEventTimeout(int timeout)
         DWORD dwMilliseconds, ret;
         dwMilliseconds = timeout < 0 ? INFINITE : (DWORD)timeout;
         ret = MsgWaitForMultipleObjects(0, NULL, FALSE, dwMilliseconds, QS_ALLINPUT);
-        if (ret == WAIT_OBJECT_0) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return (ret == WAIT_OBJECT_0) ? 1 : 0;
 #else
         /* MsgWaitForMultipleObjects is desktop-only. */
         MSG msg;
