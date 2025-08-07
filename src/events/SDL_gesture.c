@@ -311,10 +311,10 @@ static float dollarDifference(SDL_FloatPoint *points, SDL_FloatPoint *templ, flo
     SDL_FloatPoint p;
     int i;
     for (i = 0; i < DOLLARNPOINTS; i++) {
-        p.x = (float)(points[i].x * SDL_cos(ang) - points[i].y * SDL_sin(ang));
-        p.y = (float)(points[i].x * SDL_sin(ang) + points[i].y * SDL_cos(ang));
-        dist += (float)(SDL_sqrt((p.x - templ[i].x) * (p.x - templ[i].x) +
-                                 (p.y - templ[i].y) * (p.y - templ[i].y)));
+        p.x = points[i].x * SDL_cosf(ang) - points[i].y * SDL_sinf(ang);
+        p.y = points[i].x * SDL_sinf(ang) + points[i].y * SDL_cosf(ang);
+        dist += SDL_sqrtf((p.x - templ[i].x) * (p.x - templ[i].x) +
+                          (p.y - templ[i].y) * (p.y - templ[i].y));
     }
     return dist / DOLLARNPOINTS;
 }
@@ -374,7 +374,7 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
         for (i = 1; i < path->numPoints; i++) {
             float dx = path->p[i].x - path->p[i - 1].x;
             float dy = path->p[i].y - path->p[i - 1].y;
-            length += (float)(SDL_sqrt(dx * dx + dy * dy));
+            length += SDL_sqrtf(dx * dx + dy * dy);
         }
     }
 
@@ -387,8 +387,8 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
 
     /* printf("(%f,%f)\n",path->p[path->numPoints-1].x,path->p[path->numPoints-1].y); */
     for (i = 1; i < path->numPoints; i++) {
-        float d = (float)(SDL_sqrt((path->p[i - 1].x - path->p[i].x) * (path->p[i - 1].x - path->p[i].x) +
-                                   (path->p[i - 1].y - path->p[i].y) * (path->p[i - 1].y - path->p[i].y)));
+        float d = SDL_sqrtf((path->p[i - 1].x - path->p[i].x) * (path->p[i - 1].x - path->p[i].x) +
+                            (path->p[i - 1].y - path->p[i].y) * (path->p[i - 1].y - path->p[i].y));
         /* printf("d = %f dist = %f/%f\n",d,dist,interval); */
         while (dist + d > interval) {
             points[numPoints].x = path->p[i - 1].x +
@@ -423,16 +423,16 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
     ymin = centroid.y;
     ymax = centroid.y;
 
-    ang = (float)(SDL_atan2(centroid.y - points[0].y,
-                            centroid.x - points[0].x));
+    ang = SDL_atan2f(centroid.y - points[0].y,
+                     centroid.x - points[0].x);
 
     for (i = 0; i < numPoints; i++) {
         float px = points[i].x;
         float py = points[i].y;
-        points[i].x = (float)((px - centroid.x) * SDL_cos(ang) -
-                              (py - centroid.y) * SDL_sin(ang) + centroid.x);
-        points[i].y = (float)((px - centroid.x) * SDL_sin(ang) +
-                              (py - centroid.y) * SDL_cos(ang) + centroid.y);
+        points[i].x = (px - centroid.x) * SDL_cosf(ang) -
+                              (py - centroid.y) * SDL_sinf(ang) + centroid.x;
+        points[i].y = (px - centroid.x) * SDL_sinf(ang) +
+                              (py - centroid.y) * SDL_cosf(ang) + centroid.y;
 
         if (points[i].x < xmin) {
             xmin = points[i].x;
@@ -655,7 +655,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                     (path->p[path->numPoints].x - path->p[path->numPoints - 1].x);
                 pathDy =
                     (path->p[path->numPoints].y - path->p[path->numPoints - 1].y);
-                path->length += (float)SDL_sqrt(pathDx * pathDx + pathDy * pathDy);
+                path->length += SDL_sqrtf(pathDx * pathDx + pathDy * pathDy);
                 path->numPoints++;
             }
 #endif
@@ -672,12 +672,12 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                 /* lv = inTouch->gestureLast[j].cv; */
                 lv.x = lastP.x - lastCentroid.x;
                 lv.y = lastP.y - lastCentroid.y;
-                lDist = (float)SDL_sqrt(lv.x * lv.x + lv.y * lv.y);
+                lDist = SDL_sqrtf(lv.x * lv.x + lv.y * lv.y);
                 /* printf("lDist = %f\n",lDist); */
                 v.x = x - inTouch->centroid.x;
                 v.y = y - inTouch->centroid.y;
                 /* inTouch->gestureLast[j].cv = v; */
-                Dist = (float)SDL_sqrt(v.x * v.x + v.y * v.y);
+                Dist = SDL_sqrtf(v.x * v.x + v.y * v.y);
                 /* SDL_cos(dTheta) = (v . lv)/(|v| * |lv|) */
 
                 /* Normalize Vectors to simplify angle calculation */
@@ -685,7 +685,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                 lv.y /= lDist;
                 v.x /= Dist;
                 v.y /= Dist;
-                dtheta = (float)SDL_atan2(lv.x * v.y - lv.y * v.x, lv.x * v.x + lv.y * v.y);
+                dtheta = SDL_atan2f(lv.x * v.y - lv.y * v.x, lv.x * v.x + lv.y * v.y);
 
                 dDist = (Dist - lDist);
                 if (lDist == 0) {
