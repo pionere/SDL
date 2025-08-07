@@ -40,7 +40,7 @@ static SDL_TouchID WINRT_TouchID = 1;
 
 void WINRT_InitTouch(void)
 {
-    SDL_AddTouch(WINRT_TouchID, SDL_TOUCH_DEVICE_DIRECT, "");
+    SDL_AddTouch(WINRT_TouchID, SDL_TOUCH_DEVICE_DIRECT, NULL);
 }
 
 //

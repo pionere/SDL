@@ -1546,7 +1546,7 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
         }
 #endif
 
-        if (SDL_AddTouch(touchId, devtype, "") < 0) {
+        if (SDL_AddTouch(touchId, devtype, NULL) < 0) {
             return;
         }
 

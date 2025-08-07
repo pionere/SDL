@@ -84,7 +84,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
 
 #if !TARGET_OS_TV
         self.multipleTouchEnabled = YES;
-        SDL_AddTouch(directTouchId, SDL_TOUCH_DEVICE_DIRECT, "");
+        SDL_AddTouch(directTouchId, SDL_TOUCH_DEVICE_DIRECT, NULL);
 #endif
 
 #if !TARGET_OS_TV && defined(__IPHONE_13_4)
@@ -267,7 +267,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
 
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
+            if (SDL_AddTouch(touchId, touchType, NULL) < 0) {
                 continue;
             }
 
@@ -323,7 +323,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
 
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
+            if (SDL_AddTouch(touchId, touchType, NULL) < 0) {
                 continue;
             }
 
@@ -360,7 +360,7 @@ extern int SDL_AppleTVRemoteOpenedAsJoystick;
             SDL_TouchID touchId = [self touchIdForType:touchType];
             float pressure = [self pressureForTouch:touch];
 
-            if (SDL_AddTouch(touchId, touchType, "") < 0) {
+            if (SDL_AddTouch(touchId, touchType, NULL) < 0) {
                 continue;
             }
 
