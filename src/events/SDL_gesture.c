@@ -80,7 +80,7 @@ static SDL_GestureTouch *SDL_gestureTouch;
 static int SDL_numGestureTouches = 0;
 
 #if 0
-static void PrintPath(SDL_FloatPoint *path)
+static void PrintPath(const SDL_FloatPoint *path)
 {
     int i;
     printf("Path:");
@@ -116,7 +116,7 @@ typedef union float_bits {
     Uint32 u32;
     float f32;
 } float_bits;
-static Uint64 SDL_HashDollar(SDL_FloatPoint *points)
+static Uint64 SDL_HashDollar(const SDL_FloatPoint *points)
 {
     Uint64 hash = 5381;
     int i;
@@ -130,7 +130,7 @@ static Uint64 SDL_HashDollar(SDL_FloatPoint *points)
     return hash;
 }
 #ifndef SDL_FILE_DISABLED
-static int SaveTemplate(SDL_DollarTemplate *templ, SDL_RWops *dst)
+static int SaveTemplate(const SDL_DollarTemplate *templ, SDL_RWops *dst)
 {
     if (!dst) {
         return 0;
@@ -200,7 +200,7 @@ int SDL_SaveDollarTemplate(SDL_GestureID gestureId, SDL_RWops *dst)
 
 /* path is an already sampled set of points
 Returns the index of the gesture on success, or -1 */
-static int SDL_AddDollarGesture_one(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
+static int SDL_AddDollarGesture_one(SDL_GestureTouch *inTouch, const SDL_FloatPoint *path)
 {
     SDL_DollarTemplate *dollarTemplate;
     SDL_DollarTemplate *templ;
@@ -224,7 +224,7 @@ static int SDL_AddDollarGesture_one(SDL_GestureTouch *inTouch, SDL_FloatPoint *p
     return index;
 }
 
-static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, SDL_FloatPoint *path)
+static int SDL_AddDollarGesture(SDL_GestureTouch *inTouch, const SDL_FloatPoint *path)
 {
     int index;
     int i = 0;
@@ -319,7 +319,7 @@ static void SDL_SendGestureDollar(const SDL_GestureTouch *touch,
     }
 }
 
-static void SDL_SendDollarRecord(SDL_GestureTouch *touch, SDL_GestureID gestureId)
+static void SDL_SendDollarRecord(const SDL_GestureTouch *touch, SDL_GestureID gestureId)
 {
     if (SDL_IsEventEnabled(SDL_DOLLARRECORD)) {
         SDL_Event event;
@@ -330,7 +330,7 @@ static void SDL_SendDollarRecord(SDL_GestureTouch *touch, SDL_GestureID gestureI
     }
 }
 
-static float dollarDifference(SDL_FloatPoint *points, const SDL_FloatPoint *templ, float ang)
+static float dollarDifference(const SDL_FloatPoint *points, const SDL_FloatPoint *templ, float ang)
 {
     /*  SDL_FloatPoint p[DOLLARNPOINTS]; */
     float dist = 0;
@@ -345,7 +345,7 @@ static float dollarDifference(SDL_FloatPoint *points, const SDL_FloatPoint *temp
     return dist / DOLLARNPOINTS;
 }
 
-static float bestDollarDifference(SDL_FloatPoint *points, const SDL_FloatPoint *templ)
+static float bestDollarDifference(const SDL_FloatPoint *points, const SDL_FloatPoint *templ)
 {
     /*------------BEGIN DOLLAR BLACKBOX------------------
       -TRANSLATED DIRECTLY FROM PSUDEO-CODE AVAILABLE AT-
@@ -548,7 +548,7 @@ void SDL_GestureDelTouch(SDL_TouchID touchId)
     }
 }
 
-static void SDL_SendGestureMulti(SDL_GestureTouch *touch, float dTheta, float dDist)
+static void SDL_SendGestureMulti(const SDL_GestureTouch *touch, float dTheta, float dDist)
 {
     if (SDL_IsEventEnabled(SDL_MULTIGESTURE)) {
         SDL_Event event;
