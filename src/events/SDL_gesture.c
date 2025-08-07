@@ -383,7 +383,7 @@ static float bestDollarDifference(SDL_FloatPoint *points, const SDL_FloatPoint *
 }
 
 /* DollarPath contains raw points, plus (possibly) the calculated length */
-static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, SDL_bool is_recording)
+static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points)
 {
     int i;
     float interval;
@@ -431,10 +431,7 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
         dist += d;
     }
     if (numPoints < DOLLARNPOINTS - 1) {
-        if (is_recording) {
-            SDL_SetError("ERROR: NumPoints = %i", numPoints);
-        }
-        return 0;
+        return -1;
     }
     /* copy the last point */
     points[DOLLARNPOINTS - 1] = path->p[path->numPoints - 1];
@@ -483,7 +480,7 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
         points[i].x = (points[i].x - centroid.x) * DOLLARSIZE / w;
         points[i].y = (points[i].y - centroid.y) * DOLLARSIZE / h;
     }
-    return numPoints;
+    return 0;
 }
 
 static void dollarRecognize(const SDL_GestureTouch *touch)
@@ -492,7 +489,7 @@ static void dollarRecognize(const SDL_GestureTouch *touch)
 
     if (touch->numDollarTemplates) {
         SDL_FloatPoint points[DOLLARNPOINTS];
-        if (dollarNormalize(&touch->dollarPath, points, SDL_FALSE) == DOLLARNPOINTS) {
+        if (dollarNormalize(&touch->dollarPath, points) >= 0) {
             float minDiff = 10000;
             const SDL_DollarTemplate *bestTempl = NULL;
             /* PrintPath(points); */
@@ -603,7 +600,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 
 #if defined(ENABLE_DOLLAR)
             if (inTouch->recording) {
-                if (dollarNormalize(&inTouch->dollarPath, path, SDL_TRUE) == DOLLARNPOINTS) {
+                if (dollarNormalize(&inTouch->dollarPath, path) >= 0) {
                     /* PrintPath(path); */
                     if (inTouch->recordAll) {
                         index = SDL_AddDollarGesture(NULL, path);
@@ -621,6 +618,8 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                     } else {
                         SDL_SendDollarRecord(inTouch, -1);
                     }
+                } else {
+                    SDL_SetError("Empty path.");
                 }
             } else {
                 dollarRecognize(inTouch);
