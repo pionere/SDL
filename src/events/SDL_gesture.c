@@ -480,14 +480,14 @@ static float dollarRecognize(const SDL_DollarPath *path, int *bestTempl, SDL_Ges
 }
 #endif
 
-int SDL_GestureAddTouch(SDL_TouchID touchId)
+void SDL_GestureAddTouch(SDL_TouchID touchId)
 {
     SDL_GestureTouch *gestureTouch = (SDL_GestureTouch *)SDL_realloc(SDL_gestureTouch,
                                                                      (SDL_numGestureTouches + 1) *
                                                                          sizeof(SDL_GestureTouch));
 
     if (!gestureTouch) {
-        return SDL_OutOfMemory();
+        return; // SDL_OutOfMemory();
     }
 
     SDL_gestureTouch = gestureTouch;
@@ -495,16 +495,15 @@ int SDL_GestureAddTouch(SDL_TouchID touchId)
     SDL_zero(SDL_gestureTouch[SDL_numGestureTouches]);
     SDL_gestureTouch[SDL_numGestureTouches].id = touchId;
     SDL_numGestureTouches++;
-    return 0;
 }
 
-int SDL_GestureDelTouch(SDL_TouchID touchId)
+void SDL_GestureDelTouch(SDL_TouchID touchId)
 {
     SDL_GestureTouch *touch = SDL_GetGestureTouch(touchId);
     SDL_GestureTouch *lastTouch;
-    if (touch == NULL) {
+    if (!touch) {
         /* not found */
-        return -1;
+        return;
     }
 
     SDL_free(touch->dollarTemplate);
@@ -515,7 +514,6 @@ int SDL_GestureDelTouch(SDL_TouchID touchId)
     if (touch != lastTouch) {
         SDL_copyp(touch, lastTouch);
     }
-    return 0;
 }
 
 static void SDL_SendGestureMulti(SDL_GestureTouch *touch, float dTheta, float dDist)
