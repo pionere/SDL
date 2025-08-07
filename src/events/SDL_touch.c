@@ -67,7 +67,7 @@ const char *SDL_GetTouchName(int index)
     return SDL_touchDevices[index].name;
 }
 
-static int SDL_GetTouchIndex(SDL_TouchID id)
+static SDL_Touch *SDL_PrivateGetTouch(SDL_TouchID id)
 {
     int index;
     SDL_Touch *touch;
@@ -75,20 +75,19 @@ static int SDL_GetTouchIndex(SDL_TouchID id)
     for (index = 0; index < SDL_num_touch; ++index) {
         touch = &SDL_touchDevices[index];
         if (touch->id == id) {
-            return index;
+            return touch;
         }
     }
-    return -1;
+    return NULL;
 }
 
 SDL_Touch *SDL_GetTouch(SDL_TouchID id)
 {
-    int index = SDL_GetTouchIndex(id);
-    if (index < 0) {
+    SDL_Touch *touch = SDL_PrivateGetTouch(id);
+    if (!touch) {
         SDL_SetError("Unknown touch device");
-        return NULL;
     }
-    return &SDL_touchDevices[index];
+    return touch;
 }
 
 SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID id)
@@ -145,11 +144,12 @@ SDL_Finger *SDL_GetTouchFinger(SDL_TouchID touchID, int index)
 int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name)
 {
     SDL_Touch *touchDevices;
+    SDL_Touch *touch;
     int index;
 
-    index = SDL_GetTouchIndex(touchID);
-    if (index >= 0) {
-        return index;
+    touch = SDL_PrivateGetTouch(touchID);
+    if (touch) {
+        return 0;
     }
 
     /* Add the touch to the list of touch */
@@ -177,7 +177,7 @@ int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name
     /* We could do this on the fly in the gesture code if we wanted */
     SDL_GestureAddTouch(touchID);
 
-    return index;
+    return 0;
 }
 
 static int SDL_AddFinger(SDL_Touch *touch, SDL_FingerID fingerid, float x, float y, float pressure)
@@ -441,16 +441,13 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
     return posted;
 }
 
-void SDL_DelTouch(SDL_TouchID id)
+static void SDL_PrivateDelTouch(SDL_Touch *touch)
 {
     int i;
-    SDL_Touch *touch;
     SDL_Touch *lastTouch;
 
-    touch = SDL_GetTouch(id);
-    if (!touch) {
-        return;
-    }
+    /* Delete this touch device for gestures */
+    SDL_GestureDelTouch(touch->id);
 
     for (i = 0; i < touch->max_fingers; ++i) {
         SDL_free(touch->fingers[i]);
@@ -463,9 +460,14 @@ void SDL_DelTouch(SDL_TouchID id)
     if (touch != lastTouch) {
         SDL_copyp(touch, lastTouch);
     }
+}
 
-    /* Delete this touch device for gestures */
-    SDL_GestureDelTouch(id);
+void SDL_DelTouch(SDL_TouchID id)
+{
+    SDL_Touch *touch = SDL_PrivateGetTouch(id);
+    if (touch) {
+        SDL_PrivateDelTouch(touch);
+    }
 }
 
 void SDL_TouchQuit(void)
@@ -473,7 +475,7 @@ void SDL_TouchQuit(void)
     int i;
 
     for (i = SDL_num_touch; i--;) {
-        SDL_DelTouch(SDL_touchDevices[i].id);
+        SDL_PrivateDelTouch(&SDL_touchDevices[i]);
     }
     SDL_assert(SDL_num_touch == 0);
 

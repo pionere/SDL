@@ -37,7 +37,7 @@ typedef struct SDL_Touch
 /* Initialize the touch subsystem */
 extern int SDL_TouchInit(void);
 
-/* Add a touch, returning the index of the touch, or -1 if there was an error. */
+/* Add a touch, returning 0 or -1 if there is an error. */
 extern int SDL_AddTouch(SDL_TouchID id, SDL_TouchDeviceType type, const char *name);
 
 /* Get the touch with a given id */
