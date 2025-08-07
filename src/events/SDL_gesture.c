@@ -457,26 +457,27 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
     return numPoints;
 }
 
-static float dollarRecognize(const SDL_DollarPath *path, int *bestTempl, SDL_GestureTouch *touch)
+static int dollarRecognize(const SDL_GestureTouch *touch, float *bestDiff)
 {
-    SDL_FloatPoint points[DOLLARNPOINTS];
+    int result = -1;
     int i;
-    float bestDiff = 10000;
 
-    SDL_memset(points, 0, sizeof(points));
-
-    dollarNormalize(path, points, SDL_FALSE);
-
-    /* PrintPath(points); */
-    *bestTempl = -1;
-    for (i = 0; i < touch->numDollarTemplates; i++) {
-        float diff = bestDollarDifference(points, touch->dollarTemplate[i].path);
-        if (diff < bestDiff) {
-            bestDiff = diff;
-            *bestTempl = i;
+    if (touch->numDollarTemplates) {
+        SDL_FloatPoint points[DOLLARNPOINTS];
+        if (dollarNormalize(&touch->dollarPath, points, SDL_FALSE) == DOLLARNPOINTS) {
+            float minDiff = 10000;
+            /* PrintPath(points); */
+            for (i = 0; i < touch->numDollarTemplates; i++) {
+                float diff = bestDollarDifference(points, touch->dollarTemplate[i].path);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    result = i;
+                }
+            }
+            *bestDiff = minDiff;
         }
     }
-    return bestDiff;
+    return result;
 }
 #endif
 
@@ -619,8 +620,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
             } else {
                 int bestTempl;
                 float error;
-                error = dollarRecognize(&inTouch->dollarPath,
-                                        &bestTempl, inTouch);
+                bestTempl = dollarRecognize(inTouch, &error);
                 if (bestTempl >= 0) {
                     /* Send Event */
                     Sint64 gestureId = inTouch->dollarTemplate[bestTempl].hash;
