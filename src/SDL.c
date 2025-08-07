@@ -551,6 +551,8 @@ const char *SDL_GetPlatform(void)
     return "Nokia N-Gage";
 #elif defined(__3DS__)
     return "Nintendo 3DS";
+#elif defined(__GNU__)
+    return "GNU/Hurd";
 #else
     return "Unknown (see SDL_platform.h)";
 #endif
