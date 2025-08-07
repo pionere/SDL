@@ -413,14 +413,15 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
 
     /* printf("(%f,%f)\n",path->p[path->numPoints-1].x,path->p[path->numPoints-1].y); */
     for (i = 1; i < path->numPoints; i++) {
-        float d = SDL_sqrtf((path->p[i - 1].x - path->p[i].x) * (path->p[i - 1].x - path->p[i].x) +
-                            (path->p[i - 1].y - path->p[i].y) * (path->p[i - 1].y - path->p[i].y));
+        float dx = path->p[i].x - path->p[i - 1].x;
+        float dy = path->p[i].y - path->p[i - 1].y;
+        float d = SDL_sqrtf(dx * dx + dy * dy);
         /* printf("d = %f dist = %f/%f\n",d,dist,interval); */
         while (dist + d > interval) {
             points[numPoints].x = path->p[i - 1].x +
-                                  ((interval - dist) / d) * (path->p[i].x - path->p[i - 1].x);
+                                  ((interval - dist) / d) * dx;
             points[numPoints].y = path->p[i - 1].y +
-                                  ((interval - dist) / d) * (path->p[i].y - path->p[i - 1].y);
+                                  ((interval - dist) / d) * dy;
             centroid.x += points[numPoints].x;
             centroid.y += points[numPoints].y;
             numPoints++;
