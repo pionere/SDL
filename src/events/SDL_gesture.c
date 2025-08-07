@@ -603,23 +603,24 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 
 #if defined(ENABLE_DOLLAR)
             if (inTouch->recording) {
-                dollarNormalize(&inTouch->dollarPath, path, SDL_TRUE);
-                /* PrintPath(path); */
-                if (inTouch->recordAll) {
-                    index = SDL_AddDollarGesture(NULL, path);
-                    for (i = 0; i < SDL_numGestureTouches; i++) {
-                        SDL_gestureTouch[i].recording--;
-                        SDL_gestureTouch[i].recordAll--;
+                if (dollarNormalize(&inTouch->dollarPath, path, SDL_TRUE) == DOLLARNPOINTS) {
+                    /* PrintPath(path); */
+                    if (inTouch->recordAll) {
+                        index = SDL_AddDollarGesture(NULL, path);
+                        for (i = 0; i < SDL_numGestureTouches; i++) {
+                            SDL_gestureTouch[i].recording--;
+                            SDL_gestureTouch[i].recordAll--;
+                        }
+                    } else {
+                        index = SDL_AddDollarGesture(inTouch, path);
+                        inTouch->recording--;
                     }
-                } else {
-                    index = SDL_AddDollarGesture(inTouch, path);
-                    inTouch->recording--;
-                }
 
-                if (index >= 0) {
-                    SDL_SendDollarRecord(inTouch, inTouch->dollarTemplate[index].hash);
-                } else {
-                    SDL_SendDollarRecord(inTouch, -1);
+                    if (index >= 0) {
+                        SDL_SendDollarRecord(inTouch, inTouch->dollarTemplate[index].hash);
+                    } else {
+                        SDL_SendDollarRecord(inTouch, -1);
+                    }
                 }
             } else {
                 dollarRecognize(inTouch);
