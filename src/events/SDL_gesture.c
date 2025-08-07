@@ -139,13 +139,8 @@ static int SaveTemplate(const SDL_DollarTemplate *templ, SDL_RWops *dst)
     /* No Longer storing the Hash, rehash on load */
     /* if (SDL_RWops.write(dst, &(templ->hash), sizeof(templ->hash), 1) != 1) return 0; */
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    if (SDL_RWwrite(dst, templ->path,
-                    sizeof(templ->path[0]), DOLLARNPOINTS) != DOLLARNPOINTS) {
-        return 0;
-    }
-#else
     {
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
         SDL_DollarTemplate copy = *templ;
         SDL_FloatPoint *p = copy.path;
         int i;
@@ -153,13 +148,13 @@ static int SaveTemplate(const SDL_DollarTemplate *templ, SDL_RWops *dst)
             p->x = SDL_SwapFloatLE(p->x);
             p->y = SDL_SwapFloatLE(p->y);
         }
-
-        if (SDL_RWwrite(dst, copy.path,
-                        sizeof(copy.path[0]), DOLLARNPOINTS) != DOLLARNPOINTS) {
+        templ = &copy;
+#endif
+        if (SDL_RWwrite(dst, templ->path,
+                        sizeof(templ->path[0]), DOLLARNPOINTS) != DOLLARNPOINTS) {
             return 0;
         }
     }
-#endif
 
     return 1;
 }
