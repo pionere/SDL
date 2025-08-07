@@ -308,7 +308,7 @@ class SDL_BLooper : public BLooper
         HAIKU_SetKeyState(scancode, state);
         SDL_SendKeyboardKey(state, HAIKU_GetScancodeFromBeKey(scancode));
 
-        if (state != SDL_RELEASED && SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+        if (state != SDL_RELEASED && SDL_IsEventEnabled(SDL_TEXTINPUT)) {
             const int8 *keyUtf8;
             ssize_t count;
             if (msg->FindData("key-utf8", B_INT8_TYPE, (const void **)&keyUtf8, &count) == B_OK) {

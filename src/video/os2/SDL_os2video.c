@@ -454,7 +454,7 @@ static MRESULT EXPENTRY wndFrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp
         return WinDefWindowProc(hwnd, msg, mp1, mp2);
 
     /* Send a SDL_SYSWMEVENT if the application wants them */
-    if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
         SDL_SysWMmsg wmmsg;
 
         SDL_VERSION(&wmmsg.version);
@@ -561,7 +561,7 @@ static MRESULT EXPENTRY wndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
         return WinDefWindowProc(hwnd, msg, mp1, mp2);
 
     /* Send a SDL_SYSWMEVENT if the application wants them */
-    if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
         SDL_SysWMmsg wmmsg;
 
         SDL_VERSION(&wmmsg.version);

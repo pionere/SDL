@@ -672,7 +672,7 @@ static EM_BOOL Emscripten_HandleMouseButton(int eventType, const EmscriptenMouse
     } else {
         sdl_button_state = SDL_RELEASED;
         sdl_event_type = SDL_MOUSEBUTTONUP;
-        prevent_default = SDL_GetEventState(sdl_event_type) == SDL_ENABLE;
+        prevent_default = SDL_IsEventEnabled(sdl_event_type);
     }
     SDL_SendMouseButton(window_data->window, 0, sdl_button_state, sdl_button);
 
@@ -704,7 +704,7 @@ static EM_BOOL Emscripten_HandleMouseFocus(int eventType, const EmscriptenMouseE
     }
 
     SDL_SetMouseFocus(eventType == EMSCRIPTEN_EVENT_MOUSEENTER ? window_data->window : NULL);
-    return SDL_GetEventState(SDL_WINDOWEVENT) == SDL_ENABLE;
+    return SDL_IsEventEnabled(SDL_WINDOWEVENT);
 }
 
 static EM_BOOL Emscripten_HandleWheel(int eventType, const EmscriptenWheelEvent *wheelEvent, void *userData)
@@ -730,7 +730,7 @@ static EM_BOOL Emscripten_HandleWheel(int eventType, const EmscriptenWheelEvent 
     }
 
     SDL_SendMouseWheel(window_data->window, 0, deltaX, -deltaY, SDL_MOUSEWHEEL_NORMAL);
-    return SDL_GetEventState(SDL_MOUSEWHEEL) == SDL_ENABLE;
+    return SDL_IsEventEnabled(SDL_MOUSEWHEEL);
 }
 
 static EM_BOOL Emscripten_HandleFocus(int eventType, const EmscriptenFocusEvent *wheelEvent, void *userData)
@@ -743,7 +743,7 @@ static EM_BOOL Emscripten_HandleFocus(int eventType, const EmscriptenFocusEvent 
     }
 
     SDL_SendWindowEvent(window_data->window, eventType == EMSCRIPTEN_EVENT_FOCUS ? SDL_WINDOWEVENT_FOCUS_GAINED : SDL_WINDOWEVENT_FOCUS_LOST, 0, 0);
-    return SDL_GetEventState(SDL_WINDOWEVENT) == SDL_ENABLE;
+    return SDL_IsEventEnabled(SDL_WINDOWEVENT);
 }
 
 static EM_BOOL Emscripten_HandleTouch(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData)
@@ -776,7 +776,7 @@ static EM_BOOL Emscripten_HandleTouch(int eventType, const EmscriptenTouchEvent 
             SDL_SendTouch(deviceId, id, window_data->window, SDL_TRUE, x, y, 1.0f);
 
             /* disable browser scrolling/pinch-to-zoom if app handles touch events */
-            if (!preventDefault && SDL_GetEventState(SDL_FINGERDOWN) == SDL_ENABLE) {
+            if (!preventDefault && SDL_IsEventEnabled(SDL_FINGERDOWN)) {
                 preventDefault = 1;
             }
         } else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
@@ -840,7 +840,7 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
         is_nav_key = SDL_TRUE;
     }
 
-    if ((eventType == EMSCRIPTEN_EVENT_KEYDOWN) && (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) && !is_nav_key) {
+    if ((eventType == EMSCRIPTEN_EVENT_KEYDOWN) && SDL_IsEventEnabled(SDL_TEXTINPUT) && !is_nav_key) {
         prevent_default = SDL_FALSE;
     }
 
@@ -853,7 +853,7 @@ static EM_BOOL Emscripten_HandleKeyPress(int eventType, const EmscriptenKeyboard
     if (Emscripten_ConvertUTF32toUTF8(keyEvent->charCode, text)) {
         SDL_SendKeyboardText(text);
     }
-    return SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE;
+    return SDL_IsEventEnabled(SDL_TEXTINPUT);
 }
 
 static EM_BOOL Emscripten_HandleFullscreenChange(int eventType, const EmscriptenFullscreenChangeEvent *fullscreenChangeEvent, void *userData)

@@ -43,7 +43,7 @@ int SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_DISPLAYEVENT) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_DISPLAYEVENT)) {
         SDL_Event event;
         event.type = SDL_DISPLAYEVENT;
         event.display.event = displayevent;

@@ -227,7 +227,7 @@ static void ProcessWindowEvent(SDL_Window *sdlwin, DFBWindowEvent * evt)
                 DirectFB_TranslateKey(evt, &keysym, &unicode);
                 /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
                 SDL_SendKeyboardKey_ex(0, SDL_PRESSED, keysym.scancode);
-                if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+                if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
                     SDL_zeroa(text);
                     UnicodeToUtf8(unicode, text);
                     if (*text) {
@@ -363,7 +363,7 @@ static void ProcessInputEvent(DFBInputEvent * ievt)
             DirectFB_TranslateKeyInputEvent(ievt, &keysym, &unicode);
             /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
             SDL_SendKeyboardKey_ex(kbd_idx, SDL_PRESSED, keysym.scancode);
-            if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+            if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
                 SDL_zeroa(text);
                 UnicodeToUtf8(unicode, text);
                 if (*text) {
@@ -412,7 +412,7 @@ void DirectFB_PumpEvents(void)
                                         DFB_EVENT(&evt)) == DFB_OK) {
             if (!DirectFB_WM_ProcessEvent(w, &evt)) {
                 /* Send a SDL_SYSWMEVENT if the application wants them */
-                if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
+                if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
                     SDL_SysWMmsg wmmsg;
                     SDL_VERSION(&wmmsg.version);
                     wmmsg.subsystem = SDL_SYSWM_DIRECTFB;
@@ -428,7 +428,7 @@ void DirectFB_PumpEvents(void)
     while (devdata->events->GetEvent(devdata->events,
                                      DFB_EVENT(&ievt)) == DFB_OK) {
 
-        if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
             SDL_SysWMmsg wmmsg;
             SDL_VERSION(&wmmsg.version);
             wmmsg.subsystem = SDL_SYSWM_DIRECTFB;

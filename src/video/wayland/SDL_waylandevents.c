@@ -310,7 +310,7 @@ int Wayland_WaitEventTimeout(int timeout)
     WAYLAND_wl_display_flush(d->display);
 
 #ifdef SDL_USE_IME
-    if (!d->text_input_manager && SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+    if (!d->text_input_manager && SDL_IsEventEnabled(SDL_TEXTINPUT)) {
         SDL_IME_PumpEvents();
     }
 #endif
@@ -379,7 +379,7 @@ void Wayland_PumpEvents(void)
     int err;
 
 #ifdef SDL_USE_IME
-    if (!d->text_input_manager && SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+    if (!d->text_input_manager && SDL_IsEventEnabled(SDL_TEXTINPUT)) {
         SDL_IME_PumpEvents();
     }
 #endif

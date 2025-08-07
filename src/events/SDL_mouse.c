@@ -616,7 +616,7 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_MOUSEMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_MOUSEMOTION)) {
         SDL_Event event;
         event.motion.type = SDL_MOUSEMOTION;
         event.motion.windowID = mouse->focus ? mouse->focus->id : 0;
@@ -763,7 +763,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(type)) {
         SDL_Event event;
         event.type = type;
         event.button.windowID = mouse->focus ? mouse->focus->id : 0;
@@ -854,7 +854,7 @@ int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_MOUSEWHEEL) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_MOUSEWHEEL)) {
         SDL_Event event;
         event.type = SDL_MOUSEWHEEL;
         event.wheel.windowID = mouse->focus ? mouse->focus->id : 0;

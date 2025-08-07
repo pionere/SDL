@@ -1164,6 +1164,8 @@ extern DECLSPEC void SDLCALL SDL_FilterEvents(SDL_EventFilter filter,
 extern DECLSPEC Uint8 SDLCALL SDL_EventState(Uint32 type, int state);
 /* @} */
 #define SDL_GetEventState(type) SDL_EventState(type, SDL_QUERY)
+SDL_COMPILE_TIME_ASSERT(event_disabled, SDL_DISABLE == 0);
+#define SDL_IsEventEnabled(type) (SDL_EventState(type, SDL_QUERY) != SDL_DISABLE)
 
 /**
  * Allocate a set of user-defined events, and return the beginning event

@@ -481,7 +481,7 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(SDL_SENSORUPDATE) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_SENSORUPDATE)) {
         SDL_Event event;
         event.type = SDL_SENSORUPDATE;
         event.sensor.which = sensor->instance_id;

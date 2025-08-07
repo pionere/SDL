@@ -3387,7 +3387,7 @@ static int SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL
     /* translate the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(SDL_CONTROLLERAXISMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_CONTROLLERAXISMOTION)) {
         SDL_Event event;
         event.type = SDL_CONTROLLERAXISMOTION;
         event.caxis.which = gamecontroller->joystick->instance_id;
@@ -3438,7 +3438,7 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
     /* translate the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(event.type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(event.type)) {
         event.cbutton.which = gamecontroller->joystick->instance_id;
         event.cbutton.button = button;
         event.cbutton.state = state;
@@ -3472,10 +3472,11 @@ int SDL_GameControllerEventState(int state)
 
     switch (state) {
     case SDL_QUERY:
-        state = SDL_IGNORE;
+        SDL_INLINE_COMPILE_TIME_ASSERT(gamecontroller_event_query, SDL_DISABLE == SDL_IGNORE);
+        state = SDL_DISABLE;
         for (i = 0; i < SDL_arraysize(event_list); ++i) {
-            state = SDL_GetEventState(event_list[i]);
-            if (state == SDL_ENABLE) {
+            if (SDL_IsEventEnabled(event_list[i])) {
+                state = SDL_ENABLE;
                 break;
             }
         }

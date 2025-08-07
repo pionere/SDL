@@ -1487,11 +1487,7 @@ static int SDL_UpdateFullscreenMode(SDL_Window *window, SDL_bool fullscreen)
 
 static SDL_INLINE SDL_bool IsAcceptingDragAndDrop(void)
 {
-    if ((SDL_GetEventState(SDL_DROPFILE) == SDL_ENABLE) ||
-        (SDL_GetEventState(SDL_DROPTEXT) == SDL_ENABLE)) {
-        return SDL_TRUE;
-    }
-    return SDL_FALSE;
+    return (SDL_IsEventEnabled(SDL_DROPFILE) || SDL_IsEventEnabled(SDL_DROPTEXT)) ? SDL_TRUE : SDL_FALSE;
 }
 
 /* prepare a newly-created window */
@@ -4452,7 +4448,7 @@ SDL_bool SDL_IsTextInputShown(void)
 
 SDL_bool SDL_IsTextInputActive(void)
 {
-    return SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE;
+    return SDL_IsEventEnabled(SDL_TEXTINPUT);
 }
 
 void SDL_StopTextInput(void)

@@ -933,7 +933,7 @@ static void SDL_PumpEventsInternal(SDL_bool push_sentinel)
 
     SDL_SendPendingSignalEvents(); /* in case we had a signal handler fire, etc. */
 
-    if (push_sentinel && SDL_GetEventState(SDL_POLLSENTINEL) == SDL_ENABLE) {
+    if (push_sentinel && SDL_IsEventEnabled(SDL_POLLSENTINEL)) {
         SDL_Event sentinel;
 
         /* Make sure we don't already have a sentinel in the queue, and add one to the end */
@@ -1357,7 +1357,7 @@ int SDL_SendAppEvent(SDL_EventType eventType)
     int posted;
 
     posted = 0;
-    if (SDL_GetEventState(eventType) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(eventType)) {
         SDL_Event event;
         event.type = eventType;
         posted = (SDL_PushEvent(&event) > 0);
@@ -1370,7 +1370,7 @@ int SDL_SendSysWMEvent(SDL_SysWMmsg *message)
     int posted;
 
     posted = 0;
-    if (SDL_GetEventState(SDL_SYSWMEVENT) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
         SDL_Event event;
         event.type = SDL_SYSWMEVENT;
         event.syswm.msg = message;

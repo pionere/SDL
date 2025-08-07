@@ -790,7 +790,7 @@ void SDL_SetKeyboardFocus(SDL_Window *window)
                             0, 0);
 
         /* Ensures IME compositions are committed */
-        if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
             SDL_TextInputQuit();
         }
     }
@@ -801,7 +801,7 @@ void SDL_SetKeyboardFocus(SDL_Window *window)
         SDL_SendWindowEvent(keyboard->focus, SDL_WINDOWEVENT_FOCUS_GAINED,
                             0, 0);
 
-        if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
             SDL_TextInputInit();
         }
     }
@@ -912,7 +912,7 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(type)) {
         SDL_Event event;
         event.key.type = type;
         event.key.state = state;
@@ -1036,7 +1036,7 @@ int SDL_SendKeyboardText(const char *text)
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
         SDL_Event event;
         size_t pos = 0, advance, length = SDL_strlen(text);
 
@@ -1061,7 +1061,7 @@ int SDL_SendEditingText(const char *text, int start, int length)
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_TEXTEDITING) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_TEXTEDITING)) {
         SDL_Event event;
 
         if (SDL_GetHintBoolean(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, SDL_FALSE) &&

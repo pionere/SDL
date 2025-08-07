@@ -309,7 +309,7 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
         }
 
         posted = 0;
-        if (SDL_GetEventState(SDL_FINGERDOWN) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_FINGERDOWN)) {
             SDL_Event event;
             event.tfinger.type = SDL_FINGERDOWN;
             event.tfinger.touchId = id;
@@ -329,7 +329,7 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
         }
 
         posted = 0;
-        if (SDL_GetEventState(SDL_FINGERUP) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_FINGERUP)) {
             SDL_Event event;
             event.tfinger.type = SDL_FINGERUP;
             event.tfinger.touchId = id;
@@ -425,7 +425,7 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
 
     /* Post the event, if desired */
     posted = 0;
-    if (SDL_GetEventState(SDL_FINGERMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_FINGERMOTION)) {
         SDL_Event event;
         event.tfinger.type = SDL_FINGERMOTION;
         event.tfinger.touchId = id;

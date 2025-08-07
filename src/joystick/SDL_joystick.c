@@ -2001,7 +2001,7 @@ void SDL_PrivateJoystickAdded(SDL_JoystickID device_instance)
 
         event.type = SDL_JOYDEVICEADDED;
 
-        if (SDL_GetEventState(event.type) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(event.type)) {
             event.jdevice.which = device_index;
             SDL_PushEvent(&event);
         }
@@ -2127,7 +2127,7 @@ void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance)
 #ifndef SDL_EVENTS_DISABLED
     event.type = SDL_JOYDEVICEREMOVED;
 
-    if (SDL_GetEventState(event.type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(event.type)) {
         event.jdevice.which = device_instance;
         SDL_PushEvent(&event);
     }
@@ -2196,7 +2196,7 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(SDL_JOYAXISMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_JOYAXISMOTION)) {
         SDL_Event event;
         event.type = SDL_JOYAXISMOTION;
         event.jaxis.which = joystick->instance_id;
@@ -2237,7 +2237,7 @@ int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(SDL_JOYHATMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_JOYHATMOTION)) {
         SDL_Event event;
         event.jhat.type = SDL_JOYHATMOTION;
         event.jhat.which = joystick->instance_id;
@@ -2272,7 +2272,7 @@ int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sin
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(SDL_JOYBALLMOTION) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(SDL_JOYBALLMOTION)) {
         SDL_Event event;
         event.jball.type = SDL_JOYBALLMOTION;
         event.jball.which = joystick->instance_id;
@@ -2321,7 +2321,7 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(event.type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(event.type)) {
         event.jbutton.which = joystick->instance_id;
         event.jbutton.button = button;
         event.jbutton.state = state;
@@ -2446,10 +2446,11 @@ int SDL_JoystickEventState(int state)
 
     switch (state) {
     case SDL_QUERY:
+        SDL_INLINE_COMPILE_TIME_ASSERT(joystick_event_query, SDL_DISABLE == SDL_IGNORE);
         state = SDL_DISABLE;
         for (i = 0; i < SDL_arraysize(event_list); ++i) {
-            state = SDL_GetEventState(event_list[i]);
-            if (state == SDL_ENABLE) {
+            if (SDL_IsEventEnabled(event_list[i])) {
+                state = SDL_ENABLE;
                 break;
             }
         }
@@ -3510,7 +3511,7 @@ void SDL_PrivateJoystickBatteryLevel(SDL_Joystick *joystick, SDL_JoystickPowerLe
     SDL_assert(joystick->ref_count); /* make sure we are calling this only for update, not for initialization */
     if (ePowerLevel != joystick->epowerlevel) {
 #ifndef SDL_EVENTS_DISABLED
-        if (SDL_GetEventState(SDL_JOYBATTERYUPDATED) == SDL_ENABLE) {
+        if (SDL_IsEventEnabled(SDL_JOYBATTERYUPDATED)) {
             SDL_Event event;
             event.type = SDL_JOYBATTERYUPDATED;
             event.jbattery.which = joystick->instance_id;
@@ -3613,7 +3614,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
-    if (SDL_GetEventState(event_type) == SDL_ENABLE) {
+    if (SDL_IsEventEnabled(event_type)) {
         SDL_Event event;
         event.type = event_type;
         event.ctouchpad.which = joystick->instance_id;
@@ -3653,7 +3654,7 @@ int SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint6
 
                 /* Post the event, if desired */
 #ifndef SDL_EVENTS_DISABLED
-                if (SDL_GetEventState(SDL_CONTROLLERSENSORUPDATE) == SDL_ENABLE) {
+                if (SDL_IsEventEnabled(SDL_CONTROLLERSENSORUPDATE)) {
                     SDL_Event event;
                     event.type = SDL_CONTROLLERSENSORUPDATE;
                     event.csensor.which = joystick->instance_id;
