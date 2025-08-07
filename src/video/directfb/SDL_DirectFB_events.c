@@ -227,7 +227,7 @@ static void ProcessWindowEvent(SDL_Window *sdlwin, DFBWindowEvent * evt)
                 DirectFB_TranslateKey(evt, &keysym, &unicode);
                 /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
                 SDL_SendKeyboardKey_ex(0, SDL_PRESSED, keysym.scancode);
-                if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
+                if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
                     SDL_zeroa(text);
                     UnicodeToUtf8(unicode, text);
                     if (*text) {
@@ -363,7 +363,7 @@ static void ProcessInputEvent(DFBInputEvent * ievt)
             DirectFB_TranslateKeyInputEvent(ievt, &keysym, &unicode);
             /* printf("Scancode %d  %d %d\n", keysym.scancode, evt->key_code, evt->key_id); */
             SDL_SendKeyboardKey_ex(kbd_idx, SDL_PRESSED, keysym.scancode);
-            if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
+            if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
                 SDL_zeroa(text);
                 UnicodeToUtf8(unicode, text);
                 if (*text) {

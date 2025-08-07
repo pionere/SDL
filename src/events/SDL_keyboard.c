@@ -790,7 +790,7 @@ void SDL_SetKeyboardFocus(SDL_Window *window)
                             0, 0);
 
         /* Ensures IME compositions are committed */
-        if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
+        if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
             SDL_TextInputQuit();
         }
     }
@@ -801,7 +801,7 @@ void SDL_SetKeyboardFocus(SDL_Window *window)
         SDL_SendWindowEvent(keyboard->focus, SDL_WINDOWEVENT_FOCUS_GAINED,
                             0, 0);
 
-        if (SDL_EventState(SDL_TEXTINPUT, SDL_QUERY)) {
+        if (SDL_GetEventState(SDL_TEXTINPUT) == SDL_ENABLE) {
             SDL_TextInputInit();
         }
     }
