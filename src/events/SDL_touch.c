@@ -26,7 +26,7 @@
 #include "SDL_events_c.h"
 
 static int SDL_num_touch = 0;
-static SDL_Touch **SDL_touchDevices = NULL;
+static SDL_Touch *SDL_touchDevices = NULL;
 
 /* for mapping touch events to mice */
 
@@ -55,7 +55,7 @@ SDL_TouchID SDL_GetTouchDevice(int index)
         SDL_SetError("Unknown touch device");
         return 0;
     }
-    return SDL_touchDevices[index]->id;
+    return SDL_touchDevices[index].id;
 }
 
 const char *SDL_GetTouchName(int index)
@@ -64,7 +64,7 @@ const char *SDL_GetTouchName(int index)
         SDL_SetError("Unknown touch device");
         return NULL;
     }
-    return SDL_touchDevices[index]->name;
+    return SDL_touchDevices[index].name;
 }
 
 static int SDL_GetTouchIndex(SDL_TouchID id)
@@ -73,7 +73,7 @@ static int SDL_GetTouchIndex(SDL_TouchID id)
     SDL_Touch *touch;
 
     for (index = 0; index < SDL_num_touch; ++index) {
-        touch = SDL_touchDevices[index];
+        touch = &SDL_touchDevices[index];
         if (touch->id == id) {
             return index;
         }
@@ -88,7 +88,7 @@ SDL_Touch *SDL_GetTouch(SDL_TouchID id)
         SDL_SetError("Unknown touch device");
         return NULL;
     }
-    return SDL_touchDevices[index];
+    return &SDL_touchDevices[index];
 }
 
 SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID id)
@@ -144,7 +144,7 @@ SDL_Finger *SDL_GetTouchFinger(SDL_TouchID touchID, int index)
 
 int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name)
 {
-    SDL_Touch **touchDevices;
+    SDL_Touch *touchDevices;
     int index;
 
     index = SDL_GetTouchIndex(touchID);
@@ -153,7 +153,7 @@ int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name
     }
 
     /* Add the touch to the list of touch */
-    touchDevices = (SDL_Touch **)SDL_realloc(SDL_touchDevices,
+    touchDevices = (SDL_Touch *)SDL_realloc(SDL_touchDevices,
                                              (SDL_num_touch + 1) * sizeof(*touchDevices));
     if (!touchDevices) {
         return SDL_OutOfMemory();
@@ -162,21 +162,16 @@ int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name
     SDL_touchDevices = touchDevices;
     index = SDL_num_touch;
 
-    SDL_touchDevices[index] = (SDL_Touch *)SDL_malloc(sizeof(*SDL_touchDevices[index]));
-    if (!SDL_touchDevices[index]) {
-        return SDL_OutOfMemory();
-    }
-
     /* Added touch to list */
     ++SDL_num_touch;
 
     /* we're setting the touch properties */
-    SDL_touchDevices[index]->id = touchID;
-    SDL_touchDevices[index]->type = type;
-    SDL_touchDevices[index]->num_fingers = 0;
-    SDL_touchDevices[index]->max_fingers = 0;
-    SDL_touchDevices[index]->fingers = NULL;
-    SDL_touchDevices[index]->name = SDL_strdup(name ? name : "");
+    SDL_touchDevices[index].id = touchID;
+    SDL_touchDevices[index].type = type;
+    SDL_touchDevices[index].num_fingers = 0;
+    SDL_touchDevices[index].max_fingers = 0;
+    SDL_touchDevices[index].fingers = NULL;
+    SDL_touchDevices[index].name = SDL_strdup(name ? name : "");
 
     /* Record this touch device for gestures */
     /* We could do this on the fly in the gesture code if we wanted */
@@ -448,24 +443,26 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
 
 void SDL_DelTouch(SDL_TouchID id)
 {
-    int i, index;
+    int i;
     SDL_Touch *touch;
+    SDL_Touch *lastTouch;
 
-    index = SDL_GetTouchIndex(id);
-    if (index < 0) {
+    touch = SDL_GetTouch(id);
+    if (!touch) {
         return;
     }
-    touch = SDL_touchDevices[index];
 
     for (i = 0; i < touch->max_fingers; ++i) {
         SDL_free(touch->fingers[i]);
     }
     SDL_free(touch->fingers);
     SDL_free(touch->name);
-    SDL_free(touch);
 
     SDL_num_touch--;
-    SDL_touchDevices[index] = SDL_touchDevices[SDL_num_touch];
+    lastTouch = &SDL_touchDevices[SDL_num_touch];
+    if (touch != lastTouch) {
+        SDL_copyp(touch, lastTouch);
+    }
 
     /* Delete this touch device for gestures */
     SDL_GestureDelTouch(id);
@@ -476,7 +473,7 @@ void SDL_TouchQuit(void)
     int i;
 
     for (i = SDL_num_touch; i--;) {
-        SDL_DelTouch(SDL_touchDevices[i]->id);
+        SDL_DelTouch(SDL_touchDevices[i].id);
     }
     SDL_assert(SDL_num_touch == 0);
 
