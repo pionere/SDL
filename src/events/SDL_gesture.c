@@ -52,8 +52,6 @@ typedef struct
 
 typedef struct
 {
-    float length;
-
     int numPoints;
     SDL_FloatPoint p[MAXPATHSIZE];
 } SDL_DollarPath;
@@ -367,10 +365,10 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points, S
     float xmin, xmax, ymin, ymax;
     float ang;
     float w, h;
-    float length = path->length;
+    float length = 0.0f;
 
-    /* Calculate length if it hasn't already been done */
-    if (length <= 0) {
+    /* Calculate length */
+    {
         for (i = 1; i < path->numPoints; i++) {
             float dx = path->p[i].x - path->p[i - 1].x;
             float dy = path->p[i].y - path->p[i - 1].y;
@@ -571,7 +569,6 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 #if defined(ENABLE_DOLLAR)
     int index;
     int i;
-    float pathDx, pathDy;
 #endif
     SDL_FloatPoint lastP;
     SDL_FloatPoint lastCentroid;
@@ -651,11 +648,6 @@ void SDL_GestureProcessEvent(SDL_Event *event)
             if (path->numPoints < MAXPATHSIZE) {
                 path->p[path->numPoints].x = inTouch->centroid.x;
                 path->p[path->numPoints].y = inTouch->centroid.y;
-                pathDx =
-                    (path->p[path->numPoints].x - path->p[path->numPoints - 1].x);
-                pathDy =
-                    (path->p[path->numPoints].y - path->p[path->numPoints - 1].y);
-                path->length += SDL_sqrtf(pathDx * pathDx + pathDy * pathDy);
                 path->numPoints++;
             }
 #endif
@@ -728,7 +720,6 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                  inTouch->centroid.x,inTouch->centroid.y); */
 
 #if defined(ENABLE_DOLLAR)
-            inTouch->dollarPath.length = 0;
             inTouch->dollarPath.p[0].x = x;
             inTouch->dollarPath.p[0].y = y;
             inTouch->dollarPath.numPoints = 1;
