@@ -612,8 +612,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 #if defined(ENABLE_DOLLAR)
             SDL_DollarPath *path = &inTouch->dollarPath;
             if (path->numPoints < MAXPATHSIZE) {
-                path->p[path->numPoints].x = inTouch->centroid.x;
-                path->p[path->numPoints].y = inTouch->centroid.y;
+                SDL_copyp(&path->p[path->numPoints], &inTouch->centroid);
                 path->numPoints++;
             }
 #endif
