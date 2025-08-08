@@ -30,7 +30,7 @@ typedef struct SDL_Touch
     SDL_TouchDeviceType type;
     int num_fingers;
     int max_fingers;
-    SDL_Finger **fingers;
+    SDL_Finger *fingers;
     char *name;
 } SDL_Touch;
 

@@ -99,24 +99,15 @@ SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID id)
     return SDL_TOUCH_DEVICE_INVALID;
 }
 
-static int SDL_GetFingerIndex(const SDL_Touch *touch, SDL_FingerID fingerid)
+static SDL_Finger *SDL_GetFinger(const SDL_Touch *touch, SDL_FingerID fingerid)
 {
     int index;
     for (index = 0; index < touch->num_fingers; ++index) {
-        if (touch->fingers[index]->id == fingerid) {
-            return index;
+        if (touch->fingers[index].id == fingerid) {
+            return &touch->fingers[index];
         }
     }
-    return -1;
-}
-
-static SDL_Finger *SDL_GetFinger(const SDL_Touch *touch, SDL_FingerID id)
-{
-    int index = SDL_GetFingerIndex(touch, id);
-    if (index < 0) {
-        return NULL;
-    }
-    return touch->fingers[index];
+    return NULL;
 }
 
 int SDL_GetNumTouchFingers(SDL_TouchID touchID)
@@ -138,7 +129,7 @@ SDL_Finger *SDL_GetTouchFinger(SDL_TouchID touchID, int index)
         SDL_SetError("Unknown touch finger");
         return NULL;
     }
-    return touch->fingers[index];
+    return &touch->fingers[index];
 }
 
 int SDL_AddTouch(SDL_TouchID touchID, SDL_TouchDeviceType type, const char *name)
@@ -185,20 +176,16 @@ static int SDL_AddFinger(SDL_Touch *touch, SDL_FingerID fingerid, float x, float
     SDL_Finger *finger;
 
     if (touch->num_fingers == touch->max_fingers) {
-        SDL_Finger **new_fingers;
-        new_fingers = (SDL_Finger **)SDL_realloc(touch->fingers, (touch->max_fingers + 1) * sizeof(*touch->fingers));
+        SDL_Finger *new_fingers;
+        new_fingers = (SDL_Finger *)SDL_realloc(touch->fingers, (touch->max_fingers + 1) * sizeof(*touch->fingers));
         if (!new_fingers) {
             return SDL_OutOfMemory();
         }
         touch->fingers = new_fingers;
-        touch->fingers[touch->max_fingers] = (SDL_Finger *)SDL_malloc(sizeof(*finger));
-        if (!touch->fingers[touch->max_fingers]) {
-            return SDL_OutOfMemory();
-        }
         touch->max_fingers++;
     }
 
-    finger = touch->fingers[touch->num_fingers++];
+    finger = &touch->fingers[touch->num_fingers++];
     finger->id = fingerid;
     finger->x = x;
     finger->y = y;
@@ -208,17 +195,19 @@ static int SDL_AddFinger(SDL_Touch *touch, SDL_FingerID fingerid, float x, float
 
 static int SDL_DelFinger(SDL_Touch *touch, SDL_FingerID fingerid)
 {
-    SDL_Finger *temp;
+    SDL_Finger *finger;
+    SDL_Finger *lastFinger;
 
-    int index = SDL_GetFingerIndex(touch, fingerid);
-    if (index < 0) {
+    finger = SDL_GetFinger(touch, fingerid);
+    if (!finger) {
         return -1;
     }
 
     touch->num_fingers--;
-    temp = touch->fingers[index];
-    touch->fingers[index] = touch->fingers[touch->num_fingers];
-    touch->fingers[touch->num_fingers] = temp;
+    lastFinger = &touch->fingers[touch->num_fingers];
+    if (finger != lastFinger) {
+        SDL_copyp(finger, lastFinger);
+    }
     return 0;
 }
 
@@ -443,15 +432,11 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
 
 static void SDL_PrivateDelTouch(SDL_Touch *touch)
 {
-    int i;
     SDL_Touch *lastTouch;
 
     /* Delete this touch device for gestures */
     SDL_GestureDelTouch(touch->id);
 
-    for (i = 0; i < touch->max_fingers; ++i) {
-        SDL_free(touch->fingers[i]);
-    }
     SDL_free(touch->fingers);
     SDL_free(touch->name);
 
