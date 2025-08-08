@@ -20,7 +20,7 @@
 */
 
 #include "../SDL_internal.h"
-
+#ifndef SDL_GESTURES_DISABLED
 /* General gesture handling code for SDL */
 
 #include "SDL_events.h"
@@ -695,5 +695,41 @@ void SDL_GestureProcessEvent(SDL_Event *event)
         }
     }
 }
+#else
+void SDL_GestureAddTouch(SDL_TouchID touchId)
+{
+}
+void SDL_GestureDelTouch(SDL_TouchID touchId)
+{
+}
+
+void SDL_GestureProcessEvent(SDL_Event *event)
+{
+}
+
+void SDL_GestureQuit(void)
+{
+}
+
+int SDL_RecordGesture(SDL_TouchID touchId)
+{
+    return SDL_SetError("Unsupported, because SDL2 is compiled without gestures support");
+}
+
+int SDL_SaveAllDollarTemplates(SDL_RWops *dst)
+{
+    return SDL_SetError("Unsupported, because SDL2 is compiled without gestures support");
+}
+
+int SDL_SaveDollarTemplate(SDL_GestureID gestureId, SDL_RWops *dst)
+{
+    return SDL_SetError("Unsupported, because SDL2 is compiled without gestures support");
+}
+
+int SDL_LoadDollarTemplates(SDL_TouchID touchId, SDL_RWops *src)
+{
+    return SDL_SetError("Unsupported, because SDL2 is compiled without gestures support");
+}
+#endif // SDL_GESTURES_DISABLED
 
 /* vi: set ts=4 sw=4 expandtab: */

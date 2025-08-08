@@ -332,6 +332,15 @@ if test x$enable_resampler != xyes; then
     AC_DEFINE(SDL_RESAMPLER_DISABLED, 1, [ ])
 fi
 
+dnl See whether we want gestures
+AC_ARG_ENABLE(gestures,
+[AS_HELP_STRING([--enable-gestures],
+               [Support gestures [default=yes]])],
+              , enable_gestures=yes)
+if test x$enable_gestures != xyes; then
+    AC_DEFINE(SDL_GESTURES_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want to build robust library
 AC_ARG_ENABLE(sanitize_access,
 [AS_HELP_STRING([--enable-sanitize-access],
@@ -5295,6 +5304,11 @@ if test x$enable_resampler = xyes; then
     SUMMARY="${SUMMARY}Resampler           : YES\n"
 else
     SUMMARY="${SUMMARY}Resampler           : NO\n"
+fi
+if test x$enable_gestures = xyes; then
+    SUMMARY="${SUMMARY}Gestures            : YES\n"
+else
+    SUMMARY="${SUMMARY}Gestures            : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
 if test x$enable_logging = xyes; then

@@ -857,6 +857,7 @@ enable_rle_accel
 enable_blitTRANSFORM
 enable_yuv_format
 enable_resampler
+enable_gestures
 enable_sanitize_access
 enable_test
 enable_verbose_error
@@ -1680,6 +1681,7 @@ Optional Features:
   --enable-blitTRANSFORM  Use optimized functions from 'SDL_blit_AUTO.c' and 'SDL_blit_1.c' to blit with modulate color, modulate alpha [default=yes]
   --enable-yuv-format     Support YUV formats [default=yes]
   --enable-resampler      Support resampling of audio [default=yes]
+  --enable-gestures       Support gestures [default=yes]
   --enable-sanitize-access
                           Build robust library with checks against unreasonable parameters/calls. [default=yes]
   --enable-verbose-error  Enable verbose errors [default=yes]
@@ -18907,6 +18909,17 @@ if test x$enable_resampler != xyes; then
 
 printf "%s\n" "#define SDL_RESAMPLER_DISABLED 1" >>confdefs.h
 
+# Check whether --enable-gestures was given.
+if test ${enable_gestures+y}
+then :
+  enableval=$enable_gestures;
+else
+  enable_gestures=yes
+fi
+if test x$enable_gestures != xyes; then
+
+printf "%s\n" "#define SDL_GESTURES_DISABLED 1" >>confdefs.h
+
 fi
 # Check whether --enable-sanitize-access was given.
 if test ${enable_sanitize_access+y}
@@ -30690,6 +30703,11 @@ if test x$enable_resampler = xyes; then
     SUMMARY="${SUMMARY}Resampler           : YES\n"
 else
     SUMMARY="${SUMMARY}Resampler           : NO\n"
+fi
+if test x$enable_gestures = xyes; then
+    SUMMARY="${SUMMARY}Gestures            : YES\n"
+else
+    SUMMARY="${SUMMARY}Gestures            : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
 if test x$enable_logging = xyes; then
