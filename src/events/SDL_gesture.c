@@ -669,7 +669,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                 dtheta = SDL_atan2f(lv.x * v.y - lv.y * v.x, lv.x * v.x + lv.y * v.y);
 
                 dDist = (Dist - lDist);
-                if (lDist == 0) {
+                if (Dist == 0 || lDist == 0) {
                     /* To avoid impossible values */
                     dDist = 0;
                     dtheta = 0;
