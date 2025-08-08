@@ -590,7 +590,7 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                         }
                     }
                 } else {
-                    if (inTouch->recording) {
+                    if (inTouch->recording && inTouch->numDownFingers == 0) {
                         SDL_SetError("Empty path.");
                     }
                 }
