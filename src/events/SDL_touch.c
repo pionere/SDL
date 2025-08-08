@@ -25,6 +25,16 @@
 #include "SDL_events.h"
 #include "SDL_events_c.h"
 
+typedef struct SDL_Touch
+{
+    SDL_TouchID id;
+    SDL_TouchDeviceType type;
+    int num_fingers;
+    int max_fingers;
+    SDL_Finger *fingers;
+    char *name;
+} SDL_Touch;
+
 static int SDL_num_touch = 0;
 static SDL_Touch *SDL_touchDevices = NULL;
 
@@ -81,7 +91,7 @@ static SDL_Touch *SDL_PrivateGetTouch(SDL_TouchID id)
     return NULL;
 }
 
-SDL_Touch *SDL_GetTouch(SDL_TouchID id)
+static SDL_Touch *SDL_GetTouch(SDL_TouchID id)
 {
     SDL_Touch *touch = SDL_PrivateGetTouch(id);
     if (!touch) {

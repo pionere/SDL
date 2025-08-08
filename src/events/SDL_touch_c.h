@@ -24,24 +24,11 @@
 #ifndef SDL_touch_c_h_
 #define SDL_touch_c_h_
 
-typedef struct SDL_Touch
-{
-    SDL_TouchID id;
-    SDL_TouchDeviceType type;
-    int num_fingers;
-    int max_fingers;
-    SDL_Finger *fingers;
-    char *name;
-} SDL_Touch;
-
 /* Initialize the touch subsystem */
 extern int SDL_TouchInit(void);
 
 /* Add a touch, returning 0 or -1 if there is an error. */
 extern int SDL_AddTouch(SDL_TouchID id, SDL_TouchDeviceType type, const char *name);
-
-/* Get the touch with a given id */
-extern SDL_Touch *SDL_GetTouch(SDL_TouchID id);
 
 /* Send a touch down/up event for a touch */
 extern int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
