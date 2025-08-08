@@ -532,22 +532,11 @@ static void SDL_SendGestureMulti(const SDL_GestureTouch *touch, float dTheta, fl
 
 void SDL_GestureProcessEvent(SDL_Event *event)
 {
-    float x, y;
-#if defined(ENABLE_DOLLAR)
-    int index;
-    int i;
-#endif
-    SDL_FloatPoint lastP;
-    SDL_FloatPoint lastCentroid;
-    float lDist;
-    float Dist;
-    float dtheta;
-    float dDist;
-
     if (event->type == SDL_FINGERMOTION ||
         event->type == SDL_FINGERDOWN ||
         event->type == SDL_FINGERUP) {
         SDL_GestureTouch *inTouch = SDL_GetGestureTouch(event->tfinger.touchId);
+        float x, y;
 
         /* Shouldn't be possible */
         if (!inTouch) {
@@ -559,17 +548,16 @@ void SDL_GestureProcessEvent(SDL_Event *event)
 
         /* Finger Up */
         if (event->type == SDL_FINGERUP) {
-#if defined(ENABLE_DOLLAR)
-            SDL_FloatPoint points[DOLLARNPOINTS];
-#endif
-
             inTouch->numDownFingers--;
 
 #if defined(ENABLE_DOLLAR)
             if (inTouch->recording || inTouch->numDollarTemplates) {
+                int i;
+                SDL_FloatPoint points[DOLLARNPOINTS];
                 if (dollarNormalize(&inTouch->dollarPath, points) >= 0) {
                     if (inTouch->recording) {
                         /* PrintPath(points); */
+                        int index;
                         if (inTouch->recordAll) {
                             index = SDL_AddDollarGesture(NULL, points);
                             for (i = 0; i < SDL_numGestureTouches; i++) {
@@ -618,8 +606,9 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                                       inTouch->numDownFingers;
             }
         } else if (event->type == SDL_FINGERMOTION) {
-            float dx = event->tfinger.dx;
-            float dy = event->tfinger.dy;
+            float dx, dy;
+            SDL_FloatPoint lastP;
+            SDL_FloatPoint lastCentroid;
 #if defined(ENABLE_DOLLAR)
             SDL_DollarPath *path = &inTouch->dollarPath;
             if (path->numPoints < MAXPATHSIZE) {
@@ -628,6 +617,8 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                 path->numPoints++;
             }
 #endif
+            dx = event->tfinger.dx;
+            dy = event->tfinger.dy;
             lastP.x = x - dx;
             lastP.y = y - dy;
             lastCentroid = inTouch->centroid;
@@ -638,6 +629,8 @@ void SDL_GestureProcessEvent(SDL_Event *event)
             if (inTouch->numDownFingers > 1) {
                 SDL_FloatPoint lv; /* Vector from centroid to last x,y position */
                 SDL_FloatPoint v;  /* Vector from centroid to current x,y position */
+                float lDist, Dist;
+                float dDist, dtheta;
                 /* lv = inTouch->gestureLast[j].cv; */
                 lv.x = lastP.x - lastCentroid.x;
                 lv.y = lastP.y - lastCentroid.y;
