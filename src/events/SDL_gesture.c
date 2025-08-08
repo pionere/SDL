@@ -660,16 +660,15 @@ void SDL_GestureProcessEvent(SDL_Event *event)
                 /* inTouch->gestureLast[j].cv = v; */
                 Dist = SDL_sqrtf(v.x * v.x + v.y * v.y);
                 /* SDL_cos(dTheta) = (v . lv)/(|v| * |lv|) */
-
-                /* Normalize Vectors to simplify angle calculation */
-                lv.x /= lDist;
-                lv.y /= lDist;
-                v.x /= Dist;
-                v.y /= Dist;
-                dtheta = SDL_atan2f(lv.x * v.y - lv.y * v.x, lv.x * v.x + lv.y * v.y);
-
-                dDist = (Dist - lDist);
-                if (Dist == 0 || lDist == 0) {
+#if 1
+                SDL_INLINE_COMPILE_TIME_ASSERT(gesture_cmp_zero, sizeof(Dist) == sizeof(int) && sizeof(lDist) == sizeof(int));
+                if (*((int*)(&Dist)) != 0 && *((int*)(&lDist)) != 0) {
+#else
+                if (Dist != 0 && lDist != 0) {
+#endif
+                    dDist = (Dist - lDist);
+                    dtheta = SDL_atan2f(lv.x * v.y - lv.y * v.x, lv.x * v.x + lv.y * v.y);
+                } else {
                     /* To avoid impossible values */
                     dDist = 0;
                     dtheta = 0;
