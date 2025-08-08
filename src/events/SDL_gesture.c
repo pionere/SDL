@@ -477,34 +477,6 @@ static int dollarNormalize(const SDL_DollarPath *path, SDL_FloatPoint *points)
     }
     return 0;
 }
-
-static void dollarRecognize(const SDL_GestureTouch *touch)
-{
-    int i;
-
-    if (touch->numDollarTemplates) {
-        SDL_FloatPoint points[DOLLARNPOINTS];
-        if (dollarNormalize(&touch->dollarPath, points) >= 0) {
-            float minDiff = 10000;
-            const SDL_DollarTemplate *bestTempl = NULL;
-            /* PrintPath(points); */
-            for (i = 0; i < touch->numDollarTemplates; i++) {
-                const SDL_DollarTemplate *templ = &touch->dollarTemplate[i];
-                float diff = bestDollarDifference(points, templ->path);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    bestTempl = templ;
-                }
-            }
-            /* Send Event */
-            if (bestTempl != NULL) {
-                Sint64 gestureId = bestTempl->hash;
-                SDL_SendGestureDollar(touch, gestureId, minDiff);
-                /* printf ("%s\n",);("Dollar error: %f\n",minDiff); */
-            }
-        }
-    }
-}
 #endif
 
 void SDL_GestureAddTouch(SDL_TouchID touchId)
@@ -588,36 +560,52 @@ void SDL_GestureProcessEvent(SDL_Event *event)
         /* Finger Up */
         if (event->type == SDL_FINGERUP) {
 #if defined(ENABLE_DOLLAR)
-            SDL_FloatPoint path[DOLLARNPOINTS];
+            SDL_FloatPoint points[DOLLARNPOINTS];
 #endif
 
             inTouch->numDownFingers--;
 
 #if defined(ENABLE_DOLLAR)
-            if (inTouch->recording) {
-                if (dollarNormalize(&inTouch->dollarPath, path) >= 0) {
-                    /* PrintPath(path); */
-                    if (inTouch->recordAll) {
-                        index = SDL_AddDollarGesture(NULL, path);
-                        for (i = 0; i < SDL_numGestureTouches; i++) {
-                            SDL_gestureTouch[i].recording--;
-                            SDL_gestureTouch[i].recordAll--;
+            if (inTouch->recording || inTouch->numDollarTemplates) {
+                if (dollarNormalize(&inTouch->dollarPath, points) >= 0) {
+                    if (inTouch->recording) {
+                        /* PrintPath(points); */
+                        if (inTouch->recordAll) {
+                            index = SDL_AddDollarGesture(NULL, points);
+                            for (i = 0; i < SDL_numGestureTouches; i++) {
+                                SDL_gestureTouch[i].recording--;
+                                SDL_gestureTouch[i].recordAll--;
+                            }
+                        } else {
+                            index = SDL_AddDollarGesture(inTouch, points);
+                            inTouch->recording--;
                         }
-                    } else {
-                        index = SDL_AddDollarGesture(inTouch, path);
-                        inTouch->recording--;
-                    }
 
-                    if (index >= 0) {
-                        SDL_SendDollarRecord(inTouch, inTouch->dollarTemplate[index].hash);
+                        SDL_SendDollarRecord(inTouch, index >= 0 ? inTouch->dollarTemplate[index].hash : -1);
                     } else {
-                        SDL_SendDollarRecord(inTouch, -1);
+                        float minDiff = 10000;
+                        const SDL_DollarTemplate *bestTempl = NULL;
+                        /* PrintPath(points); */
+                        for (i = 0; i < inTouch->numDollarTemplates; i++) {
+                            const SDL_DollarTemplate *templ = &inTouch->dollarTemplate[i];
+                            float diff = bestDollarDifference(points, templ->path);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                bestTempl = templ;
+                            }
+                        }
+                        /* Send Event */
+                        if (bestTempl != NULL) {
+                            Sint64 gestureId = bestTempl->hash;
+                            SDL_SendGestureDollar(inTouch, gestureId, minDiff);
+                            /* printf ("%s\n",);("Dollar error: %f\n",minDiff); */
+                        }
                     }
                 } else {
-                    SDL_SetError("Empty path.");
+                    if (inTouch->recording) {
+                        SDL_SetError("Empty path.");
+                    }
                 }
-            } else {
-                dollarRecognize(inTouch);
             }
 #endif
             /* inTouch->gestureLast[j] = inTouch->gestureLast[inTouch->numDownFingers]; */
