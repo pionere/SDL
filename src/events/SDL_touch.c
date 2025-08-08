@@ -203,22 +203,15 @@ static int SDL_AddFinger(SDL_Touch *touch, SDL_FingerID fingerid, float x, float
     return 0;
 }
 
-static int SDL_DelFinger(SDL_Touch *touch, SDL_FingerID fingerid)
+static void SDL_DelFinger(SDL_Touch *touch, SDL_Finger *finger)
 {
-    SDL_Finger *finger;
     SDL_Finger *lastFinger;
-
-    finger = SDL_GetFinger(touch, fingerid);
-    if (!finger) {
-        return -1;
-    }
 
     touch->num_fingers--;
     lastFinger = &touch->fingers[touch->num_fingers];
     if (finger != lastFinger) {
         SDL_copyp(finger, lastFinger);
     }
-    return 0;
 }
 
 int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
@@ -343,7 +336,7 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
             posted = (SDL_PushEvent(&event) > 0);
         }
 
-        SDL_DelFinger(touch, fingerid);
+        SDL_DelFinger(touch, finger);
     }
     return posted;
 }
