@@ -108,6 +108,7 @@ int SDL_RecordGesture(SDL_TouchID touchId)
 
 void SDL_GestureQuit(void)
 {
+    SDL_assert(SDL_numGestureTouches == 0);
     SDL_free(SDL_gestureTouch);
     SDL_gestureTouch = NULL;
 }
