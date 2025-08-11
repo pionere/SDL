@@ -215,14 +215,15 @@ void CAudio::StopThread()
 static Uint8 *NGAGEAUDIO_GetDeviceBuf(SDL_AudioDevice *device)
 {
     SDL_PrivateAudioData *phdata = (SDL_PrivateAudioData *)device->hidden;
-    SDL_INLINE_COMPILE_TIME_ASSERT(ngagebuf, NUM_BUFFERS == 2);
-    return &phdata->buffer[(phdata->next_buffer ? 1 : 0) * device->spec.size];
+    // SDL_INLINE_COMPILE_TIME_ASSERT(ngagebuf, NUM_BUFFERS == 2);
+    // return &phdata->buffer[(phdata->next_buffer ? 1 : 0) * device->spec.size];
+    return phdata->buffer;
 }
 
 static void NGAGEAUDIO_PlayDevice(SDL_AudioDevice *device)
 {
-    SDL_PrivateAudioData *phdata = (SDL_PrivateAudioData *)device->hidden;
-    phdata->next_buffer = (phdata->next_buffer + 1) % NUM_BUFFERS;
+    // SDL_PrivateAudioData *phdata = (SDL_PrivateAudioData *)device->hidden;
+    // phdata->next_buffer = (phdata->next_buffer + 1) % NUM_BUFFERS;
 }
 
 static void SDL_PlaybackAudioThreadIterate(SDL_AudioDevice *device)
