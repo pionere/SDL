@@ -27,51 +27,53 @@
 void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
 {
     int current_locale_int = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
-
-    SDL_assert(buflen > 0);
+    const char *locale;
 
     sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &current_locale_int);
     switch(current_locale_int) {
         case PSP_SYSTEMPARAM_LANGUAGE_JAPANESE:
-            SDL_strlcpy(buf, "ja_JP", buflen);
+            locale = "ja_JP";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_ENGLISH:
-            SDL_strlcpy(buf, "en_US", buflen);
+            locale = "en_US";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_FRENCH:
-            SDL_strlcpy(buf, "fr_FR", buflen);
+            locale = "fr_FR";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_SPANISH:
-            SDL_strlcpy(buf, "es_ES", buflen);
+            locale = "es_ES";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_GERMAN:
-            SDL_strlcpy(buf, "de_DE", buflen);
+            locale = "de_DE";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_ITALIAN:
-            SDL_strlcpy(buf, "it_IT", buflen);
+            locale = "it_IT";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_DUTCH:
-            SDL_strlcpy(buf, "nl_NL", buflen);
+            locale = "nl_NL";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_PORTUGUESE:
-            SDL_strlcpy(buf, "pt_PT", buflen);
+            locale = "pt_PT";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_RUSSIAN:
-            SDL_strlcpy(buf, "ru_RU", buflen);
+            locale = "ru_RU";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_KOREAN:
-            SDL_strlcpy(buf, "ko_KR", buflen);
+            locale = "ko_KR";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_TRADITIONAL:
-            SDL_strlcpy(buf, "zh_TW", buflen);
+            locale = "zh_TW";
             break;
         case PSP_SYSTEMPARAM_LANGUAGE_CHINESE_SIMPLIFIED:
-            SDL_strlcpy(buf, "zh_CN", buflen);
+            locale = "zh_CN";
             break;
         default:
-            SDL_strlcpy(buf, "en_US", buflen);
+            locale = "en_US";
             break;
     }
+    SDL_assert(SDL_strlen(locale) + 1 == 6);
+    SDL_assert(buflen >= 6);
+    SDL_memcpy(buf, locale, 6);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

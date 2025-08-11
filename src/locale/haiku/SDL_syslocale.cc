@@ -56,7 +56,7 @@ void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
             break;  // can't fit it, we're done.
         }
 
-        SDL_strlcpy(buf, str, buflen);
+        SDL_memcpy(buf, str, len + 1);
         buf += len;
         buflen -= len;
 

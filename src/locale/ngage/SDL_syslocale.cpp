@@ -301,5 +301,7 @@ void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
         break;
     }
 
-    SDL_strlcpy(buf, locale, buflen);
+    SDL_assert(SDL_strlen(locale) + 1 == 6);
+    SDL_assert(buflen >= 6);
+    SDL_memcpy(buf, locale, 6);
 }

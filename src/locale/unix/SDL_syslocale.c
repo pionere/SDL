@@ -65,32 +65,26 @@ static void normalize_locales(char *dst, char *src, size_t buflen)
 void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
 {
     /* !!! FIXME: should we be using setlocale()? Or some D-Bus thing? */
-    SDL_bool isstack;
     const char *envr;
-    char *tmp;
+    char tmp[128];
 
     SDL_assert(buflen > 0);
-    tmp = SDL_small_alloc(char, buflen, &isstack);
-    if (!tmp) {
-        SDL_OutOfMemory();
-        return;
-    }
 
     *tmp = '\0';
 
     /* LANG is the primary locale (maybe) */
     envr = SDL_getenv("LANG");
     if (envr) {
-        SDL_strlcpy(tmp, envr, buflen);
+        SDL_strlcpy(tmp, envr, SDL_arraysize(tmp));
     }
 
     /* fallback languages */
     envr = SDL_getenv("LANGUAGE");
     if (envr) {
         if (*tmp) {
-            SDL_strlcat(tmp, ":", buflen);
+            SDL_strlcat(tmp, ":", SDL_arraysize(tmp));
         }
-        SDL_strlcat(tmp, envr, buflen);
+        SDL_strlcat(tmp, envr, SDL_arraysize(tmp));
     }
 
     if (*tmp == '\0') {
@@ -98,8 +92,6 @@ void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
     } else {
         normalize_locales(buf, tmp, buflen);
     }
-
-    SDL_small_free(tmp, isstack);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

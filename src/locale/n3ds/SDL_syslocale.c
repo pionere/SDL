@@ -36,8 +36,9 @@ void SDL_SYS_GetPreferredLocales(char *buf, size_t buflen)
                                                  "it_IT", "es_ES", "zh_CN", "ko_KR",
                                                  "nl_NL", "pt_PT", "ru_RU", "zh_TW" };
     u8 current_locale = GetLocaleIndex();
-    if (current_locale != BAD_LOCALE) {
-        SDL_strlcpy(buf, AVAILABLE_LOCALES[current_locale], buflen);
+    if (current_locale < (unsigned)SDL_arraysize(AVAILABLE_LOCALES)) {
+        SDL_assert(buflen >= sizeof(AVAILABLE_LOCALES[0]));
+        SDL_memcpy(buf, AVAILABLE_LOCALES[current_locale], sizeof(AVAILABLE_LOCALES[0]));
     }
 }
 
