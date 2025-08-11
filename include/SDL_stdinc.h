@@ -438,6 +438,8 @@ SDL_COMPILE_TIME_ASSERT(sint64, sizeof(Sint64) == 8);
 #endif /* DOXYGEN_SHOULD_IGNORE_THIS */
 /** \endcond */
 
+#define SDL_member_size(type, member) (sizeof( ((type *)0)->member ))
+
 /* Check to make sure enums are the size of ints, for structure packing.
    For both Watcom C/C++ and Borland C/C++ the compiler option that makes
    enums having the size of an int must be enabled.

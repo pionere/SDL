@@ -71,6 +71,13 @@ static ATOM SDL_HelperWindowClass = 0;
 #define STYLE_RESIZABLE           (WS_THICKFRAME | WS_MAXIMIZEBOX)
 #define STYLE_MASK                (STYLE_FULLSCREEN | STYLE_BORDERLESS | STYLE_NORMAL | STYLE_RESIZABLE)
 
+SDL_COMPILE_TIME_ASSERT(window_win2point, 0 == offsetof(POINT, x) && offsetof(RECT, top) == offsetof(POINT, y) &&
+        SDL_member_size(RECT, left) == SDL_member_size(POINT, x) && SDL_member_size(RECT, top) == SDL_member_size(POINT, y));
+#define TopLeft(rect)  ((LPPOINT)&(rect)->left)
+SDL_COMPILE_TIME_ASSERT(window_win2point, 0 == offsetof(POINT, x) && offsetof(RECT, bottom) - offsetof(RECT, right) == offsetof(POINT, y) &&
+        SDL_member_size(RECT, right) == SDL_member_size(POINT, x) && SDL_member_size(RECT, bottom) == SDL_member_size(POINT, y));
+#define BottomRight(rect)  ((LPPOINT)&(rect)->right)
+
 static DWORD GetWindowStyle(SDL_Window *window)
 {
     DWORD style = 0;
@@ -358,8 +365,7 @@ static int SetupWindowData(SDL_Window *window, HWND hwnd, HWND parent)
     {
         RECT rect;
         if (GetClientRect(hwnd, &rect)) {
-            SDL_INLINE_COMPILE_TIME_ASSERT(win_rect_point, offsetof(RECT, bottom) == offsetof(RECT, right) + sizeof(rect.right));
-            WIN_ClientPointToSDL(window, (POINT *)&rect.right);
+            WIN_ClientPointToSDL(window, BottomRight(&rect));
             if ((window->windowed.w && window->windowed.w != rect.right) || (window->windowed.h && window->windowed.h != rect.bottom)) {
                 /* We tried to create a window larger than the desktop and Windows didn't allow it.  Override! */
                 int x, y, w, h;
@@ -671,41 +677,19 @@ int WIN_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *botto
 #else  /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
     HWND hwnd = ((SDL_WindowData *)window->driverdata)->hwnd;
     RECT rcClient, rcWindow;
-    POINT ptDiff;
 
     /* rcClient stores the size of the inner window, while rcWindow stores the outer size relative to the top-left
      * screen position; so the top/left values of rcClient are always {0,0} and bottom/right are {height,width} */
-    if (!GetClientRect(hwnd, &rcClient)) {
-        return WIN_SetError("GetClientRect() failed");
-    }
-
-    if (!GetWindowRect(hwnd, &rcWindow)) {
-        return WIN_SetError("GetWindowRect() failed");
-    }
+    GetClientRect(hwnd, &rcClient);
+    GetWindowRect(hwnd, &rcWindow);
 
     /* convert the top/left values to make them relative to
      * the window; they will end up being slightly negative */
-    ptDiff.y = rcWindow.top;
-    ptDiff.x = rcWindow.left;
-
-    if (!ScreenToClient(hwnd, &ptDiff)) {
-        return WIN_SetError("ScreenToClient() failed");
-    }
-
-    rcWindow.top = ptDiff.y;
-    rcWindow.left = ptDiff.x;
+    ScreenToClient(hwnd, TopLeft(&rcWindow));
 
     /* convert the bottom/right values to make them relative to the window,
      * these will be slightly bigger than the inner width/height */
-    ptDiff.y = rcWindow.bottom;
-    ptDiff.x = rcWindow.right;
-
-    if (!ScreenToClient(hwnd, &ptDiff)) {
-        return WIN_SetError("ScreenToClient() failed");
-    }
-
-    rcWindow.bottom = ptDiff.y;
-    rcWindow.right = ptDiff.x;
+    ScreenToClient(hwnd, BottomRight(&rcWindow));
 
     /* Now that both the inner and outer rects use the same coordinate system we can substract them to get the border size.
      * Keep in mind that the top/left coordinates of rcWindow are negative because the border lies slightly before {0,0},
@@ -713,7 +697,7 @@ int WIN_GetWindowBordersSize(SDL_Window *window, int *top, int *left, int *botto
     *top    = rcClient.top    - rcWindow.top;
     *left   = rcClient.left   - rcWindow.left;
     *bottom = rcWindow.bottom - rcClient.bottom;
-    *right = rcWindow.right - rcClient.right;
+    *right  = rcWindow.right  - rcClient.right;
 
     return 0;
 #endif /*!defined(__XBOXONE__) && !defined(__XBOXSERIES__)*/
@@ -1254,8 +1238,8 @@ void WIN_OnWindowEnter(SDL_Window *window)
 static BOOL GetClientScreenRect(HWND hwnd, RECT *rect)
 {
     return GetClientRect(hwnd, rect) &&             /* RECT( left , top , right , bottom )   */
-           ClientToScreen(hwnd, (LPPOINT)rect) &&   /* POINT( left , top )                    */
-           ClientToScreen(hwnd, (LPPOINT)rect + 1); /*             POINT( right , bottom )   */
+           ClientToScreen(hwnd, TopLeft(rect)) &&   /* POINT( left , top )                    */
+           ClientToScreen(hwnd, BottomRight(rect)); /*             POINT( right , bottom )   */
 }
 
 void WIN_UpdateClipCursor(SDL_Window *window)
