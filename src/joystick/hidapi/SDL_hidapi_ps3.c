@@ -295,7 +295,9 @@ static int HIDAPI_DriverPS3_SendJoystickEffect(SDL_HIDAPI_Device *device, SDL_Jo
     data[0] = k_EPS3ReportIdEffects;
     report_size = sizeof(data);
     offset = 1;
-    SDL_memcpy(&data[offset], effect, SDL_min((sizeof(data) - offset), (size_t)size));
+    if (effect) {
+        SDL_memcpy(&data[offset], effect, SDL_min((sizeof(data) - offset), (size_t)size));
+    }
 
     if (SDL_HIDAPI_SendRumble(device, data, report_size) != report_size) {
         return SDL_SetError("Couldn't send rumble packet");

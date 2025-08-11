@@ -862,8 +862,9 @@ static int HIDAPI_DriverPS4_SendJoystickEffect(SDL_HIDAPI_Device *device, SDL_Jo
         report_size = 32;
         offset = 4;
     }
-
-    SDL_memcpy(&data[offset], effect, SDL_min((sizeof(data) - offset), (size_t)size));
+    if (effect) {
+        SDL_memcpy(&data[offset], effect, SDL_min((sizeof(data) - offset), (size_t)size));
+    }
 
     if (device->is_bluetooth) {
         /* Bluetooth reports need a CRC at the end of the packet (at least on Linux) */

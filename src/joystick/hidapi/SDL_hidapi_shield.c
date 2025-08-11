@@ -144,24 +144,17 @@ static int HIDAPI_DriverShield_SendCommand(SDL_HIDAPI_Device *device, Uint8 cmd,
     SDL_DriverShield_Context *ctx = (SDL_DriverShield_Context *)device->context;
     ShieldCommandReport_t cmd_pkt;
 
-    if (size > sizeof(cmd_pkt.payload)) {
-        return SDL_SetError("Command data exceeds HID report size");
-    }
-
     if (SDL_HIDAPI_LockRumble() < 0) {
         return -1;
     }
+
+    SDL_zero(cmd_pkt);
 
     cmd_pkt.report_id = k_ShieldReportIdCommandRequest;
     cmd_pkt.cmd = cmd;
     cmd_pkt.seq_num = ctx->seq_num++;
     if (data) {
-        SDL_memcpy(cmd_pkt.payload, data, size);
-    }
-
-    /* Zero unused data in the payload */
-    if (size != sizeof(cmd_pkt.payload)) {
-        SDL_memset(&cmd_pkt.payload[size], 0, sizeof(cmd_pkt.payload) - size);
+        SDL_memcpy(cmd_pkt.payload, data, SDL_min(sizeof(cmd_pkt.payload), (size_t)size));
     }
 
     if (SDL_HIDAPI_SendRumbleAndUnlock(device, (Uint8 *)&cmd_pkt, sizeof(cmd_pkt)) != sizeof(cmd_pkt)) {
