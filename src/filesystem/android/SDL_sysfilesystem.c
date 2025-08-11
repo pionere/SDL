@@ -49,7 +49,9 @@ char *SDL_GetPrefPath(const char *org, const char *app)
             SDL_OutOfMemory();
             return NULL;
         }
-        SDL_snprintf(fullpath, pathlen, "%s/", path);
+        SDL_memcpy(fullpath, path, pathlen - 2);
+        fullpath[pathlen - 2] = '/';
+        fullpath[pathlen - 1] = '\0';
         return fullpath;
     }
     return NULL;

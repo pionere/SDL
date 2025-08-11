@@ -37,10 +37,10 @@ char *SDL_GetBasePath(void)
     char *retval = "/";
     return SDL_strdup(retval);
 }
-
+#define PREFPATH_APPEND "/libsdl/"
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
-    const char *append = "/libsdl/";
+    const char *append = PREFPATH_APPEND;
     char *retval;
     char *ptr = NULL;
     size_t len = 0;
@@ -53,7 +53,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
         org = "";
     }
 
-    len = SDL_strlen(append) + SDL_strlen(org) + SDL_strlen(app) + 3;
+    len = (sizeof(PREFPATH_APPEND) - 1) + SDL_strlen(org) + SDL_strlen(app) + 3;
     retval = (char *)SDL_malloc(len);
     if (!retval) {
         SDL_OutOfMemory();

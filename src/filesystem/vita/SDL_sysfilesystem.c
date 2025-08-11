@@ -48,7 +48,7 @@ char *SDL_GetBasePath(void)
 
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
-    const char *envr = "ux0:/data/";
+    static const char envr[] = "ux0:/data/";
     char *retval = NULL;
     char *ptr = NULL;
     size_t len = 0;
@@ -61,7 +61,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
         org = "";
     }
 
-    len = SDL_strlen(envr);
+    len = sizeof(envr) - 1;
 
     len += SDL_strlen(org) + SDL_strlen(app) + 3;
     retval = (char *)SDL_malloc(len);

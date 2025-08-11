@@ -67,12 +67,12 @@ char *SDL_GetBasePath(void)
     return retval;
 }
 
-
+#define PREFPATH_APPEND "/config/settings/"
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
     // !!! FIXME: is there a better way to do this?
     const char *home = SDL_getenv("HOME");
-    const char *append = "/config/settings/";
+    const char *append = PREFPATH_APPEND;
     size_t len = SDL_strlen(home);
 
     if (!app || !*app) {
@@ -85,8 +85,9 @@ char *SDL_GetPrefPath(const char *org, const char *app)
 
     if (!len || (home[len - 1] == '/')) {
         ++append; // home empty or ends with separator, skip the one from append
+        --len;
     }
-    len += SDL_strlen(append) + SDL_strlen(org) + SDL_strlen(app) + 3;
+    len += (sizeof(PREFPATH_APPEND) - 1) + SDL_strlen(org) + SDL_strlen(app) + 3;
     char *retval = (char *) SDL_malloc(len);
     if (!retval) {
         SDL_OutOfMemory();
