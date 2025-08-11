@@ -161,7 +161,7 @@ SDL_GetPrefPath(const char *org, const char *app)
     size_t new_wpath_len = 0;
     BOOL api_result = FALSE;
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

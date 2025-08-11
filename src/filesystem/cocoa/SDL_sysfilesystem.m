@@ -73,7 +73,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
         char *retval = NULL;
         NSArray *array;
 
-        if (!app) {
+        if (!app || !*app) {
             SDL_InvalidParamError("app");
             return NULL;
         }

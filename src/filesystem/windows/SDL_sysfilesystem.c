@@ -102,7 +102,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     BOOL api_result = FALSE;
     SDL_iconv_t cd;
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }
@@ -124,7 +124,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     if (org && *org && !TryAppendDir(org, cd, &cursor, &wleft)) {
         goto errlong;
     }
-    if (*app && !TryAppendDir(app, cd, &cursor, &wleft)) {
+    if (!TryAppendDir(app, cd, &cursor, &wleft)) {
         goto errlong;
     }
     if (wleft == 0) {

@@ -44,7 +44,7 @@ char *SDL_GetBasePath(void)
 char *SDL_GetPrefPath(const char *org, const char *app)
 {
     char *pref_path = NULL;
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

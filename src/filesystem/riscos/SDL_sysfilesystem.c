@@ -162,7 +162,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     size_t len;
     _kernel_oserror *error;
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

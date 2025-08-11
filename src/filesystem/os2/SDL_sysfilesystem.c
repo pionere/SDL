@@ -77,7 +77,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     int     lPosApp, lPosOrg;
     PSZ     pszApp, pszOrg;
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

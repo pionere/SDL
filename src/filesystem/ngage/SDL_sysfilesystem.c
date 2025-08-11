@@ -38,7 +38,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     char *retval;
     size_t len;
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

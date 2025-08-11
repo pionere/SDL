@@ -75,7 +75,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     const char *append = "/config/settings/";
     size_t len = SDL_strlen(home);
 
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }

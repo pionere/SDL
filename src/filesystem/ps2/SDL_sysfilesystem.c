@@ -80,7 +80,7 @@ char *SDL_GetPrefPath(const char *org, const char *app)
     char *retval = NULL;
     size_t len;
     char *base = SDL_GetBasePath();
-    if (!app) {
+    if (!app || !*app) {
         SDL_InvalidParamError("app");
         return NULL;
     }
