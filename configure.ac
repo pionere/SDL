@@ -350,6 +350,15 @@ if test x$enable_sanitize_access != xyes; then
     AC_DEFINE(SDL_SANITIZE_ACCESS_DISABLED, 1, [ ])
 fi
 
+dnl See whether we want annotations to help code analysis tools
+AC_ARG_ENABLE(analyze_macros,
+[AS_HELP_STRING([--enable-analyze-macros],
+               [Add annotations to help code analysis tools [default=yes]])],
+              , enable_analyze_macros=yes)
+if test x$enable_analyze_macros != xyes; then
+    AC_DEFINE(SDL_ANALYZE_MACROS_DISABLED, 1, [ ])
+fi
+
 dnl See whether we want to build the test directory
 AC_ARG_ENABLE(test,
 [AS_HELP_STRING([--enable-test],
@@ -5309,6 +5318,11 @@ if test x$enable_gestures = xyes; then
     SUMMARY="${SUMMARY}Gestures            : YES\n"
 else
     SUMMARY="${SUMMARY}Gestures            : NO\n"
+fi
+if test x$enable_analyze_macros = xyes; then
+    SUMMARY="${SUMMARY}Analyze macros      : YES\n"
+else
+    SUMMARY="${SUMMARY}Analyze macros      : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
 if test x$enable_logging = xyes; then

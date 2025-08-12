@@ -372,7 +372,7 @@ typedef uint64_t Uint64;
 #endif
 
 /* Annotations to help code analysis tools */
-#ifdef SDL_DISABLE_ANALYZE_MACROS
+#ifdef SDL_ANALYZE_MACROS_DISABLED
 #define SDL_IN_BYTECAP(x)
 #define SDL_INOUT_Z_CAP(x)
 #define SDL_OUT_Z_CAP(x)
@@ -419,7 +419,7 @@ typedef uint64_t Uint64;
 #define SDL_SCANF_VARARG_FUNC( fmtargnumber )
 #define SDL_SCANF_VARARG_FUNCV( fmtargnumber )
 #endif
-#endif /* SDL_DISABLE_ANALYZE_MACROS */
+#endif /* SDL_ANALYZE_MACROS_DISABLED */
 
 #ifndef SDL_COMPILE_TIME_ASSERT
 #if defined(__cplusplus)
@@ -772,7 +772,7 @@ extern DECLSPEC char *SDLCALL SDL_iconv_string(const char *tocode,
 
 /* force builds using Clang's static analysis tools to use literal C runtime
    here, since there are possibly tests that are ineffective otherwise. */
-#if defined(__clang_analyzer__) && !defined(SDL_DISABLE_ANALYZE_MACROS)
+#if defined(__clang_analyzer__) && !defined(SDL_ANALYZE_MACROS_DISABLED)
 
 /* The analyzer knows about strlcpy even when the system doesn't provide it */
 #ifndef HAVE_STRLCPY

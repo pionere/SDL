@@ -859,6 +859,7 @@ enable_yuv_format
 enable_resampler
 enable_gestures
 enable_sanitize_access
+enable_analyze_marcos
 enable_test
 enable_verbose_error
 enable_logging
@@ -1682,6 +1683,7 @@ Optional Features:
   --enable-yuv-format     Support YUV formats [default=yes]
   --enable-resampler      Support resampling of audio [default=yes]
   --enable-gestures       Support gestures [default=yes]
+  --enable-analyze-marcos Add annotations to help code analysis tools [default=yes]
   --enable-sanitize-access
                           Build robust library with checks against unreasonable parameters/calls. [default=yes]
   --enable-verbose-error  Enable verbose errors [default=yes]
@@ -18915,6 +18917,20 @@ if test x$enable_gestures != xyes; then
 printf "%s\n" "#define SDL_GESTURES_DISABLED 1" >>confdefs.h
 
 fi
+
+# Check whether --enable-analyze-macros was given.
+if test ${enable_analyze_macros+y}
+then :
+  enableval=$enable_analyze_macros;
+else
+  enable_analyze_macros=yes
+fi
+if test x$enable_analyze_macros != xyes; then
+
+printf "%s\n" "#define SDL_ANALYZE_MACROS_DISABLED 1" >>confdefs.h
+
+fi
+
 # Check whether --enable-sanitize-access was given.
 if test ${enable_sanitize_access+y}
 then :  enableval=$enable_sanitize_access;
@@ -30702,6 +30718,11 @@ if test x$enable_gestures = xyes; then
     SUMMARY="${SUMMARY}Gestures            : YES\n"
 else
     SUMMARY="${SUMMARY}Gestures            : NO\n"
+fi
+if test x$enable_analyze_macros = xyes; then
+    SUMMARY="${SUMMARY}Analyze macros      : YES\n"
+else
+    SUMMARY="${SUMMARY}Analyze macros      : NO\n"
 fi
 SUMMARY="${SUMMARY}Assertion level     : ${enable_assertions}\n"
 if test x$enable_logging = xyes; then
