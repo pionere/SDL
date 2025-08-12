@@ -33,27 +33,21 @@
 #include "SDL_config.h"
 
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+# include <sys/types.h>
 #endif
 #ifdef HAVE_STDIO_H
-#include <stdio.h>
+# include <stdio.h>
 #endif
-#if defined(STDC_HEADERS)
+#if defined(HAVE_STDLIB_H)
 # include <stdlib.h>
+#elif defined(HAVE_MALLOC_H)
+# include <malloc.h>
+#endif
+#if defined(HAVE_STDDEF_H)
 # include <stddef.h>
+#endif
+#if defined(HAVE_STDARG_H)
 # include <stdarg.h>
-#else
-# if defined(HAVE_STDLIB_H)
-#  include <stdlib.h>
-# elif defined(HAVE_MALLOC_H)
-#  include <malloc.h>
-# endif
-# if defined(HAVE_STDDEF_H)
-#  include <stddef.h>
-# endif
-# if defined(HAVE_STDARG_H)
-#  include <stdarg.h>
-# endif
 #endif
 #ifdef HAVE_STRING_H
 # if !defined(STDC_HEADERS) && defined(HAVE_MEMORY_H)
