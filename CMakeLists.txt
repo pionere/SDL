@@ -1498,13 +1498,24 @@ endforeach()
 if(SDL_LIBC)
   if(WINDOWS AND NOT MINGW)
     set(HAVE_LIBC TRUE)
-    check_include_file(stdint.h HAVE_STDINT_H)
-    foreach(_HEADER stdio.h string.h wchar.h ctype.h math.h limits.h)
+    set(headers_to_check
+        ctype.h
+        limits.h
+        math.h
+        signal.h
+        stdarg.h
+        stddef.h
+        stdint.h
+        stdio.h
+        stdlib.h
+        string.h
+        wchar.h
+    )
+    foreach(_HEADER ${headers_to_check})
       string(TOUPPER "HAVE_${_HEADER}" _UPPER)
-      string(REPLACE "." "_" _HAVE_H ${_UPPER})
-      set(${_HAVE_H} 1)
+      string(REGEX REPLACE "[./]" "_" _HAVE_H ${_UPPER})
+      check_include_file("${_HEADER}" ${_HAVE_H})
     endforeach()
-    set(HAVE_SIGNAL_H 1)
     foreach(_FN
             malloc calloc realloc free getenv
             bsearch qsort abs memset memcpy memmove memcmp
