@@ -426,6 +426,8 @@ SDL_COMPILE_TIME_ASSERT(uint32, sizeof(Uint32) == 4);
 SDL_COMPILE_TIME_ASSERT(sint32, sizeof(Sint32) == 4);
 SDL_COMPILE_TIME_ASSERT(uint64, sizeof(Uint64) == 8);
 SDL_COMPILE_TIME_ASSERT(sint64, sizeof(Sint64) == 8);
+SDL_COMPILE_TIME_ASSERT(uptr, sizeof((void*)0) == sizeof(uintptr_t));
+SDL_COMPILE_TIME_ASSERT(usize, sizeof((void*)0) == sizeof(size_t));
 #endif /* DOXYGEN_SHOULD_IGNORE_THIS */
 /** \endcond */
 
