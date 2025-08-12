@@ -63,7 +63,7 @@
 #define HAVE_TPCSHRD_H 1
 
 #define HAVE_LIBC 1
-#define STDC_HEADERS 1
+
 #define HAVE_CTYPE_H  1
 #define HAVE_FLOAT_H  1
 #define HAVE_LIMITS_H 1

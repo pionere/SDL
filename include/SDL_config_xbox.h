@@ -57,7 +57,6 @@
 #define HAVE_STDINT_H 1
 /* This is disabled by default to avoid C runtime dependencies and manifest requirements */
 #ifdef HAVE_LIBC
-#define STDC_HEADERS 1
 #define HAVE_CTYPE_H  1
 #define HAVE_FLOAT_H  1
 #define HAVE_LIMITS_H 1

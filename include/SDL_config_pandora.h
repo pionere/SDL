@@ -37,7 +37,6 @@
 #define SDL_BYTEORDER 1234
 
 /* Useful headers */
-#define STDC_HEADERS 1
 #define HAVE_ALLOCA_H 1
 #define HAVE_CTYPE_H 1
 #define HAVE_ICONV_H 1

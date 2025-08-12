@@ -56,7 +56,6 @@
 #ifdef HAVE_LIBC
 
 /* Useful headers */
-#undef STDC_HEADERS
 #undef HAVE_ALLOCA_H
 #undef HAVE_CTYPE_H
 #undef HAVE_FLOAT_H

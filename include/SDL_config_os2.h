@@ -66,13 +66,12 @@
 
 #define HAVE_LIBC 1
 
+/* Useful headers */
+#define HAVE_SYS_TYPES_H 1
 #define HAVE_STDARG_H 1
 #define HAVE_STDDEF_H 1
 #define HAVE_STDINT_H 1
-
-#define HAVE_SYS_TYPES_H 1
-#define HAVE_STDIO_H 1
-#define STDC_HEADERS 1
+#define HAVE_STDIO_H  1
 #define HAVE_STDLIB_H 1
 #define HAVE_MALLOC_H 1
 #define HAVE_MEMORY_H 1
