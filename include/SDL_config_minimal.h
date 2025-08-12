@@ -31,6 +31,14 @@
  *  This is the minimal configuration that can be used to build SDL.
  */
 
+/* C datatypes */
+/* Define SIZEOF_VOIDP for 64/32 architectures */
+#if defined(__LP64__) || defined(_LP64) || defined(_WIN64)
+#define SIZEOF_VOIDP 8
+#else
+#define SIZEOF_VOIDP 4
+#endif
+
 #define HAVE_STDARG_H   1
 #define HAVE_STDDEF_H   1
 

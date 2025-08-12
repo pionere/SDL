@@ -25,6 +25,8 @@
 
 #include "SDL_platform.h"
 
+#define SIZEOF_VOIDP 4
+
 typedef signed char        int8_t;
 typedef unsigned char      uint8_t;
 typedef signed short       int16_t;
