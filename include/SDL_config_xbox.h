@@ -51,17 +51,20 @@
 /*#define HAVE_TPCSHRD_H  1*/
 /*#define HAVE_SENSORSAPI_H 1*/
 
+/* Useful headers */
+#define HAVE_STDARG_H 1
+#define HAVE_STDDEF_H 1
+#define HAVE_STDINT_H 1
 /* This is disabled by default to avoid C runtime dependencies and manifest requirements */
 #ifdef HAVE_LIBC
-/* Useful headers */
 #define STDC_HEADERS 1
-#define HAVE_CTYPE_H 1
-#define HAVE_FLOAT_H 1
+#define HAVE_CTYPE_H  1
+#define HAVE_FLOAT_H  1
 #define HAVE_LIMITS_H 1
-#define HAVE_MATH_H 1
+#define HAVE_MATH_H   1
 #define HAVE_SIGNAL_H 1
-#define HAVE_STDINT_H 1
-#define HAVE_STDIO_H 1
+#define HAVE_STDIO_H  1
+#define HAVE_STDLIB_H 1
 #define HAVE_STRING_H 1
 
 /* C library functions */
@@ -155,10 +158,6 @@
 #else
 #define HAVE_M_PI 1
 #endif
-#else
-#define HAVE_STDARG_H   1
-#define HAVE_STDDEF_H   1
-#define HAVE_STDINT_H   1
 #endif
 
 /* Enable various audio drivers */

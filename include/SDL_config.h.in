@@ -68,6 +68,7 @@
 #undef HAVE_MEMORY_H
 #undef HAVE_SIGNAL_H
 #undef HAVE_STDARG_H
+#undef HAVE_STDDEF_H
 #undef HAVE_STDINT_H
 #undef HAVE_STDIO_H
 #undef HAVE_STDLIB_H
