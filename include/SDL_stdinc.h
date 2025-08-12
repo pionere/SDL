@@ -45,7 +45,24 @@
 #endif
 #if defined(HAVE_STDDEF_H)
 # include <stddef.h>
+#elif !defined(HAVE_SYS_TYPES_H)
+#if !defined(_SIZE_T_DEFINED_)
+#define _SIZE_T_DEFINED_
+#if SIZEOF_VOIDP == 8
+typedef unsigned long long size_t;
+#else
+typedef unsigned int       size_t;
 #endif
+#endif // _SIZE_T_DEFINED_
+#if !defined(_UINTPTR_T_DEFINED_)
+#define _UINTPTR_T_DEFINED_
+#if SIZEOF_VOIDP == 8
+typedef unsigned long long uintptr_t;
+#else
+typedef unsigned int       uintptr_t;
+#endif
+#endif // _SIZE_T_DEFINED_
+#endif // HAVE_STDDEF_H || !HAVE_SYS_TYPES_H
 #if defined(HAVE_STDARG_H)
 # include <stdarg.h>
 #endif
@@ -62,7 +79,19 @@
 # include <inttypes.h>
 #elif defined(HAVE_STDINT_H)
 # include <stdint.h>
+#else
+#if !defined(_IUNT_TTYPES_DEFINED_)
+#define _IUNT_TTYPES_DEFINED_
+typedef signed char        int8_t;
+typedef unsigned char      uint8_t;
+typedef signed short       int16_t;
+typedef unsigned short     uint16_t;
+typedef signed int         int32_t;
+typedef unsigned int       uint32_t;
+typedef signed long long   int64_t;
+typedef unsigned long long uint64_t;
 #endif
+#endif // HAVE_INTTYPES_H || HAVE_STDINT_H
 #ifdef HAVE_CTYPE_H
 # include <ctype.h>
 #endif
