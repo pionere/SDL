@@ -58,9 +58,6 @@ typedef struct SDL_semaphore_impl_t
     pfnSDL_SemPost Post;
 } SDL_sem_impl_t;
 
-/* Implementation will be chosen at runtime based on available Kernel features */
-static SDL_sem_impl_t SDL_sem_impl_active = { 0 };
-
 /**
  * Atomic + WaitOnAddress implementation
  */
@@ -366,18 +363,23 @@ static const SDL_sem_impl_t SDL_sem_impl_kern = {
     &SDL_SemValue_kern,
     &SDL_SemPost_kern,
 };
-
+#if !SDL_WINAPI_FAMILY_PHONE
+/* Implementation will be chosen at runtime based on available Kernel features */
+static SDL_sem_impl_t SDL_sem_impl_active = { 0 };
+#else
+static const SDL_sem_impl_t SDL_sem_impl_active = SDL_sem_impl_kern;
+#endif
 /**
  * Runtime selection and redirection
  */
 
 SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 {
+#if !SDL_WINAPI_FAMILY_PHONE
     if (!SDL_sem_impl_active.Create) {
         /* Default to fallback implementation */
         const SDL_sem_impl_t *impl = &SDL_sem_impl_kern;
 
-#if !SDL_WINAPI_FAMILY_PHONE
         if (!SDL_GetHintBoolean(SDL_HINT_WINDOWS_FORCE_SEMAPHORE_KERNEL, SDL_FALSE)) {
 #ifdef __WINRT__
             /* Link statically on this platform */
@@ -401,11 +403,11 @@ SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
             }
 #endif
         }
-#endif
 
         /* Copy instead of using pointer to save one level of indirection */
         SDL_copyp(&SDL_sem_impl_active, impl);
     }
+#endif
     return SDL_sem_impl_active.Create(initial_value);
 }
 
