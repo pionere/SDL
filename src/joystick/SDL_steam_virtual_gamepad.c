@@ -20,10 +20,13 @@
 */
 #include "../SDL_internal.h"
 
+#include "SDL_steam_virtual_gamepad.h"
+
+#ifndef SDL_FILE_DISABLED
+
 #include "SDL_hints.h"
 #include "SDL_timer.h"
 #include "SDL_joystick_c.h"
-#include "SDL_steam_virtual_gamepad.h"
 
 #ifdef __WIN32__
 #include "../core/windows/SDL_windows.h"
@@ -249,3 +252,26 @@ void SDL_QuitSteamVirtualGamepadInfo(void)
         SDL_steam_virtual_gamepad_info_file = NULL;
     }
 }
+
+#else
+void SDL_InitSteamVirtualGamepadInfo(void)
+{
+}
+SDL_bool SDL_SteamVirtualGamepadEnabled(void)
+{
+    return SDL_FALSE;
+}
+SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
+{
+    return SDL_FALSE;
+}
+const SDL_SteamVirtualGamepadInfo *SDL_GetSteamVirtualGamepadInfo(int slot)
+{
+    return NULL;
+}
+void SDL_QuitSteamVirtualGamepadInfo(void)
+{
+}
+#endif // #ifndef SDL_FILE_DISABLED
+
+/* vi: set ts=4 sw=4 expandtab: */

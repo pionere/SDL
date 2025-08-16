@@ -20,6 +20,8 @@
 */
 #include "../SDL_internal.h"
 
+#include "SDL_gamecontroller.h"
+
 typedef struct SDL_SteamVirtualGamepadInfo
 {
     Uint64 handle;
