@@ -594,7 +594,7 @@ void WINDOWS_JoystickDetect(void)
     }
 }
 
-static const char *WINDOWS_JoystickGetDeviceName(int device_index)
+static JoyStick_DeviceData *SDL_PrivateGetDevice(int device_index)
 {
     JoyStick_DeviceData *device = SYS_Joystick;
     int index;
@@ -603,29 +603,24 @@ static const char *WINDOWS_JoystickGetDeviceName(int device_index)
         device = device->pNext;
     }
 
+    return device;
+}
+
+static const char *WINDOWS_JoystickGetDeviceName(int device_index)
+{
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
     return device->joystickname;
 }
 
 static const char *WINDOWS_JoystickGetDevicePath(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
-
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
     return device->path;
 }
 
 static int WINDOWS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     if (device->bXInputDevice) {
         /* The slot for XInput devices can change as controllers are seated */
@@ -637,12 +632,7 @@ static int WINDOWS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 
 static int WINDOWS_JoystickGetDevicePlayerIndex(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     return device->bXInputDevice ? (int)device->XInputUserId : -1;
 }
@@ -654,12 +644,7 @@ static void WINDOWS_JoystickSetDevicePlayerIndex(int device_index, int player_in
 /* return the stable device guid for this device index */
 static SDL_JoystickGUID WINDOWS_JoystickGetDeviceGUID(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     return device->guid;
 }
@@ -667,12 +652,7 @@ static SDL_JoystickGUID WINDOWS_JoystickGetDeviceGUID(int device_index)
 /* Function to perform the mapping between current device instance and this joysticks instance id */
 static SDL_JoystickID WINDOWS_JoystickGetDeviceInstanceID(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     return device->nInstanceID;
 }
@@ -684,12 +664,7 @@ static SDL_JoystickID WINDOWS_JoystickGetDeviceInstanceID(int device_index)
  */
 static int WINDOWS_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
-
-    for (index = device_index; index > 0; index--) {
-        device = device->pNext;
-    }
+    JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     /* allocate memory for system specific hardware data */
     joystick->instance_id = device->nInstanceID;
