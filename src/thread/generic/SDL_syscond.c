@@ -78,15 +78,9 @@ void SDL_DestroyCond_generic(SDL_cond *_cond)
 {
     SDL_cond_generic *cond = (SDL_cond_generic *)_cond;
     if (cond) {
-        if (cond->wait_sem) {
-            SDL_DestroySemaphore(cond->wait_sem);
-        }
-        if (cond->wait_done) {
-            SDL_DestroySemaphore(cond->wait_done);
-        }
-        if (cond->lock) {
-            SDL_DestroyMutex(cond->lock);
-        }
+        SDL_DestroySemaphore(cond->wait_sem);
+        SDL_DestroySemaphore(cond->wait_done);
+        SDL_DestroyMutex(cond->lock);
         SDL_free(cond);
     }
 }

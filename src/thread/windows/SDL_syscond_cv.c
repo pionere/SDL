@@ -98,10 +98,8 @@ static SDL_cond *SDL_CreateCond_cv(void)
 
 static void SDL_DestroyCond_cv(SDL_cond *cond)
 {
-    if (cond) {
-        /* There are no kernel allocated resources */
-        SDL_free(cond);
-    }
+     /* There are no kernel allocated resources */
+    SDL_free(cond);
 }
 
 static int SDL_CondSignal_cv(SDL_cond *_cond)

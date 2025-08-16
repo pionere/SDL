@@ -57,9 +57,7 @@ SDL_CreateCond(void)
 extern "C" void
 SDL_DestroyCond(SDL_cond *cond)
 {
-    if (cond) {
-        delete cond;
-    }
+    delete cond;
 }
 
 /* Restart one of the threads that are waiting on the condition variable */

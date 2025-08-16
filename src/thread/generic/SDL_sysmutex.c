@@ -66,9 +66,7 @@ SDL_mutex *SDL_CreateMutex(void)
 void SDL_DestroyMutex(SDL_mutex *mutex)
 {
     if (mutex) {
-        if (mutex->sem) {
-            SDL_DestroySemaphore(mutex->sem);
-        }
+        SDL_DestroySemaphore(mutex->sem);
         SDL_free(mutex);
     }
 }
