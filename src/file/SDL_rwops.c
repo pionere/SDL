@@ -30,6 +30,8 @@
 
 #include "../SDL_internal.h"
 
+#ifndef SDL_FILE_DISABLED
+
 #if defined(__WIN32__) || defined(__GDK__)
 #include "../core/windows/SDL_windows.h"
 #endif
@@ -948,5 +950,7 @@ SDL_WriteBE64(SDL_RWops *dst, Uint64 value)
     const Uint64 swapped = SDL_SwapBE64(value);
     return SDL_RWwrite(dst, &swapped, sizeof(swapped), 1);
 }
+
+#endif // SDL_FILE_DISABLED
 
 /* vi: set ts=4 sw=4 expandtab: */
