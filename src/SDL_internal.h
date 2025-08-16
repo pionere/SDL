@@ -22,7 +22,7 @@
 #define SDL_internal_h_
 
 /* Workaround to prevent SDL from trying to use all kinds of Windows features not available when building for Xbox */
-#if defined(XBOX)
+#if defined(NXDK)
 #undef WIN32
 #undef _WIN32
 #undef _MSC_VER
