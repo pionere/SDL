@@ -68,9 +68,9 @@ int SDL_CondSignal(SDL_cond *cond)
         return SDL_InvalidParamError("cond");
     }
 
-    retval = 0;
-    if (pthread_cond_signal(&cond->cond) != 0) {
-        return SDL_SetError("pthread_cond_signal() failed");
+    retval = pthread_cond_signal(&cond->cond);
+    if (retval != 0) {
+        retval = SDL_SetError("pthread_cond_signal() failed");
     }
     return retval;
 }
@@ -84,9 +84,9 @@ int SDL_CondBroadcast(SDL_cond *cond)
         return SDL_InvalidParamError("cond");
     }
 
-    retval = 0;
-    if (pthread_cond_broadcast(&cond->cond) != 0) {
-        return SDL_SetError("pthread_cond_broadcast() failed");
+    retval = pthread_cond_broadcast(&cond->cond);
+    if (retval != 0) {
+        retval = SDL_SetError("pthread_cond_broadcast() failed");
     }
     return retval;
 }
@@ -141,10 +141,15 @@ tryagain:
  */
 int SDL_CondWait(SDL_cond *cond, SDL_mutex *mutex)
 {
+    int retval;
+
     if (!cond) {
         return SDL_InvalidParamError("cond");
-    } else if (pthread_cond_wait(&cond->cond, &mutex->id) != 0) {
-        return SDL_SetError("pthread_cond_wait() failed");
+    }
+
+    retval = pthread_cond_wait(&cond->cond, &mutex->id);
+    if (retval != 0) {
+        retval = SDL_SetError("pthread_cond_wait() failed");
     }
     return 0;
 }
