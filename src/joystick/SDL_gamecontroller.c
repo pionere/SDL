@@ -2203,8 +2203,8 @@ SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid)
     }
 #endif
 
-    if (name && SDL_strcmp(name, "uinput-fpc") == 0) {
-        /* The Google Pixel fingerprint sensor reports itself as a joystick */
+    if (name && SDL_strncmp(name, "uinput-", 7) == 0) {
+        /* The Google Pixel fingerprint sensor, as well as other fingerprint sensors, reports itself as a joystick */
         return SDL_TRUE;
     }
 

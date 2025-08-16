@@ -353,6 +353,10 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
         guid16[7] = SDL_SwapLE16(axis_mask);
     }
 
+    if (SDL_ShouldIgnoreJoystick(name, guid)) {
+        goto done;
+    }
+
     item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));
     if (!item) {
         goto done;
