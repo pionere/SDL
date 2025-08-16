@@ -65,6 +65,17 @@ jobs:
         if: ${{ matrix.platform.setup-ngage-sdk-path != '' }}
         with:
           path: '${{ matrix.platform.setup-ngage-sdk-path }}'
+      - name: Clone NXDK Repo
+        if: ${{ matrix.platform.setup-nxdk-sdk-path != '' }}
+        shell: bash
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y clang llvm lld bison flex cmake git gettext
+            git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "${{ matrix.platform.setup-nxdk-sdk-path }}"
+            PATH="${{ matrix.platform.setup-nxdk-sdk-path }}/bin:$PATH"
+            export NXDK_DIR=/opt/nxdk
+            echo "NXDK_DIR=/opt/nxdk" >> $GITHUB_ENV
+            make -j $(nproc) -C "${{ matrix.platform.setup-nxdk-sdk-path }}" NXDK_ONLY=1 all cxbe
       - name: 'Set up Windows GDK Desktop'
         uses: ./.github/actions/setup-gdk-desktop
         if: ${{ matrix.platform.setup-gdk-folder != '' }}

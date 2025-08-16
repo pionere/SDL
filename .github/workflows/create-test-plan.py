@@ -54,6 +54,7 @@ class SdlPlatform(Enum):
     NetBSD = "netbsd"
     NGage = "ngage"
     Watcom = "watcom"
+    XBOX = "xbox"
 
 
 class Msys2Platform(Enum):
@@ -144,11 +145,14 @@ JOB_SPECS = {
     # "watcom-win32"
     # "watcom-os2"
     "ngage": JobSpec(name="N-Gage",                                         os=JobOs.WindowsLatest,     platform=SdlPlatform.NGage,       artifact="SDL-ngage", ),
+    "xbox-cmake": JobSpec(name="XBOX (CMake)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox", ),
+    "xbox-clang": JobSpec(name="XBOX (Clang)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox",               clang_cl=True,),
 }
 
 
 class StaticLibType(Enum):
     STATIC_LIB = "SDL2-static.lib"
+    LIB_LIB = "libSDL2.lib"
     A = "libSDL2.a"
 
 
@@ -227,6 +231,7 @@ class JobDetails:
     check_sources: bool = False
     watcom_makefile: str = ""
     setup_gage_sdk_path: str = ""
+    setup_nxdk_sdk_path: str = ""
 
     def to_workflow(self, enable_artifacts: bool) -> dict[str, str|bool]:
         data = {
@@ -293,6 +298,7 @@ class JobDetails:
             "check-sources": self.check_sources,
             "watcom-makefile": self.watcom_makefile,
             "setup-ngage-sdk-path": self.setup_gage_sdk_path,
+            "setup-nxdk-sdk-path": self.setup_nxdk_sdk_path,
         }
         return {k: v for k, v in data.items() if v != ""}
 
@@ -690,6 +696,25 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     job.run_tests = True
                 case _:
                     raise ValueError(f"Unsupported watcom_platform=${spec.watcom_platform}")
+        case SdlPlatform.XBOX:
+            job.static_lib = StaticLibType.LIB_LIB
+            if spec.clang_cl:
+                job.cmake_arguments.extend((
+                    "-DCMAKE_C_COMPILER=clang-cl",
+                    "-DCMAKE_CXX_COMPILER=clang-cl",
+                ))
+                #job.cflags.append("/clang:-m32")
+            build_parallel = False
+            job.cmake_build_type = "Release"
+            job.setup_ninja = True
+            job.shared_lib = None
+            job.werror = False  # FIXME: enable SDL_WERROR
+            job.shared = False
+            #job.build_tests = False
+            job.run_tests = False
+            job.setup_nxdk_sdk_path = "/opt/nxdk"
+            job.cmake_toolchain_file = "/opt/nxdk/share/toolchain-nxdk.cmake"
+            job.test_pkg_config = False
         case SdlPlatform.NGage:
             build_parallel = False
             job.cmake_build_type = "Release"
