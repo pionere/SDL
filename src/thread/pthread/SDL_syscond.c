@@ -46,6 +46,8 @@ SDL_cond *SDL_CreateCond(void)
             SDL_free(cond);
             cond = NULL;
         }
+    } else {
+        SDL_OutOfMemory();
     }
     return cond;
 }
@@ -103,6 +105,10 @@ int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, Uint32 ms)
         return SDL_InvalidParamError("cond");
     }
 
+    if (!mutex) {
+        return SDL_InvalidParamError("mutex");
+    }
+
 #ifdef HAVE_CLOCK_GETTIME
     clock_gettime(CLOCK_REALTIME, &abstime);
 
@@ -145,6 +151,10 @@ int SDL_CondWait(SDL_cond *cond, SDL_mutex *mutex)
 
     if (!cond) {
         return SDL_InvalidParamError("cond");
+    }
+
+    if (!mutex) {
+        return SDL_InvalidParamError("mutex");
     }
 
     retval = pthread_cond_wait(&cond->cond, &mutex->id);
