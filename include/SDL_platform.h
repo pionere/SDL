@@ -70,7 +70,7 @@
 #define __NGAGE__ 1
 #endif
 
-#if defined(XBOX) || defined(__XBOX__)
+#if defined(XBOX) || defined(__XBOX__) || defined(NXDK)
 #undef XBOX
 #define XBOX 1
 #undef __XBOX__
@@ -206,6 +206,9 @@
 #undef __WINDOWS__
 #define __WINDOWS__ 1
 #endif
+#elif defined(NXDK)
+#define WINAPI_FAMILY_WINRT 0
+#define SDL_WINAPI_FAMILY_PHONE 0
 #endif /* defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__) */
 
 #if defined(__WINDOWS__)
