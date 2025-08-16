@@ -263,7 +263,7 @@ endif()
 
 # Default option knobs
 set(OPT_DEF_DYNAPI ON)
-if(ANDROID OR IOS OR EMSCRIPTEN OR WINDOWS_STORE OR RISCOS OR PS2 OR PSP OR VITA OR N3DS OR NGAGE OR clang_analyzer OR SDL_THREAD_SAFETY_ANALYSIS OR native_client)
+if(ANDROID OR IOS OR EMSCRIPTEN OR WINDOWS_STORE OR RISCOS OR PS2 OR PSP OR VITA OR N3DS OR NGAGE OR NXDK OR clang_analyzer OR SDL_THREAD_SAFETY_ANALYSIS OR native_client)
   set(OPT_DEF_DYNAPI OFF)
 endif()
 if(UNIX OR MINGW OR MSYS OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP OR PS2 OR N3DS OR NGAGE OR NINTENDO_SWITCH OR SDL_CPU_ARM64EC)
@@ -619,6 +619,13 @@ if(NGAGE)
   set(SDL_OFFSCREEN        OFF)
   #set(SDL_RENDER_GPU       OFF)
   set(SDL_VIRTUAL_JOYSTICK OFF)
+endif()
+
+if(NXDK)
+  set(SDL_HAPTIC           OFF)
+  #set(SDL_LOADSO       OFF)
+  set(SDL_SENSOR           OFF)
+  set(SDL_FILESYSTEM       OFF)
 endif()
 
 # General source files
@@ -3631,6 +3638,44 @@ elseif(NGAGE)
   )
   list(APPEND EXTRA_LDFLAGS "SHELL:-s MAIN_COMPAT=0")
   list(APPEND PKGCONFIG_LDFLAGS "-s;MAIN_COMPAT=0")
+elseif(NXDK)
+  if(SDL_AUDIO)
+    set(SDL_AUDIO_DRIVER_XBOX 1)
+    file(GLOB XBOX_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/xbox/*.c)
+    list(APPEND SOURCE_FILES ${XBOX_AUDIO_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+  endif()
+  if(SDL_JOYSTICK)
+    set(SDL_JOYSTICK_XBOX 1)
+    file(GLOB XBOX_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/xbox/*.c)
+    list(APPEND SOURCE_FILES ${XBOX_JOYSTICK_SOURCES})
+    set(HAVE_SDL_JOYSTICK TRUE)
+  endif()
+
+  if(SDL_THREADS)
+    set(SDL_THREAD_WINDOWS 1)
+    list(APPEND SOURCE_FILES
+      ${SDL2_SOURCE_DIR}/src/thread/generic/SDL_syscond.c
+      ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_sysmutex.c
+      ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_syssem.c
+      ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_systhread.c
+      ${SDL2_SOURCE_DIR}/src/thread/windows/SDL_systls.c)
+    set(HAVE_SDL_THREADS TRUE)
+  endif()
+
+  if(SDL_TIMERS)
+    set(SDL_TIMER_WINDOWS 1)
+    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/windows/*.c)
+    list(APPEND SOURCE_FILES ${TIMER_SOURCES})
+    set(HAVE_SDL_TIMERS TRUE)
+  endif()
+
+  if(SDL_VIDEO)
+    set(SDL_VIDEO_DRIVER_XBOX 1)
+    file(GLOB XBOX_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/xbox/*.c)
+    list(APPEND SOURCE_FILES ${XBOX_VIDEO_SOURCES})
+    set(HAVE_SDL_VIDEO TRUE)
+  endif()
 endif()
 
 if(HAVE_VULKAN AND NOT SDL_LOADSO)
