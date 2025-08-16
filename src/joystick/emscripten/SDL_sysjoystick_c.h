@@ -36,6 +36,7 @@ typedef struct SDL_joylist_item
     SDL_Joystick *joystick;
     int nbuttons;
     int naxes;
+    SDL_bool rumble_available;
     double timestamp;
     double axis[64];
     double analogButton[64];

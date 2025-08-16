@@ -83,6 +83,18 @@ static EM_BOOL Emscripten_JoyStickConnected(int eventType, const EmscriptenGamep
         item->digitalButton[i] = gamepadEvent->digitalButton[i];
     }
 
+    item->rumble_available = EM_ASM_INT({
+        let gamepads = navigator['getGamepads']();
+        if (!gamepads) {
+            return 0;
+        }
+        let gamepad = gamepads[$0];
+        if (!gamepad || !gamepad['vibrationActuator']) {
+            return 0;
+        }
+        return 1;
+        }, item->index);
+
     if (!SDL_joylist_tail) {
         SDL_joylist = SDL_joylist_tail = item;
     } else {
@@ -387,7 +399,31 @@ static SDL_JoystickGUID EMSCRIPTEN_JoystickGetDeviceGUID(int device_index)
 
 static int EMSCRIPTEN_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
-    return SDL_Unsupported();
+    SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
+
+    int result = EM_ASM_INT({
+        let gamepads = navigator['getGamepads']();
+        if (!gamepads) {
+            return -1;
+        }
+        let gamepad = gamepads[$0];
+        if (!gamepad || !gamepad['vibrationActuator']) {
+            return -1;
+        }
+
+        gamepad['vibrationActuator']['playEffect']('dual-rumble', {
+            'startDelay': 0,
+            'duration': 3000,
+            'weakMagnitude': $1 / 0xFFFF,
+            'strongMagnitude': $2 / 0xFFFF,
+        });
+        return 0;
+        }, item->index, low_frequency_rumble, high_frequency_rumble);
+
+    if (result < 0) {
+        SDL_Unsupported();
+    }
+    return result;
 }
 
 static int EMSCRIPTEN_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
@@ -402,7 +438,9 @@ static SDL_bool EMSCRIPTEN_JoystickGetGamepadMapping(int device_index, SDL_Gamep
 
 static Uint32 EMSCRIPTEN_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
-    return 0;
+    SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
+
+    return item->rumble_available ? SDL_JOYCAP_RUMBLE : 0;
 }
 
 static int EMSCRIPTEN_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
