@@ -108,11 +108,11 @@ Thread B:
 extern "C" int
 SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, Uint32 ms)
 {
-    if (cond == NULL) {
+    if (!cond) {
         return SDL_InvalidParamError("cond");
     }
 
-    if (mutex == NULL) {
+    if (!mutex) {
         return SDL_InvalidParamError("mutex");
     }
 
