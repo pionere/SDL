@@ -22,7 +22,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_AUDIO_DRIVER_XBOX
+#ifdef SDL_AUDIO_DRIVER_XBOX
 
 #include "SDL_xboxaudio.h"
 

@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_DRIVER_XBOX
+#ifdef SDL_VIDEO_DRIVER_XBOX
 
 #include "../SDL_sysvideo.h"
 #include "SDL_xbframebuffer_c.h"

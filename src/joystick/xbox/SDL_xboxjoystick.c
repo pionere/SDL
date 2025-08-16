@@ -25,7 +25,7 @@
 
 #include "../../SDL_internal.h"
 
-#if SDL_JOYSTICK_XBOX
+#ifdef SDL_JOYSTICK_XBOX
 
 #include "SDL_joystick.h"
 #include "SDL_events.h"
