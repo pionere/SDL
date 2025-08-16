@@ -70,6 +70,18 @@
 #define __NGAGE__ 1
 #endif
 
+#if defined(XBOX) || defined(__XBOX__)
+#undef XBOX
+#define XBOX 1
+#undef __XBOX__
+#define __XBOX__ 1
+/* clang doesn't like the SDL packing pragma headers */
+#pragma GCC diagnostic ignored "-Wpragma-pack"
+/* Disable SDL's weird feature of renaming main() */
+#define SDL_MAIN_HANDLED
+/* Disable SDL's inclusion of sal.h */
+#define SDL_DISABLE_ANALYZE_MACROS
+#endif
 #if defined(__APPLE__)
 /* lets us know what version of Mac OS X we're compiling on */
 #include <AvailabilityMacros.h>

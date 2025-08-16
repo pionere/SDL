@@ -90,6 +90,7 @@
 #endif
 
 #include <windows.h>
+#ifndef NXDK
 #include <basetyps.h> /* for REFIID with broken mingw.org headers */
 
 #include "SDL_rect.h"
@@ -163,6 +164,8 @@ extern BOOL WIN_IsRectEmpty(const RECT *rect);
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* NXDK */
 
 #endif /* _INCLUDED_WINDOWS_H */
 

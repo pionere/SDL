@@ -27,7 +27,7 @@
 /* WIKI CATEGORY: - */
 
 /* Add any platform that doesn't build using the configure system. */
-#if defined(__WIN32__)
+#if defined(__WIN32__) && !defined(__XBOX__)
 #include "SDL_config_windows.h"
 #elif defined(__WINRT__)
 #include "SDL_config_winrt.h"
@@ -47,6 +47,8 @@
 #include "SDL_config_emscripten.h"
 #elif defined(__NGAGE__)
 #include "SDL_config_ngage.h"
+#elif defined(__XBOX__)
+#include "SDL_config_xbox.h"
 #else
 /* This is a minimal configuration just to get SDL running on new platforms. */
 #include "SDL_config_minimal.h"

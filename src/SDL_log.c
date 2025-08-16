@@ -44,6 +44,10 @@
 
 #include "stdlib/SDL_vacopy.h"
 
+#if defined(NXDK)
+#include <windows.h>
+#endif
+
 /* The size of the stack buffer to use for rendering log messages. */
 #define SDL_MAX_LOG_MESSAGE_STACK 256
 
@@ -611,6 +615,17 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
 #elif defined(__SYMBIAN32__)
     {
         /* Nothing to do here. */
+    }
+#elif defined(NXDK)
+    {
+        // Calculate length of both strings + Colon, space, new-line, null-terminator.
+        size_t length = strlen(SDL_priority_prefixes[priority]) + strlen(message) + 4;
+        char * text = SDL_stack_alloc(char, length);
+        if (text) {
+            SDL_snprintf(text, length, "%s: %s\n", SDL_priority_prefixes[priority], message);
+            OutputDebugStringA(text);
+            SDL_stack_free(text);
+        }
     }
 #endif
 #if defined(HAVE_STDIO_H) && \

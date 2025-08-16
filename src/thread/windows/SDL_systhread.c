@@ -119,6 +119,7 @@ typedef HRESULT(WINAPI *pfnSetThreadDescription)(HANDLE, PCWSTR);
 void SDL_SYS_SetupThread(const char *name)
 {
     if (name) {
+        #ifndef NXDK
 #ifndef __WINRT__ /* !!! FIXME: There's no LoadLibrary() in WinRT; don't know if SetThreadDescription is available there at all at the moment. */
         static pfnSetThreadDescription pSetThreadDescription = NULL;
         static HMODULE kernel32 = NULL;
@@ -138,6 +139,7 @@ void SDL_SYS_SetupThread(const char *name)
             }
         }
 #endif
+        #endif
 
         /* Presumably some version of Visual Studio will understand SetThreadDescription(),
            but we still need to deal with older OSes and debuggers. Set it with the arcane
@@ -184,7 +186,11 @@ int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
         value = THREAD_PRIORITY_NORMAL;
     }
     if (!SetThreadPriority(GetCurrentThread(), value)) {
+        #ifndef NXDK
         return WIN_SetError("SetThreadPriority()");
+        #else
+        return -1;
+        #endif
     }
     return 0;
 }

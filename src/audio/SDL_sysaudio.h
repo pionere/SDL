@@ -212,6 +212,7 @@ extern const AudioBootStrap N3DSAUDIO_bootstrap;
 extern const AudioBootStrap NGAGEAUDIO_bootstrap;
 extern const AudioBootStrap EMSCRIPTENAUDIO_bootstrap;
 extern const AudioBootStrap OS2AUDIO_bootstrap;
+extern AudioBootStrap XBOXAUDIO_bootstrap;
 
 #endif /* SDL_sysaudio_h_ */
 

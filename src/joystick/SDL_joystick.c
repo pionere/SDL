@@ -103,6 +103,9 @@ static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #ifdef SDL_JOYSTICK_N3DS
     &SDL_N3DS_JoystickDriver
 #endif
+#ifdef SDL_JOYSTICK_XBOX
+    &SDL_XBOX_JoystickDriver,
+#endif
 #if defined(SDL_JOYSTICK_DUMMY) || defined(SDL_JOYSTICK_DISABLED)
     &SDL_DUMMY_JoystickDriver
 #endif
