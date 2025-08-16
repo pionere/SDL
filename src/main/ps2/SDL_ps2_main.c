@@ -10,7 +10,6 @@
 #include "SDL_error.h"
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include <kernel.h>

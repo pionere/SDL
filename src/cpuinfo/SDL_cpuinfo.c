@@ -72,7 +72,6 @@
 #if (defined(__LINUX__) || defined(__ANDROID__)) && defined(__arm__)
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <elf.h>
 
