@@ -3319,6 +3319,7 @@ dnl     Work around that we don't have Objective-C support in autoconf
         AC_MSG_RESULT($enable_joystick_mfi)
         if test x$enable_joystick_mfi = xyes; then
             AC_DEFINE(SDL_JOYSTICK_MFI, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} mfi"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -fobjc-weak -Wno-unused-command-line-argument"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-weak_framework,CoreHaptics -Wl,-weak_framework,GameController"
         fi
@@ -3873,6 +3874,7 @@ CheckUSBHID()
                     AC_MSG_RESULT($have_machine_joystick)
 
                     AC_DEFINE(SDL_JOYSTICK_USBHID, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} usbhid"
                     SOURCES="$SOURCES $srcdir/src/joystick/bsd/*.c"
                     EXTRA_CFLAGS="$EXTRA_CFLAGS $USB_CFLAGS"
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $USB_LIBS"
@@ -3961,6 +3963,7 @@ CheckHIDAPI()
 
     if test x$enable_joystick = xyes -a x$hidapi_support = xyes -a x$enable_hidapi_joystick = xyes; then
         AC_DEFINE(SDL_JOYSTICK_HIDAPI, 1, [ ])
+        SUMMARY_joystick="${SUMMARY_joystick} hidapi"
         SOURCES="$SOURCES $srcdir/src/joystick/hidapi/*.c"
     fi
 }
@@ -4030,6 +4033,7 @@ CheckVirtualJoystick()
                   , enable_joystick_virtual=no)
     if test x$enable_joystick = xyes -a x$enable_joystick_virtual = xyes; then
         AC_DEFINE(SDL_JOYSTICK_VIRTUAL, 1, [ ])
+        SUMMARY_joystick="${SUMMARY_joystick} virtual"
         SOURCES="$SOURCES $srcdir/src/joystick/virtual/*.c"
         have_joystick_virtual=yes
         have_joystick=yes
@@ -4203,6 +4207,7 @@ case "$host" in
             linux)
                 if test "x$ac_cv_header_linux_input_h" = xyes; then
                     AC_DEFINE(SDL_JOYSTICK_LINUX, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
                     SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
@@ -4211,6 +4216,7 @@ case "$host" in
             freebsd)
                 if test x$use_input_events = xyes -a x$ac_cv_header_linux_input_h = xyes; then
                     AC_DEFINE(SDL_JOYSTICK_LINUX, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
                     SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
@@ -4218,6 +4224,7 @@ case "$host" in
             ;;
             android)
                 AC_DEFINE(SDL_JOYSTICK_ANDROID, 1, [ ])
+                SUMMARY_joystick="${SUMMARY_joystick} android"
                 SOURCES="$SOURCES $srcdir/src/joystick/android/*.c"
                 SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                 have_joystick=yes
@@ -4230,12 +4237,14 @@ case "$host" in
             linux|freebsd)
                 if test x$use_input_events = xyes; then
                     AC_DEFINE(SDL_HAPTIC_LINUX, 1, [ ])
+                    SUMMARY_haptic="${SUMMARY_haptic} linux"
                     SOURCES="$SOURCES $srcdir/src/haptic/linux/*.c"
                     have_haptic=yes
                 fi
             ;;
             android)
                 AC_DEFINE(SDL_HAPTIC_ANDROID, 1, [ ])
+                SUMMARY_haptic="${SUMMARY_haptic} android"
                 SOURCES="$SOURCES $srcdir/src/haptic/android/*.c"
                 have_haptic=yes
             ;;
@@ -4392,15 +4401,19 @@ case "$host" in
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_RAWINPUT, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} rawinput"
             if test x$have_dinput = xyes -o x$have_xinput = xyes -o x$have_wgi = xyes; then
                 if test x$have_xinput = xyes; then
                     AC_DEFINE(SDL_JOYSTICK_XINPUT, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} xinput"
                 fi
                 if test x$have_wgi = xyes; then
                     AC_DEFINE(SDL_JOYSTICK_WGI, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} wgi"
                 fi
                 if test x$have_dinput = xyes; then
                     AC_DEFINE(SDL_JOYSTICK_DINPUT, 1, [ ])
+                    SUMMARY_joystick="${SUMMARY_joystick} dinput"
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ldinput8 -ldxguid -ldxerr8"
                 fi
             fi
@@ -4411,9 +4424,11 @@ case "$host" in
             if test x$have_dinput = xyes -o x$have_xinput = xyes; then
                 if test x$have_xinput = xyes; then
                     AC_DEFINE(SDL_HAPTIC_XINPUT, 1, [ ])
+                    SUMMARY_haptic="${SUMMARY_haptic} xinput"
                 fi
                 if test x$have_dinput = xyes; then
                     AC_DEFINE(SDL_HAPTIC_DINPUT, 1, [ ])
+                    SUMMARY_haptic="${SUMMARY_haptic} dinput"
                 fi
                 SOURCES="$SOURCES $srcdir/src/haptic/windows/*.c"
                 have_haptic=yes
@@ -4512,6 +4527,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_HAIKU, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} haiku"
             SOURCES="$SOURCES $srcdir/src/joystick/haiku/*.cc"
             have_joystick=yes
         fi
@@ -4585,12 +4601,15 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
             AC_DEFINE(SDL_JOYSTICK_MFI, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
+            SUMMARY_joystick="${SUMMARY_joystick} mfi"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
             SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
             have_joystick=yes
         else
             # Need this code for accelerometer as joystick support
             AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
         fi
         # Set up files for the haptic library
@@ -4714,6 +4733,8 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_IOS, 1, [ ])
             AC_DEFINE(SDL_JOYSTICK_IOKIT, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
+            SUMMARY_joystick="${SUMMARY_joystick} iokit"
             SOURCES="$SOURCES $srcdir/src/joystick/darwin/*.c"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
             CheckJoystickMFI
@@ -4722,6 +4743,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         # Set up files for the haptic library
         if test x$enable_haptic = xyes; then
             AC_DEFINE(SDL_HAPTIC_IOKIT, 1, [ ])
+            SUMMARY_haptic="${SUMMARY_haptic} iokit"
             SOURCES="$SOURCES $srcdir/src/haptic/darwin/*.c"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,ForceFeedback"
             have_haptic=yes
@@ -4827,6 +4849,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_EMSCRIPTEN, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} emscripten"
             SOURCES="$SOURCES $srcdir/src/joystick/emscripten/*.c"
             have_joystick=yes
         fi
@@ -4965,6 +4988,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_OS2, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} os2"
             SOURCES="$SOURCES $srcdir/src/joystick/os2/*.c"
             have_joystick=yes
         fi
@@ -5036,12 +5060,14 @@ fi
 if test x$have_joystick != xyes; then
     if test x$enable_joystick = xyes; then
         AC_DEFINE(SDL_JOYSTICK_DUMMY, 1, [ ])
+        SUMMARY_joystick="${SUMMARY_joystick} dummy"
     fi
     SOURCES="$SOURCES $srcdir/src/joystick/dummy/*.c"
 fi
 if test x$have_haptic != xyes; then
     if test x$enable_haptic = xyes; then
         AC_DEFINE(SDL_HAPTIC_DUMMY, 1, [ ])
+        SUMMARY_haptic="${SUMMARY_haptic} dummy"
     fi
     SOURCES="$SOURCES $srcdir/src/haptic/dummy/*.c"
 fi
@@ -5279,7 +5305,7 @@ SUMMARY="${SUMMARY}Video drivers   :${SUMMARY_video}\n"
 if test x$have_x = xyes; then
     SUMMARY="${SUMMARY}X11 libraries   :${SUMMARY_video_x11}\n"
 fi
-SUMMARY="${SUMMARY}Input drivers   :${SUMMARY_input}\n"
+SUMMARY="${SUMMARY}Input drivers -${SUMMARY_input} joystick:${SUMMARY_joystick} haptic:${SUMMARY_haptic}\n"
 SUMMARY="${SUMMARY}Options:\n"
 if test x$have_dynapi = xyes; then
     SUMMARY="${SUMMARY}Using dynamic API   : YES\n"
