@@ -27,12 +27,13 @@
 
 #ifdef SDL_JOYSTICK_XBOX
 
-#include "SDL_joystick.h"
+#include "SDL_assert.h"
 #include "SDL_events.h"
+#include "SDL_joystick.h"
+#include "SDL_timer.h"
 #include "../SDL_joystick_c.h"
 #include "../SDL_sysjoystick.h"
 
-#include <SDL.h>
 #include <usbh_lib.h>
 #include <xid_driver.h>
 #include <usb/libusbohci/inc/hub.h>
