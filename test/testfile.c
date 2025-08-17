@@ -39,6 +39,13 @@
 #define NULL ((void *)0)
 #endif
 
+#ifdef NXDK
+static void unlink(const char* file)
+{
+    remove(file);
+}
+#endif
+
 static void
 cleanup(void)
 {

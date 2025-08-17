@@ -107,6 +107,7 @@
 #define HAVE_STDIO_H  1
 #define HAVE_STDLIB_H 1
 #define HAVE_STRING_H 1
+#define HAVE_SYS_STAT_H 1
 
 /* C library functions */
 #define HAVE_MALLOC 1

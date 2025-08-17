@@ -39,7 +39,9 @@
 #ifdef HAVE_STDIO_H
 #include <stdio.h>
 #include <errno.h>
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
 #endif
 #ifdef HAVE_LIMITS_H
 #include <limits.h> /* For CHAR_BIT, FSEEK_OFF_MIN, FSEEK_OFF_MAX */
@@ -533,6 +535,7 @@ static int SDLCALL mem_close(SDL_RWops *context)
 #if defined(HAVE_STDIO_H) && !(defined(__WIN32__) || defined(__GDK__))
 static SDL_bool IsRegularFileOrPipe(FILE *f)
 {
+#if defined(HAVE_SYS_STAT_H)
     #ifdef __WINRT__
     struct __stat64 st;
     if (_fstat64(_fileno(f), &st) < 0 ||
@@ -545,6 +548,9 @@ static SDL_bool IsRegularFileOrPipe(FILE *f)
         return SDL_FALSE;
     }
     #endif
+#else
+#warning "File is not checked whether it is a directory."
+#endif
     return SDL_TRUE;
 }
 #endif

@@ -68,6 +68,7 @@
 
 /* Useful headers */
 #define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_STAT_H  1
 #define HAVE_STDARG_H 1
 #define HAVE_STDDEF_H 1
 #define HAVE_STDINT_H 1

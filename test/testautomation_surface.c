@@ -15,13 +15,14 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
-#include <sys/stat.h>
 
 #include "SDL.h"
 #include "SDL_test.h"
 
 #ifdef __MACOSX__
 #include <unistd.h> /* For unlink() */
+#elif defined(HAVE_SYS_STAT_H)
+#include <sys/stat.h> /* For unlink() */
 #endif
 
 /* ================= Test Case Implementation ================== */
@@ -216,14 +217,12 @@ void _testBlitBlendMode(int mode)
     face = NULL;
 }
 
-/* Helper to check that a file exists */
-void _AssertFileExist(const char *filename)
+#ifdef NXDK
+static void unlink(const char* file)
 {
-    struct stat st;
-    int ret = stat(filename, &st);
-
-    SDLTest_AssertCheck(ret == 0, "Verify file '%s' exists", filename);
+    remove(file);
 }
+#endif
 
 /* Test case functions */
 
@@ -251,7 +250,6 @@ int surface_testSaveLoadBitmap(void *arg)
     ret = SDL_SaveBMP(face, sampleFilename);
     SDLTest_AssertPass("Call to SDL_SaveBMP()");
     SDLTest_AssertCheck(ret == 0, "Verify result from SDL_SaveBMP, expected: 0, got: %i", ret);
-    _AssertFileExist(sampleFilename);
 
     /* Load a surface */
     rface = SDL_LoadBMP(sampleFilename);

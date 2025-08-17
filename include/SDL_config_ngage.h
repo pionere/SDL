@@ -32,6 +32,7 @@
 #define HAVE_STDDEF_H    1
 #define HAVE_STDIO_H     1
 #define HAVE_STDLIB_H    1
+#define HAVE_SYS_STAT_H  1
 #define HAVE_MATH_H      1
 #define HAVE_CEIL        1
 #define HAVE_COPYSIGN    1

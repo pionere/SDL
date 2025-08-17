@@ -1522,6 +1522,7 @@ if(SDL_LIBC)
         stdio.h
         stdlib.h
         string.h
+        sys/stat.h
         wchar.h
     )
     foreach(_HEADER ${headers_to_check})
@@ -1567,6 +1568,7 @@ if(SDL_LIBC)
         stdlib.h
         string.h
         strings.h
+        sys/stat.h
         sys/types.h
         wchar.h
     )
@@ -1683,6 +1685,8 @@ else()
       check_c_compiler_flag("/Q_no-use-libirc" HAS_Q_NO_USE_LIBIRC )
     endif()
   endif()
+
+  check_include_file(sys/stat.h HAVE_SYS_STAT_H)
 endif()
 
 
