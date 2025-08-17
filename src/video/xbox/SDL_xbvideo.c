@@ -144,9 +144,9 @@ static SDL_bool XBOX_CreateDevice(SDL_VideoDevice *device)
     // device->SetWindowKeyboardGrab = XBOX_SetWindowKeyboardGrab;
     // device->DestroyWindow = XBOX_DestroyWindow;
     // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
-    device->CreateWindowFramebuffer = SDL_XBOX_CreateWindowFramebuffer;
-    device->UpdateWindowFramebuffer = SDL_XBOX_UpdateWindowFramebuffer;
-    device->DestroyWindowFramebuffer = SDL_XBOX_DestroyWindowFramebuffer;
+    device->CreateWindowFramebuffer = XBOX_CreateWindowFramebuffer;
+    device->UpdateWindowFramebuffer = XBOX_UpdateWindowFramebuffer;
+    device->DestroyWindowFramebuffer = XBOX_DestroyWindowFramebuffer;
     // device->OnWindowEnter = XBOX_OnWindowEnter;
     // device->FlashWindow = XBOX_FlashWindow;
     /* Shaped-window functions */

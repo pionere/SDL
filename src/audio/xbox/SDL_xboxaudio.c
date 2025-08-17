@@ -41,7 +41,6 @@ xbox_audio_callback(void *pac97device, void *data)
 
     struct SDL_PrivateAudioData *audiodata = (struct SDL_PrivateAudioData *) data;
     SDL_SemPost(audiodata->playsem);
-    return;
 }
 
 static void
@@ -58,13 +57,9 @@ XBOXAUDIO_CloseDevice(_THIS)
     }
 
     /* Destroy the audio buffer semaphore */
-    if (_this->hidden->playsem) {
-        SDL_DestroySemaphore(_this->hidden->playsem);
-    }
+    SDL_DestroySemaphore(_this->hidden->playsem);
 
     SDL_free(_this->hidden);
-
-    return;
 }
 
 static int
@@ -123,8 +118,6 @@ XBOXAUDIO_WaitDevice(_THIS)
 {
     /* Wait for an audio buffer to be free */
     SDL_SemWait(_this->hidden->playsem);
-
-    return;
 }
 
 static Uint8 *
@@ -141,8 +134,6 @@ XBOXAUDIO_PlayDevice(_THIS)
 
     /* Advance to next buffer */
     _this->hidden->next_buffer = (_this->hidden->next_buffer + 1) % BUFFER_COUNT;
-
-    return;
 }
 
 static SDL_bool

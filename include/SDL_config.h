@@ -27,14 +27,15 @@
 /* WIKI CATEGORY: - */
 
 /* Add any platform that doesn't build using the configure system. */
-#if defined(__WIN32__) && !defined(__XBOX__)
+/*    Check for __XBOX__ before __WIN32__ (both might be set).     */
+#if defined(__XBOX__) || defined(__XBOXONE__) || defined(__XBOXSERIES__)
+#include "SDL_config_xbox.h"
+#elif defined(__WIN32__)
 #include "SDL_config_windows.h"
 #elif defined(__WINRT__)
 #include "SDL_config_winrt.h"
 #elif defined(__WINGDK__)
 #include "SDL_config_wingdk.h"
-#elif defined(__XBOXONE__) || defined(__XBOXSERIES__)
-#include "SDL_config_xbox.h"
 #elif defined(__MACOSX__)
 #include "SDL_config_macosx.h"
 #elif defined(__IPHONEOS__)
@@ -47,8 +48,6 @@
 #include "SDL_config_emscripten.h"
 #elif defined(__NGAGE__)
 #include "SDL_config_ngage.h"
-#elif defined(__XBOX__)
-#include "SDL_config_xbox.h"
 #else
 /* This is a minimal configuration just to get SDL running on new platforms. */
 #include "SDL_config_minimal.h"
