@@ -71,8 +71,6 @@
 #endif
 
 #if defined(XBOX) || defined(__XBOX__) || defined(NXDK)
-#undef XBOX
-#define XBOX 1
 #undef __XBOX__
 #define __XBOX__ 1
 /* clang doesn't like the SDL packing pragma headers */
