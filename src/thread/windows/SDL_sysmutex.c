@@ -42,7 +42,7 @@ SDL_mutex_impl_t SDL_mutex_impl_active = { 0 };
  * Implementation based on Slim Reader/Writer (SRW) Locks for Win 7 and newer.
  */
 
-#ifdef __WINRT__
+#if defined(__WINRT__) || defined(NXDK)
 /* Functions are guaranteed to be available */
 #define pReleaseSRWLockExclusive    ReleaseSRWLockExclusive
 #define pAcquireSRWLockExclusive    AcquireSRWLockExclusive
@@ -226,7 +226,7 @@ SDL_mutex *SDL_CreateMutex(void)
         const SDL_mutex_impl_t *impl = &SDL_mutex_impl_cs;
 
         if (!SDL_GetHintBoolean(SDL_HINT_WINDOWS_FORCE_MUTEX_CRITICAL_SECTIONS, SDL_FALSE)) {
-#ifdef __WINRT__
+#if defined(__WINRT__) || defined(NXDK)
             /* Link statically on this platform */
             impl = &SDL_mutex_impl_srw;
 #else

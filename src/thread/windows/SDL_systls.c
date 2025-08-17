@@ -23,8 +23,6 @@
 
 #ifdef SDL_THREAD_WINDOWS
 
-#include "../../core/windows/SDL_windows.h"
-
 #include "SDL_thread.h"
 #include "../SDL_thread_c.h"
 
@@ -73,7 +71,7 @@ int SDL_SYS_SetTLSData(SDL_TLSData *data)
     }
 
     if (!TlsSetValue(thread_local_storage, data)) {
-        return WIN_SetError("TlsSetValue()");
+        return SDL_SetError("TlsSetValue() failed");
     }
     return 0;
 }

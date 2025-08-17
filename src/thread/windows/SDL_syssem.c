@@ -65,7 +65,7 @@ typedef struct SDL_semaphore_impl_t
 /* APIs not available on WinPhone 8.1 */
 /* https://www.microsoft.com/en-us/download/details.aspx?id=47328 */
 
-#if !SDL_WINAPI_FAMILY_PHONE
+#if !SDL_WINAPI_FAMILY_PHONE && !defined(NXDK)
 #ifdef __WINRT__
 /* Functions are guaranteed to be available */
 #define pWaitOnAddress       WaitOnAddress
@@ -233,7 +233,7 @@ static const SDL_sem_impl_t SDL_sem_impl_atom = {
     &SDL_SemValue_atom,
     &SDL_SemPost_atom,
 };
-#endif /* !SDL_WINAPI_FAMILY_PHONE */
+#endif /* !SDL_WINAPI_FAMILY_PHONE && !defined(NXDK) */
 
 /**
  * Fallback Semaphore implementation using Kernel Semaphores
@@ -363,7 +363,7 @@ static const SDL_sem_impl_t SDL_sem_impl_kern = {
     &SDL_SemValue_kern,
     &SDL_SemPost_kern,
 };
-#if !SDL_WINAPI_FAMILY_PHONE
+#if !SDL_WINAPI_FAMILY_PHONE && !defined(NXDK)
 /* Implementation will be chosen at runtime based on available Kernel features */
 static SDL_sem_impl_t SDL_sem_impl_active = { 0 };
 #else
@@ -375,7 +375,7 @@ static const SDL_sem_impl_t SDL_sem_impl_active = SDL_sem_impl_kern;
 
 SDL_sem *SDL_CreateSemaphore(Uint32 initial_value)
 {
-#if !SDL_WINAPI_FAMILY_PHONE
+#if !SDL_WINAPI_FAMILY_PHONE && !defined(NXDK)
     if (!SDL_sem_impl_active.Create) {
         /* Default to fallback implementation */
         const SDL_sem_impl_t *impl = &SDL_sem_impl_kern;
