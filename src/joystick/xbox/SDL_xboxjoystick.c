@@ -88,7 +88,7 @@ typedef struct joystick_hwdata
     Uint16 current_rumble[2];
 } joystick_hwdata, *pjoystick_hwdata;
 
-static int parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata);
+static void parse_input_data(PXINPUT_GAMEPAD controller, const Uint8 *rdata);
 
 static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index);
 
@@ -447,17 +447,14 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick)
     Sint16 wButtons, axis, this_joy;
     Uint8 hat = SDL_HAT_CENTERED;
     XINPUT_GAMEPAD xpad;
-    Uint8 button_data[MAX_PACKET_SIZE];
 
     if (joystick == NULL || joystick->hwdata == NULL || joystick->hwdata->xid_dev == NULL)
     {
         return;
     }
 
-    SDL_memcpy(button_data, joystick->hwdata->raw_data, MAX_PACKET_SIZE);
-
     //FIXME. Steel Battalion and XREMOTE should be parsed differently.
-    if (parse_input_data(joystick->hwdata->xid_dev, &xpad, button_data))
+    parse_input_data(&xpad, joystick->hwdata->raw_data);
     {
         wButtons = xpad.wButtons;
 
@@ -579,14 +576,10 @@ SDL_JoystickDriver SDL_XBOX_JoystickDriver = {
     SDL_XBOX_JoystickGetGamepadMapping,
 };
 
-static int parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata) {
-    Uint16 wButtons = *((Uint16*)&rdata[2]);
-
-    if (xid_dev == NULL)
-    {
-        return 0;
-    }
-
+static void parse_input_data(PXINPUT_GAMEPAD controller, const Uint8 *rdata)
+{
+    const Uint16 wButtons = *((const Uint16*)&rdata[2]);
+    SDL_assert(controller != NULL);
     controller->wButtons = 0;
 
     //Map digital buttons
@@ -612,11 +605,10 @@ static int parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint
     controller->bRightTrigger = rdata[11];
 
     //Map analog sticks
-    controller->sThumbLX = *((Sint16 *)&rdata[12]);
-    controller->sThumbLY = *((Sint16 *)&rdata[14]);
-    controller->sThumbRX = *((Sint16 *)&rdata[16]);
-    controller->sThumbRY = *((Sint16 *)&rdata[18]);
-    return 1;
+    controller->sThumbLX = *((const Sint16 *)&rdata[12]);
+    controller->sThumbLY = *((const Sint16 *)&rdata[14]);
+    controller->sThumbRX = *((const Sint16 *)&rdata[16]);
+    controller->sThumbRY = *((const Sint16 *)&rdata[18]);
 }
 
 #endif /* SDL_JOYSTICK_XBOX */
