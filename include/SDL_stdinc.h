@@ -117,7 +117,9 @@ typedef unsigned long long uint64_t;
 #  define alloca __builtin_alloca
 # elif defined(_MSC_VER)
 #  include <malloc.h>
-#  define alloca _alloca
+#  if !defined(alloca)
+#   define alloca _alloca
+#  endif
 # elif defined(__WATCOMC__)
 #  include <malloc.h>
 # elif defined(__BORLANDC__)

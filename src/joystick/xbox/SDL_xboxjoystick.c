@@ -105,16 +105,18 @@ static void disconnect_callback(xid_dev_t *xid_dev, int status) {
 
 static void int_read_callback(UTR_T *utr) {
     xid_dev_t *xid_dev = (xid_dev_t *)utr->context;
+    SDL_Joystick *joy;
+    Uint32 data_len;
 
     if (utr->status < 0 || xid_dev == NULL || xid_dev->user_data == NULL)
     {
         return;
     }
 
-    SDL_Joystick *joy = (SDL_Joystick *)xid_dev->user_data;
+    joy = (SDL_Joystick *)xid_dev->user_data;
 
     //Cap data len to buffer size.
-    Uint32 data_len = utr->xfer_len;
+    data_len = utr->xfer_len;
     if (data_len > MAX_PACKET_SIZE)
         data_len = MAX_PACKET_SIZE;
 
@@ -151,9 +153,9 @@ static xid_dev_t *xid_from_device_index(Sint32 device_index) {
 
 static Sint32 xid_get_device_port(xid_dev_t *xid_dev) {
     UDEV_T *udev, *parent_udev;
-    
-    udev = xid_dev->iface->udev;
     ULONG has_internal_hub = XboxHardwareInfo.Flags & XBOX_HW_FLAG_INTERNAL_USB_HUB;
+
+    udev = xid_dev->iface->udev;
     while (udev != NULL)
     {
         parent_udev = NULL;
@@ -222,14 +224,15 @@ static void SDL_XBOX_JoystickDetect() {
 
 static const char* SDL_XBOX_JoystickGetDeviceName(Sint32 device_index) {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
+    static char name[MAX_JOYSTICKS][64];
+    Uint32 max_len = sizeof(name[device_index]);
+    Sint32 player_index;
 
     if (xid_dev == NULL || device_index >= MAX_JOYSTICKS)
         return "Invalid device index";
 
-    static char name[MAX_JOYSTICKS][64];
-    Uint32 max_len = sizeof(name[device_index]);
 
-    Sint32 player_index = SDL_XBOX_JoystickGetDevicePlayerIndex(device_index);
+    player_index = SDL_XBOX_JoystickGetDevicePlayerIndex(device_index);
     switch (xid_dev->xid_desc.bType)
     {
     case XID_TYPE_GAMECONTROLLER:
@@ -261,11 +264,12 @@ static int SDL_XBOX_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 // 1 = Port 1, 2 = Port 2, etc.
 static Sint32 SDL_XBOX_JoystickGetDevicePlayerIndex(Sint32 device_index) {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
+    Sint32 player_index;
 
     if (xid_dev == NULL)
         return -1;
 
-    Sint32 player_index = xid_get_device_port(xid_dev);
+    player_index = xid_get_device_port(xid_dev);
     if (player_index == 0) {    // fallback to device_index if xid_get_device_port fails (returns 0)
         player_index = device_index;
     }
@@ -431,13 +435,13 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
     Sint16 wButtons, axis, this_joy;
     Sint32 hat = SDL_HAT_CENTERED;
     XINPUT_GAMEPAD xpad;
+    Uint8 button_data[MAX_PACKET_SIZE];
 
     if (joystick == NULL || joystick->hwdata == NULL || joystick->hwdata->xid_dev == NULL)
     {
         return;
     }
 
-    Uint8 button_data[MAX_PACKET_SIZE];
     SDL_memcpy(button_data, joystick->hwdata->raw_data, MAX_PACKET_SIZE);
 
     //FIXME. Steel Battalion and XREMOTE should be parsed differently.
@@ -455,6 +459,7 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
         }
 
         //DIGITAL BUTTONS
+        {
         static const Sint32 btn_map[10][2] = 
         {
           {0, XINPUT_GAMEPAD_A},
@@ -472,6 +477,7 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
         {
           if (joystick->buttons[btn_map[i][0]] != ((wButtons & btn_map[i][1]) > 0))
               SDL_PrivateJoystickButton(joystick, btn_map[i][0], (wButtons & btn_map[i][1]) ? SDL_PRESSED : SDL_RELEASED);
+        }
         }
 
         //TRIGGERS
@@ -504,13 +510,15 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
 }
 
 static void SDL_XBOX_JoystickClose(SDL_Joystick *joystick) {
+    xid_dev_t *xid_dev;
+
     JOY_DBGMSG("SDL_XBOX_JoystickClose:\n");
     if (joystick->hwdata == NULL)
         return;
 
     usbh_xid_rumble(joystick->hwdata->xid_dev, 0, 0);
 
-    xid_dev_t *xid_dev = joystick->hwdata->xid_dev;
+    xid_dev = joystick->hwdata->xid_dev;
     xid_dev->user_data = NULL;
     if (xid_dev != NULL)
     {
@@ -562,13 +570,13 @@ SDL_JoystickDriver SDL_XBOX_JoystickDriver = {
 };
 
 static Sint32 parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata) {
+    Uint16 wButtons = *((Uint16*)&rdata[2]);
 
     if (xid_dev == NULL)
     {
         return 0;
     }
 
-    Uint16 wButtons = *((Uint16*)&rdata[2]);
     controller->wButtons = 0;
 
     //Map digital buttons

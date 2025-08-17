@@ -65,28 +65,33 @@ int SDL_XBOX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format, void 
 int SDL_XBOX_UpdateWindowFramebuffer(SDL_Window * window, const SDL_Rect * rects, int numrects)
 {
     SDL_Surface *surface;
+    VIDEO_MODE vm;
+    const void *src;
+    Uint32 src_format, dst_format;
+    int src_pitch, dst_bytes_per_pixel, dst_pitch, width, height;
+    void *dst;
 
     surface = (SDL_Surface *) SDL_GetWindowData(window, XBOX_SURFACE);
     if (!surface) {
         return SDL_SetError("Couldn't find Xbox surface for window");
     }
 
-    VIDEO_MODE vm = XVideoGetMode();
+    vm = XVideoGetMode();
 
     // Get information about SDL window surface
-    const void *src = surface->pixels;
-    Uint32 src_format = surface->format->format;
-    int src_pitch = surface->pitch;
+    src = surface->pixels;
+    src_format = surface->format->format;
+    src_pitch = surface->pitch;
 
     // Get information about GPU framebuffer
-    void *dst = XVideoGetFB();
-    Uint32 dst_format = pixelFormatSelector(vm.bpp);
-    int dst_bytes_per_pixel = SDL_BYTESPERPIXEL(dst_format);
-    int dst_pitch = vm.width * dst_bytes_per_pixel;
+    dst = XVideoGetFB();
+    dst_format = pixelFormatSelector(vm.bpp);
+    dst_bytes_per_pixel = SDL_BYTESPERPIXEL(dst_format);
+    dst_pitch = vm.width * dst_bytes_per_pixel;
 
     // Check if the SDL window fits into GPU framebuffer
-    int width = surface->w;
-    int height = surface->h;
+    width = surface->w;
+    height = surface->h;
     assert(width <= vm.width);
     assert(height <= vm.height);
 

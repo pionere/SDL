@@ -70,12 +70,13 @@ static SDL_Window *xbox_window = NULL;
 static int
 XBOX_CreateSDLWindow(_THIS, SDL_Window * window)
 {
+    VIDEO_MODE vm;
     if (xbox_window) {
         return SDL_SetError("Xbox only supports one window");
     }
 
     /* Adjust the window data to match the screen */
-    VIDEO_MODE vm = XVideoGetMode();
+    vm = XVideoGetMode();
     window->wrect.x = 0;
     window->wrect.y = 0;
     window->wrect.w = vm.width;
