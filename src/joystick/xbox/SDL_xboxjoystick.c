@@ -33,7 +33,6 @@
 #include "../SDL_sysjoystick.h"
 
 #include <SDL.h>
-#include <assert.h>
 #include <usbh_lib.h>
 #include <xid_driver.h>
 #include <usb/libusbohci/inc/hub.h>
@@ -88,22 +87,25 @@ typedef struct joystick_hwdata
     Uint16 current_rumble[2];
 } joystick_hwdata, *pjoystick_hwdata;
 
-static Sint32 parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata);
+static int parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata);
 
-static Sint32 SDL_XBOX_JoystickGetDevicePlayerIndex(Sint32 device_index);
+static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index);
 
 //Create SDL events for connection/disconnection. These events can then be handled in the user application
-static void connection_callback(xid_dev_t *xid_dev, int status) {
+static void connection_callback(xid_dev_t *xid_dev, int status)
+{
     JOY_DBGMSG("connection_callback: uid %i connected \n", xid_dev->uid);
     SDL_PrivateJoystickAdded(xid_dev->uid);
 }
 
-static void disconnect_callback(xid_dev_t *xid_dev, int status) {
+static void disconnect_callback(xid_dev_t *xid_dev, int status)
+{
     JOY_DBGMSG("disconnect_callback uid %i disconnected\n", xid_dev->uid);
     SDL_PrivateJoystickRemoved(xid_dev->uid);
 }
 
-static void int_read_callback(UTR_T *utr) {
+static void int_read_callback(UTR_T *utr)
+{
     xid_dev_t *xid_dev = (xid_dev_t *)utr->context;
     SDL_Joystick *joy;
     Uint32 data_len;
@@ -131,10 +133,11 @@ static void int_read_callback(UTR_T *utr) {
     }
 }
 
-static xid_dev_t *xid_from_device_index(Sint32 device_index) {
+static xid_dev_t *xid_from_device_index(int device_index)
+{
     xid_dev_t *xid_dev = usbh_xid_get_device_list();
 
-    Sint32 i = 0;
+    int i = 0;
     //Scan the xid_dev linked list and finds the nth xid_dev that is a gamepad.
     while (xid_dev != NULL && i <= device_index)
     {
@@ -147,11 +150,12 @@ static xid_dev_t *xid_from_device_index(Sint32 device_index) {
         }
         xid_dev = xid_dev->next;
     }
-    assert(0);
+    SDL_assert(0);
     return NULL;
 }
 
-static Sint32 xid_get_device_port(xid_dev_t *xid_dev) {
+static int xid_get_device_port(xid_dev_t *xid_dev)
+{
     UDEV_T *udev, *parent_udev;
     ULONG has_internal_hub = XboxHardwareInfo.Flags & XBOX_HW_FLAG_INTERNAL_USB_HUB;
 
@@ -180,7 +184,8 @@ static Sint32 xid_get_device_port(xid_dev_t *xid_dev) {
 }
 
 static SDL_bool core_has_init = SDL_FALSE;
-static Sint32 SDL_XBOX_JoystickInit(void) {
+static int SDL_XBOX_JoystickInit(void)
+{
     if (!core_has_init)
     {
         usbh_core_init();
@@ -193,7 +198,7 @@ static Sint32 SDL_XBOX_JoystickInit(void) {
     //Ensure all connected devices have completed enumeration and are running
     //This wouldnt be required if user applications correctly handled connection events, but most dont
     //This needs to allow time for port reset, debounce, device reset etc. ~200ms per device. ~500ms is time for 1 hub + 1 controller.
-    for (Sint32 i = 0; i < 500; i++)
+    for (int i = 0; i < 500; i++)
     {
         usbh_pooling_hubs();
         SDL_Delay(1);
@@ -202,8 +207,9 @@ static Sint32 SDL_XBOX_JoystickInit(void) {
     return 0;
 }
 
-static Sint32 SDL_XBOX_JoystickGetCount() {
-    Sint32 pad_cnt = 0;
+static int SDL_XBOX_JoystickGetCount()
+{
+    int pad_cnt = 0;
     xid_dev_t *xid_dev = usbh_xid_get_device_list();
     while (xid_dev != NULL)
     {
@@ -222,15 +228,15 @@ static void SDL_XBOX_JoystickDetect() {
     usbh_pooling_hubs();
 }
 
-static const char* SDL_XBOX_JoystickGetDeviceName(Sint32 device_index) {
+static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
+{
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
     static char name[MAX_JOYSTICKS][64];
-    Uint32 max_len = sizeof(name[device_index]);
-    Sint32 player_index;
+    int max_len = sizeof(name[device_index]);
+    int player_index;
 
     if (xid_dev == NULL || device_index >= MAX_JOYSTICKS)
         return "Invalid device index";
-
 
     player_index = SDL_XBOX_JoystickGetDevicePlayerIndex(device_index);
     switch (xid_dev->xid_desc.bType)
@@ -262,9 +268,10 @@ static int SDL_XBOX_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 
 // Returns the port number the device is connected to
 // 1 = Port 1, 2 = Port 2, etc.
-static Sint32 SDL_XBOX_JoystickGetDevicePlayerIndex(Sint32 device_index) {
+static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index)
+{
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
-    Sint32 player_index;
+    int player_index;
 
     if (xid_dev == NULL)
         return -1;
@@ -282,7 +289,8 @@ static void SDL_XBOX_JoystickSetDevicePlayerIndex(int device_index, int player_i
 {
 }
 
-static SDL_JoystickGUID SDL_XBOX_JoystickGetDeviceGUID(Sint32 device_index) {
+static SDL_JoystickGUID SDL_XBOX_JoystickGetDeviceGUID(int device_index)
+{
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
 
     SDL_JoystickGUID ret;
@@ -300,7 +308,8 @@ static SDL_JoystickGUID SDL_XBOX_JoystickGetDeviceGUID(Sint32 device_index) {
     return ret;
 }
 
-static SDL_JoystickID SDL_XBOX_JoystickGetDeviceInstanceID(Sint32 device_index) {
+static SDL_JoystickID SDL_XBOX_JoystickGetDeviceInstanceID(int device_index)
+{
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
 
     SDL_JoystickID ret;
@@ -314,7 +323,8 @@ static SDL_JoystickID SDL_XBOX_JoystickGetDeviceInstanceID(Sint32 device_index) 
     return ret;
 }
 
-static Sint32 SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, Sint32 device_index) {
+static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
+{
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
 
     if (xid_dev == NULL)
@@ -324,7 +334,7 @@ static Sint32 SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, Sint32 device_index)
     }
 
     joystick->hwdata = (pjoystick_hwdata)SDL_malloc(sizeof(joystick_hwdata));
-    assert(joystick->hwdata != NULL);
+    SDL_assert(joystick->hwdata != NULL);
     SDL_zerop(joystick->hwdata);
 
     joystick->hwdata->xid_dev = xid_dev;
@@ -368,7 +378,7 @@ static Sint32 SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, Sint32 device_index)
     return 0;
 }
 
-static Sint32 SDL_XBOX_JoystickRumble(SDL_Joystick *joystick,
+static int SDL_XBOX_JoystickRumble(SDL_Joystick *joystick,
                                       Uint16 low_frequency_rumble,
                                       Uint16 high_frequency_rumble)
 {
@@ -431,9 +441,10 @@ static int SDL_XBOX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool e
     return SDL_Unsupported();
 }
 
-static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
+static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick)
+{
     Sint16 wButtons, axis, this_joy;
-    Sint32 hat = SDL_HAT_CENTERED;
+    Uint8 hat = SDL_HAT_CENTERED;
     XINPUT_GAMEPAD xpad;
     Uint8 button_data[MAX_PACKET_SIZE];
 
@@ -460,7 +471,7 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
 
         //DIGITAL BUTTONS
         {
-        static const Sint32 btn_map[10][2] = 
+        static const Sint16 btn_map[10][2] = 
         {
           {0, XINPUT_GAMEPAD_A},
           {1, XINPUT_GAMEPAD_B},
@@ -473,7 +484,7 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
           {8, XINPUT_GAMEPAD_LEFT_THUMB},
           {9, XINPUT_GAMEPAD_RIGHT_THUMB}
         };
-        for (Sint32 i = 0; i < (sizeof(btn_map) / sizeof(btn_map[0])); i++)
+        for (int i = 0; i < SDL_arraysize(btn_map); i++)
         {
           if (joystick->buttons[btn_map[i][0]] != ((wButtons & btn_map[i][1]) > 0))
               SDL_PrivateJoystickButton(joystick, btn_map[i][0], (wButtons & btn_map[i][1]) ? SDL_PRESSED : SDL_RELEASED);
@@ -506,12 +517,11 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick) {
         if (axis != joystick->axes[4].value)
             SDL_PrivateJoystickAxis(joystick, 4, ~axis);
     }
-    return;
 }
 
-static void SDL_XBOX_JoystickClose(SDL_Joystick *joystick) {
+static void SDL_XBOX_JoystickClose(SDL_Joystick *joystick)
+{
     xid_dev_t *xid_dev;
-
     JOY_DBGMSG("SDL_XBOX_JoystickClose:\n");
     if (joystick->hwdata == NULL)
         return;
@@ -526,7 +536,6 @@ static void SDL_XBOX_JoystickClose(SDL_Joystick *joystick) {
     }
     SDL_free(joystick->hwdata);
     joystick->hwdata = NULL;
-    return;
 }
 
 static void SDL_XBOX_JoystickQuit(void) {
@@ -569,7 +578,7 @@ SDL_JoystickDriver SDL_XBOX_JoystickDriver = {
     SDL_XBOX_JoystickGetGamepadMapping,
 };
 
-static Sint32 parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata) {
+static int parse_input_data(xid_dev_t *xid_dev, PXINPUT_GAMEPAD controller, Uint8 *rdata) {
     Uint16 wButtons = *((Uint16*)&rdata[2]);
 
     if (xid_dev == NULL)
