@@ -340,7 +340,9 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
     }
 
     joystick->hwdata = (pjoystick_hwdata)SDL_calloc(1, sizeof(joystick_hwdata));
-    SDL_assert(joystick->hwdata != NULL);
+    if (!joystick->hwdata) {
+        return SDL_OutOfMemory();
+    }
 
     joystick->hwdata->xid_dev = xid_dev;
     joystick->hwdata->xid_dev->user_data = (void *)joystick;
@@ -370,7 +372,7 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
         SDL_assume(!"Unknown device type");
         SDL_free(joystick->hwdata);
         joystick->hwdata = NULL;
-        return -1;
+        return SDL_SetError("Unknown device type %d", xid_dev->xid_desc.bType);
     }
 
     JOY_DBGMSG("JoystickOpened:\n");
