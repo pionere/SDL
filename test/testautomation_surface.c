@@ -12,18 +12,13 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
 
 #include "SDL.h"
 #include "SDL_test.h"
-
-#ifdef __MACOSX__
-#include <unistd.h> /* For unlink() */
-#elif defined(HAVE_SYS_STAT_H)
-#include <sys/stat.h> /* For unlink() */
-#endif
 
 /* ================= Test Case Implementation ================== */
 
