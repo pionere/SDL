@@ -24,13 +24,9 @@
 
 #include "../SDL_sysvideo.h"
 #include "SDL_xbframebuffer_c.h"
-
-
-#define XBOX_SURFACE   "_SDL_XboxSurface"
-
+#include "SDL_assert.h"
 
 #include <hal/video.h>
-#include <assert.h>
 
 
 int XBOX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format, void ** pixels, int *pitch)
@@ -39,26 +35,24 @@ int XBOX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format, void ** p
     VIDEO_MODE vm = XVideoGetMode();
     const Uint32 surface_format = pixelFormatSelector(vm.bpp);
     int w, h;
-    int bpp;
-    Uint32 Rmask, Gmask, Bmask, Amask;
 
     /* Free the old framebuffer surface */
-    surface = (SDL_Surface *) SDL_GetWindowData(window, XBOX_SURFACE);
-    SDL_FreeSurface(surface);
+    // XBOX_DestroyWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
 
     /* Create a new one */
-    SDL_PixelFormatEnumToMasks(surface_format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-    SDL_GetWindowSize(window, &w, &h);
-    surface = SDL_CreateRGBSurface(0, w, h, bpp, Rmask, Gmask, Bmask, Amask);
+    SDL_GetWindowSize(window, &w, &h); // SDL_PrivateGetWindowSizeInPixels ?
+    surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
     if (!surface) {
         return -1;
     }
 
     /* Save the info and return! */
-    SDL_SetWindowData(window, XBOX_SURFACE, surface);
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
+    window->surface = surface;
+    // SDL_SetWindowData(window, XBOX_SURFACE, surface);
+    //*format = surface_format;
+    //*pixels = surface->pixels;
+    //*pitch = surface->pitch;
     return 0;
 }
 
@@ -71,9 +65,10 @@ int XBOX_UpdateWindowFramebuffer(SDL_Window * window, const SDL_Rect * rects, in
     int src_pitch, dst_bytes_per_pixel, dst_pitch, width, height;
     void *dst;
 
-    surface = (SDL_Surface *) SDL_GetWindowData(window, XBOX_SURFACE);
+    // surface = (SDL_Surface *)SDL_GetWindowData(window, XBOX_SURFACE);
+    surface = window->surface;
     if (!surface) {
-        return SDL_SetError("Couldn't find Xbox surface for window");
+        return SDL_SetError("Couldn't find framebuffer surface for window");
     }
 
     vm = XVideoGetMode();
@@ -92,8 +87,8 @@ int XBOX_UpdateWindowFramebuffer(SDL_Window * window, const SDL_Rect * rects, in
     // Check if the SDL window fits into GPU framebuffer
     width = surface->w;
     height = surface->h;
-    assert(width <= vm.width);
-    assert(height <= vm.height);
+    SDL_assert(width <= vm.width);
+    SDL_assert(height <= vm.height);
 
     // Copy SDL window surface to GPU framebuffer
     SDL_ConvertPixels(width, height, src_format, src, src_pitch, dst_format, dst, dst_pitch);
@@ -108,7 +103,8 @@ void XBOX_DestroyWindowFramebuffer(SDL_Window * window)
 {
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *) SDL_SetWindowData(window, XBOX_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, XBOX_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 
