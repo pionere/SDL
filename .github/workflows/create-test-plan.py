@@ -138,13 +138,11 @@ JOB_SPECS = {
     "vita-pib": JobSpec(name="Sony PlayStation Vita (GLES w/ pib)",         os=JobOs.UbuntuLatest,  platform=SdlPlatform.Vita,        artifact="SDL-vita-pib",           container="vitasdk/vitasdk:latest", vita_gles=VitaGLES.Pib,  ),
     "vita-pvr": JobSpec(name="Sony PlayStation Vita (GLES w/ PVR_PSP2)",    os=JobOs.UbuntuLatest,  platform=SdlPlatform.Vita,        artifact="SDL-vita-pvr",           container="vitasdk/vitasdk:latest", vita_gles=VitaGLES.Pvr, ),
     "riscos": JobSpec(name="RISC OS",                                       os=JobOs.UbuntuLatest,  platform=SdlPlatform.Riscos,      artifact="SDL-riscos",             container="riscosdotinfo/riscos-gccsdk-4.7:latest", ),
-    "netbsd": JobSpec(name="NetBSD",                                        os=JobOs.UbuntuLatest,  platform=SdlPlatform.NetBSD,      artifact="SDL-netbsd-x64",  autotools=True, ),
-    "freebsd": JobSpec(name="FreeBSD",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.FreeBSD,     artifact="SDL-freebsd-x64", autotools=True, ),
-    "watcom-win32": JobSpec(name="Watcom (Windows)",                        os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",  no_cmake=True, watcom_platform=WatcomPlatform.Windows ),
-    "watcom-os2": JobSpec(name="Watcom (OS/2)",                             os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",  no_cmake=True, watcom_platform=WatcomPlatform.OS2 ),
-    # "watcom-win32"
-    # "watcom-os2"
-    "ngage": JobSpec(name="N-Gage",                                         os=JobOs.WindowsLatest,     platform=SdlPlatform.NGage,       artifact="SDL-ngage", ),
+    "netbsd": JobSpec(name="NetBSD",                                        os=JobOs.UbuntuLatest,  platform=SdlPlatform.NetBSD,      artifact="SDL-netbsd-x64",         autotools=True, ),
+    "freebsd": JobSpec(name="FreeBSD",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.FreeBSD,     artifact="SDL-freebsd-x64",        autotools=True, ),
+    "watcom-win32": JobSpec(name="Watcom (Windows)",                        os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",       watcom_platform=WatcomPlatform.Windows ),
+    "watcom-os2": JobSpec(name="Watcom (OS/2)",                             os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",       watcom_platform=WatcomPlatform.OS2 ),
+    "ngage": JobSpec(name="N-Gage",                                         os=JobOs.WindowsLatest, platform=SdlPlatform.NGage,       artifact="SDL-ngage", ),
     "xbox-cmake": JobSpec(name="XBOX (CMake)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox", ),
     "xbox-clang": JobSpec(name="XBOX (Clang)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox",               clang_cl=True,),
 }
@@ -217,7 +215,6 @@ class JobDetails:
     msvc_project: str = ""
     msvc_project_flags: list[str] = dataclasses.field(default_factory=list)
     setup_ninja: bool = False
-    setup_libusb_arch: str = ""
     xcode_sdk: str = ""
     xcode_target: str = ""
     setup_gdk_folder: str = ""
@@ -283,7 +280,6 @@ class JobDetails:
             "msvc-project": self.msvc_project,
             "msvc-project-flags": my_shlex_join(self.msvc_project_flags),
             "setup-ninja": self.setup_ninja,
-            "setup-libusb-arch": self.setup_libusb_arch,
             "cc-from-cmake": self.cc_from_cmake,
             "xcode-sdk": self.xcode_sdk,
             "xcode-target": self.xcode_target,
@@ -426,12 +422,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                 job.msvc_project_flags.append("-p:WindowsTargetPlatformVersion=10.0.17763.0")
             elif spec.gdk:
                 job.setup_gdk_folder = "VisualC-GDK"
-            else:
-                match spec.msvc_arch:
-                    case MsvcArch.X86:
-                        job.setup_libusb_arch = "x86"
-                    case MsvcArch.X64:
-                        job.setup_libusb_arch = "x64"
         case SdlPlatform.Linux:
             if spec.name.startswith("Ubuntu"):
                 assert spec.os.value.startswith("ubuntu-")
@@ -687,6 +677,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     job.cpactions_setup_cmd = "export PATH=\"/usr/pkg/sbin:/usr/pkg/bin:/sbin:$PATH\"; export PKG_CONFIG_PATH=\"/usr/pkg/lib/pkgconfig\";export PKG_PATH=\"https://cdn.netBSD.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r|cut -f \"1 2\" -d.)/All/\";echo \"PKG_PATH=$PKG_PATH\";echo \"uname -a -> \"$(uname -a)\"\";sudo -E sysctl -w security.pax.aslr.enabled=0;sudo -E sysctl -w security.pax.aslr.global=0;sudo -E pkgin clean;sudo -E pkgin update"
                     job.cpactions_install_cmd = "sudo -E pkgin -y install cmake dbus pkgconf ninja-build pulseaudio libxkbcommon wayland wayland-protocols libinotify libusb1"
         case SdlPlatform.Watcom:
+            job.no_cmake = True
             match spec.watcom_platform:
                 case WatcomPlatform.OS2:
                     job.watcom_makefile = "Makefile.os2"

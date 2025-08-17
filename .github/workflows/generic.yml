@@ -70,7 +70,7 @@ jobs:
         shell: bash
         run: |
             sudo apt-get update
-            sudo apt-get install -y clang llvm lld bison flex cmake git gettext
+            sudo apt-get install -y clang llvm lld bison flex cmake git
             git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "${{ matrix.platform.setup-nxdk-sdk-path }}"
             PATH="${{ matrix.platform.setup-nxdk-sdk-path }}/bin:$PATH"
             export NXDK_DIR=/opt/nxdk
@@ -200,7 +200,6 @@ jobs:
             -DSDL_TESTS=${{ matrix.platform.build-tests }} \
             -DSDLTEST_TRACKMEM=OFF \
             -DSDL_INSTALL_TESTS=${{ matrix.platform.build-tests }} \
-            -DSDL_DISABLE_INSTALL_DOCS=OFF \
             -DSDL_DISABLE_INSTALL_DOCS=OFF \
             ${{ matrix.platform.cmake-arguments }} \
             -DSDL_SHARED=${{ matrix.platform.shared }} \
