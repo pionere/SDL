@@ -3653,6 +3653,11 @@ elseif(NXDK)
     set(SDL_JOYSTICK_XBOX 1)
     file(GLOB XBOX_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/xbox/*.c)
     list(APPEND SOURCE_FILES ${XBOX_JOYSTICK_SOURCES})
+
+    set(USBH_DIR "${NXDK_DIR}/lib/usb")
+    list(APPEND EXTRA_CFLAGS "-I${USBH_DIR}/libusbohci/inc" "-I${USBH_DIR}/libusbohci_xbox/" "-DUSBH_USE_EXTERNAL_CONFIG=\\\"usbh_config_xbox.h\\\"")
+    #set(EXTRA_CFLAGS "${CMAKE_C_FLAGS} -I${USBH_DIR}/libusbohci/inc -I${USBH_DIR}/libusbohci_xbox/ -DUSBH_USE_EXTERNAL_CONFIG=\\\"usbh_config_xbox.h\\\"")
+
     set(HAVE_SDL_JOYSTICK TRUE)
   endif()
 
