@@ -36,7 +36,7 @@ static SDL_bool s_unwind_symbol_names = SDL_TRUE;
 #endif
 #endif
 
-#if defined(__WIN32__) && !defined(__WATCOMC__)
+#if defined(__WIN32__) && !defined(__WATCOMC__) && !defined(NXDK)
 #define WIN32_WITH_DBGHELP
 #endif
 
