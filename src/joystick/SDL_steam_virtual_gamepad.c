@@ -28,7 +28,7 @@
 #include "SDL_timer.h"
 #include "SDL_joystick_c.h"
 
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(NXDK)
 #include "../core/windows/SDL_windows.h"
 #else
 #include <sys/types.h>
@@ -62,6 +62,19 @@ static Uint64 GetFileModificationTime(const char *file)
             CloseHandle(hFile);
         }
         SDL_free(wFile);
+    }
+#elif defined(NXDK)
+    {
+        HANDLE hFile = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+        if (hFile != INVALID_HANDLE_VALUE) {
+            FILETIME last_write_time;
+            if (GetFileTime(hFile, NULL, NULL, &last_write_time)) {
+                modification_time = last_write_time.dwHighDateTime;
+                modification_time <<= 32;
+                modification_time |= last_write_time.dwLowDateTime;
+            }
+            CloseHandle(hFile);
+        }
     }
 #else
     struct stat sb;
