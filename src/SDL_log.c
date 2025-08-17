@@ -22,7 +22,7 @@
 
 #if !defined(SDL_LOGGING_DISABLED) || defined(SDL_DYNAMIC_API)
 
-#if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__)
+#if defined(__WIN32__) || defined(__WINRT__) || defined(__GDK__) || defined(NXDK)
 #include "core/windows/SDL_windows.h"
 #endif
 
@@ -43,10 +43,6 @@
 #endif
 
 #include "stdlib/SDL_vacopy.h"
-
-#if defined(NXDK)
-#include <windows.h>
-#endif
 
 /* The size of the stack buffer to use for rendering log messages. */
 #define SDL_MAX_LOG_MESSAGE_STACK 256
@@ -631,7 +627,7 @@ static void SDLCALL SDL_LogOutput(void *userdata, int category, SDL_LogPriority 
 #if defined(HAVE_STDIO_H) && \
     !(defined(__APPLE__) && (defined(SDL_VIDEO_DRIVER_COCOA) || defined(SDL_VIDEO_DRIVER_UIKIT))) && \
     !(defined(__WIN32__)) && \
-    !(defined(__SYMBIAN32__))
+    !(defined(__SYMBIAN32__)) && !(defined(NXDK))
     fprintf(stderr, "%s: %s\n", SDL_priority_prefixes[priority], message);
 #ifdef __NACL__
     fflush(stderr);
