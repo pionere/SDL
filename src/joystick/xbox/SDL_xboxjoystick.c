@@ -140,7 +140,8 @@ static xid_dev_t *xid_from_device_index(int device_index)
 
     int i = 0;
     //Scan the xid_dev linked list and finds the nth xid_dev that is a gamepad.
-    while (xid_dev != NULL && i <= device_index)
+    SDL_assert(device_index >= 0);
+    while (xid_dev != NULL)
     {
         //FIXME: Include xremote and steel battalion in the joystick API.
         if (xid_dev->xid_desc.bType == XID_TYPE_GAMECONTROLLER)
@@ -233,7 +234,7 @@ static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
 {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
     static char name[MAX_JOYSTICKS][64];
-    int max_len = sizeof(name[device_index]);
+    const char *type;
     int player_index;
 
     if (xid_dev == NULL || device_index >= MAX_JOYSTICKS)
@@ -243,16 +244,20 @@ static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
     switch (xid_dev->xid_desc.bType)
     {
     case XID_TYPE_GAMECONTROLLER:
-        SDL_snprintf(name[device_index], max_len, "Original Xbox Controller #%u", player_index);
+        type = "Original Xbox Controller";
         break;
     case XID_TYPE_XREMOTE:
-        SDL_snprintf(name[device_index], max_len, "Original Xbox IR Remote #%u", player_index);
+        type = "Original Xbox IR Remote";
         break;
     case XID_TYPE_STEELBATTALION:
-        SDL_snprintf(name[device_index], max_len, "Steel Battalion Controller #%u", player_index);
+        type = "Steel Battalion Controller";
         break;
-
+    default:
+        SDL_assume(!"Unknown Controller");
+        type = "Unknown Controller";
+        break;
     }
+    SDL_snprintf(name[device_index], sizeof(name[device_index]), "%s #%u", type, player_index);
 
     return name[device_index];
 }
@@ -334,9 +339,8 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
         return -1;
     }
 
-    joystick->hwdata = (pjoystick_hwdata)SDL_malloc(sizeof(joystick_hwdata));
+    joystick->hwdata = (pjoystick_hwdata)SDL_calloc(1, sizeof(joystick_hwdata));
     SDL_assert(joystick->hwdata != NULL);
-    SDL_zerop(joystick->hwdata);
 
     joystick->hwdata->xid_dev = xid_dev;
     joystick->hwdata->xid_dev->user_data = (void *)joystick;
@@ -363,6 +367,7 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
         joystick->nbuttons = 39; //This includes the toggle switches
         break;
     default:
+        SDL_assume(!"Unknown device type");
         SDL_free(joystick->hwdata);
         joystick->hwdata = NULL;
         return -1;
@@ -383,21 +388,22 @@ static int SDL_XBOX_JoystickRumble(SDL_Joystick *joystick,
                                       Uint16 low_frequency_rumble,
                                       Uint16 high_frequency_rumble)
 {
+    pjoystick_hwdata device = joystick->hwdata;
 
     //Check if rumble values are new values.
-    if (joystick->hwdata->current_rumble[0] == low_frequency_rumble &&
-        joystick->hwdata->current_rumble[1] == high_frequency_rumble)
+    if (device->current_rumble[0] == low_frequency_rumble &&
+        device->current_rumble[1] == high_frequency_rumble)
     {
         return 0;
     }
 
-    if (usbh_xid_rumble(joystick->hwdata->xid_dev, low_frequency_rumble, high_frequency_rumble) != USBH_OK)
+    if (usbh_xid_rumble(device->xid_dev, low_frequency_rumble, high_frequency_rumble) != USBH_OK)
     {
         return -1;
     }
 
-    joystick->hwdata->current_rumble[0] = low_frequency_rumble;
-    joystick->hwdata->current_rumble[1] = high_frequency_rumble;
+    device->current_rumble[0] = low_frequency_rumble;
+    device->current_rumble[1] = high_frequency_rumble;
     return 0;
 }
 
@@ -422,6 +428,8 @@ static Uint32 SDL_XBOX_JoystickGetCapabilities(SDL_Joystick *joystick)
     case XID_TYPE_STEELBATTALION:
         result |= SDL_JOYCAP_RUMBLE;
         break;
+    default:
+        SDL_assume(!"Unknown device type");
     }
 
     return result;
@@ -444,11 +452,11 @@ static int SDL_XBOX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool e
 
 static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick)
 {
-    Sint16 wButtons, axis, this_joy;
+    Sint16 wButtons, axis;
     Uint8 hat = SDL_HAT_CENTERED;
     XINPUT_GAMEPAD xpad;
-
-    if (joystick == NULL || joystick->hwdata == NULL || joystick->hwdata->xid_dev == NULL)
+    SDL_assert(joystick);
+    if (joystick->hwdata == NULL || joystick->hwdata->xid_dev == NULL)
     {
         return;
     }
@@ -463,29 +471,27 @@ static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick)
         if (wButtons & XINPUT_GAMEPAD_DPAD_DOWN)  hat |= SDL_HAT_DOWN;
         if (wButtons & XINPUT_GAMEPAD_DPAD_LEFT)  hat |= SDL_HAT_LEFT;
         if (wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) hat |= SDL_HAT_RIGHT;
-        if (hat != joystick->hats[0]) {
-            SDL_PrivateJoystickHat(joystick, 0, hat);
-        }
+        SDL_PrivateJoystickHat(joystick, 0, hat);
 
         //DIGITAL BUTTONS
         {
-        static const Sint16 btn_map[10][2] = 
+        static const Sint16 btn_map[10] = 
         {
-          {0, XINPUT_GAMEPAD_A},
-          {1, XINPUT_GAMEPAD_B},
-          {2, XINPUT_GAMEPAD_X},
-          {3, XINPUT_GAMEPAD_Y},
-          {4, XINPUT_GAMEPAD_LEFT_SHOULDER},
-          {5, XINPUT_GAMEPAD_RIGHT_SHOULDER},
-          {6, XINPUT_GAMEPAD_BACK},
-          {7, XINPUT_GAMEPAD_START},
-          {8, XINPUT_GAMEPAD_LEFT_THUMB},
-          {9, XINPUT_GAMEPAD_RIGHT_THUMB}
+          /*0*/ XINPUT_GAMEPAD_A,
+          /*1*/ XINPUT_GAMEPAD_B,
+          /*2*/ XINPUT_GAMEPAD_X,
+          /*3*/ XINPUT_GAMEPAD_Y,
+          /*4*/ XINPUT_GAMEPAD_LEFT_SHOULDER,
+          /*5*/ XINPUT_GAMEPAD_RIGHT_SHOULDER,
+          /*6*/ XINPUT_GAMEPAD_BACK,
+          /*7*/ XINPUT_GAMEPAD_START,
+          /*8*/ XINPUT_GAMEPAD_LEFT_THUMB,
+          /*9*/ XINPUT_GAMEPAD_RIGHT_THUMB
         };
         for (int i = 0; i < SDL_arraysize(btn_map); i++)
         {
-          if (joystick->buttons[btn_map[i][0]] != ((wButtons & btn_map[i][1]) > 0))
-              SDL_PrivateJoystickButton(joystick, btn_map[i][0], (wButtons & btn_map[i][1]) ? SDL_PRESSED : SDL_RELEASED);
+          if (joystick->buttons[i] != ((wButtons & btn_map[i]) > 0))
+              SDL_PrivateJoystickButton(joystick, i, (wButtons & btn_map[i]) ? SDL_PRESSED : SDL_RELEASED);
         }
         }
 
@@ -523,15 +529,14 @@ static void SDL_XBOX_JoystickClose(SDL_Joystick *joystick)
     JOY_DBGMSG("SDL_XBOX_JoystickClose:\n");
     if (joystick->hwdata == NULL)
         return;
-
-    usbh_xid_rumble(joystick->hwdata->xid_dev, 0, 0);
-
     xid_dev = joystick->hwdata->xid_dev;
-    xid_dev->user_data = NULL;
-    if (xid_dev != NULL)
     {
-        JOY_DBGMSG("Closing joystick:\n", joystick->hwdata->xid_dev->uid);
+        JOY_DBGMSG("Closing joystick:\n", xid_dev->uid);
     }
+
+    usbh_xid_rumble(xid_dev, 0, 0);
+
+    xid_dev->user_data = NULL;
     SDL_free(joystick->hwdata);
     joystick->hwdata = NULL;
 }
