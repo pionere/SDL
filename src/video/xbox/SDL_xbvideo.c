@@ -70,22 +70,14 @@ static SDL_Window *xbox_window = NULL;
 static int
 XBOX_CreateSDLWindow(_THIS, SDL_Window * window)
 {
-    VIDEO_MODE vm;
     if (xbox_window) {
         return SDL_SetError("Xbox only supports one window");
     }
 
-    /* Adjust the window data to match the screen */
-    vm = XVideoGetMode();
-    window->wrect.x = 0;
-    window->wrect.y = 0;
-    window->wrect.w = vm.width;
-    window->wrect.h = vm.height;
-
     window->flags &= ~SDL_WINDOW_RESIZABLE;     /* window is NEVER resizeable */
     window->flags &= ~SDL_WINDOW_HIDDEN;
     window->flags |= SDL_WINDOW_SHOWN;          /* only one window on Xbox */
-    window->flags |= SDL_WINDOW_FULLSCREEN;
+    SDL_assert(window->flags & SDL_WINDOW_FULLSCREEN);
 
     /* One window, it always has focus */
     SDL_SetMouseFocus(window);
@@ -94,6 +86,13 @@ XBOX_CreateSDLWindow(_THIS, SDL_Window * window)
     xbox_window = window;
 
     return 0;
+}
+
+static void XBOX_DestroyWindow(SDL_Window *window)
+{
+    if (window == xbox_window) {
+        xbox_window = NULL;
+    }
 }
 
 static void XBOX_DeleteDevice(_THIS)
@@ -142,7 +141,7 @@ static SDL_bool XBOX_CreateDevice(SDL_VideoDevice *device)
     // device->SetWindowMouseRect = XBOX_SetWindowMouseRect;
     // device->SetWindowMouseGrab = XBOX_SetWindowMouseGrab;
     // device->SetWindowKeyboardGrab = XBOX_SetWindowKeyboardGrab;
-    // device->DestroyWindow = XBOX_DestroyWindow;
+    device->DestroyWindow = XBOX_DestroyWindow;
     // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
     device->CreateWindowFramebuffer = XBOX_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = XBOX_UpdateWindowFramebuffer;
