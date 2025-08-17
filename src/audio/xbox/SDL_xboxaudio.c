@@ -32,9 +32,6 @@
 #include <xboxkrnl/xboxkrnl.h>
 #include <hal/audio.h>
 
-/* The tag name used by Original Xbox audio */
-#define XBOXAUDIO_DRIVER_NAME         "xbox"
-
 #define SAMPLE_FRAME_COUNT 1024
 
 static void
@@ -71,7 +68,7 @@ XBOXAUDIO_CloseDevice(_THIS)
 }
 
 static int
-XBOXAUDIO_OpenDevice(_THIS, void *handle, const char *devname, int iscapture)
+XBOXAUDIO_OpenDevice(_THIS, const char *devname)
 {
     _this->hidden = (SDL_PrivateAudioData *) SDL_calloc(1, (sizeof *_this->hidden));
     if (_this->hidden == NULL) {
@@ -148,27 +145,35 @@ XBOXAUDIO_PlayDevice(_THIS)
     return;
 }
 
-static int
+static SDL_bool
 XBOXAUDIO_Init(SDL_AudioDriverImpl * impl)
 {
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = XBOXAUDIO_OpenDevice;
-    impl->CloseDevice = XBOXAUDIO_CloseDevice;
+    // impl->ThreadInit = xxx;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = XBOXAUDIO_WaitDevice;
-    impl->GetDeviceBuf = XBOXAUDIO_GetDeviceBuf;
     impl->PlayDevice = XBOXAUDIO_PlayDevice;
-    /*
-     *    impl->Deinitialize = XBOXAUDIO_Deinitialize;
-     */
+    impl->GetDeviceBuf = XBOXAUDIO_GetDeviceBuf;
+    impl->CloseDevice = XBOXAUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    impl->HasCaptureSupport = SDL_FALSE;        /* TODO */
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceName = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
-    impl->HasCaptureSupport             = 0;        /* TODO */
-    impl->OnlyHasDefaultOutputDevice    = 1;
-
-    return 1;
+    return SDL_TRUE; /* this audio target is available. */
 }
 
-AudioBootStrap XBOXAUDIO_bootstrap = {
-    XBOXAUDIO_DRIVER_NAME, "Original Xbox audio driver", XBOXAUDIO_Init, 0
+const AudioBootStrap XBOXAUDIO_bootstrap = {
+    "xbox", XBOXAUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_XBOX */

@@ -79,8 +79,6 @@
 #pragma GCC diagnostic ignored "-Wpragma-pack"
 /* Disable SDL's weird feature of renaming main() */
 #define SDL_MAIN_HANDLED
-/* Disable SDL's inclusion of sal.h */
-#define SDL_DISABLE_ANALYZE_MACROS
 #endif
 #if defined(__APPLE__)
 /* lets us know what version of Mac OS X we're compiling on */

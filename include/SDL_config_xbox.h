@@ -229,10 +229,11 @@
 
 #else // __XBOX__
 
+# define SIZEOF_VOIDP 4
+
 #define HAVE_LIBC 1
 
 /* C headers */
-#define STDC_HEADERS 1
 #define HAVE_STDIO_H 1
 #define HAVE_STDLIB_H 1
 #define HAVE_STDDEF_H 1

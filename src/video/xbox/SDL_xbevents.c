@@ -31,7 +31,7 @@
 #include "SDL_xbevents_c.h"
 
 void
-XBOX_PumpEvents(_THIS)
+XBOX_PumpEvents()
 {
     /* do nothing. */
 }

@@ -33,7 +33,7 @@
 #include <assert.h>
 
 
-int SDL_XBOX_CreateWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format, void ** pixels, int *pitch)
+int SDL_XBOX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format, void ** pixels, int *pitch)
 {
     SDL_Surface *surface;
     VIDEO_MODE vm = XVideoGetMode();
@@ -62,7 +62,7 @@ int SDL_XBOX_CreateWindowFramebuffer(_THIS, SDL_Window * window, Uint32 * format
     return 0;
 }
 
-int SDL_XBOX_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect * rects, int numrects)
+int SDL_XBOX_UpdateWindowFramebuffer(SDL_Window * window, const SDL_Rect * rects, int numrects)
 {
     SDL_Surface *surface;
 
@@ -99,7 +99,7 @@ int SDL_XBOX_UpdateWindowFramebuffer(_THIS, SDL_Window * window, const SDL_Rect 
     return 0;
 }
 
-void SDL_XBOX_DestroyWindowFramebuffer(_THIS, SDL_Window * window)
+void SDL_XBOX_DestroyWindowFramebuffer(SDL_Window * window)
 {
     SDL_Surface *surface;
 

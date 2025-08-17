@@ -94,6 +94,7 @@ static const VideoBootStrap *const bootstrap[] = {
     OS2DIVE_BOOTSTRAP_ENTRY
     OS2VMAN_BOOTSTRAP_ENTRY
     NGAGE_BOOTSTRAP_ENTRY
+    XBOX_BOOTSTRAP_ENTRY
     OFFSCREEN_BOOTSTRAP_ENTRY
     DUMMY_BOOTSTRAP_ENTRY
     DUMMY_evdev_BOOTSTRAP_ENTRY
@@ -125,6 +126,7 @@ static msgBoxFunc *const messagebox[] = {
     OS2DIVE_MSGBOX_ENTRY
     OS2VMAN_MSGBOX_ENTRY
     NGAGE_MSGBOX_ENTRY
+    XBOX_MSGBOX_ENTRY
     OFFSCREEN_MSGBOX_ENTRY
     DUMMY_MSGBOX_ENTRY
     DUMMY_evdev_MSGBOX_ENTRY
@@ -212,6 +214,10 @@ static SDL_bool IsFullscreenOnly(void) // VIDEO_DEVICE_QUIRK_FULLSCREEN_ONLY
 #endif
 #ifdef SDL_VIDEO_DRIVER_NGAGE
     SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_NGAGE);
+    return SDL_TRUE;
+#endif
+#ifdef SDL_VIDEO_DRIVER_XBOX
+    SDL_assert(SDL_GetVideoDeviceId() == SDL_VIDEODRIVER_XBOX);
     return SDL_TRUE;
 #endif
     return SDL_FALSE;

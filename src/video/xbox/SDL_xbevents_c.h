@@ -22,6 +22,6 @@
 
 #include "SDL_xbvideo.h"
 
-extern void XBOX_PumpEvents(_THIS);
+extern void XBOX_PumpEvents();
 
 /* vi: set ts=4 sw=4 expandtab: */
