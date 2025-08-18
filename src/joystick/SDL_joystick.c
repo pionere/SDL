@@ -3559,7 +3559,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
 
     finger_info = &touchpad_info->fingers[finger];
 
-    if (!state) {
+    if (state == SDL_RELEASED) {
         if (x == 0.0f && y == 0.0f) {
             x = finger_info->x;
             y = finger_info->y;
@@ -3584,7 +3584,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
     }
 
     if (state == finger_info->state) {
-        if (!state ||
+        if (state == SDL_RELEASED ||
             (x == finger_info->x && y == finger_info->y && pressure == finger_info->pressure)) {
             return 0;
         }
@@ -3592,7 +3592,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
 
     if (state == finger_info->state) {
         event_type = SDL_CONTROLLERTOUCHPADMOTION;
-    } else if (state) {
+    } else if (state != SDL_RELEASED) {
         event_type = SDL_CONTROLLERTOUCHPADDOWN;
     } else {
         event_type = SDL_CONTROLLERTOUCHPADUP;
