@@ -3414,16 +3414,15 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
     int posted;
 #ifndef SDL_EVENTS_DISABLED
     SDL_Event event;
+#endif /* !SDL_EVENTS_DISABLED */
 
     SDL_AssertJoysticksLocked();
+
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
 
     if (button == SDL_CONTROLLER_BUTTON_INVALID) {
         return 0;
     }
-    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
-    event.type = state != SDL_RELEASED ? SDL_CONTROLLERBUTTONDOWN : SDL_CONTROLLERBUTTONUP;
-#endif /* !SDL_EVENTS_DISABLED */
-
     if (button == SDL_CONTROLLER_BUTTON_GUIDE) {
         Uint32 now = SDL_GetTicks();
         if (state != SDL_RELEASED) {
@@ -3445,6 +3444,7 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
     /* translate the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
+    event.type = state != SDL_RELEASED ? SDL_CONTROLLERBUTTONDOWN : SDL_CONTROLLERBUTTONUP;
     if (SDL_IsEventEnabled(event.type)) {
         event.cbutton.which = gamecontroller->joystick->instance_id;
         event.cbutton.button = button;

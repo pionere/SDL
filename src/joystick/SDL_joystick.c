@@ -2290,12 +2290,8 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
     int posted;
 #ifndef SDL_EVENTS_DISABLED
     SDL_Event event;
-
-    SDL_AssertJoysticksLocked();
-
-    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
-    event.type = state != SDL_RELEASED ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
 #endif /* !SDL_EVENTS_DISABLED */
+    SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
 
     SDL_AssertJoysticksLocked();
 
@@ -2321,6 +2317,7 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
     /* Post the event, if desired */
     posted = 0;
 #ifndef SDL_EVENTS_DISABLED
+    event.type = state != SDL_RELEASED ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
     if (SDL_IsEventEnabled(event.type)) {
         event.jbutton.which = joystick->instance_id;
         event.jbutton.button = button;
