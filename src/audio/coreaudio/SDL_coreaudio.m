@@ -403,17 +403,17 @@ static BOOL update_audio_session(_THIS, SDL_bool open, SDL_bool allow_playandrec
 
         hint = SDL_GetHint(SDL_HINT_AUDIO_CATEGORY);
         if (hint) {
-            if (SDL_strcasecmp(hint, "AVAudioSessionCategoryAmbient") == 0) {
+            if (SDL_strncasecmp(hint, "AVAudioSessionCategory", sizeof("AVAudioSessionCategory") - 1) == 0)
+                hint += sizeof("AVAudioSessionCategory") - 1;
+            if (SDL_strcasecmp(hint, "Ambient") == 0) {
                 category = AVAudioSessionCategoryAmbient;
-            } else if (SDL_strcasecmp(hint, "AVAudioSessionCategorySoloAmbient") == 0) {
+            } else if (SDL_strcasecmp(hint, "SoloAmbient") == 0) {
                 category = AVAudioSessionCategorySoloAmbient;
                 options &= ~AVAudioSessionCategoryOptionMixWithOthers;
-            } else if (SDL_strcasecmp(hint, "AVAudioSessionCategoryPlayback") == 0 ||
-                       SDL_strcasecmp(hint, "playback") == 0) {
+            } else if (SDL_strcasecmp(hint, "Playback") == 0) {
                 category = AVAudioSessionCategoryPlayback;
                 options &= ~AVAudioSessionCategoryOptionMixWithOthers;
-            } else if (SDL_strcasecmp(hint, "AVAudioSessionCategoryPlayAndRecord") == 0 ||
-                       SDL_strcasecmp(hint, "playandrecord") == 0) {
+            } else if (SDL_strcasecmp(hint, "PlayAndRecord") == 0) {
                 if (allow_playandrecord) {
                     category = AVAudioSessionCategoryPlayAndRecord;
                 }
