@@ -1309,9 +1309,7 @@ static void IOS_MFIJoystickUpdate(SDL_Joystick *joystick)
         }
 #endif /* TARGET_OS_TV */
 
-        if (joystick->nhats > 0) {
-            SDL_PrivateJoystickHat(joystick, 0, hatstate);
-        }
+        SDL_PrivateJoystickHat(joystick, 0, hatstate);
 
         if (device->pause_button_pressed) {
             /* The pause callback is instantaneous, so we extend the duration to allow "holding down" by pressing it repeatedly */
