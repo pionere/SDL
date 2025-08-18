@@ -536,18 +536,18 @@ static int SDLCALL mem_close(SDL_RWops *context)
 static SDL_bool IsRegularFileOrPipe(FILE *f)
 {
 #if defined(HAVE_SYS_STAT_H)
-    #ifdef __WINRT__
+#ifdef __WINRT__
     struct __stat64 st;
     if (_fstat64(_fileno(f), &st) < 0 ||
         !((st.st_mode & _S_IFMT) == _S_IFREG || (st.st_mode & _S_IFMT) == _S_IFIFO)) {
         return SDL_FALSE;
     }
-    #elif !defined __EMSCRIPTEN__
+#elif !defined __EMSCRIPTEN__
     struct stat st;
     if (fstat(fileno(f), &st) < 0 || !(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode))) {
         return SDL_FALSE;
     }
-    #endif
+#endif
 #else
 #warning "File is not checked whether it is a directory."
 #endif

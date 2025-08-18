@@ -61,9 +61,6 @@ static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #if defined(SDL_JOYSTICK_WGI)
     &SDL_WGI_JoystickDriver,
 #endif
-#if defined(SDL_JOYSTICK_WINMM)
-    &SDL_WINMM_JoystickDriver,
-#endif
 #ifdef SDL_JOYSTICK_LINUX
     &SDL_LINUX_JoystickDriver,
 #endif
