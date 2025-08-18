@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include "../../SDL_internal.h"
-#include "SDL_pixels.h"
-#include <assert.h>
+
+#include "SDL_video.h"
 
 extern int XBOX_CreateWindowFramebuffer(SDL_Window * window, Uint32 * format, void ** pixels, int *pitch);
 extern int XBOX_UpdateWindowFramebuffer(SDL_Window * window, const SDL_Rect * rects, int numrects);
@@ -40,7 +40,7 @@ Uint32 pixelFormatSelector(int bpp) {
         ret_val = SDL_PIXELFORMAT_RGB888;
         break;
     default:
-        assert(0);
+        SDL_assume(!"Unsupported pixel format");
         break;
     }
     return ret_val;
