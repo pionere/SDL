@@ -124,7 +124,7 @@ void UIKit_Metal_GetDrawableSize(SDL_Window * window, int * w, int * h)
         SDL_uikitmetalview* metalview = [view viewWithTag:SDL_METALVIEW_TAG];
         if (metalview) {
             CAMetalLayer *layer = (CAMetalLayer*)metalview.layer;
-            assert(layer != NULL);
+            SDL_assert(layer != NULL);
             *w = layer.drawableSize.width;
             *h = layer.drawableSize.height;
         } else {
