@@ -1996,15 +1996,11 @@ void SDL_PrivateJoystickAdded(SDL_JoystickID device_instance)
     }
 
 #ifndef SDL_EVENTS_DISABLED
-    {
+    if (SDL_IsEventEnabled(SDL_JOYDEVICEADDED)) {
         SDL_Event event;
-
-        event.type = SDL_JOYDEVICEADDED;
-
-        if (SDL_IsEventEnabled(event.type)) {
-            event.jdevice.which = device_index;
-            SDL_PushEvent(&event);
-        }
+        event.jdevice.type = SDL_JOYDEVICEADDED;
+        event.jdevice.which = device_index;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
 }
@@ -2106,9 +2102,6 @@ void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance)
     SDL_Joystick *joystick = NULL;
     int player_index;
     int device_index;
-#ifndef SDL_EVENTS_DISABLED
-    SDL_Event event;
-#endif
 
     SDL_AssertJoysticksLocked();
 
@@ -2125,9 +2118,9 @@ void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance)
     }
 
 #ifndef SDL_EVENTS_DISABLED
-    event.type = SDL_JOYDEVICEREMOVED;
-
-    if (SDL_IsEventEnabled(event.type)) {
+    if (SDL_IsEventEnabled(SDL_JOYDEVICEREMOVED)) {
+        SDL_Event event;
+        event.jdevice.type = SDL_JOYDEVICEREMOVED;
         event.jdevice.which = device_instance;
         SDL_PushEvent(&event);
     }
