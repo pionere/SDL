@@ -20,10 +20,9 @@
 */
 
 #include "../SDL_internal.h"
+#include "SDL_events.h"
 #ifndef SDL_GESTURES_DISABLED
 /* General gesture handling code for SDL */
-
-#include "SDL_events.h"
 #include "SDL_endian.h"
 #include "SDL_events_c.h"
 #include "SDL_gesture_c.h"
