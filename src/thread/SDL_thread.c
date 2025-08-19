@@ -243,7 +243,7 @@ static SDL_error *SDL_GetStaticErrBuf(void)
     return &SDL_global_error;
 }
 
-#ifndef SDL_THREADS_DISABLED
+#if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
 static void SDLCALL SDL_FreeErrBuf(void *data)
 {
     SDL_error *errbuf = (SDL_error *)data;
