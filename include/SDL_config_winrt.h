@@ -162,65 +162,103 @@
 #define HAVE_ROAPI_H  1
 
 /* Enable various audio drivers */
-#define SDL_AUDIO_DRIVER_WASAPI 1
-#define SDL_AUDIO_DRIVER_DISK   1
-#define SDL_AUDIO_DRIVER_DUMMY  1
+#ifndef SDL_AUDIO_DRIVER_WASAPI_DISABLED
+#define SDL_AUDIO_DRIVER_WASAPI  1
+#endif
+#ifndef SDL_AUDIO_DRIVER_DISK_DISABLED
+#define SDL_AUDIO_DRIVER_DISK    1
+#endif
+#ifndef SDL_AUDIO_DRIVER_DUMMY_DISABLED
+#define SDL_AUDIO_DRIVER_DUMMY   1
+#endif
 
 /* Enable various input drivers */
 #if SDL_WINAPI_FAMILY_PHONE
-#define SDL_JOYSTICK_DISABLED 1
-#define SDL_HAPTIC_DISABLED 1
+#define SDL_JOYSTICK_DISABLED    1
+#define SDL_HAPTIC_DISABLED      1
 #else
-#define SDL_JOYSTICK_VIRTUAL    1
+#ifndef SDL_JOYSTICK_VIRTUAL_DISABLED
+#define SDL_JOYSTICK_VIRTUAL     1
+#endif
 #if (NTDDI_VERSION >= NTDDI_WIN10)
-#define SDL_JOYSTICK_WGI    1
-#define SDL_HAPTIC_DISABLED 1
+#ifndef SDL_JOYSTICK_WGI_DISABLED
+#define SDL_JOYSTICK_WGI         1
+#endif
+#define SDL_HAPTIC_DISABLED      1
 #else
-#define SDL_JOYSTICK_XINPUT 1
-#define SDL_HAPTIC_XINPUT   1
+#ifndef SDL_JOYSTICK_XINPUT_DISABLED
+#define SDL_JOYSTICK_XINPUT      1
+#endif
+#ifndef SDL_HAPTIC_XINPUT_DISABLED
+#define SDL_HAPTIC_XINPUT        1
+#endif
 #endif /* WIN10 */
 #endif
 
 /* WinRT doesn't have HIDAPI available */
-#define SDL_HIDAPI_DISABLED    1
+#define SDL_HIDAPI_DISABLED      1
 
 /* Enable the dummy sensor driver */
-#define SDL_SENSOR_DUMMY  1
+#ifndef SDL_SENSOR_DUMMY_DISABLED
+#define SDL_SENSOR_DUMMY         1
+#endif
 
 /* Enable various shared object loading systems */
-#define SDL_LOADSO_WINDOWS  1
+#ifndef SDL_LOADSO_WINDOWS_DISABLED
+#define SDL_LOADSO_WINDOWS       1
+#endif
 
 /* Enable various threading systems */
 #if (NTDDI_VERSION >= NTDDI_WINBLUE)
 #define SDL_THREAD_GENERIC_COND_SUFFIX 1
-#define SDL_THREAD_WINDOWS  1
+#ifndef SDL_THREAD_WINDOWS_DISABLED
+#define SDL_THREAD_WINDOWS       1
+#endif
 #else
 /* WinRT on Windows 8.0 and Windows Phone 8.0 don't support CreateThread() */
-#define SDL_THREAD_STDCPP   1
+#ifndef SDL_THREAD_STDCPP_DISABLED
+#define SDL_THREAD_STDCPP        1
+#endif
 #endif
 
 /* Enable various timer systems */
-#define SDL_TIMER_WINDOWS   1
+#ifndef SDL_TIMER_WINDOWS_DISABLED
+#define SDL_TIMER_WINDOWS        1
+#endif
 
 /* Enable various video drivers */
-#define SDL_VIDEO_DRIVER_WINRT  1
-#define SDL_VIDEO_DRIVER_DUMMY  1
+#ifndef SDL_VIDEO_DRIVER_WINRT_DISABLED
+#define SDL_VIDEO_DRIVER_WINRT   1
+#endif
+#ifndef SDL_VIDEO_DRIVER_DUMMY_DISABLED
+#define SDL_VIDEO_DRIVER_DUMMY   1
+#endif
 
 /* Enable OpenGL ES 2.0 (via a modified ANGLE library) */
-#define SDL_VIDEO_OPENGL_ES2 1
-#define SDL_VIDEO_OPENGL_EGL 1
+#ifndef SDL_VIDEO_OPENGL_ES2_DISABLED
+#define SDL_VIDEO_OPENGL_ES2     1
+#endif
+#ifndef SDL_VIDEO_OPENGL_EGL_DISABLED
+#define SDL_VIDEO_OPENGL_EGL     1
+#endif
 
 /* Enable appropriate renderer(s) */
-#define SDL_VIDEO_RENDER_D3D11  1
+#if !defined(SDL_VIDEO_RENDER_D3D11) && !defined(SDL_VIDEO_RENDER_D3D11_DISABLED)
+#define SDL_VIDEO_RENDER_D3D11   1
+#endif
 
 /* Disable D3D12 as it's not implemented for WinRT */
 /* #undef SDL_VIDEO_RENDER_D3D12 */
 
 #ifdef SDL_VIDEO_OPENGL_ES2
+#if !defined(SDL_VIDEO_RENDER_OGL_ES2) && !defined(SDL_VIDEO_RENDER_OGL_ES2_DISABLED)
 #define SDL_VIDEO_RENDER_OGL_ES2 1
+#endif
 #endif
 
 /* Enable system power support */
-#define SDL_POWER_WINRT 1
+#ifndef SDL_POWER_WINRT_DISABLED
+#define SDL_POWER_WINRT          1
+#endif
 
 #endif /* SDL_config_winrt_h_ */

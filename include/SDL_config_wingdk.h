@@ -162,84 +162,134 @@
 
 /* Enable various audio drivers */
 #if defined(HAVE_MMDEVICEAPI_H) && defined(HAVE_AUDIOCLIENT_H)
-#define SDL_AUDIO_DRIVER_WASAPI 1
+#ifndef SDL_AUDIO_DRIVER_WASAPI_DISABLED
+#define SDL_AUDIO_DRIVER_WASAPI  1
 #endif
-#define SDL_AUDIO_DRIVER_DSOUND 1
-#define SDL_AUDIO_DRIVER_WINMM  1
-#define SDL_AUDIO_DRIVER_DISK   1
-#define SDL_AUDIO_DRIVER_DUMMY  1
+#endif
+#ifndef SDL_AUDIO_DRIVER_DSOUND_DISABLED
+#define SDL_AUDIO_DRIVER_DSOUND  1
+#endif
+#ifndef SDL_AUDIO_DRIVER_WINMM_DISABLED
+#define SDL_AUDIO_DRIVER_WINMM   1
+#endif
+#ifndef SDL_AUDIO_DRIVER_DISK_DISABLED
+#define SDL_AUDIO_DRIVER_DISK    1
+#endif
+#ifndef SDL_AUDIO_DRIVER_DUMMY_DISABLED
+#define SDL_AUDIO_DRIVER_DUMMY   1
+#endif
 
 /* Enable various input drivers */
-#define SDL_JOYSTICK_DINPUT 1
-#define SDL_JOYSTICK_HIDAPI 1
-#define SDL_JOYSTICK_RAWINPUT   1
-#define SDL_JOYSTICK_VIRTUAL    1
-#ifdef HAVE_WINDOWS_GAMING_INPUT_H
-#define SDL_JOYSTICK_WGI    1
+#ifndef SDL_JOYSTICK_DINPUT_DISABLED
+#define SDL_JOYSTICK_DINPUT      1
 #endif
-#define SDL_JOYSTICK_XINPUT 1
-#define SDL_HAPTIC_DINPUT   1
-#define SDL_HAPTIC_XINPUT   1
+#ifndef SDL_JOYSTICK_HIDAPI_DISABLED
+#define SDL_JOYSTICK_HIDAPI      1
+#endif
+#ifndef SDL_JOYSTICK_RAWINPUT_DISABLED
+#define SDL_JOYSTICK_RAWINPUT    1
+#endif
+#ifndef SDL_JOYSTICK_VIRTUAL_DISABLED
+#define SDL_JOYSTICK_VIRTUAL     1
+#endif
+#ifdef HAVE_WINDOWS_GAMING_INPUT_H
+#ifndef SDL_JOYSTICK_WGI_DISABLED
+#define SDL_JOYSTICK_WGI         1
+#endif
+#endif
+#ifndef SDL_JOYSTICK_XINPUT_DISABLED
+#define SDL_JOYSTICK_XINPUT      1
+#endif
+#ifndef SDL_HAPTIC_DINPUT_DISABLED
+#define SDL_HAPTIC_DINPUT        1
+#endif
+#ifndef SDL_HAPTIC_XINPUT_DISABLED
+#define SDL_HAPTIC_XINPUT        1
+#endif
 
 /* Enable the sensor driver */
 #ifdef HAVE_SENSORSAPI_H
-#define SDL_SENSOR_WINDOWS  1
+#ifndef SDL_SENSOR_WINDOWS_DISABLED
+#define SDL_SENSOR_WINDOWS       1
+#endif
 #else
-#define SDL_SENSOR_DUMMY    1
+#ifndef SDL_SENSOR_DUMMY_DISABLED
+#define SDL_SENSOR_DUMMY         1
+#endif
 #endif
 
 /* Enable various shared object loading systems */
-#define SDL_LOADSO_WINDOWS  1
+#ifndef SDL_LOADSO_WINDOWS_DISABLED
+#define SDL_LOADSO_WINDOWS       1
+#endif
 
 /* Enable various threading systems */
 #define SDL_THREAD_GENERIC_COND_SUFFIX 1
-#define SDL_THREAD_WINDOWS  1
+#ifndef SDL_THREAD_WINDOWS_DISABLED
+#define SDL_THREAD_WINDOWS       1
+#endif
 
 /* Enable various timer systems */
-#define SDL_TIMER_WINDOWS   1
+#ifndef SDL_TIMER_WINDOWS_DISABLED
+#define SDL_TIMER_WINDOWS        1
+#endif
 
 /* Enable various video drivers */
-#define SDL_VIDEO_DRIVER_DUMMY  1
-#define SDL_VIDEO_DRIVER_WINDOWS    1
+#ifndef SDL_VIDEO_DRIVER_DUMMY_DISABLED
+#define SDL_VIDEO_DRIVER_DUMMY   1
+#endif
+#ifndef SDL_VIDEO_DRIVER_WINDOWS_DISABLED
+#define SDL_VIDEO_DRIVER_WINDOWS 1
+#endif
 
-#ifndef SDL_VIDEO_RENDER_D3D
-#define SDL_VIDEO_RENDER_D3D    1
+#if !defined(SDL_VIDEO_RENDER_D3D) && !defined(SDL_VIDEO_RENDER_D3D_DISABLED)
+#define SDL_VIDEO_RENDER_D3D     1
 #endif
-#if !defined(SDL_VIDEO_RENDER_D3D11) && defined(HAVE_D3D11_H)
-#define SDL_VIDEO_RENDER_D3D11  1
+#if defined(HAVE_D3D11_H)
+#if !defined(SDL_VIDEO_RENDER_D3D11) && !defined(SDL_VIDEO_RENDER_D3D11_DISABLED)
+#define SDL_VIDEO_RENDER_D3D11   1
 #endif
-#if !defined(SDL_VIDEO_RENDER_D3D12) && defined(HAVE_D3D12_H)
-#define SDL_VIDEO_RENDER_D3D12  1
+#endif
+#if defined(HAVE_D3D12_H)
+#if !defined(SDL_VIDEO_RENDER_D3D12) && !defined(SDL_VIDEO_RENDER_D3D12_DISABLED)
+#define SDL_VIDEO_RENDER_D3D12   1
+#endif
 #endif
 
 /* Enable OpenGL support */
-#ifndef SDL_VIDEO_OPENGL
-#define SDL_VIDEO_OPENGL    1
+#ifndef SDL_VIDEO_OPENGL_DISABLED
+#define SDL_VIDEO_OPENGL         1
 #endif
-#ifndef SDL_VIDEO_OPENGL_WGL
-#define SDL_VIDEO_OPENGL_WGL    1
+#ifndef SDL_VIDEO_OPENGL_WGL_DISABLED
+#define SDL_VIDEO_OPENGL_WGL     1
 #endif
-#ifndef SDL_VIDEO_RENDER_OGL
-#define SDL_VIDEO_RENDER_OGL    1
+#if !defined(SDL_VIDEO_RENDER_OGL) && !defined(SDL_VIDEO_RENDER_OGL_DISABLED)
+#define SDL_VIDEO_RENDER_OGL     1
 #endif
-#ifndef SDL_VIDEO_RENDER_OGL_ES2
-#define SDL_VIDEO_RENDER_OGL_ES2    1
+#if !defined(SDL_VIDEO_RENDER_OGL_ES2) && !defined(SDL_VIDEO_RENDER_OGL_ES2_DISABLED)
+#define SDL_VIDEO_RENDER_OGL_ES2 1
 #endif
-#ifndef SDL_VIDEO_OPENGL_ES2
-#define SDL_VIDEO_OPENGL_ES2    1
+#ifndef SDL_VIDEO_OPENGL_ES2_DISABLED
+#define SDL_VIDEO_OPENGL_ES2     1
 #endif
-#ifndef SDL_VIDEO_OPENGL_EGL
-#define SDL_VIDEO_OPENGL_EGL    1
+#ifndef SDL_VIDEO_OPENGL_EGL_DISABLED
+#define SDL_VIDEO_OPENGL_EGL     1
 #endif
 
 /* Enable Vulkan support */
-#define SDL_VIDEO_VULKAN 1
+#ifndef SDL_VIDEO_VULKAN_DISABLED
+#define SDL_VIDEO_VULKAN         1
+#endif
 
 /* Enable system power support */
-#define SDL_POWER_WINDOWS 1
+#ifndef SDL_POWER_WINDOWS_DISABLED
+#define SDL_POWER_WINDOWS        1
+#endif
 
 /* Enable filesystem support */
-#define SDL_FILESYSTEM_WINDOWS  1
+#ifndef SDL_FILESYSTEM_WINDOWS_DISABLED
+#define SDL_FILESYSTEM_WINDOWS   1
+#endif
 
 #endif /* SDL_config_wingdk_h_ */
 
