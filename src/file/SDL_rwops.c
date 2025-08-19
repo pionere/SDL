@@ -29,6 +29,7 @@
 #endif
 
 #include "../SDL_internal.h"
+#include "SDL_rwops.h"
 
 #ifndef SDL_FILE_DISABLED
 
@@ -52,7 +53,6 @@
 */
 
 #include "SDL_endian.h"
-#include "SDL_rwops.h"
 
 #ifdef __APPLE__
 #include "cocoa/SDL_rwopsbundlesupport.h"
@@ -955,6 +955,195 @@ SDL_WriteBE64(SDL_RWops *dst, Uint64 value)
 {
     const Uint64 swapped = SDL_SwapBE64(value);
     return SDL_RWwrite(dst, &swapped, sizeof(swapped), 1);
+}
+
+#else
+
+/* Functions to create SDL_RWops structures from various data sources */
+
+SDL_RWops *SDL_RWFromFile(const char *file, const char *mode)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+#ifdef HAVE_STDIO_H
+SDL_RWops *SDL_RWFromFP(FILE * fp, SDL_bool autoclose)
+#else
+SDL_RWops *SDL_RWFromFP(void * fp, SDL_bool autoclose)
+#endif
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+SDL_RWops *SDL_RWFromMem(void *mem, int size)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+SDL_RWops *SDL_RWFromConstMem(const void *mem, int size)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+SDL_RWops *SDL_AllocRW(void)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+void SDL_FreeRW(SDL_RWops *area)
+{
+    SDL_Unsupported();
+}
+
+/* Load all the data from an SDL data stream */
+void *SDL_LoadFile_RW(SDL_RWops *src, size_t *datasize, int freesrc)
+{
+    SDL_Unsupported();
+    if (datasize) {
+        *datasize = 0;
+    }
+    return NULL;
+}
+
+void *SDL_LoadFile(const char *file, size_t *datasize)
+{
+    SDL_Unsupported();
+    return NULL;
+}
+
+Sint64 SDL_RWsize(SDL_RWops *context)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Sint64 SDL_RWseek(SDL_RWops *context, Sint64 offset, int whence)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Sint64 SDL_RWtell(SDL_RWops *context)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_RWread(SDL_RWops *context, void *ptr, size_t size, size_t maxnum)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_RWwrite(SDL_RWops *context, const void *ptr, size_t size, size_t num)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+int SDL_RWclose(SDL_RWops *context)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+/* Functions for dynamically reading and writing endian-specific values */
+
+Uint8 SDL_ReadU8(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint16 SDL_ReadLE16(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint16 SDL_ReadBE16(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint32 SDL_ReadLE32(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint32 SDL_ReadBE32(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint64 SDL_ReadLE64(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+Uint64 SDL_ReadBE64(SDL_RWops *src)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteU8(SDL_RWops *dst, Uint8 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteLE16(SDL_RWops *dst, Uint16 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteBE16(SDL_RWops *dst, Uint16 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteLE32(SDL_RWops *dst, Uint32 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteBE32(SDL_RWops *dst, Uint32 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteLE64(SDL_RWops *dst, Uint64 value)
+{
+    SDL_Unsupported();
+    return 0;
+}
+
+size_t
+SDL_WriteBE64(SDL_RWops *dst, Uint64 value)
+{
+    SDL_Unsupported();
+    return 0;
 }
 
 #endif // SDL_FILE_DISABLED
