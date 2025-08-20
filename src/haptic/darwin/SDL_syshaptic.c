@@ -528,10 +528,8 @@ static int SDL_SYS_HapticOpenFromService(SDL_Haptic *haptic, io_service_t servic
 open_err:
     FFReleaseDevice(haptic->hwdata->device);
 creat_err:
-    if (haptic->hwdata) {
-        SDL_free(haptic->hwdata);
-        haptic->hwdata = NULL;
-    }
+    SDL_free(haptic->hwdata);
+    // haptic->hwdata = NULL;
     return -1;
 }
 

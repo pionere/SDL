@@ -416,7 +416,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
 acquire_err:
     IDirectInputDevice8_Unacquire(haptic->hwdata->device);
     SDL_free(haptic->hwdata);
-    haptic->hwdata = NULL;
+    // haptic->hwdata = NULL;
     return -1;
 }
 

@@ -414,15 +414,16 @@ static int SDL_SYS_HapticOpenFromName(SDL_Haptic *haptic, const char *name)
         goto open_err;
     }
 
+    /* Set the fname. */
+    haptic->hwdata->fname = SDL_strdup(name);
+
     return 0;
 
     /* Error handling */
 open_err:
     close(fd);
-    if (haptic->hwdata) {
-        SDL_free(haptic->hwdata);
-        haptic->hwdata = NULL;
-    }
+    SDL_free(haptic->hwdata);
+    // haptic->hwdata = NULL;
     return -1;
 }
 
@@ -431,7 +432,6 @@ open_err:
  */
 int SDL_SYS_HapticOpen(SDL_Haptic *haptic)
 {
-    int ret;
     SDL_hapticlist_item *item;
     const char *name;
 
@@ -439,14 +439,7 @@ int SDL_SYS_HapticOpen(SDL_Haptic *haptic)
     name = item->fname;
 
     /* Try to create the haptic. */
-    ret = SDL_SYS_HapticOpenFromName(haptic, name);
-    if (ret < 0) {
-        return ret;
-    }
-
-    /* Set the fname. */
-    haptic->hwdata->fname = SDL_strdup(name);
-    return 0;
+    return SDL_SYS_HapticOpenFromName(haptic, name);
 }
 
 /*
@@ -525,7 +518,6 @@ int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
 {
 #ifdef SDL_JOYSTICK_LINUX
     int device_index = 0;
-    int ret;
     SDL_hapticlist_item *item;
     const char *name;
 
@@ -547,14 +539,7 @@ int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
     if (device_index >= MAX_HAPTICS) {
         return SDL_SetError("Haptic: Joystick doesn't have Haptic capabilities");
     }
-    ret = SDL_SYS_HapticOpenFromName(haptic, name);
-    if (ret < 0) {
-        return ret;
-    }
-
-    haptic->hwdata->fname = SDL_strdup(name);
-
-    return 0;
+    return SDL_SYS_HapticOpenFromName(haptic, name);
 #else
     return -1;
 #endif

@@ -164,18 +164,19 @@ static int SDLCALL SDL_RunXInputHaptic(void *arg)
 
 static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 userid)
 {
+    const int numEffects = 1;
     char threadName[32];
     XINPUT_VIBRATION vibration = { 0, 0 }; /* stop any current vibration */
     XINPUTSETSTATE(userid, &vibration);
 
     haptic->supported = SDL_HAPTIC_LEFTRIGHT;
 
-    haptic->neffects = 1;
-    haptic->nplaying = 1;
+    haptic->neffects = numEffects;
+    haptic->nplaying = numEffects;
 
     /* Allocate and clear the effects memory. */
     haptic->effects = (struct haptic_effect *)
-        SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
+        SDL_calloc(numEffects, sizeof(struct haptic_effect));
     if (!haptic->effects) {
         return SDL_OutOfMemory();
     }
@@ -183,7 +184,7 @@ static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 us
     haptic->hwdata = (struct haptic_hwdata *)SDL_calloc(1, sizeof(*haptic->hwdata));
     if (!haptic->hwdata) {
         SDL_free(haptic->effects);
-        haptic->effects = NULL;
+        // haptic->effects = NULL;
         return SDL_OutOfMemory();
     }
 
@@ -194,7 +195,8 @@ static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 us
     if (!haptic->hwdata->mutex) {
         SDL_free(haptic->effects);
         SDL_free(haptic->hwdata);
-        haptic->effects = NULL;
+        // haptic->effects = NULL;
+        // haptic->hwdata = NULL;
         return SDL_SetError("Couldn't create XInput haptic mutex");
     }
 
@@ -205,7 +207,8 @@ static int SDL_XINPUT_HapticOpenFromUserIndex(SDL_Haptic *haptic, const Uint8 us
         SDL_DestroyMutex(haptic->hwdata->mutex);
         SDL_free(haptic->effects);
         SDL_free(haptic->hwdata);
-        haptic->effects = NULL;
+        // haptic->effects = NULL;
+        // haptic->hwdata = NULL;
         return SDL_SetError("Couldn't create XInput haptic thread");
     }
 
