@@ -107,24 +107,24 @@ int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
     return SDL_SYS_AddHapticDevice(item);
 }
 
-int SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)
+void SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)
 {
     const Uint8 userid = (Uint8)dwUserid;
     SDL_hapticlist_item *item;
     SDL_hapticlist_item *prev = NULL;
 
     if ((!loaded_xinput) || (dwUserid >= XUSER_MAX_COUNT)) {
-        return -1;
+        return;
     }
 
     for (item = SDL_hapticlist; item; item = item->next) {
         if (item->bXInputHaptic && item->userid == userid) {
             /* found it, remove it. */
-            return SDL_SYS_RemoveHapticDevice(prev, item);
+            SDL_SYS_RemoveHapticDevice(prev, item);
+            return;
         }
         prev = item;
     }
-    return -1;
 }
 
 /* !!! FIXME: this is a hack, remove this later. */
@@ -368,9 +368,9 @@ int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
     return SDL_Unsupported();
 }
 
-int SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)
+void SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)
 {
-    return SDL_Unsupported();
+    SDL_Unsupported();
 }
 
 int SDL_XINPUT_HapticOpen(SDL_Haptic *haptic, SDL_hapticlist_item *item)

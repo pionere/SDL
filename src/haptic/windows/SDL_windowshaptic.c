@@ -94,9 +94,8 @@ int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item)
     return numhaptics;
 }
 
-int SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *item)
+void SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *item)
 {
-    const int retval = item->haptic ? item->haptic->index : -1;
     if (prev) {
         prev->next = item->next;
     } else {
@@ -110,7 +109,6 @@ int SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *i
     /* !!! TODO: Send a haptic remove event? */
     SDL_free(item->name);
     SDL_free(item);
-    return retval;
 }
 
 int SDL_SYS_NumHaptics(void)
