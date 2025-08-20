@@ -99,44 +99,32 @@ const char *SDL_SYS_HapticName(int index)
     return item->name;
 }
 
-static SDL_hapticlist_item *OpenHaptic(SDL_Haptic *haptic, SDL_hapticlist_item *item)
+static int OpenHaptic(SDL_Haptic *haptic, SDL_hapticlist_item *item)
 {
+    const int numEffects = 1;
     if (!item) {
-        SDL_SetError("No such device");
-        return NULL;
+        return SDL_SetError("No such device");
     }
     if (item->haptic) {
-        SDL_SetError("Haptic already opened");
-        return NULL;
+        return SDL_SetError("Haptic already opened");
     }
 
     haptic->hwdata = (struct haptic_hwdata *)item;
     item->haptic = haptic;
 
     haptic->supported = SDL_HAPTIC_LEFTRIGHT;
-    haptic->neffects = 1;
-    haptic->nplaying = haptic->neffects;
-    haptic->effects = (struct haptic_effect *)SDL_calloc(haptic->neffects, sizeof(struct haptic_effect));
+    haptic->neffects = numEffects;
+    haptic->nplaying = numEffects;
+    haptic->effects = (struct haptic_effect *)SDL_calloc(numEffects, sizeof(struct haptic_effect));
     if (!haptic->effects) {
-        SDL_OutOfMemory();
-        return NULL;
+        return SDL_OutOfMemory();
     }
-    return item;
-}
-
-static SDL_hapticlist_item *OpenHapticByOrder(SDL_Haptic *haptic, int index)
-{
-    return OpenHaptic(haptic, HapticByOrder(index));
-}
-
-static SDL_hapticlist_item *OpenHapticByDevId(SDL_Haptic *haptic, int device_id)
-{
-    return OpenHaptic(haptic, HapticByDevId(device_id));
+    return 0;
 }
 
 int SDL_SYS_HapticOpen(SDL_Haptic *haptic)
 {
-    return OpenHapticByOrder(haptic, haptic->index) == NULL ? -1 : 0;
+    return OpenHaptic(haptic, HapticByOrder(haptic->index));
 }
 
 int SDL_SYS_HapticMouse(void)
@@ -153,7 +141,7 @@ int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
 
 int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
 {
-    return OpenHapticByDevId(haptic, ((joystick_hwdata *)joystick->hwdata)->device_id) == NULL ? -1 : 0;
+    return OpenHaptic(haptic, HapticByDevId(((joystick_hwdata *)joystick->hwdata)->device_id));
 }
 
 int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick)
