@@ -151,6 +151,11 @@ int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick)
 
 void SDL_SYS_HapticClose(SDL_Haptic *haptic)
 {
+    /* Free Effects. */
+    SDL_free(haptic->effects);
+    haptic->effects = NULL;
+    haptic->neffects = 0;
+
     ((SDL_hapticlist_item *)haptic->hwdata)->haptic = NULL;
     haptic->hwdata = NULL;
 }
