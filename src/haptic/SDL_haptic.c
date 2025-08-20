@@ -576,13 +576,16 @@ int SDL_HapticNewEffect(SDL_Haptic *haptic, SDL_HapticEffect *effect)
 /*
  * Checks to see if an effect is valid.
  */
-static int ValidEffect(SDL_Haptic *haptic, int effect)
+static SDL_bool ValidHapticEffect(SDL_Haptic *haptic, int effect)
 {
+    if (!ValidHaptic(haptic)) {
+        return SDL_FALSE;
+    }
     if ((effect < 0) || (effect >= haptic->neffects)) {
         SDL_SetError("Haptic: Invalid effect identifier.");
-        return 0;
+        return SDL_FALSE;
     }
-    return 1;
+    return SDL_TRUE;
 }
 
 /*
@@ -591,7 +594,7 @@ static int ValidEffect(SDL_Haptic *haptic, int effect)
 int SDL_HapticUpdateEffect(SDL_Haptic *haptic, int effect,
                            SDL_HapticEffect *data)
 {
-    if (!ValidHaptic(haptic) || !ValidEffect(haptic, effect)) {
+    if (!ValidHapticEffect(haptic, effect)) {
         return -1;
     }
 
@@ -616,7 +619,7 @@ int SDL_HapticUpdateEffect(SDL_Haptic *haptic, int effect,
  */
 int SDL_HapticRunEffect(SDL_Haptic *haptic, int effect, Uint32 iterations)
 {
-    if (!ValidHaptic(haptic) || !ValidEffect(haptic, effect)) {
+    if (!ValidHapticEffect(haptic, effect)) {
         return -1;
     }
 
@@ -633,7 +636,7 @@ int SDL_HapticRunEffect(SDL_Haptic *haptic, int effect, Uint32 iterations)
  */
 int SDL_HapticStopEffect(SDL_Haptic *haptic, int effect)
 {
-    if (!ValidHaptic(haptic) || !ValidEffect(haptic, effect)) {
+    if (!ValidHapticEffect(haptic, effect)) {
         return -1;
     }
 
@@ -650,7 +653,7 @@ int SDL_HapticStopEffect(SDL_Haptic *haptic, int effect)
  */
 void SDL_HapticDestroyEffect(SDL_Haptic *haptic, int effect)
 {
-    if (!ValidHaptic(haptic) || !ValidEffect(haptic, effect)) {
+    if (!ValidHapticEffect(haptic, effect)) {
         return;
     }
 
@@ -667,7 +670,7 @@ void SDL_HapticDestroyEffect(SDL_Haptic *haptic, int effect)
  */
 int SDL_HapticGetEffectStatus(SDL_Haptic *haptic, int effect)
 {
-    if (!ValidHaptic(haptic) || !ValidEffect(haptic, effect)) {
+    if (!ValidHapticEffect(haptic, effect)) {
         return -1;
     }
 
