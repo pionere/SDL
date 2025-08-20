@@ -227,7 +227,8 @@ SDL_Haptic *SDL_HapticOpen(int device_index)
         SDL_HapticSetGain(haptic, 100);
     }
     if (haptic->supported & SDL_HAPTIC_AUTOCENTER) {
-        SDL_HapticSetAutocenter(haptic, 0);
+        // SDL_HapticSetAutocenter(haptic, 0);
+        SDL_SYS_HapticSetAutocenter(haptic, 0);
     }
 
     return haptic;
@@ -430,7 +431,8 @@ void SDL_HapticClose(SDL_Haptic *haptic)
     /* Close it, properly removing effects if needed */
     for (i = 0; i < haptic->neffects; i++) {
         if (haptic->effects[i].hweffect != NULL) {
-            SDL_HapticDestroyEffect(haptic, i);
+            //SDL_HapticDestroyEffect(haptic, i);
+            SDL_SYS_HapticDestroyEffect(haptic, &haptic->effects[i]);
         }
     }
     SDL_SYS_HapticClose(haptic);
@@ -537,16 +539,15 @@ int SDL_HapticEffectSupported(SDL_Haptic *haptic, SDL_HapticEffect *effect)
  */
 int SDL_HapticNewEffect(SDL_Haptic *haptic, SDL_HapticEffect *effect)
 {
-    int i;
-
-    /* Check for device validity. */
-    if (!ValidHaptic(haptic)) {
-        return -1;
-    }
+    int check, i;
 
     /* Check to see if effect is supported */
-    if (SDL_HapticEffectSupported(haptic, effect) == SDL_FALSE) {
-        return SDL_SetError("Haptic: Effect not supported by haptic device.");
+    check = SDL_HapticEffectSupported(haptic, effect);
+    if (!check) {
+        check = SDL_SetError("Haptic: Effect not supported by haptic device.");
+    }
+    if (check < 0) {
+        return check;
     }
 
     /* See if there's a free slot */
@@ -673,7 +674,7 @@ int SDL_HapticGetEffectStatus(SDL_Haptic *haptic, int effect)
 int SDL_HapticSetGain(SDL_Haptic *haptic, int gain)
 {
     const char *env;
-    int real_gain, max_gain;
+    int max_gain;
 
     if (!ValidHaptic(haptic)) {
         return -1;
@@ -700,12 +701,10 @@ int SDL_HapticSetGain(SDL_Haptic *haptic, int gain)
         }
 
         /* We'll scale it linearly with SDL_HAPTIC_GAIN_MAX */
-        real_gain = (gain * max_gain) / 100;
-    } else {
-        real_gain = gain;
+        gain = (gain * max_gain) / 100;
     }
 
-    return SDL_SYS_HapticSetGain(haptic, real_gain);
+    return SDL_SYS_HapticSetGain(haptic, gain);
 }
 
 /*
