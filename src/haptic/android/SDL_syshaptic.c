@@ -93,10 +93,6 @@ static SDL_hapticlist_item *HapticByJoystick(const SDL_Joystick *joystick)
 const char *SDL_SYS_HapticName(int index)
 {
     SDL_hapticlist_item *item = HapticByOrder(index);
-    if (!item) {
-        SDL_SetError("No such device");
-        return NULL;
-    }
     return item->name;
 }
 
