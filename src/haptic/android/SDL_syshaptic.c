@@ -77,8 +77,9 @@ static SDL_hapticlist_item *HapticByOrder(int index)
     return item;
 }
 
-static SDL_hapticlist_item *HapticByDevId(int device_id)
+static SDL_hapticlist_item *HapticByJoystick(const SDL_Joystick *joystick)
 {
+    int device_id = ((const joystick_hwdata *)joystick->hwdata)->device_id;
     SDL_hapticlist_item *item;
     for (item = SDL_hapticlist; item; item = item->next) {
         if (device_id == item->device_id) {
@@ -134,14 +135,13 @@ int SDL_SYS_HapticMouse(void)
 
 int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
 {
-    SDL_hapticlist_item *item;
-    item = HapticByDevId(((joystick_hwdata *)joystick->hwdata)->device_id);
+    SDL_hapticlist_item *item = HapticByJoystick(joystick);
     return (item) ? SDL_TRUE : SDL_FALSE;
 }
 
 int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
 {
-    return OpenHaptic(haptic, HapticByDevId(((joystick_hwdata *)joystick->hwdata)->device_id));
+    return OpenHaptic(haptic, HapticByJoystick(joystick));
 }
 
 int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick)
