@@ -254,35 +254,16 @@ void SDL_SYS_HapticClose(SDL_Haptic *haptic)
  */
 void SDL_SYS_HapticQuit(void)
 {
-    SDL_hapticlist_item *item;
-    SDL_hapticlist_item *next = NULL;
-    SDL_Haptic *hapticitem = NULL;
-
-    extern SDL_Haptic *SDL_haptics;
-    for (hapticitem = SDL_haptics; hapticitem; hapticitem = hapticitem->next) {
-        if ((hapticitem->hwdata->bXInputHaptic) && (hapticitem->hwdata->thread)) {
-            /* we _have_ to stop the thread before we free the XInput DLL! */
-            SDL_AtomicSet(&hapticitem->hwdata->stopThread, 1);
-            SDL_WaitThread(hapticitem->hwdata->thread, NULL);
-            hapticitem->hwdata->thread = NULL;
-        }
+    while (SDL_hapticlist) {
+        SDL_SYS_RemoveHapticDevice(NULL, SDL_hapticlist);
     }
 
-    for (item = SDL_hapticlist; item; item = next) {
-        /* Opened and not closed haptics are leaked, this is on purpose.
-         * Close your haptic devices after usage. */
-        /* !!! FIXME: (...is leaking on purpose a good idea?) - No, of course not. */
-        next = item->next;
-        SDL_free(item->name);
-        SDL_free(item);
-    }
+    SDL_assert(numhaptics == 0);
+    SDL_assert(SDL_hapticlist == NULL);
+    SDL_assert(SDL_hapticlist_tail == NULL);
 
     SDL_XINPUT_HapticQuit();
     SDL_DINPUT_HapticQuit();
-
-    numhaptics = 0;
-    SDL_hapticlist = NULL;
-    SDL_hapticlist_tail = NULL;
 }
 
 /*
