@@ -490,11 +490,13 @@ int SDL_DINPUT_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick
 
 void SDL_DINPUT_HapticClose(SDL_Haptic *haptic)
 {
-    IDirectInputDevice8_Unacquire(haptic->hwdata->device);
+    struct haptic_hwdata *hwdata = haptic->hwdata;
+    SDL_assert(hwdata != NULL);
+    IDirectInputDevice8_Unacquire(hwdata->device);
 
     /* Only release if isn't grabbed by a joystick. */
-    if (!haptic->hwdata->is_joystick) {
-        IDirectInputDevice8_Release(haptic->hwdata->device);
+    if (!hwdata->is_joystick) {
+        IDirectInputDevice8_Release(hwdata->device);
     }
 }
 

@@ -244,9 +244,11 @@ int SDL_XINPUT_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick
 
 void SDL_XINPUT_HapticClose(SDL_Haptic *haptic)
 {
-    SDL_AtomicSet(&haptic->hwdata->stopThread, 1);
-    SDL_WaitThread(haptic->hwdata->thread, NULL);
-    SDL_DestroyMutex(haptic->hwdata->mutex);
+    struct haptic_hwdata *hwdata = haptic->hwdata;
+    SDL_assert(hwdata != NULL);
+    SDL_AtomicSet(&hwdata->stopThread, 1);
+    SDL_WaitThread(hwdata->thread, NULL);
+    SDL_DestroyMutex(hwdata->mutex);
 }
 
 void SDL_XINPUT_HapticQuit(void)
