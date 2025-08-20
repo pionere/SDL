@@ -628,20 +628,19 @@ int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
  */
 void SDL_SYS_HapticClose(SDL_Haptic *haptic)
 {
-    if (haptic->hwdata) {
+    SDL_assert(haptic->hwdata != NULL);
 
         /* Free Effects. */
         SDL_free(haptic->effects);
-        haptic->effects = NULL;
-        haptic->neffects = 0;
+        // haptic->effects = NULL;
+        // haptic->neffects = 0;
 
         /* Clean up */
         FFReleaseDevice(haptic->hwdata->device);
 
         /* Free */
         SDL_free(haptic->hwdata);
-        haptic->hwdata = NULL;
-    }
+        // haptic->hwdata = NULL;
 }
 
 /*
