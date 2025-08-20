@@ -58,7 +58,7 @@ int SDL_SYS_HapticMouse(void)
 
 int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
 {
-    return 0;
+    return SDL_FALSE;
 }
 
 int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)

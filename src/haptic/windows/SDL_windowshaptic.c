@@ -182,19 +182,19 @@ int SDL_SYS_HapticMouse(void)
 int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
 {
     if (joystick->driver != &SDL_WINDOWS_JoystickDriver) {
-        return 0;
+        return SDL_FALSE;
     }
 #ifdef SDL_HAPTIC_XINPUT
     if (joystick->hwdata->bXInputHaptic) {
-        return 1;
+        return SDL_TRUE;
     }
 #endif
 #ifdef SDL_HAPTIC_DINPUT
     if (joystick->hwdata->Capabilities.dwFlags & DIDC_FORCEFEEDBACK) {
-        return 1;
+        return SDL_TRUE;
     }
 #endif
-    return 0;
+    return SDL_FALSE;
 }
 
 /*

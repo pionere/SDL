@@ -320,13 +320,7 @@ int SDL_JoystickIsHaptic(SDL_Joystick *joystick)
     }
     SDL_UnlockJoysticks();
 
-    if (ret > 0) {
-        return SDL_TRUE;
-    } else if (ret == 0) {
-        return SDL_FALSE;
-    }
-
-    return -1;
+    return ret;
 }
 
 /*
@@ -624,11 +618,7 @@ int SDL_HapticRunEffect(SDL_Haptic *haptic, int effect, Uint32 iterations)
     }
 
     /* Run the effect */
-    if (SDL_SYS_HapticRunEffect(haptic, &haptic->effects[effect], iterations) < 0) {
-        return -1;
-    }
-
-    return 0;
+    return SDL_SYS_HapticRunEffect(haptic, &haptic->effects[effect], iterations);
 }
 
 /*
@@ -641,11 +631,7 @@ int SDL_HapticStopEffect(SDL_Haptic *haptic, int effect)
     }
 
     /* Stop the effect */
-    if (SDL_SYS_HapticStopEffect(haptic, &haptic->effects[effect]) < 0) {
-        return -1;
-    }
-
-    return 0;
+    return SDL_SYS_HapticStopEffect(haptic, &haptic->effects[effect]);
 }
 
 /*
@@ -719,11 +705,7 @@ int SDL_HapticSetGain(SDL_Haptic *haptic, int gain)
         real_gain = gain;
     }
 
-    if (SDL_SYS_HapticSetGain(haptic, real_gain) < 0) {
-        return -1;
-    }
-
-    return 0;
+    return SDL_SYS_HapticSetGain(haptic, real_gain);
 }
 
 /*
@@ -743,11 +725,7 @@ int SDL_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter)
         return SDL_SetError("Haptic: Autocenter must be between 0 and 100.");
     }
 
-    if (SDL_SYS_HapticSetAutocenter(haptic, autocenter) < 0) {
-        return -1;
-    }
-
-    return 0;
+    return SDL_SYS_HapticSetAutocenter(haptic, autocenter);
 }
 
 /*
