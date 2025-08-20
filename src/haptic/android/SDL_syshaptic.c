@@ -164,8 +164,8 @@ void SDL_SYS_HapticQuit(void)
  * of joysticks here in case this is a reinit.
  */
 #if 0
-    SDL_hapticlist_item *item = NULL;
-    SDL_hapticlist_item *next = NULL;
+    SDL_hapticlist_item *item;
+    SDL_hapticlist_item *next;
 
     for (item = SDL_hapticlist; item; item = next) {
         next = item->next;

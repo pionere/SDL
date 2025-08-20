@@ -570,13 +570,11 @@ void SDL_SYS_HapticClose(SDL_Haptic *haptic)
  */
 void SDL_SYS_HapticQuit(void)
 {
-    SDL_hapticlist_item *item = NULL;
-    SDL_hapticlist_item *next = NULL;
+    SDL_hapticlist_item *item;
+    SDL_hapticlist_item *next;
 
     for (item = SDL_hapticlist; item; item = next) {
         next = item->next;
-        /* Opened and not closed haptics are leaked, this is on purpose.
-         * Close your haptic devices after usage. */
         SDL_free(item->fname);
         SDL_free(item);
     }
