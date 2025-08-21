@@ -30,11 +30,11 @@ int PS5_Keyboard_Open(void);
 int PS5_Keyboard_PumpEvents(void);
 int PS5_Keyboard_Close(void);
 
-SDL_bool PS5_HasScreenKeyboardSupport(_THIS);
-SDL_bool PS5_IsScreenKeyboardShown(_THIS, SDL_Window *window);
+SDL_bool PS5_HasScreenKeyboardSupport(void);
+SDL_bool PS5_IsScreenKeyboardShown(SDL_Window *window);
 
-void PS5_ShowScreenKeyboard(_THIS, SDL_Window *window);
-void PS5_HideScreenKeyboard(_THIS, SDL_Window *window);
+void PS5_ShowScreenKeyboard(SDL_Window *window);
+void PS5_HideScreenKeyboard(SDL_Window *window);
 
 
 #endif /* SDL_ps5keyboard_h_ */

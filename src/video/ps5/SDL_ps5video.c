@@ -35,6 +35,15 @@
 
 #define PS5_THREAD_COUNT 12
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for PS5."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for PS5."
+#endif
+
+/* Instance */
+PS5_DeviceData ps5VideoData;
 
 static void* PS5_DrawTileThread(void* arg) {
     const PS5_DrawChunk* chunk = (PS5_DrawChunk*)arg;
@@ -80,7 +89,7 @@ static void PS5_DrawPixelsAsTiles(uint32_t *src, uint32_t *dst,
     }
 }
 
-static void PS5_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
+static void PS5_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
@@ -88,7 +97,7 @@ static void PS5_DestroyWindowFramebuffer(_THIS, SDL_Window *window)
     SDL_FreeSurface(surface);
 }
 
-static int PS5_CreateWindowFramebuffer(_THIS, SDL_Window *window,
+static int PS5_CreateWindowFramebuffer(SDL_Window *window,
                                        Uint32 *format, void **pixels,
                                        int *pitch)
 {
@@ -96,7 +105,7 @@ static int PS5_CreateWindowFramebuffer(_THIS, SDL_Window *window,
     SDL_Surface *surface;
     int w, h;
 
-    PS5_DestroyWindowFramebuffer(_this, window);
+    PS5_DestroyWindowFramebuffer(window);
 
     SDL_GetWindowSizeInPixels(window, &w, &h);
     surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
@@ -112,10 +121,10 @@ static int PS5_CreateWindowFramebuffer(_THIS, SDL_Window *window,
     return 0;
 }
 
-static int PS5_UpdateWindowFramebuffer(_THIS, SDL_Window *window,
+static int PS5_UpdateWindowFramebuffer(SDL_Window *window,
                                        const SDL_Rect *rects, int numrects)
 {
-    PS5_DeviceData *device_data = (PS5_DeviceData *)_this->driverdata;
+    PS5_DeviceData *device_data = &ps5VideoData;
     static uint32_t frame_id = 0;
     uint8_t idx = frame_id % 2;
     SDL_Surface *surface;
@@ -154,7 +163,7 @@ static int PS5_UpdateWindowFramebuffer(_THIS, SDL_Window *window,
     return 0;
 }
 
-static void PS5_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
+/*static void PS5_GetDisplayModes(SDL_VideoDisplay * display)
 {
     SDL_DisplayMode mode;
 
@@ -166,12 +175,12 @@ static void PS5_GetDisplayModes(_THIS, SDL_VideoDisplay * display)
 
     SDL_AddDisplayMode(display, &display->current_mode);
     //SDL_AddDisplayMode(display, &mode);
-}
+}*/
 
-static int PS5_SetDisplayMode(_THIS, SDL_VideoDisplay * display,
+static int PS5_SetDisplayMode(SDL_VideoDisplay * display,
                               SDL_DisplayMode * mode)
 {
-    PS5_DeviceData *device_data = (PS5_DeviceData *)_this->driverdata;
+    PS5_DeviceData *device_data = &ps5VideoData;
     PS5_VideoAttr vattr = {0};
 
     if(device_data->evt_queue) {
@@ -207,11 +216,12 @@ static int PS5_SetDisplayMode(_THIS, SDL_VideoDisplay * display,
 
 static int PS5_VideoInit(_THIS)
 {
-    PS5_DeviceData *device_data = (PS5_DeviceData *)_this->driverdata;
+    PS5_DeviceData *device_data = &ps5VideoData;
     SDL_VideoDisplay display;
     SDL_DisplayMode mode;
     PS5_VideoAttr vattr;
     void *vaddr = 0;
+    int result;
 
     SDL_zero(mode);
     mode.format = SDL_PIXELFORMAT_ABGR8888;
@@ -266,15 +276,21 @@ static int PS5_VideoInit(_THIS)
     SDL_zero(display);
     display.desktop_mode = mode;
     display.current_mode = mode;
+    // display.driverdata = NULL;
 
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+    SDL_AddDisplayMode(&display, &mode);
 
-    return 0;
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    if (result < 0) {
+        SDL_free(display.display_modes);
+    }
+
+    return result;
 }
 
 static void PS5_VideoQuit(_THIS)
 {
-    PS5_DeviceData *device_data = (PS5_DeviceData *)_this->driverdata;
+    PS5_DeviceData *device_data = &ps5VideoData;
 
     if (device_data->handle != 0) {
         sceVideoOutClose(device_data->handle);
@@ -291,71 +307,156 @@ static void PS5_VideoQuit(_THIS)
     }
 }
 
-static int PS5_CreateWindow(_THIS, SDL_Window *window)
+static int PS5_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     return 0;
 }
 
-static void PS5_DestroyDevice(SDL_VideoDevice *device)
+static void PS5_DeleteDevice(_THIS)
 {
-    SDL_free(device->driverdata);
-    SDL_free(device);
+    SDL_zero(ps5VideoData);
 }
 
-static void PS5_DestroyWindow(_THIS, SDL_Window *window)
+static void PS5_DestroyWindow(SDL_Window *window)
 {
 }
 
-static void PS5_PumpEvents(_THIS)
+static void PS5_PumpEvents(void)
 {
     PS5_Keyboard_PumpEvents();
 }
 
-static SDL_VideoDevice *PS5_CreateDevice(void)
+static SDL_bool PS5_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    device = (SDL_VideoDevice *)SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device == NULL) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
-    device->driverdata = SDL_calloc(1, sizeof(PS5_DeviceData));
-    if (device->driverdata == NULL) {
-        SDL_free(device);
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     PS5_Keyboard_Init();
     PS5_Keyboard_Open();
 
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = PS5_VideoInit;
     device->VideoQuit = PS5_VideoQuit;
-    device->GetDisplayModes = PS5_GetDisplayModes;
+    // device->GetDisplayBounds = PS5_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = PS5_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = PS5_GetDisplayDPI;
     device->SetDisplayMode = PS5_SetDisplayMode;
-    device->PumpEvents = PS5_PumpEvents;
-    device->CreateSDLWindow = PS5_CreateWindow;
+
+    /* Window functions */
+    device->CreateSDLWindow = PS5_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = PS5_CreateSDLWindowFrom;
+    // device->SetWindowTitle = PS5_SetWindowTitle;
+    // device->SetWindowIcon = PS5_SetWindowIcon;
+    // device->SetWindowPosition = PS5_SetWindowPosition;
+    // device->SetWindowSize = PS5_SetWindowSize;
+    // device->SetWindowMinimumSize = PS5_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = PS5_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = PS5_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = PS5_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = PS5_SetWindowOpacity;
+    // device->SetWindowModalFor = PS5_SetWindowModalFor;
+    // device->SetWindowInputFocus = PS5_SetWindowInputFocus;
+    // device->ShowWindow = PS5_ShowWindow;
+    // device->HideWindow = PS5_HideWindow;
+    // device->RaiseWindow = PS5_RaiseWindow;
+    // device->MaximizeWindow = PS5_MaximizeWindow;
+    // device->MinimizeWindow = PS5_MinimizeWindow;
+    // device->RestoreWindow = PS5_RestoreWindow;
+    // device->SetWindowBordered = PS5_SetWindowBordered;
+    // device->SetWindowResizable = PS5_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = PS5_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = PS5_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = PS5_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = PS5_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = PS5_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = PS5_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = PS5_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = PS5_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = PS5_SetWindowKeyboardGrab;
     device->DestroyWindow = PS5_DestroyWindow;
+    // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
     device->CreateWindowFramebuffer = PS5_CreateWindowFramebuffer;
     device->UpdateWindowFramebuffer = PS5_UpdateWindowFramebuffer;
     device->DestroyWindowFramebuffer = PS5_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = PS5_OnWindowEnter;
+    // device->FlashWindow = PS5_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = PS5_CreateShaper;
+    // device->SetWindowShape = PS5_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = PS5_GetWindowWMInfo;
+
+    /* OpenGL support */
+#ifdef SDL_VIDEO_OPENGL_OSMESA
+    PS5_OSMesa_InitDevice(device);
+    // device->GL_LoadLibrary = PS5_GL_LoadLibrary;
+    // device->GL_GetProcAddress = PS5_GL_GetProcAddress;
+    // device->GL_CreateContext = PS5_GL_CreateContext;
+    // device->GL_UnloadLibrary = PS5_GLES_UnloadLibrary;
+    // device->GL_MakeCurrent = PS5_GLES_MakeCurrent;
+    // device->GL_GetDrawableSize = PS5_GLES_GetDrawableSize;
+    // device->GL_SetSwapInterval = PS5_GLES_SetSwapInterval;
+    // device->GL_GetSwapInterval = PS5_GLES_GetSwapInterval;
+    // device->GL_SwapWindow = PS5_GLES_SwapWindow;
+    // device->GL_DeleteContext = PS5_GLES_DeleteContext;
+#endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = PS5_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = PS5_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = PS5_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = PS5_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = PS5_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = PS5_Metal_CreateView;
+    // device->Metal_DestroyView = PS5_Metal_DestroyView;
+    // device->Metal_GetLayer = PS5_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = PS5_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = PS5_WaitEventTimeout;
+    // device->SendWakeupEvent = PS5_SendWakeupEvent;
+    device->PumpEvents = PS5_PumpEvents;
+
+    /* Screensaver */
+    // device->SuspendScreenSaver = PS5_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = PS5_StartTextInput;
+    // device->StopTextInput = PS5_StopTextInput;
+    // device->SetTextInputRect = PS5_SetTextInputRect;
+    // device->ClearComposition = PS5_ClearComposition;
+    // device->IsTextInputShown = PS5_IsTextInputShown;
+
+    /* Screen keyboard */
     device->HasScreenKeyboardSupport = PS5_HasScreenKeyboardSupport;
     device->ShowScreenKeyboard = PS5_ShowScreenKeyboard;
     device->HideScreenKeyboard = PS5_HideScreenKeyboard;
     device->IsScreenKeyboardShown = PS5_IsScreenKeyboardShown;
-    device->free = PS5_DestroyDevice;
 
-#ifdef SDL_VIDEO_OPENGL_OSMESA
-    PS5_OSMesa_InitDevice(device);
-#endif
+    /* Clipboard */
+    // device->SetClipboardText = PS5_SetClipboardText;
+    // device->GetClipboardText = PS5_GetClipboardText;
+    // device->HasClipboardText = PS5_HasClipboardText;
+    // device->SetPrimarySelectionText = PS5_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = PS5_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = PS5_HasPrimarySelectionText;
 
-    return device;
+    /* Hit-testing */
+    // device->SetWindowHitTest = PS5_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = PS5_AcceptDragAndDrop;
+
+    device->DeleteDevice = PS5_DeleteDevice;
+
+    return SDL_TRUE;
 }
 
-VideoBootStrap PS5_bootstrap = { "ps5", "Sony PS5 Video Driver",
-                                 PS5_CreateDevice };
+const VideoBootStrap PS5_bootstrap = { "ps5", PS5_CreateDevice };
 
 #endif /* SDL_VIDEO_DRIVER_PS5 */
 

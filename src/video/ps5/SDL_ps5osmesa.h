@@ -25,7 +25,7 @@
 
 #include "../SDL_sysvideo.h"
 
-int PS5_OSMesa_InitDevice(SDL_VideoDevice* dev);
+void PS5_OSMesa_InitDevice(SDL_VideoDevice* dev);
 
 #endif /* SDL_ps5osmesa_h_ */
 

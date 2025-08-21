@@ -102,12 +102,12 @@ static void OSMesa_UnloadLibrary(_THIS)
     OSMesaPixelStore = 0;
 }
 
-static void* OSMesa_GetProcAddress(_THIS, const char *proc)
+static void* OSMesa_GetProcAddress(const char *proc)
 {
     return OSMesaGetProcAddress(proc);
 }
 
-static int OSMesa_MakeCurrent(_THIS, SDL_Window * window, SDL_GLContext context)
+static int OSMesa_MakeCurrent(SDL_Window * window, SDL_GLContext context)
 {
     SDL_Surface* surface = SDL_GetWindowSurface(window);
 
@@ -135,19 +135,19 @@ static SDL_GLContext OSMesa_CreateContext(_THIS, SDL_Window * window)
         return NULL;
     }
 
-    if (OSMesa_MakeCurrent(_this, window, ctx)) {
+    if (OSMesa_MakeCurrent(window, ctx)) {
         return NULL;
     }
 
     return (SDL_GLContext)ctx;
 }
 
-static int OSMesa_SetSwapInterval(_THIS, int interval)
+static int OSMesa_SetSwapInterval(int interval)
 {
     return 0;
 }
 
-static int OSMesa_GetSwapInterval(_THIS)
+static int OSMesa_GetSwapInterval(void)
 {
     return 0;
 }
@@ -170,14 +170,14 @@ static int OSMesa_SwapWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-static void OSMesa_DeleteContext(_THIS, SDL_GLContext context)
+static void OSMesa_DeleteContext(SDL_GLContext context)
 {
     if (context) {
         OSMesaDestroyContext(context);
     }
 }
 
-int PS5_OSMesa_InitDevice(SDL_VideoDevice* device)
+void PS5_OSMesa_InitDevice(SDL_VideoDevice* device)
 {
     device->GL_LoadLibrary = OSMesa_LoadLibrary;
     device->GL_GetProcAddress = OSMesa_GetProcAddress;
@@ -188,8 +188,6 @@ int PS5_OSMesa_InitDevice(SDL_VideoDevice* device)
     device->GL_GetSwapInterval = OSMesa_GetSwapInterval;
     device->GL_SwapWindow = OSMesa_SwapWindow;
     device->GL_DeleteContext = OSMesa_DeleteContext;
-
-    return 0;
 }
 
 #endif

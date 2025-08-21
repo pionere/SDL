@@ -334,25 +334,25 @@ int PS5_Keyboard_PumpEvents(void)
     return 0;
 }
 
-SDL_bool PS5_HasScreenKeyboardSupport(_THIS)
+SDL_bool PS5_HasScreenKeyboardSupport(void)
 {
     return SDL_TRUE;
 }
 
-void PS5_ShowScreenKeyboard(_THIS, SDL_Window *window)
+void PS5_ShowScreenKeyboard(SDL_Window *window)
 {
     memset(g_ime_dialog_text, 0, sizeof(g_ime_dialog_text));
     sceImeDialogInit(&g_ime_dialog_param, NULL);
 }
 
-void PS5_HideScreenKeyboard(_THIS, SDL_Window *window)
+void PS5_HideScreenKeyboard(SDL_Window *window)
 {
     if (g_ime_dialog_status == SCE_IME_DIALOG_STATUS_FINISHED) {
         sceImeDialogTerm();
     }
 }
 
-SDL_bool PS5_IsScreenKeyboardShown(_THIS, SDL_Window *window)
+SDL_bool PS5_IsScreenKeyboardShown(SDL_Window *window)
 {
     if (g_ime_dialog_status == SCE_IME_DIALOG_STATUS_RUNNING) {
         return SDL_TRUE;

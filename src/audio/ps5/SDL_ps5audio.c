@@ -159,20 +159,31 @@ static SDL_bool PS5AUDIO_Init(SDL_AudioDriverImpl *impl)
 
     need_init = SDL_FALSE;
 
-    impl->ThreadInit = PS5AUDIO_ThreadInit;
+    /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = PS5AUDIO_OpenDevice;
-    impl->PlayDevice = PS5AUDIO_PlayDevice;
+    impl->ThreadInit = PS5AUDIO_ThreadInit;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = PS5AUDIO_WaitDevice;
+    impl->PlayDevice = PS5AUDIO_PlayDevice;
     impl->GetDeviceBuf = PS5AUDIO_GetDeviceBuf;
     impl->CloseDevice = PS5AUDIO_CloseDevice;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
     impl->Deinitialize = PS5AUDIO_Deinitialize;
-
-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    impl->HasCaptureSupport = SDL_FALSE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceName = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
     return SDL_TRUE;
 }
 
-AudioBootStrap PS5AUDIO_bootstrap = { "ps5", "PS5 audio driver", PS5AUDIO_Init, SDL_FALSE };
+const AudioBootStrap PS5AUDIO_bootstrap = { "ps5", PS5AUDIO_Init };
 
 #endif /* SDL_AUDIO_DRIVER_PS5 */
 
