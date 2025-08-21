@@ -34,7 +34,7 @@ int SDL_SYS_OpenURL(const char *url)
 
     err = sceUserServiceInitialize(0);
     if (err != 0 && err != 0x80960003) {
-	SDL_SetError("sceUserServiceInitialize: 0x%08x", err);
+        SDL_SetError("sceUserServiceInitialize: 0x%08x", err);
     }
 
     return sceSystemServiceLaunchWebBrowser(url, 0);
