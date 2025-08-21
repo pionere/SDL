@@ -118,7 +118,15 @@ jobs:
         uses: ./.github/actions/setup-vita-gles
         with:
           type: ${{ matrix.platform.setup-vita-gles-type }}
-
+      - name: 'Set up Ps5 SDK' # Must be after apk
+        if: ${{ matrix.platform.setup-ps5-sdk-path != '' }}
+        shell: bash
+        run: |
+            wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.27/ps5-payload-dev.tar.gz
+            sudo tar -xf ps5-payload-dev.tar.gz -C /
+            PS5_PAYLOAD_SDK=${{ matrix.platform.setup-ps5-sdk-path }}
+            echo "PS5_PAYLOAD_SDK=${{ matrix.platform.setup-ps5-sdk-path }}" >> $GITHUB_ENV
+            source "${PS5_PAYLOAD_SDK}/toolchain/prospero.sh"
       - name: 'Configure (Autotools)'
         if: ${{ !matrix.platform.no-autotools }}
         run: |
