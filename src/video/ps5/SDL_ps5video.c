@@ -93,7 +93,8 @@ static void PS5_DestroyWindowFramebuffer(SDL_Window *window)
 {
     SDL_Surface *surface;
 
-    surface = (SDL_Surface *)SDL_SetWindowData(window, PS5_SURFACE, NULL);
+    // surface = (SDL_Surface *)SDL_SetWindowData(window, PS5_SURFACE, NULL);
+    surface = window->surface;
     SDL_FreeSurface(surface);
 }
 
@@ -105,19 +106,22 @@ static int PS5_CreateWindowFramebuffer(SDL_Window *window,
     SDL_Surface *surface;
     int w, h;
 
-    PS5_DestroyWindowFramebuffer(window);
+    /* Free the old framebuffer surface */
+    // PS5_DestroyWindowFramebuffer(window);
+    SDL_assert(window->surface == NULL);
 
-    SDL_GetWindowSizeInPixels(window, &w, &h);
+    SDL_PrivateGetWindowSizeInPixels(window, &w, &h);
     surface = SDL_CreateRGBSurfaceWithFormat(0, w, h, 0, surface_format);
     if (!surface) {
         return -1;
     }
 
-    SDL_SetWindowData(window, PS5_SURFACE, surface);
-    *format = surface_format;
-    *pixels = surface->pixels;
-    *pitch = surface->pitch;
-
+    /* Save the info and return! */
+    window->surface = surface;
+    // SDL_SetWindowData(window, PS5_SURFACE, surface);
+    // *format = surface_format;
+    // *pixels = surface->pixels;
+    // *pitch = surface->pitch;
     return 0;
 }
 
@@ -131,7 +135,8 @@ static int PS5_UpdateWindowFramebuffer(SDL_Window *window,
     struct kevent evt;
     int junk;
 
-    surface = SDL_GetWindowSurface(window);
+    // surface = SDL_GetWindowSurface(window);
+    surface = window->surface;
     if (!surface) {
         return SDL_SetError("Couldn't find surface for window");
     }
