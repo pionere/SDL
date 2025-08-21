@@ -228,11 +228,11 @@ static int PS5_VideoInit(_THIS)
     void *vaddr = 0;
     int result;
 
-    SDL_zero(mode);
     mode.format = SDL_PIXELFORMAT_ABGR8888;
     mode.w = 1920;
     mode.h = 1080;
     mode.refresh_rate = 60;
+    mode.driverdata = NULL;
 
     memset(device_data->vbuf, 0, sizeof(device_data->vbuf));
     memset(&vattr, 0, sizeof(vattr));

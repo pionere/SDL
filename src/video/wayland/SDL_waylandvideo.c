@@ -617,6 +617,7 @@ static void display_handle_done(void *data,
         native_mode.h = driverdata->native_height;
     }
     native_mode.refresh_rate = (int)SDL_round(driverdata->refresh / 1000.0); /* mHz to Hz */
+    native_mode.driverdata = NULL;
 
     /* The scaled desktop mode */
     desktop_mode.format = SDL_PIXELFORMAT_RGB888;
@@ -637,6 +638,7 @@ static void display_handle_done(void *data,
         desktop_mode.h = driverdata->width;
     }
     desktop_mode.refresh_rate = (int)SDL_round(driverdata->refresh / 1000.0); /* mHz to Hz */
+    desktop_mode.driverdata = NULL;
 
     /* Calculate the display DPI */
     if (driverdata->transform & WL_OUTPUT_TRANSFORM_90) {

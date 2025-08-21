@@ -349,7 +349,6 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
         return 0; /* oh well, ignore it. */
     }
 
-    SDL_zero(mode);
     modeID = crtc->mode;
     mode.w = crtc->width;
     mode.h = crtc->height;
@@ -386,7 +385,9 @@ static int X11_AddXRandRDisplay(Display *dpy, int screen, RROutput outputid, XRR
     displaydata->use_xrandr = SDL_TRUE;
     displaydata->xrandr_output = outputid;
 
-    SetXRandRModeInfo(dpy, res, output_crtc, modeID, &mode);
+    if (!SetXRandRModeInfo(dpy, res, output_crtc, modeID, &mode)) {
+        return SDL_SetError("SetXRandRModeInfo failed");
+    }
     SetXRandRDisplayName(dpy, EDID, display_name, sizeof(display_name), outputid, display_mm_width, display_mm_height);
 
     SDL_zero(display);
