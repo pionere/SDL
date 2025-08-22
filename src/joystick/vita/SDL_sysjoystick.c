@@ -220,12 +220,9 @@ static void VITA_JoystickUpdate(SDL_Joystick *joystick)
     static unsigned char old_lt[] = { 0, 0, 0, 0 };
     static unsigned char old_rt[] = { 0, 0, 0, 0 };
 
-    int index = (int)SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     SceCtrlData *pad = &pads[index];
 
-    if (index >= 4) {
-        return;
-    }
     if (index == 0) {
         if (sceCtrlPeekBufferPositive2(ext_port_map[index], pad, 1) < 0) {
             // on vita fallback to port 0
@@ -306,7 +303,7 @@ SDL_JoystickGUID VITA_JoystickGetDeviceGUID(int device_index)
 
 static int VITA_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
-    int index = (int)SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     SceCtrlActuator act;
     SDL_zero(act);
 
@@ -331,7 +328,7 @@ static Uint32 VITA_JoystickGetCapabilities(SDL_Joystick *joystick)
 
 static int VITA_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
 {
-    int index = (int)SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     if (sceCtrlSetLightBar(ext_port_map[index], red, green, blue) < 0) {
         return SDL_Unsupported();
     }
