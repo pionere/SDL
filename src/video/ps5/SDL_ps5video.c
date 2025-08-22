@@ -41,6 +41,9 @@
 #ifdef SDL_VIDEO_METAL
 #error "Metal is configured, but not implemented for PS5."
 #endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_OSMESA)
+#error "OpenGL is configured, but not the implemented (OSMESA) for PS5."
+#endif
 
 /* Instance */
 PS5_DeviceData ps5VideoData;
