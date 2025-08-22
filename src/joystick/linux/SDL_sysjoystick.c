@@ -1138,14 +1138,10 @@ static SDL_joylist_item *JoystickByDevIndex(int device_index)
 
     SDL_AssertJoysticksLocked();
 
-    if ((device_index < 0) || (device_index >= numjoysticks)) {
-        return NULL;
-    }
+    SDL_assert(device_index >= 0 && device_index < numjoysticks);
 
-    item = SDL_joylist;
-    while (device_index > 0) {
+    for (item = SDL_joylist; device_index; device_index--) {
         SDL_assert(item != NULL);
-        device_index--;
         item = item->next;
     }
 
@@ -1638,9 +1634,7 @@ static int LINUX_JoystickOpen(SDL_Joystick *joystick, int device_index)
     SDL_AssertJoysticksLocked();
 
     item = JoystickByDevIndex(device_index);
-    if (!item) {
-        return SDL_SetError("No such device");
-    }
+    SDL_assert(item != NULL);
 
     joystick->instance_id = item->device_instance;
     joystick->hwdata = (struct joystick_hwdata *)

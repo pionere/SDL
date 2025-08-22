@@ -725,7 +725,7 @@ static void DARWIN_JoystickDetect(void)
 const char *DARWIN_JoystickGetDeviceName(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
-    return device ? device->product : "UNKNOWN";
+    return device->product;
 }
 
 const char *DARWIN_JoystickGetDevicePath(int device_index)
@@ -736,7 +736,7 @@ const char *DARWIN_JoystickGetDevicePath(int device_index)
 static int DARWIN_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
-    return device ? device->steam_virtual_gamepad_slot : -1;
+    return device->steam_virtual_gamepad_slot;
 }
 
 static int DARWIN_JoystickGetDevicePlayerIndex(int device_index)
@@ -751,19 +751,13 @@ static void DARWIN_JoystickSetDevicePlayerIndex(int device_index, int player_ind
 static SDL_JoystickGUID DARWIN_JoystickGetDeviceGUID(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
-    SDL_JoystickGUID guid;
-    if (device) {
-        guid = device->guid;
-    } else {
-        SDL_zero(guid);
-    }
-    return guid;
+    return device->guid;
 }
 
 static SDL_JoystickID DARWIN_JoystickGetDeviceInstanceID(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
-    return device ? device->instance_id : 0;
+    return device->instance_id;
 }
 
 static int DARWIN_JoystickOpen(SDL_Joystick *joystick, int device_index)

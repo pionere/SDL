@@ -494,9 +494,7 @@ static SDL_joylist_item *JoystickByDevIndex(int device_index)
 {
     SDL_joylist_item *item = SDL_joylist;
 
-    if ((device_index < 0) || (device_index >= numjoysticks)) {
-        return NULL;
-    }
+    SDL_assert(device_index >= 0 && device_index < numjoysticks);
 
     while (device_index > 0) {
         SDL_assert(item != NULL);
@@ -569,9 +567,7 @@ static int ANDROID_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
     SDL_joylist_item *item = JoystickByDevIndex(device_index);
 
-    if (!item) {
-        return SDL_SetError("No such device");
-    }
+    SDL_assert(item != NULL);
 
     if (item->joystick) {
         return SDL_SetError("Joystick already opened");

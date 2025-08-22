@@ -301,9 +301,7 @@ static int EMSCRIPTEN_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
     SDL_joylist_item *item = JoystickByDeviceIndex(device_index);
 
-    if (!item) {
-        return SDL_SetError("No such device");
-    }
+    SDL_assert(item != NULL);
 
     if (item->joystick) {
         return SDL_SetError("Joystick already opened");

@@ -136,10 +136,10 @@ static SDL_JoystickDeviceItem *GetDeviceForIndex(int device_index)
     SDL_JoystickDeviceItem *device = deviceList;
     int i = 0;
 
+    SDL_assert(device_index >= 0 && device_index < numjoysticks);
+
     while (i < device_index) {
-        if (device == NULL) {
-            return NULL;
-        }
+        SDL_assert(device != NULL);
         device = device->next;
         i++;
     }
@@ -924,7 +924,7 @@ static void IOS_JoystickDetect(void)
 static const char *IOS_JoystickGetDeviceName(int device_index)
 {
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    return device ? device->name : "Unknown";
+    return device->name;
 }
 
 static const char *IOS_JoystickGetDevicePath(int device_index)
@@ -941,7 +941,7 @@ static int IOS_JoystickGetDevicePlayerIndex(int device_index)
 {
 #ifdef SDL_JOYSTICK_MFI
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    if (device && device->controller) {
+    if (device->controller) {
         return (int)device->controller.playerIndex;
     }
 #endif
@@ -952,7 +952,7 @@ static void IOS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
 {
 #ifdef SDL_JOYSTICK_MFI
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    if (device && device->controller) {
+    if (device->controller) {
         device->controller.playerIndex = player_index;
     }
 #endif
@@ -961,27 +961,19 @@ static void IOS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
 static SDL_JoystickGUID IOS_JoystickGetDeviceGUID(int device_index)
 {
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    SDL_JoystickGUID guid;
-    if (device) {
-        guid = device->guid;
-    } else {
-        SDL_zero(guid);
-    }
-    return guid;
+    return device->guid;
 }
 
 static SDL_JoystickID IOS_JoystickGetDeviceInstanceID(int device_index)
 {
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    return device ? device->instance_id : -1;
+    return device->instance_id;
 }
 
 static int IOS_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    if (device == NULL) {
-        return SDL_SetError("Could not open Joystick: no hardware device for the specified index");
-    }
+    SDL_assert(device != NULL);
 
     joystick->hwdata = device;
     joystick->instance_id = device->instance_id;
@@ -1855,9 +1847,7 @@ static SDL_bool IOS_JoystickGetGamepadMapping(int device_index, SDL_GamepadMappi
 {
 #ifdef ENABLE_PHYSICAL_INPUT_PROFILE
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
-    if (device == NULL) {
-        return SDL_FALSE;
-    }
+    SDL_assert(device != NULL);
     if (device->accelerometer) {
         return SDL_FALSE;
     }

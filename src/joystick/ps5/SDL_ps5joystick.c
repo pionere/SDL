@@ -105,10 +105,7 @@ static const unsigned int btn_map[] = {
 
 static SDL_JoystickID PS5_JoystickGetDeviceInstanceID(int device_index)
 {
-    if (device_index < 0 || device_index >= SDL_arraysize(pad_ctx)) {
-        return -1;
-    }
-
+    SDL_assert(device_index >= 0 && device_index < SDL_arraysize(pad_ctx));
     return pad_ctx[device_index].instance_id;
 }
 
@@ -126,10 +123,7 @@ static PS5_PadContext* PS5_JoystickGetPadContext(SDL_Joystick *joystick) {
 
 static const char *PS5_JoystickGetDeviceName(int device_index)
 {
-    if (device_index < 0 || device_index >= SDL_arraysize(pad_ctx)) {
-        return NULL;
-    }
-
+    SDL_assert(device_index >= 0 && device_index < SDL_arraysize(pad_ctx));
     return pad_ctx[device_index].user_name;
 }
 
@@ -261,12 +255,7 @@ static void PS5_JoystickUpdate(SDL_Joystick *joystick)
 
 static SDL_JoystickGUID PS5_JoystickGetDeviceGUID(int device_index)
 {
-    SDL_JoystickGUID guid = { 0 };
-
-    if (device_index < 0 || device_index >= SDL_arraysize(pad_ctx)) {
-        return guid;
-    }
-
+    SDL_assert(device_index >= 0 && device_index < SDL_arraysize(pad_ctx));
     return pad_ctx[device_index].global_id;
 }
 
@@ -319,10 +308,7 @@ static int PS5_JoystickGetCount(void)
 static int PS5_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
     int err;
-
-    if (device_index < 0 || device_index >= SDL_arraysize(pad_ctx)) {
-        return SDL_SetError("PS5_JoystickOpen: Invalid device index");
-    }
+    SDL_assert(device_index >= 0 && device_index < SDL_arraysize(pad_ctx));
 
     pad_ctx[device_index].handle = scePadOpen(pad_ctx[device_index].user_id,
                                               0, 0, NULL);

@@ -257,9 +257,7 @@ int SDL_JoystickDetachVirtualInner(int device_index)
 {
     SDL_JoystickID instance_id;
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
-    if (!hwdata) {
-        return SDL_SetError("Virtual joystick data not found");
-    }
+    SDL_assert(hwdata != NULL);
     instance_id = hwdata->instance_id;
     VIRTUAL_FreeHWData(hwdata);
     SDL_PrivateJoystickRemoved(instance_id);
@@ -360,9 +358,6 @@ static void VIRTUAL_JoystickDetect(void)
 static const char *VIRTUAL_JoystickGetDeviceName(int device_index)
 {
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
-    if (!hwdata) {
-        return NULL;
-    }
     return hwdata->name;
 }
 
@@ -385,7 +380,7 @@ static void VIRTUAL_JoystickSetDevicePlayerIndex(int device_index, int player_in
 {
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
 
-    if (hwdata && hwdata->desc.SetPlayerIndex) {
+    if (hwdata->desc.SetPlayerIndex) {
         hwdata->desc.SetPlayerIndex(hwdata->desc.userdata, player_index);
     }
 }
@@ -393,20 +388,12 @@ static void VIRTUAL_JoystickSetDevicePlayerIndex(int device_index, int player_in
 static SDL_JoystickGUID VIRTUAL_JoystickGetDeviceGUID(int device_index)
 {
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
-    if (!hwdata) {
-        SDL_JoystickGUID guid;
-        SDL_zero(guid);
-        return guid;
-    }
     return hwdata->guid;
 }
 
 static SDL_JoystickID VIRTUAL_JoystickGetDeviceInstanceID(int device_index)
 {
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
-    if (!hwdata) {
-        return -1;
-    }
     return hwdata->instance_id;
 }
 
@@ -417,9 +404,7 @@ static int VIRTUAL_JoystickOpen(SDL_Joystick *joystick, int device_index)
     SDL_AssertJoysticksLocked();
 
     hwdata = VIRTUAL_HWDataForIndex(device_index);
-    if (!hwdata) {
-        return SDL_SetError("No such device");
-    }
+    SDL_assert(hwdata != NULL);
     joystick->instance_id = hwdata->instance_id;
     joystick->hwdata = hwdata;
     joystick->naxes = hwdata->desc.naxes;

@@ -144,18 +144,14 @@ static void PS2_JoystickDetect(void)
 }
 
 /* Function to get the device-dependent name of a joystick */
-static const char *PS2_JoystickGetDeviceName(int index)
+static const char *PS2_JoystickGetDeviceName(int device_index)
 {
-    if (index >= 0 && index < enabled_pads) {
-        return "PS2 Controller";
-    }
-
-    SDL_SetError("No joystick available with that index");
-    return NULL;
+    SDL_assert(device_index >= 0 && device_index < enabled_pads);
+    return "PS2 Controller";
 }
 
 /* Function to get the device-dependent path of a joystick */
-static const char *PS2_JoystickGetDevicePath(int index)
+static const char *PS2_JoystickGetDevicePath(int device_index)
 {
     return NULL;
 }

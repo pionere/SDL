@@ -114,12 +114,8 @@ static void PSP_JoystickDetect(void)
 /* Function to get the device-dependent name of a joystick */
 static const char *PSP_JoystickGetDeviceName(int device_index)
 {
-    if (device_index == 0) {
-        return "PSP builtin joypad";
-    }
-
-    SDL_SetError("No joystick available with that index");
-    return NULL;
+    SDL_assert(device_index == 0);
+    return "PSP builtin joypad";
 }
 
 static const char *PSP_JoystickGetDevicePath(int index)
@@ -161,10 +157,11 @@ static SDL_JoystickID PSP_JoystickGetDeviceInstanceID(int device_index)
  */
 static int PSP_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
+    SDL_assert(device_index == 0);
     joystick->nbuttons = SDL_arraysize(button_map);
     joystick->naxes = 2;
     joystick->nhats = 0;
-    joystick->instance_id = device_index;
+    joystick->instance_id = 0; //  device_index;
 
     return 0;
 }
