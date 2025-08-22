@@ -549,7 +549,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.static_lib = StaticLibType.A
         case SdlPlatform.Ps2:
             build_parallel = False
-            job.shared = False
             job.sudo = ""
             job.apt_packages = []
             job.apk_packages = ["cmake", "gmp", "mpc1", "mpfr4", "ninja", "pkgconf", "git", ]
@@ -724,7 +723,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.cmake_build_type = "Release"
             job.setup_ninja = True
             job.static_lib = StaticLibType.STATIC_LIB
-            job.shared_lib = None
             job.werror = False  # FIXME: enable SDL_WERROR
             job.shared = False
             job.run_tests = False
