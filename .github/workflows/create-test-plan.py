@@ -711,12 +711,11 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                 #job.cflags.append("/clang:-m32")
             build_parallel = False
             job.cmake_build_type = "Release"
-            job.setup_ninja = True
-            job.shared_lib = None
             job.werror = False  # FIXME: enable SDL_WERROR
             job.shared = False
-            #job.build_tests = False
             job.run_tests = False
+            job.apt_packages = ["cmake", "git", "clang", "llvm", "lld", "bison", "flex", ]
+            job.apk_packages = []
             job.setup_nxdk_sdk_path = "/opt/nxdk"
             job.cmake_toolchain_file = "/opt/nxdk/share/toolchain-nxdk.cmake"
             job.test_pkg_config = False
