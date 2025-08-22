@@ -194,7 +194,7 @@ static SDL_JoystickID PS2_JoystickGetDeviceInstanceID(int device_index)
 */
 static int PS2_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
-    int index = joystick->instance_id;
+    int index = device_index;
     struct JoyInfo *info = &joyInfo[index];
 
     if (!info->opened) {
