@@ -2969,6 +2969,10 @@ extern "C" {
  */
 #define SDL_HINT_AUDIO_INCLUDE_MONITORS "SDL_AUDIO_INCLUDE_MONITORS"
 
+#ifdef __PS4__
+#define SDL_HINT_PS4_PIGLET_MODULES_PATH "SDL_PS4_PIGLET_MODULES_PATH"
+#endif
+
 /**
  * A variable that forces X11 windows to create as a custom type.
  *

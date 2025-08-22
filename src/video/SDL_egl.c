@@ -261,7 +261,7 @@ void *SDL_EGL_GetProcAddress(const char *proc)
             retval = USE_FUNC(eglGetProcAddress)(proc);
         }
 
-#if !defined(__EMSCRIPTEN__) && !defined(SDL_VIDEO_DRIVER_VITA) /* LoadFunction isn't needed on Emscripten and will call dlsym(), causing other problems. */
+#if !defined(__EMSCRIPTEN__) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_PS4) /* LoadFunction isn't needed on Emscripten and will call dlsym(), causing other problems. */
         /* Try SDL_LoadFunction() first for EGL <= 1.4, or as a fallback for >= 1.5. */
         if (!retval) {
             retval = SDL_LoadFunction(egl_data.opengl_dll_handle, proc);
@@ -523,7 +523,7 @@ int SDL_EGL_LoadLibrary(_THIS, const char *egl_path, NativeDisplayType native_di
     }
     SDL_assert(egl_data.egl_display == EGL_NO_DISPLAY);
 #if !defined(__WINRT__)
-#if !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
+#if !defined(SDL_VIDEO_DRIVER_PS4) && !defined(SDL_VIDEO_DRIVER_VITA) && !defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
     if (platform) {
         /* EGL 1.5 allows querying for client version with EGL_NO_DISPLAY
          * --

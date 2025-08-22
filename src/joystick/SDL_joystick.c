@@ -88,6 +88,9 @@ static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #ifdef SDL_JOYSTICK_PS2
     &SDL_PS2_JoystickDriver,
 #endif
+#ifdef SDL_JOYSTICK_PS4
+    &SDL_PS4_JoystickDriver,
+#endif
 #ifdef SDL_JOYSTICK_PS5
     &SDL_PS5_JoystickDriver,
 #endif

@@ -28,6 +28,10 @@
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_blit.h"
 #include "SDL_shaders_gles2.h"
+#if SDL_VIDEO_DRIVER_PS4
+#include "../../video/ps4/SDL_ps4piglet.h"
+#include "../../video/ps4/SDL_ps4opengles_shaders.h"
+#endif
 
 /* WebGL doesn't offer client-side arrays, so use Vertex Buffer Objects
    on Emscripten, which converts GLES2 into WebGL calls.
@@ -260,6 +264,8 @@ static int GLES2_LoadFunctions(GLES2_RenderData *data)
 #elif defined(SDL_VIDEO_DRIVER_ANDROID)
 #define __SDL_NOGETPROCADDR__
 #elif defined(SDL_VIDEO_DRIVER_PANDORA)
+#define __SDL_NOGETPROCADDR__
+#elif SDL_VIDEO_DRIVER_PS4
 #define __SDL_NOGETPROCADDR__
 #endif
 
@@ -515,6 +521,30 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
     GLuint id = 0;
     GLint compileSuccessful = GL_FALSE;
     int attempt, num_src;
+#if SDL_VIDEO_DRIVER_PS4
+    int binary_size;
+    const Uint8 *shader_src;
+    if(PS4_PigletShaccAvailable()) {
+        shader_src = GLES2_GetShader(type);
+    } else {
+        shader_src = PS4GLES2_GetShaderBinary(type, &binary_size);
+    }
+
+    if (!shader_src) {
+        SDL_SetError("No shader src");
+        return 0;
+    }
+
+    /* Compile */
+    id = data->glCreateShader(shader_type);
+    if(PS4_PigletShaccAvailable()) {
+        data->glShaderSource(id, 1, (const char**)&shader_src, NULL);
+        data->glCompileShader(id);
+    } else {
+        glShaderBinary(1, &id, 0, (const void *) shader_src, binary_size);
+    }
+    data->glGetShaderiv(id, GL_COMPILE_STATUS, &compileSuccessful);
+#else
     const GLchar *shader_src_list[3];
     const GLchar *shader_body = GLES2_GetShader(type);
 
@@ -561,6 +591,7 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
         data->glCompileShader(id);
         data->glGetShaderiv(id, GL_COMPILE_STATUS, &compileSuccessful);
     }
+#endif // SDL_VIDEO_DRIVER_PS4
 
     if (!compileSuccessful) {
         SDL_bool isstack = SDL_FALSE;
@@ -1222,12 +1253,18 @@ static int GLES2_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
     vboidx = data->current_vertex_buffer;
     vbo = data->vertex_buffers[vboidx];
     data->glBindBuffer(GL_ARRAY_BUFFER, vbo);
+#if SDL_VIDEO_DRIVER_PS4
+    if(vertsize) {
+#endif
     if (data->vertex_buffer_size[vboidx] < vertsize) {
         data->glBufferData(GL_ARRAY_BUFFER, vertsize, vertices, GL_STREAM_DRAW);
         data->vertex_buffer_size[vboidx] = vertsize;
     } else {
         data->glBufferSubData(GL_ARRAY_BUFFER, 0, vertsize, vertices);
     }
+#if SDL_VIDEO_DRIVER_PS4
+    }
+#endif
 
     /* cycle through a few VBOs so the GL has some time with the data before we replace it. */
     data->current_vertex_buffer++;

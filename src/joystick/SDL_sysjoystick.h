@@ -250,6 +250,7 @@ extern SDL_JoystickDriver SDL_WINDOWS_JoystickDriver;
 extern SDL_JoystickDriver SDL_XBOX_JoystickDriver;
 extern SDL_JoystickDriver SDL_OS2_JoystickDriver;
 extern SDL_JoystickDriver SDL_PS2_JoystickDriver;
+extern SDL_JoystickDriver SDL_PS4_JoystickDriver;
 extern SDL_JoystickDriver SDL_PS5_JoystickDriver;
 extern SDL_JoystickDriver SDL_PSP_JoystickDriver;
 extern SDL_JoystickDriver SDL_VITA_JoystickDriver;
