@@ -48,47 +48,35 @@ static joystick_hwdata *VIRTUAL_HWDataForIndex(int device_index)
 
 static void VIRTUAL_FreeHWData(joystick_hwdata *hwdata)
 {
-    joystick_hwdata *cur;
-    joystick_hwdata *prev = NULL;
+    joystick_hwdata *next;
 
     SDL_AssertJoysticksLocked();
 
-    if (!hwdata) {
-        return;
-    }
+    SDL_assert(hwdata != NULL);
 
     /* Remove hwdata from SDL-global list */
-    for (cur = g_VJoys; cur; prev = cur, cur = cur->next) {
-        if (hwdata == cur) {
-            if (prev) {
-                prev->next = cur->next;
-            } else {
-                g_VJoys = cur->next;
+    next = hwdata->next;
+
+    if (g_VJoys == hwdata) {
+        g_VJoys = next;
+    } else {
+        joystick_hwdata *device;
+
+        for (device = g_VJoys; device; device = device->next) {
+            if (device->next == hwdata) {
+                device->next = next;
+                break;
             }
-            break;
         }
     }
 
     if (hwdata->joystick) {
         hwdata->joystick->hwdata = NULL;
-        hwdata->joystick = NULL;
     }
-    if (hwdata->name) {
-        SDL_free(hwdata->name);
-        hwdata->name = NULL;
-    }
-    if (hwdata->axes) {
-        SDL_free((void *)hwdata->axes);
-        hwdata->axes = NULL;
-    }
-    if (hwdata->buttons) {
-        SDL_free((void *)hwdata->buttons);
-        hwdata->buttons = NULL;
-    }
-    if (hwdata->hats) {
-        SDL_free(hwdata->hats);
-        hwdata->hats = NULL;
-    }
+    SDL_free(hwdata->name);
+    SDL_free((void *)hwdata->axes);
+    SDL_free((void *)hwdata->buttons);
+    SDL_free(hwdata->hats);
     SDL_free(hwdata);
 }
 
@@ -116,7 +104,6 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
 
     hwdata = SDL_calloc(1, sizeof(joystick_hwdata));
     if (!hwdata) {
-        VIRTUAL_FreeHWData(hwdata);
         return SDL_OutOfMemory();
     }
     SDL_memcpy(&hwdata->desc, desc, sizeof(*desc));
