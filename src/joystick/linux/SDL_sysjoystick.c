@@ -1574,8 +1574,8 @@ static SDL_sensorlist_item *GetSensor(SDL_joylist_item *item)
     int fd_item = -1;
 
     SDL_AssertJoysticksLocked();
-
-    if (!item || !SDL_sensorlist) {
+    SDL_assert(item != NULL);
+    if (!SDL_sensorlist) {
         return NULL;
     }
 
