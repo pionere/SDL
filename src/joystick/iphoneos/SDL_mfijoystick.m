@@ -134,14 +134,13 @@ int SDL_AppleTVRemoteOpenedAsJoystick = 0;
 static SDL_JoystickDeviceItem *GetDeviceForIndex(int device_index)
 {
     SDL_JoystickDeviceItem *device = deviceList;
-    int i = 0;
 
+    SDL_AssertJoysticksLocked();
     SDL_assert(device_index >= 0 && device_index < numjoysticks);
 
-    while (i < device_index) {
+    for (device = deviceList; device_index; device_index--) {
         SDL_assert(device != NULL);
         device = device->next;
-        i++;
     }
 
     return device;

@@ -596,10 +596,13 @@ void WINDOWS_JoystickDetect(void)
 
 static JoyStick_DeviceData *SDL_PrivateGetDevice(int device_index)
 {
-    JoyStick_DeviceData *device = SYS_Joystick;
-    int index;
+    JoyStick_DeviceData *device;
 
-    for (index = device_index; index > 0; index--) {
+    SDL_AssertJoysticksLocked();
+    SDL_assert(device_index >= 0);
+
+    for (device = SYS_Joystick; device_index; device_index--) {
+        SDL_assert(device != NULL);
         device = device->pNext;
     }
 

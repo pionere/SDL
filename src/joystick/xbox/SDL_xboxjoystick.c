@@ -134,21 +134,22 @@ static void int_read_callback(UTR_T *utr)
     }
 }
 
+//Scan the xid_dev linked list and finds the nth xid_dev that is a gamepad.
 static xid_dev_t *xid_from_device_index(int device_index)
 {
     xid_dev_t *xid_dev = usbh_xid_get_device_list();
 
-    int i = 0;
-    //Scan the xid_dev linked list and finds the nth xid_dev that is a gamepad.
+    SDL_AssertJoysticksLocked();
     SDL_assert(device_index >= 0);
+
     while (xid_dev != NULL)
     {
         //FIXME: Include xremote and steel battalion in the joystick API.
         if (xid_dev->xid_desc.bType == XID_TYPE_GAMECONTROLLER)
         {
-            if (i == device_index)
+            if (device_index == 0)
                 return xid_dev;
-            i++;
+            device_index--;
         }
         xid_dev = xid_dev->next;
     }

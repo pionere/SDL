@@ -225,10 +225,13 @@ static int EMSCRIPTEN_JoystickInit(void)
 /* Returns item matching given SDL device index. */
 static SDL_joylist_item *JoystickByDeviceIndex(int device_index)
 {
-    SDL_joylist_item *item = SDL_joylist;
+    SDL_joylist_item *item;
 
-    while (0 < device_index) {
-        --device_index;
+    SDL_AssertJoysticksLocked();
+    SDL_assert(device_index >= 0 && device_index < numjoysticks);
+
+    for (item = SDL_joylist; device_index; device_index--) {
+        SDL_assert(item != NULL);
         item = item->next;
     }
 

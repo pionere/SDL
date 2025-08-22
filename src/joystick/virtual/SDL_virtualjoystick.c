@@ -33,17 +33,17 @@ static joystick_hwdata *g_VJoys SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
 
 static joystick_hwdata *VIRTUAL_HWDataForIndex(int device_index)
 {
-    joystick_hwdata *vjoy;
+    joystick_hwdata *device;
 
     SDL_AssertJoysticksLocked();
+    SDL_assert(device_index >= 0);
 
-    for (vjoy = g_VJoys; vjoy; vjoy = vjoy->next) {
-        if (device_index == 0) {
-            break;
-        }
-        --device_index;
+    for (device = g_VJoys; device_index; device_index--) {
+        SDL_assert(device != NULL);
+        device = device->next;
     }
-    return vjoy;
+
+    return device;
 }
 
 static void VIRTUAL_FreeHWData(joystick_hwdata *hwdata)
