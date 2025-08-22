@@ -756,30 +756,15 @@ static void IOS_AddJoystickDevice(GCController *controller, SDL_bool acceleromet
 }
 #endif /* SDL_JOYSTICK_iOS_ACCELEROMETER || SDL_JOYSTICK_MFI */
 
-static SDL_JoystickDeviceItem *IOS_RemoveJoystickDevice(SDL_JoystickDeviceItem *device)
+static void IOS_RemoveJoystickDevice(SDL_JoystickDeviceItem *device, SDL_JoystickDeviceItem *prev)
 {
-    SDL_JoystickDeviceItem *prev = NULL;
-    SDL_JoystickDeviceItem *next = NULL;
-    SDL_JoystickDeviceItem *item = deviceList;
-
-    if (device == NULL) {
-        return NULL;
-    }
-
-    next = device->next;
-
-    while (item != NULL) {
-        if (item == device) {
-            break;
-        }
-        prev = item;
-        item = item->next;
-    }
+    SDL_assert(device != NULL);
 
     /* Unlink the device item from the device list. */
     if (prev) {
         prev->next = device->next;
-    } else if (device == deviceList) {
+    } else {
+        SDL_assert(device == deviceList);
         deviceList = device->next;
     }
 
@@ -812,8 +797,6 @@ static SDL_JoystickDeviceItem *IOS_RemoveJoystickDevice(SDL_JoystickDeviceItem *
 
     SDL_free(device->name);
     SDL_free(device);
-
-    return next;
 }
 
 #if TARGET_OS_TV
@@ -896,10 +879,11 @@ static int IOS_JoystickInit(void)
                                              usingBlock:^(NSNotification *note) {
                                                GCController *controller = note.object;
                                                SDL_JoystickDeviceItem *device;
+                                               SDL_JoystickDeviceItem *prev = NULL;
                                                SDL_LockJoysticks();
-                                               for (device = deviceList; device != NULL; device = device->next) {
+                                               for (device = deviceList; device != NULL; prev = device, device = device->next) {
                                                    if (device->controller == controller) {
-                                                       IOS_RemoveJoystickDevice(device);
+                                                       IOS_RemoveJoystickDevice(device, prev);
                                                        break;
                                                    }
                                                }
@@ -1831,7 +1815,7 @@ static void IOS_JoystickQuit(void)
 #endif /* SDL_JOYSTICK_MFI */
 
         while (deviceList != NULL) {
-            IOS_RemoveJoystickDevice(deviceList);
+            IOS_RemoveJoystickDevice(deviceList, NULL);
         }
 
 #ifdef SDL_JOYSTICK_iOS_ACCELEROMETER
