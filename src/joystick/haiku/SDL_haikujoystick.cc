@@ -66,21 +66,22 @@ extern "C"
         /* Search for attached joysticks */
         nports = joystick.CountDevices();
         numjoysticks = 0;
-        SDL_memset(SDL_joyport, 0, sizeof(SDL_joyport));
-        SDL_memset(SDL_joyname, 0, sizeof(SDL_joyname));
-        for (i = 0; (numjoysticks < MAX_JOYSTICKS) && (i < nports); ++i) {
+        for (i = 0; i < nports; ++i) {
             if (joystick.GetDeviceName(i, name) == B_OK) {
                 if (joystick.Open(name) != B_ERROR) {
                       BString stick_name;
                       joystick.GetControllerName(&stick_name);
                       SDL_joyport[numjoysticks] = SDL_strdup(name);
                       SDL_joyname[numjoysticks] = SDL_CreateJoystickName(0, 0, NULL, stick_name.String());
-                      numjoysticks++;
                       joystick.Close();
+                      numjoysticks++;
+                      if (numjoysticks == MAX_JOYSTICKS) {
+                          break;
+                      }
                 }
             }
         }
-        return (numjoysticks);
+        return numjoysticks;
     }
 
     static int HAIKU_JoystickGetCount(void)
@@ -243,12 +244,11 @@ extern "C"
         for (i = 0; i < numjoysticks; ++i) {
             SDL_free(SDL_joyport[i]);
         }
-        SDL_joyport[0] = NULL;
 
         for (i = 0; i < numjoysticks; ++i) {
             SDL_free(SDL_joyname[i]);
         }
-        SDL_joyname[0] = NULL;
+        numjoysticks = 0;
     }
 
     static SDL_JoystickGUID HAIKU_JoystickGetDeviceGUID(int device_index)
