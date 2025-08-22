@@ -120,10 +120,11 @@ static void FreeElementList(recElement *pElement)
     }
 }
 
-static recDevice *FreeDevice(recDevice *removeDevice)
+static void FreeDevice(recDevice *removeDevice)
 {
     recDevice *pDeviceNext = NULL;
-    if (removeDevice) {
+    SDL_assert(removeDevice != NULL);
+    {
         if (removeDevice->deviceRef) {
             if (removeDevice->runLoopAttached) {
                 /* Calling IOHIDDeviceUnscheduleFromRunLoop without a prior,
@@ -147,12 +148,12 @@ static recDevice *FreeDevice(recDevice *removeDevice)
         }
         SDL_UnlockJoysticks();
 
-        /* save next device prior to disposing of this device */
+        /* unlink the device */
         pDeviceNext = removeDevice->pNext;
 
         if (gpDeviceList == removeDevice) {
             gpDeviceList = pDeviceNext;
-        } else if (gpDeviceList) {
+        } else {
             recDevice *device;
 
             for (device = gpDeviceList; device; device = device->pNext) {
@@ -162,7 +163,6 @@ static recDevice *FreeDevice(recDevice *removeDevice)
                 }
             }
         }
-        removeDevice->pNext = NULL;
 
         /* free element lists */
         FreeElementList(removeDevice->firstAxis);
@@ -171,7 +171,6 @@ static recDevice *FreeDevice(recDevice *removeDevice)
 
         SDL_free(removeDevice);
     }
-    return pDeviceNext;
 }
 
 static SDL_bool GetHIDElementState(recDevice *pDevice, recElement *pElement, SInt32 *pValue)
@@ -706,11 +705,11 @@ static void DARWIN_JoystickDetect(void)
 {
     recDevice *device = gpDeviceList;
     while (device) {
+        recDevice *next = device->pNext;
         if (device->removed) {
-            device = FreeDevice(device);
-        } else {
-            device = device->pNext;
+            FreeDevice(device);
         }
+        device = next;
     }
 
     if (hidman) {
@@ -1000,8 +999,8 @@ static void DARWIN_JoystickClose(SDL_Joystick *joystick)
 
 static void DARWIN_JoystickQuit(void)
 {
-    while (FreeDevice(gpDeviceList)) {
-        /* spin */
+    while (gpDeviceList) {
+        FreeDevice(gpDeviceList);
     }
 
     if (hidman) {
