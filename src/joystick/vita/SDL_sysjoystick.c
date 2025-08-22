@@ -40,10 +40,11 @@
 #include "SDL_timer.h"
 
 /* Current pad state */
-static SceCtrlData pad0 = { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 };
-static SceCtrlData pad1 = { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 };
-static SceCtrlData pad2 = { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 };
-static SceCtrlData pad3 = { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 };
+static SceCtrlData pads[4] = {
+    { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 }, 
+    { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 },
+    { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 },
+    { .lx = 0, .ly = 0, .rx = 0, .ry = 0, .lt = 0, .rt = 0, .buttons = 0 } };
 
 static int ext_port_map[4] = { 1, 2, 3, 4 }; // index: SDL joy number, entry: Vita port number. For external controllers
 
@@ -234,21 +235,13 @@ static void VITA_JoystickUpdate(SDL_Joystick *joystick)
     static unsigned char old_ry[] = { 0, 0, 0, 0 };
     static unsigned char old_lt[] = { 0, 0, 0, 0 };
     static unsigned char old_rt[] = { 0, 0, 0, 0 };
-    SceCtrlData *pad = NULL;
 
     int index = (int)SDL_JoystickInstanceID(joystick);
+    SceCtrlData *pad = &pads[index];
 
-    if (index == 0)
-        pad = &pad0;
-    else if (index == 1)
-        pad = &pad1;
-    else if (index == 2)
-        pad = &pad2;
-    else if (index == 3)
-        pad = &pad3;
-    else
+    if (index >= 4) {
         return;
-
+    }
     if (index == 0) {
         if (sceCtrlPeekBufferPositive2(ext_port_map[index], pad, 1) < 0) {
             // on vita fallback to port 0
