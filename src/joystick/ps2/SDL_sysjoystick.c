@@ -56,7 +56,7 @@ struct JoyInfo
     int8_t opened;
 } __attribute__((aligned(64)));
 
-static uint8_t enabled_pads = 0;
+static int enabled_pads = 0;
 static struct JoyInfo joyInfo[MAX_CONTROLLERS];
 
 static inline int16_t convert_u8_to_s16(uint8_t val)
@@ -67,7 +67,7 @@ static inline int16_t convert_u8_to_s16(uint8_t val)
     return val * 0x0101 - 0x8000;
 }
 
-static inline uint8_t rumble_status(uint8_t index)
+static inline uint8_t rumble_status(int index)
 {
     char actAlign[6];
     int res;
@@ -135,7 +135,7 @@ static int PS2_JoystickInit(void)
 /* Function to return the number of joystick devices plugged in right now */
 static int PS2_JoystickGetCount(void)
 {
-    return (int)enabled_pads;
+    return enabled_pads;
 }
 
 /* Function to cause any queued joystick insertions to be processed */
