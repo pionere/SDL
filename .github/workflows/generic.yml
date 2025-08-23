@@ -107,6 +107,18 @@ jobs:
         uses: ./.github/actions/setup-vita-gles
         with:
           type: ${{ matrix.platform.setup-vita-gles-type }}
+      - name: 'Set up Ps4 SDK' # Must be after apk
+        if: ${{ matrix.platform.setup-ps4-sdk-path != '' }}
+        shell: bash
+        run: |
+            sudo tee -a /etc/pacman.conf > /dev/null <<TEXT
+            [pacbrew]
+            SigLevel = Optional TrustAll
+            Server = https://pacman.mydedibox.fr/pacbrew/packages/
+            TEXT
+            sudo pacman --noconfirm -Sy
+            sudo pacman --noconfirm -S ps4-openorbis ps4-openorbis-portlibs
+            echo "#include <endian.h>" | sudo tee /opt/pacbrew/ps4/openorbis/include/sys/endian.h
       - name: 'Set up Ps5 SDK' # Must be after apk
         if: ${{ matrix.platform.setup-ps5-sdk-path != '' }}
         shell: bash

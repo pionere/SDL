@@ -47,6 +47,7 @@ class SdlPlatform(Enum):
     PowerPC = "powerpc"
     PowerPC64 = "powerpc64"
     Ps2 = "ps2"
+    Ps4 = "ps4"
     Ps5 = "ps5"
     Psp = "psp"
     Vita = "vita"
@@ -135,6 +136,7 @@ JOB_SPECS = {
     "ppc": JobSpec(name="PowerPC",                                          os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC,     artifact="SDL-ppc",                container="dockcross/linux-ppc:latest", ),
     "ppc64": JobSpec(name="PowerPC64",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC64,   artifact="SDL-ppc64le",            container="dockcross/linux-ppc64le:latest", ),
     "ps2": JobSpec(name="Sony PlayStation 2",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Ps2,         artifact="SDL-ps2",                container="ps2dev/ps2dev:latest", ),
+    "ps4": JobSpec(name="Sony PlayStation 4",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Ps4,         artifact="SDL-ps4", ),
     "ps5": JobSpec(name="Sony PlayStation 5",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Ps5,         artifact="SDL-ps5", ),
     "psp": JobSpec(name="Sony PlayStation Portable",                        os=JobOs.UbuntuLatest,  platform=SdlPlatform.Psp,         artifact="SDL-psp",                container="pspdev/pspdev:latest", ),
     "vita-pib": JobSpec(name="Sony PlayStation Vita (GLES w/ pib)",         os=JobOs.UbuntuLatest,  platform=SdlPlatform.Vita,        artifact="SDL-vita-pib",           container="vitasdk/vitasdk:latest", vita_gles=VitaGLES.Pib,  ),
@@ -231,6 +233,7 @@ class JobDetails:
     watcom_makefile: str = ""
     setup_gage_sdk_path: str = ""
     setup_nxdk_sdk_path: str = ""
+    setup_ps4_sdk_path: str = ""
     setup_ps5_sdk_path: str = ""
 
     def to_workflow(self, enable_artifacts: bool) -> dict[str, str|bool]:
@@ -298,6 +301,7 @@ class JobDetails:
             "watcom-makefile": self.watcom_makefile,
             "setup-ngage-sdk-path": self.setup_gage_sdk_path,
             "setup-nxdk-sdk-path": self.setup_nxdk_sdk_path,
+            "setup-ps4-sdk-path": self.setup_ps4_sdk_path,
             "setup-ps5-sdk-path": self.setup_ps5_sdk_path,
         }
         return {k: v for k, v in data.items() if v != ""}
@@ -557,6 +561,15 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.shared = False
             job.cc = "mips64r5900el-ps2-elf-gcc"
             job.ldflags = ["-L${PS2DEV}/ps2sdk/ee/lib", "-L${PS2DEV}/gsKit/lib", "-L${PS2DEV}/ps2sdk/ports/lib", ]
+            job.static_lib = StaticLibType.A
+        case SdlPlatform.Ps4:
+            build_parallel = False
+            job.apt_packages = ["cmake", "pacman-package-manager", "wget", "git", ]
+            job.apk_packages = []
+            job.setup_ps4_sdk_path = "/opt/pacbrew"
+            job.cmake_toolchain_file = "/opt/pacbrew/ps4/openorbis/cmake/ps4.cmake"
+            job.run_tests = False
+            job.shared = False
             job.static_lib = StaticLibType.A
         case SdlPlatform.Ps5:
             build_parallel = False
