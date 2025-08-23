@@ -23,7 +23,7 @@
 #ifndef __SDL_PS4OPENGLES_H__
 #define __SDL_PS4OPENGLES_H__
 
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_OPENGL_EGL
 
 #include "../SDL_sysvideo.h"
 #include "../SDL_egl_c.h"
@@ -41,7 +41,7 @@ extern int PS4_GLES_MakeCurrent(_THIS, SDL_Window *window, SDL_GLContext context
 extern void PS4_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor);
 extern void *PS4_GLES_GetProcAddress(_THIS, const char *proc);
 
-#endif /* SDL_VIDEO_DRIVER_PS4 */
+#endif /* SDL_VIDEO_OPENGL_EGL */
 #endif /* __SDL_PS4OPENGLES_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */

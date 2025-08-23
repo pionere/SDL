@@ -21,7 +21,7 @@
 
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_OPENGL_EGL
 
 #include <orbis/libkernel.h>
 #include "SDL_video.h"
@@ -64,6 +64,6 @@ SDL_EGL_MakeCurrent_impl(PS4)
 
 SDL_EGL_SwapWindow_impl(PS4)
 
-#endif /* SDL_VIDEO_DRIVER_PS4 */
+#endif /* SDL_VIDEO_OPENGL_EGL */
 
 /* vi: set ts=4 sw=4 expandtab: */

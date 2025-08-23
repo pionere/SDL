@@ -18,21 +18,20 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#include "../../SDL_internal.h"
 
 #ifndef __SDL_PS4VIDEO_H__
 #define __SDL_PS4VIDEO_H__
 
-#if SDL_VIDEO_DRIVER_PS4
-
-#include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
-
+#ifdef SDL_VIDEO_OPENGL_EGL
 #include "SDL_egl.h"
 
 typedef struct SDL_WindowData
 {
     EGLSurface egl_surface;
 } SDL_WindowData;
+#endif
 
 int PS4_VideoInit(_THIS);
 void PS4_VideoQuit(_THIS);
@@ -54,7 +53,6 @@ void PS4_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed);
 void PS4_DestroyWindow(_THIS, SDL_Window *window);
 void PS4_PumpEvents(_THIS);
 
-#endif /* SDL_VIDEO_DRIVER_PS4 */
 #endif /* __SDL_PS4VIDEO_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */

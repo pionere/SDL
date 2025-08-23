@@ -21,7 +21,7 @@
 
 #include "../../SDL_internal.h"
 
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_DRIVER_PS4
 
 #include <stdbool.h>
 #include <orbis/libkernel.h>
@@ -44,7 +44,9 @@
 
 /* Only one window supported */
 static SDL_Window *ps4_window = NULL;
+#ifdef SDL_VIDEO_OPENGL_EGL
 static OrbisPglWindow ps4_egl_window;
+#endif
 static bool ps4_init_done = false;
 char log_buffer[1024];
 
@@ -105,9 +107,9 @@ PS4_LoadModules() {
 static void
 PS4_Destroy(SDL_VideoDevice *device) {
     SDL_Log("PS4_Destroy\n");
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     PS4_PigletExit();
-
+#endif
     if (device != NULL) {
         if (device->driverdata != NULL) {
             SDL_free(device->driverdata);
@@ -137,12 +139,12 @@ PS4_CreateDevice(int devindex) {
     if (PS4_LoadModules() != 0) {
         return NULL;
     }
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     // load piglet
     if (PS4_PigletInit() != 0) {
         return NULL;
     }
-
+#endif
     /* Setup amount of available displays */
     device->num_displays = 0;
 
@@ -167,7 +169,7 @@ PS4_CreateDevice(int devindex) {
     device->MinimizeWindow = PS4_MinimizeWindow;
     device->RestoreWindow = PS4_RestoreWindow;
     device->DestroyWindow = PS4_DestroyWindow;
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = PS4_GLES_LoadLibrary;
     device->GL_GetProcAddress = PS4_GLES_GetProcAddress;
     device->GL_UnloadLibrary = PS4_GLES_UnloadLibrary;
@@ -178,7 +180,7 @@ PS4_CreateDevice(int devindex) {
     device->GL_SwapWindow = PS4_GLES_SwapWindow;
     device->GL_DeleteContext = PS4_GLES_DeleteContext;
     device->GL_DefaultProfileConfig = PS4_GLES_DefaultProfileConfig;
-
+#endif
     device->PumpEvents = PS4_PumpEvents;
 
     return device;
@@ -262,7 +264,7 @@ PS4_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
 int
 PS4_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
     SDL_Log("PS4_SetDisplayMode\n");
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *data = (SDL_WindowData *) SDL_GetFocusWindow()->driverdata;
     SDL_GLContext ctx = SDL_GL_GetCurrentContext();
 
@@ -276,20 +278,20 @@ PS4_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
         data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
         SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
     }
-
+#endif
     return 0;
 }
 
 int
 PS4_CreateWindow(_THIS, SDL_Window *window) {
     SDL_Log("PS4_CreateWindow\n");
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *window_data = NULL;
-
+#endif
     if (ps4_window != NULL) {
         return SDL_SetError("ps4 only supports one window");
     }
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     if (!_this->egl_data) {
         return SDL_SetError("egl not initialized");
     }
@@ -309,6 +311,7 @@ PS4_CreateWindow(_THIS, SDL_Window *window) {
 
     /* Setup driver data for this window */
     window->driverdata = window_data;
+#endif
     ps4_window = window;
 
     /* One window, it always has focus */
@@ -323,9 +326,9 @@ void
 PS4_DestroyWindow(_THIS, SDL_Window *window) {
     SDL_Log("PS4_DestroyWindow\n");
 
-    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-
     if (window == ps4_window) {
+#ifdef SDL_VIDEO_OPENGL_EGL
+        SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
         if (data != NULL) {
             if (data->egl_surface != EGL_NO_SURFACE) {
                 SDL_EGL_MakeCurrent(_this, NULL, NULL);
@@ -336,6 +339,7 @@ PS4_DestroyWindow(_THIS, SDL_Window *window) {
                 window->driverdata = NULL;
             }
         }
+#endif
         ps4_window = NULL;
     }
 }
@@ -360,7 +364,7 @@ PS4_SetWindowPosition(_THIS, SDL_Window *window) {
 void
 PS4_SetWindowSize(_THIS, SDL_Window *window) {
     SDL_Log("PS4_SetWindowSize\n");
-
+#ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
     SDL_GLContext ctx = SDL_GL_GetCurrentContext();
 
@@ -374,6 +378,7 @@ PS4_SetWindowSize(_THIS, SDL_Window *window) {
         data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
         SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
     }
+#endif
 }
 
 void

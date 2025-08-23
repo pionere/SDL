@@ -3,6 +3,9 @@
 //
 
 #include "../../SDL_internal.h"
+
+#ifdef SDL_VIDEO_OPENGL_EGL
+
 #include "../../render/opengles2/SDL_shaders_gles2.h"
 
 #include "SDL_ps4opengles_shaders.h"
@@ -64,3 +67,5 @@ const Uint8 *PS4GLES2_GetShaderBinary(GLES2_ShaderType type, int *size) {
             return NULL;
     }
 }
+
+#endif // SDL_VIDEO_OPENGL_EGL

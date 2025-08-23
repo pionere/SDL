@@ -28,7 +28,7 @@
 #include "../SDL_sysrender.h"
 #include "../../video/SDL_blit.h"
 #include "SDL_shaders_gles2.h"
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_DRIVER_PS4
 #include "../../video/ps4/SDL_ps4piglet.h"
 #include "../../video/ps4/SDL_ps4opengles_shaders.h"
 #endif
@@ -265,7 +265,7 @@ static int GLES2_LoadFunctions(GLES2_RenderData *data)
 #define __SDL_NOGETPROCADDR__
 #elif defined(SDL_VIDEO_DRIVER_PANDORA)
 #define __SDL_NOGETPROCADDR__
-#elif SDL_VIDEO_DRIVER_PS4
+#elif defined(SDL_VIDEO_DRIVER_PS4)
 #define __SDL_NOGETPROCADDR__
 #endif
 
@@ -521,7 +521,7 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
     GLuint id = 0;
     GLint compileSuccessful = GL_FALSE;
     int attempt, num_src;
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_DRIVER_PS4
     int binary_size;
     const Uint8 *shader_src;
     if(PS4_PigletShaccAvailable()) {
@@ -1253,7 +1253,7 @@ static int GLES2_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
     vboidx = data->current_vertex_buffer;
     vbo = data->vertex_buffers[vboidx];
     data->glBindBuffer(GL_ARRAY_BUFFER, vbo);
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_DRIVER_PS4
     if(vertsize) {
 #endif
     if (data->vertex_buffer_size[vboidx] < vertsize) {
@@ -1262,7 +1262,7 @@ static int GLES2_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
     } else {
         data->glBufferSubData(GL_ARRAY_BUFFER, 0, vertsize, vertices);
     }
-#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_DRIVER_PS4
     }
 #endif
 

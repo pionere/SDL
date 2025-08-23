@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_JOYSTICK_PS4
+#ifdef SDL_JOYSTICK_PS4
 
 /* This is the PS4 implementation of the SDL joystick API */
 #include <orbis/Pad.h>

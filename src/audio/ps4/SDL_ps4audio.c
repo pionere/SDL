@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if SDL_AUDIO_DRIVER_PS4
+#ifdef SDL_AUDIO_DRIVER_PS4
 
 #include <stdio.h>
 #include <stdlib.h>

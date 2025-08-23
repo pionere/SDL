@@ -1,15 +1,15 @@
 //
 // Created by cpasjuste on 31/12/2021.
 //
+#include "../../SDL_internal.h"
 
-//#if SDL_VIDEO_DRIVER_PS4
+#ifdef SDL_VIDEO_OPENGL_EGL
 
 #include <stdbool.h>
 #include <sys/mman.h>
 #include <orbis/libkernel.h>
 #include <orbis/Pigletv2VSH.h>
 
-#include "../../SDL_internal.h"
 #include "SDL_hints.h"
 #include "SDL_error.h"
 #include "SDL_ps4piglet.h"
@@ -210,4 +210,4 @@ bool PS4_PigletShaccAvailable() {
     return shaccModId > 0;
 }
 
-//#endif // SDL_VIDEO_DRIVER_PS4
+#endif // SDL_VIDEO_OPENGL_EGL
