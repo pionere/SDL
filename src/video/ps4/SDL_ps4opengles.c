@@ -32,6 +32,20 @@
 
 extern uint32_t PS4_PigletModId;
 
+void PS4_GLES_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = PS4_GLES_LoadLibrary;
+    _this->GL_GetProcAddress = PS4_GLES_GetProcAddress;
+    _this->GL_UnloadLibrary = PS4_GLES_UnloadLibrary;
+    _this->GL_CreateContext = PS4_GLES_CreateContext;
+    _this->GL_MakeCurrent = PS4_GLES_MakeCurrent;
+    _this->GL_GetDrawableSize = PS4_GLES_GetDrawableSize;
+    _this->GL_SetSwapInterval = PS4_GLES_SetSwapInterval;
+    _this->GL_GetSwapInterval = PS4_GLES_GetSwapInterval;
+    _this->GL_SwapWindow = PS4_GLES_SwapWindow;
+    _this->GL_DeleteContext = PS4_GLES_DeleteContext;
+}
+
 /*void PS4_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
 {
     *mask = SDL_GL_CONTEXT_PROFILE_ES;

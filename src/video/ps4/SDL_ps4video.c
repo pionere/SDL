@@ -197,16 +197,7 @@ PS4_CreateDevice(SDL_VideoDevice *device) {
 
     /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = PS4_GLES_LoadLibrary;
-    device->GL_GetProcAddress = PS4_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = PS4_GLES_UnloadLibrary;
-    device->GL_CreateContext = PS4_GLES_CreateContext;
-    device->GL_MakeCurrent = PS4_GLES_MakeCurrent;
-    device->GL_GetDrawableSize = PS4_GLES_GetDrawableSize;
-    device->GL_SetSwapInterval = PS4_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = PS4_GLES_GetSwapInterval;
-    device->GL_SwapWindow = PS4_GLES_SwapWindow;
-    device->GL_DeleteContext = PS4_GLES_DeleteContext;
+    PS4_GLES_InitDevice(device);
 #endif
     device->PumpEvents = PS4_PumpEvents;
 

@@ -41,6 +41,8 @@ extern int PS4_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern int PS4_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 extern void *PS4_GLES_GetProcAddress(const char *proc);
 
+extern void PS4_GLES_InitDevice(_THIS);
+
 #endif /* SDL_VIDEO_OPENGL_EGL */
 #endif /* __SDL_PS4OPENGLES_H__ */
 
