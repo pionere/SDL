@@ -251,7 +251,6 @@ PS4_VideoInit(_THIS) {
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
 
-    SDL_zero(current_mode);
     current_mode.w = 1920;
     current_mode.h = 1080;
     current_mode.refresh_rate = 60;
@@ -261,7 +260,7 @@ PS4_VideoInit(_THIS) {
     SDL_zero(display);
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
-    display.driverdata = NULL;
+    // display.driverdata = NULL;
 
     SDL_AddDisplayMode(&display, &current_mode);
     PS4_GetDisplayModes(&display);
@@ -302,14 +301,14 @@ PS4_GetDisplayModes(SDL_VideoDisplay *display) {
     SDL_DisplayMode mode;
 
     // 1920x1080 RGBA8888, default mode
-    SDL_AddDisplayMode(display, &display->current_mode);
+    // SDL_AddDisplayMode(display, &display->current_mode);
 
     // 1280x720 RGBA8888
-    SDL_zero(mode);
     mode.w = 1280;
     mode.h = 720;
     mode.refresh_rate = 60;
     mode.format = SDL_PIXELFORMAT_RGBA8888;
+    mode.driverdata = NULL;
     SDL_AddDisplayMode(display, &mode);
 }
 
