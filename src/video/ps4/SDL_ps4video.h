@@ -35,23 +35,22 @@ typedef struct SDL_WindowData
 
 int PS4_VideoInit(_THIS);
 void PS4_VideoQuit(_THIS);
-void PS4_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-int PS4_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-int PS4_CreateWindow(_THIS, SDL_Window *window);
-int PS4_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
-void PS4_SetWindowTitle(_THIS, SDL_Window *window);
-void PS4_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon);
-void PS4_SetWindowPosition(_THIS, SDL_Window *window);
-void PS4_SetWindowSize(_THIS, SDL_Window *window);
-void PS4_ShowWindow(_THIS, SDL_Window *window);
-void PS4_HideWindow(_THIS, SDL_Window *window);
-void PS4_RaiseWindow(_THIS, SDL_Window *window);
-void PS4_MaximizeWindow(_THIS, SDL_Window *window);
-void PS4_MinimizeWindow(_THIS, SDL_Window *window);
-void PS4_RestoreWindow(_THIS, SDL_Window *window);
+void PS4_GetDisplayModes(SDL_VideoDisplay *display);
+int PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+int PS4_CreateSDLWindow(_THIS, SDL_Window *window);
+void PS4_SetWindowTitle(SDL_Window *window);
+void PS4_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+void PS4_SetWindowPosition(SDL_Window *window);
+void PS4_SetWindowSize(SDL_Window *window);
+void PS4_ShowWindow(SDL_Window *window);
+void PS4_HideWindow(SDL_Window *window);
+void PS4_RaiseWindow(SDL_Window *window);
+void PS4_MaximizeWindow(SDL_Window *window);
+void PS4_MinimizeWindow(SDL_Window *window);
+void PS4_RestoreWindow(SDL_Window *window);
 void PS4_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed);
-void PS4_DestroyWindow(_THIS, SDL_Window *window);
-void PS4_PumpEvents(_THIS);
+void PS4_DestroyWindow(SDL_Window *window);
+void PS4_PumpEvents();
 
 #endif /* __SDL_PS4VIDEO_H__ */
 

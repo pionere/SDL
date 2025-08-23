@@ -32,12 +32,12 @@
 
 extern uint32_t PS4_PigletModId;
 
-void
-PS4_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor) {
+/*void PS4_GLES_DefaultProfileConfig(int *mask, int *major, int *minor)
+{
     *mask = SDL_GL_CONTEXT_PROFILE_ES;
     *major = 2;
     *minor = 0;
-}
+}*/
 
 int
 PS4_GLES_LoadLibrary(_THIS, const char *path) {
@@ -45,7 +45,7 @@ PS4_GLES_LoadLibrary(_THIS, const char *path) {
 }
 
 void *
-PS4_GLES_GetProcAddress(_THIS, const char *proc) {
+PS4_GLES_GetProcAddress(const char *proc) {
     void *ptr;
     int res;
 

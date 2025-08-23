@@ -208,7 +208,7 @@ extern const AudioBootStrap ANDROIDAUDIO_bootstrap;
 extern const AudioBootStrap PS2AUDIO_bootstrap;
 extern const AudioBootStrap PSPAUDIO_bootstrap;
 extern const AudioBootStrap VITAAUD_bootstrap;
-extern AudioBootStrap PS4AUD_bootstrap;
+extern const AudioBootStrap PS4AUD_bootstrap;
 extern const AudioBootStrap PS5AUDIO_bootstrap;
 extern const AudioBootStrap N3DSAUDIO_bootstrap;
 extern const AudioBootStrap NGAGEAUDIO_bootstrap;

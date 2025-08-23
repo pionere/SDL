@@ -82,6 +82,7 @@ static const VideoBootStrap *const bootstrap[] = {
     UIKit_BOOTSTRAP_ENTRY
     Android_BOOTSTRAP_ENTRY
     PS2_BOOTSTRAP_ENTRY
+    PS4_BOOTSTRAP_ENTRY
     PS5_BOOTSTRAP_ENTRY
     PSP_BOOTSTRAP_ENTRY
     VITA_BOOTSTRAP_ENTRY
@@ -115,6 +116,7 @@ static msgBoxFunc *const messagebox[] = {
     UIKit_MSGBOX_ENTRY
     Android_MSGBOX_ENTRY
     PS2_MSGBOX_ENTRY
+    PS4_MSGBOX_ENTRY
     PS5_MSGBOX_ENTRY
     PSP_MSGBOX_ENTRY
     VITA_MSGBOX_ENTRY
@@ -172,7 +174,7 @@ extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window * window, SDL_bool sta
 
 static Uint32 SDL_DefaultGraphicsBackends(void)
 {
-#if (defined(SDL_VIDEO_OPENGL) && defined(__MACOSX__)) || (defined(__IPHONEOS__) && !TARGET_OS_MACCATALYST) || defined(__ANDROID__) || defined(__NACL__) || defined(__HAIKU__) || defined(__EMSCRIPTEN__) || defined(__PSP__)
+#if (defined(SDL_VIDEO_OPENGL) && defined(__MACOSX__)) || (defined(__IPHONEOS__) && !TARGET_OS_MACCATALYST) || defined(__ANDROID__) || defined(__NACL__) || defined(__HAIKU__) || defined(__EMSCRIPTEN__) || defined(__PSP__) || defined(__PS4__)
     if (current_video.GL_CreateContext) {
         return SDL_WINDOW_OPENGL;
     }

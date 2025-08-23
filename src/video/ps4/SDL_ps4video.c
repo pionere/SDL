@@ -42,6 +42,16 @@
 #include "SDL_ps4opengles.h"
 #include "SDL_ps4piglet.h"
 
+#ifdef SDL_VIDEO_VULKAN
+#error "Vulkan is configured, but not implemented for PS4."
+#endif
+#ifdef SDL_VIDEO_METAL
+#error "Metal is configured, but not implemented for PS4."
+#endif
+#if defined(SDL_VIDEO_OPENGL_ANY) && !defined(SDL_VIDEO_OPENGL_EGL)
+#error "OpenGL is configured, but not the implemented (OSMESA) for PS5."
+#endif
+
 /* Only one window supported */
 static SDL_Window *ps4_window = NULL;
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -105,90 +115,138 @@ PS4_LoadModules() {
 }
 
 static void
-PS4_Destroy(SDL_VideoDevice *device) {
+PS4_DeleteDevice(SDL_VideoDevice *device) {
     SDL_Log("PS4_Destroy\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     PS4_PigletExit();
 #endif
-    if (device != NULL) {
-        if (device->driverdata != NULL) {
-            SDL_free(device->driverdata);
-        }
-        SDL_free(device);
-    }
     SDL_Log("PS4_Destroy done\n");
 }
 
-static SDL_VideoDevice *
-PS4_CreateDevice(int devindex) {
+static SDL_bool
+PS4_CreateDevice(SDL_VideoDevice *device) {
     SDL_Log("PS4_CreateDevice\n");
-
-    SDL_VideoDevice *device;
-
     // log to kernel
     SDL_LogSetOutputFunction((SDL_LogOutputFunction) &PS4_logCb, NULL);
 
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device == NULL) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
     // initialize modules if not already done
     if (PS4_LoadModules() != 0) {
-        return NULL;
+        return SDL_FALSE;
     }
 #ifdef SDL_VIDEO_OPENGL_EGL
     // load piglet
     if (PS4_PigletInit() != 0) {
-        return NULL;
+        return SDL_FALSE;
     }
 #endif
     /* Setup amount of available displays */
     device->num_displays = 0;
 
-    /* Set device free function */
-    device->free = PS4_Destroy;
-
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = PS4_VideoInit;
     device->VideoQuit = PS4_VideoQuit;
-    device->GetDisplayModes = PS4_GetDisplayModes;
+    // device->GetDisplayBounds = PS4_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = PS4_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = PS4_GetDisplayDPI;
     device->SetDisplayMode = PS4_SetDisplayMode;
-    device->CreateSDLWindow = PS4_CreateWindow;
-    device->CreateSDLWindowFrom = PS4_CreateWindowFrom;
+
+    /* Window functions */
+    device->CreateSDLWindow = PS4_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = PS4_CreateSDLWindowFrom;
     device->SetWindowTitle = PS4_SetWindowTitle;
     device->SetWindowIcon = PS4_SetWindowIcon;
     device->SetWindowPosition = PS4_SetWindowPosition;
     device->SetWindowSize = PS4_SetWindowSize;
+    // device->SetWindowMinimumSize = PS4_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = PS4_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = PS4_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = PS4_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = PS4_SetWindowOpacity;
+    // device->SetWindowModalFor = PS4_SetWindowModalFor;
+    // device->SetWindowInputFocus = PS4_SetWindowInputFocus;
     device->ShowWindow = PS4_ShowWindow;
     device->HideWindow = PS4_HideWindow;
     device->RaiseWindow = PS4_RaiseWindow;
     device->MaximizeWindow = PS4_MaximizeWindow;
     device->MinimizeWindow = PS4_MinimizeWindow;
     device->RestoreWindow = PS4_RestoreWindow;
+    // device->SetWindowBordered = PS4_SetWindowBordered;
+    // device->SetWindowResizable = PS4_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = PS4_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = PS4_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = PS4_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = PS4_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = PS4_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = PS4_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = PS4_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = PS4_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = PS4_SetWindowKeyboardGrab;
     device->DestroyWindow = PS4_DestroyWindow;
+    // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
+    // device->CreateWindowFramebuffer = PS4_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = PS4_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = PS4_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = PS4_OnWindowEnter;
+    // device->FlashWindow = PS4_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = PS4_CreateShaper;
+    // device->SetWindowShape = PS4_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = PS4_GetWindowWMInfo;
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = PS4_GLES_LoadLibrary;
     device->GL_GetProcAddress = PS4_GLES_GetProcAddress;
     device->GL_UnloadLibrary = PS4_GLES_UnloadLibrary;
     device->GL_CreateContext = PS4_GLES_CreateContext;
     device->GL_MakeCurrent = PS4_GLES_MakeCurrent;
+    device->GL_GetDrawableSize = PS4_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = PS4_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = PS4_GLES_GetSwapInterval;
     device->GL_SwapWindow = PS4_GLES_SwapWindow;
     device->GL_DeleteContext = PS4_GLES_DeleteContext;
-    device->GL_DefaultProfileConfig = PS4_GLES_DefaultProfileConfig;
 #endif
     device->PumpEvents = PS4_PumpEvents;
 
-    return device;
+    /* Screensaver */
+    // device->SuspendScreenSaver = PS4_SuspendScreenSaver;
+
+    /* Text input */
+    // device->StartTextInput = PS4_StartTextInput;
+    // device->StopTextInput = PS4_StopTextInput;
+    // device->SetTextInputRect = PS4_SetTextInputRect;
+    // device->ClearComposition = PS4_ClearComposition;
+    // device->IsTextInputShown = PS4_IsTextInputShown;
+
+    /* Screen keyboard */
+    // device->HasScreenKeyboardSupport = PS4_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = PS4_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = PS4_HideScreenKeyboard;
+    // device->IsScreenKeyboardShown = PS4_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = PS4_SetClipboardText;
+    // device->GetClipboardText = PS4_GetClipboardText;
+    // device->HasClipboardText = PS4_HasClipboardText;
+    // device->SetPrimarySelectionText = PS4_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = PS4_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = PS4_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = PS4_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = PS4_AcceptDragAndDrop;
+
+    device->DeleteDevice = PS4_DeleteDevice;
+
+    return SDL_TRUE;
 }
 
-VideoBootStrap PS4_bootstrap = {
+const VideoBootStrap PS4_bootstrap = {
         "PS4",
-        "Sony PS4 Video Driver",
         PS4_CreateDevice
 };
 
@@ -213,6 +271,9 @@ PS4_VideoInit(_THIS) {
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
     display.driverdata = NULL;
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    PS4_GetDisplayModes(&display);
     SDL_AddVideoDisplay(&display, SDL_FALSE);
 
     // TODO
@@ -244,7 +305,7 @@ PS4_VideoQuit(_THIS) {
 }
 
 void
-PS4_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
+PS4_GetDisplayModes(SDL_VideoDisplay *display) {
     SDL_Log("PS4_GetDisplayModes\n");
 
     SDL_DisplayMode mode;
@@ -261,29 +322,41 @@ PS4_GetDisplayModes(_THIS, SDL_VideoDisplay *display) {
     SDL_AddDisplayMode(display, &mode);
 }
 
+#ifdef SDL_VIDEO_OPENGL_EGL
+void PS4_setEglSurfaceSize(int w, int h)
+{
+    if (ps4_window != NULL) {
+        SDL_WindowData *data = (SDL_WindowData *) ps4_window->driverdata;
+        SDL_assert(data != NULL);
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_VideoDevice *_this;
+            SDL_GLContext ctx = SDL_GL_GetCurrentContext();
+            SDL_EGL_MakeCurrent(NULL, NULL);
+            SDL_EGL_DestroySurface(data->egl_surface);
+
+            ps4_egl_window.uWidth = w;
+            ps4_egl_window.uHeight = h;
+
+            _this = SDL_GetVideoDevice();
+            data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
+            SDL_EGL_MakeCurrent(data->egl_surface, ctx);
+        }
+    }
+}
+#endif
+
 int
-PS4_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode) {
+PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+{
     SDL_Log("PS4_SetDisplayMode\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
-    SDL_WindowData *data = (SDL_WindowData *) SDL_GetFocusWindow()->driverdata;
-    SDL_GLContext ctx = SDL_GL_GetCurrentContext();
-
-    if (data != NULL && data->egl_surface != EGL_NO_SURFACE) {
-        SDL_EGL_MakeCurrent(_this, NULL, NULL);
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
-
-        ps4_egl_window.uWidth = mode->w;
-        ps4_egl_window.uHeight = mode->h;
-
-        data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
-        SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
-    }
+    PS4_setEglSurfaceSize(mode->w, mode->h);
 #endif
     return 0;
 }
 
 int
-PS4_CreateWindow(_THIS, SDL_Window *window) {
+PS4_CreateSDLWindow(_THIS, SDL_Window *window) {
     SDL_Log("PS4_CreateWindow\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *window_data = NULL;
@@ -292,17 +365,13 @@ PS4_CreateWindow(_THIS, SDL_Window *window) {
         return SDL_SetError("ps4 only supports one window");
     }
 #ifdef SDL_VIDEO_OPENGL_EGL
-    if (!_this->egl_data) {
-        return SDL_SetError("egl not initialized");
-    }
-
     window_data = (SDL_WindowData *) SDL_calloc(1, sizeof(SDL_WindowData));
     if (window_data == NULL) {
         return SDL_OutOfMemory();
     }
 
-    ps4_egl_window.uWidth = window->w;
-    ps4_egl_window.uHeight = window->h;
+    ps4_egl_window.uWidth = window->wrect.w;
+    ps4_egl_window.uHeight = window->wrect.h;
 
     window_data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
     if (window_data->egl_surface == EGL_NO_SURFACE) {
@@ -323,7 +392,7 @@ PS4_CreateWindow(_THIS, SDL_Window *window) {
 }
 
 void
-PS4_DestroyWindow(_THIS, SDL_Window *window) {
+PS4_DestroyWindow(SDL_Window *window) {
     SDL_Log("PS4_DestroyWindow\n");
 
     if (window == ps4_window) {
@@ -331,8 +400,8 @@ PS4_DestroyWindow(_THIS, SDL_Window *window) {
         SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
         if (data != NULL) {
             if (data->egl_surface != EGL_NO_SURFACE) {
-                SDL_EGL_MakeCurrent(_this, NULL, NULL);
-                SDL_EGL_DestroySurface(_this, data->egl_surface);
+                SDL_EGL_MakeCurrent(NULL, NULL);
+                SDL_EGL_DestroySurface(data->egl_surface);
             }
             if (window->driverdata != NULL) {
                 SDL_free(window->driverdata);
@@ -344,65 +413,49 @@ PS4_DestroyWindow(_THIS, SDL_Window *window) {
     }
 }
 
-int
-PS4_CreateWindowFrom(_THIS, SDL_Window *window, const void *data) {
-    return -1;
+void
+PS4_SetWindowTitle(SDL_Window *window) {
 }
 
 void
-PS4_SetWindowTitle(_THIS, SDL_Window *window) {
+PS4_SetWindowIcon(SDL_Window *window, SDL_Surface *icon) {
 }
 
 void
-PS4_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon) {
+PS4_SetWindowPosition(SDL_Window *window) {
 }
 
 void
-PS4_SetWindowPosition(_THIS, SDL_Window *window) {
-}
-
-void
-PS4_SetWindowSize(_THIS, SDL_Window *window) {
+PS4_SetWindowSize(SDL_Window *window) {
     SDL_Log("PS4_SetWindowSize\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
-    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-    SDL_GLContext ctx = SDL_GL_GetCurrentContext();
-
-    if (data != NULL && data->egl_surface != EGL_NO_SURFACE) {
-        SDL_EGL_MakeCurrent(_this, NULL, NULL);
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
-
-        ps4_egl_window.uWidth = window->w;
-        ps4_egl_window.uHeight = window->h;
-
-        data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
-        SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
-    }
+    SDL_assert(window == ps4_window);
+    PS4_setEglSurfaceSize(window->wrect.w, window->wrect.h);
 #endif
 }
 
 void
-PS4_ShowWindow(_THIS, SDL_Window *window) {
+PS4_ShowWindow(SDL_Window *window) {
 }
 
 void
-PS4_HideWindow(_THIS, SDL_Window *window) {
+PS4_HideWindow(SDL_Window *window) {
 }
 
 void
-PS4_RaiseWindow(_THIS, SDL_Window *window) {
+PS4_RaiseWindow(SDL_Window *window) {
 }
 
 void
-PS4_MaximizeWindow(_THIS, SDL_Window *window) {
+PS4_MaximizeWindow(SDL_Window *window) {
 }
 
 void
-PS4_MinimizeWindow(_THIS, SDL_Window *window) {
+PS4_MinimizeWindow(SDL_Window *window) {
 }
 
 void
-PS4_RestoreWindow(_THIS, SDL_Window *window) {
+PS4_RestoreWindow(SDL_Window *window) {
 }
 
 void
@@ -410,7 +463,7 @@ PS4_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed) {
 }
 
 void
-PS4_PumpEvents(_THIS) {
+PS4_PumpEvents() {
 
     // TODO
     /*

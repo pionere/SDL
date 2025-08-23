@@ -149,7 +149,7 @@ static void PS4AUD_CloseDevice(_THIS) {
 static void PS4AUD_ThreadInit(_THIS) {
 }
 
-static int
+static SDL_bool
 PS4AUD_Init(SDL_AudioDriverImpl *impl) {
 
     // initialize modules if not already done
@@ -165,21 +165,31 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
     }
 
     /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = PS4AUD_OpenDevice;
-    impl->PlayDevice = PS4AUD_PlayDevice;
+    impl->ThreadInit = PS4AUD_ThreadInit;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = PS4AUD_WaitDevice;
+    impl->PlayDevice = PS4AUD_PlayDevice;
     impl->GetDeviceBuf = PS4AUD_GetDeviceBuf;
     impl->CloseDevice = PS4AUD_CloseDevice;
-    impl->ThreadInit = PS4AUD_ThreadInit;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    impl->HasCaptureSupport = SDL_FALSE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceName = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
-    /* PS4 audio device */
-    impl->OnlyHasDefaultOutputDevice = 1;
-
-    return 1;   /* this audio target is available. */
+    return SDL_TRUE;
 }
 
-AudioBootStrap PS4AUD_bootstrap = {
-        "ps4", "PS4 audio driver", PS4AUD_Init, 0
+const AudioBootStrap PS4AUD_bootstrap = {
+        "ps4", PS4AUD_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_PS4 */
