@@ -521,33 +521,17 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
     GLuint id = 0;
     GLint compileSuccessful = GL_FALSE;
     int attempt, num_src;
+    const GLchar *shader_src_list[3];
+    const GLchar *shader_body;
 #ifdef SDL_VIDEO_DRIVER_PS4
     int binary_size;
-    const Uint8 *shader_src;
-    if(PS4_PigletShaccAvailable()) {
-        shader_src = GLES2_GetShader(type);
-    } else {
-        shader_src = PS4GLES2_GetShaderBinary(type, &binary_size);
+    if (!PS4_PigletShaccAvailable()) {
+        shader_body = PS4GLES2_GetShaderBinary(type, &binary_size);
     }
-
-    if (!shader_src) {
-        SDL_SetError("No shader src");
-        return 0;
+#endif
+    {
+        shader_body = GLES2_GetShader(type);
     }
-
-    /* Compile */
-    id = data->glCreateShader(shader_type);
-    if(PS4_PigletShaccAvailable()) {
-        data->glShaderSource(id, 1, (const char**)&shader_src, NULL);
-        data->glCompileShader(id);
-    } else {
-        glShaderBinary(1, &id, 0, (const void *) shader_src, binary_size);
-    }
-    data->glGetShaderiv(id, GL_COMPILE_STATUS, &compileSuccessful);
-#else
-    const GLchar *shader_src_list[3];
-    const GLchar *shader_body = GLES2_GetShader(type);
-
     if (!shader_body) {
         SDL_SetError("No shader body src");
         return 0;
@@ -587,11 +571,17 @@ static GLuint GLES2_CacheShader(GLES2_RenderData *data, GLES2_ShaderType type, G
 
         /* Compile */
         id = data->glCreateShader(shader_type);
+#ifdef SDL_VIDEO_DRIVER_PS4
+        if (!PS4_PigletShaccAvailable()) {
+            glShaderBinary(1, &id, 0, (const void *)shader_body, binary_size);
+        } else
+#endif
+        {
         data->glShaderSource(id, num_src, shader_src_list, NULL);
         data->glCompileShader(id);
+        }
         data->glGetShaderiv(id, GL_COMPILE_STATUS, &compileSuccessful);
     }
-#endif // SDL_VIDEO_DRIVER_PS4
 
     if (!compileSuccessful) {
         SDL_bool isstack = SDL_FALSE;

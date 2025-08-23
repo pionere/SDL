@@ -20,38 +20,38 @@
 #include "shaders/ps4_shader_fragment_texture_yuv_bt709.h"
 #include "shaders/ps4_shader_fragment_texture_nv12_jpeg.h"
 
-const Uint8 *PS4GLES2_GetShaderBinary(GLES2_ShaderType type, int *size) {
+const char *PS4GLES2_GetShaderBinary(GLES2_ShaderType type, int *size) {
     switch (type) {
         case GLES2_SHADER_VERTEX_DEFAULT:
             *size = PS4_SHADER_VERTEX_DEFAULT_LENGTH;
-            return (Uint8 *) PS4_SHADER_VERTEX_DEFAULT;
+            return PS4_SHADER_VERTEX_DEFAULT;
         case GLES2_SHADER_FRAGMENT_SOLID:
             *size = PS4_SHADER_FRAGMENT_SOLID_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_SOLID;
+            return PS4_SHADER_FRAGMENT_SOLID;
         case GLES2_SHADER_FRAGMENT_TEXTURE_ABGR:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_ABGR_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_ABGR;
+            return PS4_SHADER_FRAGMENT_TEXTURE_ABGR;
         case GLES2_SHADER_FRAGMENT_TEXTURE_ARGB:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_ARGB_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_ARGB;
+            return PS4_SHADER_FRAGMENT_TEXTURE_ARGB;
         case GLES2_SHADER_FRAGMENT_TEXTURE_RGB:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_RGB_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_RGB;
+            return PS4_SHADER_FRAGMENT_TEXTURE_RGB;
         case GLES2_SHADER_FRAGMENT_TEXTURE_BGR:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_BGR_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_BGR;
+            return PS4_SHADER_FRAGMENT_TEXTURE_BGR;
         case GLES2_SHADER_FRAGMENT_TEXTURE_YUV_JPEG:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_YUV_JPEG_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_YUV_JPEG;
+            return PS4_SHADER_FRAGMENT_TEXTURE_YUV_JPEG;
         case GLES2_SHADER_FRAGMENT_TEXTURE_YUV_BT601:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT601_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT601;
+            return PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT601;
         case GLES2_SHADER_FRAGMENT_TEXTURE_YUV_BT709:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT709_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT709;
+            return PS4_SHADER_FRAGMENT_TEXTURE_YUV_BT709;
         case GLES2_SHADER_FRAGMENT_TEXTURE_NV12_JPEG:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_NV12_JPEG_LENGTH;
-            return (Uint8 *) PS4_SHADER_FRAGMENT_TEXTURE_NV12_JPEG;
+            return PS4_SHADER_FRAGMENT_TEXTURE_NV12_JPEG;
             // TODO
             /*
             case GLES2_SHADER_FRAGMENT_TEXTURE_NV12_RA_BT601:

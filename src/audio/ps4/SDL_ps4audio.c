@@ -50,7 +50,7 @@ ps4_sample_size(Uint16 size) {
 static uint32_t ps4_sceAudioOutInited = -1;
 
 static int
-PS4AUD_OpenDevice(_THIS, void *handle, const char *devname, int iscapture) {
+PS4AUD_OpenDevice(_THIS, const char *devname) {
     SDL_bool supported_format = SDL_FALSE;
     SDL_AudioFormat test_format;
     size_t mix_len, i;

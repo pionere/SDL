@@ -186,6 +186,16 @@ const char *PS4_JoystickGetDeviceName(int index) {
     }
 }
 
+const char *PS4_JoystickGetDevicePath(int device_index)
+{
+    return NULL;
+}
+
+static int PS4_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
+{
+    return -1;
+}
+
 static int
 PS4_JoystickGetDevicePlayerIndex(int device_index) {
     return -1;
@@ -434,6 +444,8 @@ SDL_JoystickDriver SDL_PS4_JoystickDriver = {
         PS4_JoystickGetCount,
         PS4_JoystickDetect,
         PS4_JoystickGetDeviceName,
+        PS4_JoystickGetDevicePath,
+        PS4_JoystickGetDeviceSteamVirtualGamepadSlot,
         PS4_JoystickGetDevicePlayerIndex,
         PS4_JoystickSetDevicePlayerIndex,
         PS4_JoystickGetDeviceGUID,
