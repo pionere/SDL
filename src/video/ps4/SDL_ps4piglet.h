@@ -8,13 +8,11 @@
 
 #ifdef SDL_VIDEO_OPENGL_EGL
 
-#include <stdbool.h>
-
 int PS4_PigletInit();
 
 void PS4_PigletExit();
 
-bool PS4_PigletShaccAvailable();
+SDL_bool PS4_PigletShaccAvailable();
 
 #endif //SDL_VIDEO_OPENGL_EGL
 

@@ -209,9 +209,9 @@ void PS4_PigletExit()
     }
 }
 
-bool PS4_PigletShaccAvailable()
+SDL_bool PS4_PigletShaccAvailable()
 {
-    return shaccModId > 0;
+    return shaccModId > 0 ? SDL_TRUE : SDL_FALSE;
 }
 
 #endif // SDL_VIDEO_OPENGL_EGL
