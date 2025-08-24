@@ -65,7 +65,7 @@ PS4_GLES_GetProcAddress(const char *proc) {
 
     res = sceKernelDlsym((int) PS4_PigletModId, proc, (void **) &ptr);
     if (res != 0) {
-        SDL_Log("PS4_GLES_GetProcAddress: sceKernelDlsym failed: 0x%08x (%s == %p)\n", res, proc, ptr);
+        SDL_SetError("PS4_GLES_GetProcAddress: sceKernelDlsym failed: 0x%08x (%s == %p)\n", res, proc, ptr);
         return NULL;
     }
 

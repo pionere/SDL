@@ -116,16 +116,16 @@ PS4_LoadModules() {
 
 static void
 PS4_DeleteDevice(SDL_VideoDevice *device) {
-    SDL_Log("PS4_Destroy\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_Destroy\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     PS4_PigletExit();
 #endif
-    SDL_Log("PS4_Destroy done\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_Destroy done\n");
 }
 
 static SDL_bool
 PS4_CreateDevice(SDL_VideoDevice *device) {
-    SDL_Log("PS4_CreateDevice\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_CreateDevice\n");
     // log to kernel
     SDL_LogSetOutputFunction((SDL_LogOutputFunction) &PS4_logCb, NULL);
 
@@ -246,7 +246,7 @@ const VideoBootStrap PS4_bootstrap = {
 /*****************************************************************************/
 int
 PS4_VideoInit(_THIS) {
-    SDL_Log("PS4_VideoInit\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_VideoInit\n");
 
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
@@ -281,7 +281,7 @@ PS4_VideoInit(_THIS) {
 
 void
 PS4_VideoQuit(_THIS) {
-    SDL_Log("PS4_VideoQuit\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_VideoQuit\n");
 
     // TODO
     /*
@@ -296,7 +296,7 @@ PS4_VideoQuit(_THIS) {
 
 void
 PS4_GetDisplayModes(SDL_VideoDisplay *display) {
-    SDL_Log("PS4_GetDisplayModes\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_GetDisplayModes\n");
 
     SDL_DisplayMode mode;
 
@@ -338,7 +338,7 @@ void PS4_setEglSurfaceSize(int w, int h)
 int
 PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
-    SDL_Log("PS4_SetDisplayMode\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_SetDisplayMode\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     PS4_setEglSurfaceSize(mode->w, mode->h);
 #endif
@@ -347,7 +347,7 @@ PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 
 int
 PS4_CreateSDLWindow(_THIS, SDL_Window *window) {
-    SDL_Log("PS4_CreateWindow\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_CreateWindow\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *window_data = NULL;
 #endif
@@ -383,7 +383,7 @@ PS4_CreateSDLWindow(_THIS, SDL_Window *window) {
 
 void
 PS4_DestroyWindow(SDL_Window *window) {
-    SDL_Log("PS4_DestroyWindow\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_DestroyWindow\n");
 
     if (window == ps4_window) {
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -417,7 +417,7 @@ PS4_SetWindowPosition(SDL_Window *window) {
 
 void
 PS4_SetWindowSize(SDL_Window *window) {
-    SDL_Log("PS4_SetWindowSize\n");
+    LOG_DEBUG_PS4_VIDEO("PS4_SetWindowSize\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_assert(window == ps4_window);
     PS4_setEglSurfaceSize(window->wrect.w, window->wrect.h);

@@ -33,6 +33,12 @@ typedef struct SDL_WindowData
 } SDL_WindowData;
 #endif
 
+#ifdef DEBUG_PS4_VIDEO
+#define LOG_DEBUG_PS4_VIDEO(msg, ...) SDL_Log(msg, __VA_ARGS__);
+#else
+#define LOG_DEBUG_PS4_VIDEO(msg, ...)
+#endif
+
 int PS4_VideoInit(_THIS);
 void PS4_VideoQuit(_THIS);
 void PS4_GetDisplayModes(SDL_VideoDisplay *display);
