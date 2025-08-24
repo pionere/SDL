@@ -211,6 +211,27 @@ PS4_CreateDevice(SDL_VideoDevice *device) {
 #ifdef SDL_VIDEO_OPENGL_EGL
     PS4_GLES_InitDevice(device);
 #endif
+
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = PS4_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = PS4_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = PS4_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = PS4_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = PS4_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = PS4_Metal_CreateView;
+    // device->Metal_DestroyView = PS4_Metal_DestroyView;
+    // device->Metal_GetLayer = PS4_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = PS4_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = PS4_WaitEventTimeout;
+    // device->SendWakeupEvent = PS4_SendWakeupEvent;
     device->PumpEvents = PS4_PumpEvents;
 
     /* Screensaver */

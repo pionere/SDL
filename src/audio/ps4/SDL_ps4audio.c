@@ -155,7 +155,8 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
     if (ps4_sceAudioOutInited != 0) {
         ps4_sceAudioOutInited = sceAudioOutInit();
         if (ps4_sceAudioOutInited != 0) {
-            return SDL_SetError("PS4AUD_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
+            SDL_SetError("PS4AUD_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
+            return SDL_FALSE;
         }
     }
 
