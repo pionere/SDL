@@ -57,13 +57,13 @@ static SDL_Window *ps4_window = NULL;
 #ifdef SDL_VIDEO_OPENGL_EGL
 static OrbisPglWindow ps4_egl_window;
 #endif
-static bool ps4_init_done = false;
+static SDL_bool ps4_init_done = SDL_FALSE;
 #ifndef SDL_LOGGING_DISABLED
 char log_buffer[1024];
 
 static void *
 PS4_logCb(void *userdata, int category, SDL_LogPriority priority, const char *message) {
-    snprintf(log_buffer, 1023, "<SDL2> %s\n", message);
+    snprintf(log_buffer, sizeof(log_buffer), "<SDL2> %s\n", message);
     sceKernelDebugOutText(0, log_buffer);
     return NULL;
 }
@@ -121,7 +121,7 @@ int PS4_LoadModules()
     // hide splash screen (is this mandatory ?)
     sceSystemServiceHideSplashScreen();
 
-    ps4_init_done = true;
+    ps4_init_done = SDL_TRUE;
     return 0;
 }
 
@@ -134,8 +134,8 @@ static void PS4_DeleteDevice(SDL_VideoDevice *device)
     LOG_DEBUG_PS4_VIDEO("PS4_Destroy done\n");
 }
 
-static SDL_bool
-PS4_CreateDevice(SDL_VideoDevice *device) {
+static SDL_bool PS4_CreateDevice(SDL_VideoDevice *device)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_CreateDevice\n");
 #ifndef SDL_LOGGING_DISABLED
     // log to kernel
@@ -151,9 +151,6 @@ PS4_CreateDevice(SDL_VideoDevice *device) {
         return SDL_FALSE;
     }
 #endif
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
     /* Set the function pointers */
     /* Initialization/Query functions */
     device->VideoInit = PS4_VideoInit;
