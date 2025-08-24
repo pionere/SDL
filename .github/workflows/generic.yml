@@ -215,9 +215,9 @@ jobs:
             -Wdeprecated -Wdev -Werror \
             ${{ matrix.platform.cmake-toolchain-file != '' && format('-DCMAKE_TOOLCHAIN_FILE={0}', matrix.platform.cmake-toolchain-file) || '' }} \
             -DSDL_WERROR=${{ matrix.platform.werror }} \
-            -DSDL_TESTS=${{ matrix.platform.build-tests }} \
+            -DSDL_TESTS=${{ matrix.platform.build-tests && 'ON' || 'OFF' }} \
             -DSDLTEST_TRACKMEM=OFF \
-            -DSDL_INSTALL_TESTS=${{ matrix.platform.build-tests }} \
+            -DSDL_INSTALL_TESTS=${{ matrix.platform.build-tests && 'ON' || 'OFF' }} \
             ${{ matrix.platform.cmake-arguments }} \
             -DSDL_SHARED=${{ matrix.platform.shared }} \
             -DSDL_STATIC=${{ matrix.platform.static  }} \
