@@ -381,7 +381,7 @@ static int PS4_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     LOG_DEBUG_PS4_VIDEO("PS4_CreateWindow\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
-    SDL_WindowData *window_data = NULL;
+    SDL_WindowData *window_data;
 #endif
     if (ps4_window != NULL) {
         return SDL_SetError("ps4 only supports one window");
@@ -392,14 +392,16 @@ static int PS4_CreateSDLWindow(_THIS, SDL_Window *window)
         return SDL_OutOfMemory();
     }
 
-    ps4_egl_window.uWidth = window->wrect.w;
-    ps4_egl_window.uHeight = window->wrect.h;
+    // SDL_INLINE_COMPILE_TIME_ASSERT(ps4egl, EGL_NO_SURFACE == (EGLSurface)NULL);
+    if (window->flags & SDL_WINDOW_OPENGL) {
+        ps4_egl_window.uWidth = window->wrect.w;
+        ps4_egl_window.uHeight = window->wrect.h;
 
-    window_data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
-    if (window_data->egl_surface == EGL_NO_SURFACE) {
-        return SDL_SetError("could not create egl window surface");
+        window_data->egl_surface = SDL_EGL_CreateSurface(_this, &ps4_egl_window);
+        if (window_data->egl_surface == EGL_NO_SURFACE) {
+            return -1;
+        }
     }
-
     /* Setup driver data for this window */
     window->driverdata = window_data;
 #endif
@@ -420,16 +422,13 @@ static void PS4_DestroyWindow(SDL_Window *window)
     if (window == ps4_window) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-        if (data != NULL) {
-            if (data->egl_surface != EGL_NO_SURFACE) {
-                SDL_EGL_MakeCurrent(NULL, NULL);
-                SDL_EGL_DestroySurface(data->egl_surface);
-            }
-            if (window->driverdata != NULL) {
-                SDL_free(window->driverdata);
-                window->driverdata = NULL;
-            }
+        SDL_assert(data != NULL);
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_EGL_MakeCurrent(NULL, NULL);
+            SDL_EGL_DestroySurface(data->egl_surface);
         }
+        SDL_free(data);
+        window->driverdata = NULL;
 #endif
         ps4_window = NULL;
     }
