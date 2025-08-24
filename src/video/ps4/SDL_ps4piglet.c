@@ -137,28 +137,25 @@ int PS4_PigletInit()
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (!PS4_PigletModId) {
             SDL_SetError("PS4_PigletInit: could not load piglet module %s", module_path);
-            return 1;
+            goto error;
         }
         snprintf(module_path, sizeof(module_path), "%s/%s", path, SHACC_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading shacc module from: %s", module_path);
         shaccModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (!shaccModId) {
             SDL_SetError("PS4_PigletInit: could not load shacc module %s", module_path);
-            return 1;
+            goto error;
         }
         if (shaderCompilerPatchModule(PIGLET_MODULE_NAME) < 0) {
-            sceKernelStopUnloadModule(shaccModId, 0, NULL, 0, NULL, NULL);
-            shaccModId = 0;
-            SDL_SetError("PS4_PigletInit: unable to patch piglet module.");
-            return 1;
+            goto error;
         }
     } else {
-        snprintf(module_path, sizeof(module_path), "/%s/common/lib/libScePigletv2VSH.sprx", sceKernelGetFsSandboxRandomWord());
+        snprintf(module_path, sizeof(module_path), "/%s/common/lib/%s", sceKernelGetFsSandboxRandomWord(), PIGLET_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading piglet module from: %s", module_path);
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (!PS4_PigletModId) {
             SDL_SetError("PS4_PigletInit: could not load piglet module %s", module_path);
-            return 1;
+            goto error;
         }
     }
 
@@ -175,12 +172,15 @@ int PS4_PigletInit()
 
     if (!scePigletSetConfigurationVSH(&ps4_pgl_config)) {
         SDL_SetError("PS4_PigletInit: scePigletSetConfigurationVSH failed");
-        return 1;
+        goto error;
     }
 
     LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: Ok");
 
     return 0;
+error:
+    PS4_PigletExit();
+    return -1;
 }
 
 void PS4_PigletExit()
