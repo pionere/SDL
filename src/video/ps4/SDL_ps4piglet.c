@@ -27,7 +27,8 @@ static uint32_t shaccModId;
 static OrbisPglConfig ps4_pgl_config;
 
 /* XXX: patches below are given for Piglet module from 4.74 Devkit PUP */
-static void pgl_patches_cb(uint8_t *base) {
+static void pgl_patches_cb(uint8_t *base)
+{
     /* Patch runtime compiler check */
     const uint8_t p_set_eax_to_1[] = {
             0x31, 0xC0, 0xFF, 0xC0, 0x90,
@@ -44,7 +45,8 @@ static void pgl_patches_cb(uint8_t *base) {
     *(int32_t *) (base + 0xB2E24) = shaccModId;
 }
 
-static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelModuleInfo *info) {
+static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelModuleInfo *info)
+{
     OrbisKernelModuleInfo tmpInfo;
     OrbisKernelModule handles[256];
     size_t numModules;
@@ -88,7 +90,8 @@ static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelMo
     return 0x80020002;
 }
 
-static unsigned int shaderCompilerGetModuleBase(const char *name, uint64_t *base, uint64_t *size) {
+static unsigned int shaderCompilerGetModuleBase(const char *name, uint64_t *base, uint64_t *size)
+{
     OrbisKernelModuleInfo moduleInfo;
     unsigned int ret;
 
@@ -110,7 +113,8 @@ static unsigned int shaderCompilerGetModuleBase(const char *name, uint64_t *base
     return 0;
 }
 
-static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb) {
+static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb)
+{
     uint64_t base, size;
     int ret;
 
@@ -138,8 +142,8 @@ static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb) {
     return 0;
 }
 
-int PS4_PigletInit() {
-
+int PS4_PigletInit()
+{
     LOG_DEBUG_PS4_VIDEO("PS4_PigletInit\n");
     char module_path[512];
 
@@ -198,7 +202,8 @@ int PS4_PigletInit() {
     return 0;
 }
 
-void PS4_PigletExit() {
+void PS4_PigletExit()
+{
     if (shaccModId > 0) {
         sceKernelStopUnloadModule(shaccModId, 0, NULL, 0, NULL, NULL);
     }
@@ -207,7 +212,8 @@ void PS4_PigletExit() {
     }
 }
 
-bool PS4_PigletShaccAvailable() {
+bool PS4_PigletShaccAvailable()
+{
     return shaccModId > 0;
 }
 

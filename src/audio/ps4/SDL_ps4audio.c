@@ -35,8 +35,8 @@
 
 extern void PS4_LoadModules();
 
-inline static Uint16
-ps4_sample_size(Uint16 size) {
+inline static Uint16 ps4_sample_size(Uint16 size)
+{
     if (size >= 2048) return 2048;
     if (size >= 1792) return 1792;
     if (size >= 1536) return 1536;
@@ -49,8 +49,8 @@ ps4_sample_size(Uint16 size) {
 
 static uint32_t ps4_sceAudioOutInited = -1;
 
-static int
-PS4AUD_OpenDevice(_THIS, const char *devname) {
+static int PS4AUDIO_OpenDevice(_THIS, const char *devname)
+{
     SDL_AudioFormat test_format;
     size_t mix_len, i;
     uint8_t fmt;
@@ -90,7 +90,7 @@ PS4AUD_OpenDevice(_THIS, const char *devname) {
     mix_len = this->spec.size * NUM_BUFFERS;
     this->hidden->rawbuf = (Uint8 *) memalign(64, mix_len);
     if (this->hidden->rawbuf == NULL) {
-        return SDL_SetError("PS4AUD_OpenDevice: couldn't allocate mix buffer");
+        return SDL_SetError("PS4AUDIO_OpenDevice: couldn't allocate mix buffer");
     }
 
     this->hidden->aout = sceAudioOutOpen(ORBIS_USER_SERVICE_USER_ID_SYSTEM, ORBIS_AUDIO_OUT_PORT_TYPE_MAIN,
@@ -98,7 +98,7 @@ PS4AUD_OpenDevice(_THIS, const char *devname) {
     if (this->hidden->aout < 1) {
         free(this->hidden->rawbuf);
         this->hidden->rawbuf = NULL;
-        return SDL_SetError("PS4AUD_OpenDevice: sceAudioOutOpen failed (0x%08x)", this->hidden->aout);
+        return SDL_SetError("PS4AUDIO_OpenDevice: sceAudioOutOpen failed (0x%08x)", this->hidden->aout);
     }
 
     SDL_memset(this->hidden->rawbuf, 0, mix_len);
@@ -111,27 +111,31 @@ PS4AUD_OpenDevice(_THIS, const char *devname) {
     return 0;
 }
 
-static void PS4AUD_PlayDevice(_THIS) {
+static void PS4AUDIO_PlayDevice(_THIS)
+{
     Uint8 *buf = this->hidden->mixbufs[this->hidden->next_buffer];
     sceAudioOutOutput(this->hidden->aout, buf);
     this->hidden->next_buffer = (this->hidden->next_buffer + 1) % NUM_BUFFERS;
 }
 
 /* This function waits until it is possible to write a full sound buffer */
-static void PS4AUD_WaitDevice(_THIS) {
+static void PS4AUDIO_WaitDevice(_THIS)
+{
     sceAudioOutOutput(this->hidden->aout, NULL);
 }
 
-static Uint8 *PS4AUD_GetDeviceBuf(_THIS) {
+static Uint8 *PS4AUDIO_GetDeviceBuf(_THIS)
+{
     return this->hidden->mixbufs[this->hidden->next_buffer];
 }
 
-static void PS4AUD_CloseDevice(_THIS) {
+static void PS4AUDIO_CloseDevice(_THIS)
+{
     int res;
     if (this->hidden->aout > 0) {
         res = sceAudioOutClose(this->hidden->aout);
         if (res != 0) {
-            SDL_SetError("PS4AUD_CloseDevice: sceAudioOutClose failed (0x%08x)\n", res);
+            SDL_SetError("PS4AUDIO_CloseDevice: sceAudioOutClose failed (0x%08x)\n", res);
         }
         this->hidden->aout = -1;
     }
@@ -142,9 +146,8 @@ static void PS4AUD_CloseDevice(_THIS) {
     }
 }
 
-static SDL_bool
-PS4AUD_Init(SDL_AudioDriverImpl *impl) {
-
+static SDL_bool PS4AUDIO_Init(SDL_AudioDriverImpl *impl)
+{
     // initialize modules if not already done
     PS4_LoadModules();
 
@@ -152,20 +155,20 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
     if (ps4_sceAudioOutInited != 0) {
         ps4_sceAudioOutInited = sceAudioOutInit();
         if (ps4_sceAudioOutInited != 0) {
-            SDL_SetError("PS4AUD_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
+            SDL_SetError("PS4AUDIO_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
             return SDL_FALSE;
         }
     }
 
     /* Set the function pointers */
     // impl->DetectDevices = xxx;
-    impl->OpenDevice = PS4AUD_OpenDevice;
-    // impl->ThreadInit = PS4AUD_ThreadInit;
+    impl->OpenDevice = PS4AUDIO_OpenDevice;
+    // impl->ThreadInit = PS4AUDIO_ThreadInit;
     // impl->ThreadDeinit = xxx;
-    impl->WaitDevice = PS4AUD_WaitDevice;
-    impl->PlayDevice = PS4AUD_PlayDevice;
-    impl->GetDeviceBuf = PS4AUD_GetDeviceBuf;
-    impl->CloseDevice = PS4AUD_CloseDevice;
+    impl->WaitDevice = PS4AUDIO_WaitDevice;
+    impl->PlayDevice = PS4AUDIO_PlayDevice;
+    impl->GetDeviceBuf = PS4AUDIO_GetDeviceBuf;
+    impl->CloseDevice = PS4AUDIO_CloseDevice;
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;
     // impl->FreeDeviceHandle = xxx;
@@ -182,7 +185,7 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
 }
 
 const AudioBootStrap PS4AUD_bootstrap = {
-        "ps4", PS4AUD_Init
+        "ps4", PS4AUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_PS4 */

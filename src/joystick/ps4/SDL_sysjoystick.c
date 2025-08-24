@@ -83,13 +83,15 @@ static point c = {128, 32767};
 static point d = {128, 32767};
 
 /* simple linear interpolation between two points */
-static SDL_INLINE void lerp(point *dest, point *first, point *second, float t) {
+static SDL_INLINE void lerp(point *dest, point *first, point *second, float t)
+{
     dest->x = first->x + (second->x - first->x) * t;
     dest->y = first->y + (second->y - first->y) * t;
 }
 
 /* evaluate a point on a bezier-curve. t goes from 0 to 1.0 */
-static int calc_bezier_y(float t) {
+static int calc_bezier_y(float t)
+{
     point ab, bc, cd, abbc, bccd, dest;
     lerp(&ab, &a, &b, t);           /* point between a and b */
     lerp(&bc, &b, &c, t);           /* point between b and c */
@@ -100,7 +102,8 @@ static int calc_bezier_y(float t) {
     return dest.y;
 }
 
-void PS4_JoystickDetect() {
+void PS4_JoystickDetect()
+{
     uint32_t ret, i;
     int pad_handle;
     OrbisUserServiceLoginUserIdList users;
@@ -141,7 +144,8 @@ void PS4_JoystickDetect() {
  * Joystick 0 should be the system default joystick.
  * It should return number of joysticks, or -1 on an unrecoverable fatal error.
  */
-int PS4_JoystickInit(void) {
+int PS4_JoystickInit(void)
+{
     int i;
     uint32_t ret;
 
@@ -166,18 +170,21 @@ int PS4_JoystickInit(void) {
     return SDL_numjoysticks;
 }
 
-int PS4_JoystickGetCount() {
+int PS4_JoystickGetCount()
+{
     return SDL_numjoysticks;
 }
 
 /* Function to perform the mapping from device index to the instance id for this index */
-SDL_JoystickID PS4_JoystickGetDeviceInstanceID(int device_index) {
+SDL_JoystickID PS4_JoystickGetDeviceInstanceID(int device_index)
+{
     return device_index;
 }
 
 /* Function to get the device-dependent name of a joystick */
-const char *PS4_JoystickGetDeviceName(int index) {
-    if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
+const char *PS4_JoystickGetDeviceName(int device_index)
+{
+    if (device_index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         return NULL;
     } else {
         return "Sony DualShock 4 V2";
@@ -194,13 +201,13 @@ static int PS4_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
     return -1;
 }
 
-static int
-PS4_JoystickGetDevicePlayerIndex(int device_index) {
+static int PS4_JoystickGetDevicePlayerIndex(int device_index)
+{
     return -1;
 }
 
-static void
-PS4_JoystickSetDevicePlayerIndex(int device_index, int player_index) {
+static void PS4_JoystickSetDevicePlayerIndex(int device_index, int player_index)
+{
 }
 
 /* Function to open a joystick for use.
@@ -208,7 +215,8 @@ PS4_JoystickSetDevicePlayerIndex(int device_index, int player_index) {
    This should fill the nbuttons and naxes fields of the joystick structure.
    It returns 0, or -1 if there is an error.
  */
-int PS4_JoystickOpen(SDL_Joystick *joystick, int device_index) {
+int PS4_JoystickOpen(SDL_Joystick *joystick, int device_index)
+{
     joystick->nbuttons = SDL_arraysize(button_map);
     joystick->naxes = 6;
     joystick->nhats = 1;
@@ -222,7 +230,8 @@ int PS4_JoystickOpen(SDL_Joystick *joystick, int device_index) {
  * but instead should call SDL_PrivateJoystick*() to deliver events
  * and update joystick device state.
  */
-static void PS4_JoystickUpdate(SDL_Joystick *joystick) {
+static void PS4_JoystickUpdate(SDL_Joystick *joystick)
+{
     int i;
     unsigned int buttons;
     unsigned int changed;
@@ -313,7 +322,8 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick) {
 }
 
 /* Function to close a joystick after use */
-void PS4_JoystickClose(SDL_Joystick *joystick) {
+void PS4_JoystickClose(SDL_Joystick *joystick)
+{
     int index = (int) SDL_JoystickInstanceID(joystick);
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         SDL_SetError("PS4_JoystickClose: invalid joystick index: %i\n", index);
@@ -329,7 +339,8 @@ void PS4_JoystickClose(SDL_Joystick *joystick) {
 }
 
 /* Function to perform any system-specific joystick related cleanup */
-void PS4_JoystickQuit(void) {
+void PS4_JoystickQuit(void)
+{
 }
 
 SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
@@ -341,8 +352,8 @@ SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
     return guid;
 }
 
-static int
-PS4_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble) {
+static int PS4_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
+{
     int index = (int) SDL_JoystickInstanceID(joystick);
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         return SDL_SetError("PS4_JoystickRumble: invalid joystick index: %i\n", index);
@@ -359,15 +370,15 @@ PS4_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right) {
     return SDL_Unsupported();
 }
 
-static Uint32
-PS4_JoystickGetCapabilities(SDL_Joystick *joystick) {
+static Uint32 PS4_JoystickGetCapabilities(SDL_Joystick *joystick)
+{
     // always return LED and rumble supported for now
     return SDL_JOYCAP_LED | SDL_JOYCAP_RUMBLE;
 }
 
 
-static int
-PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue) {
+static int PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
+{
     int index = (int) SDL_JoystickInstanceID(joystick);
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         return SDL_SetError("PS4_JoystickSetLED: invalid joystick index: %i\n", index);
@@ -379,18 +390,18 @@ PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue) {
     return 0;
 }
 
-static int
-PS4_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size) {
+static int PS4_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
+{
     return SDL_Unsupported();
 }
 
-static int
-PS4_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled) {
+static int PS4_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
+{
     return SDL_Unsupported();
 }
 
-static SDL_bool
-PS4_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out) {
+static SDL_bool PS4_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
+{
     out->a.kind = EMappingKind_Button;
     out->a.target = 0;
     out->b.kind = EMappingKind_Button;

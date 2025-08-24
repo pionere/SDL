@@ -53,13 +53,13 @@ void PS4_GLES_InitDevice(_THIS)
     *minor = 0;
 }*/
 
-int
-PS4_GLES_LoadLibrary(_THIS, const char *path) {
+int PS4_GLES_LoadLibrary(_THIS, const char *path)
+{
     return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }
 
-void *
-PS4_GLES_GetProcAddress(const char *proc) {
+void *PS4_GLES_GetProcAddress(const char *proc)
+{
     void *ptr;
     int res;
 

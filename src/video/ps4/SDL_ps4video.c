@@ -78,8 +78,8 @@ static void PS4_SetWindowSize(SDL_Window *window);
 static void PS4_DestroyWindow(SDL_Window *window);
 static void PS4_PumpEvents();
 
-int
-PS4_LoadModules() {
+int PS4_LoadModules()
+{
     uint32_t ret;
 
     if (ps4_init_done) {
@@ -125,8 +125,8 @@ PS4_LoadModules() {
     return 0;
 }
 
-static void
-PS4_DeleteDevice(SDL_VideoDevice *device) {
+static void PS4_DeleteDevice(SDL_VideoDevice *device)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_Destroy\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     PS4_PigletExit();
@@ -277,8 +277,8 @@ const VideoBootStrap PS4_bootstrap = {
 /*****************************************************************************/
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
-static int
-PS4_VideoInit(_THIS) {
+static int PS4_VideoInit(_THIS)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_VideoInit\n");
 
     SDL_VideoDisplay display;
@@ -312,8 +312,8 @@ PS4_VideoInit(_THIS) {
     return 0;
 }
 
-static void
-PS4_VideoQuit(_THIS) {
+static void PS4_VideoQuit(_THIS)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_VideoQuit\n");
 
     // TODO
@@ -327,8 +327,8 @@ PS4_VideoQuit(_THIS) {
     */
 }
 
-static void
-PS4_GetDisplayModes(SDL_VideoDisplay *display) {
+static void PS4_GetDisplayModes(SDL_VideoDisplay *display)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_GetDisplayModes\n");
 
     SDL_DisplayMode mode;
@@ -368,8 +368,7 @@ void PS4_setEglSurfaceSize(int w, int h)
 }
 #endif
 
-static int
-PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
     LOG_DEBUG_PS4_VIDEO("PS4_SetDisplayMode\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -378,8 +377,8 @@ PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-static int
-PS4_CreateSDLWindow(_THIS, SDL_Window *window) {
+static int PS4_CreateSDLWindow(_THIS, SDL_Window *window)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_CreateWindow\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_WindowData *window_data = NULL;
@@ -414,8 +413,8 @@ PS4_CreateSDLWindow(_THIS, SDL_Window *window) {
     return 0;
 }
 
-static void
-PS4_DestroyWindow(SDL_Window *window) {
+static void PS4_DestroyWindow(SDL_Window *window)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_DestroyWindow\n");
 
     if (window == ps4_window) {
@@ -436,8 +435,8 @@ PS4_DestroyWindow(SDL_Window *window) {
     }
 }
 
-static void
-PS4_SetWindowSize(SDL_Window *window) {
+static void PS4_SetWindowSize(SDL_Window *window)
+{
     LOG_DEBUG_PS4_VIDEO("PS4_SetWindowSize\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_assert(window == ps4_window);
@@ -445,9 +444,8 @@ PS4_SetWindowSize(SDL_Window *window) {
 #endif
 }
 
-static void
-PS4_PumpEvents() {
-
+static void PS4_PumpEvents()
+{
     // TODO
     /*
     // we don't want other inputs overlapping with software keyboard
