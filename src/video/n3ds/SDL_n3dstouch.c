@@ -41,6 +41,8 @@
 #define TOUCHSCREEN_SCALE_X 1.0f / GSP_SCREEN_HEIGHT_BOTTOM
 #define TOUCHSCREEN_SCALE_Y 1.0f / GSP_SCREEN_WIDTH
 
+static SDL_bool was_pressed = SDL_FALSE;
+
 void N3DS_InitTouch(void)
 {
     SDL_AddTouch(N3DS_TOUCH_ID, SDL_TOUCH_DEVICE_DIRECT, "Touchscreen");
@@ -57,7 +59,6 @@ void N3DS_PollTouch(void)
     touchPosition touch;
     SDL_Window *window;
     SDL_VideoDisplay *display;
-    static SDL_bool was_pressed = SDL_FALSE;
     SDL_bool pressed;
     hidTouchRead(&touch);
     pressed = (touch.px != 0 || touch.py != 0);
