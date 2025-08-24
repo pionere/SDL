@@ -21,7 +21,14 @@
 
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_OPENGL_EGL
+#if defined(SDL_VIDEO_DRIVER_PS4) && defined(SDL_VIDEO_OPENGL_EGL)
+
+#if defined(SDL_VIDEO_OPENGL)
+#error "PS4 expects an OPENGL_EGL configuration"
+#endif
+#if !defined(SDL_VIDEO_OPENGL_ES2)
+#error "PS4 expects an explicit SDL_VIDEO_OPENGL_ES2 configuration"
+#endif
 
 #include <orbis/libkernel.h>
 #include "SDL_video.h"
@@ -78,6 +85,6 @@ SDL_EGL_MakeCurrent_impl(PS4)
 
 SDL_EGL_SwapWindow_impl(PS4)
 
-#endif /* SDL_VIDEO_OPENGL_EGL */
+#endif /* SDL_VIDEO_DRIVER_PS4 && SDL_VIDEO_OPENGL_EGL */
 
 /* vi: set ts=4 sw=4 expandtab: */

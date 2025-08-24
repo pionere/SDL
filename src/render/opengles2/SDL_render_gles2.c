@@ -1244,17 +1244,16 @@ static int GLES2_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd,
     vbo = data->vertex_buffers[vboidx];
     data->glBindBuffer(GL_ARRAY_BUFFER, vbo);
 #ifdef SDL_VIDEO_DRIVER_PS4
-    if(vertsize) {
+    if (vertsize)
 #endif
+    {
     if (data->vertex_buffer_size[vboidx] < vertsize) {
         data->glBufferData(GL_ARRAY_BUFFER, vertsize, vertices, GL_STREAM_DRAW);
         data->vertex_buffer_size[vboidx] = vertsize;
     } else {
         data->glBufferSubData(GL_ARRAY_BUFFER, 0, vertsize, vertices);
     }
-#ifdef SDL_VIDEO_DRIVER_PS4
     }
-#endif
 
     /* cycle through a few VBOs so the GL has some time with the data before we replace it. */
     data->current_vertex_buffer++;
