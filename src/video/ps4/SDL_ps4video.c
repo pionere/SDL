@@ -157,9 +157,9 @@ PS4_CreateDevice(SDL_VideoDevice *device) {
     /* Window functions */
     device->CreateSDLWindow = PS4_CreateSDLWindow;
     // device->CreateSDLWindowFrom = PS4_CreateSDLWindowFrom;
-    device->SetWindowTitle = PS4_SetWindowTitle;
-    device->SetWindowIcon = PS4_SetWindowIcon;
-    device->SetWindowPosition = PS4_SetWindowPosition;
+    // device->SetWindowTitle = PS4_SetWindowTitle;
+    // device->SetWindowIcon = PS4_SetWindowIcon;
+    // device->SetWindowPosition = PS4_SetWindowPosition;
     device->SetWindowSize = PS4_SetWindowSize;
     // device->SetWindowMinimumSize = PS4_SetWindowMinimumSize;
     // device->SetWindowMaximumSize = PS4_SetWindowMaximumSize;
@@ -168,12 +168,12 @@ PS4_CreateDevice(SDL_VideoDevice *device) {
     // device->SetWindowOpacity = PS4_SetWindowOpacity;
     // device->SetWindowModalFor = PS4_SetWindowModalFor;
     // device->SetWindowInputFocus = PS4_SetWindowInputFocus;
-    device->ShowWindow = PS4_ShowWindow;
-    device->HideWindow = PS4_HideWindow;
-    device->RaiseWindow = PS4_RaiseWindow;
-    device->MaximizeWindow = PS4_MaximizeWindow;
-    device->MinimizeWindow = PS4_MinimizeWindow;
-    device->RestoreWindow = PS4_RestoreWindow;
+    // device->ShowWindow = PS4_ShowWindow;
+    // device->HideWindow = PS4_HideWindow;
+    // device->RaiseWindow = PS4_RaiseWindow;
+    // device->MaximizeWindow = PS4_MaximizeWindow;
+    // device->MinimizeWindow = PS4_MinimizeWindow;
+    // device->RestoreWindow = PS4_RestoreWindow;
     // device->SetWindowBordered = PS4_SetWindowBordered;
     // device->SetWindowResizable = PS4_SetWindowResizable;
     // device->SetWindowAlwaysOnTop = PS4_SetWindowAlwaysOnTop;
@@ -407,52 +407,12 @@ PS4_DestroyWindow(SDL_Window *window) {
 }
 
 void
-PS4_SetWindowTitle(SDL_Window *window) {
-}
-
-void
-PS4_SetWindowIcon(SDL_Window *window, SDL_Surface *icon) {
-}
-
-void
-PS4_SetWindowPosition(SDL_Window *window) {
-}
-
-void
 PS4_SetWindowSize(SDL_Window *window) {
     LOG_DEBUG_PS4_VIDEO("PS4_SetWindowSize\n");
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_assert(window == ps4_window);
     PS4_setEglSurfaceSize(window->wrect.w, window->wrect.h);
 #endif
-}
-
-void
-PS4_ShowWindow(SDL_Window *window) {
-}
-
-void
-PS4_HideWindow(SDL_Window *window) {
-}
-
-void
-PS4_RaiseWindow(SDL_Window *window) {
-}
-
-void
-PS4_MaximizeWindow(SDL_Window *window) {
-}
-
-void
-PS4_MinimizeWindow(SDL_Window *window) {
-}
-
-void
-PS4_RestoreWindow(SDL_Window *window) {
-}
-
-void
-PS4_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed) {
 }
 
 void
