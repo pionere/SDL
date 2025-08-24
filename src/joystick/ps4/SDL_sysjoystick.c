@@ -108,7 +108,7 @@ void PS4_JoystickDetect() {
 
     ret = sceUserServiceGetLoginUserIdList(&users);
     if (ret != 0) {
-        SDL_Log("PS4_JoystickDetect: sceUserServiceGetLoginUserIdList failed (0x%08x)\n", ret);
+        SDL_SetError("PS4_JoystickDetect: sceUserServiceGetLoginUserIdList failed (0x%08x)\n", ret);
         return;
     }
 
@@ -130,8 +130,10 @@ void PS4_JoystickDetect() {
 
         pads_handles[i] = pad_handle;
         SDL_numjoysticks++;
+#ifdef DEBUG_JOYSTICK
         SDL_Log("PS4_JoystickDetect: new joystick detected (%i) (joysticks count: %i)\n",
                 i, SDL_numjoysticks);
+#endif
     }
 }
 
@@ -237,12 +239,12 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick) {
 
     int index = (int) SDL_JoystickInstanceID(joystick);
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        SDL_Log("PS4_JoystickUpdate: invalid joystick index: %i\n", index);
+        SDL_SetError("PS4_JoystickUpdate: invalid joystick index: %i\n", index);
         return;
     }
 
     if (pads_handles[index] < 1) {
-        SDL_Log("PS4_JoystickUpdate: invalid pad handle: %i\n", index);
+        SDL_SetError("PS4_JoystickUpdate: invalid pad handle: %i\n", index);
         return;
     }
 
@@ -314,12 +316,12 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick) {
 void PS4_JoystickClose(SDL_Joystick *joystick) {
     int index = (int) SDL_JoystickInstanceID(joystick);
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        SDL_Log("PS4_JoystickClose: invalid joystick index: %i\n", index);
+        SDL_SetError("PS4_JoystickClose: invalid joystick index: %i\n", index);
         return;
     }
 
     if (pads_handles[index] < 1) {
-        SDL_Log("PS4_JoystickClose: invalid pad handle: 0x%08x\n", index);
+        SDL_SetError("PS4_JoystickClose: invalid pad handle: 0x%08x\n", index);
         return;
     }
 

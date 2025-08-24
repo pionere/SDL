@@ -131,7 +131,7 @@ static void PS4AUD_CloseDevice(_THIS) {
     if (this->hidden->aout > 0) {
         res = sceAudioOutClose(this->hidden->aout);
         if (res != 0) {
-            SDL_Log("PS4AUD_CloseDevice: sceAudioOutClose failed (0x%08x)\n", res);
+            SDL_SetError("PS4AUD_CloseDevice: sceAudioOutClose failed (0x%08x)\n", res);
         }
         this->hidden->aout = -1;
     }
@@ -155,7 +155,6 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
     if (ps4_sceAudioOutInited != 0) {
         ps4_sceAudioOutInited = sceAudioOutInit();
         if (ps4_sceAudioOutInited != 0) {
-            SDL_Log("PS4AUD_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
             return SDL_SetError("PS4AUD_OpenDevice: sceAudioOutInit failed (0x%08x)\n", ps4_sceAudioOutInited);
         }
     }
