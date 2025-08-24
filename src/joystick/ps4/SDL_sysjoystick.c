@@ -184,11 +184,8 @@ SDL_JoystickID PS4_JoystickGetDeviceInstanceID(int device_index)
 /* Function to get the device-dependent name of a joystick */
 const char *PS4_JoystickGetDeviceName(int device_index)
 {
-    if (device_index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        return NULL;
-    } else {
-        return "Sony DualShock 4 V2";
-    }
+    SDL_assert(device_index >= 0 && device_index < SDL_numjoysticks);
+    return "Sony DualShock 4 V2";
 }
 
 const char *PS4_JoystickGetDevicePath(int device_index)
@@ -247,10 +244,7 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick)
     OrbisPadData pad;
 
     int index = joystick->instance_id;
-    if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        SDL_SetError("PS4_JoystickUpdate: invalid joystick index: %i\n", index);
-        return;
-    }
+    SDL_assert(index >= 0 && index < ORBIS_USER_SERVICE_MAX_LOGIN_USERS);
 
     if (pads_handles[index] < 1) {
         SDL_SetError("PS4_JoystickUpdate: invalid pad handle: %i\n", index);
@@ -325,10 +319,7 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick)
 void PS4_JoystickClose(SDL_Joystick *joystick)
 {
     int index = joystick->instance_id;
-    if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        SDL_SetError("PS4_JoystickClose: invalid joystick index: %i\n", index);
-        return;
-    }
+    SDL_assert(index >= 0 && index < ORBIS_USER_SERVICE_MAX_LOGIN_USERS);
 
     if (pads_handles[index] < 1) {
         SDL_SetError("PS4_JoystickClose: invalid pad handle: 0x%08x\n", index);
@@ -355,11 +346,8 @@ SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
 static int PS4_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
     int index = joystick->instance_id;
-    if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        return SDL_SetError("PS4_JoystickRumble: invalid joystick index: %i\n", index);
-    }
-
     OrbisPadVibeParam param = {high_frequency_rumble / 256, low_frequency_rumble / 256};
+    SDL_assert(index >= 0 && index < ORBIS_USER_SERVICE_MAX_LOGIN_USERS);
     scePadSetVibration(pads_handles[index], &param);
 
     return 0;
@@ -380,11 +368,8 @@ static Uint32 PS4_JoystickGetCapabilities(SDL_Joystick *joystick)
 static int PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
 {
     int index = joystick->instance_id;
-    if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
-        return SDL_SetError("PS4_JoystickSetLED: invalid joystick index: %i\n", index);
-    }
-
     OrbisPadColor color = {red, green, blue, 255};
+    SDL_assert(index >= 0 && index < ORBIS_USER_SERVICE_MAX_LOGIN_USERS);
     scePadSetLightBar(pads_handles[index], &color);
 
     return 0;
