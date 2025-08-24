@@ -17,8 +17,6 @@
 #define PIGLET_MODULE_NAME "libScePigletv2VSH.sprx"
 #define SHACC_MODULE_NAME "libSceShaccVSH.sprx"
 
-typedef void module_patch_cb_t(uint8_t *base);
-
 OrbisKernelModule PS4_PigletModId;
 static OrbisKernelModule shaccModId;
 
@@ -98,29 +96,26 @@ static int shaderCompilerGetModuleBase(const char *name, uint64_t *base, uint64_
     return 0;
 }
 
-static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb)
+static int shaderCompilerPatchModule(const char *name)
 {
     uint64_t base, size;
     int ret;
 
-    if (shaderCompilerGetModuleBase(name, &base, &size) < 0) {
-        SDL_SetError("shaderCompilerPatchModule: getModuleBase return error");
-        return 1;
+    ret = shaderCompilerGetModuleBase(name, &base, &size);
+    if (ret < 0) {
+        return ret;
     }
 
     LOG_DEBUG_PS4_VIDEO("shaderCompilerPatchModule: module base=0x%08lX size=%ld", base, size);
 
     ret = sceKernelMprotect((void *) base, size, ORBIS_KERNEL_PROT_CPU_ALL);
     if (ret) {
-        SDL_SetError("shaderCompilerPatchModule: sceKernelMprotect(%s) failed: 0x%08X", name, ret);
-        return 1;
+        return SDL_SetError("shaderCompilerPatchModule: sceKernelMprotect(%s) failed: 0x%08X", name, ret);
     }
 
     LOG_DEBUG_PS4_VIDEO("shaderCompilerPatchModule: patching module");
 
-    if (cb) {
-        (*cb)((uint8_t *) base);
-    }
+    pgl_patches_cb((uint8_t *) base);
 
     LOG_DEBUG_PS4_VIDEO("shaderCompilerPatchModule: patching module done");
 
@@ -151,7 +146,7 @@ int PS4_PigletInit()
             SDL_SetError("PS4_PigletInit: could not load shacc module %s", module_path);
             return 1;
         }
-        if (shaderCompilerPatchModule(PIGLET_MODULE_NAME, &pgl_patches_cb) != 0) {
+        if (shaderCompilerPatchModule(PIGLET_MODULE_NAME) < 0) {
             sceKernelStopUnloadModule(shaccModId, 0, NULL, 0, NULL, NULL);
             shaccModId = 0;
             SDL_SetError("PS4_PigletInit: unable to patch piglet module.");
