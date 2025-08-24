@@ -19,8 +19,8 @@
 
 typedef void module_patch_cb_t(uint8_t *base);
 
-uint32_t PS4_PigletModId;
-static uint32_t shaccModId;
+OrbisKernelModule PS4_PigletModId;
+static OrbisKernelModule shaccModId;
 static OrbisPglConfig ps4_pgl_config;
 
 /* XXX: patches below are given for Piglet module from 4.74 Devkit PUP */

@@ -30,7 +30,7 @@
 
 /* EGL implementation of SDL OpenGL support */
 
-extern uint32_t PS4_PigletModId;
+extern OrbisKernelModule PS4_PigletModId;
 
 void PS4_GLES_InitDevice(_THIS)
 {
