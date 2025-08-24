@@ -41,7 +41,7 @@ static void pgl_patches_cb(uint8_t *base)
     *(int32_t *) (base + 0xB2E24) = shaccModId;
 }
 
-static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelModuleInfo *info)
+static int sceKernelGetModuleInfoByName(const char *name, OrbisKernelModuleInfo *info)
 {
     OrbisKernelModuleInfo tmpInfo;
     OrbisKernelModule handles[256];
@@ -51,16 +51,11 @@ static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelMo
 
     LOG_DEBUG_PS4_VIDEO("sceKernelGetModuleInfoByName(%s)", name);
 
-    if (!name || !info) {
-        return 0x8002000E;
-    }
-
     memset(handles, 0, sizeof(handles));
 
     ret = sceKernelGetModuleList(handles, SDL_arraysize(handles), &numModules);
     if (ret) {
-        SDL_SetError("sceKernelGetModuleInfoByName: sceKernelGetModuleList failed (0x%08x)", ret);
-        return ret;
+        return SDL_SetError("sceKernelGetModuleInfoByName: sceKernelGetModuleList failed (0x%08x)", ret);
     }
 
     LOG_DEBUG_PS4_VIDEO("sceKernelGetModuleInfoByName: found %zu modules", numModules);
@@ -70,8 +65,7 @@ static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelMo
         tmpInfo.size = sizeof(tmpInfo);
         ret = sceKernelGetModuleInfo(handles[i], &tmpInfo);
         if (ret) {
-            SDL_SetError("sceKernelGetModuleInfoByName: sceKernelGetModuleInfo[%zu] failed (0x%08x)", i, ret);
-            return ret;
+            return SDL_SetError("sceKernelGetModuleInfoByName: sceKernelGetModuleInfo[%zu] failed (0x%08x)", i, ret);
         }
 
         LOG_DEBUG_PS4_VIDEO("sceKernelGetModuleInfoByName: [%zu]: %s", i, tmpInfo.name);
@@ -83,10 +77,10 @@ static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelMo
         }
     }
 
-    return 0x80020002;
+    return SDL_SetError("sceKernelGetModuleInfoByName(%s) failed: 0x%08X", name, 0x80020002);
 }
 
-static unsigned int shaderCompilerGetModuleBase(const char *name, uint64_t *base, uint64_t *size)
+static int shaderCompilerGetModuleBase(const char *name, uint64_t *base, uint64_t *size)
 {
     OrbisKernelModuleInfo moduleInfo;
     unsigned int ret;
@@ -94,17 +88,12 @@ static unsigned int shaderCompilerGetModuleBase(const char *name, uint64_t *base
     LOG_DEBUG_PS4_VIDEO("shaderCompilerGetModuleBase(%s)", name);
 
     ret = sceKernelGetModuleInfoByName(name, &moduleInfo);
-    if (ret) {
-        SDL_SetError("shaderCompilerGetModuleBase: sceKernelGetModuleInfoByName(%s) failed: 0x%08X", name, ret);
+    if (ret < 0) {
         return ret;
     }
 
-    if (base) {
-        *base = (uint64_t) moduleInfo.segmentInfo[0].address;
-    }
-    if (size) {
-        *size = moduleInfo.segmentInfo[0].size;
-    }
+    *base = (uint64_t) moduleInfo.segmentInfo[0].address;
+    *size = moduleInfo.segmentInfo[0].size;
 
     return 0;
 }
@@ -114,7 +103,7 @@ static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb)
     uint64_t base, size;
     int ret;
 
-    if (shaderCompilerGetModuleBase(name, &base, &size) != 0) {
+    if (shaderCompilerGetModuleBase(name, &base, &size) < 0) {
         SDL_SetError("shaderCompilerPatchModule: getModuleBase return error");
         return 1;
     }
