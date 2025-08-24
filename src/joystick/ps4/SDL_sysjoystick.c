@@ -246,7 +246,7 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick)
     static unsigned char old_rt[] = {0, 0, 0, 0};
     OrbisPadData pad;
 
-    int index = (int) SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         SDL_SetError("PS4_JoystickUpdate: invalid joystick index: %i\n", index);
         return;
@@ -324,7 +324,7 @@ static void PS4_JoystickUpdate(SDL_Joystick *joystick)
 /* Function to close a joystick after use */
 void PS4_JoystickClose(SDL_Joystick *joystick)
 {
-    int index = (int) SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         SDL_SetError("PS4_JoystickClose: invalid joystick index: %i\n", index);
         return;
@@ -354,7 +354,7 @@ SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
 
 static int PS4_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
-    int index = (int) SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         return SDL_SetError("PS4_JoystickRumble: invalid joystick index: %i\n", index);
     }
@@ -379,7 +379,7 @@ static Uint32 PS4_JoystickGetCapabilities(SDL_Joystick *joystick)
 
 static int PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
 {
-    int index = (int) SDL_JoystickInstanceID(joystick);
+    int index = joystick->instance_id;
     if (index > ORBIS_USER_SERVICE_MAX_LOGIN_USERS) {
         return SDL_SetError("PS4_JoystickSetLED: invalid joystick index: %i\n", index);
     }
