@@ -39,15 +39,6 @@ typedef struct SDL_WindowData
 #define LOG_DEBUG_PS4_VIDEO(msg, ...)
 #endif
 
-int PS4_VideoInit(_THIS);
-void PS4_VideoQuit(_THIS);
-void PS4_GetDisplayModes(SDL_VideoDisplay *display);
-int PS4_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-int PS4_CreateSDLWindow(_THIS, SDL_Window *window);
-void PS4_SetWindowSize(SDL_Window *window);
-void PS4_DestroyWindow(SDL_Window *window);
-void PS4_PumpEvents();
-
 #endif /* __SDL_PS4VIDEO_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */
