@@ -142,9 +142,6 @@ static void PS4AUD_CloseDevice(_THIS) {
     }
 }
 
-static void PS4AUD_ThreadInit(_THIS) {
-}
-
 static SDL_bool
 PS4AUD_Init(SDL_AudioDriverImpl *impl) {
 
@@ -163,7 +160,7 @@ PS4AUD_Init(SDL_AudioDriverImpl *impl) {
     /* Set the function pointers */
     // impl->DetectDevices = xxx;
     impl->OpenDevice = PS4AUD_OpenDevice;
-    impl->ThreadInit = PS4AUD_ThreadInit;
+    // impl->ThreadInit = PS4AUD_ThreadInit;
     // impl->ThreadDeinit = xxx;
     impl->WaitDevice = PS4AUD_WaitDevice;
     impl->PlayDevice = PS4AUD_PlayDevice;
