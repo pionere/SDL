@@ -6,7 +6,6 @@
 #ifdef SDL_VIDEO_OPENGL_EGL
 
 #include <stdbool.h>
-#include <sys/mman.h>
 #include <orbis/libkernel.h>
 #include <orbis/Pigletv2VSH.h>
 
@@ -125,7 +124,7 @@ static int shaderCompilerPatchModule(const char *name, module_patch_cb_t *cb)
 
     LOG_DEBUG_PS4_VIDEO("shaderCompilerPatchModule: module base=0x%08lX size=%ld\n", base, size);
 
-    ret = sceKernelMprotect((void *) base, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+    ret = sceKernelMprotect((void *) base, size, ORBIS_KERNEL_PROT_CPU_ALL);
     if (ret) {
         SDL_SetError("shaderCompilerPatchModule: sceKernelMprotect(%s) failed: 0x%08X\n", name, ret);
         return 1;
