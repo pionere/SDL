@@ -21,7 +21,6 @@ typedef void module_patch_cb_t(uint8_t *base);
 
 OrbisKernelModule PS4_PigletModId;
 static OrbisKernelModule shaccModId;
-static OrbisPglConfig ps4_pgl_config;
 
 /* XXX: patches below are given for Piglet module from 4.74 Devkit PUP */
 static void pgl_patches_cb(uint8_t *base)
@@ -143,6 +142,7 @@ int PS4_PigletInit()
 {
     LOG_DEBUG_PS4_VIDEO("PS4_PigletInit\n");
     char module_path[512];
+    OrbisPglConfig ps4_pgl_config;
 
     // load piglet and shader compiler module from specified path if requested
     // else load from piglet from device without shader compiler support
