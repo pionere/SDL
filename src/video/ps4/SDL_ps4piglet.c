@@ -17,8 +17,6 @@
 #define PIGLET_MODULE_NAME "libScePigletv2VSH.sprx"
 #define SHACC_MODULE_NAME "libSceShaccVSH.sprx"
 
-#define ARRAY_SIZE(ar) (sizeof(ar) / sizeof((ar)[0]))
-
 typedef void module_patch_cb_t(uint8_t *base);
 
 uint32_t PS4_PigletModId;
@@ -60,7 +58,7 @@ static unsigned int sceKernelGetModuleInfoByName(const char *name, OrbisKernelMo
 
     memset(handles, 0, sizeof(handles));
 
-    ret = sceKernelGetModuleList(handles, ARRAY_SIZE(handles), &numModules);
+    ret = sceKernelGetModuleList(handles, SDL_arraysize(handles), &numModules);
     if (ret) {
         SDL_SetError("sceKernelGetModuleInfoByName: sceKernelGetModuleList failed (0x%08x)\n", ret);
         return ret;
@@ -150,14 +148,14 @@ int PS4_PigletInit()
     // else load from piglet from device without shader compiler support
     const char *path = SDL_GetHint(SDL_HINT_PS4_PIGLET_MODULES_PATH);
     if (path) {
-        snprintf(module_path, 511, "%s/%s", path, PIGLET_MODULE_NAME);
+        snprintf(module_path, sizeof(module_path), "%s/%s", path, PIGLET_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading piglet module from: %s\n", module_path);
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (PS4_PigletModId < 0) {
             SDL_SetError("PS4_PigletInit: could not piglet load module %s (0x%08x)\n", module_path, PS4_PigletModId);
             return 1;
         }
-        snprintf(module_path, 511, "%s/%s", path, SHACC_MODULE_NAME);
+        snprintf(module_path, sizeof(module_path), "%s/%s", path, SHACC_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading shacc module from: %s\n", module_path);
         shaccModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (shaccModId < 0) {
@@ -171,7 +169,7 @@ int PS4_PigletInit()
             return 1;
         }
     } else {
-        snprintf(module_path, 511, "/%s/common/lib/libScePigletv2VSH.sprx", sceKernelGetFsSandboxRandomWord());
+        snprintf(module_path, sizeof(module_path), "/%s/common/lib/libScePigletv2VSH.sprx", sceKernelGetFsSandboxRandomWord());
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading piglet module from: %s\n", module_path);
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
         if (PS4_PigletModId < 0) {
