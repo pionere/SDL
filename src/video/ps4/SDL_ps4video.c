@@ -58,6 +58,7 @@ static SDL_Window *ps4_window = NULL;
 static OrbisPglWindow ps4_egl_window;
 #endif
 static bool ps4_init_done = false;
+#ifndef SDL_LOGGING_DISABLED
 char log_buffer[1024];
 
 static void *
@@ -66,6 +67,7 @@ PS4_logCb(void *userdata, int category, SDL_LogPriority priority, const char *me
     sceKernelDebugOutText(0, log_buffer);
     return NULL;
 }
+#endif
 
 int
 PS4_LoadModules() {
@@ -126,9 +128,10 @@ PS4_DeleteDevice(SDL_VideoDevice *device) {
 static SDL_bool
 PS4_CreateDevice(SDL_VideoDevice *device) {
     LOG_DEBUG_PS4_VIDEO("PS4_CreateDevice\n");
+#ifndef SDL_LOGGING_DISABLED
     // log to kernel
     SDL_LogSetOutputFunction((SDL_LogOutputFunction) &PS4_logCb, NULL);
-
+#endif
     // initialize modules if not already done
     if (PS4_LoadModules() != 0) {
         return SDL_FALSE;
