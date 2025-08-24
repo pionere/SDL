@@ -196,7 +196,7 @@ static uint8_t GetSegmentHeader(int nSegmentNumber, bool bLastPacket)
 
     return header;
 }
-
+#ifdef DEBUG_STEAM_CONTROLLER
 static void hexdump(const uint8_t *ptr, int len)
 {
     int i;
@@ -205,7 +205,7 @@ static void hexdump(const uint8_t *ptr, int len)
     }
     printf("\n");
 }
-
+#endif
 static void ResetSteamControllerPacketAssembler(SteamControllerPacketAssembler *pAssembler)
 {
     SDL_memset(pAssembler->uBuffer, 0, sizeof(pAssembler->uBuffer));
@@ -237,10 +237,8 @@ static int WriteSegmentToSteamControllerPacketAssembler(SteamControllerPacketAss
         }
 
         if (nSegmentLength != MAX_REPORT_SEGMENT_SIZE) {
-            printf("Bad segment size! %d\n", nSegmentLength);
-            hexdump(pSegment, nSegmentLength);
             ResetSteamControllerPacketAssembler(pAssembler);
-            return -1;
+            return SDL_SetError("Bad segment size! %d", nSegmentLength);
         }
 
         DPRINTF("GOT PACKET HEADER = 0x%x\n", uSegmentHeader);
@@ -377,8 +375,7 @@ static int GetFeatureReport(SDL_hid_device *dev, unsigned char uBuffer[65])
                 }
             }
         }
-        printf("Could not get a full ble packet after %d retries\n", nRetries);
-        return -1;
+        return SDL_SetError("Could not get a full ble packet after %d retries", nRetries);
     }
 
     return nRet;
@@ -407,7 +404,7 @@ static int ReadResponse(SDL_hid_device *dev, uint8_t uBuffer[65], int nExpectedR
 //---------------------------------------------------------------------------
 // Reset steam controller (unmap buttons and pads) and re-fetch capability bits
 //---------------------------------------------------------------------------
-static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, uint32_t *punUpdateRateUS)
+static bool ResetSteamController(SDL_hid_device *dev, uint32_t *punUpdateRateUS)
 {
     // Firmware quirk: Set Feature and Get Feature requests always require a 65-byte buffer.
     unsigned char buf[65];
@@ -424,9 +421,7 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
     buf[1] = ID_GET_ATTRIBUTES_VALUES;
     res = SetFeatureReport(dev, buf, 2);
     if (res < 0) {
-        if (!bSuppressErrorSpew) {
-            printf("GET_ATTRIBUTES_VALUES failed for controller %p\n", dev);
-        }
+        SDL_SetError("GET_ATTRIBUTES_VALUES failed for controller %p", dev);
         return false;
     }
 
@@ -435,17 +430,13 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
     res = ReadResponse(dev, buf, ID_GET_ATTRIBUTES_VALUES);
     if (res < 0 || buf[1] != ID_GET_ATTRIBUTES_VALUES) {
         HEXDUMP(buf, res);
-        if (!bSuppressErrorSpew) {
-            printf("Bad GET_ATTRIBUTES_VALUES response for controller %p\n", dev);
-        }
+        SDL_SetError("Bad GET_ATTRIBUTES_VALUES response for controller %p", dev);
         return false;
     }
 
     nAttributesLength = buf[2];
     if (nAttributesLength > res) {
-        if (!bSuppressErrorSpew) {
-            printf("Bad GET_ATTRIBUTES_VALUES response for controller %p\n", dev);
-        }
+        SDL_SetError("Bad GET_ATTRIBUTES_VALUES response for controller %p", dev);
         return false;
     }
 
@@ -477,9 +468,7 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
     buf[1] = ID_CLEAR_DIGITAL_MAPPINGS;
     res = SetFeatureReport(dev, buf, 2);
     if (res < 0) {
-        if (!bSuppressErrorSpew) {
-            printf("CLEAR_DIGITAL_MAPPINGS failed for controller %p\n", dev);
-        }
+        SDL_SetError("CLEAR_DIGITAL_MAPPINGS failed for controller %p", dev);
         return false;
     }
 
@@ -489,9 +478,7 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
     buf[2] = 0;
     res = SetFeatureReport(dev, buf, 3);
     if (res < 0) {
-        if (!bSuppressErrorSpew) {
-            printf("LOAD_DEFAULT_SETTINGS failed for controller %p\n", dev);
-        }
+        SDL_SetError("LOAD_DEFAULT_SETTINGS failed for controller %p", dev);
         return false;
     }
 
@@ -519,9 +506,7 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
 
     res = SetFeatureReport(dev, buf, 3 + nSettings * 3);
     if (res < 0) {
-        if (!bSuppressErrorSpew) {
-            printf("SET_SETTINGS failed for controller %p\n", dev);
-        }
+        SDL_SetError("SET_SETTINGS failed for controller %p", dev);
         return false;
     }
 
@@ -536,13 +521,13 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
         buf[3] = 0;
         res = SetFeatureReport(dev, buf, 4);
         if (res < 0) {
-            printf("GET_DIGITAL_MAPPINGS failed for controller %p\n", dev);
+            SDL_SetError("GET_DIGITAL_MAPPINGS failed for controller %p", dev);
             return false;
         }
 
         res = ReadResponse(dev, buf, ID_GET_DIGITAL_MAPPINGS);
         if (res < 0 || buf[1] != ID_GET_DIGITAL_MAPPINGS) {
-            printf("Bad GET_DIGITAL_MAPPINGS response for controller %p\n", dev);
+            SDL_SetError("Bad GET_DIGITAL_MAPPINGS response for controller %p", dev);
             return false;
         }
 
@@ -554,8 +539,8 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
         usleep(CONTROLLER_CONFIGURATION_DELAY_US);
     }
 
-    if (!bMappingsCleared && !bSuppressErrorSpew) {
-        printf("Warning: CLEAR_DIGITAL_MAPPINGS never completed for controller %p\n", dev);
+    if (!bMappingsCleared) {
+        SDL_LogWarn("Warning: CLEAR_DIGITAL_MAPPINGS never completed for controller %p", dev);
     }
 
     // Set our new mappings
@@ -571,9 +556,7 @@ static bool ResetSteamController(SDL_hid_device *dev, bool bSuppressErrorSpew, u
 
     res = SetFeatureReport(dev, buf, 9);
     if (res < 0) {
-        if (!bSuppressErrorSpew) {
-            printf("SET_DIGITAL_MAPPINGS failed for controller %p\n", dev);
-        }
+        SDL_SetError("SET_DIGITAL_MAPPINGS failed for controller %p", dev);
         return false;
     }
 #endif // ENABLE_MOUSE_MODE
@@ -1012,8 +995,7 @@ static SDL_bool HIDAPI_DriverSteam_OpenJoystick(SDL_HIDAPI_Device *device, SDL_J
     SDL_zero(ctx->m_state);
     SDL_zero(ctx->m_last_state);
 
-    if (!ResetSteamController(device->dev, false, &ctx->update_rate_in_us)) {
-        SDL_SetError("Couldn't reset controller");
+    if (!ResetSteamController(device->dev, &ctx->update_rate_in_us)) {
         return SDL_FALSE;
     }
     if (ctx->update_rate_in_us > 0) {

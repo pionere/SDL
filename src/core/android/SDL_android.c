@@ -938,7 +938,7 @@ SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_c
     if (SDL_GetCurrentAudioDriver() != NULL) {
         char device_name[64];
         SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
-        SDL_Log("Adding device with name %s, capture %d", device_name, is_capture);
+        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "Adding device with name %s, capture %d", device_name, is_capture);
         SDL_AddAudioDevice(is_capture, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
     }
 }
@@ -948,7 +948,7 @@ SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls, jboolean i
                                             jint device_id)
 {
     if (SDL_GetCurrentAudioDriver() != NULL) {
-        SDL_Log("Removing device with handle %d, capture %d", device_id + 1, is_capture);
+        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "Removing device with handle %d, capture %d", device_id + 1, is_capture);
         SDL_RemoveAudioDevice(is_capture, (void *)((size_t)device_id + 1));
     }
 }
@@ -1458,7 +1458,7 @@ void Android_DetectDevices(void)
         int device_id = inputs[i];
         char device_name[64];
         SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
-        SDL_Log("Adding input device with name %s", device_name);
+        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "Adding input device with name %s", device_name);
         SDL_AddAudioDevice(SDL_TRUE, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
     }
 
@@ -1470,7 +1470,7 @@ void Android_DetectDevices(void)
         int device_id = outputs[i];
         char device_name[64];
         SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
-        SDL_Log("Adding output device with name %s", device_name);
+        __android_log_print(ANDROID_LOG_VERBOSE, "SDL", "Adding output device with name %s", device_name);
         SDL_AddAudioDevice(SDL_FALSE, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
     }
 }

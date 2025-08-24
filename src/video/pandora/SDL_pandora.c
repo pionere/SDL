@@ -693,7 +693,7 @@ static EGLSurface PND_EGL_CreateSurface(_THIS)
         SDL_OutOfMemory();
         return EGL_NO_SURFACE;
     } else {
-        SDL_Log("SDL: Wiz framebuffer allocated: %X\n", hNativeWnd);
+        SDL_LogDebug("SDL: Wiz framebuffer allocated: %X\n", hNativeWnd);
     }
 
     wdata->gles_surface =
@@ -719,7 +719,7 @@ static void PND_EGL_DestroySurface(EGLSurface egl_surface)
     if (hNativeWnd != 0) {
         SDL_free(hNativeWnd);
         hNativeWnd = 0;
-        SDL_Log("SDL: Wiz framebuffer released\n");
+        SDL_LogDebug("SDL: Wiz framebuffer released\n");
     }
 #endif
     if (egl_surface != EGL_NO_SURFACE) {

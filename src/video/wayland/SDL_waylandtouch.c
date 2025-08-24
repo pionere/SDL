@@ -93,7 +93,7 @@ static void touch_handle_touch(void *data,
 
     SDL_TouchID deviceId = 1;
     if (SDL_AddTouch(deviceId, SDL_TOUCH_DEVICE_DIRECT, "qt_touch_extension") < 0) {
-        SDL_Log("error: can't add touch %s, %d", __FILE__, __LINE__);
+        return;
     }
 
     /* FIXME: This should be the window the given wayland surface is associated

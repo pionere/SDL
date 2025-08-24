@@ -33,6 +33,12 @@
 
 // #define NGAGE_SURFACE "NGAGE_FrameBuffer"
 
+#ifdef DEBUG_NGAGE_FRAMEBUFFER
+#define LOG_DEBUG_NGAGE_FRAMEBUFFER(msg, ...) SDL_Log(msg, __VA_ARGS__);
+#else
+#define LOG_DEBUG_NGAGE_FRAMEBUFFER(msg, ...)
+#endif
+
 /* For 12 bit screen HW. Table for fast conversion from 8 bit to 12 bit
  *
  * TUint16 is enough, but using TUint32 so we can use better instruction
@@ -86,14 +92,14 @@ int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     phdata->NGAGE_BytesPerScanLine = screenInfo.iScreenSize.iWidth * phdata->NGAGE_BytesPerPixel;
     phdata->NGAGE_BytesPerScreen = phdata->NGAGE_BytesPerScanLine * phdata->NGAGE_ScreenSize.iHeight;
 
-    SDL_Log("Screen width        %d", screenInfo.iScreenSize.iWidth);
-    SDL_Log("Screen height       %d", screenInfo.iScreenSize.iHeight);
-    SDL_Log("Screen dmode        %d", displayMode);
-    SDL_Log("Screen valid        %d", screenInfo.iScreenAddressValid);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Screen width        %d", screenInfo.iScreenSize.iWidth);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Screen height       %d", screenInfo.iScreenSize.iHeight);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Screen dmode        %d", displayMode);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Screen valid        %d", screenInfo.iScreenAddressValid);
 
-    SDL_Log("Bytes per pixel     %d", phdata->NGAGE_BytesPerPixel);
-    SDL_Log("Bytes per scan line %d", phdata->NGAGE_BytesPerScanLine);
-    SDL_Log("Bytes per screen    %d", phdata->NGAGE_BytesPerScreen);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Bytes per pixel     %d", phdata->NGAGE_BytesPerPixel);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Bytes per scan line %d", phdata->NGAGE_BytesPerScanLine);
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("Bytes per screen    %d", phdata->NGAGE_BytesPerScreen);
 
     /* It seems that in SA1100 machines for 8bpp displays there is a 512
      * palette table at the beginning of the frame buffer.
@@ -126,20 +132,20 @@ int NGAGE_CreateWindowFramebuffer(SDL_Window *window, Uint32 *format, void **pix
     phdata->NGAGE_WsEventStatus = KRequestPending;
     phdata->NGAGE_WsSession.EventReady(&phdata->NGAGE_WsEventStatus);
 
-    SDL_Log("SDL:WsEventStatus");
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("SDL:WsEventStatus");
     User::WaitForRequest(phdata->NGAGE_WsEventStatus);
 
     phdata->NGAGE_RedrawEventStatus = KRequestPending;
     phdata->NGAGE_WsSession.RedrawReady(&phdata->NGAGE_RedrawEventStatus);
 
-    SDL_Log("SDL:RedrawEventStatus");
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("SDL:RedrawEventStatus");
     User::WaitForRequest(phdata->NGAGE_RedrawEventStatus);
 
     phdata->NGAGE_WsWindow.PointerFilter(EPointerFilterDrag, 0);
 
     phdata->NGAGE_ScreenOffset = TPoint(0, 0);
 
-    SDL_Log("SDL:DrawBackground");
+    LOG_DEBUG_NGAGE_FRAMEBUFFER("SDL:DrawBackground");
     DrawBackground(); // Clear screen
 
     return 0;

@@ -415,7 +415,9 @@ static float CalculateSystemScale(SDL_Mouse *mouse, const int *x, const int *y)
         coef = (speed - v[i]) / (v[i + 2] - v[i]);
         scale = v[i + 1] + (coef * (v[i + 3] - v[i + 1]));
     }
+#ifdef DEBUG_MOUSE
     SDL_Log("speed = %.2f, scale = %.2f\n", speed, scale);
+#endif
     return scale;
 }
 

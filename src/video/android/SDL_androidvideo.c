@@ -294,17 +294,19 @@ static Uint32 format_to_pixelFormat(int format)
 
 void Android_SetFormat(int format_wanted, int format_got)
 {
-    Uint32 pf_wanted;
     Uint32 pf_got;
 
-    pf_wanted = format_to_pixelFormat(format_wanted);
     pf_got = format_to_pixelFormat(format_got);
 
     Android_ScreenFormat = pf_got;
-
-    SDL_Log("pixel format wanted %s (%d), got %s (%d)",
+#ifdef DEBUG_ANDROID_VIDEO
+    {
+        Uint32 pf_wanted = format_to_pixelFormat(format_wanted);
+        SDL_Log("pixel format wanted %s (%d), got %s (%d)",
             SDL_GetPixelFormatName(pf_wanted), format_wanted,
             SDL_GetPixelFormatName(pf_got), format_got);
+    }
+#endif
 }
 
 void Android_OnResize(void)

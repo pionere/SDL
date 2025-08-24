@@ -198,7 +198,7 @@ void SDL_WinRTApp::OnOrientationChanged(Windows::Graphics::Display::DisplayInfor
 void SDL_WinRTApp::OnOrientationChanged(Platform::Object ^ sender)
 #endif
 {
-#if LOG_ORIENTATION_EVENTS == 1
+#ifdef LOG_ORIENTATION_EVENTS
     {
         CoreWindow ^ window = CoreWindow::GetForCurrentThread();
         if (window) {
@@ -245,7 +245,7 @@ void SDL_WinRTApp::OnOrientationChanged(Platform::Object ^ sender)
 
 void SDL_WinRTApp::SetWindow(CoreWindow ^ window)
 {
-#if LOG_WINDOW_EVENTS == 1
+#ifdef LOG_WINDOW_EVENTS
     SDL_Log("%s, current orientation=%d, native orientation=%d, auto rot. pref=%d, window bounds={%f, %f, %f,%f}\n",
             __FUNCTION__,
             WINRT_DISPLAY_PROPERTY(CurrentOrientation),
@@ -466,7 +466,7 @@ void SDL_WinRTApp::OnSettingsPaneCommandsRequested(
 
 void SDL_WinRTApp::OnWindowSizeChanged(CoreWindow ^ sender, WindowSizeChangedEventArgs ^ args)
 {
-#if LOG_WINDOW_EVENTS == 1
+#ifdef LOG_WINDOW_EVENTS
     SDL_Log("%s, size={%f,%f}, bounds={%f,%f,%f,%f}, current orientation=%d, native orientation=%d, auto rot. pref=%d, WINRT_GlobalSDLWindow?=%s\n",
             __FUNCTION__,
             args->Size.Width, args->Size.Height,
@@ -482,7 +482,7 @@ void SDL_WinRTApp::OnWindowSizeChanged(CoreWindow ^ sender, WindowSizeChangedEve
 
 void SDL_WinRTApp::OnVisibilityChanged(CoreWindow ^ sender, VisibilityChangedEventArgs ^ args)
 {
-#if LOG_WINDOW_EVENTS == 1
+#ifdef LOG_WINDOW_EVENTS
     SDL_Log("%s, visible?=%s, bounds={%f,%f,%f,%f}, WINRT_GlobalSDLWindow?=%s\n",
             __FUNCTION__,
             (args->Visible ? "yes" : "no"),
@@ -521,7 +521,7 @@ void SDL_WinRTApp::OnVisibilityChanged(CoreWindow ^ sender, VisibilityChangedEve
 
 void SDL_WinRTApp::OnWindowActivated(CoreWindow ^ sender, WindowActivatedEventArgs ^ args)
 {
-#if LOG_WINDOW_EVENTS == 1
+#ifdef LOG_WINDOW_EVENTS
     SDL_Log("%s, WINRT_GlobalSDLWindow?=%s\n\n",
             __FUNCTION__,
             (WINRT_GlobalSDLWindow ? "yes" : "no"));
@@ -583,7 +583,7 @@ void SDL_WinRTApp::OnWindowActivated(CoreWindow ^ sender, WindowActivatedEventAr
 
 void SDL_WinRTApp::OnWindowClosed(CoreWindow ^ sender, CoreWindowEventArgs ^ args)
 {
-#if LOG_WINDOW_EVENTS == 1
+#ifdef LOG_WINDOW_EVENTS
     SDL_Log("%s\n", __FUNCTION__);
 #endif
     m_windowClosed = true;
@@ -648,7 +648,7 @@ void SDL_WinRTApp::OnExiting(Platform::Object ^ sender, Platform::Object ^ args)
 {
     SDL_SendAppEvent(SDL_APP_TERMINATING);
 }
-
+#ifdef LOG_POINTER_EVENTS
 static void WINRT_LogPointerEvent(const char *header, Windows::UI::Core::PointerEventArgs ^ args, Windows::Foundation::Point transformedPoint)
 {
     Uint8 button, pressed;
@@ -664,10 +664,10 @@ static void WINRT_LogPointerEvent(const char *header, Windows::UI::Core::Pointer
             button,
             pressed);
 }
-
+#endif
 void SDL_WinRTApp::OnPointerPressed(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer pressed", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 
@@ -676,7 +676,7 @@ void SDL_WinRTApp::OnPointerPressed(CoreWindow ^ sender, PointerEventArgs ^ args
 
 void SDL_WinRTApp::OnPointerMoved(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer moved", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 
@@ -685,7 +685,7 @@ void SDL_WinRTApp::OnPointerMoved(CoreWindow ^ sender, PointerEventArgs ^ args)
 
 void SDL_WinRTApp::OnPointerReleased(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer released", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 
@@ -694,7 +694,7 @@ void SDL_WinRTApp::OnPointerReleased(CoreWindow ^ sender, PointerEventArgs ^ arg
 
 void SDL_WinRTApp::OnPointerEntered(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer entered", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 
@@ -703,7 +703,7 @@ void SDL_WinRTApp::OnPointerEntered(CoreWindow ^ sender, PointerEventArgs ^ args
 
 void SDL_WinRTApp::OnPointerExited(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer exited", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 
@@ -712,7 +712,7 @@ void SDL_WinRTApp::OnPointerExited(CoreWindow ^ sender, PointerEventArgs ^ args)
 
 void SDL_WinRTApp::OnPointerWheelChanged(CoreWindow ^ sender, PointerEventArgs ^ args)
 {
-#if LOG_POINTER_EVENTS
+#ifdef LOG_POINTER_EVENTS
     WINRT_LogPointerEvent("pointer wheel changed", args, WINRT_TransformCursorPosition(WINRT_GlobalSDLWindow, args->CurrentPoint->Position, TransformToSDLWindowSize));
 #endif
 

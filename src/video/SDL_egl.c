@@ -950,7 +950,7 @@ int SDL_EGL_ChooseConfig(_THIS)
     /* Fallback with all configs */
     ret = SDL_EGL_PrivateChooseConfig(_this, SDL_FALSE);
     if (ret == 0) {
-        SDL_Log("SDL_EGL_ChooseConfig: found a slow EGL config");
+        // SDL_LogDebug("SDL_EGL_ChooseConfig: found a slow EGL config");
         return 0;
     }
 
