@@ -151,15 +151,15 @@ int PS4_PigletInit()
         snprintf(module_path, sizeof(module_path), "%s/%s", path, PIGLET_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading piglet module from: %s", module_path);
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
-        if (PS4_PigletModId < 0) {
-            SDL_SetError("PS4_PigletInit: could not load piglet module %s (0x%08x)", module_path, PS4_PigletModId);
+        if (!PS4_PigletModId) {
+            SDL_SetError("PS4_PigletInit: could not load piglet module %s", module_path);
             return 1;
         }
         snprintf(module_path, sizeof(module_path), "%s/%s", path, SHACC_MODULE_NAME);
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading shacc module from: %s", module_path);
         shaccModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
-        if (shaccModId < 0) {
-            SDL_SetError("PS4_PigletInit: could not load shacc module %s (0x%08x)", module_path, shaccModId);
+        if (!shaccModId) {
+            SDL_SetError("PS4_PigletInit: could not load shacc module %s", module_path);
             return 1;
         }
         if (shaderCompilerPatchModule(PIGLET_MODULE_NAME, &pgl_patches_cb) != 0) {
@@ -172,8 +172,8 @@ int PS4_PigletInit()
         snprintf(module_path, sizeof(module_path), "/%s/common/lib/libScePigletv2VSH.sprx", sceKernelGetFsSandboxRandomWord());
         LOG_DEBUG_PS4_VIDEO("PS4_PigletInit: loading piglet module from: %s", module_path);
         PS4_PigletModId = sceKernelLoadStartModule(module_path, 0, NULL, 0, NULL, NULL);
-        if (PS4_PigletModId < 0) {
-            SDL_SetError("PS4_PigletInit: could not load piglet module %s (0x%08x)", module_path, PS4_PigletModId);
+        if (!PS4_PigletModId) {
+            SDL_SetError("PS4_PigletInit: could not load piglet module %s", module_path);
             return 1;
         }
     }
@@ -201,17 +201,19 @@ int PS4_PigletInit()
 
 void PS4_PigletExit()
 {
-    if (shaccModId > 0) {
+    if (shaccModId) {
         sceKernelStopUnloadModule(shaccModId, 0, NULL, 0, NULL, NULL);
+        shaccModId = 0;
     }
-    if (PS4_PigletModId > 0) {
+    if (PS4_PigletModId) {
         sceKernelStopUnloadModule(PS4_PigletModId, 0, NULL, 0, NULL, NULL);
+        PS4_PigletModId = 0;
     }
 }
 
 SDL_bool PS4_PigletShaccAvailable()
 {
-    return shaccModId > 0 ? SDL_TRUE : SDL_FALSE;
+    return shaccModId ? SDL_TRUE : SDL_FALSE;
 }
 
 #endif // SDL_VIDEO_OPENGL_EGL
