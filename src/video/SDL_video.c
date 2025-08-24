@@ -174,7 +174,7 @@ extern SDL_bool Cocoa_SetWindowFullscreenSpace(SDL_Window * window, SDL_bool sta
 
 static Uint32 SDL_DefaultGraphicsBackends(void)
 {
-#if (defined(SDL_VIDEO_OPENGL) && defined(__MACOSX__)) || (defined(__IPHONEOS__) && !TARGET_OS_MACCATALYST) || defined(__ANDROID__) || defined(__NACL__) || defined(__HAIKU__) || defined(__EMSCRIPTEN__) || defined(__PSP__) || defined(__PS4__)
+#if (defined(SDL_VIDEO_OPENGL) && defined(__MACOSX__)) || (defined(__IPHONEOS__) && !TARGET_OS_MACCATALYST) || defined(__ANDROID__) || defined(__NACL__) || __SWITCH__ || defined(__HAIKU__) || defined(__EMSCRIPTEN__) || defined(__PSP__) || defined(__PS4__)
     if (current_video.GL_CreateContext) {
         return SDL_WINDOW_OPENGL;
     }

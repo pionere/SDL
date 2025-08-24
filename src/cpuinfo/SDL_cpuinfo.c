@@ -1097,7 +1097,7 @@ int SDL_GetSystemRAM(void)
             /* (64-bit): NetBSD since 2003, OpenBSD */
             int mib[2] = { CTL_HW, HW_PHYSMEM64 };
 #elif defined(HW_REALMEM)
-            /* (64-bit): FreeBSD since 2005, DragonFly */
+            /* (64-bit): FreeBSD since 2005, DragonFly, Switch */
             int mib[2] = { CTL_HW, HW_REALMEM };
 #elif defined(HW_MEMSIZE)
             /* (64-bit): Darwin */

@@ -1,0 +1,32 @@
+name: Build (Nintendo Switch)
+
+on: [push, pull_request]
+
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: |
+          . /opt/devkitpro/switchvars.sh
+          ./configure --prefix=`pwd`/switch-sdl2 --host=aarch64-none-elf \
+            --disable-shared --enable-static \
+            --enable-audio \
+            --enable-joystick \
+            --disable-power \
+            --disable-filesystem \
+            --enable-cpuinfo \
+            --enable-pthreads \
+            --enable-timers \
+            --enable-video
+      - name: Build
+        run: |
+          . /opt/devkitpro/switchvars.sh
+          make
+      - name: Install
+        run: |
+          . /opt/devkitpro/switchvars.sh
+          make install

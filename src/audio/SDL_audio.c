@@ -140,6 +140,9 @@ static const AudioBootStrap *const bootstrap[] = {
 #ifdef SDL_AUDIO_DRIVER_DISK
     &DISKAUDIO_bootstrap,
 #endif
+#if SDL_AUDIO_DRIVER_SWITCH
+    &SWITCHAUDIO_bootstrap,
+#endif
 #ifdef SDL_AUDIO_DRIVER_XBOX
     &XBOXAUDIO_bootstrap,
 #endif

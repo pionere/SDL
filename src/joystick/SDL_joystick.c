@@ -106,6 +106,9 @@ static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #ifdef SDL_JOYSTICK_N3DS
     &SDL_N3DS_JoystickDriver
 #endif
+#ifdef SDL_JOYSTICK_SWITCH
+    &SDL_SWITCH_JoystickDriver,
+#endif
 #ifdef SDL_JOYSTICK_XBOX
     &SDL_XBOX_JoystickDriver,
 #endif
