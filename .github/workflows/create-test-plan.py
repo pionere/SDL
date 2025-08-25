@@ -44,6 +44,7 @@ class SdlPlatform(Enum):
     Tvos = "tvos"
     Msvc = "msvc"
     N3ds = "n3ds"
+    Switch = "switch"
     PowerPC = "powerpc"
     PowerPC64 = "powerpc64"
     Ps2 = "ps2"
@@ -133,6 +134,7 @@ JOB_SPECS = {
     "emscripten": JobSpec(name="Emscripten",                                os=JobOs.UbuntuLatest,  platform=SdlPlatform.Emscripten,  artifact="SDL-emscripten", ),
     "haiku": JobSpec(name="Haiku",                                          os=JobOs.UbuntuLatest,  platform=SdlPlatform.Haiku,       artifact="SDL-haiku-x64",          container="ghcr.io/haiku/cross-compiler:x86_64-r1beta5", ),
     "n3ds": JobSpec(name="Nintendo 3DS",                                    os=JobOs.UbuntuLatest,  platform=SdlPlatform.N3ds,        artifact="SDL-n3ds",               container="devkitpro/devkitarm:latest", ),
+    "switch": JobSpec(name="Nintendo Switch",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Switch,      artifact="SDL-switch",             container="devkitpro/devkita64:latest", ),
     "ppc": JobSpec(name="PowerPC",                                          os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC,     artifact="SDL-ppc",                container="dockcross/linux-ppc:latest", ),
     "ppc64": JobSpec(name="PowerPC64",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.PowerPC64,   artifact="SDL-ppc64le",            container="dockcross/linux-ppc64le:latest", ),
     "ps2": JobSpec(name="Sony PlayStation 2",                               os=JobOs.UbuntuLatest,  platform=SdlPlatform.Ps2,         artifact="SDL-ps2",                container="ps2dev/ps2dev:latest", ),
@@ -646,6 +648,14 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.run_tests = False
             job.cc_from_cmake = True
             job.cmake_toolchain_file = "${DEVKITPRO}/cmake/3DS.cmake"
+            job.static_lib = StaticLibType.A
+        case SdlPlatform.Switch:
+            job.shared = False
+            job.apt_packages = ["cmake", "autoconf"]
+            job.build_tests = False
+            job.run_tests = False
+            job.test_pkg_config = False
+            job.cmake_toolchain_file = "${DEVKITPRO}/cmake/Switch.cmake"
             job.static_lib = StaticLibType.A
         case SdlPlatform.Msys2:
             job.shell = "msys2 {0}"

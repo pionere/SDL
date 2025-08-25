@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   switch:
+    if: false
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkita64:latest
