@@ -38,7 +38,10 @@
 /* Function pointer typedefs for 'new' ANGLE functions, which, unlike
  * the old functions, do not require C++ support and work with plain C.
  */
-typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplay_Function) (EGLenum platform, void *native_display, const EGLint *attrib_list);
+#if defined(SDL_VIDEO_DRIVER_VITA)
+typedef intptr_t EGLAttrib;
+#endif
+typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplay_Function) (EGLenum platform, void *native_display, const EGLAttrib *attrib_list);
 typedef EGLDisplay(EGLAPIENTRY *eglGetPlatformDisplayEXT_Function)(EGLenum platform, void *native_display, const EGLint *attrib_list);
 typedef EGLBoolean(EGLAPIENTRY *eglQueryDevicesEXT_Function)(EGLint max_devices, void **devices, EGLint *num_devices);
 
