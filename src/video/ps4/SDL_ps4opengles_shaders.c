@@ -40,6 +40,7 @@ const char *PS4GLES2_GetShaderBinary(GLES2_ShaderType type, int *size) {
         case GLES2_SHADER_FRAGMENT_TEXTURE_BGR:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_BGR_LENGTH;
             return PS4_SHADER_FRAGMENT_TEXTURE_BGR;
+#if SDL_HAVE_YUV
         case GLES2_SHADER_FRAGMENT_TEXTURE_YUV_JPEG:
             *size = PS4_SHADER_FRAGMENT_TEXTURE_YUV_JPEG_LENGTH;
             return PS4_SHADER_FRAGMENT_TEXTURE_YUV_JPEG;
@@ -63,6 +64,7 @@ const char *PS4GLES2_GetShaderBinary(GLES2_ShaderType type, int *size) {
             case GLES2_SHADER_FRAGMENT_TEXTURE_NV21_BT709:
             case GLES2_SHADER_FRAGMENT_TEXTURE_EXTERNAL_OES:
             */
+#endif
         default:
             return NULL;
     }
