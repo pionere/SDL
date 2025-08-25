@@ -203,7 +203,7 @@ int SDL_SYS_SetThreadPriority(SDL_ThreadPriority priority)
         res = svcSetThreadPriority(CUR_THREAD_HANDLE, 0x3B);
     }
 
-    if(R_FAILED(res)) {
+    if (R_FAILED(res)) {
         return SDL_SetError("SDL_SYS_SetThreadPriority: svcSetThreadPriority failed (%x)", res);
     }
 
