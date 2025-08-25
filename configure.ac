@@ -5030,9 +5030,10 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             SOURCES="$SOURCES $srcdir/src/video/switch/*.c"
             AC_DEFINE(SDL_VIDEO_DRIVER_SWITCH, 1, [ ])
             AC_DEFINE(SDL_VIDEO_OPENGL_EGL, 1, [ ])
-            AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
             AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
-            AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            if test x$enable_render_gl = xyes; then
+                AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
+            fi
             SUMMARY_video="${SUMMARY_video} switch_opengles2"
             have_video=yes
         fi
@@ -5046,6 +5047,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
             AC_DEFINE(SDL_JOYSTICK_SWITCH, 1, [ ])
+            SUMMARY_joystick="${SUMMARY_joystick} switch"
             SOURCES="$SOURCES $srcdir/src/joystick/switch/*.c"
             have_joystick=yes
         fi
