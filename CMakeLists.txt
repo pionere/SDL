@@ -599,7 +599,7 @@ set_option(SDL_SANITIZE_ACCESS "Build robust library with checks against unreaso
 set_option(SDL_ANALYZE_MACROS  "Add annotations to help code analysis tools" "NOT ${NXDK}")
 dep_option(SDL_TESTS           "Build the test directory" OFF SDL_TEST OFF)
 set_option(SDL_LOGGING         "Enable logging" ON)
-dep_option(SDL_VERBOSE_ERROR   "Enable verbose errors" ON "NOT SDL_LOGGING" ON)
+dep_option(SDL_VERBOSE_ERROR   "Enable verbose errors" ON SDL_LOGGING OFF)
 set_option(SDL_INSTALL_TESTS   "Install test-cases" OFF)
 
 set(HAVE_SDL2_DISABLE_SDL2MAIN "${SDL2_DISABLE_SDL2MAIN}")
