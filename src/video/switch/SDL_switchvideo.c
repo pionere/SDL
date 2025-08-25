@@ -290,9 +290,9 @@ static int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     Result rc;
 #ifdef SDL_VIDEO_OPENGL_EGL
-    SDL_WindowData *window_data = NULL;
+    SDL_WindowData *window_data;
 #endif
-    NWindow *nWindow = NULL;
+    NWindow *nWindow;
 
     if (switch_window != NULL) {
         return SDL_SetError("Switch only supports one window");
@@ -310,9 +310,12 @@ static int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
         return SDL_OutOfMemory();
     }
 
-    window_data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
-    if (window_data->egl_surface == EGL_NO_SURFACE) {
-        return -1;
+    // SDL_INLINE_COMPILE_TIME_ASSERT(ps4egl, EGL_NO_SURFACE == (EGLSurface)NULL);
+    if (window->flags & SDL_WINDOW_OPENGL) {
+        window_data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
+        if (window_data->egl_surface == EGL_NO_SURFACE) {
+            return -1;
+        }
     }
     /* Setup driver data for this window */
     window->driverdata = window_data;
@@ -335,16 +338,13 @@ static void SWITCH_DestroyWindow(SDL_Window *window)
     if (window == switch_window) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-        if (data != NULL) {
-            if (data->egl_surface != EGL_NO_SURFACE) {
-                SDL_EGL_MakeCurrent(NULL, NULL);
-                SDL_EGL_DestroySurface(data->egl_surface);
-            }
-            if(window->driverdata != NULL) {
-                SDL_free(window->driverdata);
-                window->driverdata = NULL;
-            }
+        SDL_assert(data != NULL);
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_EGL_MakeCurrent(NULL, NULL);
+            SDL_EGL_DestroySurface(data->egl_surface);
         }
+        SDL_free(data);
+        window->driverdata = NULL;
 #endif
         switch_window = NULL;
     }
