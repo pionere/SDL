@@ -33,6 +33,7 @@ extern "C" {
 
 #include "SDL_video.h"
 #include "../../events/SDL_events_c.h"
+#include "../../render/ngage/SDL_render_ngage_c.h"
 
 #ifdef __cplusplus
 }
@@ -106,7 +107,9 @@ static void NGAGE_DeleteDevice(_THIS)
 
 static void NGAGE_SuspendScreenSaver(SDL_bool suspend)
 {
+#if SDL_VIDEO_RENDER_NGAGE
     NGAGE_SuspendScreenSaverInternal(suspend);
+#endif
 }
 
 static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)

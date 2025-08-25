@@ -24,6 +24,7 @@
 #define SDL_sysmain_main_hpp_
 
 #include <e32std.h>
+#include "SDL_main.h"
 
 class CSDLmain : public CActive
 {

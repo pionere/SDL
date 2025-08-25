@@ -42,8 +42,6 @@ extern void SDL_AppQuit(void* appstate, SDL_AppResult result);
 #include "../../audio/ngage/SDL_ngageaudio.hpp"
 #include "../../render/ngage/SDL_render_ngage_c.hpp"
 
-CRenderer *gRenderer = 0;
-
 GLDEF_C TInt E32Main()
 {
     // Get args and environment.
@@ -97,7 +95,7 @@ GLDEF_C TInt E32Main()
         }
 
         // Create and start the rendering backend.
-        gRenderer = CRenderer::NewL();
+        CRenderer* gRenderer = CRenderer::NewL();
         CleanupStack::PushL(gRenderer);
 
         // Create and start the SDL main runner.

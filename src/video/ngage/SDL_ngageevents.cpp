@@ -36,6 +36,7 @@ extern "C" {
 
 #include "SDL_ngagevideo.h"
 #include "SDL_ngageevents_c.h"
+#include "SDL_ngageframebuffer_c.h"
 
 static int HandleWsEvent(const TWsEvent &aWsEvent);
 
@@ -61,7 +62,6 @@ void NGAGE_PumpEvents(void)
 #include <hal.h>
 
 extern void DisableKeyBlocking(void);
-extern void RedrawWindowL();
 
 TBool isCursorVisible = EFalse;
 
@@ -162,7 +162,9 @@ static int HandleWsEvent(const TWsEvent &aWsEvent)
 #endif
         /* Draw window background and screen buffer */
         DisableKeyBlocking();
+#ifdef USE_NGAGE_FRAMEBUFFER
         RedrawWindowL();
+#endif
         break;
     case EEventFocusLost: /* SDL window lost focus */
     {

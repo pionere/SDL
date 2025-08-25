@@ -32,14 +32,15 @@ extern "C" {
 }
 #endif
 
-#ifdef SDL_VIDEO_RENDER_NGAGE
+#if SDL_VIDEO_RENDER_NGAGE
 
 #include "SDL_render_ngage_c.hpp"
 #include "SDL_render_ops.hpp"
+#include "../../main/ngage/SDL_sysmain_main.hpp"
 
 const TUint32 WindowClientHandle = 0x571D0A;
 
-extern CRenderer *gRenderer;
+static CRenderer *gRenderer = 0;
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,6 +126,8 @@ CRenderer *CRenderer::NewL()
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
+
+    gRenderer = self;
     return self;
 }
 
@@ -134,6 +137,8 @@ CRenderer::~CRenderer()
 {
     delete iRenderer;
     iRenderer = 0;
+
+    gRenderer = 0;
 }
 
 void CRenderer::ConstructL()
