@@ -37,23 +37,21 @@ typedef struct SDL_WindowData
 
 int SWITCH_VideoInit(_THIS);
 void SWITCH_VideoQuit(_THIS);
-void SWITCH_GetDisplayModes(_THIS, SDL_VideoDisplay *display);
-int SWITCH_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-int SWITCH_CreateWindow(_THIS, SDL_Window *window);
-int SWITCH_CreateWindowFrom(_THIS, SDL_Window *window, const void *data);
-void SWITCH_SetWindowTitle(_THIS, SDL_Window *window);
-void SWITCH_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon);
-void SWITCH_SetWindowPosition(_THIS, SDL_Window *window);
-void SWITCH_SetWindowSize(_THIS, SDL_Window *window);
-void SWITCH_ShowWindow(_THIS, SDL_Window *window);
-void SWITCH_HideWindow(_THIS, SDL_Window *window);
-void SWITCH_RaiseWindow(_THIS, SDL_Window *window);
-void SWITCH_MaximizeWindow(_THIS, SDL_Window *window);
-void SWITCH_MinimizeWindow(_THIS, SDL_Window *window);
-void SWITCH_RestoreWindow(_THIS, SDL_Window *window);
-void SWITCH_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed);
-void SWITCH_DestroyWindow(_THIS, SDL_Window *window);
-void SWITCH_PumpEvents(_THIS);
+void SWITCH_GetDisplayModes(SDL_VideoDisplay *display);
+int SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window);
+void SWITCH_SetWindowTitle(SDL_Window *window);
+void SWITCH_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
+void SWITCH_SetWindowPosition(SDL_Window *window);
+void SWITCH_SetWindowSize(SDL_Window *window);
+void SWITCH_ShowWindow(SDL_Window *window);
+void SWITCH_HideWindow(SDL_Window *window);
+void SWITCH_RaiseWindow(SDL_Window *window);
+void SWITCH_MaximizeWindow(SDL_Window *window);
+void SWITCH_MinimizeWindow(SDL_Window *window);
+void SWITCH_RestoreWindow(SDL_Window *window);
+void SWITCH_DestroyWindow(SDL_Window *window);
+void SWITCH_PumpEvents();
 
 #endif /* __SDL_SWITCHVIDEO_H__ */
 

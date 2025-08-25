@@ -208,20 +208,32 @@ SWITCHAUDIO_ThreadInit(_THIS)
 static SDL_bool
 SWITCHAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
+    /* Set the function pointers */
+    // impl->DetectDevices = xxx;
     impl->OpenDevice = SWITCHAUDIO_OpenDevice;
-    impl->PlayDevice = SWITCHAUDIO_PlayDevice;
+    impl->ThreadInit = SWITCHAUDIO_ThreadInit;
+    // impl->ThreadDeinit = xxx;
     impl->WaitDevice = SWITCHAUDIO_WaitDevice;
+    impl->PlayDevice = SWITCHAUDIO_PlayDevice;
     impl->GetDeviceBuf = SWITCHAUDIO_GetDeviceBuf;
     impl->CloseDevice = SWITCHAUDIO_CloseDevice;
-    impl->ThreadInit = SWITCHAUDIO_ThreadInit;
+    // impl->LockDevice = xxx;
+    // impl->UnlockDevice = xxx;
+    // impl->FreeDeviceHandle = xxx;
+    // impl->Deinitialize = xxx;
+    // impl->GetDefaultAudioInfo = xxx;
+    /* Set the driver flags */
+    // impl->ProvidesOwnCallbackThread = SDL_FALSE;
+    impl->HasCaptureSupport = SDL_FALSE;
+    impl->PreventSimultaneousOpens = SDL_TRUE;
+    // impl->AllowsArbitraryDeviceName = SDL_FALSE;
+    // impl->SupportsNonPow2Samples = SDL_FALSE;
 
-    impl->OnlyHasDefaultOutputDevice = 1;
-
-    return 1;
+    return SDL_TRUE;
 }
 
-AudioBootStrap SWITCHAUDIO_bootstrap = {
-    "switch", "Nintendo Switch audio driver", SWITCHAUDIO_Init, 0
+const AudioBootStrap SWITCHAUDIO_bootstrap = {
+    "switch", SWITCHAUDIO_Init
 };
 
 #endif /* SDL_AUDIO_DRIVER_SWITCH */

@@ -41,13 +41,13 @@ SWITCH_QuitSwkb()
 }
 
 SDL_bool
-SWITCH_HasScreenKeyboardSupport(_THIS)
+SWITCH_HasScreenKeyboardSupport()
 {
     return SDL_TRUE;
 }
 
 SDL_bool
-SWITCH_IsScreenKeyboardShown(_THIS, SDL_Window *window)
+SWITCH_IsScreenKeyboardShown(SDL_Window *window)
 {
     return kbdShown;
 }
@@ -69,7 +69,7 @@ SWITCH_CancelCb(void)
 }
 
 void
-SWITCH_StartTextInput(_THIS)
+SWITCH_StartTextInput()
 {
     Result rc;
 
@@ -99,7 +99,7 @@ SWITCH_StartTextInput(_THIS)
 }
 
 void
-SWITCH_StopTextInput(_THIS)
+SWITCH_StopTextInput()
 {
     if(kbdInited) {
         swkbdInlineDisappear(&kbd);

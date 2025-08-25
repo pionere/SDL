@@ -30,13 +30,13 @@
 
 /* EGL implementation of SDL OpenGL support */
 
-void
+/*void
 SWITCH_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
 {
     *mask = SDL_GL_CONTEXT_PROFILE_ES;
     *major = 2;
     *minor = 0;
-}
+}*/
 
 int
 SWITCH_GLES_LoadLibrary(_THIS, const char *path)
@@ -48,6 +48,6 @@ SDL_EGL_CreateContext_impl(SWITCH)
 SDL_EGL_MakeCurrent_impl(SWITCH)
 SDL_EGL_SwapWindow_impl(SWITCH)
 
-#endif /* SDL_VIDEO_DRIVER_SWITCH */
+#endif /* SDL_VIDEO_DRIVER_SWITCH && SDL_VIDEO_OPENGL_EGL*/
 
 /* vi: set ts=4 sw=4 expandtab: */

@@ -11,10 +11,10 @@ extern void SWITCH_InitSwkb();
 extern void SWITCH_PollSwkb();
 extern void SWITCH_QuitSwkb();
 
-extern SDL_bool SWITCH_HasScreenKeyboardSupport(_THIS);
-extern SDL_bool SWITCH_IsScreenKeyboardShown(_THIS, SDL_Window * window);
+extern SDL_bool SWITCH_HasScreenKeyboardSupport();
+extern SDL_bool SWITCH_IsScreenKeyboardShown(SDL_Window * window);
 
-extern void SWITCH_StartTextInput(_THIS);
-extern void SWITCH_StopTextInput(_THIS);
+extern void SWITCH_StartTextInput();
+extern void SWITCH_StopTextInput();
 
 #endif //SDL2_SDL_SWITCHSWKB_H

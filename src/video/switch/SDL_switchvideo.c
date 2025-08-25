@@ -41,79 +41,139 @@ static SDL_Window *switch_window = NULL;
 static AppletOperationMode operationMode;
 
 static void
-SWITCH_Destroy(SDL_VideoDevice *device)
+SWITCH_DeleteDevice(SDL_VideoDevice *device)
 {
-    if (device != NULL) {
-        if(device->driverdata != NULL) {
-            SDL_free(device->driverdata);
-        }
-        SDL_free(device);
-    }
 }
 
-static SDL_VideoDevice *
-SWITCH_CreateDevice()
+static SDL_bool
+SWITCH_CreateDevice(SDL_VideoDevice *device)
 {
-    SDL_VideoDevice *device;
-
-    /* Initialize SDL_VideoDevice structure */
-    device = (SDL_VideoDevice *) SDL_calloc(1, sizeof(SDL_VideoDevice));
-    if (device == NULL) {
-        SDL_OutOfMemory();
-        return NULL;
-    }
-
-    /* Setup amount of available displays */
-    device->num_displays = 0;
-
-    /* Set device free function */
-    device->free = SWITCH_Destroy;
-
-    /* Setup all functions which we can handle */
+    /* Set the function pointers */
+    /* Initialization/Query functions */
     device->VideoInit = SWITCH_VideoInit;
     device->VideoQuit = SWITCH_VideoQuit;
-    device->GetDisplayModes = SWITCH_GetDisplayModes;
+    // device->GetDisplayBounds = SWITCH_GetDisplayBounds;
+    // device->GetDisplayUsableBounds = SWITCH_GetDisplayUsableBounds;
+    // device->GetDisplayDPI = SWITCH_GetDisplayDPI;
     device->SetDisplayMode = SWITCH_SetDisplayMode;
-    device->CreateSDLWindow = SWITCH_CreateWindow;
-    device->CreateSDLWindowFrom = SWITCH_CreateWindowFrom;
-    device->SetWindowTitle = SWITCH_SetWindowTitle;
-    device->SetWindowIcon = SWITCH_SetWindowIcon;
-    device->SetWindowPosition = SWITCH_SetWindowPosition;
+
+    /* Window functions */
+    device->CreateSDLWindow = SWITCH_CreateSDLWindow;
+    // device->CreateSDLWindowFrom = SWITCH_CreateSDLWindowFrom;
+    // device->SetWindowTitle = SWITCH_SetWindowTitle;
+    // device->SetWindowIcon = SWITCH_SetWindowIcon;
+    // device->SetWindowPosition = SWITCH_SetWindowPosition;
     device->SetWindowSize = SWITCH_SetWindowSize;
-    device->ShowWindow = SWITCH_ShowWindow;
-    device->HideWindow = SWITCH_HideWindow;
-    device->RaiseWindow = SWITCH_RaiseWindow;
-    device->MaximizeWindow = SWITCH_MaximizeWindow;
-    device->MinimizeWindow = SWITCH_MinimizeWindow;
-    device->RestoreWindow = SWITCH_RestoreWindow;
-    //device->SetWindowMouseGrab = SWITCH_SetWindowGrab; // SDL 2.0.16
-    //device->SetWindowKeyboardGrab = SWITCH_SetWindowGrab; // SDL 2.0.16
+    // device->SetWindowMinimumSize = SWITCH_SetWindowMinimumSize;
+    // device->SetWindowMaximumSize = SWITCH_SetWindowMaximumSize;
+    // device->GetWindowBordersSize = SWITCH_GetWindowBordersSize;
+    // device->GetWindowSizeInPixels = SWITCH_GetWindowSizeInPixels;
+    // device->SetWindowOpacity = SWITCH_SetWindowOpacity;
+    // device->SetWindowModalFor = SWITCH_SetWindowModalFor;
+    // device->SetWindowInputFocus = SWITCH_SetWindowInputFocus;
+    // device->ShowWindow = SWITCH_ShowWindow;
+    // device->HideWindow = SWITCH_HideWindow;
+    // device->RaiseWindow = SWITCH_RaiseWindow;
+    // device->MaximizeWindow = SWITCH_MaximizeWindow;
+    // device->MinimizeWindow = SWITCH_MinimizeWindow;
+    // device->RestoreWindow = SWITCH_RestoreWindow;
+    // device->SetWindowBordered = SWITCH_SetWindowBordered;
+    // device->SetWindowResizable = SWITCH_SetWindowResizable;
+    // device->SetWindowAlwaysOnTop = SWITCH_SetWindowAlwaysOnTop;
+    // device->SetWindowFullscreen = SWITCH_SetWindowFullscreen;
+    // device->SetWindowGammaRamp = SWITCH_SetWindowGammaRamp;
+    // device->GetWindowGammaRamp = SWITCH_GetWindowGammaRamp;
+    // device->GetWindowICCProfile = SWITCH_GetWindowICCProfile;
+    // device->GetWindowDisplayIndex = SWITCH_GetWindowDisplayIndex;
+    // device->SetWindowMouseRect = SWITCH_SetWindowMouseRect;
+    // device->SetWindowMouseGrab = SWITCH_SetWindowMouseGrab;
+    // device->SetWindowKeyboardGrab = SWITCH_SetWindowKeyboardGrab;
     device->DestroyWindow = SWITCH_DestroyWindow;
+    // * Framebuffer disabled, causes issues on high-framerate updates. SDL still emulates this.
+    // device->CreateWindowFramebuffer = SWITCH_CreateWindowFramebuffer;
+    // device->UpdateWindowFramebuffer = SWITCH_UpdateWindowFramebuffer;
+    // device->DestroyWindowFramebuffer = SWITCH_DestroyWindowFramebuffer;
+    // device->OnWindowEnter = SWITCH_OnWindowEnter;
+    // device->FlashWindow = SWITCH_FlashWindow;
+    /* Shaped-window functions */
+    // device->CreateShaper = SWITCH_CreateShaper;
+    // device->SetWindowShape = SWITCH_SetWindowShape;
+    /* Get some platform dependent window information */
+    // device->GetWindowWMInfo = SWITCH_GetWindowWMInfo;
+
+    /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
     device->GL_LoadLibrary = SWITCH_GLES_LoadLibrary;
     device->GL_GetProcAddress = SWITCH_GLES_GetProcAddress;
     device->GL_UnloadLibrary = SWITCH_GLES_UnloadLibrary;
     device->GL_CreateContext = SWITCH_GLES_CreateContext;
     device->GL_MakeCurrent = SWITCH_GLES_MakeCurrent;
+    device->GL_GetDrawableSize = SWITCH_GLES_GetDrawableSize;
     device->GL_SetSwapInterval = SWITCH_GLES_SetSwapInterval;
     device->GL_GetSwapInterval = SWITCH_GLES_GetSwapInterval;
     device->GL_SwapWindow = SWITCH_GLES_SwapWindow;
     device->GL_DeleteContext = SWITCH_GLES_DeleteContext;
-    device->GL_DefaultProfileConfig = SWITCH_GLES_DefaultProfileConfig;
 #endif
-    device->StartTextInput = SWITCH_StartTextInput;
-    device->StopTextInput = SWITCH_StopTextInput;
-    device->HasScreenKeyboardSupport = SWITCH_HasScreenKeyboardSupport;
-    device->IsScreenKeyboardShown = SWITCH_IsScreenKeyboardShown;
 
+    /* Vulkan support */
+#ifdef SDL_VIDEO_VULKAN
+    // device->Vulkan_LoadLibrary = SWITCH_Vulkan_LoadLibrary;
+    // device->Vulkan_UnloadLibrary = SWITCH_Vulkan_UnloadLibrary;
+    // device->Vulkan_GetInstanceExtensions = SWITCH_Vulkan_GetInstanceExtensions;
+    // device->Vulkan_CreateSurface = SWITCH_Vulkan_CreateSurface;
+    // device->Vulkan_GetDrawableSize = SWITCH_Vulkan_GetDrawableSize;
+#endif
+
+    /* Metal support */
+#ifdef SDL_VIDEO_METAL
+    // device->Metal_CreateView = SWITCH_Metal_CreateView;
+    // device->Metal_DestroyView = SWITCH_Metal_DestroyView;
+    // device->Metal_GetLayer = SWITCH_Metal_GetLayer;
+    // device->Metal_GetDrawableSize = SWITCH_Metal_GetDrawableSize;
+#endif
+
+    /* Event manager functions */
+    // device->WaitEventTimeout = SWITCH_WaitEventTimeout;
+    // device->SendWakeupEvent = SWITCH_SendWakeupEvent;
     device->PumpEvents = SWITCH_PumpEvents;
 
-    return device;
+    /* Screensaver */
+    // device->SuspendScreenSaver = SWITCH_SuspendScreenSaver;
+
+    /* Text input */
+    device->StartTextInput = SWITCH_StartTextInput;
+    device->StopTextInput = SWITCH_StopTextInput;
+    // device->SetTextInputRect = SWITCH_SetTextInputRect;
+    // device->ClearComposition = SWITCH_ClearComposition;
+    // device->IsTextInputShown = SWITCH_IsTextInputShown;
+
+    /* Screen keyboard */
+    device->HasScreenKeyboardSupport = SWITCH_HasScreenKeyboardSupport;
+    // device->ShowScreenKeyboard = SWITCH_ShowScreenKeyboard;
+    // device->HideScreenKeyboard = SWITCH_HideScreenKeyboard;
+    device->IsScreenKeyboardShown = SWITCH_IsScreenKeyboardShown;
+
+    /* Clipboard */
+    // device->SetClipboardText = SWITCH_SetClipboardText;
+    // device->GetClipboardText = SWITCH_GetClipboardText;
+    // device->HasClipboardText = SWITCH_HasClipboardText;
+    // device->SetPrimarySelectionText = SWITCH_SetPrimarySelectionText;
+    // device->GetPrimarySelectionText = SWITCH_GetPrimarySelectionText;
+    // device->HasPrimarySelectionText = SWITCH_HasPrimarySelectionText;
+
+    /* Hit-testing */
+    // device->SetWindowHitTest = SWITCH_SetWindowHitTest;
+
+    /* Tell window that app enabled drag'n'drop events */
+    // device->AcceptDragAndDrop = SWITCH_AcceptDragAndDrop;
+
+    device->DeleteDevice = SWITCH_DeleteDevice;
+
+    return SDL_TRUE;
 }
 
-VideoBootStrap SWITCH_bootstrap = {
+const VideoBootStrap SWITCH_bootstrap = {
     "Switch",
-    "Nintendo Switch Video Driver",
     SWITCH_CreateDevice
 };
 
@@ -125,6 +185,7 @@ SWITCH_VideoInit(_THIS)
 {
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
+    int result;
 
     SDL_zero(current_mode);
     current_mode.w = 1920;
@@ -137,7 +198,13 @@ SWITCH_VideoInit(_THIS)
     display.desktop_mode = current_mode;
     display.current_mode = current_mode;
     display.driverdata = NULL;
-    SDL_AddVideoDisplay(&display, SDL_FALSE);
+
+    SDL_AddDisplayMode(&display, &current_mode);
+    SWITCH_GetDisplayModes(&display);
+    result = SDL_AddVideoDisplay(&display, SDL_FALSE);
+    if (result < 0) {
+        SDL_free(display.display_modes);
+    }
 
     // init psm service
     psmInitialize();
@@ -150,7 +217,7 @@ SWITCH_VideoInit(_THIS)
     // init software keyboard
     SWITCH_InitSwkb();
 
-    return 0;
+    return result;
 }
 
 void
@@ -177,12 +244,12 @@ SWITCH_VideoQuit(_THIS)
 }
 
 void
-SWITCH_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
+SWITCH_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayMode mode;
 
     // 1920x1080 RGBA8888, default mode
-    SDL_AddDisplayMode(display, &display->current_mode);
+    // SDL_AddDisplayMode(display, &display->current_mode);
 
     // 1280x720 RGBA8888
     SDL_zero(mode);
@@ -193,27 +260,38 @@ SWITCH_GetDisplayModes(_THIS, SDL_VideoDisplay *display)
     SDL_AddDisplayMode(display, &mode);
 }
 
+#ifdef SDL_VIDEO_OPENGL_EGL
+static void SWITCH_setEglSurfaceSize(int w, int h)
+{
+    if (switch_window != NULL) {
+        SDL_WindowData *data = (SDL_WindowData *) switch_window->driverdata;
+        SDL_assert(data != NULL);
+        if (data->egl_surface != EGL_NO_SURFACE) {
+            SDL_VideoDevice *_this;
+            NWindow *nWindow = nwindowGetDefault();
+            SDL_GLContext ctx = SDL_GL_GetCurrentContext();
+            SDL_EGL_MakeCurrent(NULL, NULL);
+            SDL_EGL_DestroySurface(data->egl_surface);
+            nwindowSetDimensions(nWindow, w, h);
+            _this = SDL_GetVideoDevice();
+            data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
+            SDL_EGL_MakeCurrent(data->egl_surface, ctx);
+        }
+    }
+}
+#endif
+
 int
-SWITCH_SetDisplayMode(_THIS, SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
-    SDL_WindowData *data = (SDL_WindowData *) SDL_GetFocusWindow()->driverdata;
-    SDL_GLContext ctx = SDL_GL_GetCurrentContext();
-    NWindow *nWindow = nwindowGetDefault();
-
-    if (data != NULL && data->egl_surface != EGL_NO_SURFACE) {
-        SDL_EGL_MakeCurrent(_this, NULL, NULL);
-        SDL_EGL_DestroySurface(_this, data->egl_surface);
-        nwindowSetDimensions(nWindow, mode->w, mode->h);
-        data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
-        SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
-    }
+    SWITCH_setEglSurfaceSize(mode->w, mode->h);
 #endif
     return 0;
 }
 
 int
-SWITCH_CreateWindow(_THIS, SDL_Window *window)
+SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     Result rc;
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -224,28 +302,23 @@ SWITCH_CreateWindow(_THIS, SDL_Window *window)
     if (switch_window != NULL) {
         return SDL_SetError("Switch only supports one window");
     }
-#ifdef SDL_VIDEO_OPENGL_EGL
-    if (!_this->egl_data) {
-        return SDL_SetError("EGL not initialized");
-    }
 
-    window_data = (SDL_WindowData *) SDL_calloc(1, sizeof(SDL_WindowData));
-    if (window_data == NULL) {
-        return SDL_OutOfMemory();
-    }
-#endif
     nWindow = nwindowGetDefault();
 
-    rc = nwindowSetDimensions(nWindow, window->w, window->h);
+    rc = nwindowSetDimensions(nWindow, window->wrect.w, window->wrect.h);
     if (R_FAILED(rc)) {
         return SDL_SetError("Could not set NWindow dimensions: 0x%x", rc);
     }
 #ifdef SDL_VIDEO_OPENGL_EGL
-    window_data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
-    if (window_data->egl_surface == EGL_NO_SURFACE) {
-        return SDL_SetError("Could not create GLES window surface");
+    window_data = (SDL_WindowData *) SDL_calloc(1, sizeof(SDL_WindowData));
+    if (window_data == NULL) {
+        return SDL_OutOfMemory();
     }
 
+    window_data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
+    if (window_data->egl_surface == EGL_NO_SURFACE) {
+        return -1;
+    }
     /* Setup driver data for this window */
     window->driverdata = window_data;
 #endif
@@ -263,15 +336,15 @@ SWITCH_CreateWindow(_THIS, SDL_Window *window)
 }
 
 void
-SWITCH_DestroyWindow(_THIS, SDL_Window *window)
+SWITCH_DestroyWindow(SDL_Window *window)
 {
     if (window == switch_window) {
 #ifdef SDL_VIDEO_OPENGL_EGL
         SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
         if (data != NULL) {
             if (data->egl_surface != EGL_NO_SURFACE) {
-                SDL_EGL_MakeCurrent(_this, NULL, NULL);
-                SDL_EGL_DestroySurface(_this, data->egl_surface);
+                SDL_EGL_MakeCurrent(NULL, NULL);
+                SDL_EGL_DestroySurface(data->egl_surface);
             }
             if(window->driverdata != NULL) {
                 SDL_free(window->driverdata);
@@ -283,74 +356,53 @@ SWITCH_DestroyWindow(_THIS, SDL_Window *window)
     }
 }
 
-int
-SWITCH_CreateWindowFrom(_THIS, SDL_Window *window, const void *data)
-{
-    return -1;
-}
 void
-SWITCH_SetWindowTitle(_THIS, SDL_Window *window)
+SWITCH_SetWindowTitle(SDL_Window *window)
 {
 }
 void
-SWITCH_SetWindowIcon(_THIS, SDL_Window *window, SDL_Surface *icon)
+SWITCH_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
 {
 }
 void
-SWITCH_SetWindowPosition(_THIS, SDL_Window *window)
+SWITCH_SetWindowPosition(SDL_Window *window)
 {
 }
 void
-SWITCH_SetWindowSize(_THIS, SDL_Window *window)
+SWITCH_SetWindowSize(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
-    u32 w = 0, h = 0;
-    SDL_WindowData *data = (SDL_WindowData *) window->driverdata;
-    SDL_GLContext ctx = SDL_GL_GetCurrentContext();
-    NWindow *nWindow = nwindowGetDefault();
-
-    if(window->w != w || window->h != h) {
-        if (data != NULL && data->egl_surface != EGL_NO_SURFACE) {
-            SDL_EGL_MakeCurrent(_this, NULL, NULL);
-            SDL_EGL_DestroySurface(_this, data->egl_surface);
-            nwindowSetDimensions(nWindow, window->w, window->h);
-            data->egl_surface = SDL_EGL_CreateSurface(_this, nWindow);
-            SDL_EGL_MakeCurrent(_this, data->egl_surface, ctx);
-        }
-    }
+    SDL_assert(window == switch_window);
+    SWITCH_setEglSurfaceSize(switch_window->wrect.w, switch_window->wrect.h);
 #endif
 }
 void
-SWITCH_ShowWindow(_THIS, SDL_Window *window)
+SWITCH_ShowWindow(SDL_Window *window)
 {
 }
 void
-SWITCH_HideWindow(_THIS, SDL_Window *window)
+SWITCH_HideWindow(SDL_Window *window)
 {
 }
 void
-SWITCH_RaiseWindow(_THIS, SDL_Window *window)
+SWITCH_RaiseWindow(SDL_Window *window)
 {
 }
 void
-SWITCH_MaximizeWindow(_THIS, SDL_Window *window)
+SWITCH_MaximizeWindow(SDL_Window *window)
 {
 }
 void
-SWITCH_MinimizeWindow(_THIS, SDL_Window *window)
+SWITCH_MinimizeWindow(SDL_Window *window)
 {
 }
 void
-SWITCH_RestoreWindow(_THIS, SDL_Window *window)
-{
-}
-void
-SWITCH_SetWindowGrab(_THIS, SDL_Window *window, SDL_bool grabbed)
+SWITCH_RestoreWindow(SDL_Window *window)
 {
 }
 
 void
-SWITCH_PumpEvents(_THIS)
+SWITCH_PumpEvents()
 {
     AppletOperationMode om;
 
