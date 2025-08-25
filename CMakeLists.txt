@@ -3361,7 +3361,6 @@ elseif(PS4)
       set(HAVE_OPENGLES TRUE)
     endif()
   endif()
-  list(APPEND EXTRA_CFLAGS "-DSDL_VIDEO_STATIC_ANGLE")
   list(APPEND EXTRA_LIBS
           SceSystemService SceSysUtil SceSysmodule
           SceUserService SceAudioOut ScePad ScePigletv2VSH
@@ -3815,7 +3814,6 @@ elseif(NINTENDO_SWITCH)
     endif()
   endif()
   list(APPEND EXTRA_LIBS EGL glapi drm_nouveau nx m)
-  list(APPEND EXTRA_CFLAGS "-DSDL_VIDEO_STATIC_ANGLE")
   CheckPTHREAD()
   if(SDL_CLOCK_GETTIME)
     set(HAVE_CLOCK_GETTIME 1)
