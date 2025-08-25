@@ -103,16 +103,7 @@ SWITCH_CreateDevice(SDL_VideoDevice *device)
 
     /* OpenGL support */
 #ifdef SDL_VIDEO_OPENGL_EGL
-    device->GL_LoadLibrary = SWITCH_GLES_LoadLibrary;
-    device->GL_GetProcAddress = SWITCH_GLES_GetProcAddress;
-    device->GL_UnloadLibrary = SWITCH_GLES_UnloadLibrary;
-    device->GL_CreateContext = SWITCH_GLES_CreateContext;
-    device->GL_MakeCurrent = SWITCH_GLES_MakeCurrent;
-    device->GL_GetDrawableSize = SWITCH_GLES_GetDrawableSize;
-    device->GL_SetSwapInterval = SWITCH_GLES_SetSwapInterval;
-    device->GL_GetSwapInterval = SWITCH_GLES_GetSwapInterval;
-    device->GL_SwapWindow = SWITCH_GLES_SwapWindow;
-    device->GL_DeleteContext = SWITCH_GLES_DeleteContext;
+    SWITCH_GLES_InitDevice(device);
 #endif
 
     /* Vulkan support */

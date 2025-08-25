@@ -30,6 +30,20 @@
 
 /* EGL implementation of SDL OpenGL support */
 
+void SWITCH_GLES_InitDevice(_THIS)
+{
+    _this->GL_LoadLibrary = SWITCH_GLES_LoadLibrary;
+    _this->GL_GetProcAddress = SWITCH_GLES_GetProcAddress;
+    _this->GL_UnloadLibrary = SWITCH_GLES_UnloadLibrary;
+    _this->GL_CreateContext = SWITCH_GLES_CreateContext;
+    _this->GL_MakeCurrent = SWITCH_GLES_MakeCurrent;
+    _this->GL_GetDrawableSize = SWITCH_GLES_GetDrawableSize;
+    _this->GL_SetSwapInterval = SWITCH_GLES_SetSwapInterval;
+    _this->GL_GetSwapInterval = SWITCH_GLES_GetSwapInterval;
+    _this->GL_SwapWindow = SWITCH_GLES_SwapWindow;
+    _this->GL_DeleteContext = SWITCH_GLES_DeleteContext;
+}
+
 /*void
 SWITCH_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
 {

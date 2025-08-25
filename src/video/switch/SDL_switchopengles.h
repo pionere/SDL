@@ -42,6 +42,8 @@ extern SDL_GLContext SWITCH_GLES_CreateContext(_THIS, SDL_Window *window);
 extern int SWITCH_GLES_SwapWindow(_THIS, SDL_Window *window);
 extern int SWITCH_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context);
 
+extern void SWITCH_GLES_InitDevice(_THIS);
+
 #endif /* SDL_VIDEO_OPENGL_EGL */
 #endif /* SDL_switchteopengles_h_ */
 
