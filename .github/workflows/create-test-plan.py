@@ -554,7 +554,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             ))
             job.static_lib = StaticLibType.A
         case SdlPlatform.Ps2:
-            build_parallel = False
             job.sudo = ""
             job.apt_packages = []
             job.apk_packages = ["cmake", "gmp", "mpc1", "mpfr4", "ninja", "pkgconf", "git", ]
@@ -565,7 +564,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.ldflags = ["-L${PS2DEV}/ps2sdk/ee/lib", "-L${PS2DEV}/gsKit/lib", "-L${PS2DEV}/ps2sdk/ports/lib", ]
             job.static_lib = StaticLibType.A
         case SdlPlatform.Ps4:
-            build_parallel = False
             job.apt_packages = ["cmake", "pacman-package-manager", "wget", "git", ]
             job.apk_packages = []
             job.setup_ps4_sdk_path = "/opt/pacbrew"
@@ -574,7 +572,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.shared = False
             job.static_lib = StaticLibType.A
         case SdlPlatform.Ps5:
-            build_parallel = False
             job.apt_packages = ["cmake", "pkg-config", "clang-15", "lld-15", "build-essential", "autoconf", "libtool", "yasm", "nasm", "gperf", "pkgconf", "libarchive-tools", "autopoint", "po4a", "git", "curl", "doxygen", "wget", ]
             job.apk_packages = []
             job.setup_ps5_sdk_path = "/opt/ps5-payload-sdk"
@@ -584,7 +581,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.shared_lib = SharedLibType.SO_0
             job.static_lib = StaticLibType.A
         case SdlPlatform.Psp:
-            build_parallel = False
             job.sudo = ""
             job.apt_packages = []
             job.apk_packages = ["cmake", "gmp", "mpc1", "mpfr4", "ninja", "pkgconf", ]
@@ -731,7 +727,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     "-DCMAKE_CXX_COMPILER=clang-cl",
                 ))
                 #job.cflags.append("/clang:-m32")
-            build_parallel = False
             job.cmake_build_type = "Release"
             job.werror = False  # FIXME: enable SDL_WERROR
             job.shared = False
@@ -742,7 +737,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.cmake_toolchain_file = "/opt/nxdk/share/toolchain-nxdk.cmake"
             job.test_pkg_config = False
         case SdlPlatform.NGage:
-            build_parallel = False
+            #build_parallel = False
             job.cmake_build_type = "Release"
             job.setup_ninja = True
             job.static_lib = StaticLibType.STATIC_LIB
