@@ -220,7 +220,7 @@ static int SWITCH_VideoInit(_THIS)
 
 static void SWITCH_VideoQuit(_THIS)
 {
-#ifdef SDL_VIDEO_OPENGL_EGL
+#if 0
     // this should not be needed if user code is right (SDL_GL_LoadLibrary/SDL_GL_UnloadLibrary calls match)
     // this (user) error doesn't have the same effect on switch thought, as the driver needs to be unloaded (crash)
     if (_this->gl_config.driver_loaded > 0) {
