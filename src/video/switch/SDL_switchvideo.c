@@ -23,6 +23,8 @@
 
 #ifdef SDL_VIDEO_DRIVER_SWITCH
 
+#include <switch.h>
+
 #include "../SDL_sysvideo.h"
 #include "../../render/SDL_sysrender.h"
 #include "../../events/SDL_keyboard_c.h"

@@ -20,7 +20,6 @@
 */
 
 #include "../../SDL_internal.h"
-#include "SDL_log.h"
 
 #if defined(SDL_VIDEO_DRIVER_SWITCH) && defined(SDL_VIDEO_OPENGL_EGL)
 

@@ -22,10 +22,7 @@
 
 #ifdef SDL_AUDIO_DRIVER_SWITCH
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <malloc.h>
+#include <malloc.h> /* memalign() */
 
 #include "SDL_audio.h"
 #include "../SDL_audio_c.h"

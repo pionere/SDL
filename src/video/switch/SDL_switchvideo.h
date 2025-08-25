@@ -22,8 +22,6 @@
 #ifndef __SDL_SWITCHVIDEO_H__
 #define __SDL_SWITCHVIDEO_H__
 
-#include <switch.h>
-
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
 #ifdef SDL_VIDEO_OPENGL_EGL
