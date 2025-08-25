@@ -348,48 +348,12 @@ SWITCH_DestroyWindow(SDL_Window *window)
 }
 
 void
-SWITCH_SetWindowTitle(SDL_Window *window)
-{
-}
-void
-SWITCH_SetWindowIcon(SDL_Window *window, SDL_Surface *icon)
-{
-}
-void
-SWITCH_SetWindowPosition(SDL_Window *window)
-{
-}
-void
 SWITCH_SetWindowSize(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_assert(window == switch_window);
     SWITCH_setEglSurfaceSize(switch_window->wrect.w, switch_window->wrect.h);
 #endif
-}
-void
-SWITCH_ShowWindow(SDL_Window *window)
-{
-}
-void
-SWITCH_HideWindow(SDL_Window *window)
-{
-}
-void
-SWITCH_RaiseWindow(SDL_Window *window)
-{
-}
-void
-SWITCH_MaximizeWindow(SDL_Window *window)
-{
-}
-void
-SWITCH_MinimizeWindow(SDL_Window *window)
-{
-}
-void
-SWITCH_RestoreWindow(SDL_Window *window)
-{
 }
 
 void

@@ -40,16 +40,7 @@ void SWITCH_VideoQuit(_THIS);
 void SWITCH_GetDisplayModes(SDL_VideoDisplay *display);
 int SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
 int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window);
-void SWITCH_SetWindowTitle(SDL_Window *window);
-void SWITCH_SetWindowIcon(SDL_Window *window, SDL_Surface *icon);
-void SWITCH_SetWindowPosition(SDL_Window *window);
 void SWITCH_SetWindowSize(SDL_Window *window);
-void SWITCH_ShowWindow(SDL_Window *window);
-void SWITCH_HideWindow(SDL_Window *window);
-void SWITCH_RaiseWindow(SDL_Window *window);
-void SWITCH_MaximizeWindow(SDL_Window *window);
-void SWITCH_MinimizeWindow(SDL_Window *window);
-void SWITCH_RestoreWindow(SDL_Window *window);
 void SWITCH_DestroyWindow(SDL_Window *window);
 void SWITCH_PumpEvents();
 
