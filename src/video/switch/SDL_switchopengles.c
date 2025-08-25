@@ -51,8 +51,7 @@ SWITCH_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
     *minor = 0;
 }*/
 
-int
-SWITCH_GLES_LoadLibrary(_THIS, const char *path)
+int SWITCH_GLES_LoadLibrary(_THIS, const char *path)
 {
     return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
 }

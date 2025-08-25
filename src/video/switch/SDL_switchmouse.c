@@ -36,22 +36,19 @@ static uint64_t prev_buttons = 0;
 static uint64_t last_timestamp = 0;
 const uint64_t mouse_read_interval = 15; // in ms
 
-static int
-SWITCH_SetRelativeMouseMode(SDL_bool enabled)
+static int SWITCH_SetRelativeMouseMode(SDL_bool enabled)
 {
     return 0;
 }
 
-void
-SWITCH_InitMouse(void)
+void SWITCH_InitMouse(void)
 {
     SDL_Mouse *mouse = SDL_GetMouse();
     mouse->SetRelativeMouseMode = SWITCH_SetRelativeMouseMode;
     hidInitializeMouse();
 }
 
-void
-SWITCH_PollMouse(void)
+void SWITCH_PollMouse(void)
 {
     SDL_Window *window = SDL_GetFocusWindow();
     HidMouseState mouse_state;
@@ -94,7 +91,7 @@ SWITCH_PollMouse(void)
         // if hidMouseRead is called once per frame, a factor two on the velocities
         // results in approximately the same mouse motion as reported by mouse_pos.x and mouse_pos.y
         // but without the clamping to 1280 x 720
-        if(state_count > 0) {
+        if (state_count > 0) {
             dx = mouse_state.delta_x * 2;
             dy = mouse_state.delta_y * 2;
             if (dx || dy) {
@@ -105,8 +102,7 @@ SWITCH_PollMouse(void)
     }
 }
 
-void
-SWITCH_QuitMouse(void)
+void SWITCH_QuitMouse(void)
 {
 }
 

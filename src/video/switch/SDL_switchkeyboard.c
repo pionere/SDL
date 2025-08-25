@@ -32,13 +32,13 @@
 
 static bool keys[SDL_NUM_SCANCODES] = {0};
 
-void
-SWITCH_InitKeyboard(void) {
+void SWITCH_InitKeyboard(void)
+{
     hidInitializeKeyboard();
 }
 
-void
-SWITCH_PollKeyboard(void) {
+void SWITCH_PollKeyboard(void)
+{
     HidKeyboardState state;
     SDL_Scancode scancode;
 
@@ -60,8 +60,8 @@ SWITCH_PollKeyboard(void) {
     }
 }
 
-void
-SWITCH_QuitKeyboard(void) {
+void SWITCH_QuitKeyboard(void)
+{
 }
 
 #endif /* SDL_VIDEO_DRIVER_SWITCH */

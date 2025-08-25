@@ -84,7 +84,8 @@ static const HidNpadButton pad_mapping_right_joy[] = {
         BIT(31), BIT(31), BIT(31), BIT(31)
 };
 
-static void SWITCH_UpdateControllerSupport(bool handheld) {
+static void SWITCH_UpdateControllerSupport(bool handheld)
+{
     if (!handheld) {
         HidLaControllerSupportResultInfo info;
         HidLaControllerSupportArg args;
@@ -130,7 +131,8 @@ static void SWITCH_UpdateControllerSupport(bool handheld) {
 /* Function to scan the system for joysticks.
  * It should return 0, or -1 on an unrecoverable fatal error.
  */
-static int SWITCH_JoystickInit(void) {
+static int SWITCH_JoystickInit(void)
+{
     padConfigureInput(JOYSTICK_COUNT, HidNpadStyleSet_NpadStandard);
 
     // initialize first pad to defaults
@@ -176,19 +178,22 @@ static int SWITCH_JoystickInit(void) {
     return JOYSTICK_COUNT;
 }
 
-static int SWITCH_JoystickGetCount(void) {
+static int SWITCH_JoystickGetCount(void)
+{
     return JOYSTICK_COUNT;
 }
 
-static void SWITCH_JoystickDetect(void) {
+static void SWITCH_JoystickDetect(void)
+{
 }
 
 /* Function to get the device-dependent name of a joystick */
-static const char *SWITCH_JoystickGetDeviceName(int device_index) {
+static const char *SWITCH_JoystickGetDeviceName(int device_index)
+{
     return "Switch Controller";
 }
 
-static const char *SWITCH_JoystickGetDevicePath(int index)
+static const char *SWITCH_JoystickGetDevicePath(int device_index)
 {
     return NULL;
 }
@@ -198,21 +203,25 @@ static int SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
     return -1;
 }
 
-static int SWITCH_JoystickGetDevicePlayerIndex(int device_index) {
+static int SWITCH_JoystickGetDevicePlayerIndex(int device_index)
+{
     return -1;
 }
 
-static void SWITCH_JoystickSetDevicePlayerIndex(int device_index, int player_index) {
+static void SWITCH_JoystickSetDevicePlayerIndex(int device_index, int player_index)
+{
 }
 
-static SDL_JoystickGUID SWITCH_JoystickGetDeviceGUID(int device_index) {
+static SDL_JoystickGUID SWITCH_JoystickGetDeviceGUID(int device_index)
+{
     /* the GUID is just the name for now */
     const char *name = SWITCH_JoystickGetDeviceName(device_index);
     return SDL_CreateJoystickGUIDForName(name);
 }
 
 /* Function to perform the mapping from device index to the instance id for this index */
-static SDL_JoystickID SWITCH_JoystickGetDeviceInstanceID(int device_index) {
+static SDL_JoystickID SWITCH_JoystickGetDeviceInstanceID(int device_index)
+{
     return device_index;
 }
 
@@ -221,7 +230,8 @@ static SDL_JoystickID SWITCH_JoystickGetDeviceInstanceID(int device_index) {
    This should fill the nbuttons and naxes fields of the joystick structure.
    It returns 0, or -1 if there is an error.
  */
-static int SWITCH_JoystickOpen(SDL_Joystick *joystick, int device_index) {
+static int SWITCH_JoystickOpen(SDL_Joystick *joystick, int device_index)
+{
     joystick->nbuttons = sizeof(pad_mapping_default) / sizeof(*pad_mapping_default);
     joystick->naxes = 4;
     joystick->nhats = 0;
@@ -230,7 +240,8 @@ static int SWITCH_JoystickOpen(SDL_Joystick *joystick, int device_index) {
     return 0;
 }
 
-static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble) {
+static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
+{
     int id = joystick->instance_id;
 
     state[id].vibrationValues.amp_low =
@@ -245,22 +256,27 @@ static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
     return 0;
 }
 
-static int SWITCH_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right) {
+static int SWITCH_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right)
+{
     return SDL_Unsupported();
 }
 
-static Uint32 SWITCH_JoystickGetCapabilities(SDL_Joystick *joystick) {
+static Uint32 SWITCH_JoystickGetCapabilities(SDL_Joystick *joystick)
+{
     return 0;
 }
 
-static int SWITCH_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue) {
+static int SWITCH_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
+{
     return 0;
 }
 
-static int SWITCH_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size) {
+static int SWITCH_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
+{
     return SDL_Unsupported();
 }
-static int SWITCH_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled) {
+static int SWITCH_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
+{
     return SDL_Unsupported();
 }
 
@@ -331,14 +347,17 @@ static void SWITCH_JoystickUpdate(SDL_Joystick *joystick) {
 }
 
 /* Function to close a joystick after use */
-static void SWITCH_JoystickClose(SDL_Joystick *joystick) {
+static void SWITCH_JoystickClose(SDL_Joystick *joystick)
+{
 }
 
 /* Function to perform any system-specific joystick related cleanup */
-static void SWITCH_JoystickQuit(void) {
+static void SWITCH_JoystickQuit(void)
+{
 }
 
-static SDL_bool SWITCH_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out) {
+static SDL_bool SWITCH_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
+{
     return SDL_FALSE;
 }
 
@@ -358,8 +377,8 @@ SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
 
         SWITCH_JoystickRumble,
         SWITCH_JoystickRumbleTriggers,
-        SWITCH_JoystickGetCapabilities,
 
+        SWITCH_JoystickGetCapabilities,
         SWITCH_JoystickSetLED,
         SWITCH_JoystickSendEffect,
         SWITCH_JoystickSetSensorsEnabled,
@@ -367,8 +386,7 @@ SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
         SWITCH_JoystickUpdate,
         SWITCH_JoystickClose,
         SWITCH_JoystickQuit,
-
-	    SWITCH_JoystickGetGamepadMapping,
+        SWITCH_JoystickGetGamepadMapping,
 };
 
 #endif /* SDL_JOYSTICK_SWITCH */

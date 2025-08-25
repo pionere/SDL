@@ -51,13 +51,11 @@ static void SWITCH_SetWindowSize(SDL_Window *window);
 static void SWITCH_DestroyWindow(SDL_Window *window);
 static void SWITCH_PumpEvents();
 
-static void
-SWITCH_DeleteDevice(SDL_VideoDevice *device)
+static void SWITCH_DeleteDevice(SDL_VideoDevice *device)
 {
 }
 
-static SDL_bool
-SWITCH_CreateDevice(SDL_VideoDevice *device)
+static SDL_bool SWITCH_CreateDevice(SDL_VideoDevice *device)
 {
     /* Set the function pointers */
     /* Initialization/Query functions */
@@ -182,8 +180,7 @@ const VideoBootStrap SWITCH_bootstrap = {
 /*****************************************************************************/
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
-static int
-SWITCH_VideoInit(_THIS)
+static int SWITCH_VideoInit(_THIS)
 {
     SDL_VideoDisplay display;
     SDL_DisplayMode current_mode;
@@ -221,13 +218,12 @@ SWITCH_VideoInit(_THIS)
     return result;
 }
 
-static void
-SWITCH_VideoQuit(_THIS)
+static void SWITCH_VideoQuit(_THIS)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     // this should not be needed if user code is right (SDL_GL_LoadLibrary/SDL_GL_UnloadLibrary calls match)
     // this (user) error doesn't have the same effect on switch thought, as the driver needs to be unloaded (crash)
-    if(_this->gl_config.driver_loaded > 0) {
+    if (_this->gl_config.driver_loaded > 0) {
         SWITCH_GLES_UnloadLibrary(_this);
         _this->gl_config.driver_loaded = 0;
     }
@@ -244,8 +240,7 @@ SWITCH_VideoQuit(_THIS)
     psmExit();
 }
 
-static void
-SWITCH_GetDisplayModes(SDL_VideoDisplay *display)
+static void SWITCH_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayMode mode;
 
@@ -283,8 +278,7 @@ static void SWITCH_setEglSurfaceSize(int w, int h)
 }
 #endif
 
-static int
-SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
+static int SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SWITCH_setEglSurfaceSize(mode->w, mode->h);
@@ -292,8 +286,7 @@ SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-static int
-SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
+static int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     Result rc;
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -337,8 +330,7 @@ SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-static void
-SWITCH_DestroyWindow(SDL_Window *window)
+static void SWITCH_DestroyWindow(SDL_Window *window)
 {
     if (window == switch_window) {
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -358,8 +350,7 @@ SWITCH_DestroyWindow(SDL_Window *window)
     }
 }
 
-static void
-SWITCH_SetWindowSize(SDL_Window *window)
+static void SWITCH_SetWindowSize(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
     SDL_assert(window == switch_window);
@@ -367,8 +358,7 @@ SWITCH_SetWindowSize(SDL_Window *window)
 #endif
 }
 
-static void
-SWITCH_PumpEvents()
+static void SWITCH_PumpEvents()
 {
     AppletOperationMode om;
 
@@ -380,7 +370,7 @@ SWITCH_PumpEvents()
     }
 
     // we don't want other inputs overlapping with software keyboard
-    if(!SDL_IsTextInputActive()) {
+    if (!SDL_IsTextInputActive()) {
         SWITCH_PollTouch();
         SWITCH_PollKeyboard();
         SWITCH_PollMouse();
@@ -390,11 +380,11 @@ SWITCH_PumpEvents()
     // handle docked / un-docked modes
     // note that SDL_WINDOW_RESIZABLE is only possible in windowed mode,
     // so we don't care about current fullscreen/windowed status
-    if(switch_window != NULL && switch_window->flags & SDL_WINDOW_RESIZABLE) {
+    if (switch_window != NULL && switch_window->flags & SDL_WINDOW_RESIZABLE) {
         om = appletGetOperationMode();
-        if(om != operationMode) {
+        if (om != operationMode) {
             operationMode = om;
-            if(operationMode == AppletOperationMode_Handheld) {
+            if (operationMode == AppletOperationMode_Handheld) {
                 SDL_SetWindowSize(switch_window, 1280, 720);
             } else {
                 SDL_SetWindowSize(switch_window, 1920, 1080);
