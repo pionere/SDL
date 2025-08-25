@@ -11,8 +11,8 @@
 
 static SwkbdInline kbd;
 static SwkbdAppearArg kbdAppearArg;
-static bool kbdInited = SDL_FALSE;
-static bool kbdShown = SDL_FALSE;
+static SDL_bool kbdInited = SDL_FALSE;
+static SDL_bool kbdShown = SDL_FALSE;
 
 void SWITCH_InitSwkb()
 {
@@ -33,7 +33,7 @@ void SWITCH_QuitSwkb()
 {
     if (kbdInited) {
         swkbdInlineClose(&kbd);
-        kbdInited = false;
+        kbdInited = SDL_FALSE;
     }
 }
 
@@ -53,7 +53,7 @@ static void SWITCH_EnterCb(const char *str, SwkbdDecidedEnterArg* arg)
         SDL_SendKeyboardText(str);
     }
 
-    kbdShown = false;
+    kbdShown = SDL_FALSE;
 }
 
 static void SWITCH_CancelCb(void)
@@ -76,7 +76,7 @@ void SWITCH_StartTextInput()
                 swkbdInlineAppearArgSetOkButtonText(&kbdAppearArg, "Submit");
                 kbdAppearArg.dicFlag = 1;
                 kbdAppearArg.returnButtonFlag = 1;
-                kbdInited = true;
+                kbdInited = SDL_TRUE;
             }
         }
     }
@@ -86,7 +86,7 @@ void SWITCH_StartTextInput()
         swkbdInlineSetCursorPos(&kbd, 0);
         swkbdInlineUpdate(&kbd, NULL);
         swkbdInlineAppear(&kbd, &kbdAppearArg);
-        kbdShown = true;
+        kbdShown = SDL_TRUE;
     }
 }
 
@@ -96,7 +96,7 @@ void SWITCH_StopTextInput()
         swkbdInlineDisappear(&kbd);
     }
 
-    kbdShown = false;
+    kbdShown = SDL_FALSE;
 }
 
 #endif // SDL_VIDEO_DRIVER_SWITCH

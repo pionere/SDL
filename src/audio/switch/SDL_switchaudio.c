@@ -55,13 +55,13 @@ static int SWITCHAUDIO_OpenDevice(_THIS, const char *devname)
     if (R_FAILED(res)) {
         return SDL_SetError("audrenInitialize failed (0x%x)", res);
     }
-    this->hidden->audr_device = true;
+    this->hidden->audr_device = SDL_TRUE;
 
     res = audrvCreate(&this->hidden->driver, &arConfig, 2);
     if (R_FAILED(res)) {
         return SDL_SetError("audrvCreate failed (0x%x)", res);
     }
-    this->hidden->audr_driver = true;
+    this->hidden->audr_driver = SDL_TRUE;
 
     this->spec.format = AUDIO_S16SYS;
     SDL_CalculateAudioSpec(&this->spec);

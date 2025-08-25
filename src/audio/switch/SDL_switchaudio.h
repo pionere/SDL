@@ -34,8 +34,8 @@ struct SDL_PrivateAudioData
     AudioDriverWaveBuf buffer[2];
     void *buffer_tmp;
     void *pool;
-    bool audr_device;
-    bool audr_driver;
+    SDL_bool audr_device;
+    SDL_bool audr_driver;
 };
 
 #endif /* SDL_switchaudio_h_ */
