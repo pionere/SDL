@@ -847,7 +847,7 @@ enable_assertions
 enable_dyn_memfuncs
 enable_lean_and_mean
 enable_blit0
-enable-blit1
+enable_blit1
 enable_blitA
 enable_blitN
 enable_blitN_RGB565
@@ -859,10 +859,10 @@ enable_yuv_format
 enable_resampler
 enable_gestures
 enable_sanitize_access
-enable_analyze_marcos
+enable_analyze_macros
 enable_test
-enable_verbose_error
 enable_logging
+enable_verbose_error
 enable_dependency_tracking
 enable_libc
 enable_system_iconv
@@ -873,6 +873,8 @@ enable_atomic
 enable_audio
 enable_video
 enable_render
+enable_render_sw
+enable_render_gl
 enable_events
 enable_joystick
 enable_haptic
@@ -899,9 +901,9 @@ enable_avx
 enable_avx2
 enable_avx512f
 enable_altivec
-enable_neon
 enable_lsx
 enable_lasx
+enable_neon
 enable_oss
 enable_alsa
 with_alsa_prefix
@@ -954,7 +956,6 @@ enable_video_vivante
 enable_video_cocoa
 enable_video_metal
 enable_render_metal
-enable_render_gl
 enable_video_directfb
 enable_directfb_shared
 enable_video_kmsdrm
@@ -985,7 +986,6 @@ enable_backgrounding_signal
 enable_foregrounding_signal
 enable_joystick_virtual
 enable_render_d3d
-enable_render_sw
 enable_sdl2_config
 enable_vendor_info
 '
@@ -1670,29 +1670,42 @@ Optional Features:
   --enable-assertions     Enable internal sanity checks
                           (auto/disabled/release/enabled/paranoid)
                           [default=auto]
+  --enable-dyn-memfuncs   Support override of the standard memory-allocation
+                          functions [default=yes]
   --enable-lean-and-mean  Turn off optional blit/rle/yuv features [default=no]
-  --enable-blit0          Use optimized functions from 'SDL_blit_0.c' to blit with source BitsPerPixel < 8 [default=yes]
-  --enable-blit1          Use optimized functions from 'SDL_blit_1.c' to blit with source BitsPerPixel == 1 [default=yes]
-  --enable-blitA          Use optimized functions from 'SDL_blit_A.c' to blit with 'SDL_BLENDMODE_BLEND' [default=yes]
-  --enable-blitN          Use optimized functions from 'SDL_blit_N.c' to blit with COLORKEY mode, or nothing [default=yes]
-  --enable-blitN_RGB565   Use optimized functions from 'SDL_blit_N.c' to do RGB565 conversion with Lookup tables [default=yes]
-  --enable-blitAUTO       Use optimized functions from 'SDL_blit_AUTO.c' to blit with scale [default=yes]
-  --enable-blitSLOW       Use un-optimized functions from 'SDL_blit_slow.c' to blit [default=yes]
-  --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce memory footprint [default=yes]
-  --enable-blitTRANSFORM  Use optimized functions from 'SDL_blit_AUTO.c' and 'SDL_blit_1.c' to blit with modulate color, modulate alpha [default=yes]
+  --enable-blit0          Use optimized functions from 'SDL_blit_0.c' to blit
+                          with source BitsPerPixel < 8 [default=yes]
+  --enable-blit1          Use optimized functions from 'SDL_blit_1.c' to blit
+                          with source BitsPerPixel == 1 [default=yes]
+  --enable-blitA          Use optimized functions from 'SDL_blit_A.c' to blit
+                          with 'SDL_BLENDMODE_BLEND' [default=yes]
+  --enable-blitN          Use optimized functions from 'SDL_blit_N.c' to blit
+                          with COLORKEY mode, or nothing [default=yes]
+  --enable-blitN_RGB565   Use optimized functions from 'SDL_blit_N.c' to do
+                          RGB565 conversion with Lookup tables [default=yes]
+  --enable-blitAUTO       Use optimized functions from 'SDL_blit_AUTO.c' to
+                          blit with scale [default=yes]
+  --enable-blitSLOW       Use unoptimized functions from 'SDL_blit_slow.c' to
+                          blit [default=yes]
+  --enable-rle-accel      Use Run-Length-Encoding (SDL_RLEACCEL) to reduce
+                          memory footprint [default=yes]
+  --enable-blitTRANSFORM  Use optimized functions from 'SDL_blit_AUTO.c' and
+                          'SDL_blit_1.c' to blit with modulate color, modulate
+                          alpha [default=yes]
   --enable-yuv-format     Support YUV formats [default=yes]
   --enable-resampler      Support resampling of audio [default=yes]
   --enable-gestures       Support gestures [default=yes]
-  --enable-analyze-marcos Add annotations to help code analysis tools [default=yes]
   --enable-sanitize-access
-                          Build robust library with checks against unreasonable parameters/calls. [default=yes]
-  --enable-verbose-error  Enable verbose errors [default=yes]
-  --enable-logging        Enable logging [default=yes]
+                          Build robust library with checks against
+                          unreasonable parameters/calls [default=yes]
+  --enable-analyze-macros Add annotations to help code analysis tools
+                          [default=yes]
   --enable-test           Build the test directory [default=yes]
+  --enable-logging        Enable logging [default=yes]
+  --enable-verbose-error  Enable verbose errors [default=yes]
   --enable-dependency-tracking
                           Use gcc -MMD -MT dependency tracking [default=yes]
   --enable-libc           Use the system C library [default=yes]
-  --enable-dyn-memfuncs   Support override of the standard memory-allocation functions. [default=yes]
   --enable-system-iconv   Use iconv() from system-installed libraries
                           [default=no for windows, yes for others]
   --enable-libiconv       Prefer iconv() from libiconv, if available, over
@@ -1703,6 +1716,8 @@ Optional Features:
   --enable-audio          Enable the audio subsystem [default=yes]
   --enable-video          Enable the video subsystem [default=yes]
   --enable-render         Enable the render subsystem [default=yes]
+  --enable-render-sw      Enable software renderer [default=yes]
+  --enable-render-gl      Enable OpenGL renderer [default=yes]
   --enable-events         Enable the events subsystem [default=yes]
   --enable-joystick       Enable the joystick subsystem [default=yes]
   --enable-haptic         Enable the haptic (force feedback) subsystem
@@ -1734,6 +1749,7 @@ Optional Features:
   --enable-altivec        use Altivec assembly routines [default=yes]
   --enable-lsx            use LSX assembly routines [default=yes]
   --enable-lasx           use LASX assembly routines [default=yes]
+  --enable-neon           use NEON assembly routines [default=yes]
   --enable-oss            support the OSS audio API [default=maybe]
   --enable-alsa           support the ALSA audio API [default=yes]
   --disable-alsatest      Do not try to compile and run a test Alsa program
@@ -1844,7 +1860,6 @@ Optional Features:
   --enable-joystick-virtual
                           enable virtual joystick APIs [default=no]
   --enable-render-d3d     enable the Direct3D render driver [default=yes]
-  --enable-render-sw      enable the software render driver [default=yes]
   --enable-sdl2-config    Install sdl2-config [default=yes]
   --enable-vendor-info=STRING
                           Add vendor info to SDL_REVISION
@@ -6647,25 +6662,6 @@ case $host_os in
 esac
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 for ac_prog in gawk mawk nawk awk
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -6712,23 +6708,6 @@ fi
 
   test -n "$AWK" && break
 done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # If no C compiler was specified, use CC.
@@ -7024,42 +7003,6 @@ elif $NM --help 2>/dev/null | grep '[@]FILE' >/dev/null; then
   nm_file_list_spec='@'
 fi
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sysroot" >&5
 printf %s "checking for sysroot... " >&6; }
 
@@ -7070,7 +7013,6 @@ then :
 else $as_nop
   with_sysroot=no
 fi
-
 
 lt_sysroot=
 case $with_sysroot in #(
@@ -7093,9 +7035,6 @@ esac
 
  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: ${lt_sysroot:-no}" >&5
 printf "%s\n" "${lt_sysroot:-no}" >&6; }
-
-
-
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for a working dd" >&5
@@ -7164,11 +7103,6 @@ test -z "$lt_cv_truncate_bin" && lt_cv_truncate_bin="$SED -e 4q"
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $lt_cv_truncate_bin" >&5
 printf "%s\n" "$lt_cv_truncate_bin" >&6; }
-
-
-
-
-
 
 
 # Calculate cc_basename.  Skip known compiler wrappers and cross-prefix.
@@ -14297,11 +14231,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -14343,11 +14277,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -18708,7 +18642,6 @@ case "$enable_assertions" in
     disabled)
 
 printf "%s\n" "#define SDL_ASSERT_DISABLED 1" >>confdefs.h
-printf "%s\n" "#define SDL_DEFAULT_ASSERT_LEVEL 0" >>confdefs.h
 
         ;;
     release)
@@ -18733,7 +18666,6 @@ esac
 
 EXTRA_CFLAGS="$EXTRA_CFLAGS -DSDL_BUILD_MAJOR_VERSION=$SDL_MAJOR_VERSION -DSDL_BUILD_MINOR_VERSION=$SDL_MINOR_VERSION -DSDL_BUILD_MICRO_VERSION=$SDL_MICRO_VERSION"
 
-
 # Check whether --enable-dyn-memfuncs was given.
 if test ${enable_dyn_memfuncs+y}
 then :
@@ -18754,14 +18686,18 @@ then :
 else
   enable_lean_and_mean=no
 fi
+
+if test x$enable_lean_and_mean != xyes; then
+    default_blit=yes
+else
+    default_blit=no
+fi
 # Check whether --enable-blit0 was given.
 if test ${enable_blit0+y}
 then :
   enableval=$enable_blit0;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blit0=yes
 else
-  enable_blit0=no
+  enable_blit0=$default_blit
 fi
 if test x$enable_blit0 != xyes; then
 
@@ -18772,10 +18708,8 @@ fi
 if test ${enable_blit1+y}
 then :
   enableval=$enable_blit1;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blit1=yes
 else
-  enable_blit1=no
+  enable_blit1=$default_blit
 fi
 if test x$enable_blit1 != xyes; then
 
@@ -18786,10 +18720,8 @@ fi
 if test ${enable_blitA+y}
 then :
   enableval=$enable_blitA;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitA=yes
 else
-  enable_blitA=no
+  enable_blitA=$default_blit
 fi
 if test x$enable_blitA != xyes; then
 
@@ -18800,10 +18732,8 @@ fi
 if test ${enable_blitN+y}
 then :
   enableval=$enable_blitN;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitN=yes
 else
-  enable_blitN=no
+  enable_blitN=$default_blit
 fi
 if test x$enable_blitN != xyes; then
 
@@ -18814,10 +18744,8 @@ fi
 if test ${enable_blitN_RGB565+y}
 then :
   enableval=$enable_blitN_RGB565;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitN_RGB565=yes
 else
-  enable_blitN_RGB565=no
+  enable_blitN_RGB565=$default_blit
 fi
 if test x$enable_blitN_RGB565 != xyes; then
 
@@ -18828,10 +18756,8 @@ fi
 if test ${enable_blitAUTO+y}
 then :
   enableval=$enable_blitAUTO;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitAUTO=yes
 else
-  enable_blitAUTO=no
+  enable_blitAUTO=$default_blit
 fi
 if test x$enable_blitAUTO != xyes; then
 
@@ -18842,10 +18768,8 @@ fi
 if test ${enable_blitSLOW+y}
 then :
   enableval=$enable_blitSLOW;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitSLOW=yes
 else
-  enable_blitSLOW=no
+  enable_blitSLOW=$default_blit
 fi
 if test x$enable_blitSLOW != xyes; then
 
@@ -18856,10 +18780,8 @@ fi
 if test ${enable_rle_accel+y}
 then :
   enableval=$enable_rle_accel;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_rle_accel=yes
 else
-  enable_rle_accel=no
+  enable_rle_accel=$default_blit
 fi
 if test x$enable_rle_accel != xyes; then
 
@@ -18870,10 +18792,8 @@ fi
 if test ${enable_blitTRANSFORM+y}
 then :
   enableval=$enable_blitTRANSFORM;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_blitTRANSFORM=yes
 else
-  enable_blitTRANSFORM=no
+  enable_blitTRANSFORM=$default_blit
 fi
 if test x$enable_blitTRANSFORM != xyes; then
 
@@ -18884,10 +18804,8 @@ fi
 if test ${enable_yuv_format+y}
 then :
   enableval=$enable_yuv_format;
-elif test x$enable_lean_and_mean != xyes; then
-  enable_yuv_format=yes
 else
-  enable_yuv_format=no
+  enable_yuv_format=$default_blit
 fi
 if test x$enable_yuv_format != xyes; then
 
@@ -18905,6 +18823,8 @@ if test x$enable_resampler != xyes; then
 
 printf "%s\n" "#define SDL_RESAMPLER_DISABLED 1" >>confdefs.h
 
+fi
+
 # Check whether --enable-gestures was given.
 if test ${enable_gestures+y}
 then :
@@ -18918,6 +18838,19 @@ printf "%s\n" "#define SDL_GESTURES_DISABLED 1" >>confdefs.h
 
 fi
 
+# Check whether --enable-sanitize-access was given.
+if test ${enable_sanitize_access+y}
+then :
+  enableval=$enable_sanitize_access;
+else
+  enable_sanitize_access=yes
+fi
+if test x$enable_sanitize_access != xyes; then
+
+printf "%s\n" "#define SDL_SANITIZE_ACCESS_DISABLED 1" >>confdefs.h
+
+fi
+
 # Check whether --enable-analyze-macros was given.
 if test ${enable_analyze_macros+y}
 then :
@@ -18928,18 +18861,6 @@ fi
 if test x$enable_analyze_macros != xyes; then
 
 printf "%s\n" "#define SDL_ANALYZE_MACROS_DISABLED 1" >>confdefs.h
-
-fi
-
-# Check whether --enable-sanitize-access was given.
-if test ${enable_sanitize_access+y}
-then :  enableval=$enable_sanitize_access;
-else
-  enable_sanitize_access=yes
-fi
-if test x$enable_sanitize_access != xyes; then
-
-printf "%s\n" "#define SDL_SANITIZE_ACCESS_DISABLED 1" >>confdefs.h
 
 fi
 
@@ -18964,13 +18885,15 @@ printf "%s\n" "#define SDL_LOGGING_DISABLED 1" >>confdefs.h
 
 fi
 # Check whether --enable-verbose-error was given.
-if test ${enable_verbose_error+y} -a test x$enable_logging != xyes; then :
+if test ${enable_verbose_error+y}
+then :
   enableval=$enable_verbose_error;
-else
+else $as_nop
   enable_verbose_error=yes
 fi
 
-if test x$enable_verbose_error != xyes; then
+if test x$enable_verbose_error != xyes -o test x$enable_logging != xyes; then
+    enable_verbose_error=no
 
 printf "%s\n" "#define SDL_VERBOSE_ERROR_DISABLED 1" >>confdefs.h
 
@@ -19180,7 +19103,12 @@ else $as_nop
   enable_libiconv=no
 fi
 
+ac_fn_c_check_header_compile "$LINENO" "sys/stat.h" "ac_cv_header_sys_stat_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_stat_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_SYS_STAT_H 1" >>confdefs.h
 
+fi
 if test x$enable_libc = xyes; then
 
 printf "%s\n" "#define HAVE_LIBC 1" >>confdefs.h
@@ -19191,12 +19119,6 @@ ac_fn_c_check_header_compile "$LINENO" "sys/types.h" "ac_cv_header_sys_types_h" 
 if test "x$ac_cv_header_sys_types_h" = xyes
 then :
   printf "%s\n" "#define HAVE_SYS_TYPES_H 1" >>confdefs.h
-
-fi
-ac_fn_c_check_header_compile "$LINENO" "sys/stat.h" "ac_cv_header_sys_stat_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_stat_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_SYS_STAT_H 1" >>confdefs.h
 
 fi
 ac_fn_c_check_header_compile "$LINENO" "stdio.h" "ac_cv_header_stdio_h" "$ac_includes_default"
@@ -20296,18 +20218,6 @@ then :
   printf "%s\n" "#define HAVE_FLOORF 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "trunc" "ac_cv_func_trunc"
-if test "x$ac_cv_func_trunc" = xyes
-then :
-  printf "%s\n" "#define HAVE_TRUNC 1" >>confdefs.h
-
-fi
-ac_fn_c_check_func "$LINENO" "truncf" "ac_cv_func_truncf"
-if test "x$ac_cv_func_truncf" = xyes
-then :
-  printf "%s\n" "#define HAVE_TRUNCF 1" >>confdefs.h
-
-fi
 ac_fn_c_check_func "$LINENO" "fmod" "ac_cv_func_fmod"
 if test "x$ac_cv_func_fmod" = xyes
 then :
@@ -20428,7 +20338,18 @@ then :
   printf "%s\n" "#define HAVE_TANF 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "trunc" "ac_cv_func_trunc"
+if test "x$ac_cv_func_trunc" = xyes
+then :
+  printf "%s\n" "#define HAVE_TRUNC 1" >>confdefs.h
 
+fi
+ac_fn_c_check_func "$LINENO" "truncf" "ac_cv_func_truncf"
+if test "x$ac_cv_func_truncf" = xyes
+then :
+  printf "%s\n" "#define HAVE_TRUNCF 1" >>confdefs.h
+
+fi
 
     if test x$enable_system_iconv = xyes; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for iconv in libc" >&5
@@ -20706,20 +20627,21 @@ if test x$enable_render != xyes; then
 
 printf "%s\n" "#define SDL_RENDER_DISABLED 1" >>confdefs.h
 
+fi
+# Check whether --enable-render-sw was given.
+if test ${enable_render_sw+y}
+then :
+  enableval=$enable_render_sw;
 else
-  # Check whether --enable-render_sw was given.
-  if test ${enable_render_sw+y}
-  then :
-    enableval=$enable_render_sw;
-  else
-    enable_render_sw=yes
-  fi
+  enable_render_sw=yes
+fi
 
-  if test x$enable_render_sw = xyes; then
+if test x$enable_render_sw = xyes -a test x$enable_render = xyes; then
 
-    printf "%s\n" "#define SDL_VIDEO_RENDER_SW 1" >>confdefs.h
+printf "%s\n" "#define SDL_VIDEO_RENDER_SW 1" >>confdefs.h
 
-  fi
+else
+    enable_render_sw=no
 fi
 # Check whether --enable-render-gl was given.
 if test ${enable_render_gl+y}
@@ -20727,6 +20649,10 @@ then :
   enableval=$enable_render_gl;
 else $as_nop
   enable_render_gl=yes
+fi
+
+if test x$enable_render != xyes; then
+    enable_render_gl=no
 fi
 # Check whether --enable-events was given.
 if test ${enable_events+y}
@@ -21359,7 +21285,7 @@ fi
         altivec_CFLAGS="-maltivec"
         CFLAGS="$save_CFLAGS $altivec_CFLAGS"
 
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Altivec with GCC altivec.h and -maltivec option" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GCC -maltivec option" >&5
 printf %s "checking for GCC -maltivec option... " >&6; }
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -24080,7 +24006,7 @@ printf "%s\n" "#define HAVE_OPENGLES2 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
@@ -26563,12 +26489,11 @@ printf "%s\n" "$video_opengl" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
-            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
 
             fi
-
             SUMMARY_video="${SUMMARY_video} opengl"
         fi
     fi
@@ -26606,12 +26531,11 @@ printf "%s\n" "$video_opengles_v1" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES 1" >>confdefs.h
 
-                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES 1" >>confdefs.h
 
                 fi
-
                 SUMMARY_video="${SUMMARY_video} opengl_es1"
             fi
         fi
@@ -26645,12 +26569,11 @@ printf "%s\n" "$video_opengles_v2" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
-                if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+                if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
                 fi
-
                 SUMMARY_video="${SUMMARY_video} opengl_es2"
             fi
         fi
@@ -26666,12 +26589,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_WGL 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
 
         fi
-
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
 }
@@ -26744,12 +26666,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
-            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
             fi
-
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
     fi
@@ -26764,12 +26685,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_HAIKU 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
 
         fi
-
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lGL"
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
@@ -26784,12 +26704,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_CGL 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL 1" >>confdefs.h
 
         fi
-
         SUMMARY_video="${SUMMARY_video} opengl"
     fi
 }
@@ -26805,12 +26724,11 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL_EGL 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
         fi
-
         SUMMARY_video="${SUMMARY_video} opengl_es2"
     fi
 }
@@ -26875,12 +26793,11 @@ printf "%s\n" "$video_opengles_v2" >&6; }
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
-            if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+            if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
             fi
-
             SUMMARY_video="${SUMMARY_video} opengl_es2"
         fi
     fi
@@ -27550,8 +27467,7 @@ printf "%s\n" "$enable_joystick_mfi" >&6; }
 
 printf "%s\n" "#define SDL_JOYSTICK_MFI 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} mfi"
-
+            SUMMARY_joystick="${SUMMARY_joystick} mfi"
             EXTRA_CFLAGS="$EXTRA_CFLAGS -fobjc-weak -Wno-unused-command-line-argument"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-weak_framework,CoreHaptics -Wl,-weak_framework,GameController"
         fi
@@ -28289,7 +28205,6 @@ fi
 
 CheckDLOPEN()
 {
-
     ac_fn_c_check_header_compile "$LINENO" "dlfcn.h" "ac_cv_header_dlfcn_h" "$ac_includes_default"
 if test "x$ac_cv_header_dlfcn_h" = xyes
 then :
@@ -28399,7 +28314,7 @@ printf "%s\n" "#define SDL_LOADSO_DLOPEN 1" >>confdefs.h
        fi
     fi
     if test x$enable_dynapi = xyes -a x$have_dlopen = xyes; then
-          have_dynapi=yes
+       have_dynapi=yes
     fi
 }
 
@@ -28728,8 +28643,7 @@ printf "%s\n" "$have_machine_joystick" >&6; }
 
 printf "%s\n" "#define SDL_JOYSTICK_USBHID 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} usbhid"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} usbhid"
                     SOURCES="$SOURCES $srcdir/src/joystick/bsd/*.c"
                     EXTRA_CFLAGS="$EXTRA_CFLAGS $USB_CFLAGS"
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $USB_LIBS"
@@ -28912,8 +28826,7 @@ printf "%s\n" "$hidapi_support" >&6; }
 
 printf "%s\n" "#define SDL_JOYSTICK_HIDAPI 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} hidapi"
-
+        SUMMARY_joystick="${SUMMARY_joystick} hidapi"
         SOURCES="$SOURCES $srcdir/src/joystick/hidapi/*.c"
     fi
 }
@@ -29090,8 +29003,7 @@ fi
 
 printf "%s\n" "#define SDL_JOYSTICK_VIRTUAL 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} virtual"
-
+        SUMMARY_joystick="${SUMMARY_joystick} virtual"
         SOURCES="$SOURCES $srcdir/src/joystick/virtual/*.c"
         have_joystick_virtual=yes
         have_joystick=yes
@@ -29278,8 +29190,7 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_AAUDIO 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_JOYSTICK_LINUX 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} linux"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
                     SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
@@ -29290,8 +29201,7 @@ SUMMARY_joystick="${SUMMARY_joystick} linux"
 
 printf "%s\n" "#define SDL_JOYSTICK_LINUX 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} linux"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} linux"
                     SOURCES="$SOURCES $srcdir/src/joystick/linux/*.c"
                     SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                     have_joystick=yes
@@ -29301,8 +29211,7 @@ SUMMARY_joystick="${SUMMARY_joystick} linux"
 
 printf "%s\n" "#define SDL_JOYSTICK_ANDROID 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} android"
-
+                SUMMARY_joystick="${SUMMARY_joystick} android"
                 SOURCES="$SOURCES $srcdir/src/joystick/android/*.c"
                 SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
                 have_joystick=yes
@@ -29317,8 +29226,7 @@ SUMMARY_joystick="${SUMMARY_joystick} android"
 
 printf "%s\n" "#define SDL_HAPTIC_LINUX 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} linux"
-
+                    SUMMARY_haptic="${SUMMARY_haptic} linux"
                     SOURCES="$SOURCES $srcdir/src/haptic/linux/*.c"
                     have_haptic=yes
                 fi
@@ -29327,8 +29235,7 @@ SUMMARY_haptic="${SUMMARY_haptic} linux"
 
 printf "%s\n" "#define SDL_HAPTIC_ANDROID 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} android"
-
+                SUMMARY_haptic="${SUMMARY_haptic} android"
                 SOURCES="$SOURCES $srcdir/src/haptic/android/*.c"
                 have_haptic=yes
             ;;
@@ -29519,29 +29426,25 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_WASAPI 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_JOYSTICK_RAWINPUT 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} rawinput"
-
+            SUMMARY_joystick="${SUMMARY_joystick} rawinput"
             if test x$have_dinput = xyes -o x$have_xinput = xyes -o x$have_wgi = xyes; then
                 if test x$have_xinput = xyes; then
 
 printf "%s\n" "#define SDL_JOYSTICK_XINPUT 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} xinput"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} xinput"
                 fi
                 if test x$have_wgi = xyes; then
 
 printf "%s\n" "#define SDL_JOYSTICK_WGI 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} wgi"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} wgi"
                 fi
                 if test x$have_dinput = xyes; then
 
 printf "%s\n" "#define SDL_JOYSTICK_DINPUT 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} dinput"
-
+                    SUMMARY_joystick="${SUMMARY_joystick} dinput"
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS -ldinput8 -ldxguid -ldxerr8"
                 fi
             fi
@@ -29554,15 +29457,13 @@ SUMMARY_joystick="${SUMMARY_joystick} dinput"
 
 printf "%s\n" "#define SDL_HAPTIC_XINPUT 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} xinput"
-
+                    SUMMARY_haptic="${SUMMARY_haptic} xinput"
                 fi
                 if test x$have_dinput = xyes; then
 
 printf "%s\n" "#define SDL_HAPTIC_DINPUT 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} dinput"
-
+                    SUMMARY_haptic="${SUMMARY_haptic} dinput"
                 fi
                 SOURCES="$SOURCES $srcdir/src/haptic/windows/*.c"
                 have_haptic=yes
@@ -29723,8 +29624,7 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_HAIKU 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_JOYSTICK_HAIKU 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} haiku"
-
+            SUMMARY_joystick="${SUMMARY_joystick} haiku"
             SOURCES="$SOURCES $srcdir/src/joystick/haiku/*.cc"
             have_joystick=yes
         fi
@@ -29808,9 +29708,8 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_COREAUDIO 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_MFI 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} ios"
-SUMMARY_joystick="${SUMMARY_joystick} mfi"
-
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
+            SUMMARY_joystick="${SUMMARY_joystick} mfi"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
             SOURCES="$SOURCES $srcdir/src/joystick/steam/*.c"
             have_joystick=yes
@@ -29818,8 +29717,7 @@ SUMMARY_joystick="${SUMMARY_joystick} mfi"
             # Need this code for accelerometer as joystick support
 printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} ios"
-
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
         fi
         # Set up files for the haptic library
@@ -29876,14 +29774,13 @@ printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_OPENGL_ES 1" >>confdefs.h
 
-        if test x$enable_render = xyes -a x$enable_render_gl = xyes; then
+        if test x$enable_render_gl = xyes; then
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
         fi
-
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
         SUMMARY_video="${SUMMARY_video} uikit"
         have_video=yes
@@ -29965,9 +29862,8 @@ printf "%s\n" "#define SDL_AUDIO_DRIVER_COREAUDIO 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_IOS 1" >>confdefs.h
 printf "%s\n" "#define SDL_JOYSTICK_IOKIT 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} ios"
-SUMMARY_joystick="${SUMMARY_joystick} iokit"
-
+            SUMMARY_joystick="${SUMMARY_joystick} ios"
+            SUMMARY_joystick="${SUMMARY_joystick} iokit"
             SOURCES="$SOURCES $srcdir/src/joystick/darwin/*.c"
             SOURCES="$SOURCES $srcdir/src/joystick/iphoneos/*.m"
             CheckJoystickMFI
@@ -29978,8 +29874,7 @@ SUMMARY_joystick="${SUMMARY_joystick} iokit"
 
 printf "%s\n" "#define SDL_HAPTIC_IOKIT 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} iokit"
-
+            SUMMARY_haptic="${SUMMARY_haptic} iokit"
             SOURCES="$SOURCES $srcdir/src/haptic/darwin/*.c"
             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -Wl,-framework,ForceFeedback"
             have_haptic=yes
@@ -30103,8 +29998,7 @@ printf "%s\n" "#define SDL_POWER_EMSCRIPTEN 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_JOYSTICK_EMSCRIPTEN 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} empscripten"
-
+            SUMMARY_joystick="${SUMMARY_joystick} emscripten"
             SOURCES="$SOURCES $srcdir/src/joystick/emscripten/*.c"
             have_joystick=yes
         fi
@@ -30267,8 +30161,7 @@ printf "%s\n" "#define SDL_FILESYSTEM_OS2 1" >>confdefs.h
 
 printf "%s\n" "#define SDL_JOYSTICK_OS2 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} os2"
-
+            SUMMARY_joystick="${SUMMARY_joystick} os2"
             SOURCES="$SOURCES $srcdir/src/joystick/os2/*.c"
             have_joystick=yes
         fi
@@ -30290,7 +30183,7 @@ SUMMARY_joystick="${SUMMARY_joystick} os2"
         # Set up files for the power library
         if test x$enable_power = xyes; then
 
-printf "#define SDL_POWER_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_POWER_SWITCH 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/power/switch/SDL_syspower.c"
             have_power=yes
@@ -30298,7 +30191,7 @@ printf "#define SDL_POWER_SWITCH 1" >>confdefs.h
         # Set up files for the filesystem library
         if test x$enable_filesystem = xyes; then
 
-printf "#define SDL_FILESYSTEM_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_FILESYSTEM_SWITCH 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/filesystem/switch/SDL_sysfilesystem.c"
             have_filesystem=yes
@@ -30307,27 +30200,26 @@ printf "#define SDL_FILESYSTEM_SWITCH 1" >>confdefs.h
         if test x$enable_video = xyes; then
             SOURCES="$SOURCES $srcdir/src/video/switch/*.c"
 
-printf "#define SDL_VIDEO_DRIVER_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_VIDEO_DRIVER_SWITCH 1" >>confdefs.h
 
 
-printf "#define SDL_VIDEO_OPENGL_EGL 1" >>confdefs.h
+printf "%s\n" "#define SDL_VIDEO_OPENGL_EGL 1" >>confdefs.h
 
 
-printf "#define SDL_VIDEO_OPENGL 1" >>confdefs.h
+printf "%s\n" "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
 
+            if test x$enable_render_gl = xyes; then
 
-printf "#define SDL_VIDEO_OPENGL_ES2 1" >>confdefs.h
+printf "%s\n" "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
 
-
-printf "#define SDL_VIDEO_RENDER_OGL_ES2 1" >>confdefs.h
-
+            fi
             SUMMARY_video="${SUMMARY_video} switch_opengles2"
             have_video=yes
         fi
         # Set up files for the audio library
         if test x$enable_audio = xyes; then
 
-printf "#define SDL_AUDIO_DRIVER_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_AUDIO_DRIVER_SWITCH 1" >>confdefs.h
 
            SOURCES="$SOURCES $srcdir/src/audio/switch/*.c"
            SUMMARY_audio="${SUMMARY_audio} switch"
@@ -30336,15 +30228,16 @@ printf "#define SDL_AUDIO_DRIVER_SWITCH 1" >>confdefs.h
         # Set up files for the joystick library
         if test x$enable_joystick = xyes; then
 
-printf "#define SDL_JOYSTICK_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_JOYSTICK_SWITCH 1" >>confdefs.h
 
+            SUMMARY_joystick="${SUMMARY_joystick} switch"
             SOURCES="$SOURCES $srcdir/src/joystick/switch/*.c"
             have_joystick=yes
         fi
         # Set up files for the timer library
         if test x$enable_timers = xyes; then
 
-printf "#define SDL_TIMER_SWITCH 1" >>confdefs.h
+printf "%s\n" "#define SDL_TIMER_SWITCH 1" >>confdefs.h
 
             SOURCES="$SOURCES $srcdir/src/timer/switch/*.c"
             have_timers=yes
@@ -30442,8 +30335,7 @@ if test x$have_joystick != xyes; then
 
 printf "%s\n" "#define SDL_JOYSTICK_DUMMY 1" >>confdefs.h
 
-SUMMARY_joystick="${SUMMARY_joystick} dummy"
-
+        SUMMARY_joystick="${SUMMARY_joystick} dummy"
     fi
     SOURCES="$SOURCES $srcdir/src/joystick/dummy/*.c"
 fi
@@ -30452,8 +30344,7 @@ if test x$have_haptic != xyes; then
 
 printf "%s\n" "#define SDL_HAPTIC_DUMMY 1" >>confdefs.h
 
-SUMMARY_haptic="${SUMMARY_haptic} dummy"
-
+        SUMMARY_haptic="${SUMMARY_haptic} dummy"
     fi
     SOURCES="$SOURCES $srcdir/src/haptic/dummy/*.c"
 fi
@@ -30788,7 +30679,7 @@ for MODULE in atomic audio video render events joystick haptic hidapi power thre
     eval ENABLE_MODULE=\$$ENABLE_MODULE_VAR
     LENGTH_MODULE=${#MODULE}
     #LABEL_MODULE="${MODULE^^}"
-    LABEL_MODULE=`echo $MODULE | tr '[a-z]' '[A-Z]'`
+    LABEL_MODULE=`echo $MODULE | tr 'a-z' 'A-Z'`
     SUFFIX_MODULE="            "
     #SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
     let LENGTH_MODULE=12-$LENGTH_MODULE
@@ -30826,7 +30717,7 @@ for BLITTER in blit0 blit1 blitA blitN_RGB565 blitAUTO blitSLOW rle_accel blitTR
     #ENABLE_BLITTER=${!ENABLE_BLITTER_VAR}
     eval ENABLE_BLITTER=\$$ENABLE_BLITTER_VAR
     #LABEL_BLITTER="${BLITTER^^}"
-    LABEL_BLITTER=`echo $BLITTER | tr '[a-z]' '[A-Z]'`
+    LABEL_BLITTER=`echo $BLITTER | tr 'a-z' 'A-Z'`
     if test "x${ENABLE_BLITTER}" = xyes; then
         if test x$HAVE_BLITTER = xyes; then
             SUMMARY="${SUMMARY},"
@@ -33575,5 +33466,3 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
-
