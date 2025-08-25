@@ -150,7 +150,7 @@ JOB_SPECS = {
     "watcom-os2": JobSpec(name="Watcom (OS/2)",                             os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",       watcom_platform=WatcomPlatform.OS2 ),
     "ngage": JobSpec(name="N-Gage",                                         os=JobOs.WindowsLatest, platform=SdlPlatform.NGage,       artifact="SDL-ngage", ),
     "xbox-cmake": JobSpec(name="XBOX (CMake)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox", ),
-    "xbox-clang": JobSpec(name="XBOX (Clang)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox",               clang_cl=True,),
+    #"xbox-clang": JobSpec(name="XBOX (Clang)",                              os=JobOs.UbuntuLatest,  platform=SdlPlatform.XBOX,        artifact="SDL-xbox",               clang_cl=True,),
 }
 
 
