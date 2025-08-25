@@ -183,19 +183,13 @@ SWITCHAUDIO_CloseDevice(_THIS)
     SDL_free(this->hidden);
 }
 
-static void
-SWITCHAUDIO_ThreadInit(_THIS)
-{
-
-}
-
 static SDL_bool
 SWITCHAUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     /* Set the function pointers */
     // impl->DetectDevices = xxx;
     impl->OpenDevice = SWITCHAUDIO_OpenDevice;
-    impl->ThreadInit = SWITCHAUDIO_ThreadInit;
+    // impl->ThreadInit = SWITCHAUDIO_ThreadInit;
     // impl->ThreadDeinit = xxx;
     impl->WaitDevice = SWITCHAUDIO_WaitDevice;
     impl->PlayDevice = SWITCHAUDIO_PlayDevice;
