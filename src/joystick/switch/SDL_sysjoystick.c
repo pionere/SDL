@@ -193,6 +193,11 @@ static const char *SWITCH_JoystickGetDevicePath(int index)
     return NULL;
 }
 
+static int SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
+{
+    return -1;
+}
+
 static int SWITCH_JoystickGetDevicePlayerIndex(int device_index) {
     return -1;
 }
@@ -343,6 +348,7 @@ SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
         SWITCH_JoystickDetect,
         SWITCH_JoystickGetDeviceName,
         SWITCH_JoystickGetDevicePath,
+        SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot,
         SWITCH_JoystickGetDevicePlayerIndex,
         SWITCH_JoystickSetDevicePlayerIndex,
         SWITCH_JoystickGetDeviceGUID,
