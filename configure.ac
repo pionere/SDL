@@ -232,7 +232,7 @@ dnl For use in static assertions
 EXTRA_CFLAGS="$EXTRA_CFLAGS -DSDL_BUILD_MAJOR_VERSION=$SDL_MAJOR_VERSION -DSDL_BUILD_MINOR_VERSION=$SDL_MINOR_VERSION -DSDL_BUILD_MICRO_VERSION=$SDL_MICRO_VERSION"
 
 dnl See whether we want to support the override of the standard memory-allocation functions
-AC_ARG_ENABLE(dyn_memfuncs,
+AC_ARG_ENABLE(dyn-memfuncs,
 [AS_HELP_STRING([--enable-dyn-memfuncs],
                [Support override of the standard memory-allocation functions [default=yes]])],
               , enable_dyn_memfuncs=yes)
@@ -243,8 +243,8 @@ fi
 dnl See whether we want the optional blit/rle/yuv features
 AC_ARG_ENABLE(lean-and-mean,
 [AS_HELP_STRING([--enable-lean-and-mean],
-               [Turn off optional blit/rle/yuv features [default=false]])],
-              , enable_lean_and_mean=false)
+               [Turn off optional blit/rle/yuv features [default=no]])],
+              , enable_lean_and_mean=no)
 
 if test x$enable_lean_and_mean != xyes; then
     default_blit=yes
@@ -315,7 +315,7 @@ AC_ARG_ENABLE(blitTRANSFORM,
 if test x$enable_blitTRANSFORM != xyes; then
     AC_DEFINE(SDL_BLIT_TRANSFORM_DISABLED, 1, [ ])
 fi
-AC_ARG_ENABLE(yuv_format,
+AC_ARG_ENABLE(yuv-format,
 [AS_HELP_STRING([--enable-yuv-format],
                [Support YUV formats [default=yes]])],
               , enable_yuv_format=$default_blit)
@@ -342,7 +342,7 @@ if test x$enable_gestures != xyes; then
 fi
 
 dnl See whether we want to build robust library
-AC_ARG_ENABLE(sanitize_access,
+AC_ARG_ENABLE(sanitize-access,
 [AS_HELP_STRING([--enable-sanitize-access],
                [Build robust library with checks against unreasonable parameters/calls [default=yes]])],
               , enable_sanitize_access=yes)
@@ -351,7 +351,7 @@ if test x$enable_sanitize_access != xyes; then
 fi
 
 dnl See whether we want annotations to help code analysis tools
-AC_ARG_ENABLE(analyze_macros,
+AC_ARG_ENABLE(analyze-macros,
 [AS_HELP_STRING([--enable-analyze-macros],
                [Add annotations to help code analysis tools [default=yes]])],
               , enable_analyze_macros=yes)
@@ -379,7 +379,8 @@ AC_ARG_ENABLE(verbose-error,
 [AS_HELP_STRING([--enable-verbose-error],
                [Enable verbose errors [default=yes]])],
               , enable_verbose_error=yes)
-if test x$enable_verbose_error != xyes -a test x$enable_logging != xyes; then
+if test x$enable_verbose_error != xyes -o test x$enable_logging != xyes; then
+    enable_verbose_error=no
     AC_DEFINE(SDL_VERBOSE_ERROR_DISABLED, 1, [ ])
 fi
 
@@ -679,13 +680,18 @@ if test x$enable_render != xyes; then
 fi
 AC_ARG_ENABLE(render-sw,
 [AS_HELP_STRING([--enable-render-sw], [Enable software renderer [default=yes]])],
-              , enable_render_sw=$enable_render)
-if test x$enable_render_sw = xyes; then
+              , enable_render_sw=yes)
+if test x$enable_render_sw = xyes -a test x$enable_render = xyes; then
     AC_DEFINE(SDL_VIDEO_RENDER_SW, 1, [ ])
+else
+    enable_render_sw=no
 fi
 AC_ARG_ENABLE(render-gl,
 [AS_HELP_STRING([--enable-render-gl], [Enable OpenGL renderer [default=yes]])],
-              , enable_render_gl=$enable_render)
+              , enable_render_gl=yes)
+if test x$enable_render != xyes; then
+    enable_render_gl=no
+fi
 AC_ARG_ENABLE(events,
 [AS_HELP_STRING([--enable-events], [Enable the events subsystem [default=yes]])],
               , enable_events=yes)
@@ -781,15 +787,15 @@ have_gcc_3dnow=no
 have_gcc_sse=no
 have_gcc_sse2=no
 have_gcc_sse3=no
-have_gcc_sse4_1=no
-have_gcc_sse4_2=no
+have_gcc_sse41=no
+have_gcc_sse42=no
 have_gcc_avx=no
 have_gcc_avx2=no
+have_gcc_avx512f=no
 have_gcc_altivec=no
 have_gcc_lsx=no
 have_gcc_lasx=no
 have_gcc_neon=no
-have_gcc_avx512f=no
 if test x$enable_assembly = xyes; then
     have_assembly=yes
 
@@ -920,10 +926,10 @@ dnl Check for various instruction support
         CFLAGS="$save_CFLAGS"
     fi
 
-    AC_ARG_ENABLE(sse4_1,
+    AC_ARG_ENABLE(sse41,
 [AS_HELP_STRING([--enable-sse41], [use SSE4.1 assembly routines [default=yes]])],
-                  , enable_sse4_1=$enable_sse3)
-    if test x$enable_sse4_1 = xyes -a x$have_gcc_sse3 = xyes; then
+                  , enable_sse41=$enable_sse3)
+    if test x$enable_sse41 = xyes -a x$have_gcc_sse3 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse4.1 option)
         sse41_CFLAGS="-msse4.1"
@@ -936,15 +942,15 @@ dnl Check for various instruction support
             _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
           }
         }
-        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse4_1=yes],[])
-        AC_MSG_RESULT($have_gcc_sse4_1)
+        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse41=yes],[])
+        AC_MSG_RESULT($have_gcc_sse41)
         CFLAGS="$save_CFLAGS"
     fi
 
-    AC_ARG_ENABLE(sse4_2,
+    AC_ARG_ENABLE(sse42,
 [AS_HELP_STRING([--enable-sse42], [use SSE4.2 assembly routines [default=yes]])],
-                  , enable_sse4_2=$enable_sse4_1)
-    if test x$enable_sse4_2 = xyes -a x$have_gcc_sse4_1 = xyes; then
+                  , enable_sse42=$enable_sse41)
+    if test x$enable_sse42 = xyes -a x$have_gcc_sse41 = xyes; then
         save_CFLAGS="$CFLAGS"
         AC_MSG_CHECKING(for GCC -msse4.2 option)
         sse42_CFLAGS="-msse4.2"
@@ -957,8 +963,8 @@ dnl Check for various instruction support
             _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
           }
         }
-        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse4_2=yes],[])
-        AC_MSG_RESULT($have_gcc_sse4_2)
+        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse42=yes],[])
+        AC_MSG_RESULT($have_gcc_sse42)
         CFLAGS="$save_CFLAGS"
     fi
 
@@ -1099,7 +1105,7 @@ dnl Check for various instruction support
                   , enable_neon=yes)
     if test x$enable_neon = xyes; then
         AC_MSG_CHECKING(for NEON intrinsics)
-        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <arm_neon.h>
         void floats_add(float *dest, float *a, float *b, unsigned size) {
           for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
@@ -1150,13 +1156,13 @@ if test x$have_gcc_sse3 = xyes; then
 else
     AC_DEFINE(SDL_DISABLE_SSE3, 1, [ ])
 fi
-if test x$have_gcc_sse4_1 = xyes; then
+if test x$have_gcc_sse41 = xyes; then
     # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse41_CFLAGS"
     SUMMARY_intrin="${SUMMARY_intrin} sse4.1"
 else
     AC_DEFINE(SDL_DISABLE_SSE4_1, 1, [ ])
 fi
-if test x$have_gcc_sse4_2 = xyes; then
+if test x$have_gcc_sse42 = xyes; then
     # EXTRA_CFLAGS="$EXTRA_CFLAGS $sse42_CFLAGS"
     SUMMARY_intrin="${SUMMARY_intrin} sse4.2"
 else
@@ -5349,6 +5355,7 @@ for MODULE in atomic audio video render events joystick haptic hidapi power thre
     #SUFFIX_MODULE="${SUFFIX_MODULE:LENGTH_MODULE}"
     let LENGTH_MODULE=12-$LENGTH_MODULE
     SUFFIX_MODULE=`echo "$SUFFIX_MODULE" | cut -c 1-$LENGTH_MODULE`
+    LABEL_MODULE="   ${LABEL_MODULE}${SUFFIX_MODULE}"
     if test "x${HAVE_MODULE}" = xyes; then
         SUMMARY="${SUMMARY}${LABEL_MODULE}: YES\n"
     elif test "x${ENABLE_MODULE}" = xyes; then
