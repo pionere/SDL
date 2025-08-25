@@ -40,6 +40,15 @@
 static SDL_Window *switch_window = NULL;
 static AppletOperationMode operationMode;
 
+static int SWITCH_VideoInit(_THIS);
+static void SWITCH_VideoQuit(_THIS);
+static void SWITCH_GetDisplayModes(SDL_VideoDisplay *display);
+static int SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
+static int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window);
+static void SWITCH_SetWindowSize(SDL_Window *window);
+static void SWITCH_DestroyWindow(SDL_Window *window);
+static void SWITCH_PumpEvents();
+
 static void
 SWITCH_DeleteDevice(SDL_VideoDevice *device)
 {
@@ -171,7 +180,7 @@ const VideoBootStrap SWITCH_bootstrap = {
 /*****************************************************************************/
 /* SDL Video and Display initialization/handling functions                   */
 /*****************************************************************************/
-int
+static int
 SWITCH_VideoInit(_THIS)
 {
     SDL_VideoDisplay display;
@@ -210,7 +219,7 @@ SWITCH_VideoInit(_THIS)
     return result;
 }
 
-void
+static void
 SWITCH_VideoQuit(_THIS)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -233,7 +242,7 @@ SWITCH_VideoQuit(_THIS)
     psmExit();
 }
 
-void
+static void
 SWITCH_GetDisplayModes(SDL_VideoDisplay *display)
 {
     SDL_DisplayMode mode;
@@ -272,7 +281,7 @@ static void SWITCH_setEglSurfaceSize(int w, int h)
 }
 #endif
 
-int
+static int
 SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -281,7 +290,7 @@ SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode)
     return 0;
 }
 
-int
+static int
 SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
 {
     Result rc;
@@ -326,7 +335,7 @@ SWITCH_CreateSDLWindow(_THIS, SDL_Window *window)
     return 0;
 }
 
-void
+static void
 SWITCH_DestroyWindow(SDL_Window *window)
 {
     if (window == switch_window) {
@@ -347,7 +356,7 @@ SWITCH_DestroyWindow(SDL_Window *window)
     }
 }
 
-void
+static void
 SWITCH_SetWindowSize(SDL_Window *window)
 {
 #ifdef SDL_VIDEO_OPENGL_EGL
@@ -356,7 +365,7 @@ SWITCH_SetWindowSize(SDL_Window *window)
 #endif
 }
 
-void
+static void
 SWITCH_PumpEvents()
 {
     AppletOperationMode om;

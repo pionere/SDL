@@ -35,15 +35,6 @@ typedef struct SDL_WindowData
 } SDL_WindowData;
 #endif
 
-int SWITCH_VideoInit(_THIS);
-void SWITCH_VideoQuit(_THIS);
-void SWITCH_GetDisplayModes(SDL_VideoDisplay *display);
-int SWITCH_SetDisplayMode(SDL_VideoDisplay *display, SDL_DisplayMode *mode);
-int SWITCH_CreateSDLWindow(_THIS, SDL_Window *window);
-void SWITCH_SetWindowSize(SDL_Window *window);
-void SWITCH_DestroyWindow(SDL_Window *window);
-void SWITCH_PumpEvents();
-
 #endif /* __SDL_SWITCHVIDEO_H__ */
 
 /* vi: set ts=4 sw=4 expandtab: */
