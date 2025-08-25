@@ -545,7 +545,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.run_tests = False
             job.shared = False
             job.cmake_config_emulator = "emcmake"
-            job.cmake_build_type = "Debug"
+            job.werror = False  # FIXME: enable SDL_WERROR - needed to ignore limited-postlink-optimizations (because DWARF info requested) warnings
             job.test_pkg_config = False
             job.cmake_arguments.extend((
                 "-DSDLTEST_BROWSER=chrome",
@@ -727,7 +727,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     "-DCMAKE_CXX_COMPILER=clang-cl",
                 ))
                 #job.cflags.append("/clang:-m32")
-            job.cmake_build_type = "Release"
             job.werror = False  # FIXME: enable SDL_WERROR
             job.shared = False
             job.run_tests = False
@@ -738,7 +737,6 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.test_pkg_config = False
         case SdlPlatform.NGage:
             #build_parallel = False
-            job.cmake_build_type = "Release"
             job.setup_ninja = True
             job.static_lib = StaticLibType.STATIC_LIB
             job.werror = False  # FIXME: enable SDL_WERROR
