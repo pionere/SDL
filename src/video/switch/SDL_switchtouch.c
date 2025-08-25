@@ -58,7 +58,7 @@ void SWITCH_PollTouch(void)
     }
 
     if (SDL_AddTouch(id, SDL_TOUCH_DEVICE_DIRECT, "") < 0) {
-        SDL_Log("error: can't add touch %s, %d", __FILE__, __LINE__);
+        return;
     }
 
     SDL_memcpy(&touchStateOld, &touchState, sizeof(touchState));
