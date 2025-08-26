@@ -34,6 +34,12 @@
 
 /* EGL implementation of SDL OpenGL ES support */
 
+#ifdef SDL_VIDEO_STATIC_ANGLE
+#define USE_FUNC(NAME) NAME
+#else
+#define USE_FUNC(NAME) egl_data.NAME
+#endif
+
 int Wayland_GLES_LoadLibrary(_THIS, const char *path)
 {
     int ret;
@@ -73,8 +79,6 @@ SDL_GLContext Wayland_GLES_CreateContext(_THIS, SDL_Window *window)
    this style, but this style is much harder to bend the other way.  :/ */
 int Wayland_GLES_SetSwapInterval(int interval)
 {
-    SDL_assert(egl_data.eglSwapInterval != NULL);
-
     /* technically, this is _all_ adaptive vsync (-1), because we can't
        actually wait for the _next_ vsync if you set 1, but things that
        request 1 probably won't care _that_ much. I hope. No matter what
@@ -87,7 +91,7 @@ int Wayland_GLES_SetSwapInterval(int interval)
 
     /* !!! FIXME: technically, this should be per-context, right? */
     egl_data.egl_swapinterval = interval;
-    egl_data.eglSwapInterval(egl_data.egl_display, 0);
+    USE_FUNC(eglSwapInterval)(egl_data.egl_display, 0);
     return 0;
 }
 
@@ -196,7 +200,7 @@ int Wayland_GLES_MakeCurrent(SDL_Window *window, SDL_GLContext context)
 
     WAYLAND_wl_display_flush(videodata->display);
 
-    egl_data.eglSwapInterval(egl_data.egl_display, 0); /* see comments on Wayland_GLES_SetSwapInterval. */
+    USE_FUNC(eglSwapInterval)(egl_data.egl_display, 0); /* see comments on Wayland_GLES_SetSwapInterval. */
 
     return ret;
 }

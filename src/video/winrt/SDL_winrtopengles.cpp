@@ -22,13 +22,10 @@
 
 #if defined(SDL_VIDEO_DRIVER_WINRT) && defined(SDL_VIDEO_OPENGL_EGL)
 
-/* EGL implementation of SDL OpenGL support */
-
 #include "SDL_winrtvideo_cpp.h"
 extern "C" {
 #include "SDL_winrtopengles.h"
 #include "SDL_loadso.h"
-#include "../SDL_egl_c.h"
 }
 
 /* Windows includes */
@@ -48,9 +45,13 @@ static const int ANGLE_D3D_FEATURE_LEVEL_ANY = 0;
 
 #define EGL_ANGLE_DISPLAY_ALLOW_RENDER_TO_BACK_BUFFER 0x320B
 
-/*
- * SDL/EGL top-level implementation
- */
+/* EGL implementation of SDL OpenGL ES support */
+
+#ifdef SDL_VIDEO_STATIC_ANGLE
+#define USE_FUNC(NAME) NAME
+#else
+#define USE_FUNC(NAME) egl_data.NAME
+#endif
 
 extern "C" int
 WINRT_GLES_LoadLibrary(_THIS, const char *path)
@@ -87,7 +88,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          * call will be made in this file, a C++ file, instead.
          */
         Microsoft::WRL::ComPtr<IUnknown> cpp_display = egl_data.winrt_egl_addon;
-        EGLDisplay display = ((eglGetDisplay_Old_Function)egl_data.eglGetDisplay)(cpp_display);
+        EGLDisplay display = ((eglGetDisplay_Old_Function)USE_FUNC(eglGetDisplay))(cpp_display);
         if (SDL_EGL_InitializeDisplay(display) < 0) { // setup Windows 8.0 EGL display
             goto error;
         }
@@ -137,7 +138,7 @@ WINRT_GLES_LoadLibrary(_THIS, const char *path)
          *
          * Try loading ANGLE as if it were the newer version.
          */
-        eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)egl_data.eglGetProcAddress("eglGetPlatformDisplayEXT");
+        eglGetPlatformDisplayEXT_Function eglGetPlatformDisplayEXT = (eglGetPlatformDisplayEXT_Function)WINRT_GLES_GetProcAddress("eglGetPlatformDisplayEXT");
         if (!eglGetPlatformDisplayEXT) {
             SDL_EGL_SetError("Could not retrieve ANGLE/WinRT display function(s)", "eglGetPlatformDisplayEXT");
             goto error;
@@ -206,7 +207,6 @@ WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
      * ANGLE/WinRT may require that a C++ object, ComPtr<IUnknown>,
      * be passed into eglCreateWindowSurface.
      */
-    SDL_assert(egl_data.eglCreateWindowSurface != NULL);
     if (SDL_EGL_ChooseConfig(_this) != 0) {
         /* SDL_EGL_ChooseConfig failed, SDL_GetError() should have info */
         return EGL_NO_SURFACE;
@@ -217,7 +217,7 @@ WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
          * ANGLE/WinRT:
          */
         Microsoft::WRL::ComPtr<IUnknown> cpp_winrtEglWindow = egl_data.winrt_egl_addon;
-        surface = ((eglCreateWindowSurface_Old_Function)egl_data.eglCreateWindowSurface)(
+        surface = ((eglCreateWindowSurface_Old_Function)USE_FUNC(eglCreateWindowSurface))(
             egl_data.egl_display,
             egl_data.egl_config,
             cpp_winrtEglWindow, NULL);
@@ -226,7 +226,7 @@ WINRT_GLES_CreateWindowSurface(_THIS, const SDL_Window *window)
          * ANGLE/WinRT:
          */
         IInspectable *coreWindowAsIInspectable = reinterpret_cast<IInspectable *>(data->coreWindow.Get());
-        surface = egl_data.eglCreateWindowSurface(
+        surface = USE_FUNC(eglCreateWindowSurface)(
             egl_data.egl_display,
             egl_data.egl_config,
             (NativeWindowType)coreWindowAsIInspectable,

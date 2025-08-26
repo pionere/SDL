@@ -70,8 +70,6 @@ SDL_EGL_CreateContext_impl(KMSDRM)
 
 int KMSDRM_GLES_SetSwapInterval(int interval)
 {
-    SDL_assert(egl_data.eglSwapInterval != NULL);
-
     if (interval == 0 || interval == 1) {
         egl_data.egl_swapinterval = interval;
     } else {

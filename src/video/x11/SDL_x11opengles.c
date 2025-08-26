@@ -27,7 +27,13 @@
 #include "SDL_x11opengles.h"
 #include "SDL_x11opengl.h"
 
-/* EGL implementation of SDL OpenGL support */
+/* EGL implementation of SDL OpenGL ES support */
+
+#ifdef SDL_VIDEO_STATIC_ANGLE
+#define USE_FUNC(NAME) NAME
+#else
+#define USE_FUNC(NAME) egl_data.NAME
+#endif
 
 void X11_GLES_InitDevice(_THIS)
 {
@@ -74,9 +80,7 @@ XVisualInfo *X11_GLES_GetVisual(_THIS, Display *display, int screen)
     XVisualInfo vi_in;
     int out_count;
 
-    SDL_assert(egl_data.eglGetConfigAttrib != NULL);
-
-    if (egl_data.eglGetConfigAttrib(egl_data.egl_display,
+    if (USE_FUNC(eglGetConfigAttrib)(egl_data.egl_display,
                                             egl_data.egl_config,
                                             EGL_NATIVE_VISUAL_ID,
                                             &visual_id) == EGL_FALSE ||
