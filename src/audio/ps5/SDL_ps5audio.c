@@ -136,14 +136,6 @@ static void PS5AUDIO_CloseDevice(_THIS)
     }
 }
 
-static void PS5AUDIO_ThreadInit(_THIS)
-{
-}
-
-static void PS5AUDIO_Deinitialize(void)
-{
-}
-
 static SDL_bool PS5AUDIO_Init(SDL_AudioDriverImpl *impl)
 {
     static SDL_bool need_init = SDL_TRUE;
@@ -157,7 +149,7 @@ static SDL_bool PS5AUDIO_Init(SDL_AudioDriverImpl *impl)
     /* Set the function pointers */
     // impl->DetectDevices = xxx;
     impl->OpenDevice = PS5AUDIO_OpenDevice;
-    impl->ThreadInit = PS5AUDIO_ThreadInit;
+    // impl->ThreadInit = PS5AUDIO_ThreadInit;
     // impl->ThreadDeinit = xxx;
     impl->WaitDevice = PS5AUDIO_WaitDevice;
     impl->PlayDevice = PS5AUDIO_PlayDevice;
@@ -166,7 +158,7 @@ static SDL_bool PS5AUDIO_Init(SDL_AudioDriverImpl *impl)
     // impl->LockDevice = xxx;
     // impl->UnlockDevice = xxx;
     // impl->FreeDeviceHandle = xxx;
-    impl->Deinitialize = PS5AUDIO_Deinitialize;
+    // impl->Deinitialize = PS5AUDIO_Deinitialize;
     // impl->GetDefaultAudioInfo = xxx;
     /* Set the driver flags */
     // impl->ProvidesOwnCallbackThread = SDL_FALSE;
