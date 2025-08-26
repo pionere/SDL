@@ -21,16 +21,7 @@
 
 #include "../../SDL_internal.h"
 
-#ifdef SDL_VIDEO_DRIVER_KMSDRM
-
-#ifdef SDL_VIDEO_DRIVER_RPI
-#if defined(SDL_VIDEO_OPENGL)
-#error "KMSDRM expects an OPENGL_EGL configuration"
-#endif
-#if !defined(SDL_VIDEO_OPENGL_ES2)
-#error "KMSDRM expects an explicit SDL_VIDEO_OPENGL_ES2 configuration"
-#endif
-#endif // SDL_VIDEO_DRIVER_RPI
+#if defined(SDL_VIDEO_DRIVER_KMSDRM) && defined(SDL_VIDEO_OPENGL_EGL)
 
 #include "SDL_log.h"
 #include "SDL_timer.h"
@@ -44,7 +35,7 @@
 #define EGL_PLATFORM_GBM_MESA 0x31D7
 #endif
 
-/* EGL implementation of SDL OpenGL support */
+/* EGL implementation of SDL OpenGL ES support */
 
 int KMSDRM_GLES_LoadLibrary(_THIS, const char *path)
 {
@@ -196,6 +187,6 @@ int KMSDRM_GLES_SwapWindow(_THIS, SDL_Window *window)
 
 SDL_EGL_MakeCurrent_impl(KMSDRM)
 
-#endif /* SDL_VIDEO_DRIVER_KMSDRM */
+#endif /* SDL_VIDEO_DRIVER_KMSDRM && SDL_VIDEO_OPENGL_EGL */
 
     /* vi: set ts=4 sw=4 expandtab: */

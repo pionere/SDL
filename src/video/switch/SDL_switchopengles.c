@@ -23,11 +23,18 @@
 
 #if defined(SDL_VIDEO_DRIVER_SWITCH) && defined(SDL_VIDEO_OPENGL_EGL)
 
+#if defined(SDL_VIDEO_OPENGL)
+#error "SWITCH expects an OPENGL_EGL configuration"
+#endif
+#if !defined(SDL_VIDEO_OPENGL_ES2)
+#error "SWITCH expects an explicit SDL_VIDEO_OPENGL_ES2 configuration"
+#endif
+
 #include "SDL_video.h"
 #include "SDL_switchopengles.h"
 #include "SDL_switchvideo.h"
 
-/* EGL implementation of SDL OpenGL support */
+/* EGL implementation of SDL OpenGL ES support */
 
 void SWITCH_GLES_InitDevice(_THIS)
 {
