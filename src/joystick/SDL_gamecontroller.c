@@ -171,7 +171,6 @@ static SDL_vidpid_list SDL_allowed_controllers = {
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT, 0, 0, NULL,
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, 0, 0, NULL,
     0, NULL,
-    SDL_FALSE
 };
 
 static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_ControllerMappingPriority priority);

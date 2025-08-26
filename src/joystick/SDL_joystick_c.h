@@ -296,12 +296,9 @@ typedef struct
 
     int num_initial_entries;
     Uint32 *initial_entries;
-
-    SDL_bool initialized;
 } SDL_vidpid_list;
 
 extern void SDL_LoadVIDPIDList(SDL_vidpid_list *list);
-extern void SDL_LoadVIDPIDListFromHints(SDL_vidpid_list *list, const char *included_list, const char *excluded_list);
 extern SDL_bool SDL_VIDPIDInList(Uint16 vendor_id, Uint16 product_id, const SDL_vidpid_list *list);
 extern void SDL_FreeVIDPIDList(SDL_vidpid_list *list);
 
