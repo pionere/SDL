@@ -169,13 +169,7 @@ struct _SDL_GameController
 
 static SDL_vidpid_list SDL_allowed_controllers = {
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES_EXCEPT, 0, 0, NULL,
-    NULL, 0, 0, NULL,
-    0, NULL,
-    SDL_FALSE
-};
-static SDL_vidpid_list SDL_ignored_controllers = {
     SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, 0, 0, NULL,
-    NULL, 0, 0, NULL,
     0, NULL,
     SDL_FALSE
 };
@@ -1993,7 +1987,6 @@ int SDL_GameControllerInitMappings(void)
     SDL_GameControllerLoadHints();
 
     SDL_LoadVIDPIDList(&SDL_allowed_controllers);
-    SDL_LoadVIDPIDList(&SDL_ignored_controllers);
 
     return 0;
 }
@@ -2226,17 +2219,7 @@ SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid)
         return !SDL_GetHintBoolean("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD", SDL_FALSE);
     }
 
-    if (SDL_allowed_controllers.num_included_entries > 0) {
-        if (SDL_VIDPIDInList(vendor, product, &SDL_allowed_controllers)) {
-            return SDL_FALSE;
-        }
-        return SDL_TRUE;
-    } else {
-        if (SDL_VIDPIDInList(vendor, product, &SDL_ignored_controllers)) {
-            return SDL_TRUE;
-        }
-        return SDL_FALSE;
-    }
+    return !SDL_VIDPIDInList(vendor, product, &SDL_allowed_controllers);
 }
 
 /*
@@ -3379,7 +3362,6 @@ void SDL_GameControllerQuitMappings(void)
     SDL_DelEventWatch(SDL_GameControllerEventWatcher, NULL);
 
     SDL_FreeVIDPIDList(&SDL_allowed_controllers);
-    SDL_FreeVIDPIDList(&SDL_ignored_controllers);
 }
 
 /*

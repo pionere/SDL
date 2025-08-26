@@ -3817,7 +3817,7 @@ SDL_bool SDL_VIDPIDInList(Uint16 vendor_id, Uint16 product_id, const SDL_vidpid_
             return SDL_TRUE;
         }
     }
-    return SDL_FALSE;
+    return list->num_included_entries ? SDL_FALSE : SDL_TRUE;
 }
 
 void SDL_FreeVIDPIDList(SDL_vidpid_list *list)
