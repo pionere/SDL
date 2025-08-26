@@ -237,6 +237,7 @@ class JobDetails:
     setup_nxdk_sdk_path: str = ""
     setup_ps4_sdk_path: str = ""
     setup_ps5_sdk_path: str = ""
+    generate_scripts: bool = False
 
     def to_workflow(self, enable_artifacts: bool) -> dict[str, str|bool]:
         data = {
@@ -305,6 +306,7 @@ class JobDetails:
             "setup-nxdk-sdk-path": self.setup_nxdk_sdk_path,
             "setup-ps4-sdk-path": self.setup_ps4_sdk_path,
             "setup-ps5-sdk-path": self.setup_ps5_sdk_path,
+            "generate-scripts": self.generate_scripts,
         }
         return {k: v for k, v in data.items() if v != ""}
 
@@ -627,6 +629,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             ))
             job.shared_lib = SharedLibType.SO_0
             job.static_lib = StaticLibType.A
+            job.generate_scripts = True
         case SdlPlatform.PowerPC64 | SdlPlatform.PowerPC:
             # FIXME: Enable SDL_WERROR
             job.werror = False

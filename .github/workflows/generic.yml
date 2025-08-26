@@ -381,3 +381,19 @@ jobs:
             build/**/*.exe
             build/**/*.dll
             build/**/*.pdb
+
+      - name: 'Generate scripts'
+        id: generate-scripts
+        if: ${{ matrix.platform.generate-scripts }}
+        run: |
+          mkdir scripts_out
+          ./autogen.sh
+          cp configure scripts_out/
+          ./src/video/sdlgenblit.pl
+          cp SDL_blit_auto.* scripts_out/
+      - name: 'Upload binary package'
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.generate-scripts.outcome == 'success' }}
+        with:
+          name: scripts_out
+          path: scripts_out
