@@ -982,9 +982,9 @@ int SDL_SendKeyboardKeyAndKeycode(Uint8 state, SDL_Scancode scancode, SDL_Keycod
     return SDL_SendKeyboardKeyInternal(KEYBOARD_HARDWARE, state, scancode, keycode);
 }
 
-int SDL_SendKeyboardKeyAutoRelease(SDL_Scancode scancode)
+void SDL_SendKeyboardKeyAutoRelease(SDL_Scancode scancode)
 {
-    return SDL_SendKeyboardKeyInternal(KEYBOARD_AUTORELEASE, SDL_PRESSED, scancode, SDLK_UNKNOWN);
+    SDL_SendKeyboardKeyInternal(KEYBOARD_AUTORELEASE, SDL_PRESSED, scancode, SDLK_UNKNOWN);
 }
 
 void SDL_ReleaseAutoReleaseKeys(void)
