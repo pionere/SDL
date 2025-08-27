@@ -2092,19 +2092,7 @@ char *SDL_GameControllerMappingForDeviceIndex(int joystick_index)
     {
         ControllerMapping_t *mapping = SDL_PrivateGetControllerMapping(joystick_index);
         if (mapping) {
-            SDL_JoystickGUID guid;
-            char pchGUID[33];
-            size_t needed;
-            guid = SDL_PrivateJoystickGetDeviceGUID(joystick_index);
-            SDL_JoystickGetGUIDString(guid, pchGUID, sizeof(pchGUID));
-            /* allocate enough memory for GUID + ',' + name + ',' + mapping + \0 */
-            needed = SDL_strlen(pchGUID) + 1 + SDL_strlen(mapping->name) + 1 + SDL_strlen(mapping->mapping) + 1;
-            retval = (char *)SDL_malloc(needed);
-            if (retval) {
-                (void)SDL_snprintf(retval, needed, "%s,%s,%s", pchGUID, mapping->name, mapping->mapping);
-            } else {
-                SDL_OutOfMemory();
-            }
+            retval = CreateMappingString(mapping, SDL_PrivateJoystickGetDeviceGUID(joystick_index));
         }
     }
     SDL_UnlockJoysticks();
