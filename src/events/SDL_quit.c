@@ -188,13 +188,12 @@ void SDL_SendPendingSignalEvents(void)
 #endif
 }
 
-/* This function returns 1 if it's okay to close the application window */
-int SDL_SendQuit(void)
+void SDL_SendQuit(void)
 {
 #ifdef HAVE_SIGNAL_SUPPORT
     send_quit_pending = SDL_FALSE;
 #endif
-    return SDL_SendAppEvent(SDL_QUIT);
+    SDL_SendAppEvent(SDL_QUIT);
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

@@ -48,7 +48,7 @@ extern void SDL_SendSysWMEvent(SDL_SysWMmsg *message);
 extern void SDL_SendKeymapChangedEvent(void);
 extern void SDL_SendLocaleChangedEvent(void);
 
-extern int SDL_SendQuit(void);
+extern void SDL_SendQuit(void);
 
 extern int SDL_EventsInit(void);
 extern void SDL_EventsQuit(void);
