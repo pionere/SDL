@@ -2145,16 +2145,15 @@ void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance)
     }
 }
 
-int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
+void SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
 {
-    int posted;
     SDL_JoystickAxisInfo *info;
 
     SDL_AssertJoysticksLocked();
 
     /* Make sure we're not getting garbage or duplicate events */
     if (axis >= joystick->naxes) {
-        return 0;
+        return;
     }
 
     info = &joystick->axes[axis];
@@ -2165,7 +2164,7 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
         info->zero = value;
         info->has_initial_value = SDL_TRUE;
     } else if (value == info->value && !info->sending_initial_value) {
-        return 0;
+        return;
     } else {
         info->has_second_value = SDL_TRUE;
     }
@@ -2174,7 +2173,7 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
         const int MAX_ALLOWED_JITTER = SDL_JOYSTICK_AXIS_MAX / 80; /* ShanWan PS3 controller needed 96 */
         if (SDL_abs(value - info->value) <= MAX_ALLOWED_JITTER &&
             !SDL_IsJoystickVirtual(joystick->guid)) {
-            return 0;
+            return;
         }
         info->sent_initial_value = SDL_TRUE;
         info->sending_initial_value = SDL_TRUE;
@@ -2189,7 +2188,7 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
         if (info->sending_initial_value ||
             (value > info->zero && value >= info->value) ||
             (value < info->zero && value <= info->value)) {
-            return 0;
+            return;
         }
     }
 
@@ -2197,7 +2196,6 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
     info->value = value;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(SDL_JOYAXISMOTION)) {
         SDL_Event event;
@@ -2205,10 +2203,9 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
         event.jaxis.which = joystick->instance_id;
         event.jaxis.axis = axis;
         event.jaxis.value = value;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)

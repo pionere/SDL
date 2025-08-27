@@ -208,7 +208,7 @@ extern void SDL_PrivateJoystickAddSensor(SDL_Joystick *joystick, SDL_SensorType 
 extern void SDL_PrivateJoystickAdded(SDL_JoystickID device_instance);
 extern void SDL_PrivateJoystickRemoved(SDL_JoystickID device_instance);
 extern void SDL_PrivateJoystickForceRecentering(SDL_Joystick *joystick);
-extern int SDL_PrivateJoystickAxis(SDL_Joystick *joystick,
+extern void SDL_PrivateJoystickAxis(SDL_Joystick *joystick,
                                    Uint8 axis, Sint16 value);
 extern int SDL_PrivateJoystickBall(SDL_Joystick *joystick,
                                    Uint8 ball, Sint16 xrel, Sint16 yrel);
