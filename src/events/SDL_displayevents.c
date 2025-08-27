@@ -27,9 +27,8 @@
 
 void SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data1)
 {
-    if (!display) {
-        return;
-    }
+    SDL_assert(display != NULL);
+
     switch (displayevent) {
     case SDL_DISPLAYEVENT_ORIENTATION:
         if (data1 == SDL_ORIENTATION_UNKNOWN || data1 == display->orientation) {
