@@ -3525,22 +3525,21 @@ SDL_JoystickPowerLevel SDL_JoystickCurrentPowerLevel(SDL_Joystick *joystick)
     return retval;
 }
 
-int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger, Uint8 state, float x, float y, float pressure)
+void SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger, Uint8 state, float x, float y, float pressure)
 {
     SDL_JoystickTouchpadInfo *touchpad_info;
     SDL_JoystickTouchpadFingerInfo *finger_info;
-    int posted;
     Uint32 event_type;
 
     SDL_AssertJoysticksLocked();
 
     if (touchpad < 0 || touchpad >= joystick->ntouchpads) {
-        return 0;
+        return;
     }
 
     touchpad_info = &joystick->touchpads[touchpad];
     if (finger < 0 || finger >= touchpad_info->nfingers) {
-        return 0;
+        return;
     }
 
     finger_info = &touchpad_info->fingers[finger];
@@ -3572,7 +3571,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
     if (state == finger_info->state) {
         if (state == SDL_RELEASED ||
             (x == finger_info->x && y == finger_info->y && pressure == finger_info->pressure)) {
-            return 0;
+            return;
         }
     }
 
@@ -3587,7 +3586,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
     /* We ignore events if we don't have keyboard focus, except for touch release */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
         if (event_type != SDL_CONTROLLERTOUCHPADUP) {
-            return 0;
+            return;
         }
     }
 
@@ -3598,7 +3597,6 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
     finger_info->pressure = pressure;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(event_type)) {
         SDL_Event event;
@@ -3609,10 +3607,9 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
         event.ctouchpad.x = x;
         event.ctouchpad.y = y;
         event.ctouchpad.pressure = pressure;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 int SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint64 timestamp_us, const float *data, int num_values)
