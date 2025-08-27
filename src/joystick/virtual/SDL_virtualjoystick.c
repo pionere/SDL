@@ -256,12 +256,13 @@ int SDL_JoystickSetVirtualAxisInner(SDL_Joystick *joystick, int axis, Sint16 val
     joystick_hwdata *hwdata;
 
     SDL_AssertJoysticksLocked();
+    SDL_assert(joystick != NULL);
 
-    if (!joystick || !joystick->hwdata) {
+    hwdata = (joystick_hwdata *)joystick->hwdata;
+    if (!hwdata) {
         return SDL_SetError("Invalid joystick");
     }
 
-    hwdata = (joystick_hwdata *)joystick->hwdata;
     if (axis < 0 || axis >= hwdata->desc.naxes) {
         return SDL_SetError("Invalid axis index");
     }
@@ -276,12 +277,13 @@ int SDL_JoystickSetVirtualButtonInner(SDL_Joystick *joystick, int button, Uint8 
     joystick_hwdata *hwdata;
 
     SDL_AssertJoysticksLocked();
+    SDL_assert(joystick != NULL);
 
-    if (!joystick || !joystick->hwdata) {
+    hwdata = (joystick_hwdata *)joystick->hwdata;
+    if (!hwdata) {
         return SDL_SetError("Invalid joystick");
     }
 
-    hwdata = (joystick_hwdata *)joystick->hwdata;
     if (button < 0 || button >= hwdata->desc.nbuttons) {
         return SDL_SetError("Invalid button index");
     }
@@ -296,12 +298,13 @@ int SDL_JoystickSetVirtualHatInner(SDL_Joystick *joystick, int hat, Uint8 value)
     joystick_hwdata *hwdata;
 
     SDL_AssertJoysticksLocked();
+    SDL_assert(joystick != NULL);
 
-    if (!joystick || !joystick->hwdata) {
+    hwdata = (joystick_hwdata *)joystick->hwdata;
+    if (!hwdata) {
         return SDL_SetError("Invalid joystick");
     }
 
-    hwdata = (joystick_hwdata *)joystick->hwdata;
     if (hat < 0 || hat >= hwdata->desc.nhats) {
         return SDL_SetError("Invalid hat index");
     }
