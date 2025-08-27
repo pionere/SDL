@@ -1102,59 +1102,59 @@ SDL_bool SDL_JoystickIsVirtual(int device_index)
 
 int SDL_JoystickSetVirtualAxis(SDL_Joystick *joystick, int axis, Sint16 value)
 {
+#ifdef SDL_JOYSTICK_VIRTUAL
     int retval;
 
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, -1);
 
-#ifdef SDL_JOYSTICK_VIRTUAL
         retval = SDL_JoystickSetVirtualAxisInner(joystick, axis, value);
-#else
-        retval = SDL_SetError("SDL not built with virtual-joystick support");
-#endif
     }
     SDL_UnlockJoysticks();
 
     return retval;
+#else
+    return SDL_Unsupported();
+#endif
 }
 
 int SDL_JoystickSetVirtualButton(SDL_Joystick *joystick, int button, Uint8 value)
 {
+#ifdef SDL_JOYSTICK_VIRTUAL
     int retval;
 
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, -1);
 
-#ifdef SDL_JOYSTICK_VIRTUAL
         retval = SDL_JoystickSetVirtualButtonInner(joystick, button, value);
-#else
-        retval = SDL_SetError("SDL not built with virtual-joystick support");
-#endif
     }
     SDL_UnlockJoysticks();
 
     return retval;
+#else
+    return SDL_Unsupported();
+#endif
 }
 
 int SDL_JoystickSetVirtualHat(SDL_Joystick *joystick, int hat, Uint8 value)
 {
+#ifdef SDL_JOYSTICK_VIRTUAL
     int retval;
 
     SDL_LockJoysticks();
     {
         CHECK_JOYSTICK_MAGIC(joystick, -1);
 
-#ifdef SDL_JOYSTICK_VIRTUAL
         retval = SDL_JoystickSetVirtualHatInner(joystick, hat, value);
-#else
-        retval = SDL_SetError("SDL not built with virtual-joystick support");
-#endif
     }
     SDL_UnlockJoysticks();
 
     return retval;
+#else
+    return SDL_Unsupported();
+#endif
 }
 
 /*
