@@ -967,9 +967,9 @@ void SDL_SendKeyboardUnicodeKey(Uint32 ch)
     }
 }
 
-int SDL_SendVirtualKeyboardKey(Uint8 state, SDL_Scancode scancode)
+void SDL_SendVirtualKeyboardKey(Uint8 state, SDL_Scancode scancode)
 {
-    return SDL_SendKeyboardKeyInternal(KEYBOARD_VIRTUAL, state, scancode, SDLK_UNKNOWN);
+    SDL_SendKeyboardKeyInternal(KEYBOARD_VIRTUAL, state, scancode, SDLK_UNKNOWN);
 }
 
 int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode)
