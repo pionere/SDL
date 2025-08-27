@@ -55,7 +55,7 @@ extern void SDL_EventsQuit(void);
 
 extern void SDL_SendPendingSignalEvents(void);
 
-extern int SDL_QuitInit(void);
+extern void SDL_QuitInit(void);
 extern void SDL_QuitQuit(void);
 
 #endif /* SDL_events_c_h_ */

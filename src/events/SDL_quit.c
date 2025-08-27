@@ -111,7 +111,7 @@ static void SDL_EventSignal_Quit(const int sig)
 }
 
 /* Public functions */
-static int SDL_QuitInit_Internal(void)
+static void SDL_QuitInit_Internal(void)
 {
     /* Both SIGINT and SIGTERM are translated into quit interrupts */
     /* and SDL can be built to simulate iOS/Android semantics with arbitrary signals. */
@@ -127,7 +127,6 @@ static int SDL_QuitInit_Internal(void)
 #endif
 
     /* That's it! */
-    return 0;
 }
 
 static void SDL_QuitQuit_Internal(void)
@@ -145,14 +144,13 @@ static void SDL_QuitQuit_Internal(void)
 }
 #endif
 
-int SDL_QuitInit(void)
+void SDL_QuitInit(void)
 {
 #ifdef HAVE_SIGNAL_SUPPORT
     if (!SDL_GetHintBoolean(SDL_HINT_NO_SIGNAL_HANDLERS, SDL_FALSE)) {
-        return SDL_QuitInit_Internal();
+        SDL_QuitInit_Internal();
     }
 #endif
-    return 0;
 }
 
 void SDL_QuitQuit(void)
