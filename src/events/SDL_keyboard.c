@@ -942,7 +942,7 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
     return posted;
 }
 
-int SDL_SendKeyboardUnicodeKey(Uint32 ch)
+void SDL_SendKeyboardUnicodeKey(Uint32 ch)
 {
     SDL_Scancode code = SDL_SCANCODE_UNKNOWN;
     uint16_t mod = 0;
@@ -965,7 +965,6 @@ int SDL_SendKeyboardUnicodeKey(Uint32 ch)
         /* If the character uses shift, release shift */
         SDL_SendKeyboardKeyInternal(KEYBOARD_VIRTUAL, SDL_RELEASED, SDL_SCANCODE_LSHIFT, SDLK_UNKNOWN);
     }
-    return 0;
 }
 
 int SDL_SendVirtualKeyboardKey(Uint8 state, SDL_Scancode scancode)

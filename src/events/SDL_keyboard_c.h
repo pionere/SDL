@@ -50,7 +50,7 @@ extern void SDL_SetKeyboardFocus(SDL_Window *window);
 /* Send a character from an on-screen keyboard as scancode and modifier key events,
    currently assuming ASCII characters on a US keyboard layout
  */
-extern int SDL_SendKeyboardUnicodeKey(Uint32 ch);
+extern void SDL_SendKeyboardUnicodeKey(Uint32 ch);
 
 /* Send a key from a virtual key source, like an on-screen keyboard */
 extern int SDL_SendVirtualKeyboardKey(Uint8 state, SDL_Scancode scancode);
