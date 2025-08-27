@@ -56,7 +56,7 @@ extern void SDL_SendKeyboardUnicodeKey(Uint32 ch);
 extern void SDL_SendVirtualKeyboardKey(Uint8 state, SDL_Scancode scancode);
 
 /* Send a keyboard key event */
-extern int SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
+extern void SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode);
 extern void SDL_SendKeyboardKeyAutoRelease(SDL_Scancode scancode);
 
 /* This is for platforms that don't know the keymap but can report scancode and keycode directly.
