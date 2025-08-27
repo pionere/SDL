@@ -3381,7 +3381,7 @@ static int SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL
         event.caxis.which = gamecontroller->joystick->instance_id;
         event.caxis.axis = axis;
         event.caxis.value = value;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -3430,7 +3430,7 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
         event.cbutton.which = gamecontroller->joystick->instance_id;
         event.cbutton.button = button;
         event.cbutton.state = state;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;

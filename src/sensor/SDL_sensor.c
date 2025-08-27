@@ -489,7 +489,7 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
         SDL_memset(event.sensor.data, 0, sizeof(event.sensor.data));
         SDL_memcpy(event.sensor.data, data, num_values * sizeof(*data));
         event.sensor.timestamp_us = timestamp_us;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;

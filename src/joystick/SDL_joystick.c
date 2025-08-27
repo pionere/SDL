@@ -2205,7 +2205,7 @@ int SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
         event.jaxis.which = joystick->instance_id;
         event.jaxis.axis = axis;
         event.jaxis.value = value;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -2246,7 +2246,7 @@ int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
         event.jhat.which = joystick->instance_id;
         event.jhat.hat = hat;
         event.jhat.value = value;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -2282,7 +2282,7 @@ int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sin
         event.jball.ball = ball;
         event.jball.xrel = xrel;
         event.jball.yrel = yrel;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -2325,7 +2325,7 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
         event.jbutton.which = joystick->instance_id;
         event.jbutton.button = button;
         event.jbutton.state = state;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -3623,7 +3623,7 @@ int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finger
         event.ctouchpad.x = x;
         event.ctouchpad.y = y;
         event.ctouchpad.pressure = pressure;
-        posted = SDL_PushEvent(&event) == 1;
+        posted = SDL_PushEvent(&event) > 0;
     }
 #endif /* !SDL_EVENTS_DISABLED */
     return posted;
@@ -3663,7 +3663,7 @@ int SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint6
                     SDL_memset(event.csensor.data, 0, sizeof(event.csensor.data));
                     SDL_memcpy(event.csensor.data, data, num_values * sizeof(*data));
                     event.csensor.timestamp_us = timestamp_us;
-                    posted = SDL_PushEvent(&event) == 1;
+                    posted = SDL_PushEvent(&event) > 0;
                 }
 #endif /* !SDL_EVENTS_DISABLED */
             }
