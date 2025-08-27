@@ -799,10 +799,9 @@ int SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Ui
     return SDL_PrivateSendMouseButton(window, mouseID, state, button, -1);
 }
 
-int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y, SDL_MouseWheelDirection direction)
+void SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y, SDL_MouseWheelDirection direction)
 {
     SDL_Mouse *mouse = _this;
-    int posted;
     int integral_x, integral_y;
 
     if (window) {
@@ -810,7 +809,7 @@ int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y
     }
 
     if (x == 0.0f && y == 0.0f) {
-        return 0;
+        return;
     }
 
     if (x > 0.0f) {
@@ -852,7 +851,6 @@ int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y
     mouse->accumulated_wheel_y -= integral_y;
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_MOUSEWHEEL)) {
         SDL_Event event;
         event.type = SDL_MOUSEWHEEL;
@@ -865,9 +863,8 @@ int SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y
         event.wheel.direction = (Uint32)direction;
         event.wheel.mouseX = mouse->x;
         event.wheel.mouseY = mouse->y;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
-    return posted;
 }
 
 void SDL_MouseQuit(void)
