@@ -1024,18 +1024,16 @@ SDL_bool SDL_HardwareKeyboardKeyPressed(void)
     return keyboard->hardware_timestamp ? SDL_TRUE : SDL_FALSE;
 }
 
-int SDL_SendKeyboardText(const char *text)
+void SDL_SendKeyboardText(const char *text)
 {
     SDL_Keyboard *keyboard = &SDL_keyboard;
-    int posted;
 
     /* Don't post text events for unprintable characters */
     if ((unsigned char)*text < ' ' || *text == 127) {
-        return 0;
+        return;
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_TEXTINPUT)) {
         SDL_Event event;
         size_t pos = 0, advance, length = SDL_strlen(text);
@@ -1048,10 +1046,9 @@ int SDL_SendKeyboardText(const char *text)
                 break;
             }
             pos += advance;
-            posted |= (SDL_PushEvent(&event) > 0);
+            SDL_PushEvent(&event);
         }
     }
-    return posted;
 }
 
 int SDL_SendEditingText(const char *text, int start, int length)
