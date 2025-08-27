@@ -433,17 +433,11 @@ void SDL_SetMouseSystemScale(int num_values, const float *values)
         return;
     }
 
-    if (num_values < 1) {
-        return; // SDL_SetError("You must have at least one scale value");
-    }
+    SDL_assert(num_values == 1 || (num_values >= 4 && (num_values % 2u) == 0));
 
     if (num_values > 1) {
         /* Validate the values */
         int i;
-
-        if (num_values < 4 || (num_values % 2u) != 0) {
-            return; // SDL_SetError("You must pass a set of {speed, scale} values");
-        }
 
         for (i = 0; i < (num_values - 2); i += 2) {
             if (values[i] >= values[i + 2]) {
