@@ -1240,8 +1240,8 @@ endmacro()
 
 # Check for HIDAPI support
 macro(CheckHIDAPI)
-  set(HAVE_HIDAPI TRUE)
   if(SDL_HIDAPI)
+    set(HAVE_HIDAPI TRUE)
     if(SDL_HIDAPI_LIBUSB)
       set(HAVE_LIBUSB FALSE)
       pkg_check_modules(PKG_LIBUSB libusb-1.0)

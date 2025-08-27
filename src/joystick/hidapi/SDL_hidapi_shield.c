@@ -74,7 +74,6 @@ typedef struct
     Uint8 seq_num;
     Uint8 payload[HID_REPORT_SIZE - 3];
 } ShieldCommandReport_t;
-SDL_COMPILE_TIME_ASSERT(ShieldCommandReport_t, sizeof(ShieldCommandReport_t) == HID_REPORT_SIZE);
 
 typedef struct
 {
@@ -154,10 +153,10 @@ static int HIDAPI_DriverShield_SendCommand(SDL_HIDAPI_Device *device, Uint8 cmd,
     cmd_pkt.cmd = cmd;
     cmd_pkt.seq_num = ctx->seq_num++;
     if (data) {
-        SDL_memcpy(cmd_pkt.payload, data, SDL_min(sizeof(cmd_pkt.payload), (size_t)size));
+        SDL_memcpy(cmd_pkt.payload, data, SDL_min(HID_REPORT_SIZE - offsetof(ShieldCommandReport_t, payload), (unsigned)size));
     }
 
-    if (SDL_HIDAPI_SendRumbleAndUnlock(device, (Uint8 *)&cmd_pkt, sizeof(cmd_pkt)) != sizeof(cmd_pkt)) {
+    if (SDL_HIDAPI_SendRumbleAndUnlock(device, (Uint8 *)&cmd_pkt, HID_REPORT_SIZE) != HID_REPORT_SIZE) { // use HID_REPORT_SIZE instead of sizeof(cmd_pkt), because its size might be larger on RISC-V system
         return SDL_SetError("Couldn't send command packet");
     }
 
