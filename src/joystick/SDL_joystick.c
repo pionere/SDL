@@ -3612,16 +3612,15 @@ void SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick, int touchpad, int finge
 #endif /* !SDL_EVENTS_DISABLED */
 }
 
-int SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint64 timestamp_us, const float *data, int num_values)
+void SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint64 timestamp_us, const float *data, int num_values)
 {
     int i;
-    int posted = 0;
 
     SDL_AssertJoysticksLocked();
 
     /* We ignore events if we don't have keyboard focus */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
-        return 0;
+        return;
     }
 
     for (i = 0; i < joystick->nsensors; ++i) {
@@ -3646,14 +3645,13 @@ int SDL_PrivateJoystickSensor(SDL_Joystick *joystick, SDL_SensorType type, Uint6
                     SDL_memset(event.csensor.data, 0, sizeof(event.csensor.data));
                     SDL_memcpy(event.csensor.data, data, num_values * sizeof(*data));
                     event.csensor.timestamp_us = timestamp_us;
-                    posted = SDL_PushEvent(&event) > 0;
+                    SDL_PushEvent(&event);
                 }
 #endif /* !SDL_EVENTS_DISABLED */
             }
             break;
         }
     }
-    return posted;
 }
 
 static void SDL_LoadVIDPIDListFromHint(const char *hint, int *num_entries, int *max_entries, Uint32 **entries)
