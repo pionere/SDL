@@ -214,7 +214,7 @@ extern void SDL_PrivateJoystickBall(SDL_Joystick *joystick,
                                    Uint8 ball, Sint16 xrel, Sint16 yrel);
 extern void SDL_PrivateJoystickHat(SDL_Joystick *joystick,
                                   Uint8 hat, Uint8 value);
-extern int SDL_PrivateJoystickButton(SDL_Joystick *joystick,
+extern void SDL_PrivateJoystickButton(SDL_Joystick *joystick,
                                      Uint8 button, Uint8 state);
 extern int SDL_PrivateJoystickTouchpad(SDL_Joystick *joystick,
                                        int touchpad, int finger, Uint8 state, float x, float y, float pressure);

@@ -2277,9 +2277,8 @@ void SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Si
 #endif /* !SDL_EVENTS_DISABLED */
 }
 
-int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
+void SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
 {
-    int posted;
 #ifndef SDL_EVENTS_DISABLED
     SDL_Event event;
 #endif /* !SDL_EVENTS_DISABLED */
@@ -2289,17 +2288,17 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
 
     /* Make sure we're not getting garbage or duplicate events */
     if (button >= joystick->nbuttons) {
-        return 0;
+        return;
     }
     if (state == joystick->buttons[button]) {
-        return 0;
+        return;
     }
 
     /* We ignore events if we don't have keyboard focus, except for button
      * release. */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
         if (state != SDL_RELEASED) {
-            return 0;
+            return;
         }
     }
 
@@ -2307,17 +2306,15 @@ int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
     joystick->buttons[button] = state;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     event.type = state != SDL_RELEASED ? SDL_JOYBUTTONDOWN : SDL_JOYBUTTONUP;
     if (SDL_IsEventEnabled(event.type)) {
         event.jbutton.which = joystick->instance_id;
         event.jbutton.button = button;
         event.jbutton.state = state;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 static void SendSteamHandleUpdateEvents(void)
