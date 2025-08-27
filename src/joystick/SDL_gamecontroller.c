@@ -175,7 +175,7 @@ static SDL_vidpid_list SDL_allowed_controllers = {
 
 static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_ControllerMappingPriority priority);
 static ControllerMapping_t *SDL_PrivateAddMappingForGUID(SDL_JoystickGUID jGUID, const char *mappingString, SDL_bool *existing, SDL_ControllerMappingPriority priority);
-static int SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, Sint16 value);
+static void SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, Sint16 value);
 static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroller, SDL_GameControllerButton button, Uint8 state);
 static Sint16 SDL_PrivateGameControllerGetAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis);
 static Uint8 SDL_PrivateGameControllerGetButton(SDL_GameController *gamecontroller, SDL_GameControllerButton button);
@@ -3354,14 +3354,11 @@ void SDL_GameControllerQuitMappings(void)
 /*
  * Event filter to transform joystick events into appropriate game controller ones
  */
-static int SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, Sint16 value)
+static void SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, Sint16 value)
 {
-    int posted;
-
     SDL_AssertJoysticksLocked();
 
     /* translate the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(SDL_CONTROLLERAXISMOTION)) {
         SDL_Event event;
@@ -3369,10 +3366,9 @@ static int SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL
         event.caxis.which = gamecontroller->joystick->instance_id;
         event.caxis.axis = axis;
         event.caxis.value = value;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 /*
