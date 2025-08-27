@@ -214,16 +214,15 @@ static void SDL_DelFinger(SDL_Touch *touch, SDL_Finger *finger)
     }
 }
 
-int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
+void SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
                   SDL_bool down, float x, float y, float pressure)
 {
-    int posted;
     SDL_Finger *finger;
     SDL_Mouse *mouse;
 
     SDL_Touch *touch = SDL_GetTouch(id);
     if (!touch) {
-        return -1;
+        return;
     }
 
     mouse = SDL_GetMouse();
@@ -284,7 +283,7 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
     /* SDL_HINT_MOUSE_TOUCH_EVENTS: if not set, discard synthetic touch events coming from platform layer */
     if (!mouse->mouse_touch_events) {
         if (id == SDL_MOUSE_TOUCHID) {
-            return 0;
+            return;
         }
     }
 
@@ -297,10 +296,9 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
         }
 
         if (SDL_AddFinger(touch, fingerid, x, y, pressure) < 0) {
-            return 0;
+            return;
         }
 
-        posted = 0;
         if (SDL_IsEventEnabled(SDL_FINGERDOWN)) {
             SDL_Event event;
             event.tfinger.type = SDL_FINGERDOWN;
@@ -312,15 +310,14 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
             event.tfinger.dy = 0;
             event.tfinger.pressure = pressure;
             event.tfinger.windowID = window ? SDL_GetWindowID(window) : 0;
-            posted = (SDL_PushEvent(&event) > 0);
+            SDL_PushEvent(&event);
         }
     } else {
         if (!finger) {
             /* This finger is already up */
-            return 0;
+            return;
         }
 
-        posted = 0;
         if (SDL_IsEventEnabled(SDL_FINGERUP)) {
             SDL_Event event;
             event.tfinger.type = SDL_FINGERUP;
@@ -333,12 +330,11 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
             event.tfinger.dy = 0;
             event.tfinger.pressure = pressure;
             event.tfinger.windowID = window ? SDL_GetWindowID(window) : 0;
-            posted = (SDL_PushEvent(&event) > 0);
+            SDL_PushEvent(&event);
         }
 
         SDL_DelFinger(touch, finger);
     }
-    return posted;
 }
 
 void SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
