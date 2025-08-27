@@ -422,7 +422,7 @@ static float CalculateSystemScale(SDL_Mouse *mouse, const int *x, const int *y)
 }
 
 /* You can set either a single scale, or a set of {speed, scale} values in ascending order */
-int SDL_SetMouseSystemScale(int num_values, const float *values)
+void SDL_SetMouseSystemScale(int num_values, const float *values)
 {
     SDL_Mouse *mouse = _this;
     float *v;
@@ -430,11 +430,11 @@ int SDL_SetMouseSystemScale(int num_values, const float *values)
     if (num_values == mouse->num_system_scale_values &&
         SDL_memcmp(values, mouse->system_scale_values, num_values * sizeof(*values)) == 0) {
         /* Nothing has changed */
-        return 0;
+        return;
     }
 
     if (num_values < 1) {
-        return SDL_SetError("You must have at least one scale value");
+        return; // SDL_SetError("You must have at least one scale value");
     }
 
     if (num_values > 1) {
@@ -442,25 +442,24 @@ int SDL_SetMouseSystemScale(int num_values, const float *values)
         int i;
 
         if (num_values < 4 || (num_values % 2u) != 0) {
-            return SDL_SetError("You must pass a set of {speed, scale} values");
+            return; // SDL_SetError("You must pass a set of {speed, scale} values");
         }
 
         for (i = 0; i < (num_values - 2); i += 2) {
             if (values[i] >= values[i + 2]) {
-                return SDL_SetError("Speed values must be in ascending order");
+                return; // SDL_SetError("Speed values must be in ascending order");
             }
         }
     }
 
     v = (float *)SDL_realloc(mouse->system_scale_values, num_values * sizeof(*values));
     if (!v) {
-        return SDL_OutOfMemory();
+        return; // SDL_OutOfMemory();
     }
     SDL_memcpy(v, values, num_values * sizeof(*values));
 
     mouse->num_system_scale_values = num_values;
     mouse->system_scale_values = v;
-    return 0;
 }
 
 static void GetScaledMouseDeltas(SDL_Mouse *mouse, int *x, int *y)

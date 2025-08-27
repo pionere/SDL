@@ -147,7 +147,7 @@ extern void SDL_SetMouseFocus(SDL_Window *window);
 extern int SDL_UpdateMouseCapture(SDL_bool force_release);
 
 /* You can set either a single scale, or a set of {speed, scale} values in sorted order */
-extern int SDL_SetMouseSystemScale(int num_values, const float *values);
+extern void SDL_SetMouseSystemScale(int num_values, const float *values);
 
 /* Send a mouse motion event */
 extern void SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y);
