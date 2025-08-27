@@ -200,9 +200,7 @@ void SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             SDL_FilterEvents(RemovePendingSizeChangedAndResizedEvents, &userdata);
             if (userdata.saw_resized) { /* if there was a pending resize, make sure one at the new dimensions remains. */
                 event.window.event = SDL_WINDOWEVENT_RESIZED;
-                if (SDL_PushEvent(&event) <= 0) {
-                    return; /* oh well. */
-                }
+                SDL_PushEvent(&event);
                 event.window.event = SDL_WINDOWEVENT_SIZE_CHANGED; /* then push the actual event next. */
             }
         }
