@@ -367,10 +367,19 @@ void WIN_QuitMouse(void)
  * https://superuser.com/questions/278362/windows-mouse-acceleration-curve-smoothmousexcurve-and-smoothmouseycurve
  * http://www.esreality.com/?a=post&id=1846538/
  */
-static SDL_bool LoadFiveFixedPointFloats(const BYTE *bytes, float *values)
+static SDL_bool LoadFiveFixedPointFloats(HKEY hKey, LPCWSTR valueName, float *values)
 {
+    DWORD dwType = REG_BINARY;
+    BYTE regValue[40];
+    DWORD length = sizeof(regValue);
     int i;
+    const BYTE *bytes;
 
+    if (RegQueryValueExW(hKey, valueName, 0, &dwType, regValue, &length) != ERROR_SUCCESS) {
+        return SDL_FALSE;
+    }
+
+    bytes = &regValue[0];
     for (i = 0; i < 5; ++i) {
         float fraction = (float)((Uint16)bytes[1] << 8 | bytes[0]) / 65535.0f;
         float value = (float)(((Uint16)bytes[3] << 8) | bytes[2]) + fraction;
@@ -384,9 +393,6 @@ static void WIN_SetEnhancedMouseScale(int mouse_speed)
 {
     float scale = (float)mouse_speed / 10.0f;
     HKEY hKey;
-    DWORD dwType = REG_BINARY;
-    BYTE value[40];
-    DWORD length = sizeof(value);
     int i;
     float xpoints[5];
     float ypoints[5];
@@ -395,10 +401,8 @@ static void WIN_SetEnhancedMouseScale(int mouse_speed)
     const float display_factor = 3.5f * (150.0f / dpi);
 
     if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Control Panel\\Mouse", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-        if (RegQueryValueExW(hKey, L"SmoothMouseXCurve", 0, &dwType, value, &length) == ERROR_SUCCESS &&
-            LoadFiveFixedPointFloats(value, xpoints) &&
-            RegQueryValueExW(hKey, L"SmoothMouseYCurve", 0, &dwType, value, &length) == ERROR_SUCCESS &&
-            LoadFiveFixedPointFloats(value, ypoints)) {
+        if (LoadFiveFixedPointFloats(hKey, L"SmoothMouseXCurve", xpoints) &&
+            LoadFiveFixedPointFloats(hKey, L"SmoothMouseYCurve", ypoints)) {
             for (i = 0; i < 5; ++i) {
                 float gain;
                 if (xpoints[i] > 0.0f) {
