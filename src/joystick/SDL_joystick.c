@@ -2245,20 +2245,18 @@ void SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
 #endif /* !SDL_EVENTS_DISABLED */
 }
 
-int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sint16 yrel)
+void SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sint16 yrel)
 {
-    int posted;
-
     SDL_AssertJoysticksLocked();
 
     /* Make sure we're not getting garbage events */
     if (ball >= joystick->nballs) {
-        return 0;
+        return;
     }
 
     /* We ignore events if we don't have keyboard focus. */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
-        return 0;
+        return;
     }
 
     /* Update internal mouse state */
@@ -2266,7 +2264,6 @@ int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sin
     joystick->balls[ball].dy += yrel;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(SDL_JOYBALLMOTION)) {
         SDL_Event event;
@@ -2275,10 +2272,9 @@ int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sin
         event.jball.ball = ball;
         event.jball.xrel = xrel;
         event.jball.yrel = yrel;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 int SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
