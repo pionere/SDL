@@ -176,7 +176,7 @@ static SDL_vidpid_list SDL_allowed_controllers = {
 static int SDL_PrivateGameControllerAddMapping(const char *mappingString, SDL_ControllerMappingPriority priority);
 static ControllerMapping_t *SDL_PrivateAddMappingForGUID(SDL_JoystickGUID jGUID, const char *mappingString, SDL_bool *existing, SDL_ControllerMappingPriority priority);
 static void SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, Sint16 value);
-static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroller, SDL_GameControllerButton button, Uint8 state);
+static void SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroller, SDL_GameControllerButton button, Uint8 state);
 static Sint16 SDL_PrivateGameControllerGetAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis);
 static Uint8 SDL_PrivateGameControllerGetButton(SDL_GameController *gamecontroller, SDL_GameControllerButton button);
 static void SDL_PrivateGameControllerGetBindForAxis(SDL_GameController *gamecontroller, SDL_GameControllerAxis axis, SDL_GameControllerButtonBind *bind);
@@ -3374,9 +3374,8 @@ static void SDL_PrivateGameControllerAxis(SDL_GameController *gamecontroller, SD
 /*
  * Event filter to transform joystick events into appropriate game controller ones
  */
-static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroller, SDL_GameControllerButton button, Uint8 state)
+static void SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroller, SDL_GameControllerButton button, Uint8 state)
 {
-    int posted;
 #ifndef SDL_EVENTS_DISABLED
     SDL_Event event;
 #endif /* !SDL_EVENTS_DISABLED */
@@ -3386,7 +3385,7 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
     SDL_assert(state == SDL_PRESSED || state == SDL_RELEASED);
 
     if (button == SDL_CONTROLLER_BUTTON_INVALID) {
-        return 0;
+        return;
     }
     if (button == SDL_CONTROLLER_BUTTON_GUIDE) {
         Uint32 now = SDL_GetTicks();
@@ -3395,29 +3394,27 @@ static int SDL_PrivateGameControllerButtonEvent(SDL_GameController *gamecontroll
 
             if (gamecontroller->joystick->delayed_guide_button) {
                 /* Skip duplicate press */
-                return 0;
+                return;
             }
         } else {
             if (!SDL_TICKS_PASSED(now, gamecontroller->guide_button_down + SDL_MINIMUM_GUIDE_BUTTON_DELAY_MS)) {
                 gamecontroller->joystick->delayed_guide_button = SDL_TRUE;
-                return 0;
+                return;
             }
             gamecontroller->joystick->delayed_guide_button = SDL_FALSE;
         }
     }
 
     /* translate the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     event.type = state != SDL_RELEASED ? SDL_CONTROLLERBUTTONDOWN : SDL_CONTROLLERBUTTONUP;
     if (SDL_IsEventEnabled(event.type)) {
         event.cbutton.which = gamecontroller->joystick->instance_id;
         event.cbutton.button = button;
         event.cbutton.state = state;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 /*
