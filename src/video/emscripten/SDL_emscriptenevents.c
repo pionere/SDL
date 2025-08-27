@@ -812,6 +812,7 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
     SDL_Scancode scancode = Emscripten_MapScanCode(keyEvent->code);
     SDL_bool prevent_default = SDL_FALSE;
     SDL_bool is_nav_key = SDL_FALSE;
+    Uint8 state = eventType == EMSCRIPTEN_EVENT_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
 
     if (scancode == SDL_SCANCODE_UNKNOWN) {
         /* KaiOS Left Soft Key and Right Soft Key, they act as OK/Next/Menu and Cancel/Back/Clear */
@@ -823,7 +824,8 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
     }
 
     if (scancode != SDL_SCANCODE_UNKNOWN) {
-        prevent_default = SDL_SendKeyboardKeyAndKeycode(eventType == EMSCRIPTEN_EVENT_KEYDOWN ? SDL_PRESSED : SDL_RELEASED, scancode, keycode);
+        SDL_SendKeyboardKeyAndKeycode(state, scancode, keycode);
+        prevent_default = SDL_IsEventEnabled(state != SDL_RELEASED ? SDL_KEYDOWN : SDL_KEYUP);
     }
 
     /* if TEXTINPUT events are enabled we can't prevent keydown or we won't get keypress
@@ -840,7 +842,7 @@ static EM_BOOL Emscripten_HandleKey(int eventType, const EmscriptenKeyboardEvent
         is_nav_key = SDL_TRUE;
     }
 
-    if ((eventType == EMSCRIPTEN_EVENT_KEYDOWN) && SDL_IsEventEnabled(SDL_TEXTINPUT) && !is_nav_key) {
+    if ((state != SDL_RELEASED) && SDL_IsEventEnabled(SDL_TEXTINPUT) && !is_nav_key) {
         prevent_default = SDL_FALSE;
     }
 
