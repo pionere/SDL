@@ -807,16 +807,15 @@ void SDL_SetKeyboardFocus(SDL_Window *window)
     }
 }
 
-static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode scancode, SDL_Keycode keycode)
+static void SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode scancode, SDL_Keycode keycode)
 {
     SDL_Keyboard *keyboard = &SDL_keyboard;
-    int posted;
     SDL_Keymod modifier;
     Uint32 type;
     Uint8 repeat = SDL_FALSE;
 
     if (scancode == SDL_SCANCODE_UNKNOWN || scancode >= SDL_NUM_SCANCODES) {
-        return 0;
+        return;
     }
 
 #ifdef DEBUG_KEYBOARD
@@ -833,14 +832,14 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
         if (keyboard->keystate[scancode] != SDL_RELEASED) {
             if (!(keyboard->keysource[scancode] & source)) {
                 keyboard->keysource[scancode] |= source;
-                return 0;
+                return;
             }
             repeat = SDL_TRUE;
         }
         keyboard->keysource[scancode] |= source;
     } else {
         if (keyboard->keystate[scancode] == SDL_RELEASED) {
-            return 0;
+            return;
         }
         keyboard->keysource[scancode] = 0;
     }
@@ -911,7 +910,6 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(type)) {
         SDL_Event event;
         event.key.type = type;
@@ -921,7 +919,7 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
         event.key.keysym.sym = keycode;
         event.key.keysym.mod = keyboard->modstate;
         event.key.windowID = keyboard->focus ? keyboard->focus->id : 0;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
 
     /* If the keyboard is grabbed and the grabbed window is in full-screen,
@@ -938,8 +936,6 @@ static int SDL_SendKeyboardKeyInternal(Uint8 source, Uint8 state, SDL_Scancode s
            allowing the user to escape the application */
         SDL_MinimizeWindow(keyboard->focus);
     }
-
-    return posted;
 }
 
 void SDL_SendKeyboardUnicodeKey(Uint32 ch)
@@ -977,9 +973,9 @@ void SDL_SendKeyboardKey(Uint8 state, SDL_Scancode scancode)
     SDL_SendKeyboardKeyInternal(KEYBOARD_HARDWARE, state, scancode, SDLK_UNKNOWN);
 }
 
-int SDL_SendKeyboardKeyAndKeycode(Uint8 state, SDL_Scancode scancode, SDL_Keycode keycode)
+void SDL_SendKeyboardKeyAndKeycode(Uint8 state, SDL_Scancode scancode, SDL_Keycode keycode)
 {
-    return SDL_SendKeyboardKeyInternal(KEYBOARD_HARDWARE, state, scancode, keycode);
+    SDL_SendKeyboardKeyInternal(KEYBOARD_HARDWARE, state, scancode, keycode);
 }
 
 void SDL_SendKeyboardKeyAutoRelease(SDL_Scancode scancode)
