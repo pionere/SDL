@@ -361,15 +361,15 @@ static SDL_bool SDL_UpdateMouseFocus(SDL_Window *window, int x, int y, SDL_bool 
     return SDL_TRUE;
 }
 
-int SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y)
+void SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y)
 {
     if (window && !relative) {
         if (!SDL_UpdateMouseFocus(window, x, y, (mouseID == SDL_TOUCH_MOUSEID) ? SDL_FALSE : SDL_TRUE)) {
-            return 0;
+            return;
         }
     }
 
-    return SDL_PrivateSendMouseMotion(window, mouseID, relative, x, y);
+    SDL_PrivateSendMouseMotion(window, mouseID, relative, x, y);
 }
 
 static int GetScaledMouseDelta(float scale, int value, float *accum)
