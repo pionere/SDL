@@ -23,7 +23,7 @@
 #ifndef SDL_clipboardevents_c_h_
 #define SDL_clipboardevents_c_h_
 
-extern int SDL_SendClipboardUpdate(void);
+extern void SDL_SendClipboardUpdate(void);
 
 #endif /* SDL_clipboardevents_c_h_ */
 
