@@ -43,7 +43,7 @@ extern int SDL_StartEventLoop(void);
 extern void SDL_StopEventLoop(void);
 extern void SDL_QuitInterrupt(void);
 
-extern int SDL_SendAppEvent(SDL_EventType eventType);
+extern void SDL_SendAppEvent(SDL_EventType eventType);
 extern void SDL_SendSysWMEvent(SDL_SysWMmsg *message);
 extern void SDL_SendKeymapChangedEvent(void);
 extern void SDL_SendLocaleChangedEvent(void);

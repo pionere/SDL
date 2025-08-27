@@ -1352,17 +1352,13 @@ Uint32 SDL_RegisterEvents(int numevents)
     return event_base;
 }
 
-int SDL_SendAppEvent(SDL_EventType eventType)
+void SDL_SendAppEvent(SDL_EventType eventType)
 {
-    int posted;
-
-    posted = 0;
     if (SDL_IsEventEnabled(eventType)) {
         SDL_Event event;
         event.type = eventType;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
-    return posted;
 }
 
 void SDL_SendSysWMEvent(SDL_SysWMmsg *message)
