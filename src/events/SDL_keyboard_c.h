@@ -73,7 +73,7 @@ extern SDL_bool SDL_HardwareKeyboardKeyPressed(void);
 extern void SDL_SendKeyboardText(const char *text);
 
 /* Send editing text for selected range from start to end */
-extern int SDL_SendEditingText(const char *text, int start, int length);
+extern void SDL_SendEditingText(const char *text, int start, int length);
 
 /* Shutdown the keyboard subsystem */
 extern void SDL_KeyboardQuit(void);
