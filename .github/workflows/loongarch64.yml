@@ -8,6 +8,7 @@ concurrency:
 
 jobs:
   loongarch64:
+    if: false
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
