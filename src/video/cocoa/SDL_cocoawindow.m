@@ -1231,12 +1231,11 @@ static NSCursor *Cocoa_GetDesiredCursor(void)
     return NO;  /* not a special area, carry on. */
 }
 
-static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL_Window * window, const Uint8 state, const Uint8 button)
+static void Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL_Window * window, const Uint8 state, const Uint8 button)
 {
     const SDL_MouseID mouseID = mouse->mouseID;
     const int clicks = (int) [theEvent clickCount];
     SDL_Window *focus = SDL_GetKeyboardFocus();
-    int rc;
 
     // macOS will send non-left clicks to background windows without raising them, so we need to
     //  temporarily adjust the mouse position when this happens, as `mouse` will be tracking
@@ -1244,19 +1243,17 @@ static int Cocoa_SendMouseButtonClicks(SDL_Mouse * mouse, NSEvent *theEvent, SDL
     //  event for the background window, this just makes sure the button is reported at the
     //  correct position in its own event.
     if ( focus && ([theEvent window] == ((__bridge SDL_WindowData *) focus->driverdata).nswindow) ) {
-        rc = SDL_SendMouseButtonClicks(window, mouseID, state, button, clicks);
+        SDL_SendMouseButtonClicks(window, mouseID, state, button, clicks);
     } else {
         const int orig_x = mouse->x;
         const int orig_y = mouse->y;
         const NSPoint point = [theEvent locationInWindow];
         mouse->x = (int) point.x;
         mouse->y = (int) (window->wrect.h - point.y);
-        rc = SDL_SendMouseButtonClicks(window, mouseID, state, button, clicks);
+        SDL_SendMouseButtonClicks(window, mouseID, state, button, clicks);
         mouse->x = orig_x;
         mouse->y = orig_y;
     }
-
-    return rc;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent
