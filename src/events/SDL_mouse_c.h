@@ -153,7 +153,7 @@ extern void SDL_SetMouseSystemScale(int num_values, const float *values);
 extern void SDL_SendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y);
 
 /* Send a mouse button event */
-extern int SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button);
+extern void SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button);
 
 /* Send a mouse button event with a click count */
 extern void SDL_SendMouseButtonClicks(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button, int clicks);

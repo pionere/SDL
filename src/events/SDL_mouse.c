@@ -675,17 +675,16 @@ static SDL_MouseClickState *GetMouseClickState(SDL_Mouse *mouse, Uint8 button)
     return &mouse->clickstate[button];
 }
 
-static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button, int clicks)
+static void SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button, int clicks)
 {
     SDL_Mouse *mouse = _this;
-    int posted;
     Uint32 type;
     Uint32 buttonstate;
     SDL_MouseInputSource *source;
 
     source = GetMouseInputSource(mouse, mouseID);
     if (!source) {
-        return 0;
+        return;
     }
     buttonstate = source->buttonstate;
 
@@ -704,7 +703,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     /* SDL_HINT_TOUCH_MOUSE_EVENTS: if not set, discard synthetic mouse events coming from platform layer */
     if (mouse->touch_mouse_events == 0) {
         if (mouseID == SDL_TOUCH_MOUSEID) {
-            return 0;
+            return;
         }
     }
 
@@ -725,7 +724,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
 
     if (buttonstate == source->buttonstate) {
         /* Ignore this event, no state change */
-        return 0;
+        return;
     }
     source->buttonstate = buttonstate;
 
@@ -754,7 +753,6 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(type)) {
         SDL_Event event;
         event.type = type;
@@ -765,7 +763,7 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
         event.button.clicks = (Uint8)SDL_min(clicks, 255);
         event.button.x = mouse->x;
         event.button.y = mouse->y;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
 
     /* We do this after dispatching event so button releases can lose focus */
@@ -777,8 +775,6 @@ static int SDL_PrivateSendMouseButton(SDL_Window *window, SDL_MouseID mouseID, U
     if (mouse->auto_capture) {
         SDL_UpdateMouseCapture(SDL_FALSE);
     }
-
-    return posted;
 }
 
 void SDL_SendMouseButtonClicks(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button, int clicks)
@@ -787,9 +783,9 @@ void SDL_SendMouseButtonClicks(SDL_Window *window, SDL_MouseID mouseID, Uint8 st
     SDL_PrivateSendMouseButton(window, mouseID, state, button, clicks);
 }
 
-int SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button)
+void SDL_SendMouseButton(SDL_Window *window, SDL_MouseID mouseID, Uint8 state, Uint8 button)
 {
-    return SDL_PrivateSendMouseButton(window, mouseID, state, button, -1);
+    SDL_PrivateSendMouseButton(window, mouseID, state, button, -1);
 }
 
 void SDL_SendMouseWheel(SDL_Window *window, SDL_MouseID mouseID, float x, float y, SDL_MouseWheelDirection direction)
