@@ -467,10 +467,8 @@ void SDL_SensorQuit(void)
 
 /* These are global for SDL_syssensor.c and SDL_events.c */
 
-int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data, int num_values)
+void SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data, int num_values)
 {
-    int posted;
-
     /* Allow duplicate events, for things like steps and heartbeats */
 
     /* Update internal sensor state */
@@ -479,7 +477,6 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
     sensor->timestamp_us = timestamp_us;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(SDL_SENSORUPDATE)) {
         SDL_Event event;
@@ -489,10 +486,9 @@ int SDL_PrivateSensorUpdate(SDL_Sensor *sensor, Uint64 timestamp_us, float *data
         SDL_memset(event.sensor.data, 0, sizeof(event.sensor.data));
         SDL_memcpy(event.sensor.data, data, num_values * sizeof(*data));
         event.sensor.timestamp_us = timestamp_us;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 void SDL_SensorUpdate(void)
