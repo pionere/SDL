@@ -45,7 +45,7 @@ static SDL_Mouse *const _this = &SDL_mouse;
 /* for mapping mouse events to touch */
 static SDL_bool track_mouse_down = SDL_FALSE;
 
-static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y);
+static void SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y);
 
 static void SDLCALL SDL_MouseDoubleClickTimeChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
 {
@@ -482,10 +482,9 @@ static void GetScaledMouseDeltas(SDL_Mouse *mouse, int *x, int *y)
     }
 }
 
-static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y)
+static void SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, int relative, int x, int y)
 {
     SDL_Mouse *mouse = _this;
-    int posted;
     int xrel = 0;
     int yrel = 0;
 
@@ -503,7 +502,7 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
     /* SDL_HINT_TOUCH_MOUSE_EVENTS: if not set, discard synthetic mouse events coming from platform layer */
     if (mouse->touch_mouse_events == 0) {
         if (mouseID == SDL_TOUCH_MOUSEID) {
-            return 0;
+            return;
         }
     }
 
@@ -516,7 +515,7 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
             mouse->last_x = center_x;
             mouse->last_y = center_y;
             if (!mouse->relative_mode_warp_motion) {
-                return 0;
+                return;
             }
         } else {
             if (window && (window->flags & SDL_WINDOW_INPUT_FOCUS)) {
@@ -549,7 +548,7 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
 #ifdef DEBUG_MOUSE
         SDL_Log("Mouse event didn't change state - dropped!\n");
 #endif
-        return 0;
+        return;
     }
 
     /* Ignore relative motion positioning the first touch */
@@ -617,7 +616,6 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_MOUSEMOTION)) {
         SDL_Event event;
         event.motion.type = SDL_MOUSEMOTION;
@@ -630,7 +628,7 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
         event.motion.y = mouse->y;
         event.motion.xrel = xrel;
         event.motion.yrel = yrel;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
     if (relative) {
         mouse->last_x = mouse->x;
@@ -640,7 +638,6 @@ static int SDL_PrivateSendMouseMotion(SDL_Window *window, SDL_MouseID mouseID, i
         mouse->last_x = x;
         mouse->last_y = y;
     }
-    return posted;
 }
 
 static SDL_MouseInputSource *GetMouseInputSource(SDL_Mouse *mouse, SDL_MouseID mouseID)
