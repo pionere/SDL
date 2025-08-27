@@ -2208,18 +2208,16 @@ void SDL_PrivateJoystickAxis(SDL_Joystick *joystick, Uint8 axis, Sint16 value)
 #endif /* !SDL_EVENTS_DISABLED */
 }
 
-int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
+void SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
 {
-    int posted;
-
     SDL_AssertJoysticksLocked();
 
     /* Make sure we're not getting garbage or duplicate events */
     if (hat >= joystick->nhats) {
-        return 0;
+        return;
     }
     if (value == joystick->hats[hat]) {
-        return 0;
+        return;
     }
 
     /* We ignore events if we don't have keyboard focus, except for centering
@@ -2227,7 +2225,7 @@ int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
      */
     if (SDL_PrivateJoystickShouldIgnoreEvent()) {
         if (value != SDL_HAT_CENTERED) {
-            return 0;
+            return;
         }
     }
 
@@ -2235,7 +2233,6 @@ int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
     joystick->hats[hat] = value;
 
     /* Post the event, if desired */
-    posted = 0;
 #ifndef SDL_EVENTS_DISABLED
     if (SDL_IsEventEnabled(SDL_JOYHATMOTION)) {
         SDL_Event event;
@@ -2243,10 +2240,9 @@ int SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
         event.jhat.which = joystick->instance_id;
         event.jhat.hat = hat;
         event.jhat.value = value;
-        posted = SDL_PushEvent(&event) > 0;
+        SDL_PushEvent(&event);
     }
 #endif /* !SDL_EVENTS_DISABLED */
-    return posted;
 }
 
 int SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sint16 yrel)
