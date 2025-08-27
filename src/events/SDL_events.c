@@ -1380,9 +1380,9 @@ int SDL_SendSysWMEvent(SDL_SysWMmsg *message)
     return posted;
 }
 
-int SDL_SendKeymapChangedEvent(void)
+void SDL_SendKeymapChangedEvent(void)
 {
-    return SDL_SendAppEvent(SDL_KEYMAPCHANGED);
+    SDL_SendAppEvent(SDL_KEYMAPCHANGED);
 }
 
 void SDL_SendLocaleChangedEvent(void)
