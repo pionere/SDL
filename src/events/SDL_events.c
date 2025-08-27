@@ -1385,9 +1385,9 @@ int SDL_SendKeymapChangedEvent(void)
     return SDL_SendAppEvent(SDL_KEYMAPCHANGED);
 }
 
-int SDL_SendLocaleChangedEvent(void)
+void SDL_SendLocaleChangedEvent(void)
 {
-    return SDL_SendAppEvent(SDL_LOCALECHANGED);
+    SDL_SendAppEvent(SDL_LOCALECHANGED);
 }
 
 int SDL_EventsInit(void)
