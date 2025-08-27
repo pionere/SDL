@@ -909,6 +909,7 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
     const char *joystickpath = NULL;
     SDL_JoystickPowerLevel initial_power_level;
     const SDL_SteamVirtualGamepadInfo *info;
+    int ret;
 
     SDL_LockJoysticks();
 
@@ -955,32 +956,40 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
     joystickname = driver->GetDeviceName(device_index);
     if (joystickname) {
         joystick->name = SDL_strdup(joystickname);
-    } else {
-        joystick->name = NULL;
     }
 
     joystickpath = driver->GetDevicePath(device_index);
     if (joystickpath) {
         joystick->path = SDL_strdup(joystickpath);
-    } else {
-        joystick->path = NULL;
     }
 
     joystick->guid = driver->GetDeviceGUID(device_index);
-
+    ret = 0;
     if (joystick->naxes > 0) {
         joystick->axes = (SDL_JoystickAxisInfo *)SDL_calloc(joystick->naxes, sizeof(SDL_JoystickAxisInfo));
+        if (!joystick->axes) {
+            ret--;
+        }
     }
     if (joystick->nhats > 0) {
         joystick->hats = (Uint8 *)SDL_calloc(joystick->nhats, sizeof(Uint8));
+        if (!joystick->hats) {
+            ret--;
+        }
     }
     if (joystick->nballs > 0) {
         joystick->balls = (struct balldelta *)SDL_calloc(joystick->nballs, sizeof(*joystick->balls));
+        if (!joystick->balls) {
+            ret--;
+        }
     }
     if (joystick->nbuttons > 0) {
         joystick->buttons = (Uint8 *)SDL_calloc(joystick->nbuttons, sizeof(Uint8));
+        if (!joystick->buttons) {
+            ret--;
+        }
     }
-    if (((joystick->naxes > 0) && !joystick->axes) || ((joystick->nhats > 0) && !joystick->hats) || ((joystick->nballs > 0) && !joystick->balls) || ((joystick->nbuttons > 0) && !joystick->buttons)) {
+    if (ret < 0) {
         SDL_OutOfMemory();
         SDL_PrivateJoystickClose(joystick);
         SDL_UnlockJoysticks();
