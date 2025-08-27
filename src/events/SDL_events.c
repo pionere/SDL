@@ -1365,19 +1365,14 @@ int SDL_SendAppEvent(SDL_EventType eventType)
     return posted;
 }
 
-int SDL_SendSysWMEvent(SDL_SysWMmsg *message)
+void SDL_SendSysWMEvent(SDL_SysWMmsg *message)
 {
-    int posted;
-
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_SYSWMEVENT)) {
         SDL_Event event;
         event.type = SDL_SYSWMEVENT;
         event.syswm.msg = message;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
-    /* Update internal event state */
-    return posted;
 }
 
 void SDL_SendKeymapChangedEvent(void)
