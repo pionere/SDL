@@ -25,34 +25,29 @@
 #include "SDL_events.h"
 #include "SDL_events_c.h"
 
-int SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data1)
+void SDL_SendDisplayEvent(SDL_VideoDisplay *display, Uint8 displayevent, int data1)
 {
-    int posted;
-
     if (!display) {
-        return 0;
+        return;
     }
     switch (displayevent) {
     case SDL_DISPLAYEVENT_ORIENTATION:
         if (data1 == SDL_ORIENTATION_UNKNOWN || data1 == display->orientation) {
-            return 0;
+            return;
         }
         display->orientation = (SDL_DisplayOrientation)data1;
         break;
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_DISPLAYEVENT)) {
         SDL_Event event;
         event.type = SDL_DISPLAYEVENT;
         event.display.event = displayevent;
         event.display.display = SDL_GetIndexOfDisplay(display);
         event.display.data1 = data1;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
-
-    return posted;
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
