@@ -341,18 +341,17 @@ int SDL_SendTouch(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
     return posted;
 }
 
-int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
+void SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *window,
                         float x, float y, float pressure)
 {
     SDL_Touch *touch;
     SDL_Finger *finger;
     SDL_Mouse *mouse;
-    int posted;
     float xrel, yrel, prel;
 
     touch = SDL_GetTouch(id);
     if (!touch) {
-        return -1;
+        return;
     }
 
     mouse = SDL_GetMouse();
@@ -389,13 +388,14 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
     /* SDL_HINT_MOUSE_TOUCH_EVENTS: if not set, discard synthetic touch events coming from platform layer */
     if (!mouse->mouse_touch_events) {
         if (id == SDL_MOUSE_TOUCHID) {
-            return 0;
+            return;
         }
     }
 
     finger = SDL_GetFinger(touch, fingerid);
     if (!finger) {
-        return SDL_SendTouch(id, fingerid, window, SDL_TRUE, x, y, pressure);
+        SDL_SendTouch(id, fingerid, window, SDL_TRUE, x, y, pressure);
+        return;
     }
 
     xrel = x - finger->x;
@@ -407,7 +407,7 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
 #if 0
         printf("Touch event didn't change state - dropped!\n");
 #endif
-        return 0;
+        return;
     }
 
     /* Update internal touch coordinates */
@@ -416,7 +416,6 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
     finger->pressure = pressure;
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_FINGERMOTION)) {
         SDL_Event event;
         event.tfinger.type = SDL_FINGERMOTION;
@@ -428,9 +427,8 @@ int SDL_SendTouchMotion(SDL_TouchID id, SDL_FingerID fingerid, SDL_Window *windo
         event.tfinger.dy = yrel;
         event.tfinger.pressure = pressure;
         event.tfinger.windowID = window ? SDL_GetWindowID(window) : 0;
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
-    return posted;
 }
 
 static void SDL_PrivateDelTouch(SDL_Touch *touch)
