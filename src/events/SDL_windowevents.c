@@ -79,18 +79,16 @@ static int SDLCALL RemovePendingExposedEvents(void *userdata, SDL_Event *event)
     return 1;
 }
 
-int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
+void SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
                         int data2)
 {
-    int posted;
-
     if (!window) {
-        return 0;
+        return;
     }
     switch (windowevent) {
     case SDL_WINDOWEVENT_SHOWN:
         if (window->flags & SDL_WINDOW_SHOWN) {
-            return 0;
+            return;
         }
         window->flags &= ~(SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED);
         window->flags |= SDL_WINDOW_SHOWN;
@@ -98,7 +96,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
         break;
     case SDL_WINDOWEVENT_HIDDEN:
         if (!(window->flags & SDL_WINDOW_SHOWN)) {
-            return 0;
+            return;
         }
         window->flags &= ~SDL_WINDOW_SHOWN;
         window->flags |= SDL_WINDOW_HIDDEN;
@@ -107,14 +105,14 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
     case SDL_WINDOWEVENT_MOVED:
         if (SDL_WINDOWPOS_ISUNDEFINED(data1) ||
             SDL_WINDOWPOS_ISUNDEFINED(data2)) {
-            return 0;
+            return;
         }
         if (!(window->flags & SDL_WINDOW_FULLSCREEN)) {
             window->windowed.x = data1;
             window->windowed.y = data2;
         }
         if (data1 == window->wrect.x && data2 == window->wrect.y) {
-            return 0;
+            return;
         }
         window->wrect.x = data1;
         window->wrect.y = data2;
@@ -126,7 +124,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             window->windowed.h = data2;
         }
         if (data1 == window->wrect.w && data2 == window->wrect.h) {
-            return 0;
+            return;
         }
         window->wrect.w = data1;
         window->wrect.h = data2;
@@ -134,7 +132,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
         break;
     case SDL_WINDOWEVENT_MINIMIZED:
         if (window->flags & SDL_WINDOW_MINIMIZED) {
-            return 0;
+            return;
         }
         window->flags &= ~SDL_WINDOW_MAXIMIZED;
         window->flags |= SDL_WINDOW_MINIMIZED;
@@ -142,42 +140,42 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
         break;
     case SDL_WINDOWEVENT_MAXIMIZED:
         if (window->flags & SDL_WINDOW_MAXIMIZED) {
-            return 0;
+            return;
         }
         window->flags &= ~SDL_WINDOW_MINIMIZED;
         window->flags |= SDL_WINDOW_MAXIMIZED;
         break;
     case SDL_WINDOWEVENT_RESTORED:
         if (!(window->flags & (SDL_WINDOW_MINIMIZED | SDL_WINDOW_MAXIMIZED))) {
-            return 0;
+            return;
         }
         window->flags &= ~(SDL_WINDOW_MINIMIZED | SDL_WINDOW_MAXIMIZED);
         SDL_OnWindowRestored(window);
         break;
     case SDL_WINDOWEVENT_ENTER:
         if (window->flags & SDL_WINDOW_MOUSE_FOCUS) {
-            return 0;
+            return;
         }
         window->flags |= SDL_WINDOW_MOUSE_FOCUS;
         SDL_OnWindowEnter(window);
         break;
     case SDL_WINDOWEVENT_LEAVE:
         if (!(window->flags & SDL_WINDOW_MOUSE_FOCUS)) {
-            return 0;
+            return;
         }
         window->flags &= ~SDL_WINDOW_MOUSE_FOCUS;
         SDL_OnWindowLeave(window);
         break;
     case SDL_WINDOWEVENT_FOCUS_GAINED:
         if (window->flags & SDL_WINDOW_INPUT_FOCUS) {
-            return 0;
+            return;
         }
         window->flags |= SDL_WINDOW_INPUT_FOCUS;
         SDL_OnWindowFocusGained(window);
         break;
     case SDL_WINDOWEVENT_FOCUS_LOST:
         if (!(window->flags & SDL_WINDOW_INPUT_FOCUS)) {
-            return 0;
+            return;
         }
         window->flags &= ~SDL_WINDOW_INPUT_FOCUS;
         SDL_OnWindowFocusLost(window);
@@ -185,7 +183,6 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
     }
 
     /* Post the event, if desired */
-    posted = 0;
     if (SDL_IsEventEnabled(SDL_WINDOWEVENT)) {
         SDL_Event event;
         event.type = SDL_WINDOWEVENT;
@@ -204,7 +201,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             if (userdata.saw_resized) { /* if there was a pending resize, make sure one at the new dimensions remains. */
                 event.window.event = SDL_WINDOWEVENT_RESIZED;
                 if (SDL_PushEvent(&event) <= 0) {
-                    return 0; /* oh well. */
+                    return; /* oh well. */
                 }
                 event.window.event = SDL_WINDOWEVENT_SIZE_CHANGED; /* then push the actual event next. */
             }
@@ -215,7 +212,7 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
         if (windowevent == SDL_WINDOWEVENT_EXPOSED) {
             SDL_FilterEvents(RemovePendingExposedEvents, &event);
         }
-        posted = (SDL_PushEvent(&event) > 0);
+        SDL_PushEvent(&event);
     }
 
     if (windowevent == SDL_WINDOWEVENT_CLOSE) {
@@ -225,8 +222,6 @@ int SDL_SendWindowEvent(SDL_Window *window, Uint8 windowevent, int data1,
             }
         }
     }
-
-    return posted;
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
