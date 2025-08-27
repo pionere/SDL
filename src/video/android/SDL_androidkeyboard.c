@@ -328,14 +328,14 @@ static SDL_Scancode TranslateKeycode(int keycode)
     return scancode;
 }
 
-int Android_OnKeyDown(int keycode)
+void Android_OnKeyDown(int keycode)
 {
-    return SDL_SendKeyboardKey(SDL_PRESSED, TranslateKeycode(keycode));
+    SDL_SendKeyboardKey(SDL_PRESSED, TranslateKeycode(keycode));
 }
 
-int Android_OnKeyUp(int keycode)
+void Android_OnKeyUp(int keycode)
 {
-    return SDL_SendKeyboardKey(SDL_RELEASED, TranslateKeycode(keycode));
+    SDL_SendKeyboardKey(SDL_RELEASED, TranslateKeycode(keycode));
 }
 
 SDL_bool Android_HasScreenKeyboardSupport(void)
