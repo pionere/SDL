@@ -69,8 +69,8 @@ static void SDL_HapticLoadAxesList(SDL_Haptic_VIDPID_Naxes **entries, int *num_e
 static int SDL_HapticNaxesListIndex(struct SDL_Haptic_VIDPID_Naxes *entries, int num_entries, Uint16 vid, Uint16 pid)
 {
     int i;
-    if (!entries)
-        return -1;
+
+    SDL_assert(entries != NULL || num_entries == 0);
 
     for (i = 0; i < num_entries; ++i) {
         if (entries[i].vid == vid && entries[i].pid == pid)
@@ -87,8 +87,6 @@ static int SDL_HapticGetNaxes(Uint16 vid, Uint16 pid)
     SDL_Haptic_VIDPID_Naxes *naxes_list = NULL;
 
     SDL_HapticLoadAxesList(&naxes_list, &num_entries);
-    if (!num_entries || !naxes_list)
-        return -1;
 
     // Perform "wildcard" pass
     index = SDL_HapticNaxesListIndex(naxes_list, num_entries, 0xffff, 0xffff);
@@ -115,14 +113,7 @@ static SDL_Haptic *SDL_haptics = NULL;
  */
 int SDL_HapticInit(void)
 {
-    int status;
-
-    status = SDL_SYS_HapticInit();
-    if (status >= 0) {
-        status = 0;
-    }
-
-    return status;
+    return SDL_SYS_HapticInit();
 }
 
 /*
@@ -476,8 +467,8 @@ void SDL_HapticQuit(void)
  */
 int SDL_HapticNumEffects(SDL_Haptic *haptic)
 {
-    if (!ValidHaptic(haptic)) {
-        return -1;
+    if (haptic == NULL) {
+        return 0; /* same as if no effects were supported */
     }
 
     return haptic->neffects;
@@ -488,8 +479,8 @@ int SDL_HapticNumEffects(SDL_Haptic *haptic)
  */
 int SDL_HapticNumEffectsPlaying(SDL_Haptic *haptic)
 {
-    if (!ValidHaptic(haptic)) {
-        return -1;
+    if (haptic == NULL) {
+        return 0; /* same as if no effects were supported */
     }
 
     return haptic->nplaying;
@@ -500,7 +491,7 @@ int SDL_HapticNumEffectsPlaying(SDL_Haptic *haptic)
  */
 unsigned int SDL_HapticQuery(SDL_Haptic *haptic)
 {
-    if (!ValidHaptic(haptic)) {
+    if (haptic == NULL) {
         return 0; /* same as if no effects were supported */
     }
 
@@ -512,8 +503,8 @@ unsigned int SDL_HapticQuery(SDL_Haptic *haptic)
  */
 int SDL_HapticNumAxes(SDL_Haptic *haptic)
 {
-    if (!ValidHaptic(haptic)) {
-        return -1;
+    if (haptic == NULL) {
+        return 0; /* same as if no axis were on the device */
     }
 
     return haptic->naxes;
@@ -524,12 +515,8 @@ int SDL_HapticNumAxes(SDL_Haptic *haptic)
  */
 int SDL_HapticEffectSupported(SDL_Haptic *haptic, SDL_HapticEffect *effect)
 {
-    if (!ValidHaptic(haptic)) {
-        return -1;
-    }
-
-    if (effect == NULL) {
-        return SDL_InvalidParamError("effect");
+    if (haptic == NULL || effect == NULL) {
+        return SDL_FALSE; /* same as if the effect was supported */
     }
 
     if ((haptic->supported & effect->type) != 0) {
@@ -543,15 +530,11 @@ int SDL_HapticEffectSupported(SDL_Haptic *haptic, SDL_HapticEffect *effect)
  */
 int SDL_HapticNewEffect(SDL_Haptic *haptic, SDL_HapticEffect *effect)
 {
-    int check, i;
+    int i;
 
     /* Check to see if effect is supported */
-    check = SDL_HapticEffectSupported(haptic, effect);
-    if (!check) {
-        check = SDL_SetError("Haptic: Effect not supported by haptic device.");
-    }
-    if (check < 0) {
-        return check;
+    if (!SDL_HapticEffectSupported(haptic, effect)) {
+        return SDL_SetError("Haptic: Effect not supported by haptic device.");
     }
 
     /* See if there's a free slot */
@@ -780,8 +763,8 @@ int SDL_HapticStopAll(SDL_Haptic *haptic)
  */
 int SDL_HapticRumbleSupported(SDL_Haptic *haptic)
 {
-    if (!ValidHaptic(haptic)) {
-        return -1;
+    if (haptic == NULL) {
+        return 0; /* same as if rumble was not supported */
     }
 
     /* Most things can use SINE, but XInput only has LEFTRIGHT. */
