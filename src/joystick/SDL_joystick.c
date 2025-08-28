@@ -904,6 +904,7 @@ static SDL_bool SDL_JoystickAxesCenteredAtZero(SDL_Joystick *joystick)
  */
 SDL_Joystick *SDL_JoystickOpen(int device_index)
 {
+    int driver_device_index;
     const SDL_JoystickDriver *driver;
     SDL_JoystickID instance_id;
     SDL_Joystick *joystick;
@@ -916,7 +917,7 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
 
     SDL_LockJoysticks();
 
-    if (!SDL_GetDriverAndJoystickIndex(device_index, &driver, &device_index)) {
+    if (!SDL_GetDriverAndJoystickIndex(device_index, &driver, &driver_device_index)) {
         SDL_UnlockJoysticks();
         return NULL;
     }
@@ -925,7 +926,7 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
     /* If the joystick is already open, return it
      * it is important that we have a single joystick * for each instance id
      */
-    instance_id = driver->GetDeviceInstanceID(device_index);
+    instance_id = driver->GetDeviceInstanceID(driver_device_index);
     while (joysticklist) {
         if (instance_id == joysticklist->instance_id) {
             joystick = joysticklist;
@@ -950,23 +951,23 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
     joystick->epowerlevel = SDL_JOYSTICK_POWER_UNKNOWN;
     joystick->led_expiration = SDL_GetTicks();
 
-    if (driver->Open(joystick, device_index) < 0) {
+    if (driver->Open(joystick, driver_device_index) < 0) {
         SDL_free(joystick);
         SDL_UnlockJoysticks();
         return NULL;
     }
 
-    joystickname = driver->GetDeviceName(device_index);
+    joystickname = driver->GetDeviceName(driver_device_index);
     if (joystickname) {
         joystick->name = SDL_strdup(joystickname);
     }
 
-    joystickpath = driver->GetDevicePath(device_index);
+    joystickpath = driver->GetDevicePath(driver_device_index);
     if (joystickpath) {
         joystick->path = SDL_strdup(joystickpath);
     }
 
-    joystick->guid = driver->GetDeviceGUID(device_index);
+    joystick->guid = driver->GetDeviceGUID(driver_device_index);
     ret = 0;
     if (joystick->naxes > 0) {
         joystick->axes = (SDL_JoystickAxisInfo *)SDL_calloc(joystick->naxes, sizeof(SDL_JoystickAxisInfo));
