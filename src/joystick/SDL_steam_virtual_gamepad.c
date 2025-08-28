@@ -135,6 +135,7 @@ static void AddVirtualGamepadInfo(int slot, SDL_SteamVirtualGamepadInfo *info)
         return;
     }
     SDL_copyp(new_info, info);
+    new_info->name = new_info->name ? SDL_strdup(new_info->name) : NULL;
     SDL_steam_virtual_gamepad_info[slot] = new_info;
 }
 
@@ -217,8 +218,7 @@ SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
                 *value++ = '\0';
 
                 if (SDL_strcmp(line, "name") == 0) {
-                    SDL_free(info.name);
-                    info.name = SDL_strdup(value);
+                    info.name = value;
                 } else if (SDL_strcmp(line, "VID") == 0) {
                     info.vendor_id = (Uint16)SDL_strtoul(value, NULL, 0);
                 } else if (SDL_strcmp(line, "PID") == 0) {
@@ -233,7 +233,6 @@ SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
     }
     AddVirtualGamepadInfo(slot, &info);
 
-    SDL_free(info.name);
     SDL_free(data);
 
     SDL_steam_virtual_gamepad_info_file_mtime = mtime;
