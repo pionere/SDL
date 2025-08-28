@@ -574,7 +574,7 @@ SDL_bool SDL_SetJoystickIDForPlayerIndex(int player_index, SDL_JoystickID instan
 {
     SDL_JoystickID existing_instance = SDL_GetJoystickIDForPlayerIndex(player_index);
     const SDL_JoystickDriver *driver;
-    int device_index;
+    int driver_device_index;
     int existing_player_index;
 
     SDL_AssertJoysticksLocked();
@@ -605,9 +605,9 @@ SDL_bool SDL_SetJoystickIDForPlayerIndex(int player_index, SDL_JoystickID instan
     }
 
     /* Update the driver with the new index */
-    device_index = SDL_JoystickGetDeviceIndexFromInstanceID(instance_id);
-    if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &device_index)) {
-        driver->SetDevicePlayerIndex(device_index, player_index);
+    driver_device_index = SDL_GetDriverAndJoystickIndexFromInstanceID(instance_id, &driver);
+    if (driver_device_index >= 0) {
+        driver->SetDevicePlayerIndex(driver_device_index, player_index);
     }
 
     /* Move any existing joystick to another slot */
@@ -703,14 +703,16 @@ SDL_JoystickID SDL_GetNextJoystickInstanceID(void)
 const SDL_SteamVirtualGamepadInfo *SDL_GetJoystickInstanceVirtualGamepadInfo(SDL_JoystickID instance_id)
 {
     const SDL_JoystickDriver *driver;
-    int device_index;
+    int driver_device_index;
     const SDL_SteamVirtualGamepadInfo *info = NULL;
 
     SDL_AssertJoysticksLocked();
 
-    if (SDL_SteamVirtualGamepadEnabled() &&
-        SDL_GetDriverAndJoystickIndex(SDL_JoystickGetDeviceIndexFromInstanceID(instance_id), &driver, &device_index)) {
-        info = SDL_GetSteamVirtualGamepadInfo(driver->GetDeviceSteamVirtualGamepadSlot(device_index));
+    if (SDL_SteamVirtualGamepadEnabled()) {
+        driver_device_index = SDL_GetDriverAndJoystickIndexFromInstanceID(instance_id, &driver);
+        if (driver_device_index >= 0) {
+            info = SDL_GetSteamVirtualGamepadInfo(driver->GetDeviceSteamVirtualGamepadSlot(driver_device_index));
+        }
     }
     return info;
 }
@@ -3332,6 +3334,26 @@ int SDL_JoystickGetDeviceIndexFromInstanceID(SDL_JoystickID instance_id)
     }
 
     return device_index;
+}
+
+int SDL_GetDriverAndJoystickIndexFromInstanceID(SDL_JoystickID instance_id, const struct _SDL_JoystickDriver **driver)
+{
+    const SDL_JoystickDriver *drv;
+    int i, num_joysticks, driver_device_index;
+
+    SDL_AssertJoysticksLocked();
+
+    for (i = 0; i < SDL_arraysize(SDL_joystick_drivers); ++i) {
+        drv = SDL_joystick_drivers[i];
+        num_joysticks = drv->GetCount();
+        for (driver_device_index = 0; driver_device_index < num_joysticks; driver_device_index++) {
+            if (drv->GetDeviceInstanceID(driver_device_index) == instance_id) {
+                *driver = drv;
+                return driver_device_index;
+            }
+        }
+    }
+    return -1;
 }
 
 SDL_JoystickGUID SDL_JoystickGetGUID(SDL_Joystick *joystick)

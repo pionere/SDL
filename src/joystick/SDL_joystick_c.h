@@ -87,6 +87,9 @@ extern SDL_JoystickGUID SDL_PrivateJoystickGetDeviceGUID(int device_index);
 /* Function to return the device index for a joystick ID, or -1 if not found */
 extern int SDL_JoystickGetDeviceIndexFromInstanceID(SDL_JoystickID instance_id);
 
+/* Function to return the driver device index for a joystick ID, or -1 if not found */
+extern int SDL_GetDriverAndJoystickIndexFromInstanceID(SDL_JoystickID instance_id, const struct _SDL_JoystickDriver **driver);
+
 extern int SDL_GetPlayerIndexForJoystickID(SDL_JoystickID instance_id);
 
 /* Return the SDL_Joystick associated with a player index. */
