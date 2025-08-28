@@ -1049,10 +1049,17 @@ int SDL_JoystickAttachVirtual(SDL_JoystickType type, int naxes, int nbuttons, in
 int SDL_JoystickAttachVirtualEx(const SDL_VirtualJoystickDesc *desc)
 {
 #ifdef SDL_JOYSTICK_VIRTUAL
-    int retval;
+    int i, retval;
 
     SDL_LockJoysticks();
     retval = SDL_JoystickAttachVirtualInner(desc);
+    if (retval >= 0) {
+        /* Return the new device's index */
+        for (i = 0; SDL_joystick_drivers[i] != &SDL_VIRTUAL_JoystickDriver; i++) {
+            retval += SDL_joystick_drivers[i]->GetCount();
+        }
+    }
+
     SDL_UnlockJoysticks();
     return retval;
 #else

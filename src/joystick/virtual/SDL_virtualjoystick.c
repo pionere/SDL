@@ -224,10 +224,12 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
     hwdata->instance_id = SDL_GetNextJoystickInstanceID();
 
     /* Add virtual joystick to SDL-global lists */
+    device_index = 0;
     if (g_VJoys) {
         joystick_hwdata *last;
-
+        device_index++;
         for (last = g_VJoys; last->next; last = last->next) {
+            device_index++;
         }
         last->next = hwdata;
     } else {
@@ -236,7 +238,6 @@ int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc)
     SDL_PrivateJoystickAdded(hwdata->instance_id);
 
     /* Return the new virtual-device's index */
-    device_index = SDL_JoystickGetDeviceIndexFromInstanceID(hwdata->instance_id);
     return device_index;
 }
 
