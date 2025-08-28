@@ -1079,13 +1079,8 @@ static int LINUX_JoystickInit(void)
     }
 
     if (enumeration_method == ENUMERATION_LIBUDEV) {
-        if (udev_status == 0) {
-            /* Set up the udev callback */
-            if (SDL_UDEV_AddCallback(joystick_udev_callback) < 0) {
-                SDL_UDEV_Quit();
-                return SDL_SetError("Could not set up joystick <-> udev callback");
-            }
-
+        /* Set up the udev callback */
+        if (udev_status == 0 && SDL_UDEV_AddCallback(joystick_udev_callback) >= 0) {
             /* Force a scan to build the initial device list */
             SDL_UDEV_Scan();
         } else {
@@ -2290,6 +2285,7 @@ static void LINUX_JoystickQuit(void)
 
 #ifdef SDL_USE_LIBUDEV
     if (enumeration_method == ENUMERATION_LIBUDEV) {
+        enumeration_method = ENUMERATION_UNSET;
         SDL_UDEV_DelCallback(joystick_udev_callback);
         SDL_UDEV_Quit();
     }
