@@ -529,6 +529,23 @@ static SDL_bool SDL_GetDriverAndJoystickIndex(int device_index, const SDL_Joysti
     return SDL_FALSE;
 }
 
+static int SDL_JoystickGetDeviceIndexFromInstanceID(SDL_JoystickID instance_id)
+{
+    int i, num_joysticks, device_index = -1;
+
+    SDL_AssertJoysticksLocked();
+
+    num_joysticks = SDL_PrivateNumJoysticks();
+    for (i = 0; i < num_joysticks; ++i) {
+        if (SDL_PrivateJoystickGetDeviceInstanceID(i) == instance_id) {
+            device_index = i;
+            break;
+        }
+    }
+
+    return device_index;
+}
+
 static int SDL_FindFreePlayerIndex(void)
 {
     int player_index;
@@ -3327,23 +3344,6 @@ SDL_JoystickID SDL_JoystickGetDeviceInstanceID(int device_index)
     SDL_UnlockJoysticks();
 
     return instance_id;
-}
-
-int SDL_JoystickGetDeviceIndexFromInstanceID(SDL_JoystickID instance_id)
-{
-    int i, num_joysticks, device_index = -1;
-
-    SDL_AssertJoysticksLocked();
-
-    num_joysticks = SDL_PrivateNumJoysticks();
-    for (i = 0; i < num_joysticks; ++i) {
-        if (SDL_PrivateJoystickGetDeviceInstanceID(i) == instance_id) {
-            device_index = i;
-            break;
-        }
-    }
-
-    return device_index;
 }
 
 int SDL_GetDriverAndJoystickIndexFromInstanceID(SDL_JoystickID instance_id, const struct _SDL_JoystickDriver **driver)
