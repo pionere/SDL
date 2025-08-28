@@ -86,14 +86,14 @@ struct _SDL_Joystick
 
     int nhats _guarded;   /* Number of hats on the joystick */
     Uint8 *hats _guarded; /* Current hat states */
-
+#ifdef SDL_JOYSTICK_LINUX
     int nballs _guarded; /* Number of trackballs on the joystick */
     struct balldelta
     {
         int dx;
         int dy;
     } *balls _guarded; /* Current ball motion deltas */
-
+#endif
     int nbuttons _guarded;   /* Number of buttons on the joystick */
     Uint8 *buttons _guarded; /* Current button states */
 

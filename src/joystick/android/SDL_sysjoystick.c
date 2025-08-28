@@ -573,7 +573,6 @@ static int ANDROID_JoystickOpen(SDL_Joystick *joystick, int device_index)
     joystick->hwdata = (struct joystick_hwdata *)item;
     item->joystick = joystick;
     joystick->nhats = item->nhats;
-    joystick->nballs = 0;
     joystick->nbuttons = item->nbuttons;
     joystick->naxes = item->naxes;
 

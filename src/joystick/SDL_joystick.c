@@ -977,12 +977,14 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
             ret--;
         }
     }
+#ifdef SDL_JOYSTICK_LINUX
     if (joystick->nballs > 0) {
         joystick->balls = (struct balldelta *)SDL_calloc(joystick->nballs, sizeof(*joystick->balls));
         if (!joystick->balls) {
             ret--;
         }
     }
+#endif
     if (joystick->nbuttons > 0) {
         joystick->buttons = (Uint8 *)SDL_calloc(joystick->nbuttons, sizeof(Uint8));
         if (!joystick->buttons) {
@@ -1221,6 +1223,7 @@ int SDL_JoystickNumHats(SDL_Joystick *joystick)
  */
 int SDL_JoystickNumBalls(SDL_Joystick *joystick)
 {
+#ifdef SDL_JOYSTICK_LINUX
     int retval;
 
     SDL_LockJoysticks();
@@ -1232,6 +1235,9 @@ int SDL_JoystickNumBalls(SDL_Joystick *joystick)
     SDL_UnlockJoysticks();
 
     return retval;
+#else
+    return 0;
+#endif
 }
 
 /*
@@ -1329,6 +1335,7 @@ Uint8 SDL_JoystickGetHat(SDL_Joystick *joystick, int hat)
  */
 int SDL_JoystickGetBall(SDL_Joystick *joystick, int ball, int *dx, int *dy)
 {
+#ifdef SDL_JOYSTICK_LINUX
     int retval;
 
     SDL_LockJoysticks();
@@ -1346,12 +1353,15 @@ int SDL_JoystickGetBall(SDL_Joystick *joystick, int ball, int *dx, int *dy)
             joystick->balls[ball].dy = 0;
             retval = 0;
         } else {
-            retval = SDL_SetError("Joystick only has %d balls", joystick->nballs);
+            retval = SDL_Unsupported();
         }
     }
     SDL_UnlockJoysticks();
 
     return retval;
+#else
+    return SDL_Unsupported();
+#endif
 }
 
 /*
@@ -1840,7 +1850,9 @@ void SDL_PrivateJoystickClose(SDL_Joystick *joystick)
         /* Free the data associated with this joystick */
         SDL_free(joystick->axes);
         SDL_free(joystick->hats);
+#ifdef SDL_JOYSTICK_LINUX
         SDL_free(joystick->balls);
+#endif
         SDL_free(joystick->buttons);
         for (i = 0; i < joystick->ntouchpads; i++) {
             SDL_JoystickTouchpadInfo *touchpad = &joystick->touchpads[i];
@@ -2244,7 +2256,7 @@ void SDL_PrivateJoystickHat(SDL_Joystick *joystick, Uint8 hat, Uint8 value)
     }
 #endif /* !SDL_EVENTS_DISABLED */
 }
-
+#ifdef SDL_JOYSTICK_LINUX
 void SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Sint16 yrel)
 {
     SDL_AssertJoysticksLocked();
@@ -2276,7 +2288,7 @@ void SDL_PrivateJoystickBall(SDL_Joystick *joystick, Uint8 ball, Sint16 xrel, Si
     }
 #endif /* !SDL_EVENTS_DISABLED */
 }
-
+#endif /* SDL_JOYSTICK_LINUX */
 void SDL_PrivateJoystickButton(SDL_Joystick *joystick, Uint8 button, Uint8 state)
 {
 #ifndef SDL_EVENTS_DISABLED
