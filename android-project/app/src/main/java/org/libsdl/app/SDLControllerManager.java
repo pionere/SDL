@@ -517,18 +517,13 @@ class SDLHapticHandler_API31 extends SDLHapticHandler {
     }
 
     private void vibrate(Vibrator vibrator, float intensity, int length) {
-        if (intensity == 0.0f) {
-            vibrator.cancel();
-            return;
-        }
-
         int value = Math.round(intensity * 255);
-        if (value > 255) {
-            value = 255;
-        }
         if (value < 1) {
             vibrator.cancel();
             return;
+        }
+        if (value > 255) {
+            value = 255;
         }
         try {
             vibrator.vibrate(VibrationEffect.createOneShot(length, value));
@@ -546,19 +541,13 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
     public void run(int device_id, float intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
-            if (intensity == 0.0f) {
-                stop(device_id);
-                return;
-            }
-
             int vibeValue = Math.round(intensity * 255);
-
-            if (vibeValue > 255) {
-                vibeValue = 255;
-            }
             if (vibeValue < 1) {
                 stop(device_id);
                 return;
+            }
+            if (vibeValue > 255) {
+                vibeValue = 255;
             }
             try {
                 haptic.vib.vibrate(VibrationEffect.createOneShot(length, vibeValue));
