@@ -528,6 +528,10 @@ int SDL_HapticEffectSupported(SDL_Haptic *haptic, SDL_HapticEffect *effect)
         return -1;
     }
 
+    if (effect == NULL) {
+        return SDL_InvalidParamError("effect");
+    }
+
     if ((haptic->supported & effect->type) != 0) {
         return SDL_TRUE;
     }
