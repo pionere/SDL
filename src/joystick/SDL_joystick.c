@@ -751,18 +751,19 @@ SDL_JoystickID SDL_PrivateJoystickGetDeviceInstanceID(int device_index)
 const char *SDL_PrivateJoystickNameForIndex(int device_index)
 {
     const SDL_JoystickDriver *driver;
+    int driver_device_index;
     const char *name = NULL;
     const SDL_SteamVirtualGamepadInfo *info;
 
     SDL_AssertJoysticksLocked();
-
-    info = SDL_GetJoystickInstanceVirtualGamepadInfo(SDL_PrivateJoystickGetDeviceInstanceID(device_index));
-    if (info) {
-        name = info->name;
-    } else if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &device_index)) {
-        name = driver->GetDeviceName(device_index);
+    if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &driver_device_index)) {
+        info = SDL_GetJoystickInstanceVirtualGamepadInfo(driver->GetDeviceInstanceID(driver_device_index));
+        if (info) {
+            name = info->name;
+        } else {
+            name = driver->GetDeviceName(driver_device_index);
+        }
     }
-
     return name;
 }
 
@@ -3241,17 +3242,21 @@ SDL_JoystickGUID SDL_JoystickGetDeviceGUID(int device_index)
 
 Uint16 SDL_JoystickGetDeviceVendor(int device_index)
 {
-    Uint16 vendor;
+    const SDL_JoystickDriver *driver;
+    int driver_device_index;
+    Uint16 vendor = 0;
     const SDL_SteamVirtualGamepadInfo *info;
 
     SDL_LockJoysticks();
-    info = SDL_GetJoystickInstanceVirtualGamepadInfo(SDL_PrivateJoystickGetDeviceInstanceID(device_index));
-    if (info) {
-        vendor = info->vendor_id;
-    } else {
-        SDL_JoystickGUID guid = SDL_PrivateJoystickGetDeviceGUID(device_index);
+    if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &driver_device_index)) {
+        info = SDL_GetJoystickInstanceVirtualGamepadInfo(driver->GetDeviceInstanceID(driver_device_index));
+        if (info) {
+            vendor = info->vendor_id;
+        } else {
+            SDL_JoystickGUID guid = driver->GetDeviceGUID(driver_device_index);
 
-        SDL_GetJoystickGUIDInfo(guid, &vendor, NULL, NULL, NULL);
+            SDL_GetJoystickGUIDInfo(guid, &vendor, NULL, NULL, NULL);
+        }
     }
     SDL_UnlockJoysticks();
 
@@ -3260,17 +3265,21 @@ Uint16 SDL_JoystickGetDeviceVendor(int device_index)
 
 Uint16 SDL_JoystickGetDeviceProduct(int device_index)
 {
-    Uint16 product;
+    const SDL_JoystickDriver *driver;
+    int driver_device_index;
+    Uint16 product = 0;
     const SDL_SteamVirtualGamepadInfo *info;
 
     SDL_LockJoysticks();
-    info = SDL_GetJoystickInstanceVirtualGamepadInfo(SDL_PrivateJoystickGetDeviceInstanceID(device_index));
-    if (info) {
-        product = info->product_id;
-    } else {
-        SDL_JoystickGUID guid = SDL_PrivateJoystickGetDeviceGUID(device_index);
+    if (SDL_GetDriverAndJoystickIndex(device_index, &driver, &driver_device_index)) {
+        info = SDL_GetJoystickInstanceVirtualGamepadInfo(driver->GetDeviceInstanceID(driver_device_index));
+        if (info) {
+            product = info->product_id;
+        } else {
+            SDL_JoystickGUID guid = driver->GetDeviceGUID(driver_device_index);
 
-        SDL_GetJoystickGUIDInfo(guid, NULL, &product, NULL, NULL);
+            SDL_GetJoystickGUIDInfo(guid, NULL, &product, NULL, NULL);
+        }
     }
     SDL_UnlockJoysticks();
 
