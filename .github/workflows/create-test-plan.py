@@ -550,6 +550,10 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                     "testmultiaudio-apk",
                     "testsprite-apk",
                 ]
+
+                # -fPIC is required after updating NDK from 21 to 28
+                job.cflags.append("-fPIC")
+                job.cxxflags.append("-fPIC")
         case SdlPlatform.Emscripten:
             job.run_tests = False
             job.shared = False

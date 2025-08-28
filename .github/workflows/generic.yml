@@ -54,7 +54,7 @@ jobs:
         id: setup-ndk
         with:
           local-cache: true
-          ndk-version: r21e
+          ndk-version: r28c
       - uses: ilammy/msvc-dev-cmd@v1
         if: ${{ matrix.platform.platform == 'msvc' }}
         with:
@@ -370,6 +370,14 @@ jobs:
         run: |
           set -e
           build-scripts/test-versioning.sh
+      - name: 'Verify alignment of Android test apks'
+        if: ${{ matrix.platform.android-ndk && !matrix.platform.no-cmake }}
+        run: |
+          find ./ -iname '*.apk' | xargs -L1 ./build-scripts/check_elf_alignment.sh
+      - name: 'Verify alignment of Android .so files'
+        if: ${{ matrix.platform.android-ndk && !matrix.platform.no-cmake }}
+        run: |
+          find ./ -iname '*.so' | xargs -L1 ./build-scripts/check_elf_alignment.sh
       - name: 'Upload binary package'
         uses: actions/upload-artifact@v4
         if: ${{ always() && steps.cmake-tests.outcome == 'failure' }}
