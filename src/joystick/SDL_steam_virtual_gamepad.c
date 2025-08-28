@@ -136,7 +136,6 @@ static void AddVirtualGamepadInfo(int slot, SDL_SteamVirtualGamepadInfo *info)
     }
     SDL_copyp(new_info, info);
     SDL_steam_virtual_gamepad_info[slot] = new_info;
-    SDL_zerop(info);
 }
 
 void SDL_InitSteamVirtualGamepadInfo(void)
@@ -195,7 +194,6 @@ SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
     SDL_FreeSteamVirtualGamepadInfo();
 
     slot = -1;
-    SDL_zero(info);
 
     for (next = data, end = data + size; next < end; ) {
         while (next < end && (*next == '\0' || *next == '\r' || *next == '\n')) {
@@ -210,9 +208,8 @@ SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
         *next = '\0';
 
         if (SDL_sscanf(line, "[slot %d]", &new_slot) == 1) {
-            if (slot >= 0) {
-                AddVirtualGamepadInfo(slot, &info);
-            }
+            AddVirtualGamepadInfo(slot, &info);
+            SDL_zero(info);
             slot = new_slot;
         } else {
             value = SDL_strchr(line, '=');
@@ -234,9 +231,8 @@ SDL_bool SDL_UpdateSteamVirtualGamepadInfo(void)
             }
         }
     }
-    if (slot >= 0) {
-        AddVirtualGamepadInfo(slot, &info);
-    }
+    AddVirtualGamepadInfo(slot, &info);
+
     SDL_free(info.name);
     SDL_free(data);
 
