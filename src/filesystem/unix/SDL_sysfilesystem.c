@@ -83,7 +83,7 @@ static char *search_path_for_binary(const char *bin)
     char *envr = SDL_getenv("PATH");
     size_t alloc_size;
     char *exe = NULL;
-    char *start = envr;
+    char *start;
     char *ptr;
 
     if (!envr) {
@@ -91,7 +91,7 @@ static char *search_path_for_binary(const char *bin)
         return NULL;
     }
 
-    envr = SDL_strdup(envr);
+    start = envr = SDL_strdup(envr);
     if (!envr) {
         SDL_OutOfMemory();
         return NULL;
