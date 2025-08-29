@@ -847,7 +847,7 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 	 * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
 	 */
 	if (pthread_key_create(&g_ThreadKey, ThreadDestroyed) != 0) {
-		__android_log_print(ANDROID_LOG_ERROR, TAG, "Error initializing pthread key");
+		LOGE("Error initializing pthread key");
 	}
 
 	if ( g_HIDDeviceManagerCallbackHandler != NULL )
@@ -866,32 +866,32 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(ZZ)Z" );
 		if ( !g_midHIDDeviceManagerInitialize )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing initialize" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing initialize" );
 		}
 		g_midHIDDeviceManagerOpen = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "openDevice", "(I)Z" );
 		if ( !g_midHIDDeviceManagerOpen )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing openDevice" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing openDevice" );
 		}
 		g_midHIDDeviceManagerSendOutputReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "sendOutputReport", "(I[B)I" );
 		if ( !g_midHIDDeviceManagerSendOutputReport )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing sendOutputReport" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing sendOutputReport" );
 		}
 		g_midHIDDeviceManagerSendFeatureReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "sendFeatureReport", "(I[B)I" );
 		if ( !g_midHIDDeviceManagerSendFeatureReport )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing sendFeatureReport" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing sendFeatureReport" );
 		}
 		g_midHIDDeviceManagerGetFeatureReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "getFeatureReport", "(I[B)Z" );
 		if ( !g_midHIDDeviceManagerGetFeatureReport )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing getFeatureReport" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing getFeatureReport" );
 		}
 		g_midHIDDeviceManagerClose = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "closeDevice", "(I)V" );
 		if ( !g_midHIDDeviceManagerClose )
 		{
-			__android_log_print(ANDROID_LOG_ERROR, TAG, "HIDDeviceRegisterCallback: callback class missing closeDevice" );
+			LOGE("HIDDeviceRegisterCallback: callback class missing closeDevice" );
 		}
 		env->DeleteLocalRef( objClass );
 	}

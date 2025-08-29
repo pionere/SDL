@@ -30,6 +30,14 @@
 
 #include "../../core/android/SDL_android.h"
 
+#define TAG "SDL"
+
+#ifdef DEBUG
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
+#else
+#define LOGI(...)
+#endif
+
 static SDL_Scancode Android_Keycodes[] = {
     SDL_SCANCODE_UNKNOWN,          /* AKEYCODE_UNKNOWN */
     SDL_SCANCODE_SOFTLEFT,         /* AKEYCODE_SOFT_LEFT */
@@ -323,7 +331,7 @@ static SDL_Scancode TranslateKeycode(int keycode)
         scancode = Android_Keycodes[keycode];
     }
     if (scancode == SDL_SCANCODE_UNKNOWN) {
-        __android_log_print(ANDROID_LOG_INFO, "SDL", "Unknown keycode %d", keycode);
+        LOGI("Unknown keycode %d", keycode);
     }
     return scancode;
 }
