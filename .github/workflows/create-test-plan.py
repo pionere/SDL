@@ -146,7 +146,7 @@ JOB_SPECS = {
     "vita-pvr": JobSpec(name="Sony PlayStation Vita (GLES w/ PVR_PSP2)",    os=JobOs.UbuntuLatest,  platform=SdlPlatform.Vita,        artifact="SDL-vita-pvr",           container="vitasdk/vitasdk:latest", vita_gles=VitaGLES.Pvr, ),
     "riscos": JobSpec(name="RISC OS",                                       os=JobOs.UbuntuLatest,  platform=SdlPlatform.Riscos,      artifact="SDL-riscos",             container="riscosdotinfo/riscos-gccsdk-4.7:latest", ),
     "netbsd": JobSpec(name="NetBSD",                                        os=JobOs.UbuntuLatest,  platform=SdlPlatform.NetBSD,      artifact="SDL-netbsd-x64",         autotools=True, ),
-    "openbsd": JobSpec(name="OpenBSD",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.OpenBSD,     artifact="SDL-openbsd-x64", ),
+    #"openbsd": JobSpec(name="OpenBSD",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.OpenBSD,     artifact="SDL-openbsd-x64", ),
     "freebsd": JobSpec(name="FreeBSD",                                      os=JobOs.UbuntuLatest,  platform=SdlPlatform.FreeBSD,     artifact="SDL-freebsd-x64",        autotools=True, ),
     "watcom-win32": JobSpec(name="Watcom (Windows)",                        os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",       watcom_platform=WatcomPlatform.Windows ),
     "watcom-os2": JobSpec(name="Watcom (OS/2)",                             os=JobOs.WindowsLatest, platform=SdlPlatform.Watcom,      artifact="SDL-watcom-win32",       watcom_platform=WatcomPlatform.OS2 ),
