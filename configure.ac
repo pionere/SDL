@@ -953,13 +953,10 @@ dnl Check for various instruction support
         CFLAGS="$save_CFLAGS $sse42_CFLAGS"
 
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #include <smmintrin.h>
-        void ints_mul(int *dest, int *a, int *b, unsigned size) {
-          for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
-            _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
-          }
-        }
-        ]],[ints_mul((int*)0, (int*)0, (int*)0, 0);])], [have_gcc_sse42=yes],[])
+        #include <nmmintrin.h>
+        __m128i bitmask;
+        char data[16];
+        ]],[bitmask = _mm_cmpgt_epi64(_mm_set1_epi64x(0), _mm_loadu_si128((void*)data));])], [have_gcc_sse42=yes],[])
         AC_MSG_RESULT($have_gcc_sse42)
         CFLAGS="$save_CFLAGS"
     fi

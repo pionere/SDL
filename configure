@@ -21140,14 +21140,11 @@ printf %s "checking for GCC -msse4.2 option... " >&6; }
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <smmintrin.h>
-void ints_mul(int *dest, int *a, int *b, unsigned size) {
-    for (; size >= 4; size -= 4, dest += 4, a += 4, b += 4) {
-        _mm_storeu_si128((__m128i*)dest, _mm_mullo_epi32(_mm_lddqu_si128((__m128i*)a), _mm_lddqu_si128((__m128i*)b)));
-    }
-}
+#include <nmmintrin.h>
+__m128i bitmask;
+char data[16];
 int main(void) {
-    ints_mul((int*)0, (int*)0, (int*)0, 0);
+    bitmask = _mm_cmpgt_epi64(_mm_set1_epi64x(0), _mm_loadu_si128((void*)data));
     return 0;
 }
 _ACEOF
