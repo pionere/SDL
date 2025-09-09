@@ -33,8 +33,8 @@ SDL_COMPILE_TIME_ASSERT(surface_size_assumptions,
 
 SDL_COMPILE_TIME_ASSERT(can_indicate_overflow, SDL_SIZE_MAX > SDL_MAX_SINT32);
 
-static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
-                               SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
+static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect,
+                                      SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode);
 /*
  * Calculate the pad-aligned scanline width of a surface.
  * Return SDL_SIZE_MAX on overflow.
@@ -729,8 +729,8 @@ void SDL_GetClipRect(SDL_Surface *surface, SDL_Rect *rect)
  * you know exactly what you are doing, you can optimize your code
  * by calling the one(s) you need.
  */
-int SDL_LowerBlit(SDL_Surface *src, SDL_Rect *srcrect,
-                  SDL_Surface *dst, SDL_Rect *dstrect)
+int SDL_LowerBlit(SDL_Surface *src, const SDL_Rect *srcrect,
+                  SDL_Surface *dst, const SDL_Rect *dstrect)
 {
     SDL_assert(srcrect->w <= SDL_MAX_UINT16 && srcrect->h <= SDL_MAX_UINT16);
     SDL_assert(dstrect->w <= SDL_MAX_UINT16 && dstrect->h <= SDL_MAX_UINT16);
@@ -1009,8 +1009,8 @@ end:
  *  This is a semi-private blit function and it performs low-level surface
  *  scaled blitting only.
  */
-int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
-                        SDL_Surface *dst, SDL_Rect *dstrect)
+int SDL_LowerBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect,
+                        SDL_Surface *dst, const SDL_Rect *dstrect)
 {
     SDL_assert(srcrect->w <= SDL_MAX_UINT16 && srcrect->h <= SDL_MAX_UINT16);
     SDL_assert(dstrect->w <= SDL_MAX_UINT16 && dstrect->h <= SDL_MAX_UINT16);
@@ -1023,8 +1023,8 @@ int SDL_LowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
     return SDL_PrivateLowerBlitScaled(src, srcrect, dst, dstrect, SDL_ScaleModeNearest);
 }
 
-static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, SDL_Rect *srcrect,
-                               SDL_Surface *dst, SDL_Rect *dstrect, SDL_ScaleMode scaleMode)
+static int SDL_PrivateLowerBlitScaled(SDL_Surface *src, const SDL_Rect *srcrect,
+                                      SDL_Surface *dst, const SDL_Rect *dstrect, SDL_ScaleMode scaleMode)
 {
     int ret;
     static const Uint32 complex_copy_flags = (SDL_COPY_MODULATE_COLOR | SDL_COPY_MODULATE_ALPHA |

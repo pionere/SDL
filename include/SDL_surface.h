@@ -900,8 +900,8 @@ extern DECLSPEC int SDLCALL SDL_UpperBlit
  * \sa SDL_BlitSurface
  */
 extern DECLSPEC int SDLCALL SDL_LowerBlit
-    (SDL_Surface * src, SDL_Rect * srcrect,
-     SDL_Surface * dst, SDL_Rect * dstrect);
+    (SDL_Surface * src, const SDL_Rect * srcrect,
+     SDL_Surface * dst, const SDL_Rect * dstrect);
 
 
 /**
@@ -965,8 +965,8 @@ extern DECLSPEC int SDLCALL SDL_UpperBlitScaled
  * \sa SDL_BlitScaled
  */
 extern DECLSPEC int SDLCALL SDL_LowerBlitScaled
-    (SDL_Surface * src, SDL_Rect * srcrect,
-    SDL_Surface * dst, SDL_Rect * dstrect);
+    (SDL_Surface * src, const SDL_Rect * srcrect,
+     SDL_Surface * dst, const SDL_Rect * dstrect);
 
 /**
  * Set the YUV conversion mode
