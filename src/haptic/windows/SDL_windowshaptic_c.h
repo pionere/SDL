@@ -88,6 +88,10 @@ extern SDL_hapticlist_item *SDL_hapticlist;
 extern int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item);
 extern void SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *item);
 
+typedef struct JoyStick_DeviceData JoyStick_DeviceData;
+extern void SDL_SYS_MaybeAddHapticDevice(JoyStick_DeviceData *device);
+extern void SDL_SYS_MaybeRemoveHapticDevice(JoyStick_DeviceData *device);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

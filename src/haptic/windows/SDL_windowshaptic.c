@@ -69,14 +69,28 @@ int SDL_SYS_HapticInit(void)
      * invoke those callbacks again here to pick up any joysticks that
      * were added prior to haptics initialization. */
     for (device = SYS_Joystick; device; device = device->pNext) {
-        if (device->bXInputDevice) {
-            SDL_XINPUT_HapticMaybeAddDevice(device->XInputUserId);
-        } else {
-            SDL_DINPUT_HapticMaybeAddDevice(&device->dxdevice);
-        }
+        SDL_SYS_MaybeAddHapticDevice(device);
     }
 
     return numhaptics;
+}
+
+void SDL_SYS_MaybeAddHapticDevice(JoyStick_DeviceData *device)
+{
+    if (device->bXInputDevice) {
+        SDL_XINPUT_HapticMaybeAddDevice(device->XInputUserId);
+    } else {
+        SDL_DINPUT_HapticMaybeAddDevice(&device->dxdevice);
+    }
+}
+
+void SDL_SYS_MaybeRemoveHapticDevice(JoyStick_DeviceData *device)
+{
+    if (device->bXInputDevice) {
+        SDL_XINPUT_HapticMaybeRemoveDevice(device->XInputUserId);
+    } else {
+        SDL_DINPUT_HapticMaybeRemoveDevice(&device->dxdevice);
+    }
 }
 
 int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item)
