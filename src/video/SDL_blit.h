@@ -89,7 +89,13 @@ typedef struct
     int flags;
     SDL_BlitFunc func;
 } SDL_BlitFuncEntry;
-
+#if SDL_HAVE_RLE
+/**
+ * The type of function used for surface blitting functions.
+ */
+typedef int (SDLCALL *SDL_Blitter) (struct SDL_Surface * src, const SDL_Rect * srcrect,
+                                    struct SDL_Surface * dst, const SDL_Rect * dstrect);
+#endif
 /* Blit mapping definition */
 /* typedef'ed in SDL_surface.h */
 struct SDL_BlitMap
@@ -97,7 +103,7 @@ struct SDL_BlitMap
     SDL_Surface *dst;
     SDL_bool identity;
 #if SDL_HAVE_RLE
-    SDL_blit blit;
+    SDL_Blitter blit;
 #endif
     void *data;
     SDL_BlitInfo info;
@@ -111,8 +117,8 @@ struct SDL_BlitMap
 /* Functions found in SDL_blit.c */
 extern int SDL_CalculateBlit(SDL_Surface *surface);
 #if !SDL_HAVE_RLE
-extern int SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
-                                SDL_Surface *dst, SDL_Rect *dstrect);
+extern int SDL_SoftBlit(SDL_Surface *src, const SDL_Rect *srcrect,
+                                SDL_Surface *dst, const SDL_Rect *dstrect);
 #endif
 
 /* Functions found in SDL_blit_*.c */

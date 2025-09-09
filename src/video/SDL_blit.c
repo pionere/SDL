@@ -33,11 +33,11 @@
 
 /* The general purpose software blit routine */
 #if SDL_HAVE_RLE
-static int SDLCALL SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
+static int SDLCALL SDL_SoftBlit(SDL_Surface *src, const SDL_Rect *srcrect,
 #else
-int SDL_SoftBlit(SDL_Surface *src, SDL_Rect *srcrect,
+int SDL_SoftBlit(SDL_Surface *src, const SDL_Rect *srcrect,
 #endif
-                                SDL_Surface *dst, SDL_Rect *dstrect)
+                                SDL_Surface *dst, const SDL_Rect *dstrect)
 {
     int okay;
     SDL_bool src_locked;
