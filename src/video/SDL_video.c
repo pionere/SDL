@@ -4017,22 +4017,21 @@ int SDL_GL_GetAttribute(SDL_GLattr attr, int *value)
     }
     case SDL_GL_FLOATBUFFERS:
     {
-        *value = current_video.gl_config.floatbuffers;
-        return 0;
+#ifdef SDL_VIDEO_OPENGL_WGL
+        if (current_video.gl_config.HAS_GL_ARB_color_buffer_float) {
+            attrib = GL_RGBA_FLOAT_MODE_ARB;
+            break;
+        } else
+#endif
+        {
+            *value = current_video.gl_config.floatbuffers;
+            return 0;
+        }
     }
     case SDL_GL_SURFACETYPE_EGL:
     {
         *value = current_video.gl_config.egl_surfacetype;
         return 0;
-    }
-    case SDL_GL_FLOATBUFFERS:
-    {
-        if (current_video.gl_config.HAS_GL_ARB_color_buffer_float) {
-            attrib = GL_RGBA_FLOAT_MODE_ARB;
-            break;
-        } else {
-            return 0;
-        }
     }
     default:
         return SDL_SetError("Unknown OpenGL attribute");

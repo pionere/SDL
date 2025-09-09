@@ -912,12 +912,6 @@ static SDL_bool use_libusb_whitelist = use_libusb_whitelist_default;
 
 #endif /* HAVE_LIBUSB */
 
-#else
-
-#ifndef HAVE_DRIVER_BACKEND
-#define HAVE_DRIVER_BACKEND 0
-#endif
-
 #endif /* !SDL_HIDAPI_DISABLED */
 
 /* Shared HIDAPI Implementation */

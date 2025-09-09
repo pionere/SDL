@@ -392,9 +392,11 @@ struct SDL_VideoDevice
          * with a NULL window, but a non-NULL context. (Not allowed in most cases,
          * except on EGL under some circumstances.) */
         SDL_bool gl_allow_no_surface;
+#ifdef SDL_VIDEO_OPENGL_WGL
+        int HAS_GL_ARB_color_buffer_float;
+#endif
         int driver_loaded;
 #ifdef SDL_VIDEO_OPENGL_EGL
-        int HAS_GL_ARB_color_buffer_float;
         int gl_type; // whether egl is loaded
 #endif
     } gl_config;
