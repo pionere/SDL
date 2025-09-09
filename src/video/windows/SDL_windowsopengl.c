@@ -528,19 +528,16 @@ static void WIN_GL_InitExtensions(_THIS)
     }
 
     /* Check for WGL_ARB_context_flush_control */
-    if (HasExtension("WGL_ARB_context_flush_control", extensions)) {
-        wgl_data->HAS_WGL_ARB_context_flush_control = SDL_TRUE;
-    }
+    wgl_data->HAS_WGL_ARB_context_flush_control =
+        HasExtension("WGL_ARB_context_flush_control", extensions);
 
     /* Check for WGL_ARB_create_context_robustness */
-    if (HasExtension("WGL_ARB_create_context_robustness", extensions)) {
-        wgl_data->HAS_WGL_ARB_create_context_robustness = SDL_TRUE;
-    }
+    wgl_data->HAS_WGL_ARB_create_context_robustness =
+        HasExtension("WGL_ARB_create_context_robustness", extensions);
 
     /* Check for WGL_ARB_create_context_no_error */
-    if (HasExtension("WGL_ARB_create_context_no_error", extensions)) {
-        wgl_data->HAS_WGL_ARB_create_context_no_error = SDL_TRUE;
-    }
+    wgl_data->HAS_WGL_ARB_create_context_no_error =
+        HasExtension("WGL_ARB_create_context_no_error", extensions);
 
     /* Check for WGL_ARB_pixel_format_float */
     wgl_data->HAS_WGL_ARB_pixel_format_float =
