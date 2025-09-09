@@ -191,6 +191,7 @@ class JobDetails:
     brew_packages: list[str] = dataclasses.field(default_factory=list)
     cmake_toolchain_file: str = ""
     cmake_arguments: list[str] = dataclasses.field(default_factory=list)
+    cmake_generator: str = "Ninja"
     cmake_build_arguments: list[str] = dataclasses.field(default_factory=list)
     cppflags: list[str] = dataclasses.field(default_factory=list)
     cc: str = ""
@@ -235,6 +236,7 @@ class JobDetails:
     setup_vita_gles_type: str = ""
     check_sources: bool = False
     watcom_makefile: str = ""
+    binutils_strings: str = "strings"
     setup_gage_sdk_path: str = ""
     setup_nxdk_sdk_path: str = ""
     setup_ps4_sdk_path: str = ""
@@ -273,6 +275,7 @@ class JobDetails:
             "cflags": my_shlex_join(self.cppflags + self.cflags),
             "cxxflags": my_shlex_join(self.cppflags + self.cxxflags),
             "ldflags": my_shlex_join(self.ldflags),
+            "cmake-generator": self.cmake_generator,
             "cmake-toolchain-file": self.cmake_toolchain_file,
             "cmake-arguments": my_shlex_join(self.cmake_arguments),
             "cmake-build-arguments": my_shlex_join(self.cmake_build_arguments),
@@ -304,6 +307,7 @@ class JobDetails:
             "setup-gdk-folder": self.setup_gdk_folder,
             "check-sources": self.check_sources,
             "watcom-makefile": self.watcom_makefile,
+            "binutils-strings": self.binutils_strings,
             "setup-ngage-sdk-path": self.setup_gage_sdk_path,
             "setup-nxdk-sdk-path": self.setup_nxdk_sdk_path,
             "setup-ps4-sdk-path": self.setup_ps4_sdk_path,
@@ -641,11 +645,14 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.shared_lib = SharedLibType.SO_0
             job.static_lib = StaticLibType.A
         case SdlPlatform.N3ds:
+            job.cmake_generator = "Unix Makefiles"
+            job.cmake_build_arguments.append("-j$(nproc)")
             job.shared = False
-            job.apt_packages = ["ninja-build", "binutils"]
+            job.apt_packages = []
             job.run_tests = False
             job.cc_from_cmake = True
             job.cmake_toolchain_file = "${DEVKITPRO}/cmake/3DS.cmake"
+            job.binutils_strings = "/opt/devkitpro/devkitARM/bin/arm-none-eabi-strings"
             job.static_lib = StaticLibType.A
         case SdlPlatform.Switch:
             job.shared = False

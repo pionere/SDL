@@ -513,7 +513,7 @@ dnl Checks for library functions.
         AC_DEFINE(HAVE_MPROTECT, 1, [ ])
         ],[]),
     )
-    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen _strdup strdup strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll memfd_create posix_fallocate _Exit)
+    AC_CHECK_FUNCS(malloc calloc realloc free getenv setenv putenv unsetenv bsearch qsort abs bcopy memset memcpy memmove memcmp strlen _strdup strdup strlcpy strlcat _strrev _strupr _strlwr index rindex strchr strrchr strstr strtok_r strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 sigaction sigtimedwait setjmp nanosleep sysconf sysctlbyname getauxval elf_aux_info poll memfd_create posix_fallocate _Exit)
 
     AC_CHECK_LIB(m, pow, [LIBS="$LIBS -lm"; EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"])
     AC_CHECK_FUNCS(acos acosf asin asinf atan atanf atan2 atan2f ceil ceilf copysign copysignf cos cosf exp expf fabs fabsf floor floorf fmod fmodf log logf log10 log10f lround lroundf pow powf round roundf scalbn scalbnf sin sinf sqrt sqrtf tan tanf trunc truncf)
@@ -1517,7 +1517,6 @@ CheckNAS()
             have_nas=yes
             NAS_CFLAGS="-I/usr/X11R6/include/"
             NAS_LIBS="-L/usr/X11R6/lib -laudio -lXt"
-
         fi
 
         AC_MSG_RESULT($have_nas)
@@ -3930,7 +3929,7 @@ CheckHIDAPI()
         if test x$hidapi_support = xyes; then
             have_hidapi=yes
             if test x$have_libusb_h = xyes; then
-                AC_DEFINE(HAVE_LIBUSB)
+                AC_DEFINE(HAVE_LIBUSB, 1, [ ])
                 EXTRA_CFLAGS="$EXTRA_CFLAGS $LIBUSB_CFLAGS"
                 if test x$require_hidapi_libusb = xyes; then
                     EXTRA_LDFLAGS="$EXTRA_LDFLAGS $LIBUSB_LIBS"
@@ -4166,10 +4165,14 @@ case "$host" in
         if test x$enable_audio = xyes; then
           case $ARCH in
             sysv5|solaris|hpux)
-                AC_DEFINE(SDL_AUDIO_DRIVER_SUNAUDIO, 1, [ ])
-                SOURCES="$SOURCES $srcdir/src/audio/sun/*.c"
-                SUMMARY_audio="${SUMMARY_audio} sun"
-                have_audio=yes
+                # Newer Solaris-based systems, like OpenIndiana, don't have this interface anymore. Check for the header first.
+                AC_CHECK_HEADER(sys/audioio.h, have_sys_audioio_h=yes, have_sys_audioio_h=no)
+                if test x$have_sys_audioio_h = xyes; then
+                    AC_DEFINE(SDL_AUDIO_DRIVER_SUNAUDIO, 1, [ ])
+                    SOURCES="$SOURCES $srcdir/src/audio/sun/*.c"
+                    SUMMARY_audio="${SUMMARY_audio} sun"
+                    have_audio=yes
+                fi
             ;;
             netbsd)  # Don't use this on OpenBSD, it's busted.
                 AC_DEFINE(SDL_AUDIO_DRIVER_NETBSD, 1, [ ])

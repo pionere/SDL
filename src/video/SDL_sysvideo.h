@@ -394,6 +394,7 @@ struct SDL_VideoDevice
         SDL_bool gl_allow_no_surface;
         int driver_loaded;
 #ifdef SDL_VIDEO_OPENGL_EGL
+        int HAS_GL_ARB_color_buffer_float;
         int gl_type; // whether egl is loaded
 #endif
     } gl_config;
