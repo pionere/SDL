@@ -571,7 +571,7 @@ dep_option(SDL_HIDAPI_JOYSTICK     "Use HIDAPI for low level joystick drivers" O
 dep_option(SDL_VIRTUAL_JOYSTICK    "Enable the virtual-joystick driver" OFF SDL_HIDAPI OFF)
 set_option(SDL_LIBUDEV             "Enable libudev support" ${UNIX_SYS})
 set_option(SDL_ASAN                "Use AddressSanitizer to detect memory errors" OFF)
-option_string(SDL_VENDOR_INFO      "Vendor name and/or version to add to SDL_REVISION" "")
+option_string(SDL_VENDOR_INFO      "Vendor name and/or version to add to SDL_REVISION" OFF)
 set_option(SDL_CCACHE              "Use Ccache to speed up build" OFF)
 
 option(SDL_WERROR "Enable -Werror" OFF)
@@ -790,10 +790,12 @@ endif()
 
 if(NOT SDL_BACKGROUNDING_SIGNAL STREQUAL "OFF")
   target_compile_definitions(sdl-build-options INTERFACE "-DSDL_BACKGROUNDING_SIGNAL=${SDL_BACKGROUNDING_SIGNAL}")
+  set(HAVE_BACKGROUNDING_SIGNAL ${SDL_BACKGROUNDING_SIGNAL})
 endif()
 
 if(NOT SDL_FOREGROUNDING_SIGNAL STREQUAL "OFF")
   target_compile_definitions(sdl-build-options INTERFACE "-DSDL_FOREGROUNDING_SIGNAL=${SDL_FOREGROUNDING_SIGNAL}")
+  set(HAVE_FOREGROUNDING_SIGNAL ${SDL_FOREGROUNDING_SIGNAL})
 endif()
 
 # Compiler option evaluation
@@ -4033,7 +4035,9 @@ endif()
 
 configure_file("${SDL2_SOURCE_DIR}/include/SDL_revision.h.cmake"
   "${SDL2_BINARY_DIR}/include/SDL2/SDL_revision.h")
-set(HAVE_VENDOR_INFO "${SDL_VENDOR_INFO}")
+if(SDL_VENDOR_INFO)
+  set(HAVE_VENDOR_INFO ${SDL_VENDOR_INFO})
+endif()
 
 # Copy all non-generated headers to "${SDL2_BINARY_DIR}/include/SDL2"
 # This is done to avoid the inclusion of a pre-generated SDL_config.h

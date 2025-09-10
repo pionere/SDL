@@ -24,8 +24,7 @@ endmacro()
 macro(OPTION_STRING _NAME _DESC _VALUE)
   add_to_alloptions(${_NAME})
   set(${_NAME} ${_VALUE} CACHE STRING "${_DESC}")
-  set(HAVE_${_NAME} ${_VALUE})
-ENDMACRO()
+endmacro()
 
 # Message Output
 macro(MESSAGE_WARN _TEXT)
