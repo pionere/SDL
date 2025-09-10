@@ -611,8 +611,8 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
                 VitaGLES.Pvr: "pvr",
             }[spec.vita_gles]
             job.cmake_arguments.extend((
-                f"-DVIDEO_VITA_PIB={ 'true' if spec.vita_gles == VitaGLES.Pib else 'false' }",
-                f"-DVIDEO_VITA_PVR={ 'true' if spec.vita_gles == VitaGLES.Pvr else 'false' }",
+                f"-DVIDEO_VITA_PIB={ 'ON' if spec.vita_gles == VitaGLES.Pib else 'OFF' }",
+                f"-DVIDEO_VITA_PVR={ 'ON' if spec.vita_gles == VitaGLES.Pvr else 'OFF' }",
                 "-DSDL_ARMNEON=ON",
                 "-DSDL_ARMSIMD=ON",
                 ))
