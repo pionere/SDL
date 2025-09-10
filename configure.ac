@@ -2098,7 +2098,6 @@ CheckNativeClient()
         AC_DEFINE(SDL_VIDEO_DRIVER_NACL, 1, [ ])
         AC_DEFINE(SDL_AUDIO_DRIVER_NACL, 1, [ ])
         AC_DEFINE(HAVE_POW, 1, [ ])
-        AC_DEFINE(HAVE_OPENGLES2, 1, [ ])
         AC_DEFINE(SDL_VIDEO_OPENGL_ES2, 1, [ ])
         if test x$enable_render_gl = xyes; then
             AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
@@ -2111,7 +2110,7 @@ CheckNativeClient()
         SUMMARY_audio="${SUMMARY_audio} nacl"
         have_audio=yes
         SOURCES="$SOURCES $srcdir/src/video/nacl/*.c"
-        SUMMARY_video="${SUMMARY_video} nacl opengles2"
+        SUMMARY_video="${SUMMARY_video} nacl_opengles2"
         have_video=yes
         ],[])
 }
@@ -2798,6 +2797,7 @@ CheckGLX()
         if test x$video_opengl_glx = xyes; then
             AC_DEFINE(SDL_VIDEO_OPENGL, 1, [ ])
             AC_DEFINE(SDL_VIDEO_OPENGL_GLX, 1, [ ])
+            SUMMARY_video="${SUMMARY_video} opengl_glx"
         fi
     fi
 }
@@ -2830,6 +2830,7 @@ CheckEGL()
         AC_MSG_RESULT($video_opengl_egl)
         if test x$video_opengl_egl = xyes; then
             AC_DEFINE(SDL_VIDEO_OPENGL_EGL, 1, [ ])
+            SUMMARY_video="${SUMMARY_video} opengl_egl"
         fi
     fi
 }
@@ -2996,6 +2997,7 @@ CheckEmscriptenGLES()
         AC_MSG_RESULT($video_opengl_egl)
         if test x$video_opengl_egl = xyes; then
             AC_DEFINE(SDL_VIDEO_OPENGL_EGL, 1, [ ])
+            SUMMARY_video="${SUMMARY_video} opengl_egl"
         fi
 
         AC_MSG_CHECKING(for OpenGL ES v2 headers)
@@ -4663,7 +4665,7 @@ dnl BeOS support removed after SDL 2.0.1. Haiku still works.  --ryan.
             AC_DEFINE(SDL_VIDEO_RENDER_OGL_ES2, 1, [ ])
         fi
         SOURCES="$SOURCES $srcdir/src/video/uikit/*.m"
-        SUMMARY_video="${SUMMARY_video} uikit"
+        SUMMARY_video="${SUMMARY_video} uikit_opengles2"
         have_video=yes
         EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lm"
         if test x$enable_system_iconv = xyes; then
