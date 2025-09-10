@@ -455,6 +455,11 @@ if((ANDROID OR LINUX OR WINDOWS OR APPLE) AND (NOT FUTURE_STATIC OR FUTURE_SHARE
   set(OPT_DEF_VULKAN ON)
 endif()
 
+# turn off analyze macros for NXDK
+if(NOT NXDK)
+  set(OPT_DEF_ANALYZE_MACROS ON)
+endif()
+
 # Allow some projects to be built conditionally.
 set_option(SDL2_DISABLE_SDL2MAIN   "Disable building/installation of SDL2main" OFF)
 set_option(SDL2_DISABLE_INSTALL    "Disable installation of SDL2" ${SDL2_SUBPROJECT})
@@ -591,7 +596,7 @@ dep_option(SDL_YUV_FORMAT      "Support YUV formats" ON "NOT SDL_LEAN_AND_MEAN" 
 set_option(SDL_RESAMPLER       "Support resampling of audio" ON)
 set_option(SDL_GESTURES        "Support gestures" ON)
 set_option(SDL_SANITIZE_ACCESS "Build robust library with checks against unreasonable parameters/calls." ON)
-set_option(SDL_ANALYZE_MACROS  "Add annotations to help code analysis tools" "NOT ${NXDK}")
+set_option(SDL_ANALYZE_MACROS  "Add annotations to help code analysis tools" ${OPT_DEF_ANALYZE_MACROS})
 dep_option(SDL_TESTS           "Build the test directory" OFF SDL_TEST OFF)
 set_option(SDL_LOGGING         "Enable logging" ON)
 dep_option(SDL_VERBOSE_ERROR   "Enable verbose errors" ON SDL_LOGGING OFF)
