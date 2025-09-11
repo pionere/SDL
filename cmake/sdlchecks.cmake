@@ -1026,8 +1026,9 @@ macro(CheckPTHREAD)
         pthread_attr_t type;
         pthread_attr_init(&type);
         return 0;
-      }" HAVE_PTHREADS)
-    if(HAVE_PTHREADS)
+      }" HAVE_PTHREADS_FUNCS)
+    if(HAVE_PTHREADS_FUNCS)
+      set(HAVE_PTHREADS TRUE)
       set(SDL_THREAD_PTHREAD 1)
       list(APPEND EXTRA_CFLAGS ${PTHREAD_CFLAGS})
       list(APPEND EXTRA_LDFLAGS ${PTHREAD_LDFLAGS})
@@ -1058,8 +1059,9 @@ macro(CheckPTHREAD)
       if(SDL_PTHREADS_SEM)
         check_c_source_compiles("#include <pthread.h>
                                  #include <semaphore.h>
-                                 int main(int argc, char **argv) { return 0; }" HAVE_PTHREADS_SEM)
-        if(HAVE_PTHREADS_SEM)
+                                 int main(int argc, char **argv) { return 0; }" HAVE_PTHREADS_SEM_H)
+        if(HAVE_PTHREADS_SEM_H)
+          set(HAVE_PTHREADS_SEM TRUE)
           check_c_source_compiles("
               #include <pthread.h>
               #include <semaphore.h>
@@ -1335,10 +1337,13 @@ macro(CheckRPI)
         #include <bcm_host.h>
         int main(int argc, char **argv) {
           bcm_host_init();
-        }" HAVE_RPI)
+        }" HAVE_RPI_H)
     set(CMAKE_REQUIRED_FLAGS "${ORIG_CMAKE_REQUIRED_FLAGS}")
     set(CMAKE_REQUIRED_LIBRARIES)
 
+    if(HAVE_RPI_H)
+      set(HAVE_RPI TRUE)
+    endif()
     if(SDL_VIDEO AND HAVE_RPI)
       set(HAVE_SDL_VIDEO TRUE)
       set(SDL_VIDEO_DRIVER_RPI 1)

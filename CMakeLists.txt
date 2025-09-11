@@ -886,8 +886,10 @@ if(USE_GCC OR USE_CLANG OR USE_INTELCC OR USE_QCC)
         __sync_fetch_and_add(&a, 1);
         __sync_bool_compare_and_swap(&a, 5, 10);
         __sync_bool_compare_and_swap(&x, y, z);
-        return 0; }" HAVE_GCC_ATOMICS)
-    if(NOT HAVE_GCC_ATOMICS)
+        return 0; }" HAVE_GCC_ATOMICS_FUNCS)
+    if(HAVE_GCC_ATOMICS_FUNCS)
+      set(HAVE_GCC_ATOMICS TRUE)
+    else()
       check_c_source_compiles("int main(int argc, char **argv) {
           int a;
           __sync_lock_test_and_set(&a, 1);
@@ -1070,11 +1072,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char *argv[]) {
           ints_add((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_MMX)
+        }" HAVE_MMX_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_MMX)
-      #  list(APPEND EXTRA_CFLAGS "-mmmx")
-      #endif()
+      if(HAVE_MMX_INTRINSICS)
+        set(HAVE_MMX TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mmmx")
+      endif()
     endif()
 
     if(SDL_3DNOW)
@@ -1088,11 +1091,12 @@ if(OPT_DEF_ASM)
           void *p = 0;
           _m_prefetch(p);
           return 0;
-        }" HAVE_3DNOW)
+        }" HAVE_3DNOW_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_3DNOW)
-      #  list(APPEND EXTRA_CFLAGS "-m3dnow")
-      #endif()
+      if(HAVE_3DNOW_INTRINSICS)
+        set(HAVE_3DNOW TRUE)
+        # list(APPEND EXTRA_CFLAGS "-m3dnow")
+      endif()
     endif()
 
     if(SDL_SSE)
@@ -1110,11 +1114,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           floats_add((float*)0, (float*)0, (float*)0, 0);
           return 0;
-        }" HAVE_SSE)
+        }" HAVE_SSE_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_SSE)
-      #  list(APPEND EXTRA_CFLAGS "-msse")
-      #endif()
+      if(HAVE_SSE_INTRINSICS)
+        set(HAVE_SSE TRUE)
+        # list(APPEND EXTRA_CFLAGS "-msse")
+      endif()
     endif()
 
     if(SDL_SSE2 AND HAVE_SSE)
@@ -1132,11 +1137,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           doubles_add((double*)0, (double*)0, (double*)0, 0);
           return 0;
-        }" HAVE_SSE2)
+        }" HAVE_SSE2_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_SSE2)
-      #  list(APPEND EXTRA_CFLAGS "-msse2")
-      #endif()
+      if(HAVE_SSE2_INTRINSICS)
+        set(HAVE_SSE2 TRUE)
+        # list(APPEND EXTRA_CFLAGS "-msse2")
+      endif()
     endif()
 
     if(SDL_SSE3 AND HAVE_SSE2)
@@ -1154,11 +1160,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           ints_add((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_SSE3)
+        }" HAVE_SSE3_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_SSE3)
-      #  list(APPEND EXTRA_CFLAGS "-msse3")
-      #endif()
+      if(HAVE_SSE3_INTRINSICS)
+        set(HAVE_SSE3 TRUE)
+        # list(APPEND EXTRA_CFLAGS "-msse3")
+      endif()
     endif()
 
     if(SDL_SSE4_1 AND HAVE_SSE3)
@@ -1176,11 +1183,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           ints_mul((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_SSE4_1)
+        }" HAVE_SSE4_1_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_SSE4_1)
-      #  list(APPEND EXTRA_CFLAGS "-msse4.1")
-      #endif()
+      if(HAVE_SSE4_1_INTRINSICS)
+        set(HAVE_SSE4_1 TRUE)
+        # list(APPEND EXTRA_CFLAGS "-msse4.1")
+      endif()
     endif()
 
     if(SDL_SSE4_2 AND HAVE_SSE4_1)
@@ -1200,11 +1208,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           calc_crc32c(\"SDL_SSE4\",8);
           return 0;
-        }" HAVE_SSE4_2)
+        }" HAVE_SSE4_2_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_SSE4_2)
-      #  list(APPEND EXTRA_CFLAGS "-msse4.2")
-      #endif()
+      if(HAVE_SSE4_2_INTRINSICS)
+        set(HAVE_SSE4_2 TRUE)
+        # list(APPEND EXTRA_CFLAGS "-msse4.2")
+      endif()
     endif()
 
     #if(SDL_CPU_X86 OR SDL_CPU_X64 OR SDL_CPU_UNDEFINED)
@@ -1241,11 +1250,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           floats_add((float*)0, (float*)0, (float*)0, 0);
           return 0;
-        }" HAVE_AVX)
+        }" HAVE_AVX_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_AVX)
-      #  list(APPEND EXTRA_CFLAGS "-mavx")
-      #endif()
+      if(HAVE_AVX_INTRINSICS)
+        set(HAVE_AVX TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mavx")
+      endif()
     endif()
 
     if(SDL_AVX2 AND HAVE_AVX)
@@ -1263,11 +1273,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           ints_add((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_AVX2)
+        }" HAVE_AVX2_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_AVX2)
-      #  list(APPEND EXTRA_CFLAGS "-mavx2")
-      #endif()
+      if(HAVE_AVX2_INTRINSICS)
+        set(HAVE_AVX2 TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mavx2")
+      endif()
     endif()
 
     if(SDL_AVX512F AND HAVE_AVX2)
@@ -1285,11 +1296,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           floats_add((float*)0, (float*)0, (float*)0, 0);
           return 0;
-        }" HAVE_AVX512F)
+        }" HAVE_AVX512F_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_AVX512F)
-      #  list(APPEND EXTRA_CFLAGS "-mavx512f")
-      #endif()
+      if(HAVE_AVX512F_INTRINSICS)
+        set(HAVE_AVX512F TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mavx512f")
+      endif()
     endif()
 
     if(SDL_ALTIVEC)
@@ -1302,11 +1314,12 @@ if(OPT_DEF_ASM)
           vector unsigned int vzero() {
               return vec_splat_u32(0);
           }
-          int main(int argc, char **argv) { return 0; }" HAVE_ALTIVEC)
+          int main(int argc, char **argv) { return 0; }" HAVE_ALTIVEC_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_ALTIVEC)
-      #  list(APPEND EXTRA_CFLAGS "-maltivec")
-      #endif()
+      if(HAVE_ALTIVEC_INTRINSICS)
+        set(HAVE_ALTIVEC TRUE)
+        # list(APPEND EXTRA_CFLAGS "-maltivec")
+      endif()
     endif()
 
     if(SDL_LSX)
@@ -1324,11 +1337,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           ints_sub((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_LSX)
+        }" HAVE_LSX_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_LSX)
-      #  list(APPEND EXTRA_CFLAGS "-mlsx")
-      #endif()
+      if(HAVE_LSX_INTRINSICS)
+        set(HAVE_LSX TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mlsx")
+      endif()
     endif()
 
     if(SDL_LASX AND HAVE_LSX)
@@ -1346,11 +1360,12 @@ if(OPT_DEF_ASM)
         int main(int argc, char **argv) {
           ints_add((int*)0, (int*)0, (int*)0, 0);
           return 0;
-        }" HAVE_LASX)
+        }" HAVE_LASX_INTRINSICS)
       cmake_pop_check_state()
-      #if(HAVE_LASX)
-      #  list(APPEND EXTRA_CFLAGS "-mlasx")
-      #endif()
+      if(HAVE_LASX_INTRINSICS)
+        set(HAVE_LASX TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mlasx")
+      endif()
     endif()
 
     if(SDL_NEON)
@@ -1364,10 +1379,11 @@ if(OPT_DEF_ASM)
         int main(int argc, char *argv[]) {
           floats_add((float*)0, (float*)0, (float*)0, 0);
           return 0;
-         }" HAVE_NEON)
-      #if(HAVE_NEON)
-      #  list(APPEND EXTRA_CFLAGS "-mfpu=neon")
-      #endif()
+         }" HAVE_NEON_INTRINSICS)
+      if(HAVE_NEON_INTRINSICS)
+        set(HAVE_NEON TRUE)
+        # list(APPEND EXTRA_CFLAGS "-mfpu=neon")
+      endif()
     endif()
 
     if(SDL_ARMSIMD)
