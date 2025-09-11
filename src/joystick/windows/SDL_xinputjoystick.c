@@ -157,6 +157,11 @@ int SDL_XINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
     return -1;
 }
 
+int SDL_XINPUT_GetDevicePlayerIndex(JoyStick_DeviceData *joystickdevice)
+{
+    return (int)joystickdevice->XInputUserId;
+}
+
 static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pContext)
 {
     const char *name = NULL;
@@ -495,6 +500,11 @@ int SDL_XINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
 }
 
 int SDL_XINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_XINPUT_GetDevicePlayerIndex(JoyStick_DeviceData *joystickdevice)
 {
     return SDL_Unsupported();
 }

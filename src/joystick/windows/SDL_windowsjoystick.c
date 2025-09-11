@@ -620,7 +620,11 @@ static int WINDOWS_JoystickGetDevicePlayerIndex(int device_index)
 {
     JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
-    return device->bXInputDevice ? (int)device->XInputUserId : -1;
+    if (device->bXInputDevice) {
+        return SDL_XINPUT_GetDevicePlayerIndex(device);
+    } else {
+        return SDL_DINPUT_GetDevicePlayerIndex(device);
+    }
 }
 
 static void WINDOWS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
