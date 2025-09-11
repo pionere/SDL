@@ -610,10 +610,9 @@ static int WINDOWS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
     JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     if (device->bXInputDevice) {
-        /* The slot for XInput devices can change as controllers are seated */
-        return SDL_XINPUT_GetSteamVirtualGamepadSlot(device->XInputUserId);
+        return SDL_XINPUT_GetSteamVirtualGamepadSlot(device);
     } else {
-        return device->steam_virtual_gamepad_slot;
+        return SDL_DINPUT_GetSteamVirtualGamepadSlot(device);
     }
 }
 

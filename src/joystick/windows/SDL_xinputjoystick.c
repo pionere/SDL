@@ -143,12 +143,13 @@ static SDL_bool GetXInputDeviceInfo(Uint8 userid, Uint16 *pVID, Uint16 *pPID, Ui
     return SDL_TRUE;
 }
 
-int SDL_XINPUT_GetSteamVirtualGamepadSlot(Uint8 userid)
+int SDL_XINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
 {
+    const Uint8 userId = joystickdevice->XInputUserId;
     SDL_XINPUT_CAPABILITIES_EX capabilities;
-
+    /* The slot for XInput devices can change as controllers are seated */
     if (XINPUTGETCAPABILITIESEX &&
-        XINPUTGETCAPABILITIESEX(1, userid, 0, &capabilities) == ERROR_SUCCESS &&
+        XINPUTGETCAPABILITIESEX(1, userId, 0, &capabilities) == ERROR_SUCCESS &&
         capabilities.VendorId == USB_VENDOR_VALVE &&
         capabilities.ProductId == USB_PRODUCT_STEAM_VIRTUAL_GAMEPAD) {
         return (int)capabilities.unk2;

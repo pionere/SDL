@@ -34,6 +34,7 @@ extern Uint32 SDL_DINPUT_JoystickGetCapabilities(SDL_Joystick *joystick);
 extern void SDL_DINPUT_JoystickUpdate(SDL_Joystick *joystick);
 extern void SDL_DINPUT_JoystickClose(SDL_Joystick *joystick);
 extern void SDL_DINPUT_JoystickQuit(void);
+extern int SDL_DINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

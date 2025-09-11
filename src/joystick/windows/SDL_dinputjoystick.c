@@ -868,6 +868,11 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
     return 0;
 }
 
+int SDL_DINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
+{
+    return joystickdevice->steam_virtual_gamepad_slot;
+}
+
 static int SDL_DINPUT_JoystickInitRumble(SDL_Joystick *joystick, Sint16 magnitude)
 {
     HRESULT result;
@@ -1192,6 +1197,11 @@ SDL_bool SDL_DINPUT_JoystickPresent(Uint16 vendor, Uint16 product, Uint16 versio
 }
 
 int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystickdevice)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_DINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
 {
     return SDL_Unsupported();
 }
