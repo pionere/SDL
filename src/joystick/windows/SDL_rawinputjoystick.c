@@ -2076,13 +2076,13 @@ static void RAWINPUT_JoystickClose(SDL_Joystick *joystick)
     }
 }
 
-int RAWINPUT_RegisterNotifications(HWND hWnd)
+void RAWINPUT_RegisterNotifications(HWND hWnd)
 {
     int i;
     RAWINPUTDEVICE rid[SDL_arraysize(subscribed_devices)];
 
     if (!SDL_RAWINPUT_inited) {
-        return 0;
+        return;
     }
 
     for (i = 0; i < SDL_arraysize(subscribed_devices); i++) {
@@ -2092,19 +2092,16 @@ int RAWINPUT_RegisterNotifications(HWND hWnd)
         rid[i].hwndTarget = hWnd;
     }
 
-    if (!RegisterRawInputDevices(rid, SDL_arraysize(rid), sizeof(RAWINPUTDEVICE))) {
-        return SDL_SetError("Couldn't register for raw input events");
-    }
-    return 0;
+    RegisterRawInputDevices(rid, SDL_arraysize(rid), sizeof(RAWINPUTDEVICE));
 }
 
-int RAWINPUT_UnregisterNotifications(void)
+void RAWINPUT_UnregisterNotifications(void)
 {
     int i;
     RAWINPUTDEVICE rid[SDL_arraysize(subscribed_devices)];
 
     if (!SDL_RAWINPUT_inited) {
-        return 0;
+        return;
     }
 
     for (i = 0; i < SDL_arraysize(subscribed_devices); i++) {
@@ -2114,10 +2111,7 @@ int RAWINPUT_UnregisterNotifications(void)
         rid[i].hwndTarget = NULL;
     }
 
-    if (!RegisterRawInputDevices(rid, SDL_arraysize(rid), sizeof(RAWINPUTDEVICE))) {
-        return SDL_SetError("Couldn't unregister for raw input events");
-    }
-    return 0;
+    RegisterRawInputDevices(rid, SDL_arraysize(rid), sizeof(RAWINPUTDEVICE));
 }
 
 LRESULT CALLBACK
