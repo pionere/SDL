@@ -52,7 +52,7 @@ static LPDIRECTINPUT8 dinput = NULL;
 /*
  * Like SDL_SetError but for DX error codes.
  */
-static int DI_SetError(const char *str, HRESULT err)
+static int DI_SetError(const char *str)
 {
     return SDL_SetError("Haptic error %s", str);
 }
@@ -84,7 +84,7 @@ int SDL_DINPUT_HapticInit(void)
 
     ret = WIN_CoInitialize();
     if (FAILED(ret)) {
-        return DI_SetError("Coinitialize", ret);
+        return DI_SetError("Coinitialize");
     }
 
     coinitialized = SDL_TRUE;
@@ -93,7 +93,7 @@ int SDL_DINPUT_HapticInit(void)
                            &IID_IDirectInput8, (LPVOID *)&dinput);
     if (FAILED(ret)) {
         SDL_SYS_HapticQuit();
-        return DI_SetError("CoCreateInstance", ret);
+        return DI_SetError("CoCreateInstance");
     }
 
     /* Because we used CoCreateInstance, we need to Initialize it, first. */
@@ -105,7 +105,7 @@ int SDL_DINPUT_HapticInit(void)
     ret = IDirectInput8_Initialize(dinput, instance, DIRECTINPUT_VERSION);
     if (FAILED(ret)) {
         SDL_SYS_HapticQuit();
-        return DI_SetError("Initializing DirectInput device", ret);
+        return DI_SetError("Initializing DirectInput device");
     }
 
     /* Look for haptic devices. */
@@ -123,7 +123,7 @@ int SDL_DINPUT_HapticInit(void)
                                             DIEDFL_ATTACHEDONLY);
         if (FAILED(ret)) {
             SDL_SYS_HapticQuit();
-            return DI_SetError("Enumerating DirectInput devices", ret);
+            return DI_SetError("Enumerating DirectInput devices");
         }
     }
 
@@ -152,7 +152,7 @@ int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
     /* Open the device */
     ret = IDirectInput8_CreateDevice(dinput, &pdidInstance->guidInstance, &device, NULL);
     if (FAILED(ret)) {
-        /* DI_SetError("Creating DirectInput device",ret); */
+        /* DI_SetError("Creating DirectInput device"); */
         return -1;
     }
 
@@ -162,7 +162,7 @@ int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
     ret = IDirectInputDevice8_GetCapabilities(device, &capabilities);
     IDirectInputDevice8_Release(device);
     if (FAILED(ret)) {
-        /* DI_SetError("Getting device capabilities",ret); */
+        /* DI_SetError("Getting device capabilities"); */
         return -1;
     }
 
@@ -314,7 +314,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
                                                       DISCL_EXCLUSIVE |
                                                           DISCL_BACKGROUND);
         if (FAILED(ret)) {
-            DI_SetError("Setting cooperative level to exclusive", ret);
+            DI_SetError("Setting cooperative level to exclusive");
             goto acquire_err;
         }
 
@@ -322,14 +322,14 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
         ret = IDirectInputDevice8_SetDataFormat(haptic->hwdata->device,
                                                 &SDL_c_dfDIJoystick2);
         if (FAILED(ret)) {
-            DI_SetError("Setting data format", ret);
+            DI_SetError("Setting data format");
             goto acquire_err;
         }
 
         /* Acquire the device. */
         ret = IDirectInputDevice8_Acquire(haptic->hwdata->device);
         if (FAILED(ret)) {
-            DI_SetError("Acquiring DirectInput device", ret);
+            DI_SetError("Acquiring DirectInput device");
             goto acquire_err;
         }
     }
@@ -339,7 +339,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
                                           DI_DeviceObjectCallback,
                                           haptic, DIDFT_AXIS);
     if (FAILED(ret)) {
-        DI_SetError("Getting device axes", ret);
+        DI_SetError("Getting device axes");
         goto acquire_err;
     }
 
@@ -347,7 +347,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
     ret = IDirectInputDevice8_SendForceFeedbackCommand(haptic->hwdata->device,
                                                        DISFFC_RESET);
     if (FAILED(ret)) {
-        DI_SetError("Resetting device", ret);
+        DI_SetError("Resetting device");
         goto acquire_err;
     }
 
@@ -355,7 +355,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
     ret = IDirectInputDevice8_SendForceFeedbackCommand(haptic->hwdata->device,
                                                        DISFFC_SETACTUATORSON);
     if (FAILED(ret)) {
-        DI_SetError("Enabling actuators", ret);
+        DI_SetError("Enabling actuators");
         goto acquire_err;
     }
 
@@ -364,7 +364,7 @@ static int SDL_DINPUT_HapticOpenFromDevice(SDL_Haptic *haptic, LPDIRECTINPUTDEVI
                                           DI_EffectCallback, haptic,
                                           DIEFT_ALL);
     if (FAILED(ret)) {
-        DI_SetError("Enumerating supported effects", ret);
+        DI_SetError("Enumerating supported effects");
         goto acquire_err;
     }
     if (haptic->supported == 0) { /* Error since device supports nothing. */
@@ -429,7 +429,7 @@ int SDL_DINPUT_HapticOpen(SDL_Haptic *haptic, SDL_hapticlist_item *item)
     ret = IDirectInput8_CreateDevice(dinput, &item->instance.guidInstance,
                                      &device, NULL);
     if (FAILED(ret)) {
-        DI_SetError("Creating DirectInput device", ret);
+        DI_SetError("Creating DirectInput device");
         return -1;
     }
 
@@ -958,7 +958,7 @@ int SDL_DINPUT_HapticNewEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
                                            &effect->hweffect->effect,
                                            &effect->hweffect->ref, NULL);
     if (FAILED(ret)) {
-        DI_SetError("Unable to create effect", ret);
+        DI_SetError("Unable to create effect");
         goto err_effectdone;
     }
 
@@ -1007,7 +1007,7 @@ int SDL_DINPUT_HapticUpdateEffect(SDL_Haptic *haptic, struct haptic_effect *effe
         }
     }
     if (FAILED(ret)) {
-        DI_SetError("Unable to update effect", ret);
+        DI_SetError("Unable to update effect");
         goto err_update;
     }
 
@@ -1037,7 +1037,7 @@ int SDL_DINPUT_HapticRunEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
     /* Run the effect. */
     ret = IDirectInputEffect_Start(effect->hweffect->ref, iter, 0);
     if (FAILED(ret)) {
-        return DI_SetError("Running the effect", ret);
+        return DI_SetError("Running the effect");
     }
     return 0;
 }
@@ -1048,7 +1048,7 @@ int SDL_DINPUT_HapticStopEffect(SDL_Haptic *haptic, struct haptic_effect *effect
 
     ret = IDirectInputEffect_Stop(effect->hweffect->ref);
     if (FAILED(ret)) {
-        return DI_SetError("Unable to stop effect", ret);
+        return DI_SetError("Unable to stop effect");
     }
     return 0;
 }
@@ -1059,7 +1059,7 @@ void SDL_DINPUT_HapticDestroyEffect(SDL_Haptic *haptic, struct haptic_effect *ef
 
     ret = IDirectInputEffect_Unload(effect->hweffect->ref);
     if (FAILED(ret)) {
-        DI_SetError("Removing effect from the device", ret);
+        DI_SetError("Removing effect from the device");
     }
     SDL_SYS_HapticFreeDIEFFECT(&effect->hweffect->effect, effect->effect.type);
 }
@@ -1071,7 +1071,7 @@ int SDL_DINPUT_HapticGetEffectStatus(SDL_Haptic *haptic, struct haptic_effect *e
 
     ret = IDirectInputEffect_GetEffectStatus(effect->hweffect->ref, &status);
     if (FAILED(ret)) {
-        return DI_SetError("Getting effect status", ret);
+        return DI_SetError("Getting effect status");
     }
 
     if (status == 0) {
@@ -1096,7 +1096,7 @@ int SDL_DINPUT_HapticSetGain(SDL_Haptic *haptic, int gain)
     ret = IDirectInputDevice8_SetProperty(haptic->hwdata->device,
                                           DIPROP_FFGAIN, &dipdw.diph);
     if (FAILED(ret)) {
-        return DI_SetError("Setting gain", ret);
+        return DI_SetError("Setting gain");
     }
     return 0;
 }
@@ -1117,7 +1117,7 @@ int SDL_DINPUT_HapticSetAutocenter(SDL_Haptic *haptic, int autocenter)
     ret = IDirectInputDevice8_SetProperty(haptic->hwdata->device,
                                           DIPROP_AUTOCENTER, &dipdw.diph);
     if (FAILED(ret)) {
-        return DI_SetError("Setting autocenter", ret);
+        return DI_SetError("Setting autocenter");
     }
     return 0;
 }
@@ -1130,7 +1130,7 @@ int SDL_DINPUT_HapticPause(SDL_Haptic *haptic)
     ret = IDirectInputDevice8_SendForceFeedbackCommand(haptic->hwdata->device,
                                                        DISFFC_PAUSE);
     if (FAILED(ret)) {
-        return DI_SetError("Pausing the device", ret);
+        return DI_SetError("Pausing the device");
     }
     return 0;
 }
@@ -1143,7 +1143,7 @@ int SDL_DINPUT_HapticUnpause(SDL_Haptic *haptic)
     ret = IDirectInputDevice8_SendForceFeedbackCommand(haptic->hwdata->device,
                                                        DISFFC_CONTINUE);
     if (FAILED(ret)) {
-        return DI_SetError("Pausing the device", ret);
+        return DI_SetError("Pausing the device");
     }
     return 0;
 }
@@ -1156,7 +1156,7 @@ int SDL_DINPUT_HapticStopAll(SDL_Haptic *haptic)
     ret = IDirectInputDevice8_SendForceFeedbackCommand(haptic->hwdata->device,
                                                        DISFFC_STOPALL);
     if (FAILED(ret)) {
-        return DI_SetError("Stopping the device", ret);
+        return DI_SetError("Stopping the device");
     }
     return 0;
 }
