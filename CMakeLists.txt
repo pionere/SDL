@@ -869,13 +869,13 @@ if(USE_GCC OR USE_CLANG OR USE_INTELCC OR USE_QCC)
     list(APPEND EXTRA_CFLAGS "-Wdeclaration-after-statement")
   endif()
 
-  if(DEPENDENCY_TRACKING)
-    check_c_source_compiles("
-        #if !defined(__GNUC__) || __GNUC__ < 3
-        #error Dependency tracking requires GCC 3.0 or newer
-        #endif
-        int main(int argc, char **argv) { return 0; }" HAVE_DEPENDENCY_TRACKING)
-  endif()
+  #if(DEPENDENCY_TRACKING)
+  #  check_c_source_compiles("
+  #      #if !defined(__GNUC__) || __GNUC__ < 3
+  #      #error Dependency tracking requires GCC 3.0 or newer
+  #      #endif
+  #      int main(int argc, char **argv) { return 0; }" HAVE_DEPENDENCY_TRACKING)
+  #endif()
 
   if(SDL_GCC_ATOMICS)
     check_c_source_compiles("int main(int argc, char **argv) {
@@ -2398,9 +2398,9 @@ elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU)
 elseif(WINDOWS)
   find_program(WINDRES windres)
 
-  check_c_source_compiles("
-    #include <windows.h>
-    int main(int argc, char **argv) { return 0; }" HAVE_WIN32_CC)
+  #check_c_source_compiles("
+  #  #include <windows.h>
+  #  int main(int argc, char **argv) { return 0; }" HAVE_WIN32_CC)
 
   file(GLOB CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/windows/*.c)
   list(APPEND SOURCE_FILES ${CORE_SOURCES})
