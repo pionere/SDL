@@ -116,12 +116,12 @@ static const char *GetXInputName(BYTE SubType)
     return name;
 }
 
-static SDL_bool GetXInputDeviceInfo(Uint8 userid, Uint16 *pVID, Uint16 *pPID, Uint16 *pVersion)
+static void GetXInputDeviceInfo(Uint8 userid, Uint16 *pVID, Uint16 *pPID, Uint16 *pVersion)
 {
     SDL_XINPUT_CAPABILITIES_EX capabilities;
 
     if (!XINPUTGETCAPABILITIESEX || XINPUTGETCAPABILITIESEX(1, userid, 0, &capabilities) != ERROR_SUCCESS) {
-        return SDL_FALSE;
+        return;
     }
 
     /* Fixup for Wireless Xbox 360 Controller */
@@ -130,16 +130,9 @@ static SDL_bool GetXInputDeviceInfo(Uint8 userid, Uint16 *pVID, Uint16 *pPID, Ui
         capabilities.ProductId = USB_PRODUCT_XBOX360_XUSB_CONTROLLER;
     }
 
-    if (pVID) {
-        *pVID = capabilities.VendorId;
-    }
-    if (pPID) {
-        *pPID = capabilities.ProductId;
-    }
-    if (pVersion) {
-        *pVersion = capabilities.ProductVersion;
-    }
-    return SDL_TRUE;
+    *pVID = capabilities.VendorId;
+    *pPID = capabilities.ProductId;
+    *pVersion = capabilities.ProductVersion;
 }
 
 int SDL_XINPUT_GetSteamVirtualGamepadSlot(const JoyStick_DeviceData *joystickdevice)
