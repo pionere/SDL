@@ -868,12 +868,12 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
     return 0;
 }
 
-int SDL_DINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
+int SDL_DINPUT_GetSteamVirtualGamepadSlot(const JoyStick_DeviceData *joystickdevice)
 {
     return joystickdevice->steam_virtual_gamepad_slot;
 }
 
-int SDL_DINPUT_GetDevicePlayerIndex(JoyStick_DeviceData *joystickdevice)
+int SDL_DINPUT_GetDevicePlayerIndex(const JoyStick_DeviceData *joystickdevice)
 {
     return -1;
 }
@@ -958,7 +958,7 @@ int SDL_DINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumbl
     return 0;
 }
 
-Uint32 SDL_DINPUT_JoystickGetCapabilities(SDL_Joystick *joystick)
+Uint32 SDL_DINPUT_JoystickGetCapabilities(const SDL_Joystick *joystick)
 {
     Uint32 result = 0;
 
@@ -1206,12 +1206,12 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
     return SDL_Unsupported();
 }
 
-int SDL_DINPUT_GetSteamVirtualGamepadSlot(JoyStick_DeviceData *joystickdevice)
+int SDL_DINPUT_GetSteamVirtualGamepadSlot(const JoyStick_DeviceData *joystickdevice)
 {
     return SDL_Unsupported();
 }
 
-int SDL_DINPUT_GetDevicePlayerIndex(JoyStick_DeviceData *joystickdevice)
+int SDL_DINPUT_GetDevicePlayerIndex(const JoyStick_DeviceData *joystickdevice)
 {
     return SDL_Unsupported();
 }
@@ -1221,7 +1221,7 @@ int SDL_DINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumbl
     return SDL_Unsupported();
 }
 
-Uint32 SDL_DINPUT_JoystickGetCapabilities(SDL_Joystick *joystick)
+Uint32 SDL_DINPUT_JoystickGetCapabilities(const SDL_Joystick *joystick)
 {
     return 0;
 }
