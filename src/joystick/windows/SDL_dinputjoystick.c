@@ -273,9 +273,8 @@ static SDL_bool QueryDeviceName(LPDIRECTINPUTDEVICE8 device, char **device_name)
 {
     DIPROPSTRING dipstr;
 
-    if (!device || !device_name) {
-        return SDL_FALSE;
-    }
+    SDL_assert(device);
+    SDL_assert(device_name);
 
     dipstr.diph.dwSize = sizeof(dipstr);
     dipstr.diph.dwHeaderSize = sizeof(dipstr.diph);
@@ -295,9 +294,8 @@ static SDL_bool QueryDevicePath(LPDIRECTINPUTDEVICE8 device, char **device_path)
 {
     DIPROPGUIDANDPATH dippath;
 
-    if (!device || !device_path) {
-        return SDL_FALSE;
-    }
+    SDL_assert(device);
+    SDL_assert(device_path);
 
     dippath.diph.dwSize = sizeof(dippath);
     dippath.diph.dwHeaderSize = sizeof(dippath.diph);
@@ -320,9 +318,9 @@ static SDL_bool QueryDeviceInfo(LPDIRECTINPUTDEVICE8 device, Uint16 *vendor_id, 
 {
     DIPROPDWORD dipdw;
 
-    if (!device || !vendor_id || !product_id) {
-        return SDL_FALSE;
-    }
+    SDL_assert(device);
+    SDL_assert(vendor_id);
+    SDL_assert(product_id);
 
     dipdw.diph.dwSize = sizeof(dipdw);
     dipdw.diph.dwHeaderSize = sizeof(dipdw.diph);
@@ -340,18 +338,17 @@ static SDL_bool QueryDeviceInfo(LPDIRECTINPUTDEVICE8 device, Uint16 *vendor_id, 
     return SDL_TRUE;
 }
 
-void FreeRumbleEffectData(DIEFFECT *effect)
+static void FreeRumbleEffectData(DIEFFECT *effect)
 {
-    if (!effect) {
-        return;
-    }
+    SDL_assert(effect);
+
     SDL_free(effect->rgdwAxes);
     SDL_free(effect->rglDirection);
     SDL_free(effect->lpvTypeSpecificParams);
     SDL_free(effect);
 }
 
-DIEFFECT *CreateRumbleEffectData(Sint16 magnitude)
+static DIEFFECT *CreateRumbleEffectData(Sint16 magnitude)
 {
     DIEFFECT *effect;
     DIPERIODIC *periodic;
@@ -469,6 +466,7 @@ static BOOL CALLBACK EnumJoystickDetectCallback(LPCDIDEVICEINSTANCE pDeviceInsta
     CHECK(pDeviceInstance->dwDevType & DIDEVTYPE_HID);
 
     CHECK(SUCCEEDED(IDirectInput8_CreateDevice(dinput, &pDeviceInstance->guidInstance, &device, NULL)));
+    CHECK(device);
     CHECK(QueryDeviceName(device, &name));
     CHECK(QueryDevicePath(device, &hidPath));
     CHECK(QueryDeviceInfo(device, &vendor, &product));
@@ -580,6 +578,7 @@ static BOOL CALLBACK EnumJoystickPresentCallback(LPCDIDEVICEINSTANCE pDeviceInst
     CHECK(pDeviceInstance->dwDevType & DIDEVTYPE_HID);
 
     CHECK(SUCCEEDED(IDirectInput8_CreateDevice(dinput, &pDeviceInstance->guidInstance, &device, NULL)));
+    CHECK(device);
     CHECK(QueryDeviceInfo(device, &vendor, &product));
 
     if (vendor == pData->vendor && product == pData->product) {
