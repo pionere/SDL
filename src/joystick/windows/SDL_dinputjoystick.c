@@ -1028,34 +1028,39 @@ static void UpdateDINPUTJoystickState_Polled(SDL_Joystick *joystick)
 
         switch (in->type) {
         case AXIS:
+        {
+            Sint16 value;
             switch (in->ofs) {
             case DIJOFS_X:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lX);
+                value = (Sint16)state.lX;
                 break;
             case DIJOFS_Y:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lY);
+                value = (Sint16)state.lY;
                 break;
             case DIJOFS_Z:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lZ);
+                value = (Sint16)state.lZ;
                 break;
             case DIJOFS_RX:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lRx);
+                value = (Sint16)state.lRx;
                 break;
             case DIJOFS_RY:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lRy);
+                value = (Sint16)state.lRy;
                 break;
             case DIJOFS_RZ:
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.lRz);
+                value = (Sint16)state.lRz;
                 break;
             case DIJOFS_SLIDER(0):
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.rglSlider[0]);
+                value = (Sint16)state.rglSlider[0];
                 break;
             case DIJOFS_SLIDER(1):
-                SDL_PrivateJoystickAxis(joystick, in->num, (Sint16)state.rglSlider[1]);
+                value = (Sint16)state.rglSlider[1];
                 break;
+            default:
+                continue;
             }
+            SDL_PrivateJoystickAxis(joystick, in->num, value);
             break;
-
+        }
         case BUTTON:
             SDL_PrivateJoystickButton(joystick, in->num,
                                       (Uint8)(state.rgbButtons[in->ofs - DIJOFS_BUTTON0] ? SDL_PRESSED : SDL_RELEASED));
