@@ -44,7 +44,7 @@
 #include <kernel.h>
 #endif
 
-#if !defined(HAVE_GCC_ATOMICS) && defined(__MACOSX__)
+#if !defined(HAVE_GCC_ATOMICS) && (defined(__MACOSX__) || defined(__IPHONEOS__))
 #include <libkern/OSAtomic.h>
 #endif
 
