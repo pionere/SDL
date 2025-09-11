@@ -28,7 +28,7 @@
 #include "../SDL_dataqueue.h"
 #include "SDL_cpuinfo.h"
 
-#include "SDL_audio_c.h"
+#include "SDL_sysaudio.h"
 #include "SDL_audioresampler.h"
 #include "SDL_audiotypecvt.h"
 

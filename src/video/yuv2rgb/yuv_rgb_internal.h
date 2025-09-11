@@ -46,7 +46,7 @@ static const YUV2RGBParam YUV2RGB[3] = {
     // ITU-R BT.709-6
     {/*.y_shift=*/ 16, /*.y_factor=*/ V(1.1644), /*.v_r_factor=*/ V(1.7927), /*.u_g_factor=*/ -V(0.2132), /*.v_g_factor=*/ -V(0.5329), /*.u_b_factor=*/ V(2.1124)}
 };
-
+#if 0
 static const RGB2YUVParam RGB2YUV[3] = {
     // ITU-T T.871 (JPEG)
     {/*.y_shift=*/ 0, /*.matrix=*/ {{V(0.299), V(0.587), V(0.114)}, {-V(0.1687), -V(0.3313), V(0.5)}, {V(0.5), -V(0.4187), -V(0.0813)}}},
@@ -55,7 +55,7 @@ static const RGB2YUVParam RGB2YUV[3] = {
     // ITU-R BT.709-6
     {/*.y_shift=*/ 16, /*.matrix=*/ {{V(0.1826), V(0.6142), V(0.062)}, {-V(0.1006), -V(0.3386), V(0.4392)}, {V(0.4392), -V(0.3989), -V(0.0403)}}}
 };
-
+#endif
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

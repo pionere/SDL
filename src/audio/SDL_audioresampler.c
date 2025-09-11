@@ -782,7 +782,7 @@ void SDL_ChooseAudioResamplers(void)
     SDL_assert(SDL_Resampler_Mono != NULL);
 }
 
-int ResamplerPadding()
+int ResamplerPadding(void)
 {
     return RESAMPLER_ZERO_CROSSINGS;
 }

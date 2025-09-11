@@ -123,7 +123,7 @@ static uint8_t clampU8(int32_t v)
 #define YUV_FORMAT			YUV_FORMAT_P010
 #define RGB_FORMAT			RGB_FORMAT_ARGB
 #include "yuv_rgb_std_func.h"
-
+#if 0
 void rgb24_yuv420_std(
     uint32_t width, uint32_t height,
     const uint8_t *RGB, uint32_t RGB_pitch,
@@ -180,5 +180,5 @@ void rgb24_yuv420_std(
         }
     }
 }
-
+#endif
 #endif /* SDL_HAVE_YUV */
