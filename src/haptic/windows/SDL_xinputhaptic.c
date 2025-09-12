@@ -84,7 +84,7 @@ void SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        SDL_OutOfMemory();
+        // SDL_OutOfMemory();
         return;
     }
 
@@ -96,6 +96,7 @@ void SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
     }
 
     if (!item->name) {
+        // SDL_OutOfMemory();
         SDL_free(item);
         return;
     }

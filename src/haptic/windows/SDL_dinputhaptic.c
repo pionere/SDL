@@ -172,12 +172,13 @@ void SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        SDL_OutOfMemory();
+        // SDL_OutOfMemory();
         return;
     }
 
     item->name = WIN_StringToUTF8(pdidInstance->tszProductName);
     if (!item->name) {
+        // SDL_OutOfMemory();
         SDL_free(item);
         return;
     }
