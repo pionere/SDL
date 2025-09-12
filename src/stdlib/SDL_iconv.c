@@ -227,7 +227,7 @@ SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
     }
 #else
     if (!fromcode || !tocode) {
-        SDL_InvalidParamError("fromcode/tocode");
+        // SDL_InvalidParamError("fromcode/tocode");
         return (SDL_iconv_t)-1;
     }
 #endif
@@ -252,6 +252,9 @@ SDL_iconv_t SDL_iconv_open(const char *tocode, const char *fromcode)
             cd->dst_fmt = dst_fmt;
             return cd;
         }
+        // SDL_OutOfMemory();
+    } else {
+        // SDL_Unsupported();
     }
     return (SDL_iconv_t)-1;
 }
@@ -842,7 +845,7 @@ char *SDL_iconv_string(const char *tocode, const char *fromcode, const char *inb
 #endif
     string = (char *)SDL_malloc(stringsize + sizeof(Uint32));
     if (!string) {
-        SDL_OutOfMemory();
+        // SDL_OutOfMemory();
         goto error;
     }
     outbytesleft = stringsize;
@@ -860,7 +863,7 @@ char *SDL_iconv_string(const char *tocode, const char *fromcode, const char *inb
             string = (char *)SDL_realloc(string, stringsize + sizeof(Uint32));
             if (!string) {
                 SDL_free(oldstring);
-                SDL_OutOfMemory();
+                // SDL_OutOfMemory();
                 goto error;
             }
             outbytesleft = stringsize - (outbuf - oldstring);
