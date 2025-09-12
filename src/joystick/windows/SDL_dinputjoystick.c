@@ -917,6 +917,8 @@ static int SDL_DINPUT_JoystickInitRumble(struct joystick_hwdata *hwdata, Sint16 
     result = IDirectInputDevice8_CreateEffect(hwdata->InputDevice, &GUID_Sine,
                                               hwdata->ffeffect, &hwdata->ffeffect_ref, NULL);
     if (FAILED(result)) {
+        SDL_free(hwdata->ffeffect);
+        hwdata->ffeffect = NULL;
         return SetDIerror("IDirectInputDevice8::CreateEffect", result);
     }
     return 0;
