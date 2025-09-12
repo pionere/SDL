@@ -1178,42 +1178,48 @@ static SDL_JoystickID LINUX_JoystickGetDeviceInstanceID(int device_index)
     return JoystickByDevIndex(device_index)->device_instance;
 }
 
-static int allocate_hatdata(SDL_Joystick *joystick)
+static void allocate_hatdata(SDL_Joystick *joystick)
 {
-    int i;
+    int n, i;
 
     SDL_AssertJoysticksLocked();
 
-    joystick->hwdata->hats =
-        (struct hwdata_hat *)SDL_malloc(joystick->nhats *
-                                        sizeof(struct hwdata_hat));
-    if (!joystick->hwdata->hats) {
-        return -1;
+    if (joystick->nhats > 0) {
+        struct hwdata_hat *hats =
+            (struct hwdata_hat *)SDL_malloc(joystick->nhats *
+                sizeof(struct hwdata_hat));
+        joystick->hwdata->hats = hats;
+        if (!hats) {
+            joystick->nhats = 0;
+        }
+        n = joystick->nhats;
+        for (i = 0; i < n; ++i) {
+            hats[i].axis[0] = 1;
+            hats[i].axis[1] = 1;
+        }
     }
-    for (i = 0; i < joystick->nhats; ++i) {
-        joystick->hwdata->hats[i].axis[0] = 1;
-        joystick->hwdata->hats[i].axis[1] = 1;
-    }
-    return 0;
 }
 
-static int allocate_balldata(SDL_Joystick *joystick)
+static void allocate_balldata(SDL_Joystick *joystick)
 {
-    int i;
+    int n, i;
 
     SDL_AssertJoysticksLocked();
 
-    joystick->hwdata->balls =
-        (struct hwdata_ball *)SDL_malloc(joystick->nballs *
-                                         sizeof(struct hwdata_ball));
-    if (!joystick->hwdata->balls) {
-        return -1;
+    if (joystick->nballs > 0) {
+        struct hwdata_ball *balls =
+            (struct hwdata_ball *)SDL_malloc(joystick->nballs *
+                sizeof(struct hwdata_ball));
+        joystick->hwdata->balls = balls;
+        if (!balls) {
+            joystick->nballs = 0;
+        }
+        n = joystick->nballs;
+        for (i = 0; i < n; ++i) {
+            balls[i].axis[0] = 0;
+            balls[i].axis[1] = 0;
+        }
     }
-    for (i = 0; i < joystick->nballs; ++i) {
-        joystick->hwdata->balls[i].axis[0] = 0;
-        joystick->hwdata->balls[i].axis[1] = 0;
-    }
-    return 0;
 }
 
 static SDL_bool GuessIfAxesAreDigitalHat(struct input_absinfo *absinfo_x, struct input_absinfo *absinfo_y)
@@ -1479,16 +1485,8 @@ static void ConfigJoystick(SDL_Joystick *joystick, int fd, int fd_sensor)
     }
 
     /* Allocate data to keep track of these thingamajigs */
-    if (joystick->nhats > 0) {
-        if (allocate_hatdata(joystick) < 0) {
-            joystick->nhats = 0;
-        }
-    }
-    if (joystick->nballs > 0) {
-        if (allocate_balldata(joystick) < 0) {
-            joystick->nballs = 0;
-        }
-    }
+    allocate_hatdata(joystick);
+    allocate_balldata(joystick);
 
     if (ioctl(fd, EVIOCGBIT(EV_FF, sizeof(ffbit)), ffbit) >= 0) {
         if (test_bit(FF_RUMBLE, ffbit)) {
