@@ -770,7 +770,8 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
                                                 DISCL_EXCLUSIVE |
                                                     DISCL_BACKGROUND);
     if (FAILED(result)) {
-        return SetDIerror("IDirectInputDevice8::SetCooperativeLevel", result);
+        SetDIerror("IDirectInputDevice8::SetCooperativeLevel", result);
+        goto err;
     }
 
     /* Use the extended data structure: DIJOYSTATE2. */
@@ -778,7 +779,8 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
         IDirectInputDevice8_SetDataFormat(hwdata->InputDevice,
                                           &SDL_c_dfDIJoystick2);
     if (FAILED(result)) {
-        return SetDIerror("IDirectInputDevice8::SetDataFormat", result);
+        SetDIerror("IDirectInputDevice8::SetDataFormat", result);
+        goto err;
     }
 
     /* Get device capabilities */
@@ -786,14 +788,16 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
         IDirectInputDevice8_GetCapabilities(hwdata->InputDevice,
                                             &hwdata->Capabilities);
     if (FAILED(result)) {
-        return SetDIerror("IDirectInputDevice8::GetCapabilities", result);
+        SetDIerror("IDirectInputDevice8::GetCapabilities", result);
+        goto err;
     }
 
     /* Force capable? */
     if (hwdata->Capabilities.dwFlags & DIDC_FORCEFEEDBACK) {
         result = IDirectInputDevice8_Acquire(hwdata->InputDevice);
         if (FAILED(result)) {
-            return SetDIerror("IDirectInputDevice8::Acquire", result);
+            SetDIerror("IDirectInputDevice8::Acquire", result);
+            goto err;
         }
 
         /* reset all actuators. */
@@ -810,7 +814,8 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
         result = IDirectInputDevice8_Unacquire(hwdata->InputDevice);
 
         if (FAILED(result)) {
-            return SetDIerror("IDirectInputDevice8::Unacquire", result);
+            SetDIerror("IDirectInputDevice8::Unacquire", result);
+            goto err;
         }
 
         /* Turn on auto-centering for a ForceFeedback device (until told
@@ -853,7 +858,8 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
          * to use less reliable polling. */
         hwdata->buffered = SDL_FALSE;
     } else if (FAILED(result)) {
-        return SetDIerror("IDirectInputDevice8::SetProperty", result);
+        SetDIerror("IDirectInputDevice8::SetProperty", result);
+        goto err;
     }
     hwdata->first_update = SDL_TRUE;
 
@@ -866,6 +872,9 @@ int SDL_DINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
     SDL_Delay(50);
 
     return 0;
+err:
+    IDirectInputDevice8_Release(hwdata->InputDevice);
+    return -1;
 }
 
 int SDL_DINPUT_GetSteamVirtualGamepadSlot(const JoyStick_DeviceData *joystickdevice)
