@@ -51,12 +51,13 @@ int SDL_XINPUT_HapticInit(void)
     }
 
     /* If the joystick subsystem is active, it will manage adding XInput haptic devices */
-    if (loaded_xinput && !SDL_WasInit(SDL_INIT_JOYSTICK)) {
+    SDL_assert(SDL_WasInit(SDL_INIT_JOYSTICK));
+    /*if (loaded_xinput && !SDL_WasInit(SDL_INIT_JOYSTICK)) {
         DWORD i;
         for (i = 0; i < XUSER_MAX_COUNT; i++) {
             SDL_XINPUT_HapticMaybeAddDevice(i);
         }
-    }
+    }*/
     return 0;
 }
 
