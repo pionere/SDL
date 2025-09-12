@@ -258,8 +258,11 @@ static LRESULT CALLBACK SDL_PrivateJoystickDetectProc(HWND hwnd, UINT msg, WPARA
 #endif
 }
 
-static void SDL_CleanupDeviceNotification(SDL_DeviceNotificationData *data)
+static SDL_DeviceNotificationData s_notification_data;
+
+static void SDL_CleanupDeviceNotification()
 {
+    SDL_DeviceNotificationData *data = &s_notification_data;
 #ifdef SDL_JOYSTICK_RAWINPUT
     RAWINPUT_UnregisterNotifications();
 #endif
@@ -279,8 +282,9 @@ static void SDL_CleanupDeviceNotification(SDL_DeviceNotificationData *data)
     }
 }
 
-static int SDL_CreateDeviceNotification(SDL_DeviceNotificationData *data)
+static int SDL_CreateDeviceNotification()
 {
+    SDL_DeviceNotificationData *data = &s_notification_data;
     DEV_BROADCAST_DEVICEINTERFACE dbh;
 
     SDL_zerop(data);
@@ -294,14 +298,14 @@ static int SDL_CreateDeviceNotification(SDL_DeviceNotificationData *data)
 
     if (!RegisterClassEx(&data->wincl)) {
         WIN_SetError("Failed to create register class for joystick autodetect");
-        SDL_CleanupDeviceNotification(data);
+        SDL_CleanupDeviceNotification();
         return -1;
     }
 
     data->messageWindow = CreateWindowEx(0, TEXT("Message"), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
     if (!data->messageWindow) {
         WIN_SetError("Failed to create message window for joystick autodetect");
-        SDL_CleanupDeviceNotification(data);
+        SDL_CleanupDeviceNotification();
         return -1;
     }
 
@@ -313,7 +317,7 @@ static int SDL_CreateDeviceNotification(SDL_DeviceNotificationData *data)
     data->hNotify = RegisterDeviceNotification(data->messageWindow, &dbh, DEVICE_NOTIFY_WINDOW_HANDLE);
     if (!data->hNotify) {
         WIN_SetError("Failed to create notify device for joystick autodetect");
-        SDL_CleanupDeviceNotification(data);
+        SDL_CleanupDeviceNotification();
         return -1;
     }
 
@@ -323,8 +327,9 @@ static int SDL_CreateDeviceNotification(SDL_DeviceNotificationData *data)
     return 0;
 }
 
-static SDL_bool SDL_WaitForDeviceNotification(SDL_DeviceNotificationData *data, SDL_mutex *mutex)
+static SDL_bool SDL_WaitForDeviceNotification(SDL_mutex *mutex)
 {
+    SDL_DeviceNotificationData *data = &s_notification_data;
     MSG msg;
     int lastret = 1;
 
@@ -348,10 +353,6 @@ static SDL_bool SDL_WaitForDeviceNotification(SDL_DeviceNotificationData *data, 
 
 #if !defined(__WINRT__)
 
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-static SDL_DeviceNotificationData s_notification_data;
-#endif
-
 /* Function/thread to scan the system for joysticks. */
 static int SDLCALL SDL_JoystickThread(void *_data)
 {
@@ -361,7 +362,7 @@ static int SDLCALL SDL_JoystickThread(void *_data)
 #endif
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (SDL_CreateDeviceNotification(&s_notification_data) < 0) {
+    if (SDL_CreateDeviceNotification() < 0) {
         return -1;
     }
 #endif
@@ -369,7 +370,7 @@ static int SDLCALL SDL_JoystickThread(void *_data)
     SDL_LockMutex(s_mutexJoyStickEnum);
     while (s_bJoystickThreadQuit == SDL_FALSE) {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-        if (SDL_WaitForDeviceNotification(&s_notification_data, s_mutexJoyStickEnum) == SDL_FALSE) {
+        if (SDL_WaitForDeviceNotification(s_mutexJoyStickEnum) == SDL_FALSE) {
 #else
         {
 #endif
@@ -399,7 +400,7 @@ static int SDLCALL SDL_JoystickThread(void *_data)
     SDL_UnlockMutex(s_mutexJoyStickEnum);
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_CleanupDeviceNotification(&s_notification_data);
+    SDL_CleanupDeviceNotification();
 #endif
 
     return 1;
@@ -490,7 +491,7 @@ static int WINDOWS_JoystickInit(void)
             return -1;
         }
     } else {
-        if (SDL_CreateDeviceNotification(&s_notification_data) < 0) {
+        if (SDL_CreateDeviceNotification() < 0) {
             return -1;
         }
     }
@@ -751,7 +752,7 @@ void WINDOWS_JoystickQuit(void)
     if (s_bJoystickThread) {
         SDL_StopJoystickThread();
     } else {
-        SDL_CleanupDeviceNotification(&s_notification_data);
+        SDL_CleanupDeviceNotification();
     }
 
     SDL_CleanupDeviceNotificationFunc();
