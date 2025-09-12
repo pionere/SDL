@@ -216,7 +216,7 @@ static SDL_bool SDL_CreateDeviceNotificationFunc(void)
 
 typedef struct
 {
-    HRESULT coinitialized;
+    SDL_bool coinitialized;
     WNDCLASSEX wincl;
     HWND messageWindow;
     HDEVNOTIFY hNotify;
@@ -269,17 +269,22 @@ static void SDL_CleanupDeviceNotification()
 
     if (data->hNotify) {
         UnregisterDeviceNotification(data->hNotify);
+        // data->hNotify = NULL;
     }
 
     if (data->messageWindow) {
         DestroyWindow(data->messageWindow);
+        // data->messageWindow = NULL;
     }
 
     UnregisterClass(data->wincl.lpszClassName, data->wincl.hInstance);
 
-    if (data->coinitialized == S_OK) {
+    if (data->coinitialized) {
+        // data->coinitialized = SDL_FALSE;
         WIN_CoUninitialize();
     }
+
+    SDL_zerop(data);
 }
 
 static int SDL_CreateDeviceNotification()
@@ -287,9 +292,7 @@ static int SDL_CreateDeviceNotification()
     SDL_DeviceNotificationData *data = &s_notification_data;
     DEV_BROADCAST_DEVICEINTERFACE dbh;
 
-    SDL_zerop(data);
-
-    data->coinitialized = WIN_CoInitialize();
+    data->coinitialized = WIN_CoInitialize() == S_OK ? SDL_TRUE : SDL_FALSE;
 
     data->wincl.hInstance = GetModuleHandle(NULL);
     data->wincl.lpszClassName = TEXT("Message");
@@ -429,29 +432,25 @@ static int SDL_StartJoystickThread(void)
 
 static void SDL_StopJoystickThread(void)
 {
-    if (!s_joystickThread) {
-        return;
+    if (s_joystickThread) {
+        SDL_LockMutex(s_mutexJoyStickEnum);
+        s_bJoystickThreadQuit = SDL_TRUE;
+        SDL_CondBroadcast(s_condJoystickThread); /* signal the joystick thread to quit */
+        SDL_UnlockMutex(s_mutexJoyStickEnum);
+        PostThreadMessage(SDL_GetThreadID(s_joystickThread), WM_QUIT, 0, 0);
+
+        /* Unlock joysticks while the joystick thread finishes processing messages */
+        SDL_AssertJoysticksLocked();
+        SDL_UnlockJoysticks();
+        SDL_WaitThread(s_joystickThread, NULL); /* wait for it to bugger off */
+        SDL_LockJoysticks();
+        s_joystickThread = NULL;
     }
-
-    SDL_LockMutex(s_mutexJoyStickEnum);
-    s_bJoystickThreadQuit = SDL_TRUE;
-    SDL_CondBroadcast(s_condJoystickThread); /* signal the joystick thread to quit */
-    SDL_UnlockMutex(s_mutexJoyStickEnum);
-    PostThreadMessage(SDL_GetThreadID(s_joystickThread), WM_QUIT, 0, 0);
-
-    /* Unlock joysticks while the joystick thread finishes processing messages */
-    SDL_AssertJoysticksLocked();
-    SDL_UnlockJoysticks();
-    SDL_WaitThread(s_joystickThread, NULL); /* wait for it to bugger off */
-    SDL_LockJoysticks();
-
     SDL_DestroyCond(s_condJoystickThread);
     s_condJoystickThread = NULL;
 
     SDL_DestroyMutex(s_mutexJoyStickEnum);
     s_mutexJoyStickEnum = NULL;
-
-    s_joystickThread = NULL;
 }
 
 #endif /* !defined(__WINRT__) */
@@ -473,6 +472,8 @@ void WINDOWS_JoystickQuit(void);
  */
 static int WINDOWS_JoystickInit(void)
 {
+    int ret = 0;
+
     if (SDL_XINPUT_JoystickInit() < 0 || SDL_DINPUT_JoystickInit() < 0) {
         WINDOWS_JoystickQuit();
         return -1;
@@ -487,24 +488,21 @@ static int WINDOWS_JoystickInit(void)
 
     s_bJoystickThread = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE);
     if (s_bJoystickThread) {
-        if (SDL_StartJoystickThread() < 0) {
-            return -1;
-        }
+        ret = SDL_StartJoystickThread();
     } else {
-        if (SDL_CreateDeviceNotification() < 0) {
-            return -1;
-        }
+        ret = SDL_CreateDeviceNotification();
     }
 #endif
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     /* On Xbox, force create the joystick thread for device detection (since other methods don't work */
     s_bJoystickThread = SDL_TRUE;
-    if (SDL_StartJoystickThread() < 0) {
-        return -1;
-    }
+    ret = SDL_StartJoystickThread();
 #endif
-    return 0;
+    if (ret < 0) {
+        WINDOWS_JoystickQuit();
+    }
+    return ret;
 }
 
 /* return the number of joysticks that are connected right now */
@@ -750,6 +748,7 @@ void WINDOWS_JoystickQuit(void)
 
 #if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     if (s_bJoystickThread) {
+        // s_bJoystickThread = SDL_FALSE;
         SDL_StopJoystickThread();
     } else {
         SDL_CleanupDeviceNotification();
@@ -760,6 +759,7 @@ void WINDOWS_JoystickQuit(void)
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     if (s_bJoystickThread) {
+        // s_bJoystickThread = SDL_FALSE;
         SDL_StopJoystickThread();
     }
 #endif
