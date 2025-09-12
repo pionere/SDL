@@ -43,7 +43,7 @@ typedef struct SDL_joylist_item
     char *name;    /* "SideWinder 3D Pro" or whatever */
     SDL_JoystickGUID guid;
     SDL_Joystick *joystick;
-    int nbuttons, naxes, nhats;
+    int nbuttons, naxes; //, nhats; /* hats are translated to DPAD buttons */
     int dpad_state;
     SDL_bool can_rumble;
 

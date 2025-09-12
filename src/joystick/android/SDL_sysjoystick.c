@@ -339,7 +339,7 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
                         (1 << SDL_CONTROLLER_BUTTON_DPAD_DOWN) |
                         (1 << SDL_CONTROLLER_BUTTON_DPAD_LEFT) |
                         (1 << SDL_CONTROLLER_BUTTON_DPAD_RIGHT));
-        nhats = 0;
+        // nhats = 0;
     }
 
     guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_BLUETOOTH, vendor_id, product_id, 0, NULL, desc, 0, 0);
@@ -378,7 +378,7 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
         }
     }
     item->naxes = naxes;
-    item->nhats = nhats;
+    // item->nhats = 0; // nhats;
     item->can_rumble = can_rumble;
     item->device_instance = SDL_GetNextJoystickInstanceID();
     if (!SDL_joylist_tail) {
@@ -572,7 +572,7 @@ static int ANDROID_JoystickOpen(SDL_Joystick *joystick, int device_index)
     joystick->instance_id = item->device_instance;
     joystick->hwdata = (struct joystick_hwdata *)item;
     item->joystick = joystick;
-    joystick->nhats = item->nhats;
+    // joystick->nhats = 0; // item->nhats;
     joystick->nbuttons = item->nbuttons;
     joystick->naxes = item->naxes;
 

@@ -474,7 +474,7 @@ static int OS2_JoystickOpen(SDL_Joystick *joystick, int device_index)
     joystick->naxes = SYS_JoyData[index].axes;
 
     /* joystick->nhats = SYS_JoyData[index].hats; */
-    joystick->nhats = 0; /* No support for hats at this time */
+    // joystick->nhats = 0; /* No support for hats at this time */
 
     return 0;
 }

@@ -160,7 +160,7 @@ static int PSP_JoystickOpen(SDL_Joystick *joystick, int device_index)
     SDL_assert(device_index == 0);
     joystick->nbuttons = SDL_arraysize(button_map);
     joystick->naxes = 2;
-    joystick->nhats = 0;
+    // joystick->nhats = 0;
     joystick->instance_id = 0; //  device_index;
 
     return 0;

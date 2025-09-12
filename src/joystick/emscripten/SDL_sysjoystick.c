@@ -327,7 +327,7 @@ static int EMSCRIPTEN_JoystickOpen(SDL_Joystick *joystick, int device_index)
     item->joystick = joystick;
 
     /* HTML5 Gamepad API doesn't say anything about these */
-    joystick->nhats = 0;
+    // joystick->nhats = 0;
 
     joystick->nbuttons = item->nbuttons;
     joystick->naxes = item->naxes;

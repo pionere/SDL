@@ -357,13 +357,13 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
         joystick->nbuttons = 10; /* A, B, X, Y, RB, LB, Back, Start, LThumb, RThumb */
         break;
     case XID_TYPE_XREMOTE:
-        joystick->naxes = 0;
-        joystick->nhats = 0;
+        // joystick->naxes = 0;
+        // joystick->nhats = 0;
         joystick->nbuttons = 27;
         break;
     case XID_TYPE_STEELBATTALION:
         joystick->naxes = 10; //Tuner dial and gear level are treated like an axis
-        joystick->nhats = 0;
+        // joystick->nhats = 0;
         joystick->nbuttons = 39; //This includes the toggle switches
         break;
     default:
