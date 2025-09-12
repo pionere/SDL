@@ -130,7 +130,7 @@ int SDL_DINPUT_HapticInit(void)
     return 0;
 }
 
-int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
+void SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
 {
     HRESULT ret;
     LPDIRECTINPUTDEVICE8 device;
@@ -139,13 +139,13 @@ int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
     SDL_hapticlist_item *item = NULL;
 
     if (!dinput) {
-        return -1; /* not initialized. We'll pick these up on enumeration if we init later. */
+        return; /* not initialized. We'll pick these up on enumeration if we init later. */
     }
 
     /* Make sure we don't already have it */
     for (item = SDL_hapticlist; item; item = item->next) {
         if ((!item->bXInputHaptic) && (SDL_memcmp(&item->instance, pdidInstance, sizeof(*pdidInstance)) == 0)) {
-            return -1; /* Already added */
+            return; /* Already added */
         }
     }
 
@@ -153,7 +153,7 @@ int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
     ret = IDirectInput8_CreateDevice(dinput, &pdidInstance->guidInstance, &device, NULL);
     if (FAILED(ret)) {
         /* DI_SetError("Creating DirectInput device"); */
-        return -1;
+        return;
     }
 
     /* Get capabilities. */
@@ -163,29 +163,30 @@ int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
     IDirectInputDevice8_Release(device);
     if (FAILED(ret)) {
         /* DI_SetError("Getting device capabilities"); */
-        return -1;
+        return;
     }
 
     if ((capabilities.dwFlags & needflags) != needflags) {
-        return -1; /* not a device we can use. */
+        return; /* not a device we can use. */
     }
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        return;
     }
 
     item->name = WIN_StringToUTF8(pdidInstance->tszProductName);
     if (!item->name) {
         SDL_free(item);
-        return -1;
+        return;
     }
 
     /* Copy the instance over, useful for creating devices. */
     SDL_memcpy(&item->instance, pdidInstance, sizeof(DIDEVICEINSTANCE));
     SDL_memcpy(&item->capabilities, &capabilities, sizeof(capabilities));
 
-    return SDL_SYS_AddHapticDevice(item);
+    SDL_SYS_AddHapticDevice(item);
 }
 
 void SDL_DINPUT_HapticMaybeRemoveDevice(const DIDEVICEINSTANCE *pdidInstance)
@@ -1171,9 +1172,9 @@ int SDL_DINPUT_HapticInit(void)
     return 0;
 }
 
-int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
+void SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance)
 {
-    return SDL_Unsupported();
+    SDL_Unsupported();
 }
 
 void SDL_DINPUT_HapticMaybeRemoveDevice(const DIDEVICEINSTANCE *pdidInstance)

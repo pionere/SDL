@@ -60,31 +60,32 @@ int SDL_XINPUT_HapticInit(void)
     return 0;
 }
 
-int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
+void SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
 {
     const Uint8 userid = (Uint8)dwUserid;
     SDL_hapticlist_item *item;
     XINPUT_VIBRATION state;
 
     if ((!loaded_xinput) || (dwUserid >= XUSER_MAX_COUNT)) {
-        return -1;
+        return;
     }
 
     /* Make sure we don't already have it */
     for (item = SDL_hapticlist; item; item = item->next) {
         if (item->bXInputHaptic && item->userid == userid) {
-            return -1; /* Already added */
+            return; /* Already added */
         }
     }
 
     SDL_zero(state);
     if (XINPUTSETSTATE(dwUserid, &state) != ERROR_SUCCESS) {
-        return -1; /* no force feedback on this device. */
+        return; /* no force feedback on this device. */
     }
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        return;
     }
 
     /* !!! FIXME: I'm not bothering to query for a real name right now (can we even?) */
@@ -96,14 +97,14 @@ int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
 
     if (!item->name) {
         SDL_free(item);
-        return -1;
+        return;
     }
 
     /* Copy the instance over, useful for creating devices. */
     item->bXInputHaptic = SDL_TRUE;
     item->userid = userid;
 
-    return SDL_SYS_AddHapticDevice(item);
+    SDL_SYS_AddHapticDevice(item);
 }
 
 void SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)
@@ -358,9 +359,9 @@ int SDL_XINPUT_HapticInit(void)
     return 0;
 }
 
-int SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
+void SDL_XINPUT_HapticMaybeAddDevice(const DWORD dwUserid)
 {
-    return SDL_Unsupported();
+    SDL_Unsupported();
 }
 
 void SDL_XINPUT_HapticMaybeRemoveDevice(const DWORD dwUserid)

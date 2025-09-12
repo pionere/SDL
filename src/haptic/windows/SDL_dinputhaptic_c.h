@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 extern int SDL_DINPUT_HapticInit(void);
-extern int SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance);
+extern void SDL_DINPUT_HapticMaybeAddDevice(const DIDEVICEINSTANCE *pdidInstance);
 extern void SDL_DINPUT_HapticMaybeRemoveDevice(const DIDEVICEINSTANCE *pdidInstance);
 extern int SDL_DINPUT_HapticOpen(SDL_Haptic *haptic, SDL_hapticlist_item *item);
 extern int SDL_DINPUT_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick);
