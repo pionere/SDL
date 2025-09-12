@@ -754,7 +754,7 @@ static SDL_bool IsHighLatin1(const char *string, int length)
 	return SDL_FALSE;
 }
 
-static int XLookupStringAsUTF8(XKeyEvent *event_struct, char *buffer_return, int bytes_buffer, KeySym *keysym_return, XComposeStatus *status_in_out)
+static void XLookupStringAsUTF8(XKeyEvent *event_struct, char *buffer_return, int bytes_buffer, KeySym *keysym_return, XComposeStatus *status_in_out)
 {
     int result = X11_XLookupString(event_struct, buffer_return, bytes_buffer, keysym_return, status_in_out);
     if (IsHighLatin1(buffer_return, result)) {
@@ -762,12 +762,8 @@ static int XLookupStringAsUTF8(XKeyEvent *event_struct, char *buffer_return, int
         if (utf8_text) {
             SDL_strlcpy(buffer_return, utf8_text, bytes_buffer);
             SDL_free(utf8_text);
-            return SDL_strlen(buffer_return);
-        } else {
-            return 0;
         }
     }
-    return result;
 }
 
 void X11_GetBorderValues(void /* SDL_WindowData */ *data_)
