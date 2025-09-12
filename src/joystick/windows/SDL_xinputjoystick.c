@@ -283,8 +283,6 @@ int SDL_XINPUT_JoystickOpen(SDL_Joystick *joystick, JoyStick_DeviceData *joystic
     joystick->hwdata->bXInputDevice = SDL_TRUE;
 
     if (XINPUTGETCAPABILITIES(userId, XINPUT_FLAG_GAMEPAD, &capabilities) != ERROR_SUCCESS) {
-        SDL_free(joystick->hwdata);
-        joystick->hwdata = NULL;
         return SDL_SetError("Failed to obtain XInput device capabilities. Device disconnected?");
     }
     SDL_zero(state);

@@ -654,6 +654,7 @@ static SDL_JoystickID WINDOWS_JoystickGetDeviceInstanceID(int device_index)
  */
 static int WINDOWS_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
+    int ret;
     JoyStick_DeviceData *device = SDL_PrivateGetDevice(device_index);
 
     /* allocate memory for system specific hardware data */
@@ -665,10 +666,14 @@ static int WINDOWS_JoystickOpen(SDL_Joystick *joystick, int device_index)
     joystick->hwdata->guid = device->guid;
 
     if (device->bXInputDevice) {
-        return SDL_XINPUT_JoystickOpen(joystick, device);
+        ret = SDL_XINPUT_JoystickOpen(joystick, device);
     } else {
-        return SDL_DINPUT_JoystickOpen(joystick, device);
+        ret = SDL_DINPUT_JoystickOpen(joystick, device);
     }
+    if (ret < 0) {
+        SDL_free(joystick->hwdata);
+    }
+    return ret;
 }
 
 static int WINDOWS_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
