@@ -397,9 +397,10 @@ int SDL_DINPUT_JoystickInit(void)
     HRESULT result;
     HINSTANCE instance;
 
+    SDL_assert(dinput == NULL);
+
     if (!SDL_GetHintBoolean(SDL_HINT_DIRECTINPUT_ENABLED, SDL_TRUE)) {
         /* In some environments, IDirectInput8_Initialize / _EnumDevices can take a minute even with no controllers. */
-        dinput = NULL;
         return 0;
     }
 
@@ -420,15 +421,11 @@ int SDL_DINPUT_JoystickInit(void)
     /* Because we used CoCreateInstance, we need to Initialize it, first. */
     instance = GetModuleHandle(NULL);
     if (!instance) {
-        IDirectInput8_Release(dinput);
-        dinput = NULL;
         return WIN_SetError("GetModuleHandle() failed");
     }
     result = IDirectInput8_Initialize(dinput, instance, DIRECTINPUT_VERSION);
 
     if (FAILED(result)) {
-        IDirectInput8_Release(dinput);
-        dinput = NULL;
         return SetDIerror("IDirectInput::Initialize", result);
     }
     return 0;

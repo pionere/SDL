@@ -73,9 +73,7 @@ int SDL_DINPUT_HapticInit(void)
     HINSTANCE instance;
     DWORD devClass;
 
-    if (dinput != NULL) { /* Already open. */
-        return SDL_SetError("Haptic: SubSystem already open.");
-    }
+    SDL_assert(dinput == NULL);
 
     if (!SDL_GetHintBoolean(SDL_HINT_DIRECTINPUT_ENABLED, SDL_TRUE)) {
         /* In some environments, IDirectInput8_Initialize / _EnumDevices can take a minute even with no controllers. */
@@ -92,19 +90,16 @@ int SDL_DINPUT_HapticInit(void)
     ret = CoCreateInstance(&CLSID_DirectInput8, NULL, CLSCTX_INPROC_SERVER,
                            &IID_IDirectInput8, (LPVOID *)&dinput);
     if (FAILED(ret)) {
-        SDL_SYS_HapticQuit();
         return DI_SetError("CoCreateInstance");
     }
 
     /* Because we used CoCreateInstance, we need to Initialize it, first. */
     instance = GetModuleHandle(NULL);
     if (!instance) {
-        SDL_SYS_HapticQuit();
         return WIN_SetError("GetModuleHandle() failed");
     }
     ret = IDirectInput8_Initialize(dinput, instance, DIRECTINPUT_VERSION);
     if (FAILED(ret)) {
-        SDL_SYS_HapticQuit();
         return DI_SetError("Initializing DirectInput device");
     }
 
@@ -122,7 +117,6 @@ int SDL_DINPUT_HapticInit(void)
                                         DIEDFL_FORCEFEEDBACK |
                                             DIEDFL_ATTACHEDONLY);
         if (FAILED(ret)) {
-            SDL_SYS_HapticQuit();
             return DI_SetError("Enumerating DirectInput devices");
         }
     }

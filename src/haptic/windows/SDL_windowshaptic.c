@@ -56,10 +56,8 @@ int SDL_SYS_HapticInit(void)
 {
     JoyStick_DeviceData *device;
 
-    if (SDL_DINPUT_HapticInit() < 0) {
-        return -1;
-    }
-    if (SDL_XINPUT_HapticInit() < 0) {
+    if (SDL_DINPUT_HapticInit() < 0 || SDL_XINPUT_HapticInit() < 0) {
+        SDL_SYS_HapticQuit();
         return -1;
     }
 

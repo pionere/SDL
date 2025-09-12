@@ -472,12 +472,7 @@ void WINDOWS_JoystickQuit(void);
  */
 static int WINDOWS_JoystickInit(void)
 {
-    if (SDL_XINPUT_JoystickInit() < 0) {
-        WINDOWS_JoystickQuit();
-        return -1;
-    }
-
-    if (SDL_DINPUT_JoystickInit() < 0) {
+    if (SDL_XINPUT_JoystickInit() < 0 || SDL_DINPUT_JoystickInit() < 0) {
         WINDOWS_JoystickQuit();
         return -1;
     }

@@ -65,12 +65,9 @@ SDL_bool SDL_XINPUT_Enabled(void)
 
 int SDL_XINPUT_JoystickInit(void)
 {
-    SDL_bool enabled = SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, SDL_TRUE);
+    SDL_assert(!s_bXInputEnabled);
 
-    if (enabled && WIN_LoadXInputDLL() < 0) {
-        enabled = SDL_FALSE; /* oh well. */
-    }
-    s_bXInputEnabled = enabled;
+    s_bXInputEnabled = (SDL_GetHintBoolean(SDL_HINT_XINPUT_ENABLED, SDL_TRUE) && WIN_LoadXInputDLL() == 0) ? SDL_TRUE : SDL_FALSE;
 
     return 0;
 }
