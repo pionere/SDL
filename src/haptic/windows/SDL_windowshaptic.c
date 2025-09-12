@@ -93,7 +93,7 @@ void SDL_SYS_MaybeRemoveHapticDevice(JoyStick_DeviceData *device)
     }
 }
 
-int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item)
+void SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item)
 {
     if (!SDL_hapticlist_tail) {
         SDL_hapticlist = SDL_hapticlist_tail = item;
@@ -104,8 +104,6 @@ int SDL_SYS_AddHapticDevice(SDL_hapticlist_item *item)
 
     /* Device has been added. */
     ++numhaptics;
-
-    return numhaptics;
 }
 
 void SDL_SYS_RemoveHapticDevice(SDL_hapticlist_item *prev, SDL_hapticlist_item *item)
