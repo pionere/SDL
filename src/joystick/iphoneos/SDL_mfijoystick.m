@@ -141,7 +141,7 @@ static SDL_JoystickDeviceItem *GetDeviceForIndex(int device_index)
 }
 
 #ifdef SDL_JOYSTICK_MFI
-static BOOL IsControllerPS4(GCController *controller)
+static SDL_boolean IsControllerPS4(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"DualShock 4"]) {
@@ -154,7 +154,7 @@ static BOOL IsControllerPS4(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerPS5(GCController *controller)
+static SDL_boolean IsControllerPS5(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"DualSense"]) {
@@ -167,7 +167,7 @@ static BOOL IsControllerPS5(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerXbox(GCController *controller)
+static SDL_boolean IsControllerXbox(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"Xbox One"]) {
@@ -180,7 +180,7 @@ static BOOL IsControllerXbox(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerSwitchPro(GCController *controller)
+static SDL_boolean IsControllerSwitchPro(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"Switch Pro Controller"]) {
@@ -189,7 +189,7 @@ static BOOL IsControllerSwitchPro(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerSwitchJoyConL(GCController *controller)
+static SDL_boolean IsControllerSwitchJoyConL(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"Nintendo Switch Joy-Con (L)"]) {
@@ -198,7 +198,7 @@ static BOOL IsControllerSwitchJoyConL(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerSwitchJoyConR(GCController *controller)
+static SDL_boolean IsControllerSwitchJoyConR(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"Nintendo Switch Joy-Con (R)"]) {
@@ -207,7 +207,7 @@ static BOOL IsControllerSwitchJoyConR(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerSwitchJoyConPair(GCController *controller)
+static SDL_boolean IsControllerSwitchJoyConPair(GCController *controller)
 {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if ([controller.productCategory isEqualToString:@"Nintendo Switch Joy-Con (L/R)"]) {
@@ -216,14 +216,14 @@ static BOOL IsControllerSwitchJoyConPair(GCController *controller)
     }
     return FALSE;
 }
-static BOOL IsControllerStadia(GCController *controller)
+static SDL_boolean IsControllerStadia(GCController *controller)
 {
     if ([controller.vendorName hasPrefix:@"Stadia"]) {
         return TRUE;
     }
     return FALSE;
 }
-static BOOL IsControllerBackboneOne(GCController *controller)
+static SDL_boolean IsControllerBackboneOne(GCController *controller)
 {
     if ([controller.vendorName hasPrefix:@"Backbone One"]) {
         return TRUE;
