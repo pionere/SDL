@@ -401,8 +401,7 @@ static jclass mAudioManagerClass;
 
 /* method signatures */
 typedef enum {
-    SDLAudio_getAudioOutputDevices,
-    SDLAudio_getAudioInputDevices,
+    SDLAudio_audioDetectDevices,
     SDLAudio_audioOpen,
     SDLAudio_audioWriteByteBuffer,
     SDLAudio_audioWriteShortBuffer,
@@ -419,8 +418,7 @@ typedef enum {
 static jmethodID jnicall_audio[SDL_AudioFuncs_count];
 
 static const function_definition SDLAudioManager_ifc[] = {
-    { "getAudioOutputDevices", "()[I" },
-    { "getAudioInputDevices", "()[I" },
+    { "audioDetectDevices", "()V" },
     { "audioOpen", "(IIIII)[I" },
     { "audioWriteByteBuffer", "([B)V" },
     { "audioWriteShortBuffer", "([S)V" },
@@ -1435,54 +1433,10 @@ static void *audioBufferPinned = NULL;
 static int captureBufferFormat = 0;
 static jobject captureBuffer = NULL;
 
-static void Android_JNI_GetAudioDevices(int *devices, int *length, int max_len, int is_input)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-    jintArray result;
-
-    if (is_input) {
-        result = (*env)->CallStaticObjectMethod(env, mAudioManagerClass, jnicall_audio[SDLAudio_getAudioInputDevices]);
-    } else {
-        result = (*env)->CallStaticObjectMethod(env, mAudioManagerClass, jnicall_audio[SDLAudio_getAudioOutputDevices]);
-    }
-
-    *length = (*env)->GetArrayLength(env, result);
-
-    *length = SDL_min(*length, max_len);
-
-    (*env)->GetIntArrayRegion(env, result, 0, *length, devices);
-}
-
 void Android_DetectDevices(void)
 {
-    int inputs[100];
-    int outputs[100];
-    int inputs_length = 0;
-    int outputs_length = 0;
-
-    // SDL_zeroa(inputs); - unnecessary
-
-    Android_JNI_GetAudioDevices(inputs, &inputs_length, 100, 1 /* input devices */);
-
-    for (int i = 0; i < inputs_length; ++i) {
-        int device_id = inputs[i];
-        char device_name[64];
-        SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
-        LOGV("Adding input device with name %s", device_name);
-        SDL_AddAudioDevice(SDL_TRUE, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
-    }
-
-    // SDL_zeroa(outputs); - unnecessary
-
-    Android_JNI_GetAudioDevices(outputs, &outputs_length, 100, 0 /* output devices */);
-
-    for (int i = 0; i < outputs_length; ++i) {
-        int device_id = outputs[i];
-        char device_name[64];
-        SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
-        LOGV("Adding output device with name %s", device_name);
-        SDL_AddAudioDevice(SDL_FALSE, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
-    }
+    JNIEnv *env = Android_JNI_GetEnv();
+    (*env)->CallStaticVoidMethod(env, mAudioManagerClass, jnicall_audio[SDLAudio_audioDetectDevices]);
 }
 
 int Android_JNI_OpenAudioDevice(SDL_bool iscapture, int device_id, SDL_AudioSpec *spec)

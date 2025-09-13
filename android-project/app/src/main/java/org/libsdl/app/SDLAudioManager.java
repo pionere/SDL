@@ -323,24 +323,11 @@ public class SDLAudioManager {
     /**
      * This method is called by SDL using JNI.
      */
-    public static int[] getAudioOutputDevices() {
+    public static void audioDetectDevices() {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-            return Arrays.stream(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).mapToInt(AudioDeviceInfo::getId).toArray();
-        } else {
-            return NO_DEVICES;
-        }
-    }
-
-    /**
-     * This method is called by SDL using JNI.
-     */
-    public static int[] getAudioInputDevices() {
-        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-            return Arrays.stream(audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)).mapToInt(AudioDeviceInfo::getId).toArray();
-        } else {
-            return NO_DEVICES;
+            AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            Arrays.stream(devices).forEach(deviceInfo -> addAudioDevice(deviceInfo.isSink(), deviceInfo.getId()));
         }
     }
 
