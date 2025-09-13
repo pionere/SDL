@@ -219,6 +219,7 @@ static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pC
     pNewJoystick->XInputUserId = userid;
 
     if (SDL_ShouldIgnoreJoystick(pNewJoystick->joystickname, pNewJoystick->guid)) {
+        SDL_free(pNewJoystick->joystickname);
         SDL_free(pNewJoystick);
         return;
     }
@@ -227,6 +228,7 @@ static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pC
     /* Since we're guessing about the VID/PID, use a hard-coded VID/PID to represent XInput */
     if (HIDAPI_IsDevicePresent(USB_VENDOR_MICROSOFT, USB_PRODUCT_XBOX360_XUSB_CONTROLLER, version, pNewJoystick->joystickname)) {
         /* The HIDAPI driver is taking care of this device */
+        SDL_free(pNewJoystick->joystickname);
         SDL_free(pNewJoystick);
         return;
     }
@@ -235,6 +237,7 @@ static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pC
 #ifdef SDL_JOYSTICK_RAWINPUT
     if (RAWINPUT_IsDevicePresent(vendor, product, version, pNewJoystick->joystickname)) {
         /* The RAWINPUT driver is taking care of this device */
+        SDL_free(pNewJoystick->joystickname);
         SDL_free(pNewJoystick);
         return;
     }
