@@ -2159,12 +2159,8 @@ static SDL_bool SDL_endswith(const char *string, const char *suffix)
 /*
  * Return 1 if the game controller should be ignored by SDL
  */
-SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid)
+SDL_bool SDL_ShouldIgnoreGameController(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
-    Uint16 vendor;
-    Uint16 product;
-    Uint16 version;
-
 #if defined(__LINUX__)
     if (SDL_endswith(name, " Motion Sensors")) {
         /* Don't treat the PS3 and PS4 motion controls as a separate game controller */
@@ -2187,8 +2183,6 @@ SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid)
         /* The Google Pixel fingerprint sensor, as well as other fingerprint sensors, reports itself as a joystick */
         return SDL_TRUE;
     }
-
-    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
 
 #ifdef __WIN32__
     if (SDL_GetHintBoolean("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD", SDL_FALSE) &&

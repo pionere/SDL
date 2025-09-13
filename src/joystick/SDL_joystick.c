@@ -3241,8 +3241,9 @@ SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid)
 {
     Uint16 vendor;
     Uint16 product;
+    Uint16 version;
 
-    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, NULL, NULL);
+    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
 
     /* Check the joystick blacklist */
     if (SDL_VIDPIDInList(vendor, product, &blacklist_devices)) {
@@ -3254,7 +3255,7 @@ SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid)
         }
     }
 
-    if (SDL_ShouldIgnoreGameController(name, guid)) {
+    if (SDL_ShouldIgnoreGameController(vendor, product, version, name)) {
         return SDL_TRUE;
     }
 

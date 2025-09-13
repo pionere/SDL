@@ -197,7 +197,7 @@ extern SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid
 // extern SDL_bool SDL_IsGameControllerNameAndGUID(const char *name, SDL_JoystickGUID guid);
 
 /* Function to return whether a game controller should be ignored */
-extern SDL_bool SDL_ShouldIgnoreGameController(const char *name, SDL_JoystickGUID guid);
+extern SDL_bool SDL_ShouldIgnoreGameController(Uint16 vendor, Uint16 product, Uint16 version, const char *name);
 
 /* Handle delayed guide button on a game controller */
 extern void SDL_GameControllerHandleDelayedGuideButton(SDL_Joystick *joystick);
