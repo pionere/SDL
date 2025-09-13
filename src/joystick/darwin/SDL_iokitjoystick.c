@@ -506,6 +506,10 @@ static SDL_bool GetDeviceInfo(IOHIDDeviceRef hidDevice, recDevice *pDevice)
     pDevice->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, (Uint16)vendor, (Uint16)product, (Uint16)version, manufacturer_string, product_string, 0, 0);
     pDevice->steam_virtual_gamepad_slot = GetSteamVirtualGamepadSlot((Uint16)vendor, (Uint16)product, product_string);
 
+    if (SDL_ShouldIgnoreJoystick(pDevice->product, pDevice->guid)) {
+        return SDL_FALSE;
+    }
+
     array = IOHIDDeviceCopyMatchingElements(hidDevice, NULL, kIOHIDOptionsTypeNone);
     if (array) {
         AddHIDElements(array, pDevice);
@@ -556,11 +560,6 @@ static void JoystickDeviceWasAddedCallback(void *ctx, IOReturn res, void *sender
     if (!GetDeviceInfo(ioHIDDeviceObject, device)) {
         FreeDevice(device);
         return; /* not a device we care about, probably. */
-    }
-
-    if (SDL_ShouldIgnoreJoystick(device->product, device->guid)) {
-        FreeDevice(device);
-        return;
     }
 
     /* Get notified when this device is disconnected. */
