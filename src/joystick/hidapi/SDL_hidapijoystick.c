@@ -914,6 +914,7 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
         }
 
         if (!device->name || SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name)) {
+            SDL_DestroyMutex(device->dev_lock);
             SDL_free(device->manufacturer_string);
             SDL_free(device->product_string);
             SDL_free(device->serial);
