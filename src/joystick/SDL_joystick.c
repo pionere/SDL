@@ -3237,14 +3237,8 @@ static SDL_JoystickType SDL_GetJoystickGUIDType(SDL_JoystickGUID guid)
     return SDL_JOYSTICK_TYPE_UNKNOWN;
 }
 
-SDL_bool SDL_ShouldIgnoreJoystick(const char *name, SDL_JoystickGUID guid)
+SDL_bool SDL_ShouldIgnoreJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
-    Uint16 vendor;
-    Uint16 product;
-    Uint16 version;
-
-    SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
-
     /* Check the joystick blacklist */
     if (SDL_VIDPIDInList(vendor, product, &blacklist_devices)) {
         return SDL_TRUE;

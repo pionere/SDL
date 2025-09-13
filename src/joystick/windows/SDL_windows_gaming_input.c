@@ -536,7 +536,7 @@ static HRESULT STDMETHODCALLTYPE IEventHandler_CRawGameControllerVtbl_InvokeAdde
 
             guid = SDL_CreateJoystickGUID(bus, vendor, product, version, NULL, name, 'w', (Uint8)type);
 
-            if (SDL_ShouldIgnoreJoystick(name, guid)) {
+            if (SDL_ShouldIgnoreJoystick(vendor, product, version, name)) {
                 ignore_joystick = SDL_TRUE;
             }
         }

@@ -218,7 +218,7 @@ static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pC
     pNewJoystick->SubType = SubType;
     pNewJoystick->XInputUserId = userid;
 
-    if (SDL_ShouldIgnoreJoystick(pNewJoystick->joystickname, pNewJoystick->guid)) {
+    if (SDL_ShouldIgnoreJoystick(vendor, product, version, pNewJoystick->joystickname)) {
         SDL_free(pNewJoystick->joystickname);
         SDL_free(pNewJoystick);
         return;

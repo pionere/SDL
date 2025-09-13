@@ -506,7 +506,7 @@ static SDL_bool GetDeviceInfo(IOHIDDeviceRef hidDevice, recDevice *pDevice)
     pDevice->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, (Uint16)vendor, (Uint16)product, (Uint16)version, manufacturer_string, product_string, 0, 0);
     pDevice->steam_virtual_gamepad_slot = GetSteamVirtualGamepadSlot((Uint16)vendor, (Uint16)product, product_string);
 
-    if (SDL_ShouldIgnoreJoystick(pDevice->product, pDevice->guid)) {
+    if (SDL_ShouldIgnoreJoystick(vendor, product, version, pDevice->product)) {
         return SDL_FALSE;
     }
 

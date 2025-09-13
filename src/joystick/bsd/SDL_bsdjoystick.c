@@ -437,7 +437,7 @@ static int MaybeAddDevice(const char *path)
                 return -1;
             }
 #endif
-            if (SDL_ShouldIgnoreJoystick(name, guid)) {
+            if (SDL_ShouldIgnoreJoystick(di.udi_vendorNo, di.udi_productNo, di.udi_releaseNo, name)) {
                 SDL_free(name);
                 FreeHwData(hw);
                 return -1;

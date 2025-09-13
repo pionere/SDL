@@ -676,7 +676,7 @@ static BOOL IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCControlle
     }
     device->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_BLUETOOTH, vendor, product, signature, NULL, name, 'm', subtype);
 
-    if (SDL_ShouldIgnoreJoystick(name, device->guid)) {
+    if (SDL_ShouldIgnoreJoystick(vendor, product, 0, name)) {
         return SDL_FALSE;
     }
 
