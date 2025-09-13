@@ -869,6 +869,24 @@ static int HIDAPI_JoystickGetCount(void)
     return SDL_HIDAPI_numjoysticks;
 }
 
+static void HIDAPI_DestroyDevice(SDL_HIDAPI_Device *device)
+{
+    int i;
+
+    device->magic = NULL;
+    for (i = 0; i < device->num_children; ++i) {
+        device->children[i]->parent = NULL;
+    }
+    SDL_DestroyMutex(device->dev_lock);
+    SDL_free(device->manufacturer_string);
+    SDL_free(device->product_string);
+    SDL_free(device->serial);
+    SDL_free(device->name);
+    SDL_free(device->path);
+    SDL_free(device->children);
+    SDL_free(device);
+}
+
 static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *info, int num_children, SDL_HIDAPI_Device **children)
 {
     SDL_HIDAPI_Device *device;
@@ -914,12 +932,7 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
         }
 
         if (!device->name || SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name)) {
-            SDL_DestroyMutex(device->dev_lock);
-            SDL_free(device->manufacturer_string);
-            SDL_free(device->product_string);
-            SDL_free(device->serial);
-            SDL_free(device->path);
-            SDL_free(device);
+            HIDAPI_DestroyDevice(device);
             return NULL;
         }
     }
@@ -963,7 +976,6 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
 static void HIDAPI_DelDevice(SDL_HIDAPI_Device *device)
 {
     SDL_HIDAPI_Device *curr, *last;
-    int i;
 
     SDL_AssertJoysticksLocked();
 
@@ -988,19 +1000,7 @@ static void HIDAPI_DelDevice(SDL_HIDAPI_Device *device)
                 SDL_Delay(10);
             }
 
-            for (i = 0; i < device->num_children; ++i) {
-                device->children[i]->parent = NULL;
-            }
-
-            device->magic = NULL;
-            SDL_DestroyMutex(device->dev_lock);
-            SDL_free(device->manufacturer_string);
-            SDL_free(device->product_string);
-            SDL_free(device->serial);
-            SDL_free(device->name);
-            SDL_free(device->path);
-            SDL_free(device->children);
-            SDL_free(device);
+            HIDAPI_DestroyDevice(device);
             return;
         }
     }
