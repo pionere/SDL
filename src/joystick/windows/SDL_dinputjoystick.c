@@ -452,6 +452,7 @@ static BOOL CALLBACK EnumJoystickDetectCallback(LPCDIDEVICEINSTANCE pDeviceInsta
     }
     JoyStick_DeviceData *pNewJoystick = NULL;
     JoyStick_DeviceData *pPrevJoystick = NULL;
+    Uint16 bus;
     Uint16 vendor = 0;
     Uint16 product = 0;
     Uint16 version = 0;
@@ -515,11 +516,8 @@ static BOOL CALLBACK EnumJoystickDetectCallback(LPCDIDEVICEINSTANCE pDeviceInsta
     CHECK(!RAWINPUT_IsDevicePresent(vendor, product, version, pNewJoystick->joystickname));
 #endif
 
-    if (vendor && product) {
-        pNewJoystick->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, vendor, product, version, NULL, name, 0, 0);
-    } else {
-        pNewJoystick->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_BLUETOOTH, vendor, product, version, NULL, name, 0, 0);
-    }
+    bus = (vendor && product) ? SDL_HARDWARE_BUS_USB : SDL_HARDWARE_BUS_BLUETOOTH;
+    pNewJoystick->guid = SDL_CreateJoystickGUID(bus, vendor, product, version, NULL, name, 0, 0);
 
     WINDOWS_AddJoystickDevice(pNewJoystick);
     pNewJoystick = NULL;
