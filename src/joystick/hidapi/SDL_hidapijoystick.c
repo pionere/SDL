@@ -430,10 +430,8 @@ static void HIDAPI_CleanupDeviceDriver(SDL_HIDAPI_Device *device)
     SDL_UnlockMutex(device->dev_lock);
 }
 
-static void HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *removed) SDL_NO_THREAD_SAFETY_ANALYSIS /* We unlock the joystick lock to be able to open the HID device on Android */
+static int HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device) SDL_NO_THREAD_SAFETY_ANALYSIS /* We unlock the joystick lock to be able to open the HID device on Android */
 {
-    *removed = SDL_FALSE;
-
     if (device->driver) {
         SDL_bool enabled;
 
@@ -456,7 +454,7 @@ static void HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *remove
         if (!enabled) {
             HIDAPI_CleanupDeviceDriver(device);
         }
-        return; /* Already setup */
+        return 0; /* Already setup */
     }
 
     if (HIDAPI_GetDeviceDriver(device)) {
@@ -498,11 +496,10 @@ static void HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *remove
                     continue;
                 }
                 if (curr == NULL) {
-                    *removed = SDL_TRUE;
                     if (dev) {
                         SDL_hid_close(dev);
                     }
-                    return;
+                    return 1; // the device is removed
                 }
             }
 #else
@@ -520,7 +517,7 @@ static void HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *remove
 #endif
 
             if (dev == NULL) {
-                return;
+                return 0;
             }
             SDL_hid_set_nonblocking(dev, 1);
 
@@ -540,13 +537,13 @@ static void HIDAPI_SetupDeviceDriver(SDL_HIDAPI_Device *device, SDL_bool *remove
             device->dev = NULL;
         }
     }
+    return 0;
 }
 
 static void SDL_HIDAPI_UpdateDrivers(void)
 {
     int i;
     SDL_HIDAPI_Device *device;
-    SDL_bool removed;
 
     SDL_AssertJoysticksLocked();
 
@@ -558,16 +555,14 @@ static void SDL_HIDAPI_UpdateDrivers(void)
             ++SDL_HIDAPI_numdrivers;
         }
     }
-
-    removed = SDL_FALSE;
-    do {
+restart:
+    {
         for (device = SDL_HIDAPI_devices; device; device = device->next) {
-            HIDAPI_SetupDeviceDriver(device, &removed);
-            if (removed) {
-                break;
+            if (HIDAPI_SetupDeviceDriver(device) != 0) {
+                goto restart;
             }
         }
-    } while (removed);
+    }
 }
 
 static void SDLCALL SDL_HIDAPIDriverHintChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
@@ -878,7 +873,6 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
 {
     SDL_HIDAPI_Device *device;
     SDL_HIDAPI_Device *curr, *last = NULL;
-    SDL_bool removed;
 
     SDL_AssertJoysticksLocked();
 
@@ -952,9 +946,7 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
         SDL_HIDAPI_devices = device;
     }
 
-    removed = SDL_FALSE;
-    HIDAPI_SetupDeviceDriver(device, &removed);
-    if (removed) {
+    if (HIDAPI_SetupDeviceDriver(device) != 0) {
         return NULL;
     }
 
