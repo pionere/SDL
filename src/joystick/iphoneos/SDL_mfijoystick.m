@@ -480,6 +480,9 @@ static BOOL IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCControlle
     } else if (device->is_switch_joyconR) {
         vendor = USB_VENDOR_NINTENDO;
         product = USB_PRODUCT_NINTENDO_SWITCH_JOYCON_RIGHT;
+    } else if (device->is_stadia) {
+        vendor = USB_VENDOR_GOOGLE;
+        product = USB_PRODUCT_GOOGLE_STADIA_CONTROLLER;
 #ifdef ENABLE_PHYSICAL_INPUT_PROFILE
     } else if (@available(macOS 10.16, iOS 14.0, tvOS 14.0, *)) {
         vendor = USB_VENDOR_APPLE;
