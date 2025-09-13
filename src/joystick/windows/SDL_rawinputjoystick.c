@@ -920,12 +920,8 @@ static void RAWINPUT_AddDevice(HANDLE hDevice)
         device->name = SDL_CreateJoystickName(device->vendor_id, device->product_id, manufacturer_string, product_string);
         device->guid = SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, device->vendor_id, device->product_id, device->version, manufacturer_string, product_string, 'r', 0);
 
-        if (manufacturer_string) {
-            SDL_free(manufacturer_string);
-        }
-        if (product_string) {
-            SDL_free(product_string);
-        }
+        SDL_free(manufacturer_string);
+        SDL_free(product_string);
     }
 
     device->path = SDL_strdup(dev_name);
@@ -960,12 +956,8 @@ err:
         CloseHandle(hFile);
     }
     if (device) {
-        if (device->name) {
-            SDL_free(device->name);
-        }
-        if (device->path) {
-            SDL_free(device->path);
-        }
+        SDL_free(device->name);
+        SDL_free(device->path);
         SDL_free(device);
     }
 #undef CHECK
