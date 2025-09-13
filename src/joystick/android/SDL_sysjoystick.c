@@ -322,6 +322,10 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
         goto done;
     }
 
+    if (SDL_ShouldIgnoreJoystick(vendor_id, product_id, 0, name)) {
+        goto done;
+    }
+
 #ifdef SDL_JOYSTICK_HIDAPI
     if (HIDAPI_IsDevicePresent(vendor_id, product_id, 0, name)) {
         /* The HIDAPI driver is taking care of this device */
@@ -349,10 +353,6 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
         Uint16 *guid16 = (Uint16 *)guid.data;
         guid16[6] = SDL_SwapLE16(button_mask);
         guid16[7] = SDL_SwapLE16(axis_mask);
-    }
-
-    if (SDL_ShouldIgnoreJoystick(vendor_id, product_id, 0, name)) {
-        goto done;
     }
 
     item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));

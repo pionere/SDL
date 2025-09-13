@@ -345,10 +345,6 @@ static const SDL_HIDAPI_DeviceDriver *HIDAPI_GetDeviceDriver(SDL_HIDAPI_Device *
         return &SDL_HIDAPI_DriverCombined;
     }
 
-    if (SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name)) {
-        return NULL;
-    }
-
     if (device->vendor_id != USB_VENDOR_VALVE) {
         if (device->usage_page && device->usage_page != USAGE_PAGE_GENERIC_DESKTOP) {
             return NULL;
@@ -923,7 +919,7 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
             SDL_free(serial_number);
         }
 
-        if (!device->name) {
+        if (!device->name || SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name)) {
             SDL_free(device->manufacturer_string);
             SDL_free(device->product_string);
             SDL_free(device->serial);

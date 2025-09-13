@@ -519,6 +519,10 @@ static HRESULT STDMETHODCALLTYPE IEventHandler_CRawGameControllerVtbl_InvokeAdde
             ignore_joystick = SDL_TRUE;
         }
 
+        if (!ignore_joystick && SDL_ShouldIgnoreJoystick(vendor, product, version, name)) {
+            ignore_joystick = SDL_TRUE;
+        }
+
         if (!ignore_joystick) {
             hr = __x_ABI_CWindows_CGaming_CInput_CIRawGameController_QueryInterface(controller, &IID_IGameController, (void **)&gamecontroller);
             if (SUCCEEDED(hr)) {
@@ -535,10 +539,6 @@ static HRESULT STDMETHODCALLTYPE IEventHandler_CRawGameControllerVtbl_InvokeAdde
             }
 
             guid = SDL_CreateJoystickGUID(bus, vendor, product, version, NULL, name, 'w', (Uint8)type);
-
-            if (SDL_ShouldIgnoreJoystick(vendor, product, version, name)) {
-                ignore_joystick = SDL_TRUE;
-            }
         }
 
         if (!ignore_joystick) {
