@@ -154,12 +154,13 @@ enum
 struct joystick_hwdata
 {
     int fd;
+#ifdef SUPPORT_JOY_GAMEPORT
     enum
     {
         BSDJOY_UHID, /* uhid(4) */
         BSDJOY_JOY   /* joy(4) */
     } type;
-
+#endif
     int naxes;
     int nbuttons;
     int nhats;
@@ -240,7 +241,10 @@ static void FreeJoylistItem(SDL_joylist_item *item)
 
 static void FreeHwData(struct joystick_hwdata *hw)
 {
-    if (hw->type == BSDJOY_UHID) {
+#ifdef SUPPORT_JOY_GAMEPORT
+    if (hw->type == BSDJOY_UHID)
+#endif
+    {
         report_free(&hw->inreport);
 
         if (hw->repdesc) {
@@ -277,6 +281,7 @@ CreateHwData(const char *path)
     hw->fd = fd;
 
 #ifdef SUPPORT_JOY_GAMEPORT
+    hw->type = BSDJOY_UHID;
     if (SDL_strncmp(path, "/dev/joy", 8) == 0) {
         hw->type = BSDJOY_JOY;
         hw->naxes = 2;
@@ -284,7 +289,6 @@ CreateHwData(const char *path)
     } else
 #endif
     {
-        hw->type = BSDJOY_UHID;
         {
             int ax;
             for (ax = 0; ax < JOYAXE_count; ax++) {
@@ -418,11 +422,13 @@ static int MaybeAddDevice(const char *path)
     if (!hw) {
         return -1;
     }
-
+#ifdef SUPPORT_JOY_GAMEPORT
     if (hw->type == BSDJOY_JOY) {
         name = SDL_strdup("Gameport joystick");
         guid = SDL_CreateJoystickGUIDForName(name);
-    } else {
+    } else
+#endif
+    {
 #ifdef USB_GET_DEVICEINFO
         struct usb_device_info di;
         if (ioctl(hw->fd, USB_GET_DEVICEINFO, &di) != -1) {
