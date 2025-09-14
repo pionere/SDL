@@ -484,7 +484,7 @@ int SDL_SYS_JoystickIsHaptic(SDL_Joystick *joystick)
     if (joystick->driver != &SDL_LINUX_JoystickDriver) {
         return SDL_FALSE;
     }
-    if (EV_IsHaptic(joystick->hwdata->fd)) {
+    if (EV_IsHaptic(SDL_LINUX_JoystickGetFd(joystick))) {
         return SDL_TRUE;
     }
 #endif
@@ -504,7 +504,7 @@ int SDL_SYS_JoystickSameHaptic(SDL_Haptic *haptic, SDL_Joystick *joystick)
     }
     /* We are assuming Linux is using evdev which should trump the old
      * joystick methods. */
-    if (SDL_strcmp(joystick->hwdata->fname, haptic->hwdata->fname) == 0) {
+    if (SDL_strcmp(SDL_LINUX_JoystickGetName(joystick), haptic->hwdata->fname) == 0) {
         return 1;
     }
 #endif
@@ -526,7 +526,7 @@ int SDL_SYS_HapticOpenFromJoystick(SDL_Haptic *haptic, SDL_Joystick *joystick)
     if (joystick->driver != &SDL_LINUX_JoystickDriver) {
         return -1;
     }
-    name = joystick->hwdata->fname;
+    name = SDL_LINUX_JoystickGetName(joystick);
     /* Find the joystick in the haptic list. */
     for (item = SDL_hapticlist; item; item = item->next) {
         if (SDL_strcmp(item->fname, name) == 0) {
