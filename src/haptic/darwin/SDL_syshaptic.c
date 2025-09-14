@@ -236,7 +236,7 @@ void MacHaptic_MaybeAddDevice(io_object_t device)
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        SDL_SetError("Could not allocate haptic storage");
+        // SDL_OutOfMemory();
         return;
     }
 
