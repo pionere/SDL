@@ -388,7 +388,7 @@ static int OS2_JoystickInit(void)
     return numdevs;
 }
 
-static int OS2_NumJoysticks(void)
+static int OS2_JoystickGetCount(void)
 {
     return numjoysticks;
 }
@@ -821,7 +821,7 @@ static int joyGetData(const char *joyenv, char *name, char stopchar, size_t maxc
 
 SDL_JoystickDriver SDL_OS2_JoystickDriver = {
     OS2_JoystickInit,
-    OS2_NumJoysticks,
+    OS2_JoystickGetCount,
     OS2_JoystickDetect,
     OS2_JoystickIsDevicePresent,
     OS2_JoystickGetDeviceName,
