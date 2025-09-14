@@ -191,7 +191,7 @@ extern SDL_bool SDL_IsJoystickRAWINPUT(SDL_JoystickGUID guid);
 extern SDL_bool SDL_IsJoystickVirtual(SDL_JoystickGUID guid);
 
 /* Function to return whether a joystick should be ignored */
-extern SDL_bool SDL_ShouldIgnoreJoystick(struct _SDL_JoystickDriver *driver, Uint16 vendor, Uint16 product, Uint16 version, const char *name);
+extern SDL_bool SDL_ShouldIgnoreJoystick(const struct _SDL_JoystickDriver *driver, Uint16 vendor, Uint16 product, Uint16 version, const char *name);
 
 /* Function to return whether a joystick name and GUID is a game controller  */
 // extern SDL_bool SDL_IsGameControllerNameAndGUID(const char *name, SDL_JoystickGUID guid);
