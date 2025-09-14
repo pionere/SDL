@@ -90,8 +90,6 @@ typedef struct joystick_hwdata
 
 static void parse_input_data(PXINPUT_GAMEPAD controller, const Uint8 *rdata);
 
-static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index);
-
 //Create SDL events for connection/disconnection. These events can then be handled in the user application
 static void connection_callback(xid_dev_t *xid_dev, int status)
 {
@@ -227,7 +225,8 @@ static int SDL_XBOX_JoystickGetCount()
     return pad_cnt;
 }
 
-static void SDL_XBOX_JoystickDetect() {
+static void SDL_XBOX_JoystickDetect()
+{
     usbh_pooling_hubs();
 }
 
@@ -247,7 +246,11 @@ static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
     if (xid_dev == NULL || device_index >= MAX_JOYSTICKS)
         return "Invalid device index";
 
-    player_index = SDL_XBOX_JoystickGetDevicePlayerIndex(device_index);
+    // player_index = SDL_XBOX_JoystickGetDevicePlayerIndex(device_index);
+    player_index = xid_get_device_port(xid_dev);
+    if (player_index == 0) {    // fallback to device_index if xid_get_device_port fails (returns 0)
+        player_index = device_index;
+    }
     switch (xid_dev->xid_desc.bType)
     {
     case XID_TYPE_GAMECONTROLLER:
@@ -302,21 +305,21 @@ static void SDL_XBOX_JoystickSetDevicePlayerIndex(int device_index, int player_i
 {
 }
 
+static SDL_JoystickGUID xid_device_guid(const xid_dev_t *xid_dev)
+{
+    return SDL_CreateJoystickGUID(SDL_HARDWARE_BUS_USB, xid_dev->idVendor, xid_dev->idProduct, 0, NULL, NULL, '\0', 0);
+}
+
 static SDL_JoystickGUID SDL_XBOX_JoystickGetDeviceGUID(int device_index)
 {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
 
     SDL_JoystickGUID ret;
-    SDL_zero(ret);
 
-    if (xid_dev != NULL)
-    {
-        //Format based on SDL_gamecontrollerdb.h
-        ret.data[0] = 0x03;
-        ret.data[4] = xid_dev->idVendor & 0xFF;
-        ret.data[5] = (xid_dev->idVendor >> 8) & 0xFF;
-        ret.data[8] = xid_dev->idProduct & 0xFF;
-        ret.data[9] = (xid_dev->idProduct >> 8) & 0xFF;
+    if (xid_dev != NULL) {
+        ret = xid_device_guid(xid_dev);
+    } else {
+        SDL_zero(ret);
     }
     return ret;
 }
@@ -353,7 +356,7 @@ static int SDL_XBOX_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
     joystick->hwdata->xid_dev = xid_dev;
     joystick->hwdata->xid_dev->user_data = (void *)joystick;
-    joystick->guid = SDL_XBOX_JoystickGetDeviceGUID(device_index);
+    joystick->guid = xid_device_guid(xid_dev);
 
     switch (xid_dev->xid_desc.bType)
     {
