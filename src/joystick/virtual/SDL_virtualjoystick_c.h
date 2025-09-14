@@ -27,25 +27,6 @@
 
 #include "SDL_joystick.h"
 
-/**
- * Data for a virtual, software-only joystick.
- */
-typedef struct joystick_hwdata
-{
-    SDL_JoystickType type;
-    SDL_bool attached;
-    char *name;
-    SDL_JoystickGUID guid;
-    SDL_VirtualJoystickDesc desc;
-    Sint16 *axes;
-    Uint8 *buttons;
-    Uint8 *hats;
-    SDL_JoystickID instance_id;
-    SDL_Joystick *joystick;
-
-    struct joystick_hwdata *next;
-} joystick_hwdata;
-
 int SDL_JoystickAttachVirtualInner(const SDL_VirtualJoystickDesc *desc);
 int SDL_JoystickDetachVirtualInner(int device_index);
 
