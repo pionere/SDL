@@ -1199,8 +1199,7 @@ SDL_bool HIDAPI_IsDeviceTypePresent(SDL_GameControllerType type)
     SDL_HIDAPI_Device *device;
     SDL_bool result = SDL_FALSE;
 
-    /* Make sure we're initialized, as this could be called from other drivers during startup */
-    if (HIDAPI_JoystickInit() < 0) {
+    if (!initialized) {
         return SDL_FALSE;
     }
 
@@ -1230,8 +1229,7 @@ SDL_bool HIDAPI_IsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 vers
     SDL_bool supported = SDL_FALSE;
     SDL_bool result = SDL_FALSE;
 
-    /* Make sure we're initialized, as this could be called from other drivers during startup */
-    if (HIDAPI_JoystickInit() < 0) {
+    if (!initialized) {
         return SDL_FALSE;
     }
 
