@@ -31,8 +31,10 @@
 #include "../events/SDL_events_c.h"
 #endif
 #include "../video/SDL_sysvideo.h"
+#ifdef SDL_JOYSTICK_HIDAPI
 #include "hidapi/SDL_hidapijoystick_c.h"
-
+#endif
+#include "usb_ids.h"
 /* This is included in only one place because it has a large static list of controllers */
 #include "controller_type.h"
 

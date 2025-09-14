@@ -21,8 +21,6 @@
 
 #include "../../SDL_internal.h"
 
-#ifdef SDL_JOYSTICK_ANDROID
-
 #ifndef SDL_sysjoystick_c_h_
 #define SDL_sysjoystick_c_h_
 
@@ -53,7 +51,5 @@ typedef struct SDL_joylist_item
 typedef SDL_joylist_item joystick_hwdata;
 
 #endif /* SDL_sysjoystick_c_h_ */
-
-#endif /* SDL_JOYSTICK_ANDROID */
 
 /* vi: set ts=4 sw=4 expandtab: */
