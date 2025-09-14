@@ -179,9 +179,9 @@
 #ifdef HAVE_WINDOWS_GAMING_INPUT_H
 #define SDL_JOYSTICK_WGI    1
 #endif
-#define SDL_JOYSTICK_XINPUT 1
+/*#define SDL_JOYSTICK_XINPUT 1*/
 /*#define SDL_HAPTIC_DINPUT   1*/
-#define SDL_HAPTIC_XINPUT   1
+/*#define SDL_HAPTIC_XINPUT   1*/
 
 /* Enable the sensor driver */
 #ifdef HAVE_SENSORSAPI_H
