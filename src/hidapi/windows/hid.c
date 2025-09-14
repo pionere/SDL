@@ -56,13 +56,6 @@ typedef LONG NTSTATUS;
    report that we've seen is ~200-250ms so let's double that */
 #define HID_WRITE_TIMEOUT_MILLISECONDS 500
 
-/* We will only enumerate devices that match these usages */
-#define USAGE_PAGE_GENERIC_DESKTOP 0x0001
-#define USAGE_JOYSTICK 0x0004
-#define USAGE_GAMEPAD 0x0005
-#define USAGE_MULTIAXISCONTROLLER 0x0008
-#define USB_VENDOR_VALVE 0x28de
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -82,6 +75,7 @@ extern "C" {
 #endif
 
 #include "../hidapi/hidapi.h"
+#include "../../joystick/usb_ids.h"
 
 /*#include <stdio.h>*/
 /*#include <stdlib.h>*/
@@ -536,10 +530,10 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			/* SDL Modification: Ignore the device if it's not a gamepad. This limits compatibility
 			   risk from devices that may respond poorly to our string queries below. */
 			if (attrib.VendorID != USB_VENDOR_VALVE) {
-				if (caps.UsagePage != USAGE_PAGE_GENERIC_DESKTOP) {
+				if (caps.UsagePage != USB_USAGEPAGE_GENERIC_DESKTOP) {
 					goto cont_close;
 				}
-				if (caps.Usage != USAGE_JOYSTICK && caps.Usage != USAGE_GAMEPAD && caps.Usage != USAGE_MULTIAXISCONTROLLER) {
+				if (caps.Usage != USB_USAGE_GENERIC_JOYSTICK && caps.Usage != USB_USAGE_GENERIC_GAMEPAD && caps.Usage != USB_USAGE_GENERIC_MULTIAXISCONTROLLER) {
 					goto cont_close;
 				}
 			}
