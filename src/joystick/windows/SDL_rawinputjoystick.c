@@ -879,7 +879,6 @@ static void RAWINPUT_AddDevice(HANDLE hDevice)
     CHECK(GetRawInputDeviceInfoA(hDevice, RIDI_DEVICENAME, dev_name, &size) != (UINT)-1);
     /* Only take XInput-capable devices */
     CHECK(SDL_strstr(dev_name, "IG_") != NULL);
-    CHECK(!SDL_JoystickHandledByAnotherDriver(&SDL_RAWINPUT_JoystickDriver, (Uint16)rdi.hid.dwVendorId, (Uint16)rdi.hid.dwProductId, (Uint16)rdi.hid.dwVersionNumber, ""));
     device = (SDL_RAWINPUT_Device *)SDL_calloc(1, sizeof(SDL_RAWINPUT_Device));
     CHECK(device);
     device->hDevice = hDevice;
@@ -921,6 +920,7 @@ static void RAWINPUT_AddDevice(HANDLE hDevice)
         SDL_free(product_string);
     }
 
+    CHECK(!SDL_JoystickHandledByAnotherDriver(&SDL_RAWINPUT_JoystickDriver, device->vendor_id, device->product_id, device->version, device->name));
     CHECK(!SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name));
 
     device->path = SDL_strdup(dev_name);
