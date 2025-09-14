@@ -1104,16 +1104,15 @@ int SDL_JoystickAttachVirtualEx(const SDL_VirtualJoystickDesc *desc)
 int SDL_JoystickDetachVirtual(int device_index)
 {
 #ifdef SDL_JOYSTICK_VIRTUAL
-    JOYSTICK_DRIVER;
+    const SDL_JoystickDriver *driver = NULL;
+    int driver_device_index;
 
     SDL_LockJoysticks();
-    device_index = SDL_GetDriverAndJoystickIndex(device_index, &driver);
-    if (device_index >= 0) {
-        if (driver == &SDL_VIRTUAL_JoystickDriver) {
-            const int retval = SDL_JoystickDetachVirtualInner(device_index);
-            SDL_UnlockJoysticks();
-            return retval;
-        }
+    driver_device_index = SDL_GetDriverAndJoystickIndex(device_index, &driver);
+    if (driver == &SDL_VIRTUAL_JoystickDriver) {
+        const int retval = SDL_JoystickDetachVirtualInner(driver_device_index);
+        SDL_UnlockJoysticks();
+        return retval;
     }
     SDL_UnlockJoysticks();
 
@@ -1126,17 +1125,12 @@ int SDL_JoystickDetachVirtual(int device_index)
 SDL_bool SDL_JoystickIsVirtual(int device_index)
 {
 #ifdef SDL_JOYSTICK_VIRTUAL
-    JOYSTICK_DRIVER;
-    int driver_device_index;
+    const SDL_JoystickDriver *driver = NULL;
     SDL_bool is_virtual = SDL_FALSE;
 
     SDL_LockJoysticks();
-    driver_device_index = SDL_GetDriverAndJoystickIndex(device_index, &driver);
-    if (driver_device_index >= 0) {
-        if (driver == &SDL_VIRTUAL_JoystickDriver) {
-            is_virtual = SDL_TRUE;
-        }
-    }
+    SDL_GetDriverAndJoystickIndex(device_index, &driver);
+    is_virtual = driver == &SDL_VIRTUAL_JoystickDriver ? SDL_TRUE : SDL_FALSE;
     SDL_UnlockJoysticks();
 
     return is_virtual;
