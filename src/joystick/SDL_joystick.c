@@ -726,7 +726,7 @@ static SDL_bool SDL_JoystickHandledByAnotherDriver(const struct _SDL_JoystickDri
     int i;
     SDL_bool result = SDL_FALSE;
 
-    SDL_LockJoysticks();
+    SDL_AssertJoysticksLocked();
     {
         for (i = 0; i < SDL_arraysize(SDL_joystick_drivers); ++i) {
             if (driver == SDL_joystick_drivers[i]) {
@@ -739,7 +739,6 @@ static SDL_bool SDL_JoystickHandledByAnotherDriver(const struct _SDL_JoystickDri
             }
         }
     }
-    SDL_UnlockJoysticks();
 
     return result;
 }
