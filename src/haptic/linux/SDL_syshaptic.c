@@ -45,9 +45,9 @@
 
 #define MAX_HAPTICS  32         /* It's doubtful someone has more then 32 evdev */
 
-static int MaybeAddDevice(const char *path);
+static void MaybeAddDevice(const char *path);
 #ifdef SDL_USE_LIBUDEV
-static int MaybeRemoveDevice(const char *path);
+static void MaybeRemoveDevice(const char *path);
 static void haptic_udev_callback(SDL_UDEV_deviceevent udev_type, int udev_class, const char *devpath);
 #endif /* SDL_USE_LIBUDEV */
 
@@ -225,7 +225,7 @@ static void haptic_udev_callback(SDL_UDEV_deviceevent udev_type, int udev_class,
 }
 #endif /* SDL_USE_LIBUDEV */
 
-static int MaybeAddDevice(const char *path)
+static void MaybeAddDevice(const char *path)
 {
     struct stat sb;
     int fd;
@@ -233,25 +233,25 @@ static int MaybeAddDevice(const char *path)
     SDL_hapticlist_item *item;
 
     if (!path) {
-        return -1;
+        return;
     }
 
     /* check to see if file exists */
     if (stat(path, &sb) != 0) {
-        return -1;
+        return;
     }
 
     /* check for duplicates */
     for (item = SDL_hapticlist; item; item = item->next) {
         if (item->dev_num == sb.st_rdev) {
-            return -1; /* duplicate. */
+            return; /* duplicate. */
         }
     }
 
     /* try to open */
     fd = open(path, O_RDWR | O_CLOEXEC, 0);
     if (fd < 0) {
-        return -1;
+        return;
     }
 
 #ifdef DEBUG_INPUT_EVENTS
@@ -262,18 +262,18 @@ static int MaybeAddDevice(const char *path)
     success = EV_IsHaptic(fd);
     close(fd);
     if (success <= 0) {
-        return -1;
+        return;
     }
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        return -1;
+        return;
     }
 
     item->fname = SDL_strdup(path);
     if (!item->fname) {
         SDL_free(item);
-        return -1;
+        return;
     }
 
     item->dev_num = sb.st_rdev;
@@ -289,25 +289,21 @@ static int MaybeAddDevice(const char *path)
     ++numhaptics;
 
     /* !!! TODO: Send a haptic add event? */
-
-    return numhaptics;
 }
 
 #ifdef SDL_USE_LIBUDEV
-static int MaybeRemoveDevice(const char *path)
+static void MaybeRemoveDevice(const char *path)
 {
     SDL_hapticlist_item *item;
     SDL_hapticlist_item *prev = NULL;
 
     if (!path) {
-        return -1;
+        return;
     }
 
     for (item = SDL_hapticlist; item; item = item->next) {
         /* found it, remove it. */
         if (SDL_strcmp(path, item->fname) == 0) {
-            const int retval = item->haptic ? item->haptic->index : -1;
-
             if (prev) {
                 prev->next = item->next;
             } else {
@@ -324,12 +320,10 @@ static int MaybeRemoveDevice(const char *path)
 
             SDL_free(item->fname);
             SDL_free(item);
-            return retval;
+            break;
         }
         prev = item;
     }
-
-    return -1;
 }
 #endif /* SDL_USE_LIBUDEV */
 
