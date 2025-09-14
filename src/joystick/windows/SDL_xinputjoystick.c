@@ -215,13 +215,7 @@ static void AddXInputDevice(Uint8 userid, BYTE SubType, JoyStick_DeviceData **pC
         SDL_free(pNewJoystick);
         return; /* better luck next time? */
     }
-    if (SDL_ShouldIgnoreJoystick(vendor, product, version, pNewJoystick->joystickname)) {
-        SDL_free(pNewJoystick->joystickname);
-        SDL_free(pNewJoystick);
-        return;
-    }
-
-    if (SDL_JoystickHandledByAnotherDriver(&SDL_WINDOWS_JoystickDriver, vendor, product, version, pNewJoystick->joystickname)) {
+    if (SDL_ShouldIgnoreJoystick(&SDL_WINDOWS_JoystickDriver, vendor, product, version, pNewJoystick->joystickname)) {
         SDL_free(pNewJoystick->joystickname);
         SDL_free(pNewJoystick);
         return;

@@ -298,7 +298,7 @@ static void FixupDeviceInfoForMapping(int fd, struct input_id *inpid)
     }
 }
 
-static SDL_bool IsVirtualJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
+SDL_bool SDL_LINUX_IsVirtualJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
     if (vendor == USB_VENDOR_MICROSOFT && product == USB_PRODUCT_XBOX_ONE_S && version == 0 &&
         SDL_strcmp(name, "Xbox One S Controller") == 0) {
@@ -404,12 +404,7 @@ static int IsJoystick(const char *path, int *fd, char **name_return, Uint16 *ven
         return 0;
     }
 
-    if (!IsVirtualJoystick(inpid.vendor, inpid.product, inpid.version, name) &&
-        SDL_JoystickHandledByAnotherDriver(&SDL_LINUX_JoystickDriver, inpid.vendor, inpid.product, inpid.version, name)) {
-        SDL_free(name);
-        return 0;
-    }
-    if (SDL_ShouldIgnoreJoystick(inpid.vendor, inpid.product, inpid.version, name)) {
+    if (SDL_ShouldIgnoreJoystick(&SDL_LINUX_JoystickDriver, inpid.vendor, inpid.product, inpid.version, name)) {
         SDL_free(name);
         return 0;
     }

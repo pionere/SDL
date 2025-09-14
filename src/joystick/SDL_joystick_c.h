@@ -105,9 +105,6 @@ extern int SDL_PrivateJoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left
 extern int SDL_PrivateJoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue);
 extern int SDL_PrivateJoystickSendEffect(SDL_Joystick *joystick, const void *data, int size);
 
-/* Function to determine whether a device is currently detected by this driver */
-extern SDL_bool SDL_JoystickHandledByAnotherDriver(struct _SDL_JoystickDriver *driver, Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name);
-
 /* Function to standardize the name for a controller
    This should be freed with SDL_free() when no longer needed
  */
@@ -194,7 +191,7 @@ extern SDL_bool SDL_IsJoystickRAWINPUT(SDL_JoystickGUID guid);
 extern SDL_bool SDL_IsJoystickVirtual(SDL_JoystickGUID guid);
 
 /* Function to return whether a joystick should be ignored */
-extern SDL_bool SDL_ShouldIgnoreJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name);
+extern SDL_bool SDL_ShouldIgnoreJoystick(struct _SDL_JoystickDriver *driver, Uint16 vendor, Uint16 product, Uint16 version, const char *name);
 
 /* Function to return whether a joystick name and GUID is a game controller  */
 // extern SDL_bool SDL_IsGameControllerNameAndGUID(const char *name, SDL_JoystickGUID guid);

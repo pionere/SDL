@@ -478,7 +478,7 @@ static SDL_bool GetDeviceInfo(IOHIDDeviceRef hidDevice, recDevice *pDevice)
 
     if (SDL_IsJoystickXboxOne(vendor, product)) {
         /* We can't actually use this API for Xbox controllers */
-        return false;
+        return SDL_FALSE;
     }
 
     /* get device name */
@@ -496,10 +496,7 @@ static SDL_bool GetDeviceInfo(IOHIDDeviceRef hidDevice, recDevice *pDevice)
         SDL_free(name);
     }
 
-    if (SDL_JoystickHandledByAnotherDriver(&SDL_DARWIN_JoystickDriver, vendor, product, version, pDevice->product)) {
-        return SDL_FALSE;
-    }
-    if (SDL_ShouldIgnoreJoystick(vendor, product, version, pDevice->product)) {
+    if (SDL_ShouldIgnoreJoystick(&SDL_DARWIN_JoystickDriver, vendor, product, version, pDevice->product)) {
         return SDL_FALSE;
     }
 

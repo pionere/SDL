@@ -25,6 +25,7 @@
 
 #include "SDL_joystick.h"
 
+SDL_bool SDL_LINUX_IsVirtualJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name);
 int SDL_LINUX_JoystickGetFd(const SDL_Joystick *joystick);
 const char *SDL_LINUX_JoystickGetName(const SDL_Joystick *joystick);
 

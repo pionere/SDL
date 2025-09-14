@@ -49,6 +49,9 @@
 #ifdef SDL_JOYSTICK_VIRTUAL
 #include "./virtual/SDL_virtualjoystick_c.h"
 #endif
+#ifdef SDL_JOYSTICK_LINUX
+#include "./linux/SDL_sysjoystick_c.h"
+#endif
 
 #ifdef __GNUC__
 #define COMPILER_IS_STUPID 1
@@ -718,7 +721,7 @@ int SDL_NumJoysticks(void)
     return total_joysticks;
 }
 
-SDL_bool SDL_JoystickHandledByAnotherDriver(struct _SDL_JoystickDriver *driver, Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+static SDL_bool SDL_JoystickHandledByAnotherDriver(struct _SDL_JoystickDriver *driver, Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
 {
     int i;
     SDL_bool result = SDL_FALSE;
@@ -3256,8 +3259,17 @@ static SDL_JoystickType SDL_GetJoystickGUIDType(SDL_JoystickGUID guid)
     return SDL_JOYSTICK_TYPE_UNKNOWN;
 }
 
-SDL_bool SDL_ShouldIgnoreJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
+SDL_bool SDL_ShouldIgnoreJoystick(struct _SDL_JoystickDriver *driver, Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
+#ifdef SDL_JOYSTICK_LINUX
+    if (driver == &SDL_LINUX_JoystickDriver && SDL_LINUX_IsVirtualJoystick(vendor, product, version, name)) {
+        ; // not sure why is this necessary...
+    } else
+#endif
+    if (SDL_JoystickHandledByAnotherDriver(driver, vendor, product, version, name)) {
+        return SDL_TRUE;
+    }
+
     /* Check the joystick blacklist */
     if (SDL_VIDPIDInList(vendor, product, &blacklist_devices)) {
         return SDL_TRUE;

@@ -931,7 +931,7 @@ static SDL_HIDAPI_Device *HIDAPI_AddDevice(const struct SDL_hid_device_info *inf
             SDL_free(serial_number);
         }
 
-        if (!device->name || SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name)) {
+        if (!device->name || SDL_ShouldIgnoreJoystick(&SDL_HIDAPI_JoystickDriver, device->vendor_id, device->product_id, device->version, device->name)) {
             HIDAPI_DestroyDevice(device);
             return NULL;
         }

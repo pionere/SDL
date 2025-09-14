@@ -385,11 +385,7 @@ static HRESULT STDMETHODCALLTYPE IEventHandler_CRawGameControllerVtbl_InvokeAdde
             name = SDL_strdup("");
         }
 
-        if (!ignore_joystick && SDL_JoystickHandledByAnotherDriver(&SDL_WGI_JoystickDriver, vendor, product, version, name)) {
-            ignore_joystick = SDL_TRUE;
-        }
-
-        if (!ignore_joystick && SDL_ShouldIgnoreJoystick(vendor, product, version, name)) {
+        if (!ignore_joystick && SDL_ShouldIgnoreJoystick(&SDL_WGI_JoystickDriver, vendor, product, version, name)) {
             ignore_joystick = SDL_TRUE;
         }
 

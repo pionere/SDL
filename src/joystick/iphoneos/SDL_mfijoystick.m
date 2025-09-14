@@ -504,15 +504,9 @@ static BOOL IOS_AddMFIJoystickDevice(SDL_JoystickDeviceItem *device, GCControlle
         return SDL_FALSE;
     }
 
-    if (SDL_ShouldIgnoreJoystick(vendor, product, 0, name)) {
+    if (SDL_ShouldIgnoreJoystick(&SDL_IOS_JoystickDriver, vendor, product, 0, name)) {
         return SDL_FALSE;
     }
-#ifdef SDL_JOYSTICK_HIDAPI
-    if (HIDAPI_IsDevicePresent(vendor, product, 0, name)) {
-        /* The HIDAPI driver is taking care of this device */
-        return FALSE;
-    }
-#endif
 
 #ifdef ENABLE_PHYSICAL_INPUT_PROFILE
     if (@available(macOS 10.16, iOS 14.0, tvOS 14.0, *)) {

@@ -920,8 +920,7 @@ static void RAWINPUT_AddDevice(HANDLE hDevice)
         SDL_free(product_string);
     }
 
-    CHECK(!SDL_JoystickHandledByAnotherDriver(&SDL_RAWINPUT_JoystickDriver, device->vendor_id, device->product_id, device->version, device->name));
-    CHECK(!SDL_ShouldIgnoreJoystick(device->vendor_id, device->product_id, device->version, device->name));
+    CHECK(!SDL_ShouldIgnoreJoystick(&SDL_RAWINPUT_JoystickDriver, device->vendor_id, device->product_id, device->version, device->name));
 
     device->path = SDL_strdup(dev_name);
 
