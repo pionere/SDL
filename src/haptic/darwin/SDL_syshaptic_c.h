@@ -26,8 +26,8 @@
 #define kIOMainPortDefault kIOMasterPortDefault
 #endif
 
-extern int MacHaptic_MaybeAddDevice(io_object_t device);
-extern int MacHaptic_MaybeRemoveDevice(io_object_t device);
+extern void MacHaptic_MaybeAddDevice(io_object_t device);
+extern void MacHaptic_MaybeRemoveDevice(io_object_t device);
 #ifndef SDL_VERBOSE_ERROR_DISABLED
 extern int DARWIN_SetErrorFromHRESULT(const char *prefix, HRESULT result);
 #else

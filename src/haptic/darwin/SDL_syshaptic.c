@@ -210,7 +210,7 @@ static SDL_hapticlist_item *HapticByDevIndex(int device_index)
     return item;
 }
 
-int MacHaptic_MaybeAddDevice(io_object_t device)
+void MacHaptic_MaybeAddDevice(io_object_t device)
 {
     IOReturn result;
     CFMutableDictionaryRef hidProperties;
@@ -218,25 +218,26 @@ int MacHaptic_MaybeAddDevice(io_object_t device)
     SDL_hapticlist_item *item;
 
     if (numhaptics == -1) {
-        return -1; /* not initialized. We'll pick these up on enumeration if we init later. */
+        return; /* not initialized. We'll pick these up on enumeration if we init later. */
     }
 
     /* Check for force feedback. */
     if (FFIsForceFeedback(device) != FF_OK) {
-        return -1;
+        return;
     }
 
     /* Make sure we don't already have it */
     for (item = SDL_hapticlist; item; item = item->next) {
         if (IOObjectIsEqualTo((io_object_t)item->dev, device)) {
             /* Already added */
-            return -1;
+            return;
         }
     }
 
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        return SDL_SetError("Could not allocate haptic storage");
+        SDL_SetError("Could not allocate haptic storage");
+        return;
     }
 
     /* retain it as we are going to keep it around a while */
@@ -280,24 +281,20 @@ int MacHaptic_MaybeAddDevice(io_object_t device)
 
     /* Device has been added. */
     ++numhaptics;
-
-    return numhaptics;
 }
 
-int MacHaptic_MaybeRemoveDevice(io_object_t device)
+void MacHaptic_MaybeRemoveDevice(io_object_t device)
 {
     SDL_hapticlist_item *item;
     SDL_hapticlist_item *prev = NULL;
 
     if (numhaptics == -1) {
-        return -1; /* not initialized. ignore this. */
+        return; /* not initialized. ignore this. */
     }
 
     for (item = SDL_hapticlist; item; item = item->next) {
         /* found it, remove it. */
         if (IOObjectIsEqualTo((io_object_t)item->dev, device)) {
-            const int retval = item->haptic ? item->haptic->index : -1;
-
             if (prev) {
                 prev->next = item->next;
             } else {
@@ -314,12 +311,10 @@ int MacHaptic_MaybeRemoveDevice(io_object_t device)
 
             IOObjectRelease(item->dev);
             SDL_free(item);
-            return retval;
+            break;
         }
         prev = item;
     }
-
-    return -1;
 }
 
 /*
