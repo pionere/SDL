@@ -209,7 +209,6 @@ static void FixupDeviceInfoForMapping(int fd, struct input_id *inpid)
     }
 }
 
-#ifdef SDL_JOYSTICK_HIDAPI
 static SDL_bool IsVirtualJoystick(Uint16 vendor, Uint16 product, Uint16 version, const char *name)
 {
     if (vendor == USB_VENDOR_MICROSOFT && product == USB_PRODUCT_XBOX_ONE_S && version == 0 &&
@@ -219,7 +218,6 @@ static SDL_bool IsVirtualJoystick(Uint16 vendor, Uint16 product, Uint16 version,
     }
     return SDL_FALSE;
 }
-#endif /* SDL_JOYSTICK_HIDAPI */
 
 static SDL_bool GetSteamVirtualGamepadSlot(int fd, int *slot)
 {
