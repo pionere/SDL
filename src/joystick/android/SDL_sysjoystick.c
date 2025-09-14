@@ -31,6 +31,7 @@
 #include "SDL_timer.h"
 #include "SDL_sysjoystick_c.h"
 #include "../SDL_joystick_c.h"
+#include "../SDL_sysjoystick.h"
 #include "../../events/SDL_keyboard_c.h"
 #include "../../core/android/SDL_android.h"
 #include "../hidapi/SDL_hidapijoystick_c.h"
@@ -58,6 +59,23 @@
 #endif
 
 #define ANDROID_MAX_NBUTTONS            36
+
+/* A linked list of available joysticks */
+typedef struct SDL_joylist_item
+{
+    int device_instance;
+    int device_id; /* Android's device id */
+    char *name;    /* "SideWinder 3D Pro" or whatever */
+    SDL_JoystickGUID guid;
+    SDL_Joystick *joystick;
+    int nbuttons, naxes; //, nhats; /* hats are translated to DPAD buttons */
+    int dpad_state;
+    SDL_bool can_rumble;
+
+    struct SDL_joylist_item *next;
+} SDL_joylist_item;
+
+typedef SDL_joylist_item joystick_hwdata;
 
 static SDL_joylist_item *JoystickByDeviceId(int device_id);
 
