@@ -104,6 +104,7 @@ extern void WINDOWS_JoystickDetect(void);
 
 static SDL_bool SDL_RAWINPUT_inited = SDL_FALSE;
 static SDL_bool SDL_RAWINPUT_remote_desktop = SDL_FALSE;
+static SDL_bool SDL_RAWINPUT_wgi_active;
 static int SDL_RAWINPUT_numjoysticks = 0;
 
 static void RAWINPUT_JoystickClose(SDL_Joystick *joystick);
@@ -664,7 +665,7 @@ static void RAWINPUT_UpdateWindowsGamingInput(void)
 }
 static void RAWINPUT_InitWindowsGamingInput(RAWINPUT_DeviceContext *ctx)
 {
-    if (!SDL_GetHintBoolean(SDL_HINT_JOYSTICK_WGI, SDL_TRUE)) {
+    if (!SDL_RAWINPUT_wgi_active) {
         return;
     }
 
@@ -777,6 +778,9 @@ static SDL_bool RAWINPUT_GuessWindowsGamingInputSlot(const WindowsMatchState *st
 
 static void RAWINPUT_QuitWindowsGamingInput(RAWINPUT_DeviceContext *ctx)
 {
+    if (!SDL_RAWINPUT_wgi_active) {
+        return;
+    }
     --wgi_state.ref_count;
     if (!wgi_state.ref_count && wgi_state.initialized) {
         int ii;
@@ -1033,6 +1037,7 @@ static int RAWINPUT_JoystickInit(void)
         return -1;
     }
 
+    SDL_RAWINPUT_wgi_active = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_WGI, SDL_TRUE);
     SDL_RAWINPUT_inited = SDL_TRUE;
 
     RAWINPUT_DetectDevices();
@@ -2046,18 +2051,20 @@ static void RAWINPUT_JoystickClose(SDL_Joystick *joystick)
     if (ctx) {
         SDL_RAWINPUT_Device *device;
 
+        if (ctx->is_xinput) {
 #ifdef SDL_JOYSTICK_RAWINPUT_XINPUT
-        xinput_device_change = SDL_TRUE;
-        if (ctx->xinput_enabled) {
-            if (ctx->xinput_correlated) {
-                RAWINPUT_MarkXInputSlotFree(ctx->xinput_slot);
-            }
-            WIN_UnloadXInputDLL();
-        }
+            xinput_device_change = SDL_TRUE;
+            if (ctx->xinput_enabled) {
+                if (ctx->xinput_correlated) {
+                    RAWINPUT_MarkXInputSlotFree(ctx->xinput_slot);
+               }
+               WIN_UnloadXInputDLL();
+           }
 #endif
 #ifdef SDL_JOYSTICK_RAWINPUT_WGI
-        RAWINPUT_QuitWindowsGamingInput(ctx);
+            RAWINPUT_QuitWindowsGamingInput(ctx);
 #endif
+        }
 
         device = ctx->device;
         if (device) {
