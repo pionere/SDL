@@ -485,11 +485,13 @@ static int WINDOWS_JoystickInit(void)
 
 #if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     SDL_CreateDeviceNotificationFunc();
-
+#ifdef SDL_JOYSTICK_XINPUT
     s_bJoystickThread = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE);
     if (s_bJoystickThread) {
         ret = SDL_StartJoystickThread();
-    } else {
+    } else
+#endif
+    {
         ret = SDL_CreateDeviceNotification();
     }
 #endif
@@ -758,10 +760,13 @@ void WINDOWS_JoystickQuit(void)
     SYS_Joystick = NULL;
 
 #if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+#ifdef SDL_JOYSTICK_XINPUT
     if (s_bJoystickThread) {
         // s_bJoystickThread = SDL_FALSE;
         SDL_StopJoystickThread();
-    } else {
+    } else
+#endif
+    {
         SDL_CleanupDeviceNotification();
     }
 
