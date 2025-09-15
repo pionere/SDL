@@ -1230,8 +1230,8 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
     SDL_RAWINPUT_Device *device = RAWINPUT_GetDeviceByIndex(device_index);
     RAWINPUT_DeviceContext *ctx;
     HIDP_CAPS caps;
-    HIDP_BUTTON_CAPS *button_caps;
-    HIDP_VALUE_CAPS *value_caps;
+    HIDP_BUTTON_CAPS *button_caps = NULL;
+    HIDP_VALUE_CAPS *value_caps = NULL;
     ULONG i;
 
     ctx = (RAWINPUT_DeviceContext *)SDL_calloc(1, sizeof(RAWINPUT_DeviceContext));
@@ -1248,8 +1248,15 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
 #ifdef SDL_JOYSTICK_RAWINPUT_XINPUT
         xinput_device_change = SDL_TRUE;
         ctx->xinput_enabled = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_RAWINPUT_CORRELATE_XINPUT, SDL_TRUE);
-        if (ctx->xinput_enabled && (WIN_LoadXInputDLL() < 0 || !XINPUTGETSTATE)) {
-            ctx->xinput_enabled = SDL_FALSE;
+        if (ctx->xinput_enabled) {
+            if (WIN_LoadXInputDLL() == 0) {
+                if (!XINPUTGETSTATE) {
+                    WIN_UnloadXInputDLL();
+                    ctx->xinput_enabled = SDL_FALSE;
+                }
+            } else {
+                ctx->xinput_enabled = SDL_FALSE;
+            }
         }
         ctx->xinput_slot = XUSER_INDEX_ANY;
 #endif
@@ -1267,26 +1274,25 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
     ctx->max_data_length = SDL_HidP_MaxDataListLength(HidP_Input, ctx->preparsed_data);
     ctx->data = (HIDP_DATA *)SDL_malloc(ctx->max_data_length * sizeof(*ctx->data));
     if (!ctx->data) {
-        RAWINPUT_JoystickClose(joystick);
-        return SDL_OutOfMemory();
+        SDL_OutOfMemory();
+        goto err;
     }
 
     if (SDL_HidP_GetCaps(ctx->preparsed_data, &caps) != HIDP_STATUS_SUCCESS) {
-        RAWINPUT_JoystickClose(joystick);
-        return SDL_SetError("Couldn't get device capabilities");
+        SDL_SetError("Couldn't get device capabilities");
+        goto err;
     }
 
     button_caps = SDL_stack_alloc(HIDP_BUTTON_CAPS, caps.NumberInputButtonCaps);
-    if (SDL_HidP_GetButtonCaps(HidP_Input, button_caps, &caps.NumberInputButtonCaps, ctx->preparsed_data) != HIDP_STATUS_SUCCESS) {
-        RAWINPUT_JoystickClose(joystick);
-        return SDL_SetError("Couldn't get device button capabilities");
+    if (!button_caps || SDL_HidP_GetButtonCaps(HidP_Input, button_caps, &caps.NumberInputButtonCaps, ctx->preparsed_data) != HIDP_STATUS_SUCCESS) {
+        SDL_SetError("Couldn't get device button capabilities");
+        goto err;
     }
 
     value_caps = SDL_stack_alloc(HIDP_VALUE_CAPS, caps.NumberInputValueCaps);
-    if (SDL_HidP_GetValueCaps(HidP_Input, value_caps, &caps.NumberInputValueCaps, ctx->preparsed_data) != HIDP_STATUS_SUCCESS) {
-        RAWINPUT_JoystickClose(joystick);
-        SDL_stack_free(button_caps);
-        return SDL_SetError("Couldn't get device value capabilities");
+    if (!value_caps || SDL_HidP_GetValueCaps(HidP_Input, value_caps, &caps.NumberInputValueCaps, ctx->preparsed_data) != HIDP_STATUS_SUCCESS) {
+        SDL_SetError("Couldn't get device value capabilities");
+        goto err;
     }
 
     /* Sort the axes by usage, so X comes before Y, etc. */
@@ -1313,10 +1319,8 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
         ctx->button_indices = (USHORT *)SDL_malloc(joystick->nbuttons * sizeof(*ctx->button_indices));
         if (!ctx->button_indices) {
-            RAWINPUT_JoystickClose(joystick);
-            SDL_stack_free(value_caps);
-            SDL_stack_free(button_caps);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto err;
         }
 
         for (i = 0; i < caps.NumberInputButtonCaps; ++i) {
@@ -1339,8 +1343,6 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
         ctx->guide_hack = SDL_TRUE;
         joystick->nbuttons += 1;
     }
-
-    SDL_stack_free(button_caps);
 
     for (i = 0; i < caps.NumberInputValueCaps; ++i) {
         HIDP_VALUE_CAPS *cap = &value_caps[i];
@@ -1370,9 +1372,8 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
         ctx->axis_indices = (USHORT *)SDL_malloc(joystick->naxes * sizeof(*ctx->axis_indices));
         if (!ctx->axis_indices) {
-            RAWINPUT_JoystickClose(joystick);
-            SDL_stack_free(value_caps);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto err;
         }
 
         for (i = 0; i < caps.NumberInputValueCaps; ++i) {
@@ -1404,9 +1405,8 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
         ctx->hat_indices = (USHORT *)SDL_malloc(joystick->nhats * sizeof(*ctx->hat_indices));
         if (!ctx->hat_indices) {
-            RAWINPUT_JoystickClose(joystick);
-            SDL_stack_free(value_caps);
-            return SDL_OutOfMemory();
+            SDL_OutOfMemory();
+            goto err;
         }
 
         for (i = 0; i < caps.NumberInputValueCaps; ++i) {
@@ -1424,11 +1424,17 @@ static int RAWINPUT_JoystickOpen(SDL_Joystick *joystick, int device_index)
         }
     }
 
+    SDL_stack_free(button_caps);
     SDL_stack_free(value_caps);
 
     joystick->epowerlevel = SDL_JOYSTICK_POWER_UNKNOWN;
 
     return 0;
+err:
+    RAWINPUT_JoystickClose(joystick);
+    SDL_stack_free(button_caps);
+    SDL_stack_free(value_caps);
+    return -1;
 }
 
 static int RAWINPUT_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
