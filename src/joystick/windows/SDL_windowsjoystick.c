@@ -149,7 +149,6 @@ typedef DWORD(WINAPI *CM_Unregister_NotificationFunc)(HCMNOTIFICATION NotifyCont
 
 /* local variables */
 #if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
-static SDL_bool s_bJoystickThread = SDL_FALSE;
 static SDL_bool s_bWindowsDeviceChanged = SDL_FALSE;
 static SDL_cond *s_condJoystickThread = NULL;
 static SDL_mutex *s_mutexJoyStickEnum = NULL;
@@ -474,8 +473,7 @@ static int WINDOWS_JoystickInit(void)
         return -1;
     }
 #ifdef SDL_JOYSTICK_XINPUT
-    s_bJoystickThread = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE);
-    if (s_bJoystickThread) {
+    if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE)) {
         ret = SDL_StartJoystickThread();
     }
 #endif
@@ -484,7 +482,6 @@ static int WINDOWS_JoystickInit(void)
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
     /* On Xbox, force create the joystick thread for device detection (since other methods don't work). Do not even start the thread if there is not xinput */
 #ifdef SDL_JOYSTICK_XINPUT
-    s_bJoystickThread = SDL_TRUE;
     ret = SDL_StartJoystickThread();
 #endif
 #endif
@@ -748,10 +745,7 @@ void WINDOWS_JoystickQuit(void)
 
 #if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
 #ifdef SDL_JOYSTICK_XINPUT
-    if (s_bJoystickThread) {
-        // s_bJoystickThread = SDL_FALSE;
-        SDL_StopJoystickThread();
-    }
+    SDL_StopJoystickThread();
 #endif
     SDL_CleanupDeviceNotification();
 
@@ -760,10 +754,7 @@ void WINDOWS_JoystickQuit(void)
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
 #ifdef SDL_JOYSTICK_XINPUT
-    if (s_bJoystickThread) {
-        // s_bJoystickThread = SDL_FALSE;
-        SDL_StopJoystickThread();
-    }
+    SDL_StopJoystickThread();
 #endif
 #endif
 
