@@ -302,16 +302,12 @@ static int SDL_CreateDeviceNotification()
     data->wincl.cbSize = sizeof(WNDCLASSEX);
 
     if (!RegisterClassEx(&data->wincl)) {
-        WIN_SetError("Failed to create register class for joystick autodetect");
-        SDL_CleanupDeviceNotification();
-        return -1;
+        return WIN_SetError("Failed to create register class for joystick autodetect");
     }
 
     data->messageWindow = CreateWindowEx(0, TEXT("Message"), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
     if (!data->messageWindow) {
-        WIN_SetError("Failed to create message window for joystick autodetect");
-        SDL_CleanupDeviceNotification();
-        return -1;
+        return WIN_SetError("Failed to create message window for joystick autodetect");
     }
 
     SDL_zero(dbh);
@@ -321,9 +317,7 @@ static int SDL_CreateDeviceNotification()
 
     data->hNotify = RegisterDeviceNotification(data->messageWindow, &dbh, DEVICE_NOTIFY_WINDOW_HANDLE);
     if (!data->hNotify) {
-        WIN_SetError("Failed to create notify device for joystick autodetect");
-        SDL_CleanupDeviceNotification();
-        return -1;
+        return WIN_SetError("Failed to create notify device for joystick autodetect");
     }
 
 #ifdef SDL_JOYSTICK_RAWINPUT
