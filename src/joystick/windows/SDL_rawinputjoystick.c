@@ -612,19 +612,22 @@ static void RAWINPUT_UpdateWindowsGamingInput(void)
                         if (!found) {
                             /* New device, add it */
                             WindowsGamingInputGamepadState *gamepad_state;
+                            WindowsGamingInputGamepadState **new_per_gamepad;
+                            int new_gamepad_count = wgi_state.per_gamepad_count + 1;
 
-                            wgi_state.per_gamepad_count++;
-                            wgi_state.per_gamepad = SDL_realloc(wgi_state.per_gamepad, sizeof(wgi_state.per_gamepad[0]) * wgi_state.per_gamepad_count);
-                            if (!wgi_state.per_gamepad) {
-                                SDL_OutOfMemory();
-                                return;
-                            }
                             gamepad_state = SDL_calloc(1, sizeof(*gamepad_state));
-                            if (!gamepad_state) {
-                                SDL_OutOfMemory();
-                                return;
+                            new_per_gamepad = SDL_realloc(wgi_state.per_gamepad, sizeof(wgi_state.per_gamepad[0]) * new_gamepad_count);
+                            if (new_per_gamepad) {
+                                wgi_state.per_gamepad = new_per_gamepad;
                             }
-                            wgi_state.per_gamepad[wgi_state.per_gamepad_count - 1] = gamepad_state;
+                            if (!gamepad_state || !new_per_gamepad) {
+                                SDL_free(gamepad_state);
+                                __x_ABI_CWindows_CGaming_CInput_CIGamepad_Release(gamepad);
+                                // SDL_OutOfMemory();
+                                continue;
+                            }
+                            wgi_state.per_gamepad_count = new_gamepad_count;
+                            wgi_state.per_gamepad[new_gamepad_count - 1] = gamepad_state;
                             gamepad_state->gamepad = gamepad;
                             gamepad_state->connected = SDL_TRUE;
                         } else {
