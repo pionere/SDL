@@ -497,9 +497,11 @@ static int WINDOWS_JoystickInit(void)
 #endif
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
-    /* On Xbox, force create the joystick thread for device detection (since other methods don't work */
+    /* On Xbox, force create the joystick thread for device detection (since other methods don't work). Do not even start the thread if there is not xinput */
+#ifdef SDL_JOYSTICK_XINPUT
     s_bJoystickThread = SDL_TRUE;
     ret = SDL_StartJoystickThread();
+#endif
 #endif
     if (ret < 0) {
         WINDOWS_JoystickQuit();
@@ -774,10 +776,12 @@ void WINDOWS_JoystickQuit(void)
 #endif
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
+#ifdef SDL_JOYSTICK_XINPUT
     if (s_bJoystickThread) {
         // s_bJoystickThread = SDL_FALSE;
         SDL_StopJoystickThread();
     }
+#endif
 #endif
 
     SDL_DINPUT_JoystickQuit();
