@@ -452,11 +452,8 @@ void WINDOWS_JoystickQuit(void);
  */
 static int WINDOWS_JoystickInit(void)
 {
-    int ret = 0;
-
     if (SDL_XINPUT_JoystickInit() < 0 || SDL_DINPUT_JoystickInit() < 0) {
-        WINDOWS_JoystickQuit();
-        return -1;
+        goto err;
     }
 
     s_bWindowsDeviceChanged = SDL_TRUE; /* force a scan of the system for joysticks this first time */
@@ -467,8 +464,7 @@ static int WINDOWS_JoystickInit(void)
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     SDL_CreateDeviceNotificationFunc();
     if (SDL_CreateDeviceNotification() < 0) {
-        WINDOWS_JoystickQuit();
-        return -1;
+        goto err;
     }
 #endif
 #ifdef SDL_JOYSTICK_XINPUT
@@ -477,14 +473,16 @@ static int WINDOWS_JoystickInit(void)
     if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE))
 #endif
     {
-        ret = SDL_StartJoystickThread();
+        if (SDL_StartJoystickThread() < 0) {
+            goto err;
+        }
     }
 #endif /* SDL_JOYSTICK_XINPUT */
 #endif /* !__WINRT__ */
-    if (ret < 0) {
-        WINDOWS_JoystickQuit();
-    }
-    return ret;
+    return 0;
+err:
+    WINDOWS_JoystickQuit();
+    return -1;
 }
 
 /* return the number of joysticks that are connected right now */
