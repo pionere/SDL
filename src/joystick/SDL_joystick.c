@@ -70,7 +70,7 @@ static const SDL_JoystickDriver *const SDL_joystick_drivers[] = {
 #ifdef SDL_JOYSTICK_RAWINPUT
     &SDL_RAWINPUT_JoystickDriver,
 #endif
-#if defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT)
+#if defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT) || defined(SDL_JOYSTICK_RAWINPUT)
     &SDL_WINDOWS_JoystickDriver,
 #endif
 #if defined(SDL_JOYSTICK_WGI)

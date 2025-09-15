@@ -20,7 +20,7 @@
 */
 #include "../../SDL_internal.h"
 
-#if defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT)
+#if defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT) || defined(SDL_JOYSTICK_RAWINPUT)
 
 /* DirectInput joystick driver; written by Glenn Maynard, based on Andrei de
  * A. Formiga's WINMM driver.
@@ -148,8 +148,8 @@ typedef DWORD(WINAPI *CM_Register_NotificationFunc)(PCM_NOTIFY_FILTER pFilter, P
 typedef DWORD(WINAPI *CM_Unregister_NotificationFunc)(HCMNOTIFICATION NotifyContext);
 
 /* local variables */
-#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
 static SDL_bool s_bWindowsDeviceChanged = SDL_FALSE;
+#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
 static SDL_cond *s_condJoystickThread = NULL;
 static SDL_mutex *s_mutexJoyStickEnum = NULL;
 static SDL_Thread *s_joystickThread = NULL;
@@ -159,17 +159,20 @@ static GUID GUID_DEVINTERFACE_HID = { 0x4D1E55B2L, 0xF16F, 0x11CF, { 0x88, 0xCB,
 
 JoyStick_DeviceData *SYS_Joystick; /* array to hold joystick ID values */
 
-#if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+#if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__) && (defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT))
 static HMODULE cfgmgr32_lib_handle;
 static CM_Register_NotificationFunc CM_Register_Notification;
 static CM_Unregister_NotificationFunc CM_Unregister_Notification;
 static HCMNOTIFICATION s_DeviceNotificationFuncHandle;
+#endif
 
 void WINDOWS_RAWINPUTEnabledChanged(void)
 {
     s_bWindowsDeviceChanged = SDL_TRUE;
 }
 
+#if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
+#if defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT)
 static DWORD CALLBACK SDL_DeviceNotificationFunc(HCMNOTIFICATION hNotify, PVOID context, CM_NOTIFY_ACTION action, PCM_NOTIFY_EVENT_DATA eventData, DWORD event_data_size)
 {
     if (action == CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL ||
@@ -212,7 +215,7 @@ static void SDL_CreateDeviceNotificationFunc(void)
         SDL_CleanupDeviceNotificationFunc();
     }
 }
-
+#endif /* defined(SDL_JOYSTICK_DINPUT) || defined(SDL_JOYSTICK_XINPUT) */
 typedef struct
 {
     SDL_bool coinitialized;
@@ -794,13 +797,6 @@ SDL_JoystickDriver SDL_WINDOWS_JoystickDriver = {
 }
 #endif
 
-#else
-
-#ifdef SDL_JOYSTICK_RAWINPUT
-/* The RAWINPUT driver needs the device notification setup above */
-#error SDL_JOYSTICK_RAWINPUT requires SDL_JOYSTICK_DINPUT || defined(SDL_JOYSTICK_XINPUT)
-#endif
-
-#endif /* SDL_JOYSTICK_DINPUT || SDL_JOYSTICK_XINPUT */
+#endif /* SDL_JOYSTICK_DINPUT || SDL_JOYSTICK_XINPUT || SDL_JOYSTICK_RAWINPUT */
 
 /* vi: set ts=4 sw=4 expandtab: */
