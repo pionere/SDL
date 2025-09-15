@@ -148,6 +148,7 @@ typedef DWORD(WINAPI *CM_Register_NotificationFunc)(PCM_NOTIFY_FILTER pFilter, P
 typedef DWORD(WINAPI *CM_Unregister_NotificationFunc)(HCMNOTIFICATION NotifyContext);
 
 /* local variables */
+#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
 static SDL_bool s_bJoystickThread = SDL_FALSE;
 static SDL_bool s_bWindowsDeviceChanged = SDL_FALSE;
 static SDL_cond *s_condJoystickThread = NULL;
@@ -155,6 +156,7 @@ static SDL_mutex *s_mutexJoyStickEnum = NULL;
 static SDL_Thread *s_joystickThread = NULL;
 static SDL_bool s_bJoystickThreadQuit = SDL_FALSE;
 static GUID GUID_DEVINTERFACE_HID = { 0x4D1E55B2L, 0xF16F, 0x11CF, { 0x88, 0xCB, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 } };
+#endif
 
 JoyStick_DeviceData *SYS_Joystick; /* array to hold joystick ID values */
 
@@ -354,7 +356,7 @@ static SDL_bool SDL_WaitForDeviceNotification(SDL_mutex *mutex)
 
 #endif /* !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__) */
 
-#if !defined(__WINRT__)
+#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
 
 /* Function/thread to scan the system for joysticks. */
 static int SDLCALL SDL_JoystickThread(void *_data)
@@ -373,11 +375,9 @@ static int SDLCALL SDL_JoystickThread(void *_data)
     SDL_LockMutex(s_mutexJoyStickEnum);
     while (s_bJoystickThreadQuit == SDL_FALSE) {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-        if (SDL_WaitForDeviceNotification(s_mutexJoyStickEnum) == SDL_FALSE) {
-#else
-        {
+        if (SDL_WaitForDeviceNotification(s_mutexJoyStickEnum) == SDL_FALSE)
 #endif
-#ifdef SDL_JOYSTICK_XINPUT
+        {
             /* WM_DEVICECHANGE not working, poll for new XINPUT controllers */
             SDL_CondWaitTimeout(s_condJoystickThread, s_mutexJoyStickEnum, 1000);
             if (SDL_XINPUT_Enabled()) {
@@ -393,10 +393,6 @@ static int SDLCALL SDL_JoystickThread(void *_data)
                     }
                 }
             }
-#else
-            /* WM_DEVICECHANGE not working, no XINPUT, no point in keeping thread alive */
-            break;
-#endif /* SDL_JOYSTICK_XINPUT */
         }
     }
 
@@ -453,7 +449,7 @@ static void SDL_StopJoystickThread(void)
     s_mutexJoyStickEnum = NULL;
 }
 
-#endif /* !defined(__WINRT__) */
+#endif /* !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT) */
 
 void WINDOWS_AddJoystickDevice(JoyStick_DeviceData *device)
 {
@@ -531,11 +527,11 @@ void WINDOWS_JoystickDetect(void)
     if (!s_bWindowsDeviceChanged) {
         return; /* thread hasn't signaled, nothing to do right now. */
     }
-
+#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
     if (s_mutexJoyStickEnum) {
         SDL_LockMutex(s_mutexJoyStickEnum);
     }
-
+#endif
     s_bWindowsDeviceChanged = SDL_FALSE;
 
     pCurList = SYS_Joystick;
@@ -546,11 +542,11 @@ void WINDOWS_JoystickDetect(void)
 
     /* Look for XInput devices. Do this last, so they're first in the final list. */
     SDL_XINPUT_JoystickDetect(&pCurList);
-
+#if !defined(__WINRT__) && defined(SDL_JOYSTICK_XINPUT)
     if (s_mutexJoyStickEnum) {
         SDL_UnlockMutex(s_mutexJoyStickEnum);
     }
-
+#endif
     while (pCurList) {
         JoyStick_DeviceData *pListNext = NULL;
 #if defined(SDL_HAPTIC_DINPUT) || defined(SDL_HAPTIC_XINPUT)
