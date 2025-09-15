@@ -193,7 +193,7 @@ static void SDL_CleanupDeviceNotificationFunc(void)
     }
 }
 
-static SDL_bool SDL_CreateDeviceNotificationFunc(void)
+static void SDL_CreateDeviceNotificationFunc(void)
 {
     cfgmgr32_lib_handle = LoadLibraryA("cfgmgr32.dll");
     if (cfgmgr32_lib_handle) {
@@ -207,13 +207,11 @@ static SDL_bool SDL_CreateDeviceNotificationFunc(void)
             notify_filter.FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
             notify_filter.u.DeviceInterface.ClassGuid = GUID_DEVINTERFACE_HID;
             if (CM_Register_Notification(&notify_filter, NULL, SDL_DeviceNotificationFunc, &s_DeviceNotificationFuncHandle) == CR_SUCCESS) {
-                return SDL_TRUE;
+                return;
             }
         }
+        SDL_CleanupDeviceNotificationFunc();
     }
-
-    SDL_CleanupDeviceNotificationFunc();
-    return SDL_FALSE;
 }
 
 typedef struct
