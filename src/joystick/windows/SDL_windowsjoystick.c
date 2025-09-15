@@ -364,12 +364,6 @@ static int SDLCALL SDL_JoystickThread(void *_data)
     SDL_zeroa(bOpenedXInputDevices);
 #endif
 
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    if (SDL_CreateDeviceNotification() < 0) {
-        return -1;
-    }
-#endif
-
     SDL_LockMutex(s_mutexJoyStickEnum);
     while (s_bJoystickThreadQuit == SDL_FALSE) {
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
@@ -395,10 +389,6 @@ static int SDLCALL SDL_JoystickThread(void *_data)
     }
 
     SDL_UnlockMutex(s_mutexJoyStickEnum);
-
-#if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-    SDL_CleanupDeviceNotification();
-#endif
 
     return 1;
 }
@@ -479,15 +469,16 @@ static int WINDOWS_JoystickInit(void)
 
 #if !defined(__WINRT__) && !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     SDL_CreateDeviceNotificationFunc();
+    if (SDL_CreateDeviceNotification() < 0) {
+        WINDOWS_JoystickQuit();
+        return -1;
+    }
 #ifdef SDL_JOYSTICK_XINPUT
     s_bJoystickThread = SDL_GetHintBoolean(SDL_HINT_JOYSTICK_THREAD, SDL_FALSE);
     if (s_bJoystickThread) {
         ret = SDL_StartJoystickThread();
-    } else
-#endif
-    {
-        ret = SDL_CreateDeviceNotification();
     }
+#endif
 #endif
 
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
@@ -760,11 +751,9 @@ void WINDOWS_JoystickQuit(void)
     if (s_bJoystickThread) {
         // s_bJoystickThread = SDL_FALSE;
         SDL_StopJoystickThread();
-    } else
-#endif
-    {
-        SDL_CleanupDeviceNotification();
     }
+#endif
+    SDL_CleanupDeviceNotification();
 
     SDL_CleanupDeviceNotificationFunc();
 #endif
