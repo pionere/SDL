@@ -200,16 +200,16 @@ static int SWITCH_JoystickOpen(SDL_Joystick *joystick, int device_index)
 
 static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
 {
-    int id = joystick->instance_id;
+    SWITCHJoystickState *pad_state = &state[joystick->instance_id];
 
-    state[id].vibrationValues.amp_low =
-    state[id].vibrationValues.amp_high = low_frequency_rumble == 0 ? 0.0f : 320.0f;
-    state[id].vibrationValues.freq_low =
+    pad_state->vibrationValues.amp_low =
+    pad_state->vibrationValues.amp_high = low_frequency_rumble == 0 ? 0.0f : 320.0f;
+    pad_state->vibrationValues.freq_low =
             low_frequency_rumble == 0 ? 160.0f : (float) low_frequency_rumble / 204;
-    state[id].vibrationValues.freq_high =
+    pad_state->vibrationValues.freq_high =
             high_frequency_rumble == 0 ? 320.0f : (float) high_frequency_rumble / 204;
 
-    hidSendVibrationValues(&state[id].vibrationDeviceHandles, &state[id].vibrationValues, 1);
+    hidSendVibrationValues(&pad_state->vibrationDeviceHandles, &pad_state->vibrationValues, 1);
 
     return 0;
 }
