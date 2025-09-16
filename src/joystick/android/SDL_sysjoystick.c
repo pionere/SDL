@@ -255,7 +255,7 @@ int Android_OnPadUp(int device_id, int keycode)
     return -1;
 }
 
-int Android_OnJoy(int device_id, int axis, float value)
+void Android_OnJoy(int device_id, int axis, float value)
 {
     /* Android gives joy info normalized as [-1.0, 1.0] or [0.0, 1.0] */
     SDL_joylist_item *item;
@@ -266,11 +266,9 @@ int Android_OnJoy(int device_id, int axis, float value)
         SDL_PrivateJoystickAxis(item->joystick, axis, (Sint16)(32767. * value));
     }
     SDL_UnlockJoysticks();
-
-    return 0;
 }
 
-int Android_OnHat(int device_id, int hat_id, int x, int y)
+void Android_OnHat(int device_id, int hat_id, int x, int y)
 {
     const int DPAD_UP_MASK = (1 << SDL_CONTROLLER_BUTTON_DPAD_UP);
     const int DPAD_DOWN_MASK = (1 << SDL_CONTROLLER_BUTTON_DPAD_DOWN);
@@ -314,18 +312,14 @@ int Android_OnHat(int device_id, int hat_id, int x, int y)
             }
         }
         SDL_UnlockJoysticks();
-        return 0;
     }
-
-    return -1;
 }
 
-int Android_AddJoystick(int device_id, const char *name, const char *desc, int vendor_id, int product_id, int button_mask, int naxes, int axis_mask, int nhats, SDL_bool can_rumble)
+void Android_AddJoystick(int device_id, const char *name, const char *desc, int vendor_id, int product_id, int button_mask, int naxes, int axis_mask, int nhats, SDL_bool can_rumble)
 {
     SDL_joylist_item *item;
     SDL_JoystickGUID guid;
     int i;
-    int result = -1;
 
     SDL_LockJoysticks();
 
@@ -404,23 +398,18 @@ int Android_AddJoystick(int device_id, const char *name, const char *desc, int v
 
     SDL_PrivateJoystickAdded(item->device_instance);
 
-    result = numjoysticks;
-
 #ifdef DEBUG_JOYSTICK
     SDL_Log("Added joystick %s with device_id %d", item->name, device_id);
 #endif
 
 done:
     SDL_UnlockJoysticks();
-
-    return result;
 }
 
-int Android_RemoveJoystick(int device_id)
+void Android_RemoveJoystick(int device_id)
 {
     SDL_joylist_item *item = SDL_joylist;
     SDL_joylist_item *prev = NULL;
-    int result = -1;
 
     SDL_LockJoysticks();
 
@@ -456,8 +445,6 @@ int Android_RemoveJoystick(int device_id)
 
     SDL_PrivateJoystickRemoved(item->device_instance);
 
-    result = numjoysticks;
-
 #ifdef DEBUG_JOYSTICK
     SDL_Log("Removed joystick with device_id %d", device_id);
 #endif
@@ -467,8 +454,6 @@ int Android_RemoveJoystick(int device_id)
 
 done:
     SDL_UnlockJoysticks();
-
-    return result;
 }
 
 static void ANDROID_JoystickDetect(void);

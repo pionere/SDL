@@ -136,10 +136,10 @@
     void hapticStop(int);
     # JNI to SDL interface
     int nativeSetupJNI();
-    int nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
-    int nativeRemoveJoystick(int);
-    int nativeAddHaptic(int, java.lang.String);
-    int nativeRemoveHaptic(int);
+    void nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
+    void nativeRemoveJoystick(int);
+    void nativeAddHaptic(int, java.lang.String);
+    void nativeRemoveHaptic(int);
     int onNativePadDown(int, int);
     int onNativePadUp(int, int);
     void onNativeJoy(int, int, float);

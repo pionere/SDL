@@ -226,19 +226,19 @@ int SDL_SYS_HapticStopAll(SDL_Haptic *haptic)
     return 0;
 }
 
-int Android_AddHaptic(int device_id, const char *name)
+void Android_AddHaptic(int device_id, const char *name)
 {
     SDL_hapticlist_item *item;
     item = (SDL_hapticlist_item *)SDL_calloc(1, sizeof(SDL_hapticlist_item));
     if (!item) {
-        return -1;
+        return;
     }
 
     item->device_id = device_id;
     item->name = SDL_strdup(name);
     if (!item->name) {
         SDL_free(item);
-        return -1;
+        return;
     }
 
     if (!SDL_hapticlist_tail) {
@@ -249,10 +249,9 @@ int Android_AddHaptic(int device_id, const char *name)
     }
 
     ++numhaptics;
-    return numhaptics;
 }
 
-int Android_RemoveHaptic(int device_id)
+void Android_RemoveHaptic(int device_id)
 {
     SDL_hapticlist_item *item;
     SDL_hapticlist_item *prev = NULL;
@@ -260,8 +259,6 @@ int Android_RemoveHaptic(int device_id)
     for (item = SDL_hapticlist; item; item = item->next) {
         /* found it, remove it. */
         if (device_id == item->device_id) {
-            const int retval = item->haptic ? item->haptic->index : -1;
-
             if (prev) {
                 prev->next = item->next;
             } else {
@@ -278,11 +275,9 @@ int Android_RemoveHaptic(int device_id)
 
             SDL_free(item->name);
             SDL_free(item);
-            return retval;
         }
         prev = item;
     }
-    return -1;
 }
 
 #endif /* SDL_HAPTIC_ANDROID */
