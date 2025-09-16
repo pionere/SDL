@@ -589,7 +589,9 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
             SDL_free(rendererData->descriptorPools[i]);
         }
         SDL_free(rendererData->descriptorPools);
+        rendererData->descriptorPools = NULL;
         SDL_free(rendererData->numDescriptorPools);
+        rendererData->numDescriptorPools = NULL;
     }
     for (uint32_t i = 0; i < NUM_SHADERS; i++) {
         if (rendererData->vertexShaderModules[i] != VK_NULL_HANDLE) {
@@ -613,6 +615,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         vkDestroyPipeline(rendererData->device, rendererData->pipelineStates[i].pipeline, NULL);
     }
     SDL_free(rendererData->pipelineStates);
+    rendererData->pipelineStates = NULL;
     rendererData->pipelineStateCount = 0;
 
     if (rendererData->uploadBuffers) {
