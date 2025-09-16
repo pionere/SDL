@@ -629,7 +629,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     SDL_free(rendererData->pipelineStates);
     rendererData->pipelineStateCount = 0;
 
-    if (rendererData->currentUploadBuffer) {
+    if (rendererData->uploadBuffers) {
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
             for (int j = 0; j < rendererData->currentUploadBuffer[i]; ++j) {
                 VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
