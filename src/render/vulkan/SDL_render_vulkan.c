@@ -631,10 +631,12 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
 
     if (rendererData->uploadBuffers) {
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            for (int j = 0; j < rendererData->currentUploadBuffer[i]; ++j) {
-                VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
+            if (rendererData->uploadBuffers[i]) {
+                for (int j = 0; j < rendererData->currentUploadBuffer[i]; ++j) {
+                    VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
+                }
+                SDL_free(rendererData->uploadBuffers[i]);
             }
-            SDL_free(rendererData->uploadBuffers[i]);
         }
         SDL_free(rendererData->uploadBuffers);
         rendererData->uploadBuffers = NULL;
@@ -643,12 +645,13 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     }
 
     if (rendererData->constantBuffers) {
-        SDL_assert(rendererData->numConstantBuffers);
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            for (uint32_t j = 0; j < rendererData->numConstantBuffers[i]; j++) {
-                VULKAN_DestroyBuffer(rendererData, &rendererData->constantBuffers[i][j]);
+            if (rendererData->constantBuffers[i]) {
+                for (uint32_t j = 0; j < rendererData->numConstantBuffers[i]; j++) {
+                    VULKAN_DestroyBuffer(rendererData, &rendererData->constantBuffers[i][j]);
+                }
+                SDL_free(rendererData->constantBuffers[i]);
             }
-            SDL_free(rendererData->constantBuffers[i]);
         }
         SDL_free(rendererData->constantBuffers);
         rendererData->constantBuffers = NULL;
