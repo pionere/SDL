@@ -138,45 +138,11 @@ static int PS2_JoystickGetCount(void)
     return enabled_pads;
 }
 
-/* Function to cause any queued joystick insertions to be processed */
-static void PS2_JoystickDetect(void)
-{
-}
-
-static SDL_bool PS2_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 /* Function to get the device-dependent name of a joystick */
 static const char *PS2_JoystickGetDeviceName(int device_index)
 {
     SDL_assert(device_index >= 0 && device_index < enabled_pads);
     return "PS2 Controller";
-}
-
-/* Function to get the device-dependent path of a joystick */
-static const char *PS2_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-/* Function to get the Steam virtual gamepad slot of a joystick */
-static int PS2_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-/* Function to get the player index of a joystick */
-static int PS2_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-/* Function to set the player index of a joystick */
-static void PS2_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 /* Function to return the stable GUID for a plugged in device */
@@ -242,34 +208,10 @@ static int PS2_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumbl
     return res == 1 ? 0 : -1;
 }
 
-/* Rumble functionality */
-static int PS2_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right)
-{
-    return -1;
-}
-
 /* Capability detection */
 static Uint32 PS2_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     return SDL_JOYCAP_RUMBLE;
-}
-
-/* LED functionality */
-static int PS2_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return -1;
-}
-
-/* General effects */
-static int PS2_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return -1;
-}
-
-/* Sensor functionality */
-static int PS2_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return -1;
 }
 
 /*  Function to update the state of a joystick - called as a device poll.
@@ -340,34 +282,29 @@ static void PS2_JoystickQuit(void)
     deinit_joystick_driver(true);
 }
 
-static SDL_bool PS2_GetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_PS2_JoystickDriver = {
     PS2_JoystickInit,
     PS2_JoystickGetCount,
-    PS2_JoystickDetect,
-    PS2_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     PS2_JoystickGetDeviceName,
-    PS2_JoystickGetDevicePath,
-    PS2_JoystickGetDeviceSteamVirtualGamepadSlot,
-    PS2_JoystickGetDevicePlayerIndex,
-    PS2_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     PS2_JoystickGetDeviceGUID,
     PS2_JoystickGetDeviceInstanceID,
     PS2_JoystickOpen,
     PS2_JoystickRumble,
-    PS2_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     PS2_JoystickGetCapabilities,
-    PS2_JoystickSetLED,
-    PS2_JoystickSendEffect,
-    PS2_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     PS2_JoystickUpdate,
     PS2_JoystickClose,
     PS2_JoystickQuit,
-    PS2_GetGamepadMapping,
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_PS2 */

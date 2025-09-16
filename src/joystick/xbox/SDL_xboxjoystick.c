@@ -230,12 +230,6 @@ static void SDL_XBOX_JoystickDetect()
     usbh_pooling_hubs();
 }
 
-static SDL_bool SDL_XBOX_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
 {
     xid_dev_t *xid_dev = xid_from_device_index(device_index);
@@ -272,16 +266,6 @@ static const char* SDL_XBOX_JoystickGetDeviceName(int device_index)
     return name[device_index];
 }
 
-static const char *SDL_XBOX_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int SDL_XBOX_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
 // Returns the port number the device is connected to
 // 1 = Port 1, 2 = Port 2, etc.
 static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index)
@@ -299,10 +283,6 @@ static int SDL_XBOX_JoystickGetDevicePlayerIndex(int device_index)
     JOY_DBGMSG("SDL_XBOX_JoystickGetDevicePlayerIndex: %i\n", player_index);
 
     return player_index;
-}
-
-static void SDL_XBOX_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID xid_device_guid(const xid_dev_t *xid_dev)
@@ -416,11 +396,6 @@ static int SDL_XBOX_JoystickRumble(SDL_Joystick *joystick,
     return 0;
 }
 
-static int SDL_XBOX_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 SDL_XBOX_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     pjoystick_hwdata device = joystick->hwdata;
@@ -442,21 +417,6 @@ static Uint32 SDL_XBOX_JoystickGetCapabilities(SDL_Joystick *joystick)
     }
 
     return result;
-}
-
-static int SDL_XBOX_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int SDL_XBOX_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int SDL_XBOX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static void SDL_XBOX_JoystickUpdate(SDL_Joystick *joystick)
@@ -557,38 +517,33 @@ static void SDL_XBOX_JoystickQuit(void) {
     //the USB stack in other parts of their application other than game controllers.
 }
 
-static SDL_bool SDL_XBOX_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_XBOX_JoystickDriver = {
     SDL_XBOX_JoystickInit,
     SDL_XBOX_JoystickGetCount,
     SDL_XBOX_JoystickDetect,
-    SDL_XBOX_JoystickIsDevicePresent,
+    SDL_JoystickIsDevicePresent_Default,
     SDL_XBOX_JoystickGetDeviceName,
-    SDL_XBOX_JoystickGetDevicePath,
-    SDL_XBOX_JoystickGetDeviceSteamVirtualGamepadSlot,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
     SDL_XBOX_JoystickGetDevicePlayerIndex,
-    SDL_XBOX_JoystickSetDevicePlayerIndex,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     SDL_XBOX_JoystickGetDeviceGUID,
     SDL_XBOX_JoystickGetDeviceInstanceID,
 
     SDL_XBOX_JoystickOpen,
 
     SDL_XBOX_JoystickRumble,
-    SDL_XBOX_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
 
     SDL_XBOX_JoystickGetCapabilities,
-    SDL_XBOX_JoystickSetLED,
-    SDL_XBOX_JoystickSendEffect,
-    SDL_XBOX_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
 
     SDL_XBOX_JoystickUpdate,
     SDL_XBOX_JoystickClose,
     SDL_XBOX_JoystickQuit,
-    SDL_XBOX_JoystickGetGamepadMapping,
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 static void parse_input_data(PXINPUT_GAMEPAD controller, const Uint8 *rdata)

@@ -512,16 +512,6 @@ static int BSD_JoystickGetCount(void)
     return numjoysticks;
 }
 
-static void BSD_JoystickDetect(void)
-{
-}
-
-static SDL_bool BSD_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static SDL_joylist_item *JoystickByDevIndex(int device_index)
 {
     SDL_joylist_item *item = SDL_joylist;
@@ -545,20 +535,6 @@ static const char *BSD_JoystickGetDeviceName(int device_index)
 static const char *BSD_JoystickGetDevicePath(int device_index)
 {
     return JoystickByDevIndex(device_index)->path;
-}
-
-static int BSD_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int BSD_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void BSD_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID BSD_JoystickGetDeviceGUID(int device_index)
@@ -815,64 +791,29 @@ static void report_free(struct report *r)
     r->status = SREPORT_UNINIT;
 }
 
-static int BSD_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
-{
-    return SDL_Unsupported();
-}
-
-static int BSD_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
-static SDL_bool BSD_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
-static Uint32 BSD_JoystickGetCapabilities(SDL_Joystick *joystick)
-{
-    return 0;
-}
-
-static int BSD_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int BSD_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int BSD_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
-}
-
 SDL_JoystickDriver SDL_BSD_JoystickDriver = {
     BSD_JoystickInit,
     BSD_JoystickGetCount,
-    BSD_JoystickDetect,
-    BSD_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     BSD_JoystickGetDeviceName,
     BSD_JoystickGetDevicePath,
-    BSD_JoystickGetDeviceSteamVirtualGamepadSlot,
-    BSD_JoystickGetDevicePlayerIndex,
-    BSD_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     BSD_JoystickGetDeviceGUID,
     BSD_JoystickGetDeviceInstanceID,
     BSD_JoystickOpen,
-    BSD_JoystickRumble,
-    BSD_JoystickRumbleTriggers,
-    BSD_JoystickGetCapabilities,
-    BSD_JoystickSetLED,
-    BSD_JoystickSendEffect,
-    BSD_JoystickSetSensorsEnabled,
+    SDL_JoystickRumble_Default,
+    SDL_JoystickRumbleTriggers_Default,
+    SDL_JoystickGetCapabilities_Default,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     BSD_JoystickUpdate,
     BSD_JoystickClose,
     BSD_JoystickQuit,
-    BSD_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_USBHID */

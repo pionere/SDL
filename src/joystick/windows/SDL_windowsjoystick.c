@@ -612,10 +612,6 @@ static int WINDOWS_JoystickGetDevicePlayerIndex(int device_index)
     }
 }
 
-static void WINDOWS_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
-}
-
 /* return the stable device guid for this device index */
 static SDL_JoystickGUID WINDOWS_JoystickGetDeviceGUID(int device_index)
 {
@@ -670,11 +666,6 @@ static int WINDOWS_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_r
     }
 }
 
-static int WINDOWS_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 WINDOWS_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     if (joystick->hwdata->bXInputDevice) {
@@ -682,21 +673,6 @@ static Uint32 WINDOWS_JoystickGetCapabilities(SDL_Joystick *joystick)
     } else {
         return SDL_DINPUT_JoystickGetCapabilities(joystick);
     }
-}
-
-static int WINDOWS_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int WINDOWS_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int WINDOWS_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static void WINDOWS_JoystickUpdate(SDL_Joystick *joystick)
@@ -754,11 +730,6 @@ void WINDOWS_JoystickQuit(void)
     s_bWindowsDeviceChanged = SDL_FALSE;
 }
 
-static SDL_bool WINDOWS_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_WINDOWS_JoystickDriver = {
     WINDOWS_JoystickInit,
     WINDOWS_JoystickGetCount,
@@ -768,20 +739,20 @@ SDL_JoystickDriver SDL_WINDOWS_JoystickDriver = {
     WINDOWS_JoystickGetDevicePath,
     WINDOWS_JoystickGetDeviceSteamVirtualGamepadSlot,
     WINDOWS_JoystickGetDevicePlayerIndex,
-    WINDOWS_JoystickSetDevicePlayerIndex,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     WINDOWS_JoystickGetDeviceGUID,
     WINDOWS_JoystickGetDeviceInstanceID,
     WINDOWS_JoystickOpen,
     WINDOWS_JoystickRumble,
-    WINDOWS_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     WINDOWS_JoystickGetCapabilities,
-    WINDOWS_JoystickSetLED,
-    WINDOWS_JoystickSendEffect,
-    WINDOWS_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     WINDOWS_JoystickUpdate,
     WINDOWS_JoystickClose,
     WINDOWS_JoystickQuit,
-    WINDOWS_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 /* Ends C function definitions when using C++ */

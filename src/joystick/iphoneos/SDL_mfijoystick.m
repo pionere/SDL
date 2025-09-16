@@ -873,30 +873,10 @@ static int IOS_JoystickGetCount(void)
     return numjoysticks;
 }
 
-static void IOS_JoystickDetect(void)
-{
-}
-
-static SDL_bool IOS_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers through this method */
-    return SDL_FALSE;
-}
-
 static const char *IOS_JoystickGetDeviceName(int device_index)
 {
     SDL_JoystickDeviceItem *device = GetDeviceForIndex(device_index);
     return device->name;
-}
-
-static const char *IOS_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int IOS_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
 }
 
 static int IOS_JoystickGetDevicePlayerIndex(int device_index)
@@ -1621,11 +1601,6 @@ static int IOS_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Ui
     return SDL_Unsupported();
 }
 
-static int IOS_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
 static int IOS_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
 {
 #ifdef ENABLE_MFI_SENSORS
@@ -2086,11 +2061,11 @@ const char *IOS_GameControllerGetAppleSFSymbolsNameForAxis(SDL_GameController *g
 SDL_JoystickDriver SDL_IOS_JoystickDriver = {
     IOS_JoystickInit,
     IOS_JoystickGetCount,
-    IOS_JoystickDetect,
-    IOS_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     IOS_JoystickGetDeviceName,
-    IOS_JoystickGetDevicePath,
-    IOS_JoystickGetDeviceSteamVirtualGamepadSlot,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
     IOS_JoystickGetDevicePlayerIndex,
     IOS_JoystickSetDevicePlayerIndex,
     IOS_JoystickGetDeviceGUID,
@@ -2100,7 +2075,7 @@ SDL_JoystickDriver SDL_IOS_JoystickDriver = {
     IOS_JoystickRumbleTriggers,
     IOS_JoystickGetCapabilities,
     IOS_JoystickSetLED,
-    IOS_JoystickSendEffect,
+    SDL_JoystickSendEffect_Default,
     IOS_JoystickSetSensorsEnabled,
     IOS_JoystickUpdate,
     IOS_JoystickClose,

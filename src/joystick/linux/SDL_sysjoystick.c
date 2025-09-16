@@ -1102,12 +1102,6 @@ static void LINUX_JoystickDetect(void)
     SDL_UpdateSteamControllers();
 }
 
-static SDL_bool LINUX_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static int LINUX_JoystickInit(void)
 {
     const char *devices = SDL_GetHint(SDL_HINT_JOYSTICK_DEVICE);
@@ -1241,15 +1235,6 @@ static const char *LINUX_JoystickGetDevicePath(int device_index)
 static int LINUX_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
     return JoystickByDevIndex(device_index)->steam_virtual_gamepad_slot;
-}
-
-static int LINUX_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void LINUX_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID LINUX_JoystickGetDeviceGUID(int device_index)
@@ -1796,11 +1781,6 @@ static int LINUX_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rum
     return 0;
 }
 
-static int LINUX_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 LINUX_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     Uint32 result = 0;
@@ -1812,16 +1792,6 @@ static Uint32 LINUX_JoystickGetCapabilities(SDL_Joystick *joystick)
     }
 
     return result;
-}
-
-static int LINUX_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int LINUX_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
 }
 
 static int LINUX_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool input)
@@ -2863,20 +2833,20 @@ SDL_JoystickDriver SDL_LINUX_JoystickDriver = {
     LINUX_JoystickInit,
     LINUX_JoystickGetCount,
     LINUX_JoystickDetect,
-    LINUX_JoystickIsDevicePresent,
+    SDL_JoystickIsDevicePresent_Default,
     LINUX_JoystickGetDeviceName,
     LINUX_JoystickGetDevicePath,
     LINUX_JoystickGetDeviceSteamVirtualGamepadSlot,
-    LINUX_JoystickGetDevicePlayerIndex,
-    LINUX_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     LINUX_JoystickGetDeviceGUID,
     LINUX_JoystickGetDeviceInstanceID,
     LINUX_JoystickOpen,
     LINUX_JoystickRumble,
-    LINUX_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     LINUX_JoystickGetCapabilities,
-    LINUX_JoystickSetLED,
-    LINUX_JoystickSendEffect,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
     LINUX_JoystickSetSensorsEnabled,
     LINUX_JoystickUpdate,
     LINUX_JoystickClose,

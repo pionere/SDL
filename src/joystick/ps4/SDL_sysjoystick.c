@@ -140,12 +140,6 @@ static void PS4_JoystickDetect()
     }
 }
 
-static SDL_bool PS4_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 /* Function to scan the system for joysticks.
  * Joystick 0 should be the system default joystick.
  * It should return number of joysticks, or -1 on an unrecoverable fatal error.
@@ -192,25 +186,6 @@ static const char *PS4_JoystickGetDeviceName(int device_index)
 {
     SDL_assert(device_index >= 0 && device_index < SDL_numjoysticks);
     return "Sony DualShock 4 V2";
-}
-
-static const char *PS4_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int PS4_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int PS4_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void PS4_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 /* Function to open a joystick for use.
@@ -335,11 +310,6 @@ static void PS4_JoystickClose(SDL_Joystick *joystick)
     scePadClose(pads_handles[index]);
 }
 
-/* Function to perform any system-specific joystick related cleanup */
-static void PS4_JoystickQuit(void)
-{
-}
-
 static SDL_JoystickGUID PS4_JoystickGetDeviceGUID(int device_index) {
     SDL_JoystickGUID guid;
     /* the GUID is just the first 16 chars of the name for now */
@@ -359,11 +329,6 @@ static int PS4_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumbl
     return 0;
 }
 
-static int
-PS4_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right) {
-    return SDL_Unsupported();
-}
-
 static Uint32 PS4_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     // always return LED and rumble supported for now
@@ -379,16 +344,6 @@ static int PS4_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Ui
     scePadSetLightBar(pads_handles[index], &color);
 
     return 0;
-}
-
-static int PS4_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int PS4_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static SDL_bool PS4_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
@@ -443,28 +398,28 @@ SDL_JoystickDriver SDL_PS4_JoystickDriver = {
         PS4_JoystickInit,
         PS4_JoystickGetCount,
         PS4_JoystickDetect,
-        PS4_JoystickIsDevicePresent,
+        SDL_JoystickIsDevicePresent_Default,
         PS4_JoystickGetDeviceName,
-        PS4_JoystickGetDevicePath,
-        PS4_JoystickGetDeviceSteamVirtualGamepadSlot,
-        PS4_JoystickGetDevicePlayerIndex,
-        PS4_JoystickSetDevicePlayerIndex,
+        SDL_JoystickGetDevicePath_Default,
+        SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+        SDL_JoystickGetDevicePlayerIndex_Default,
+        SDL_JoystickSetDevicePlayerIndex_Default,
         PS4_JoystickGetDeviceGUID,
         PS4_JoystickGetDeviceInstanceID,
 
         PS4_JoystickOpen,
 
         PS4_JoystickRumble,
-        PS4_JoystickRumbleTriggers,
+        SDL_JoystickRumbleTriggers_Default,
 
         PS4_JoystickGetCapabilities,
         PS4_JoystickSetLED,
-        PS4_JoystickSendEffect,
-        PS4_JoystickSetSensorsEnabled,
+        SDL_JoystickSendEffect_Default,
+        SDL_JoystickSetSensorsEnabled_Default,
 
         PS4_JoystickUpdate,
         PS4_JoystickClose,
-        PS4_JoystickQuit,
+        SDL_JoystickQuit_Default,
         PS4_JoystickGetGamepadMapping
 };
 

@@ -713,36 +713,16 @@ static void DARWIN_JoystickDetect(void)
     }
 }
 
-static SDL_bool DARWIN_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static const char *DARWIN_JoystickGetDeviceName(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
     return device->product;
 }
 
-static const char *DARWIN_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
 static int DARWIN_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
     recDevice *device = GetDeviceForIndex(device_index);
     return device->steam_virtual_gamepad_slot;
-}
-
-static int DARWIN_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void DARWIN_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID DARWIN_JoystickGetDeviceGUID(int device_index)
@@ -847,11 +827,6 @@ static int DARWIN_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
     return 0;
 }
 
-static int DARWIN_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 DARWIN_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     recDevice *device = joystick->hwdata;
@@ -866,21 +841,6 @@ static Uint32 DARWIN_JoystickGetCapabilities(SDL_Joystick *joystick)
     }
 
     return result;
-}
-
-static int DARWIN_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int DARWIN_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int DARWIN_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static void DARWIN_JoystickUpdate(SDL_Joystick *joystick)
@@ -1008,34 +968,29 @@ static void DARWIN_JoystickQuit(void)
     }
 }
 
-static SDL_bool DARWIN_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_DARWIN_JoystickDriver = {
     DARWIN_JoystickInit,
     DARWIN_JoystickGetCount,
     DARWIN_JoystickDetect,
-    DARWIN_JoystickIsDevicePresent,
+    SDL_JoystickIsDevicePresent_Default,
     DARWIN_JoystickGetDeviceName,
-    DARWIN_JoystickGetDevicePath,
+    SDL_JoystickGetDevicePath_Default,
     DARWIN_JoystickGetDeviceSteamVirtualGamepadSlot,
-    DARWIN_JoystickGetDevicePlayerIndex,
-    DARWIN_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     DARWIN_JoystickGetDeviceGUID,
     DARWIN_JoystickGetDeviceInstanceID,
     DARWIN_JoystickOpen,
     DARWIN_JoystickRumble,
-    DARWIN_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     DARWIN_JoystickGetCapabilities,
-    DARWIN_JoystickSetLED,
-    DARWIN_JoystickSendEffect,
-    DARWIN_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     DARWIN_JoystickUpdate,
     DARWIN_JoystickClose,
     DARWIN_JoystickQuit,
-    DARWIN_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_IOKIT */

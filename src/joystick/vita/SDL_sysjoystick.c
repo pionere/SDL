@@ -151,16 +151,6 @@ static int VITA_JoystickGetCount(void)
     return SDL_numjoysticks;
 }
 
-static void VITA_JoystickDetect(void)
-{
-}
-
-static SDL_bool VITA_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 /* Function to perform the mapping from device index to the instance id for this index */
 static SDL_JoystickID VITA_JoystickGetDeviceInstanceID(int device_index)
 {
@@ -171,25 +161,6 @@ static const char *VITA_JoystickGetDeviceName(int device_index)
 {
     SDL_assert(device_index >= 0 && device_index < SDL_numjoysticks);
     return "PSVita Controller";
-}
-
-static const char *VITA_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int VITA_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int VITA_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void VITA_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 /* Function to open a joystick for use.
@@ -290,16 +261,6 @@ static void VITA_JoystickUpdate(SDL_Joystick *joystick)
     }
 }
 
-/* Function to close a joystick after use */
-static void VITA_JoystickClose(SDL_Joystick *joystick)
-{
-}
-
-/* Function to perform any system-specific joystick related cleanup */
-static void VITA_JoystickQuit(void)
-{
-}
-
 static SDL_JoystickGUID VITA_JoystickGetDeviceGUID(int device_index)
 {
     /* the GUID is just the name for now */
@@ -321,11 +282,6 @@ static int VITA_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumb
     return 0;
 }
 
-static int VITA_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 VITA_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     // always return LED and rumble supported for now
@@ -341,48 +297,33 @@ static int VITA_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, U
     return 0;
 }
 
-static int VITA_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int VITA_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
-}
-
-static SDL_bool VITA_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_VITA_JoystickDriver = {
     VITA_JoystickInit,
     VITA_JoystickGetCount,
-    VITA_JoystickDetect,
-    VITA_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     VITA_JoystickGetDeviceName,
-    VITA_JoystickGetDevicePath,
-    VITA_JoystickGetDeviceSteamVirtualGamepadSlot,
-    VITA_JoystickGetDevicePlayerIndex,
-    VITA_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     VITA_JoystickGetDeviceGUID,
     VITA_JoystickGetDeviceInstanceID,
 
     VITA_JoystickOpen,
 
     VITA_JoystickRumble,
-    VITA_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
 
     VITA_JoystickGetCapabilities,
     VITA_JoystickSetLED,
-    VITA_JoystickSendEffect,
-    VITA_JoystickSetSensorsEnabled,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
 
     VITA_JoystickUpdate,
-    VITA_JoystickClose,
-    VITA_JoystickQuit,
-    VITA_JoystickGetGamepadMapping,
+    SDL_JoystickClose_Default,
+    SDL_JoystickQuit_Default,
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_VITA */

@@ -593,38 +593,14 @@ static int WGI_JoystickGetCount(void)
     return wgi.controller_count;
 }
 
-static void WGI_JoystickDetect(void)
-{
-}
-
-static SDL_bool WGI_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static const char *WGI_JoystickGetDeviceName(int device_index)
 {
     return wgi.controllers[device_index].name;
 }
 
-static const char *WGI_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
 static int WGI_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
 {
     return wgi.controllers[device_index].steam_virtual_gamepad_slot;
-}
-
-static int WGI_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void WGI_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID WGI_JoystickGetDeviceGUID(int device_index)
@@ -758,21 +734,6 @@ static Uint32 WGI_JoystickGetCapabilities(SDL_Joystick *joystick)
     } else {
         return 0;
     }
-}
-
-static int WGI_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int WGI_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int WGI_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static Uint8 ConvertHatValue(__x_ABI_CWindows_CGaming_CInput_CGameControllerSwitchPosition value)
@@ -923,34 +884,29 @@ static void WGI_JoystickQuit(void)
     SDL_zero(wgi);
 }
 
-static SDL_bool WGI_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_WGI_JoystickDriver = {
     WGI_JoystickInit,
     WGI_JoystickGetCount,
-    WGI_JoystickDetect,
-    WGI_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     WGI_JoystickGetDeviceName,
-    WGI_JoystickGetDevicePath,
+    SDL_JoystickGetDevicePath_Default,
     WGI_JoystickGetDeviceSteamVirtualGamepadSlot,
-    WGI_JoystickGetDevicePlayerIndex,
-    WGI_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     WGI_JoystickGetDeviceGUID,
     WGI_JoystickGetDeviceInstanceID,
     WGI_JoystickOpen,
     WGI_JoystickRumble,
     WGI_JoystickRumbleTriggers,
     WGI_JoystickGetCapabilities,
-    WGI_JoystickSetLED,
-    WGI_JoystickSendEffect,
-    WGI_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     WGI_JoystickUpdate,
     WGI_JoystickClose,
     WGI_JoystickQuit,
-    WGI_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_WGI */

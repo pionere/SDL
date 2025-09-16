@@ -89,16 +89,6 @@ extern "C"
         return numjoysticks;
     }
 
-    static void HAIKU_JoystickDetect(void)
-    {
-    }
-
-    static SDL_bool HAIKU_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-    {
-        /* We don't override any other drivers */
-        return SDL_FALSE;
-    }
-
     static const char *HAIKU_JoystickGetDeviceName(int device_index)
     {
         return SDL_joyname[device_index];
@@ -107,20 +97,6 @@ extern "C"
     static const char *HAIKU_JoystickGetDevicePath(int device_index)
     {
         return SDL_joyport[device_index];
-    }
-
-    static int HAIKU_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-    {
-        return -1;
-    }
-
-    static int HAIKU_JoystickGetDevicePlayerIndex(int device_index)
-    {
-        return -1;
-    }
-
-    static void HAIKU_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-    {
     }
 
 /* Function to perform the mapping from device index to the instance id for this index */
@@ -264,68 +240,30 @@ extern "C"
         return SDL_CreateJoystickGUIDForName(name);
     }
 
-    static int HAIKU_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
-    {
-        return SDL_Unsupported();
-    }
-
-
-    static int HAIKU_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-    {
-        return SDL_Unsupported();
-    }
-
-    static SDL_bool
-    HAIKU_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-    {
-        return SDL_FALSE;
-    }
-
-    static Uint32 HAIKU_JoystickGetCapabilities(SDL_Joystick *joystick)
-    {
-        return 0;
-    }
-
-    static int HAIKU_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-    {
-        return SDL_Unsupported();
-    }
-
-
-    static int HAIKU_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-    {
-        return SDL_Unsupported();
-    }
-
-    static int HAIKU_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-    {
-        return SDL_Unsupported();
-    }
-
     SDL_JoystickDriver SDL_HAIKU_JoystickDriver =
     {
         HAIKU_JoystickInit,
         HAIKU_JoystickGetCount,
-        HAIKU_JoystickDetect,
-        HAIKU_JoystickIsDevicePresent,
+        SDL_JoystickDetect_Default,
+        SDL_JoystickIsDevicePresent_Default,
         HAIKU_JoystickGetDeviceName,
         HAIKU_JoystickGetDevicePath,
-        HAIKU_JoystickGetDeviceSteamVirtualGamepadSlot,
-        HAIKU_JoystickGetDevicePlayerIndex,
-        HAIKU_JoystickSetDevicePlayerIndex,
+        SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+        SDL_JoystickGetDevicePlayerIndex_Default,
+        SDL_JoystickSetDevicePlayerIndex_Default,
         HAIKU_JoystickGetDeviceGUID,
         HAIKU_JoystickGetDeviceInstanceID,
         HAIKU_JoystickOpen,
-        HAIKU_JoystickRumble,
-        HAIKU_JoystickRumbleTriggers,
-        HAIKU_JoystickGetCapabilities,
-        HAIKU_JoystickSetLED,
-        HAIKU_JoystickSendEffect,
-        HAIKU_JoystickSetSensorsEnabled,
+        SDL_JoystickRumble_Default,
+        SDL_JoystickRumbleTriggers_Default,
+        SDL_JoystickGetCapabilities_Default,
+        SDL_JoystickSetLED_Default,
+        SDL_JoystickSendEffect_Default,
+        SDL_JoystickSetSensorsEnabled_Default,
         HAIKU_JoystickUpdate,
         HAIKU_JoystickClose,
         HAIKU_JoystickQuit,
-        HAIKU_JoystickGetGamepadMapping
+        SDL_JoystickGetGamepadMapping_Default,
     };
 
 }                              // extern "C"

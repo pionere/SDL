@@ -183,39 +183,10 @@ static int SWITCH_JoystickGetCount(void)
     return JOYSTICK_COUNT;
 }
 
-static void SWITCH_JoystickDetect(void)
-{
-}
-
-static SDL_bool SWITCH_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 /* Function to get the device-dependent name of a joystick */
 static const char *SWITCH_JoystickGetDeviceName(int device_index)
 {
     return "Switch Controller";
-}
-
-static const char *SWITCH_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int SWITCH_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void SWITCH_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID SWITCH_JoystickGetDeviceGUID(int device_index)
@@ -260,30 +231,6 @@ static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
     hidSendVibrationValues(&state[id].vibrationDeviceHandles, &state[id].vibrationValues, 1);
 
     return 0;
-}
-
-static int SWITCH_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left, Uint16 right)
-{
-    return SDL_Unsupported();
-}
-
-static Uint32 SWITCH_JoystickGetCapabilities(SDL_Joystick *joystick)
-{
-    return 0;
-}
-
-static int SWITCH_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return 0;
-}
-
-static int SWITCH_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-static int SWITCH_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 /* Function to update the state of a joystick - called as a device poll.
@@ -353,48 +300,33 @@ static void SWITCH_JoystickUpdate(SDL_Joystick *joystick) {
     }
 }
 
-/* Function to close a joystick after use */
-static void SWITCH_JoystickClose(SDL_Joystick *joystick)
-{
-}
-
-/* Function to perform any system-specific joystick related cleanup */
-static void SWITCH_JoystickQuit(void)
-{
-}
-
-static SDL_bool SWITCH_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
         SWITCH_JoystickInit,
         SWITCH_JoystickGetCount,
-        SWITCH_JoystickDetect,
-        SWITCH_JoystickIsDevicePresent,
+        SDL_JoystickDetect_Default,
+        SDL_JoystickIsDevicePresent_Default,
         SWITCH_JoystickGetDeviceName,
-        SWITCH_JoystickGetDevicePath,
-        SWITCH_JoystickGetDeviceSteamVirtualGamepadSlot,
-        SWITCH_JoystickGetDevicePlayerIndex,
-        SWITCH_JoystickSetDevicePlayerIndex,
+        SDL_JoystickGetDevicePath_Default,
+        SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+        SDL_JoystickGetDevicePlayerIndex_Default,
+        SDL_JoystickSetDevicePlayerIndex_Default,
         SWITCH_JoystickGetDeviceGUID,
         SWITCH_JoystickGetDeviceInstanceID,
 
         SWITCH_JoystickOpen,
 
         SWITCH_JoystickRumble,
-        SWITCH_JoystickRumbleTriggers,
+        SDL_JoystickRumbleTriggers_Default,
 
-        SWITCH_JoystickGetCapabilities,
-        SWITCH_JoystickSetLED,
-        SWITCH_JoystickSendEffect,
-        SWITCH_JoystickSetSensorsEnabled,
+        SDL_JoystickGetCapabilities_Default,
+        SDL_JoystickSetLED_Default,
+        SDL_JoystickSendEffect_Default,
+        SDL_JoystickSetSensorsEnabled_Default,
 
         SWITCH_JoystickUpdate,
-        SWITCH_JoystickClose,
-        SWITCH_JoystickQuit,
-        SWITCH_JoystickGetGamepadMapping,
+        SDL_JoystickClose_Default,
+        SDL_JoystickQuit_Default,
+        SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_SWITCH */

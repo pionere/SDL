@@ -393,39 +393,10 @@ static int OS2_JoystickGetCount(void)
     return numjoysticks;
 }
 
-static void OS2_JoystickDetect(void)
-{
-}
-
-static SDL_bool OS2_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static const char *OS2_JoystickGetDeviceName(int device_index)
 {
     /* No need to verify if device exists, already done in upper layer */
     return SYS_JoyData[device_index].szDeviceName;
-}
-
-static const char *OS2_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int OS2_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int OS2_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void OS2_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
 }
 
 static SDL_JoystickGUID OS2_JoystickGetDeviceGUID(int device_index)
@@ -483,36 +454,6 @@ static int OS2_JoystickOpen(SDL_Joystick *joystick, int device_index)
     // joystick->nhats = 0; /* No support for hats at this time */
 
     return 0;
-}
-
-static int OS2_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
-{
-    return SDL_Unsupported();
-}
-
-static int OS2_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
-static Uint32 OS2_JoystickGetCapabilities(SDL_Joystick *joystick)
-{
-    return 0;
-}
-
-static int OS2_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int OS2_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int OS2_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 /***************************************************************************/
@@ -670,12 +611,6 @@ static void OS2_JoystickQuit(void)
     joyPortClose(&hJoyPort);
 }
 
-static SDL_bool OS2_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
-
 /************************/
 /* OS/2 Implementations */
 /************************/
@@ -822,26 +757,26 @@ static int joyGetData(const char *joyenv, char *name, char stopchar, size_t maxc
 SDL_JoystickDriver SDL_OS2_JoystickDriver = {
     OS2_JoystickInit,
     OS2_JoystickGetCount,
-    OS2_JoystickDetect,
-    OS2_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     OS2_JoystickGetDeviceName,
-    OS2_JoystickGetDevicePath,
-    OS2_JoystickGetDeviceSteamVirtualGamepadSlot,
-    OS2_JoystickGetDevicePlayerIndex,
-    OS2_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     OS2_JoystickGetDeviceGUID,
     OS2_JoystickGetDeviceInstanceID,
     OS2_JoystickOpen,
-    OS2_JoystickRumble,
-    OS2_JoystickRumbleTriggers,
-    OS2_JoystickGetCapabilities,
-    OS2_JoystickSetLED,
-    OS2_JoystickSendEffect,
-    OS2_JoystickSetSensorsEnabled,
+    SDL_JoystickRumble_Default,
+    SDL_JoystickRumbleTriggers_Default,
+    SDL_JoystickGetCapabilities_Default,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     OS2_JoystickUpdate,
     OS2_JoystickClose,
     OS2_JoystickQuit,
-    OS2_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_OS2 */

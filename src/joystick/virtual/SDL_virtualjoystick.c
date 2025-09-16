@@ -334,11 +334,6 @@ int SDL_JoystickSetVirtualHatInner(SDL_Joystick *joystick, int hat, Uint8 value)
     return 0;
 }
 
-static int VIRTUAL_JoystickInit(void)
-{
-    return 0;
-}
-
 static int VIRTUAL_JoystickGetCount(void)
 {
     joystick_hwdata *cur;
@@ -352,35 +347,10 @@ static int VIRTUAL_JoystickGetCount(void)
     return count;
 }
 
-static void VIRTUAL_JoystickDetect(void)
-{
-}
-
-static SDL_bool VIRTUAL_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers... or do we? */
-    return SDL_FALSE;
-}
-
 static const char *VIRTUAL_JoystickGetDeviceName(int device_index)
 {
     joystick_hwdata *hwdata = VIRTUAL_HWDataForIndex(device_index);
     return hwdata->name;
-}
-
-static const char *VIRTUAL_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int VIRTUAL_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int VIRTUAL_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
 }
 
 static void VIRTUAL_JoystickSetDevicePlayerIndex(int device_index, int player_index)
@@ -521,11 +491,6 @@ static int VIRTUAL_JoystickSendEffect(SDL_Joystick *joystick, const void *data, 
     }
 
     return result;
-}
-
-static int VIRTUAL_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static void VIRTUAL_JoystickUpdate(SDL_Joystick *joystick)
@@ -723,14 +688,14 @@ static SDL_bool VIRTUAL_JoystickGetGamepadMapping(int device_index, SDL_GamepadM
 }
 
 SDL_JoystickDriver SDL_VIRTUAL_JoystickDriver = {
-    VIRTUAL_JoystickInit,
+    SDL_JoystickInit_Default,
     VIRTUAL_JoystickGetCount,
-    VIRTUAL_JoystickDetect,
-    VIRTUAL_JoystickIsDevicePresent,
+    SDL_JoystickDetect_Default,
+    SDL_JoystickIsDevicePresent_Default,
     VIRTUAL_JoystickGetDeviceName,
-    VIRTUAL_JoystickGetDevicePath,
-    VIRTUAL_JoystickGetDeviceSteamVirtualGamepadSlot,
-    VIRTUAL_JoystickGetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
     VIRTUAL_JoystickSetDevicePlayerIndex,
     VIRTUAL_JoystickGetDeviceGUID,
     VIRTUAL_JoystickGetDeviceInstanceID,
@@ -740,7 +705,7 @@ SDL_JoystickDriver SDL_VIRTUAL_JoystickDriver = {
     VIRTUAL_JoystickGetCapabilities,
     VIRTUAL_JoystickSetLED,
     VIRTUAL_JoystickSendEffect,
-    VIRTUAL_JoystickSetSensorsEnabled,
+    SDL_JoystickSetSensorsEnabled_Default,
     VIRTUAL_JoystickUpdate,
     VIRTUAL_JoystickClose,
     VIRTUAL_JoystickQuit,

@@ -294,12 +294,6 @@ static void PS5_JoystickDetect(void)
     }
 }
 
-static SDL_bool PS5_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static int PS5_JoystickGetCount(void)
 {
     int n = 0;
@@ -381,11 +375,6 @@ static int PS5_JoystickInit(void)
     return 0;
 }
 
-static void PS5_JoystickQuit(void)
-{
-    // NOP
-}
-
 static Uint32 PS5_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     return SDL_JOYCAP_LED | SDL_JOYCAP_RUMBLE;
@@ -429,71 +418,28 @@ static int PS5_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green,
     return 0;
 }
 
-//
-//
-// TODO
-//
-//
-
-static int PS5_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left,
-                                      Uint16 right)
-{
-    return SDL_Unsupported();
-}
-
-static int
-PS5_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int
-PS5_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
-}
-
-static const char *PS5_JoystickGetDevicePath(int index)
-{
-    return NULL;
-}
-
-static int PS5_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void PS5_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
-}
-
-static int PS5_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
 SDL_JoystickDriver SDL_PS5_JoystickDriver = {
     PS5_JoystickInit,
     PS5_JoystickGetCount,
     PS5_JoystickDetect,
-    PS5_JoystickIsDevicePresent,
+    SDL_JoystickIsDevicePresent_Default,
     PS5_JoystickGetDeviceName,
-    PS5_JoystickGetDevicePath,
-    PS5_JoystickGetDeviceSteamVirtualGamepadSlot,
-    PS5_JoystickGetDevicePlayerIndex,
-    PS5_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     PS5_JoystickGetDeviceGUID,
     PS5_JoystickGetDeviceInstanceID,
     PS5_JoystickOpen,
     PS5_JoystickRumble,
-    PS5_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     PS5_JoystickGetCapabilities,
     PS5_JoystickSetLED,
-    PS5_JoystickSendEffect,
-    PS5_JoystickSetSensorsEnabled,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     PS5_JoystickUpdate,
     PS5_JoystickClose,
-    PS5_JoystickQuit,
+    SDL_JoystickQuit_Default,
     PS5_JoystickGetGamepadMapping
 };
 

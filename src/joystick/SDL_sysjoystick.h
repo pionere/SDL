@@ -260,6 +260,30 @@ extern SDL_JoystickDriver SDL_VITA_JoystickDriver;
 extern SDL_JoystickDriver SDL_N3DS_JoystickDriver;
 extern SDL_JoystickDriver SDL_SWITCH_JoystickDriver;
 
+/* Empty stubs for the drivers */
+extern int SDL_JoystickInit_Default(void);
+extern int SDL_JoystickGetCount_Default(void);
+extern void SDL_JoystickDetect_Default(void);
+extern SDL_bool SDL_JoystickIsDevicePresent_Default(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name);
+extern const char *SDL_JoystickGetDeviceName_Default(int device_index);
+extern const char *SDL_JoystickGetDevicePath_Default(int device_index);
+extern int SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default(int device_index);
+extern int SDL_JoystickGetDevicePlayerIndex_Default(int device_index);
+extern void SDL_JoystickSetDevicePlayerIndex_Default(int device_index, int player_index);
+extern SDL_JoystickGUID SDL_JoystickGetDeviceGUID_Default(int device_index);
+extern SDL_JoystickID SDL_JoystickGetDeviceInstanceID_Default(int device_index);
+extern int SDL_JoystickOpen_Default(SDL_Joystick *joystick, int device_index);
+extern int SDL_JoystickRumble_Default(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble);
+extern int SDL_JoystickRumbleTriggers_Default(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble);
+extern Uint32 SDL_JoystickGetCapabilities_Default(SDL_Joystick *joystick);
+extern int SDL_JoystickSetLED_Default(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue);
+extern int SDL_JoystickSendEffect_Default(SDL_Joystick *joystick, const void *data, int size);
+extern int SDL_JoystickSetSensorsEnabled_Default(SDL_Joystick *joystick, SDL_bool enabled);
+extern void SDL_JoystickUpdate_Default(SDL_Joystick *joystick);
+extern void SDL_JoystickClose_Default(SDL_Joystick *joystick);
+extern void SDL_JoystickQuit_Default(void);
+extern SDL_bool SDL_JoystickGetGamepadMapping_Default(int device_index, SDL_GamepadMapping *out);
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

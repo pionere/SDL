@@ -145,6 +145,7 @@ static SDL_atomic_t SDL_next_joystick_instance_id SDL_GUARDED_BY(SDL_joystick_lo
 static int SDL_joystick_player_count SDL_GUARDED_BY(SDL_joystick_lock) = 0;
 static SDL_JoystickID *SDL_joystick_players SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
 static SDL_bool SDL_joystick_allows_background_events = SDL_FALSE;
+static SDL_JoystickGUID s_zeroGUID;
 char SDL_joystick_magic;
 
 static Uint32 initial_arcadestick_devices[] = {
@@ -3891,6 +3892,112 @@ void SDL_FreeVIDPIDList(SDL_vidpid_list *list)
         list->num_excluded_entries = 0;
         list->max_excluded_entries = 0;
     }
+}
+
+/* Empty stubs for the drivers */
+int SDL_JoystickInit_Default(void)
+{
+    return 0;
+}
+
+int SDL_JoystickGetCount_Default(void)
+{
+    return 0;
+}
+
+void SDL_JoystickDetect_Default(void)
+{
+}
+
+SDL_bool SDL_JoystickIsDevicePresent_Default(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
+{
+    return SDL_FALSE;
+}
+
+const char *SDL_JoystickGetDeviceName_Default(int device_index)
+{
+    return NULL;
+}
+
+const char *SDL_JoystickGetDevicePath_Default(int device_index)
+{
+    return NULL;
+}
+
+int SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default(int device_index)
+{
+    return -1;
+}
+
+int SDL_JoystickGetDevicePlayerIndex_Default(int device_index)
+{
+    return -1;
+}
+
+void SDL_JoystickSetDevicePlayerIndex_Default(int device_index, int player_index)
+{
+}
+
+SDL_JoystickGUID SDL_JoystickGetDeviceGUID_Default(int device_index)
+{
+    return s_zeroGUID;
+}
+
+SDL_JoystickID SDL_JoystickGetDeviceInstanceID_Default(int device_index)
+{
+    return -1;
+}
+
+int SDL_JoystickOpen_Default(SDL_Joystick *joystick, int device_index)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_JoystickRumble_Default(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_JoystickRumbleTriggers_Default(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
+{
+    return SDL_Unsupported();
+}
+
+Uint32 SDL_JoystickGetCapabilities_Default(SDL_Joystick *joystick)
+{
+    return 0;
+}
+
+int SDL_JoystickSetLED_Default(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_JoystickSendEffect_Default(SDL_Joystick *joystick, const void *data, int size)
+{
+    return SDL_Unsupported();
+}
+
+int SDL_JoystickSetSensorsEnabled_Default(SDL_Joystick *joystick, SDL_bool enabled)
+{
+    return SDL_Unsupported();
+}
+
+void SDL_JoystickUpdate_Default(SDL_Joystick *joystick)
+{
+}
+
+void SDL_JoystickClose_Default(SDL_Joystick *joystick)
+{
+}
+
+void SDL_JoystickQuit_Default(void)
+{
+}
+
+SDL_bool SDL_JoystickGetGamepadMapping_Default(int device_index, SDL_GamepadMapping *out)
+{
+    return SDL_FALSE;
 }
 
 /* vi: set ts=4 sw=4 expandtab: */

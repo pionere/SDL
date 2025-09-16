@@ -1575,11 +1575,6 @@ static int HIDAPI_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool ena
     return result;
 }
 
-static void HIDAPI_JoystickUpdate(SDL_Joystick *joystick)
-{
-    /* This is handled in SDL_HIDAPI_UpdateDevices() */
-}
-
 static void HIDAPI_JoystickClose(SDL_Joystick *joystick) SDL_NO_THREAD_SAFETY_ANALYSIS /* We unlock the device lock so rumble can complete */
 {
     SDL_AssertJoysticksLocked();
@@ -1653,11 +1648,6 @@ static void HIDAPI_JoystickQuit(void)
     initialized = SDL_FALSE;
 }
 
-static SDL_bool HIDAPI_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_HIDAPI_JoystickDriver = {
     HIDAPI_JoystickInit,
     HIDAPI_JoystickGetCount,
@@ -1677,10 +1667,10 @@ SDL_JoystickDriver SDL_HIDAPI_JoystickDriver = {
     HIDAPI_JoystickSetLED,
     HIDAPI_JoystickSendEffect,
     HIDAPI_JoystickSetSensorsEnabled,
-    HIDAPI_JoystickUpdate,
+    SDL_JoystickUpdate_Default, /* This is handled in SDL_HIDAPI_UpdateDevices() */
     HIDAPI_JoystickClose,
     HIDAPI_JoystickQuit,
-    HIDAPI_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_HIDAPI */

@@ -497,12 +497,6 @@ static void ANDROID_JoystickDetect(void)
     }
 }
 
-static SDL_bool ANDROID_JoystickIsDevicePresent(Uint16 vendor_id, Uint16 product_id, Uint16 version, const char *name)
-{
-    /* We don't override any other drivers */
-    return SDL_FALSE;
-}
-
 static SDL_joylist_item *JoystickByDevIndex(int device_index)
 {
     SDL_joylist_item *item = SDL_joylist;
@@ -547,25 +541,6 @@ static const char *ANDROID_JoystickGetDeviceName(int device_index)
     return JoystickByDevIndex(device_index)->name;
 }
 
-static const char *ANDROID_JoystickGetDevicePath(int device_index)
-{
-    return NULL;
-}
-
-static int ANDROID_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
-{
-    return -1;
-}
-
-static int ANDROID_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void ANDROID_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
-}
-
 static SDL_JoystickGUID ANDROID_JoystickGetDeviceGUID(int device_index)
 {
     return JoystickByDevIndex(device_index)->guid;
@@ -608,34 +583,10 @@ static int ANDROID_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_r
     return 0;
 }
 
-static int ANDROID_JoystickRumbleTriggers(SDL_Joystick *joystick, Uint16 left_rumble, Uint16 right_rumble)
-{
-    return SDL_Unsupported();
-}
-
 static Uint32 ANDROID_JoystickGetCapabilities(SDL_Joystick *joystick)
 {
     SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
     return item->can_rumble ? SDL_JOYCAP_RUMBLE : 0;
-}
-
-static int ANDROID_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int ANDROID_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int ANDROID_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
-}
-
-static void ANDROID_JoystickUpdate(SDL_Joystick *joystick)
-{
 }
 
 static void ANDROID_JoystickClose(SDL_Joystick *joystick)
@@ -645,13 +596,12 @@ static void ANDROID_JoystickClose(SDL_Joystick *joystick)
         item->joystick = NULL;
     }
 }
-
+#if 0
 static void ANDROID_JoystickQuit(void)
 {
 /* We don't have any way to scan for joysticks at init, so don't wipe the list
  * of joysticks here in case this is a reinit.
  */
-#if 0
     SDL_joylist_item *item = NULL;
     SDL_joylist_item *next = NULL;
 
@@ -664,37 +614,31 @@ static void ANDROID_JoystickQuit(void)
     SDL_joylist = SDL_joylist_tail = NULL;
 
     numjoysticks = 0;
+}
 #endif /* 0 */
-}
-
-static SDL_bool ANDROID_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_ANDROID_JoystickDriver = {
     ANDROID_JoystickInit,
     ANDROID_JoystickGetCount,
     ANDROID_JoystickDetect,
-    ANDROID_JoystickIsDevicePresent,
+    SDL_JoystickIsDevicePresent_Default,
     ANDROID_JoystickGetDeviceName,
-    ANDROID_JoystickGetDevicePath,
-    ANDROID_JoystickGetDeviceSteamVirtualGamepadSlot,
-    ANDROID_JoystickGetDevicePlayerIndex,
-    ANDROID_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePath_Default,
+    SDL_JoystickGetDeviceSteamVirtualGamepadSlot_Default,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     ANDROID_JoystickGetDeviceGUID,
     ANDROID_JoystickGetDeviceInstanceID,
     ANDROID_JoystickOpen,
     ANDROID_JoystickRumble,
-    ANDROID_JoystickRumbleTriggers,
+    SDL_JoystickRumbleTriggers_Default,
     ANDROID_JoystickGetCapabilities,
-    ANDROID_JoystickSetLED,
-    ANDROID_JoystickSendEffect,
-    ANDROID_JoystickSetSensorsEnabled,
-    ANDROID_JoystickUpdate,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
+    SDL_JoystickUpdate_Default,
     ANDROID_JoystickClose,
-    ANDROID_JoystickQuit,
-    ANDROID_JoystickGetGamepadMapping
+    SDL_JoystickQuit_Default,
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_ANDROID */

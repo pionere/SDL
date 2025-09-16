@@ -1202,15 +1202,6 @@ static int RAWINPUT_JoystickGetDeviceSteamVirtualGamepadSlot(int device_index)
     return RAWINPUT_GetDeviceByIndex(device_index)->steam_virtual_gamepad_slot;
 }
 
-static int RAWINPUT_JoystickGetDevicePlayerIndex(int device_index)
-{
-    return -1;
-}
-
-static void RAWINPUT_JoystickSetDevicePlayerIndex(int device_index, int player_index)
-{
-}
-
 static SDL_JoystickGUID RAWINPUT_JoystickGetDeviceGUID(int device_index)
 {
     return RAWINPUT_GetDeviceByIndex(device_index)->guid;
@@ -1537,21 +1528,6 @@ static Uint32 RAWINPUT_JoystickGetCapabilities(SDL_Joystick *joystick)
 #endif /**/
 
     return result;
-}
-
-static int RAWINPUT_JoystickSetLED(SDL_Joystick *joystick, Uint8 red, Uint8 green, Uint8 blue)
-{
-    return SDL_Unsupported();
-}
-
-static int RAWINPUT_JoystickSendEffect(SDL_Joystick *joystick, const void *data, int size)
-{
-    return SDL_Unsupported();
-}
-
-static int RAWINPUT_JoystickSetSensorsEnabled(SDL_Joystick *joystick, SDL_bool enabled)
-{
-    return SDL_Unsupported();
 }
 
 static HIDP_DATA *GetData(USHORT index, HIDP_DATA *data, ULONG length)
@@ -2194,11 +2170,6 @@ static void RAWINPUT_JoystickQuit(void)
     SDL_RAWINPUT_inited = SDL_FALSE;
 }
 
-static SDL_bool RAWINPUT_JoystickGetGamepadMapping(int device_index, SDL_GamepadMapping *out)
-{
-    return SDL_FALSE;
-}
-
 SDL_JoystickDriver SDL_RAWINPUT_JoystickDriver = {
     RAWINPUT_JoystickInit,
     RAWINPUT_JoystickGetCount,
@@ -2207,21 +2178,21 @@ SDL_JoystickDriver SDL_RAWINPUT_JoystickDriver = {
     RAWINPUT_JoystickGetDeviceName,
     RAWINPUT_JoystickGetDevicePath,
     RAWINPUT_JoystickGetDeviceSteamVirtualGamepadSlot,
-    RAWINPUT_JoystickGetDevicePlayerIndex,
-    RAWINPUT_JoystickSetDevicePlayerIndex,
+    SDL_JoystickGetDevicePlayerIndex_Default,
+    SDL_JoystickSetDevicePlayerIndex_Default,
     RAWINPUT_JoystickGetDeviceGUID,
     RAWINPUT_JoystickGetDeviceInstanceID,
     RAWINPUT_JoystickOpen,
     RAWINPUT_JoystickRumble,
     RAWINPUT_JoystickRumbleTriggers,
     RAWINPUT_JoystickGetCapabilities,
-    RAWINPUT_JoystickSetLED,
-    RAWINPUT_JoystickSendEffect,
-    RAWINPUT_JoystickSetSensorsEnabled,
+    SDL_JoystickSetLED_Default,
+    SDL_JoystickSendEffect_Default,
+    SDL_JoystickSetSensorsEnabled_Default,
     RAWINPUT_JoystickUpdate,
     RAWINPUT_JoystickClose,
     RAWINPUT_JoystickQuit,
-    RAWINPUT_JoystickGetGamepadMapping
+    SDL_JoystickGetGamepadMapping_Default,
 };
 
 #endif /* SDL_JOYSTICK_RAWINPUT */
