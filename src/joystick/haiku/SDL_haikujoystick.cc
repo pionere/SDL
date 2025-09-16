@@ -59,28 +59,29 @@ extern "C"
     static int HAIKU_JoystickInit(void)
     {
         BJoystick joystick;
-        int i;
+        int i, ndevs;
         int32 nports;
         char name[B_OS_NAME_LENGTH];
 
         /* Search for attached joysticks */
         nports = joystick.CountDevices();
-        numjoysticks = 0;
+        ndevs = 0;
         for (i = 0; i < nports; ++i) {
             if (joystick.GetDeviceName(i, name) == B_OK) {
                 if (joystick.Open(name) != B_ERROR) {
                       BString stick_name;
                       joystick.GetControllerName(&stick_name);
-                      SDL_joyport[numjoysticks] = SDL_strdup(name);
-                      SDL_joyname[numjoysticks] = SDL_CreateJoystickName(0, 0, NULL, stick_name.String());
+                      SDL_joyport[ndevs] = SDL_strdup(name);
+                      SDL_joyname[ndevs] = SDL_CreateJoystickName(0, 0, NULL, stick_name.String());
                       joystick.Close();
-                      numjoysticks++;
-                      if (numjoysticks == MAX_JOYSTICKS) {
+                      ndevs++;
+                      if (ndevs == MAX_JOYSTICKS) {
                           break;
                       }
                 }
             }
         }
+        numjoysticks = ndevs;
         return 0;
     }
 
