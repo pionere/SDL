@@ -2405,12 +2405,8 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         rendererData->swapchainImageViews = (VkImageView *)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkImageView));
         rendererData->swapchainImageLayouts = (VkImageLayout *)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkImageLayout));
         if (!rendererData->swapchainImageViews || !rendererData->swapchainImageLayouts) {
-            SDL_free(rendererData->swapchainImageViews);
-            SDL_free(rendererData->swapchainImageLayouts);
-            rendererData->swapchainImageViews = NULL;
-            rendererData->swapchainImageLayouts = NULL;
             SDL_OutOfMemory();
-            return SDL_VULKAN_ERROR_UNKNOWN;
+            goto error;
         }
 
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
