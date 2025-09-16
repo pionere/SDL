@@ -395,7 +395,7 @@ usberr:
     return NULL;
 }
 
-static int MaybeAddDevice(const char *path)
+static void MaybeAddDevice(const char *path)
 {
     struct stat sb;
     char *name = NULL;
@@ -403,24 +403,20 @@ static int MaybeAddDevice(const char *path)
     SDL_joylist_item *item;
     struct joystick_hwdata *hw;
 
-    if (!path) {
-        return -1;
-    }
-
     if (stat(path, &sb) == -1) {
-        return -1;
+        return;
     }
 
     /* Check to make sure it's not already in list. */
     for (item = SDL_joylist; item; item = item->next) {
         if (sb.st_rdev == item->devnum) {
-            return -1; /* already have this one */
+            return; /* already have this one */
         }
     }
 
     hw = CreateHwData(path);
     if (!hw) {
-        return -1;
+        return;
     }
 #ifdef SUPPORT_JOY_GAMEPORT
     if (hw->type == BSDJOY_JOY) {
@@ -438,7 +434,7 @@ static int MaybeAddDevice(const char *path)
             if (SDL_ShouldIgnoreJoystick(&SDL_BSD_JoystickDriver, di.udi_vendorNo, di.udi_productNo, di.udi_releaseNo, name)) {
                 SDL_free(name);
                 FreeHwData(hw);
-                return -1;
+                return;
             }
         }
 #endif /* USB_GET_DEVICEINFO */
@@ -452,7 +448,7 @@ static int MaybeAddDevice(const char *path)
     item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));
     if (!item) {
         SDL_free(name);
-        return -1;
+        return;
     }
 
     item->devnum = sb.st_rdev;
@@ -462,7 +458,7 @@ static int MaybeAddDevice(const char *path)
 
     if ((!item->path) || (!item->name)) {
         FreeJoylistItem(item);
-        return -1;
+        return;
     }
 
     item->device_instance = SDL_GetNextJoystickInstanceID();
@@ -477,8 +473,6 @@ static int MaybeAddDevice(const char *path)
     ++numjoysticks;
 
     SDL_PrivateJoystickAdded(item->device_instance);
-
-    return numjoysticks;
 }
 
 static int BSD_JoystickInit(void)
