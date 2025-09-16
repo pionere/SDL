@@ -2197,7 +2197,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     if (rendererData->uploadBuffers) {
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
             if (rendererData->uploadBuffers[i]) {
-                for (int j = 0; j < SDL_VULKAN_NUM_UPLOAD_BUFFERS; j++) {
+                for (int j = 0; j < rendererData->currentUploadBuffer[i]; j++) {
                     VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
                 }
                 SDL_free(rendererData->uploadBuffers[i]);
