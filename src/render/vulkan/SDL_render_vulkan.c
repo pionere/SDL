@@ -2200,6 +2200,8 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         }
         SDL_free(rendererData->uploadBuffers);
         rendererData->uploadBuffers = NULL;
+        SDL_free(rendererData->currentUploadBuffer);
+        rendererData->currentUploadBuffer = NULL;
     }
     if (rendererData->constantBuffers) {
         SDL_assert(rendererData->numConstantBuffers);
@@ -2523,7 +2525,8 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 
     /* Upload buffers */
     rendererData->uploadBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
-    if (!rendererData->uploadBuffers) {
+    rendererData->currentUploadBuffer = (int *)SDL_calloc(rendererData->swapchainImageCount, sizeof(int));
+    if (!rendererData->uploadBuffers || !rendererData->currentUploadBuffer) {
         SDL_OutOfMemory();
         goto error;
     }
@@ -2533,12 +2536,6 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
             SDL_OutOfMemory();
             goto error;
         }
-    }
-    SDL_free(rendererData->currentUploadBuffer);
-    rendererData->currentUploadBuffer = (int *)SDL_calloc(rendererData->swapchainImageCount, sizeof(int));
-    if (!rendererData->currentUploadBuffer) {
-        SDL_OutOfMemory();
-        goto error;
     }
     /* Constant buffers */
     rendererData->constantBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
