@@ -584,13 +584,10 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         rendererData->renderingFinishedSemaphores = NULL;
     }
     if (rendererData->commandPool) {
-        if (rendererData->commandBuffers) {
-            vkFreeCommandBuffers(rendererData->device, rendererData->commandPool, rendererData->swapchainImageCount, rendererData->commandBuffers);
-            SDL_free(rendererData->commandBuffers);
-            rendererData->commandBuffers = NULL;
-        }
         vkDestroyCommandPool(rendererData->device, rendererData->commandPool, NULL);
         rendererData->commandPool = VK_NULL_HANDLE;
+        SDL_free(rendererData->commandBuffers);
+        rendererData->commandBuffers = NULL;
     }
     if (rendererData->descriptorPools) {
         SDL_assert(rendererData->numDescriptorPools);
