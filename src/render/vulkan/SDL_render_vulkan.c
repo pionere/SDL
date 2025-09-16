@@ -3831,6 +3831,7 @@ static SDL_bool VULKAN_SetDrawState(VULKAN_RenderData *rendererData, const SDL_R
             if (newConstantBufferIndex >= rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex]) {
                 VULKAN_Buffer newConstantBuffer;
                 VULKAN_Buffer *newConstantBuffers;
+                uint32_t constantBufferCount;
                 VkResult result = VULKAN_AllocateBuffer(rendererData,
                     SDL_VULKAN_CONSTANT_BUFFER_DEFAULT_SIZE,
                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -3843,15 +3844,16 @@ static SDL_bool VULKAN_SetDrawState(VULKAN_RenderData *rendererData, const SDL_R
                     return SDL_FALSE;
                 }
 
-                rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex]++;
+                constantBufferCount = rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex] + 1;
                 newConstantBuffers = (VULKAN_Buffer *)SDL_realloc(rendererData->constantBuffers[rendererData->currentCommandBufferIndex],
-                                                                sizeof(VULKAN_Buffer) * rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex]);
+                                                                sizeof(VULKAN_Buffer) * constantBufferCount);
                 if (!newConstantBuffers) {
                     SDL_OutOfMemory();
                     return SDL_FALSE;
                 }
-                newConstantBuffers[rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex] - 1] = newConstantBuffer;
+                newConstantBuffers[constantBufferCount - 1] = newConstantBuffer;
                 rendererData->constantBuffers[rendererData->currentCommandBufferIndex] = newConstantBuffers;
+                rendererData->numConstantBuffers[rendererData->currentCommandBufferIndex] = constantBufferCount;
             }
             rendererData->currentConstantBufferIndex = newConstantBufferIndex;
             rendererData->currentConstantBufferOffset = 0;
