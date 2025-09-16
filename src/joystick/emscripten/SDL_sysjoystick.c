@@ -168,6 +168,9 @@ static void EMSCRIPTEN_JoystickQuit(void)
     SDL_joylist_item *item = NULL;
     SDL_joylist_item *next = NULL;
 
+    emscripten_set_gamepadconnected_callback(NULL, 0, NULL);
+    emscripten_set_gamepaddisconnected_callback(NULL, 0, NULL);
+
     for (item = SDL_joylist; item; item = next) {
         next = item->next;
         SDL_free(item->mapping);
@@ -178,9 +181,6 @@ static void EMSCRIPTEN_JoystickQuit(void)
     SDL_joylist = SDL_joylist_tail = NULL;
 
     numjoysticks = 0;
-
-    emscripten_set_gamepadconnected_callback(NULL, 0, NULL);
-    emscripten_set_gamepaddisconnected_callback(NULL, 0, NULL);
 }
 
 /* Function to scan the system for joysticks.
