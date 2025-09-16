@@ -214,6 +214,11 @@ static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
     return 0;
 }
 
+static Uint32 SWITCH_JoystickGetCapabilities(SDL_Joystick *joystick)
+{
+    return SDL_JOYCAP_RUMBLE;
+}
+
 /* Function to update the state of a joystick - called as a device poll.
  * This function shouldn't update the joystick structure directly,
  * but instead should call SDL_PrivateJoystick*() to deliver events
@@ -300,7 +305,7 @@ SDL_JoystickDriver SDL_SWITCH_JoystickDriver = {
         SWITCH_JoystickRumble,
         SDL_JoystickRumbleTriggers_Default,
 
-        SDL_JoystickGetCapabilities_Default,
+        SWITCH_JoystickGetCapabilities,
         SDL_JoystickSetLED_Default,
         SDL_JoystickSendEffect_Default,
         SDL_JoystickSetSensorsEnabled_Default,
