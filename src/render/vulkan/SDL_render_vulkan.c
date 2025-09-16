@@ -505,12 +505,12 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         SDL_free(rendererData->signalRenderSemaphores);
         rendererData->signalRenderSemaphores = NULL;
     }
-    if (rendererData->surfaceFormats != NULL) {
+    if (rendererData->surfaceFormats) {
         SDL_free(rendererData->surfaceFormats);
         rendererData->surfaceFormats = NULL;
         rendererData->surfaceFormatsAllocatedCount = 0;
     }
-    if (rendererData->swapchainImages != NULL) {
+    if (rendererData->swapchainImages) {
         SDL_free(rendererData->swapchainImages);
         rendererData->swapchainImages = NULL;
     }
@@ -518,7 +518,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         vkDestroySwapchainKHR(rendererData->device, rendererData->swapchain, NULL);
         rendererData->swapchain = VK_NULL_HANDLE;
     }
-    if (rendererData->fences != NULL) {
+    if (rendererData->fences) {
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
             if (rendererData->fences[i] != VK_NULL_HANDLE) {
                 vkDestroyFence(rendererData->device, rendererData->fences[i], NULL);
