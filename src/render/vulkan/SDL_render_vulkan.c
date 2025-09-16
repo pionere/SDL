@@ -493,27 +493,18 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     rendererData = (VULKAN_RenderData *)renderer->driverdata;
     SDL_assert(rendererData != NULL);
 
-    if (rendererData->waitDestStageMasks) {
-        SDL_free(rendererData->waitDestStageMasks);
-        rendererData->waitDestStageMasks = NULL;
-    }
-    if (rendererData->waitRenderSemaphores) {
-        SDL_free(rendererData->waitRenderSemaphores);
-        rendererData->waitRenderSemaphores = NULL;
-    }
-    if (rendererData->signalRenderSemaphores) {
-        SDL_free(rendererData->signalRenderSemaphores);
-        rendererData->signalRenderSemaphores = NULL;
-    }
-    if (rendererData->surfaceFormats) {
-        SDL_free(rendererData->surfaceFormats);
-        rendererData->surfaceFormats = NULL;
-        rendererData->surfaceFormatsAllocatedCount = 0;
-    }
-    if (rendererData->swapchainImages) {
-        SDL_free(rendererData->swapchainImages);
-        rendererData->swapchainImages = NULL;
-    }
+    SDL_free(rendererData->waitDestStageMasks);
+    rendererData->waitDestStageMasks = NULL;
+    SDL_free(rendererData->waitRenderSemaphores);
+    rendererData->waitRenderSemaphores = NULL;
+    SDL_free(rendererData->signalRenderSemaphores);
+    rendererData->signalRenderSemaphores = NULL;
+    SDL_free(rendererData->surfaceFormats);
+    rendererData->surfaceFormats = NULL;
+    rendererData->surfaceFormatsAllocatedCount = 0;
+    SDL_free(rendererData->swapchainImages);
+    rendererData->swapchainImages = NULL;
+    // rendererData->swapchainImageCount = 0;
     if (rendererData->swapchain) {
         vkDestroySwapchainKHR(rendererData->device, rendererData->swapchain, NULL);
         rendererData->swapchain = VK_NULL_HANDLE;
@@ -536,10 +527,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         SDL_free(rendererData->swapchainImageViews);
         rendererData->swapchainImageViews = NULL;
     }
-    if (rendererData->swapchainImageLayouts) {
-        SDL_free(rendererData->swapchainImageLayouts);
-        rendererData->swapchainImageLayouts = NULL;
-    }
+    SDL_free(rendererData->swapchainImageLayouts);
+    rendererData->swapchainImageLayouts = NULL;
     if (rendererData->framebuffers) {
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
             if (rendererData->framebuffers[i] != VK_NULL_HANDLE) {
@@ -587,10 +576,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         vkDestroyCommandPool(rendererData->device, rendererData->commandPool, NULL);
         rendererData->commandPool = VK_NULL_HANDLE;
     }
-    if (rendererData->commandBuffers) {
-        SDL_free(rendererData->commandBuffers);
-        rendererData->commandBuffers = NULL;
-    }
+    SDL_free(rendererData->commandBuffers);
+    rendererData->commandBuffers = NULL;
     if (rendererData->descriptorPools) {
         SDL_assert(rendererData->numDescriptorPools);
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
