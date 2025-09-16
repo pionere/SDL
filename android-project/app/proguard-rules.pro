@@ -26,7 +26,7 @@
     # JNI to SDL interface
     java.lang.String nativeGetVersion();
     void nativeSetupJNI();
-    int nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
+    void nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
     void nativeLowMemory();
     void nativeSendQuit();
     void nativeQuit();

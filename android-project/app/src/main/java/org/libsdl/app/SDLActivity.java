@@ -904,7 +904,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     // C functions we call
     public static native String nativeGetVersion();
     public static native void nativeSetupJNI();
-    public static native int nativeRunMain(String library, String function, Object arguments);
+    public static native void nativeRunMain(String library, String function, Object arguments);
     public static native void nativeLowMemory();
     public static native void nativeSendQuit();
     public static native void nativeQuit();
