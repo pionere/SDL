@@ -189,7 +189,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePermissionResult)(
 
 static JNINativeMethod SDLActivity_tab[] = {
     { "nativeGetVersion", "()Ljava/lang/String;", SDL_JAVA_INTERFACE(nativeGetVersion) },
-    { "nativeSetupJNI", "()I", SDL_JAVA_INTERFACE(nativeSetupJNI) },
+    { "nativeSetupJNI", "()V", SDL_JAVA_INTERFACE(nativeSetupJNI) },
     { "nativeRunMain", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)I", SDL_JAVA_INTERFACE(nativeRunMain) },
     { "onNativeDropFile", "(Ljava/lang/String;)V", SDL_JAVA_INTERFACE(onNativeDropFile) },
     { "nativeSetScreenResolution", "(IIIIF)V", SDL_JAVA_INTERFACE(nativeSetScreenResolution) },
@@ -247,7 +247,7 @@ JNIEXPORT void JNICALL
                                                 jint device_id);
 
 static JNINativeMethod SDLAudioManager_tab[] = {
-    { "nativeSetupJNI", "()I", SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI) },
+    { "nativeSetupJNI", "()V", SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI) },
     { "addAudioDevice", "(ZI)V", SDL_JAVA_AUDIO_INTERFACE(addAudioDevice) },
     { "removeAudioDevice", "(ZI)V", SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice) }
 };
@@ -290,7 +290,7 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
     jint device_id);
 
 static JNINativeMethod SDLControllerManager_tab[] = {
-    { "nativeSetupJNI", "()I", SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI) },
+    { "nativeSetupJNI", "()V", SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI) },
     { "onNativePadDown", "(II)I", SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown) },
     { "onNativePadUp", "(II)I", SDL_JAVA_CONTROLLER_INTERFACE(onNativePadUp) },
     { "onNativeJoy", "(IIF)V", SDL_JAVA_CONTROLLER_INTERFACE(onNativeJoy) },

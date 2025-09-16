@@ -25,7 +25,7 @@
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLActivity {
     # JNI to SDL interface
     java.lang.String nativeGetVersion();
-    int nativeSetupJNI();
+    void nativeSetupJNI();
     int nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
     void nativeLowMemory();
     void nativeSendQuit();
@@ -122,7 +122,7 @@
     void captureClose();
     void audioSetThreadPriority(boolean, int);
     # JNI to SDL interface
-    int nativeSetupJNI();
+    void nativeSetupJNI();
     void removeAudioDevice(boolean, int);
     void addAudioDevice(boolean, int);
 }
@@ -135,7 +135,7 @@
     void hapticRumble(int, float, float, int);
     void hapticStop(int);
     # JNI to SDL interface
-    int nativeSetupJNI();
+    void nativeSetupJNI();
     void nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
     void nativeRemoveJoystick(int);
     void nativeAddHaptic(int, java.lang.String);

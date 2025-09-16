@@ -19,8 +19,7 @@ import android.view.View;
 
 public class SDLControllerManager
 {
-
-    public static native int nativeSetupJNI();
+    public static native void nativeSetupJNI();
 
     public static native void nativeAddJoystick(int device_id, String name, String desc,
                                                int vendor_id, int product_id,
