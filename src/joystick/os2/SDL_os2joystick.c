@@ -544,11 +544,7 @@ static void OS2_JoystickUpdate(SDL_Joystick *joystick)
         Button C: 1011 0000
         Button D: 0111 0000
         */
-        if ((~stGameStatus.curdata.butMask)>>4 & JOY_BUTTON_FLAG(i)) {
-            SDL_PrivateJoystickButton(joystick, (Uint8)(i-corr), SDL_PRESSED);
-        } else {
-            SDL_PrivateJoystickButton(joystick, (Uint8)(i-corr), SDL_RELEASED);
-        }
+        SDL_PrivateJoystickButton(joystick, (Uint8)(i-corr), (~stGameStatus.curdata.butMask)>>4 & JOY_BUTTON_FLAG(i) ? SDL_PRESSED : SDL_RELEASED);
     }
 
     /* Joystick button E to H buttons */
@@ -559,32 +555,16 @@ static void OS2_JoystickUpdate(SDL_Joystick *joystick)
     Button H: Axis 2 Y Down
     */
     if (joystick->nbuttons >= 5) {
-        if (stGameStatus.curdata.B.x < SYS_JoyData[index].buttoncalc[0]) {
-            SDL_PrivateJoystickButton(joystick, (Uint8)4, SDL_PRESSED);
-        } else {
-            SDL_PrivateJoystickButton(joystick, (Uint8)4, SDL_RELEASED);
-        }
+        SDL_PrivateJoystickButton(joystick, (Uint8)4, (stGameStatus.curdata.B.x < SYS_JoyData[index].buttoncalc[0]) ? SDL_PRESSED : SDL_RELEASED);
     }
     if (joystick->nbuttons >= 6) {
-        if (stGameStatus.curdata.B.y < SYS_JoyData[index].buttoncalc[1]) {
-            SDL_PrivateJoystickButton(joystick, (Uint8)5, SDL_PRESSED);
-        } else {
-            SDL_PrivateJoystickButton(joystick, (Uint8)5, SDL_RELEASED);
-        }
+        SDL_PrivateJoystickButton(joystick, (Uint8)5, (stGameStatus.curdata.B.y < SYS_JoyData[index].buttoncalc[1]) ? SDL_PRESSED : SDL_RELEASED);
     }
     if (joystick->nbuttons >= 7) {
-        if (stGameStatus.curdata.B.x > SYS_JoyData[index].buttoncalc[2]) {
-            SDL_PrivateJoystickButton(joystick, (Uint8)6, SDL_PRESSED);
-        } else {
-            SDL_PrivateJoystickButton(joystick, (Uint8)6, SDL_RELEASED);
-        }
+        SDL_PrivateJoystickButton(joystick, (Uint8)6, (stGameStatus.curdata.B.x > SYS_JoyData[index].buttoncalc[2]) ? SDL_PRESSED : SDL_RELEASED);
     }
     if (joystick->nbuttons >= 8) {
-        if (stGameStatus.curdata.B.y > SYS_JoyData[index].buttoncalc[3]) {
-            SDL_PrivateJoystickButton(joystick, (Uint8)7, SDL_PRESSED);
-        } else {
-           SDL_PrivateJoystickButton(joystick, (Uint8)7, SDL_RELEASED);
-        }
+        SDL_PrivateJoystickButton(joystick, (Uint8)7, (stGameStatus.curdata.B.y > SYS_JoyData[index].buttoncalc[3]) ? SDL_PRESSED : SDL_RELEASED);
     }
 
     /* joystick hat events */
