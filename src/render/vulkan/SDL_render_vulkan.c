@@ -522,7 +522,6 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
             if (rendererData->fences[i] != VK_NULL_HANDLE) {
                 vkDestroyFence(rendererData->device, rendererData->fences[i], NULL);
-                rendererData->fences[i] = VK_NULL_HANDLE;
             }
         }
         SDL_free(rendererData->fences);
@@ -638,7 +637,9 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
             SDL_free(rendererData->uploadBuffers[i]);
         }
         SDL_free(rendererData->uploadBuffers);
+        rendererData->uploadBuffers = NULL;
         SDL_free(rendererData->currentUploadBuffer);
+        rendererData->currentUploadBuffer = NULL;
     }
 
     if (rendererData->constantBuffers) {
@@ -650,8 +651,9 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
             SDL_free(rendererData->constantBuffers[i]);
         }
         SDL_free(rendererData->constantBuffers);
-        SDL_free(rendererData->numConstantBuffers);
         rendererData->constantBuffers = NULL;
+        SDL_free(rendererData->numConstantBuffers);
+        rendererData->numConstantBuffers = NULL;
     }
 
     if (rendererData->device != VK_NULL_HANDLE /*&& !rendererData->device_external*/) {
