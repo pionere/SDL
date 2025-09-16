@@ -2152,14 +2152,15 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         rendererData->framebuffers = NULL;
     }
     if (rendererData->descriptorPools) {
-        SDL_assert(rendererData->numDescriptorPools);
         for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            for (uint32_t j = 0; j < rendererData->numDescriptorPools[i]; j++) {
-                if (rendererData->descriptorPools[i][j] != VK_NULL_HANDLE) {
-                    vkDestroyDescriptorPool(rendererData->device, rendererData->descriptorPools[i][j], NULL);
+            if (rendererData->descriptorPools[i]) {
+                for (uint32_t j = 0; j < rendererData->numDescriptorPools[i]; j++) {
+                    if (rendererData->descriptorPools[i][j] != VK_NULL_HANDLE) {
+                        vkDestroyDescriptorPool(rendererData->device, rendererData->descriptorPools[i][j], NULL);
+                    }
                 }
+                SDL_free(rendererData->descriptorPools[i]);
             }
-            SDL_free(rendererData->descriptorPools[i]);
         }
         SDL_free(rendererData->descriptorPools);
         rendererData->descriptorPools = NULL;
