@@ -586,6 +586,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     if (rendererData->commandPool) {
         vkDestroyCommandPool(rendererData->device, rendererData->commandPool, NULL);
         rendererData->commandPool = VK_NULL_HANDLE;
+    }
+    if (rendererData->commandBuffers) {
         SDL_free(rendererData->commandBuffers);
         rendererData->commandBuffers = NULL;
     }
