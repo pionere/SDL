@@ -2483,6 +2483,10 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     /* Create descriptor pools - start by allocating one per swapchain image, let it grow if more are needed */
     rendererData->descriptorPools = (VkDescriptorPool **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkDescriptorPool*));
     rendererData->numDescriptorPools = (uint32_t *)SDL_calloc(rendererData->swapchainImageCount, sizeof(uint32_t));
+    if (!rendererData->descriptorPools || !rendererData->numDescriptorPools) {
+        SDL_OutOfMemory();
+        goto error;
+    }
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         /* Start by just allocating one pool, it will grow if needed */
         VkDescriptorPool descriptorPool;
@@ -2537,6 +2541,10 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     /* Constant buffers */
     rendererData->constantBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
     rendererData->numConstantBuffers = (uint32_t *)SDL_calloc(rendererData->swapchainImageCount, sizeof(uint32_t));
+    if (!rendererData->constantBuffers || !rendererData->numConstantBuffers) {
+        SDL_OutOfMemory();
+        goto error;
+    }
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         /* Start with just allocating one, will grow if needed */
         rendererData->numConstantBuffers[i] = 1;
