@@ -1169,6 +1169,8 @@ static VULKAN_PipelineState *VULKAN_CreatePipelineState(VULKAN_RenderData *rende
     VULKAN_Shader shader, VkPipelineLayout pipelineLayout, VkDescriptorSetLayout descriptorSetLayout, SDL_BlendMode blendMode, VkPrimitiveTopology topology, VkFormat format)
 {
     VULKAN_PipelineState *pipelineStates;
+    VULKAN_PipelineState *newPipelineState;
+    int pipelineStateCount;
     VkPipeline pipeline = VK_NULL_HANDLE;
     VkResult result = VK_SUCCESS;
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = { 0 };
@@ -1300,22 +1302,25 @@ static VULKAN_PipelineState *VULKAN_CreatePipelineState(VULKAN_RenderData *rende
         return NULL;
     }
 
-    pipelineStates = (VULKAN_PipelineState *)SDL_realloc(rendererData->pipelineStates, (rendererData->pipelineStateCount + 1) * sizeof(*pipelineStates));
+    pipelineStateCount = rendererData->pipelineStateCount + 1;
+    pipelineStates = (VULKAN_PipelineState *)SDL_realloc(rendererData->pipelineStates, pipelineStateCount * sizeof(*pipelineStates));
     if (!pipelineStates) {
         SDL_OutOfMemory();
         return NULL;
     }
-    pipelineStates[rendererData->pipelineStateCount].shader = shader;
-    pipelineStates[rendererData->pipelineStateCount].blendMode = blendMode;
-    pipelineStates[rendererData->pipelineStateCount].topology = topology;
-    pipelineStates[rendererData->pipelineStateCount].format = format;
-    pipelineStates[rendererData->pipelineStateCount].pipeline = pipeline;
-    pipelineStates[rendererData->pipelineStateCount].descriptorSetLayout = descriptorSetLayout;
-    pipelineStates[rendererData->pipelineStateCount].pipelineLayout = pipelineCreateInfo.layout;
     rendererData->pipelineStates = pipelineStates;
-    ++rendererData->pipelineStateCount;
 
-    return &pipelineStates[rendererData->pipelineStateCount - 1];
+    newPipelineState = &pipelineStates[pipelineStateCount - 1];
+    newPipelineState->shader = shader;
+    newPipelineState->blendMode = blendMode;
+    newPipelineState->topology = topology;
+    newPipelineState->format = format;
+    newPipelineState->pipeline = pipeline;
+    newPipelineState->descriptorSetLayout = descriptorSetLayout;
+    newPipelineState->pipelineLayout = pipelineCreateInfo.layout;
+    rendererData->pipelineStateCount = pipelineStateCount;
+
+    return newPipelineState;
 }
 
 static SDL_bool VULKAN_FindMemoryTypeIndex(VULKAN_RenderData *rendererData, uint32_t typeBits, VkMemoryPropertyFlags requiredFlags, VkMemoryPropertyFlags desiredFlags, uint32_t *memoryTypeIndexOut)
