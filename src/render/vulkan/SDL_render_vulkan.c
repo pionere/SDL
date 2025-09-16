@@ -3667,16 +3667,24 @@ static VkDescriptorSet VULKAN_AllocateDescriptorSet(VULKAN_RenderData *rendererD
         /* We are out of pools, create a new one */
         else {
             VkDescriptorPool *descriptorPools;
+            int descriptorPoolsCount;
             descriptorPool = VULKAN_AllocateDescriptorPool(rendererData);
             if (descriptorPool == VK_NULL_HANDLE) {
                 /* SDL_SetError called in VULKAN_AllocateDescriptorPool if we failed to allocate a new pool */
                 return VK_NULL_HANDLE;
             }
-            rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex]++;
+            descriptorPoolsCount = rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex] + 1;
             descriptorPools = (VkDescriptorPool *)SDL_realloc(rendererData->descriptorPools[rendererData->currentCommandBufferIndex],
-                                                            sizeof(VkDescriptorPool) * rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex]);
-            descriptorPools[rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex] - 1] = descriptorPool;
+                                                            sizeof(VkDescriptorPool) * descriptorPoolsCount);
+            if (!descriptorPools) {
+                vkDestroyDescriptorPool(rendererData->device, descriptorPool, NULL);
+                SDL_OutOfMemory();
+                return VK_NULL_HANDLE;
+            }
+            descriptorPools[descriptorPoolsCount - 1] = descriptorPool;
             rendererData->descriptorPools[rendererData->currentCommandBufferIndex] = descriptorPools;
+            rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex] = descriptorPoolsCount;
+
             rendererData->currentDescriptorPoolIndex = currentDescriptorPoolIndex;
             rendererData->currentDescriptorSetIndex = 0;
 
