@@ -81,7 +81,7 @@ extern "C"
                 }
             }
         }
-        return numjoysticks;
+        return 0;
     }
 
     static int HAIKU_JoystickGetCount(void)

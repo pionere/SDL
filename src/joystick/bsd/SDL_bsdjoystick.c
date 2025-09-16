@@ -504,7 +504,7 @@ static int BSD_JoystickInit(void)
     /* Read the default USB HID usage table. */
     hid_init(NULL);
 
-    return numjoysticks;
+    return 0;
 }
 
 static int BSD_JoystickGetCount(void)

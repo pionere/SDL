@@ -383,9 +383,8 @@ static int OS2_JoystickInit(void)
         }
     }
 
-    /* Return the number of devices found */
     numjoysticks = numdevs;
-    return numdevs;
+    return 0;
 }
 
 static int OS2_JoystickGetCount(void)

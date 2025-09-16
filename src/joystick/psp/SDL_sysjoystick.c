@@ -78,7 +78,7 @@ static int calc_bezier_y(float t)
 
 /* Function to scan the system for joysticks.
  * Joystick 0 should be the system default joystick.
- * It should return number of joysticks, or -1 on an unrecoverable fatal error.
+ * It should return 0, or -1 on an unrecoverable fatal error.
  */
 static int PSP_JoystickInit(void)
 {
@@ -99,7 +99,7 @@ static int PSP_JoystickInit(void)
     /* Fire off a joystick add event */
     SDL_PrivateJoystickAdded(0);
 
-    return 1;
+    return 0;
 }
 
 static int PSP_JoystickGetCount(void)

@@ -156,7 +156,7 @@ static int SWITCH_JoystickInit(void)
         SWITCH_UpdatePad(i);
     }
 
-    return JOYSTICK_COUNT;
+    return 0;
 }
 
 static int SWITCH_JoystickGetCount(void)

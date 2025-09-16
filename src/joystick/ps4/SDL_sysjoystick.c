@@ -142,7 +142,7 @@ static void PS4_JoystickDetect()
 
 /* Function to scan the system for joysticks.
  * Joystick 0 should be the system default joystick.
- * It should return number of joysticks, or -1 on an unrecoverable fatal error.
+ * It should return 0, or -1 on an unrecoverable fatal error.
  */
 static int PS4_JoystickInit(void)
 {
@@ -167,7 +167,7 @@ static int PS4_JoystickInit(void)
 
     PS4_JoystickDetect();
 
-    return SDL_numjoysticks;
+    return 0;
 }
 
 static int PS4_JoystickGetCount()
