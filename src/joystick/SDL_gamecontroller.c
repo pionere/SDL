@@ -121,7 +121,6 @@ typedef struct _ControllerMapping_t
 
 #undef _guarded
 
-static SDL_JoystickGUID s_zeroGUID;
 static ControllerMapping_t *s_pSupportedControllers SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
 static ControllerMapping_t *s_pDefaultMapping SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
 static ControllerMapping_t *s_pXInputMapping SDL_GUARDED_BY(SDL_joystick_lock) = NULL;
