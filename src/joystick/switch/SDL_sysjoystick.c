@@ -222,59 +222,60 @@ static int SWITCH_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_ru
 static void SWITCH_JoystickUpdate(SDL_Joystick *joystick) {
     u64 diff;
     int index = joystick->instance_id;
+    SWITCHJoystickState *pad_state = &state[index];
     SDL_assert(index >= 0 && index < JOYSTICK_COUNT);
     if (SDL_IsTextInputActive()) {
         return;
     }
 
-    padUpdate(&state[index].pad);
-    if (!padIsConnected(&state[index].pad)) {
+    padUpdate(&pad_state->pad);
+    if (!padIsConnected(&pad_state->pad)) {
         return;
     }
 
     // update pad type and style, open controller support applet if needed
-    state[index].pad_type = hidGetNpadDeviceType((HidNpadIdType) index);
-    state[index].pad_style = hidGetNpadStyleSet((HidNpadIdType) index);
-    if (state[index].pad_type != state[index].pad_type_prev
-        || state[index].pad_style != state[index].pad_style_prev) {
-        SWITCH_UpdateControllerSupport(&state[index]);
+    pad_state->pad_type = hidGetNpadDeviceType((HidNpadIdType) index);
+    pad_state->pad_style = hidGetNpadStyleSet((HidNpadIdType) index);
+    if (pad_state->pad_type != pad_state->pad_type_prev
+        || pad_state->pad_style != pad_state->pad_style_prev) {
+        SWITCH_UpdateControllerSupport(pad_state);
         return;
     }
 
     // only handle axes in non-single joycon mode
-    if (state[index].pad_style & HidNpadStyleTag_NpadJoyDual
-        || (state[index].pad_type != HidDeviceTypeBits_JoyLeft
-            && state[index].pad_type != HidDeviceTypeBits_JoyRight)) {
+    if (pad_state->pad_style & HidNpadStyleTag_NpadJoyDual
+        || (pad_state->pad_type != HidDeviceTypeBits_JoyLeft
+            && pad_state->pad_type != HidDeviceTypeBits_JoyRight)) {
         // axis left
-        if (state[index].sticks_old[0].x != state[index].pad.sticks[0].x) {
-            SDL_PrivateJoystickAxis(joystick, 0, (Sint16) state[index].pad.sticks[0].x);
-            state[index].sticks_old[0].x = state[index].pad.sticks[0].x;
+        if (pad_state->sticks_old[0].x != pad_state->pad.sticks[0].x) {
+            SDL_PrivateJoystickAxis(joystick, 0, (Sint16) pad_state->pad.sticks[0].x);
+            pad_state->sticks_old[0].x = pad_state->pad.sticks[0].x;
         }
-        if (state[index].sticks_old[0].y != state[index].pad.sticks[0].y) {
-            SDL_PrivateJoystickAxis(joystick, 1, (Sint16) - state[index].pad.sticks[0].y);
-            state[index].sticks_old[0].y = -state[index].pad.sticks[0].y;
+        if (pad_state->sticks_old[0].y != pad_state->pad.sticks[0].y) {
+            SDL_PrivateJoystickAxis(joystick, 1, (Sint16) - pad_state->pad.sticks[0].y);
+            pad_state->sticks_old[0].y = -pad_state->pad.sticks[0].y;
         }
-        state[index].sticks_old[0] = padGetStickPos(&state[index].pad, 0);
+        pad_state->sticks_old[0] = padGetStickPos(&pad_state->pad, 0);
         // axis right
-        if (state[index].sticks_old[1].x != state[index].pad.sticks[1].x) {
-            SDL_PrivateJoystickAxis(joystick, 2, (Sint16) state[index].pad.sticks[1].x);
-            state[index].sticks_old[1].x = state[index].pad.sticks[1].x;
+        if (pad_state->sticks_old[1].x != pad_state->pad.sticks[1].x) {
+            SDL_PrivateJoystickAxis(joystick, 2, (Sint16) pad_state->pad.sticks[1].x);
+            pad_state->sticks_old[1].x = pad_state->pad.sticks[1].x;
         }
-        if (state[index].sticks_old[1].y != state[index].pad.sticks[1].y) {
-            SDL_PrivateJoystickAxis(joystick, 3, (Sint16) - state[index].pad.sticks[1].y);
-            state[index].sticks_old[1].y = -state[index].pad.sticks[1].y;
+        if (pad_state->sticks_old[1].y != pad_state->pad.sticks[1].y) {
+            SDL_PrivateJoystickAxis(joystick, 3, (Sint16) - pad_state->pad.sticks[1].y);
+            pad_state->sticks_old[1].y = -pad_state->pad.sticks[1].y;
         }
-        state[index].sticks_old[1] = padGetStickPos(&state[index].pad, 1);
+        pad_state->sticks_old[1] = padGetStickPos(&pad_state->pad, 1);
     }
 
     // handle buttons
-    diff = state[index].pad.buttons_old ^ state[index].pad.buttons_cur;
+    diff = pad_state->pad.buttons_old ^ pad_state->pad.buttons_cur;
     if (diff) {
         for (int i = 0; i < joystick->nbuttons; i++) {
-            if (diff & state[index].pad_mapping[i]) {
+            if (diff & pad_state->pad_mapping[i]) {
                 SDL_PrivateJoystickButton(
                         joystick, i,
-                        state[index].pad.buttons_cur & state[index].pad_mapping[i] ?
+                        pad_state->pad.buttons_cur & pad_state->pad_mapping[i] ?
                         SDL_PRESSED : SDL_RELEASED);
             }
         }
