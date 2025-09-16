@@ -107,9 +107,9 @@ static void SWITCH_UpdatePad(int idx)
         HidNpadIdType_No1 + idx, pad_state->pad_style);
 }
 
-static void SWITCH_UpdateControllerSupport(SDL_bool handheld)
+static void SWITCH_UpdateControllerSupport(const SWITCHJoystickState *pad_state)
 {
-    if (!handheld) {
+    if (!padIsHandheld(&pad_state->pad)) {
         HidLaControllerSupportResultInfo info;
         HidLaControllerSupportArg args;
         hidLaCreateControllerSupportArg(&args);
@@ -237,7 +237,7 @@ static void SWITCH_JoystickUpdate(SDL_Joystick *joystick) {
     state[index].pad_style = hidGetNpadStyleSet((HidNpadIdType) index);
     if (state[index].pad_type != state[index].pad_type_prev
         || state[index].pad_style != state[index].pad_style_prev) {
-        SWITCH_UpdateControllerSupport(padIsHandheld(&state[index].pad) ? true : false);
+        SWITCH_UpdateControllerSupport(&state[index]);
         return;
     }
 
