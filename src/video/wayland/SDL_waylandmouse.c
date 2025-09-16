@@ -231,13 +231,18 @@ static SDL_bool wayland_get_system_cursor(Wayland_CursorData *cdata, float *scal
     if (!theme) {
         char *xcursor_theme = NULL;
         SDL_bool free_theme_str = SDL_FALSE;
+        SDL_WaylandCursorTheme *new_themes;
+        int cursor_themes_count;
 
-        vdata->cursor_themes = SDL_realloc(vdata->cursor_themes,
-                                           sizeof(SDL_WaylandCursorTheme) * (vdata->num_cursor_themes + 1));
-        if (!vdata->cursor_themes) {
+        cursor_themes_count = vdata->num_cursor_themes + 1;
+        new_themes = SDL_realloc(vdata->cursor_themes,
+                                           sizeof(SDL_WaylandCursorTheme) * cursor_themes_count);
+        if (!new_themes) {
             SDL_OutOfMemory();
             return SDL_FALSE;
         }
+        vdata->cursor_themes = new_themes;
+
         xcursor_theme = SDL_getenv("XCURSOR_THEME");
 #ifdef SDL_USE_LIBDBUS
         if (!xcursor_theme) {
@@ -246,8 +251,9 @@ static SDL_bool wayland_get_system_cursor(Wayland_CursorData *cdata, float *scal
         }
 #endif
         theme = WAYLAND_wl_cursor_theme_load(xcursor_theme, size, vdata->shm);
-        vdata->cursor_themes[vdata->num_cursor_themes].size = size;
-        vdata->cursor_themes[vdata->num_cursor_themes++].theme = theme;
+        new_themes[cursor_themes_count - 1].size = size;
+        new_themes[cursor_themes_count - 1].theme = theme;
+        vdata->num_cursor_themes = cursor_themes_count;
 
         if (free_theme_str) {
             SDL_free(xcursor_theme);
