@@ -505,7 +505,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     SDL_free(rendererData->swapchainImages);
     rendererData->swapchainImages = NULL;
     // rendererData->swapchainImageCount = 0;
-    if (rendererData->swapchain) {
+    if (rendererData->swapchain != VK_NULL_HANDLE) {
         vkDestroySwapchainKHR(rendererData->device, rendererData->swapchain, NULL);
         rendererData->swapchain = VK_NULL_HANDLE;
     }
@@ -572,7 +572,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         SDL_free(rendererData->renderingFinishedSemaphores);
         rendererData->renderingFinishedSemaphores = NULL;
     }
-    if (rendererData->commandPool) {
+    if (rendererData->commandPool != VK_NULL_HANDLE) {
         vkDestroyCommandPool(rendererData->device, rendererData->commandPool, NULL);
         rendererData->commandPool = VK_NULL_HANDLE;
     }
