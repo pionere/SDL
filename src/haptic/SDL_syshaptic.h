@@ -61,7 +61,7 @@ struct _SDL_Haptic
 /*
  * Scans the system for haptic devices.
  *
- * Returns number of devices on success, -1 on error.
+ * Returns 0 on success, -1 on error.
  */
 extern int SDL_SYS_HapticInit(void);
 

@@ -185,7 +185,7 @@ int SDL_SYS_HapticInit(void)
     }
     IOObjectRelease(iter);
 
-    return numhaptics;
+    return 0;
 }
 
 int SDL_SYS_NumHaptics(void)

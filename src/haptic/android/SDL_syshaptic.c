@@ -52,7 +52,7 @@ int SDL_SYS_HapticInit(void)
         timeout = SDL_GetTicks() + 3000;
         Android_JNI_PollHapticDevices();
     }
-    return numhaptics;
+    return 0;
 }
 
 int SDL_SYS_NumHaptics(void)

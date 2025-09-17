@@ -178,7 +178,7 @@ int SDL_SYS_HapticInit(void)
     SDL_UDEV_Scan();
 #endif /* SDL_USE_LIBUDEV */
 
-    return numhaptics;
+    return 0;
 }
 
 int SDL_SYS_NumHaptics(void)

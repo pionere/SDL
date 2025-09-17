@@ -70,7 +70,7 @@ int SDL_SYS_HapticInit(void)
         SDL_SYS_MaybeAddHapticDevice(device);
     }
 
-    return numhaptics;
+    return 0;
 }
 
 void SDL_SYS_MaybeAddHapticDevice(JoyStick_DeviceData *device)
