@@ -2478,7 +2478,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     SDL_PropertiesID props = SDL_GetRendererProperties(renderer);
     SDL_SetNumberProperty(props, SDL_PROP_RENDERER_VULKAN_SWAPCHAIN_IMAGE_COUNT_NUMBER, rendererData->swapchainImageCount);
 #endif
-    return 0;
+    return VK_SUCCESS;
 error:
     // VULKAN_CleanupSwapChainData(renderer);
     return SDL_VULKAN_ERROR_UNKNOWN;
