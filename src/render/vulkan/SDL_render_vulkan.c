@@ -3867,10 +3867,10 @@ static int VULKAN_RunCommandQueue(SDL_Renderer *renderer, SDL_RenderCommand *cmd
     }
 
     if (rendererData->recreateSwapchain) {
+        rendererData->recreateSwapchain = SDL_FALSE;
         if (VULKAN_UpdateForWindowSizeChange(renderer) != VK_SUCCESS) {
             return -1;
         }
-        rendererData->recreateSwapchain = SDL_FALSE;
     }
 
     if (!VULKAN_UpdateVertexBuffer(rendererData, vertices, vertsize, &stateCache)) {
