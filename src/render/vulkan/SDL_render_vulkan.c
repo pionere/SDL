@@ -595,10 +595,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     rendererData->signalRenderSemaphoreCount = 0;
     rendererData->signalRenderSemaphoreMax = 0;
 #endif
+
     VULKAN_CleanupSwapChainData(rendererData);
-    SDL_free(rendererData->surfaceFormats);
-    rendererData->surfaceFormats = NULL;
-    rendererData->surfaceFormatsAllocatedCount = 0;
     SDL_free(rendererData->swapchainImages);
     rendererData->swapchainImages = NULL;
     // rendererData->swapchainImageCount = 0;
@@ -608,16 +606,6 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     }
     SDL_free(rendererData->swapchainImageLayouts);
     rendererData->swapchainImageLayouts = NULL;
-    for (uint32_t i = 0; i < SDL_arraysize(rendererData->samplers); i++) {
-        if (rendererData->samplers[i] != VK_NULL_HANDLE) {
-            vkDestroySampler(rendererData->device, rendererData->samplers[i], NULL);
-            rendererData->samplers[i] = VK_NULL_HANDLE;
-        }
-    }
-    for (uint32_t i = 0; i < SDL_arraysize(rendererData->vertexBuffers); i++ ) {
-        VULKAN_DestroyBuffer(rendererData, &rendererData->vertexBuffers[i]);
-    }
-//    SDL_memset(rendererData->vertexBuffers, 0, sizeof(rendererData->vertexBuffers));
     for (uint32_t i = 0; i < SDL_VULKAN_NUM_RENDERPASSES; i++) {
         if (rendererData->renderPasses[i] != VK_NULL_HANDLE) {
             vkDestroyRenderPass(rendererData->device, rendererData->renderPasses[i], NULL);
@@ -630,6 +618,20 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     }
     SDL_free(rendererData->commandBuffers);
     rendererData->commandBuffers = NULL;
+
+    SDL_free(rendererData->surfaceFormats);
+    rendererData->surfaceFormats = NULL;
+    rendererData->surfaceFormatsAllocatedCount = 0;
+    for (uint32_t i = 0; i < SDL_arraysize(rendererData->samplers); i++) {
+        if (rendererData->samplers[i] != VK_NULL_HANDLE) {
+            vkDestroySampler(rendererData->device, rendererData->samplers[i], NULL);
+            rendererData->samplers[i] = VK_NULL_HANDLE;
+        }
+    }
+    for (uint32_t i = 0; i < SDL_arraysize(rendererData->vertexBuffers); i++ ) {
+        VULKAN_DestroyBuffer(rendererData, &rendererData->vertexBuffers[i]);
+    }
+//    SDL_memset(rendererData->vertexBuffers, 0, sizeof(rendererData->vertexBuffers));
     for (uint32_t i = 0; i < NUM_SHADERS; i++) {
         if (rendererData->vertexShaderModules[i] != VK_NULL_HANDLE) {
             vkDestroyShaderModule(rendererData->device, rendererData->vertexShaderModules[i], NULL);
