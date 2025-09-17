@@ -2178,6 +2178,11 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
                                            rendererData->surfaceCapabilities.minImageExtent.height,
                                            rendererData->surfaceCapabilities.maxImageExtent.height);
 
+    if (rendererData->swapchainSize.width == 0 && rendererData->swapchainSize.height == 0) {
+        /* Don't recreate the swapchain if size is (0,0), just fail and continue attempting creation */
+        return SDL_VULKAN_ERROR_UNKNOWN; // VK_ERROR_OUT_OF_DATE_KHR;
+    }
+
     // Handle rotation
     rendererData->swapChainPreTransform = rendererData->surfaceCapabilities.currentTransform;
     if (rendererData->swapChainPreTransform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
@@ -2185,11 +2190,6 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         uint32_t tempWidth = rendererData->swapchainSize.width;
         rendererData->swapchainSize.width = rendererData->swapchainSize.height;
         rendererData->swapchainSize.height = tempWidth;
-    }
-
-    if (rendererData->swapchainSize.width == 0 && rendererData->swapchainSize.height == 0) {
-        /* Don't recreate the swapchain if size is (0,0), just fail and continue attempting creation */
-        return SDL_VULKAN_ERROR_UNKNOWN; // VK_ERROR_OUT_OF_DATE_KHR;
     }
 
     /* Choose a present mode. If vsync is requested, then use VK_PRESENT_MODE_FIFO_KHR which is guaranteed to be supported */
