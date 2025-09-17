@@ -1836,7 +1836,6 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     /* Load instance Vulkan functions */
     result = VULKAN_LoadInstanceFunctions(rendererData);
     if (result != VK_SUCCESS) {
-        VULKAN_DestroyAll(renderer);
         return result;
     }
 
