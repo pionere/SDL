@@ -595,6 +595,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     rendererData->signalRenderSemaphoreCount = 0;
     rendererData->signalRenderSemaphoreMax = 0;
 #endif
+    VULKAN_CleanupSwapChainData(rendererData);
     SDL_free(rendererData->surfaceFormats);
     rendererData->surfaceFormats = NULL;
     rendererData->surfaceFormatsAllocatedCount = 0;
@@ -605,35 +606,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
         vkDestroySwapchainKHR(rendererData->device, rendererData->swapchain, NULL);
         rendererData->swapchain = VK_NULL_HANDLE;
     }
-    if (rendererData->fences) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->fences[i] != VK_NULL_HANDLE) {
-                vkDestroyFence(rendererData->device, rendererData->fences[i], NULL);
-            }
-        }
-        SDL_free(rendererData->fences);
-        rendererData->fences = NULL;
-    }
-    if (rendererData->swapchainImageViews) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->swapchainImageViews[i] != VK_NULL_HANDLE) {
-                vkDestroyImageView(rendererData->device, rendererData->swapchainImageViews[i], NULL);
-            }
-        }
-        SDL_free(rendererData->swapchainImageViews);
-        rendererData->swapchainImageViews = NULL;
-    }
     SDL_free(rendererData->swapchainImageLayouts);
     rendererData->swapchainImageLayouts = NULL;
-    if (rendererData->framebuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->framebuffers[i] != VK_NULL_HANDLE) {
-                vkDestroyFramebuffer(rendererData->device, rendererData->framebuffers[i], NULL);
-            }
-        }
-        SDL_free(rendererData->framebuffers);
-        rendererData->framebuffers = NULL;
-    }
     for (uint32_t i = 0; i < SDL_arraysize(rendererData->samplers); i++) {
         if (rendererData->samplers[i] != VK_NULL_HANDLE) {
             vkDestroySampler(rendererData->device, rendererData->samplers[i], NULL);
@@ -650,46 +624,12 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
             rendererData->renderPasses[i] = VK_NULL_HANDLE;
         }
     }
-    if (rendererData->imageAvailableSemaphores) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->imageAvailableSemaphores[i] != VK_NULL_HANDLE) {
-                vkDestroySemaphore(rendererData->device, rendererData->imageAvailableSemaphores[i], NULL);
-            }
-        }
-        SDL_free(rendererData->imageAvailableSemaphores);
-        rendererData->imageAvailableSemaphores = NULL;
-    }
-    if (rendererData->renderingFinishedSemaphores) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->renderingFinishedSemaphores[i] != VK_NULL_HANDLE) {
-                vkDestroySemaphore(rendererData->device, rendererData->renderingFinishedSemaphores[i], NULL);
-            }
-        }
-        SDL_free(rendererData->renderingFinishedSemaphores);
-        rendererData->renderingFinishedSemaphores = NULL;
-    }
     if (rendererData->commandPool != VK_NULL_HANDLE) {
         vkDestroyCommandPool(rendererData->device, rendererData->commandPool, NULL);
         rendererData->commandPool = VK_NULL_HANDLE;
     }
     SDL_free(rendererData->commandBuffers);
     rendererData->commandBuffers = NULL;
-    if (rendererData->descriptorPools) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->descriptorPools[i]) {
-                for (uint32_t j = 0; j < rendererData->numDescriptorPools[i]; j++) {
-                    if (rendererData->descriptorPools[i][j] != VK_NULL_HANDLE) {
-                        vkDestroyDescriptorPool(rendererData->device, rendererData->descriptorPools[i][j], NULL);
-                    }
-                }
-                SDL_free(rendererData->descriptorPools[i]);
-            }
-        }
-        SDL_free(rendererData->descriptorPools);
-        rendererData->descriptorPools = NULL;
-        SDL_free(rendererData->numDescriptorPools);
-        rendererData->numDescriptorPools = NULL;
-    }
     for (uint32_t i = 0; i < NUM_SHADERS; i++) {
         if (rendererData->vertexShaderModules[i] != VK_NULL_HANDLE) {
             vkDestroyShaderModule(rendererData->device, rendererData->vertexShaderModules[i], NULL);
@@ -714,36 +654,6 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     SDL_free(rendererData->pipelineStates);
     rendererData->pipelineStates = NULL;
     rendererData->pipelineStateCount = 0;
-
-    if (rendererData->uploadBuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->uploadBuffers[i]) {
-                for (int j = 0; j < rendererData->currentUploadBuffer[i]; ++j) {
-                    VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
-                }
-                SDL_free(rendererData->uploadBuffers[i]);
-            }
-        }
-        SDL_free(rendererData->uploadBuffers);
-        rendererData->uploadBuffers = NULL;
-        SDL_free(rendererData->currentUploadBuffer);
-        rendererData->currentUploadBuffer = NULL;
-    }
-
-    if (rendererData->constantBuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->constantBuffers[i]) {
-                for (uint32_t j = 0; j < rendererData->numConstantBuffers[i]; j++) {
-                    VULKAN_DestroyBuffer(rendererData, &rendererData->constantBuffers[i][j]);
-                }
-                SDL_free(rendererData->constantBuffers[i]);
-            }
-        }
-        SDL_free(rendererData->constantBuffers);
-        rendererData->constantBuffers = NULL;
-        SDL_free(rendererData->numConstantBuffers);
-        rendererData->numConstantBuffers = NULL;
-    }
 
     if (rendererData->device != VK_NULL_HANDLE /*&& !rendererData->device_external*/) {
         vkDestroyDevice(rendererData->device, NULL);
