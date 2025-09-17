@@ -1448,45 +1448,42 @@ static VkResult VULKAN_LoadDeviceFunctions(VULKAN_RenderData *rendererData)
     return VK_SUCCESS;
 }
 
-static VkResult VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
+static VkPhysicalDevice VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
 {
     uint32_t physicalDeviceCount = 0;
     VkPhysicalDevice *physicalDevices;
-    VkQueueFamilyProperties *queueFamiliesProperties = NULL;
-    uint32_t queueFamiliesPropertiesAllocatedSize = 0;
-    VkExtensionProperties *deviceExtensions = NULL;
-    uint32_t deviceExtensionsAllocatedSize = 0;
     uint32_t physicalDeviceIndex;
     VkResult result;
 
     result = vkEnumeratePhysicalDevices(rendererData->instance, &physicalDeviceCount, NULL);
     if (result != VK_SUCCESS) {
         SDL_Vulkan_SetError("VULKAN_FindPhysicalDevice query failed", "vkEnumeratePhysicalDevices", result);
-        return result;
+        return VK_NULL_HANDLE;
     }
     if (physicalDeviceCount == 0) {
         SDL_SetError("Vulkan: no physical device found");
-        return SDL_VULKAN_ERROR_UNKNOWN;
+        return VK_NULL_HANDLE;
     }
     physicalDevices = (VkPhysicalDevice *)SDL_malloc(sizeof(VkPhysicalDevice) * physicalDeviceCount);
     if (!physicalDevices) {
         SDL_OutOfMemory();
-        return SDL_VULKAN_ERROR_UNKNOWN;
+        return VK_NULL_HANDLE;
     }
     result = vkEnumeratePhysicalDevices(rendererData->instance, &physicalDeviceCount, physicalDevices);
     if (result != VK_SUCCESS) {
         SDL_free(physicalDevices);
         SDL_Vulkan_SetError("VULKAN_FindPhysicalDevice enumeration failed", "vkEnumeratePhysicalDevices", result);
-        return result;
+        return VK_NULL_HANDLE;
     }
-    rendererData->physicalDevice = NULL;
     for (physicalDeviceIndex = 0; physicalDeviceIndex < physicalDeviceCount; physicalDeviceIndex++) {
         uint32_t queueFamiliesCount = 0;
+        VkQueueFamilyProperties *queueFamiliesProperties;
         uint32_t queueFamilyIndex;
         uint32_t deviceExtensionCount = 0;
-        SDL_bool hasSwapchainExtension = SDL_FALSE;
+        VkExtensionProperties *deviceExtensions;
         uint32_t i;
-
+        SDL_bool hasSwapchainExtension = SDL_FALSE;
+        // update the device features/properties
         VkPhysicalDevice physicalDevice = physicalDevices[physicalDeviceIndex];
         vkGetPhysicalDeviceProperties(physicalDevice, &rendererData->physicalDeviceProperties);
         if (VK_VERSION_MAJOR(rendererData->physicalDeviceProperties.apiVersion) < 1) {
@@ -1494,24 +1491,20 @@ static VkResult VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
         }
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &rendererData->physicalDeviceMemoryProperties);
         vkGetPhysicalDeviceFeatures(physicalDevice, &rendererData->physicalDeviceFeatures);
+        // test for good queues
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamiliesCount, NULL);
         if (queueFamiliesCount == 0) {
             continue;
         }
-        if (queueFamiliesPropertiesAllocatedSize < queueFamiliesCount) {
-            SDL_free(queueFamiliesProperties);
-            queueFamiliesPropertiesAllocatedSize = queueFamiliesCount;
-            queueFamiliesProperties = (VkQueueFamilyProperties *)SDL_malloc(sizeof(VkQueueFamilyProperties) * queueFamiliesPropertiesAllocatedSize);
-            if (!queueFamiliesProperties) {
-                SDL_free(physicalDevices);
-                SDL_free(deviceExtensions);
-                SDL_OutOfMemory();
-                return result;
-            }
+        queueFamiliesProperties = (VkQueueFamilyProperties *)SDL_malloc(sizeof(VkQueueFamilyProperties) * queueFamiliesCount);
+        if (!queueFamiliesProperties) {
+            SDL_free(physicalDevices);
+            SDL_OutOfMemory();
+            return VK_NULL_HANDLE;
         }
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamiliesCount, queueFamiliesProperties);
-        rendererData->graphicsQueueFamilyIndex = queueFamiliesCount;
-        rendererData->presentQueueFamilyIndex = queueFamiliesCount;
+        rendererData->graphicsQueueFamilyIndex = SDL_MAX_UINT32;
+        rendererData->presentQueueFamilyIndex = SDL_MAX_UINT32;
         for (queueFamilyIndex = 0; queueFamilyIndex < queueFamiliesCount; queueFamilyIndex++) {
             VkBool32 supported = 0;
 
@@ -1527,9 +1520,8 @@ static VkResult VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
             if (result != VK_SUCCESS) {
                 SDL_free(physicalDevices);
                 SDL_free(queueFamiliesProperties);
-                SDL_free(deviceExtensions);
                 SDL_Vulkan_SetError("VULKAN_FindPhysicalDevice failed", "vkGetPhysicalDeviceSurfaceSupportKHR", result);
-                return result;
+                return VK_NULL_HANDLE;
             }
             if (supported) {
                 rendererData->presentQueueFamilyIndex = queueFamilyIndex;
@@ -1538,42 +1530,32 @@ static VkResult VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
                 }
             }
         }
-
-        if (rendererData->graphicsQueueFamilyIndex == queueFamiliesCount) { // no good queues found
-            continue;
+        SDL_free(queueFamiliesProperties);
+        if (rendererData->presentQueueFamilyIndex == SDL_MAX_UINT32 || rendererData->graphicsQueueFamilyIndex == SDL_MAX_UINT32) {
+            continue; // no good queues found
         }
-        if (rendererData->presentQueueFamilyIndex == queueFamiliesCount) { // no good queues found
-            continue;
-        }
+        // check if the device has swapchain extension
         result = vkEnumerateDeviceExtensionProperties(physicalDevice, NULL, &deviceExtensionCount, NULL);
         if (result != VK_SUCCESS) {
             SDL_free(physicalDevices);
-            SDL_free(queueFamiliesProperties);
-            SDL_free(deviceExtensions);
             SDL_Vulkan_SetError("VULKAN_FindPhysicalDevice query failed", "vkEnumerateDeviceExtensionProperties", result);
-            return result;
+            return VK_NULL_HANDLE;
         }
         if (deviceExtensionCount == 0) {
             continue;
         }
-        if (deviceExtensionsAllocatedSize < deviceExtensionCount) {
-            SDL_free(deviceExtensions);
-            deviceExtensionsAllocatedSize = deviceExtensionCount;
-            deviceExtensions = (VkExtensionProperties *)SDL_malloc(sizeof(VkExtensionProperties) * deviceExtensionsAllocatedSize);
-            if (!deviceExtensions) {
-                SDL_free(physicalDevices);
-                SDL_free(queueFamiliesProperties);
-                SDL_OutOfMemory();
-                return SDL_VULKAN_ERROR_UNKNOWN;
-            }
+        deviceExtensions = (VkExtensionProperties *)SDL_malloc(sizeof(VkExtensionProperties) * deviceExtensionCount);
+        if (!deviceExtensions) {
+            SDL_free(physicalDevices);
+            SDL_OutOfMemory();
+            return VK_NULL_HANDLE;
         }
         result = vkEnumerateDeviceExtensionProperties(physicalDevice, NULL, &deviceExtensionCount, deviceExtensions);
         if (result != VK_SUCCESS) {
             SDL_free(physicalDevices);
-            SDL_free(queueFamiliesProperties);
             SDL_free(deviceExtensions);
             SDL_Vulkan_SetError("VULKAN_FindPhysicalDevice enumeration failed", "vkEnumerateDeviceExtensionProperties", result);
-            return result;
+            return VK_NULL_HANDLE;
         }
         for (i = 0; i < deviceExtensionCount; i++) {
             if (SDL_strcmp(deviceExtensions[i].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
@@ -1581,20 +1563,17 @@ static VkResult VULKAN_FindPhysicalDevice(VULKAN_RenderData *rendererData)
                 break;
             }
         }
+        SDL_free(deviceExtensions);
         if (!hasSwapchainExtension) {
             continue;
         }
-        rendererData->physicalDevice = physicalDevice;
-        break;
+        // select the device
+        SDL_free(physicalDevices);
+        return physicalDevice;
     }
     SDL_free(physicalDevices);
-    SDL_free(queueFamiliesProperties);
-    SDL_free(deviceExtensions);
-    if (!rendererData->physicalDevice) {
-        SDL_SetError("Vulkan: no viable physical devices found");
-        return SDL_VULKAN_ERROR_UNKNOWN;
-    }
-    return VK_SUCCESS;
+    SDL_SetError("Vulkan: no viable physical device found");
+    return VK_NULL_HANDLE;
 }
 
 static int VULKAN_GetSurfaceFormats(VULKAN_RenderData *rendererData)
@@ -1855,14 +1834,14 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     }
 
     /* Choose Vulkan physical device */
-    rendererData->physicalDevice = NULL; // (VkPhysicalDevice)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_PHYSICAL_DEVICE_POINTER, NULL);
-    if (rendererData->physicalDevice) {
+    rendererData->physicalDevice = VK_NULL_HANDLE; // (VkPhysicalDevice)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_PHYSICAL_DEVICE_POINTER, NULL);
+    if (rendererData->physicalDevice != VK_NULL_HANDLE) {
         vkGetPhysicalDeviceMemoryProperties(rendererData->physicalDevice, &rendererData->physicalDeviceMemoryProperties);
         vkGetPhysicalDeviceFeatures(rendererData->physicalDevice, &rendererData->physicalDeviceFeatures);
     } else {
-        result = VULKAN_FindPhysicalDevice(rendererData);
-        if (result != VK_SUCCESS) {
-            return result;
+        rendererData->physicalDevice = VULKAN_FindPhysicalDevice(rendererData);
+        if (rendererData->physicalDevice == VK_NULL_HANDLE) {
+            return SDL_VULKAN_ERROR_UNKNOWN;
         }
     }
 #if 0
