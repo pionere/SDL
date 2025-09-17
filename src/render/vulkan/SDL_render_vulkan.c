@@ -497,8 +497,12 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     rendererData->waitDestStageMasks = NULL;
     SDL_free(rendererData->waitRenderSemaphores);
     rendererData->waitRenderSemaphores = NULL;
+    rendererData->waitRenderSemaphoreCount = 0;
+    rendererData->waitRenderSemaphoreMax = 0;
     SDL_free(rendererData->signalRenderSemaphores);
     rendererData->signalRenderSemaphores = NULL;
+    rendererData->signalRenderSemaphoreCount = 0;
+    rendererData->signalRenderSemaphoreMax = 0;
     SDL_free(rendererData->surfaceFormats);
     rendererData->surfaceFormats = NULL;
     rendererData->surfaceFormatsAllocatedCount = 0;
