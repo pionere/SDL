@@ -2321,7 +2321,8 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
                 SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkCreateImageView", result);
                 goto error;
             }
-            rendererData->swapchainImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
+            SDL_INLINE_COMPILE_TIME_ASSERT(swapchain_layout, VK_IMAGE_LAYOUT_UNDEFINED == 0);
+            // rendererData->swapchainImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
         }
 
     }
