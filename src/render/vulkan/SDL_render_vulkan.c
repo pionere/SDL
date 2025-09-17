@@ -2268,7 +2268,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         VkImage *swapchainImages;
         SDL_free(rendererData->swapchainImages);
         rendererData->swapchainImages = NULL;
-        rendererData->swapchainImageCount = 0;
+        // rendererData->swapchainImageCount = 0;
         result = vkGetSwapchainImagesKHR(rendererData->device, rendererData->swapchain, &swapchainImageCount, NULL);
         if (result != VK_SUCCESS) {
             SDL_Vulkan_SetError("VULKAN_CreateSwapChain", "vkGetSwapchainImagesKHR", result);
