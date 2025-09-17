@@ -371,7 +371,7 @@ typedef struct
     VkSemaphore *renderingFinishedSemaphores;
     VkSemaphore currentImageAvailableSemaphore;
     uint32_t currentSwapchainImageIndex;
-
+#if 0
     VkPipelineStageFlags *waitDestStageMasks;
     VkSemaphore *waitRenderSemaphores;
     uint32_t waitRenderSemaphoreCount;
@@ -379,7 +379,7 @@ typedef struct
     VkSemaphore *signalRenderSemaphores;
     uint32_t signalRenderSemaphoreCount;
     uint32_t signalRenderSemaphoreMax;
-
+#endif
     /* Cached renderer properties */
     VULKAN_TextureData *textureRenderTarget;
     SDL_Rect currentCliprect;
@@ -492,7 +492,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     SDL_assert(renderer != NULL);
     rendererData = (VULKAN_RenderData *)renderer->driverdata;
     SDL_assert(rendererData != NULL);
-
+#if 0
     SDL_free(rendererData->waitDestStageMasks);
     rendererData->waitDestStageMasks = NULL;
     SDL_free(rendererData->waitRenderSemaphores);
@@ -503,6 +503,7 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     rendererData->signalRenderSemaphores = NULL;
     rendererData->signalRenderSemaphoreCount = 0;
     rendererData->signalRenderSemaphoreMax = 0;
+#endif
     SDL_free(rendererData->surfaceFormats);
     rendererData->surfaceFormats = NULL;
     rendererData->surfaceFormatsAllocatedCount = 0;
@@ -1076,6 +1077,7 @@ static VkResult VULKAN_IssueBatch(VULKAN_RenderData *rendererData)
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &rendererData->currentCommandBuffer;
+#if 0
     if (rendererData->waitRenderSemaphoreCount > 0) {
         Uint32 additionalSemaphoreCount = (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) ? 1 : 0;
         submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount + additionalSemaphoreCount;
@@ -1086,7 +1088,9 @@ static VkResult VULKAN_IssueBatch(VULKAN_RenderData *rendererData)
         submitInfo.pWaitSemaphores = rendererData->waitRenderSemaphores;
         submitInfo.pWaitDstStageMask = rendererData->waitDestStageMasks;
         rendererData->waitRenderSemaphoreCount = 0;
-    } else if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
+    } else
+#endif
+    if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = &rendererData->currentImageAvailableSemaphore;
         submitInfo.pWaitDstStageMask = &waitDestStageMask;
@@ -4261,6 +4265,7 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
 
         SDL_zero(submitInfo);
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+#if 0
         if (rendererData->waitRenderSemaphoreCount > 0) {
             Uint32 additionalSemaphoreCount = (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) ? 1 : 0;
             submitInfo.waitSemaphoreCount = rendererData->waitRenderSemaphoreCount + additionalSemaphoreCount;
@@ -4271,19 +4276,24 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
             submitInfo.pWaitSemaphores = rendererData->waitRenderSemaphores;
             submitInfo.pWaitDstStageMask = rendererData->waitDestStageMasks;
             rendererData->waitRenderSemaphoreCount = 0;
-        } else if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
+        } else
+#endif
+        if (rendererData->currentImageAvailableSemaphore != VK_NULL_HANDLE) {
             submitInfo.waitSemaphoreCount = 1;
             submitInfo.pWaitSemaphores = &rendererData->currentImageAvailableSemaphore;
             submitInfo.pWaitDstStageMask = &waitDestStageMask;
         }
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &rendererData->currentCommandBuffer;
+#if 0
         if (rendererData->signalRenderSemaphoreCount > 0) {
             submitInfo.signalSemaphoreCount = rendererData->signalRenderSemaphoreCount + 1;
             rendererData->signalRenderSemaphores[rendererData->signalRenderSemaphoreCount] = rendererData->renderingFinishedSemaphores[rendererData->currentCommandBufferIndex];
             submitInfo.pSignalSemaphores = rendererData->signalRenderSemaphores;
             rendererData->signalRenderSemaphoreCount = 0;
-        } else {
+        } else
+#endif
+        {
             submitInfo.signalSemaphoreCount = 1;
             submitInfo.pSignalSemaphores = &rendererData->renderingFinishedSemaphores[rendererData->currentCommandBufferIndex];
         }
