@@ -485,6 +485,97 @@ static VkResult VULKAN_CreateDescriptorSetAndPipelineLayout(VULKAN_RenderData *r
 static VkSurfaceTransformFlagBitsKHR VULKAN_GetRotationForCurrentRenderTarget(VULKAN_RenderData *rendererData);
 static SDL_bool VULKAN_IsDisplayRotated90Degrees(VkSurfaceTransformFlagBitsKHR rotation);
 
+static void VULKAN_CleanupSwapChainData(VULKAN_RenderData *rendererData)
+{
+    if (rendererData->swapchainImageViews) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
+            vkDestroyImageView(rendererData->device, rendererData->swapchainImageViews[i], NULL);
+        }
+        SDL_free(rendererData->swapchainImageViews);
+        rendererData->swapchainImageViews = NULL;
+    }
+    if (rendererData->fences) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
+            if (rendererData->fences[i] != VK_NULL_HANDLE) {
+                vkDestroyFence(rendererData->device, rendererData->fences[i], NULL);
+            }
+        }
+        SDL_free(rendererData->fences);
+        rendererData->fences = NULL;
+    }
+    if (rendererData->framebuffers) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
+            if (rendererData->framebuffers[i] != VK_NULL_HANDLE) {
+                vkDestroyFramebuffer(rendererData->device, rendererData->framebuffers[i], NULL);
+            }
+        }
+        SDL_free(rendererData->framebuffers);
+        rendererData->framebuffers = NULL;
+    }
+    if (rendererData->descriptorPools) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
+            if (rendererData->descriptorPools[i]) {
+                for (uint32_t j = 0; j < rendererData->numDescriptorPools[i]; j++) {
+                    if (rendererData->descriptorPools[i][j] != VK_NULL_HANDLE) {
+                        vkDestroyDescriptorPool(rendererData->device, rendererData->descriptorPools[i][j], NULL);
+                    }
+                }
+                SDL_free(rendererData->descriptorPools[i]);
+            }
+        }
+        SDL_free(rendererData->descriptorPools);
+        rendererData->descriptorPools = NULL;
+        SDL_free(rendererData->numDescriptorPools);
+        rendererData->numDescriptorPools = NULL;
+    }
+    if (rendererData->imageAvailableSemaphores) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
+            if (rendererData->imageAvailableSemaphores[i] != VK_NULL_HANDLE) {
+                vkDestroySemaphore(rendererData->device, rendererData->imageAvailableSemaphores[i], NULL);
+            }
+        }
+        SDL_free(rendererData->imageAvailableSemaphores);
+        rendererData->imageAvailableSemaphores = NULL;
+    }
+    if (rendererData->renderingFinishedSemaphores) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
+            if (rendererData->renderingFinishedSemaphores[i] != VK_NULL_HANDLE) {
+                vkDestroySemaphore(rendererData->device, rendererData->renderingFinishedSemaphores[i], NULL);
+            }
+        }
+        SDL_free(rendererData->renderingFinishedSemaphores);
+        rendererData->renderingFinishedSemaphores = NULL;
+    }
+    if (rendererData->uploadBuffers) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
+            if (rendererData->uploadBuffers[i]) {
+                for (int j = 0; j < rendererData->currentUploadBuffer[i]; j++) {
+                    VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
+                }
+                SDL_free(rendererData->uploadBuffers[i]);
+            }
+        }
+        SDL_free(rendererData->uploadBuffers);
+        rendererData->uploadBuffers = NULL;
+        SDL_free(rendererData->currentUploadBuffer);
+        rendererData->currentUploadBuffer = NULL;
+    }
+    if (rendererData->constantBuffers) {
+        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
+            if (rendererData->constantBuffers[i]) {
+                for (uint32_t j = 0; j < rendererData->numConstantBuffers[i]; j++) {
+                    VULKAN_DestroyBuffer(rendererData, &rendererData->constantBuffers[i][j]);
+                }
+                SDL_free(rendererData->constantBuffers[i]);
+            }
+        }
+        SDL_free(rendererData->constantBuffers);
+        rendererData->constantBuffers = NULL;
+        SDL_free(rendererData->numConstantBuffers);
+        rendererData->numConstantBuffers = NULL;
+    }
+}
+
 static void VULKAN_DestroyAll(SDL_Renderer *renderer)
 {
     VULKAN_RenderData *rendererData;
@@ -2124,93 +2215,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
 
     // clean up previous swapchain resources
-    if (rendererData->swapchainImageViews) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            vkDestroyImageView(rendererData->device, rendererData->swapchainImageViews[i], NULL);
-        }
-        SDL_free(rendererData->swapchainImageViews);
-        rendererData->swapchainImageViews = NULL;
-    }
-    if (rendererData->fences) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->fences[i] != VK_NULL_HANDLE) {
-                vkDestroyFence(rendererData->device, rendererData->fences[i], NULL);
-            }
-        }
-        SDL_free(rendererData->fences);
-        rendererData->fences = NULL;
-    }
-    if (rendererData->framebuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->framebuffers[i] != VK_NULL_HANDLE) {
-                vkDestroyFramebuffer(rendererData->device, rendererData->framebuffers[i], NULL);
-            }
-        }
-        SDL_free(rendererData->framebuffers);
-        rendererData->framebuffers = NULL;
-    }
-    if (rendererData->descriptorPools) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->descriptorPools[i]) {
-                for (uint32_t j = 0; j < rendererData->numDescriptorPools[i]; j++) {
-                    if (rendererData->descriptorPools[i][j] != VK_NULL_HANDLE) {
-                        vkDestroyDescriptorPool(rendererData->device, rendererData->descriptorPools[i][j], NULL);
-                    }
-                }
-                SDL_free(rendererData->descriptorPools[i]);
-            }
-        }
-        SDL_free(rendererData->descriptorPools);
-        rendererData->descriptorPools = NULL;
-        SDL_free(rendererData->numDescriptorPools);
-        rendererData->numDescriptorPools = NULL;
-    }
-    if (rendererData->imageAvailableSemaphores) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->imageAvailableSemaphores[i] != VK_NULL_HANDLE) {
-                vkDestroySemaphore(rendererData->device, rendererData->imageAvailableSemaphores[i], NULL);
-            }
-        }
-        SDL_free(rendererData->imageAvailableSemaphores);
-        rendererData->imageAvailableSemaphores = NULL;
-    }
-    if (rendererData->renderingFinishedSemaphores) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->renderingFinishedSemaphores[i] != VK_NULL_HANDLE) {
-                vkDestroySemaphore(rendererData->device, rendererData->renderingFinishedSemaphores[i], NULL);
-            }
-        }
-        SDL_free(rendererData->renderingFinishedSemaphores);
-        rendererData->renderingFinishedSemaphores = NULL;
-    }
-    if (rendererData->uploadBuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
-            if (rendererData->uploadBuffers[i]) {
-                for (int j = 0; j < rendererData->currentUploadBuffer[i]; j++) {
-                    VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[i][j]);
-                }
-                SDL_free(rendererData->uploadBuffers[i]);
-            }
-        }
-        SDL_free(rendererData->uploadBuffers);
-        rendererData->uploadBuffers = NULL;
-        SDL_free(rendererData->currentUploadBuffer);
-        rendererData->currentUploadBuffer = NULL;
-    }
-    if (rendererData->constantBuffers) {
-        for (uint32_t i = 0; i < rendererData->swapchainImageCount; ++i) {
-            if (rendererData->constantBuffers[i]) {
-                for (uint32_t j = 0; j < rendererData->numConstantBuffers[i]; j++) {
-                    VULKAN_DestroyBuffer(rendererData, &rendererData->constantBuffers[i][j]);
-                }
-                SDL_free(rendererData->constantBuffers[i]);
-            }
-        }
-        SDL_free(rendererData->constantBuffers);
-        rendererData->constantBuffers = NULL;
-        SDL_free(rendererData->numConstantBuffers);
-        rendererData->numConstantBuffers = NULL;
-    }
+    VULKAN_CleanupSwapChainData(rendererData);
 
     // pick an image count
     rendererData->swapchainDesiredImageCount = rendererData->surfaceCapabilities.minImageCount + SDL_VULKAN_FRAME_QUEUE_DEPTH;
