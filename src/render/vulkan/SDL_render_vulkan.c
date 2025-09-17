@@ -1029,8 +1029,10 @@ static void VULKAN_ResetCommandList(VULKAN_RenderData *rendererData)
 {
     VkCommandBufferBeginInfo beginInfo;
     vkResetCommandBuffer(rendererData->currentCommandBuffer, 0);
-    for (uint32_t i = 0; i < rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex]; i++) {
-        vkResetDescriptorPool(rendererData->device, rendererData->descriptorPools[rendererData->currentCommandBufferIndex][i], 0);
+    if (rendererData->descriptorPools && rendererData->numDescriptorPools) {
+        for (uint32_t i = 0; i < rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex]; i++) {
+            vkResetDescriptorPool(rendererData->device, rendererData->descriptorPools[rendererData->currentCommandBufferIndex][i], 0);
+        }
     }
 
     SDL_zero(beginInfo);
@@ -1048,10 +1050,12 @@ static void VULKAN_ResetCommandList(VULKAN_RenderData *rendererData)
     rendererData->currentConstantBufferIndex = 0;
 
     /* Release any upload buffers that were inflight */
-    for (int i = 0; i < rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex]; ++i) {
-        VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[rendererData->currentCommandBufferIndex][i]);
+    if (rendererData->uploadBuffers && rendererData->currentUploadBuffer) {
+        for (int i = 0; i < rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex]; ++i) {
+            VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[rendererData->currentCommandBufferIndex][i]);
+        }
+        rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex] = 0;
     }
-    rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex] = 0;
 }
 
 static VkResult VULKAN_IssueBatch(VULKAN_RenderData *rendererData)
