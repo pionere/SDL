@@ -42,11 +42,7 @@ public class SDLControllerManager
 
     public static void initialize() {
         if (mJoystickHandler == null) {
-            if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
-                mJoystickHandler = new SDLJoystickHandler_API19();
-            } else {
-                mJoystickHandler = new SDLJoystickHandler_API16();
-            }
+            mJoystickHandler = new SDLJoystickHandler();
         }
 
         if (mHapticHandler == null) {
@@ -134,29 +130,6 @@ public class SDLControllerManager
 
 class SDLJoystickHandler {
 
-    /**
-     * Handles given MotionEvent.
-     * @param event the event to be handled.
-     * @return if given event was processed.
-     */
-    public boolean handleMotionEvent(MotionEvent event) {
-        return false;
-    }
-
-    /**
-     * Handles adding and removing of input devices.
-     */
-    public void pollInputDevices() {
-    }
-
-    public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
-        // Not supported in older APIs
-    }
-}
-
-/* Actual joystick functionality available for API >= 12 devices */
-class SDLJoystickHandler_API16 extends SDLJoystickHandler {
-
     static class SDLJoystick {
         public int device_id;
         public String name;
@@ -213,12 +186,11 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
 
     private final ArrayList<SDLJoystick> mJoysticks;
 
-    public SDLJoystickHandler_API16() {
+    public SDLJoystickHandler() {
 
         mJoysticks = new ArrayList<SDLJoystick>();
     }
 
-    @Override
     public void pollInputDevices() {
         int[] deviceIds = InputDevice.getDeviceIds();
 
@@ -301,7 +273,6 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
         return null;
     }
 
-    @Override
     public boolean handleMotionEvent(MotionEvent event) {
         int actionPointerIndex = event.getActionIndex();
         int action = event.getActionMasked();
@@ -334,32 +305,11 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
         return joystickDevice.getName();
     }
     public int getProductId(InputDevice joystickDevice) {
-        return 0;
-    }
-    public int getVendorId(InputDevice joystickDevice) {
-        return 0;
-    }
-    public int getAxisMask(List<InputDevice.MotionRange> ranges) {
-        return -1;
-    }
-    public int getButtonMask(InputDevice joystickDevice) {
-        return -1;
-    }
-}
-
-class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
-
-    @Override
-    public int getProductId(InputDevice joystickDevice) {
         return joystickDevice.getProductId();
     }
-
-    @Override
     public int getVendorId(InputDevice joystickDevice) {
         return joystickDevice.getVendorId();
     }
-
-    @Override
     public int getAxisMask(List<InputDevice.MotionRange> ranges) {
         // For compatibility, keep computing the axis mask like before,
         // only really distinguishing 2, 4 and 6 axes.
@@ -395,8 +345,6 @@ class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
         }
         return axis_mask;
     }
-
-    @Override
     public int getButtonMask(InputDevice joystickDevice) {
         int button_mask = 0;
         int[] keys = new int[] {
@@ -490,8 +438,6 @@ class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
         }
         return button_mask;
     }
-
-    @Override
     public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
         InputDevice device = InputDevice.getDevice(device_id);
         if (device == null) {
