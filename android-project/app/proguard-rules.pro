@@ -130,9 +130,9 @@
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLControllerManager {
     # SDL to JNI interface
     void pollInputDevices();
+    void joystickRumble(int, float, float, int);
     void pollHapticDevices();
     void hapticRun(int, float, int);
-    void hapticRumble(int, float, float, int);
     void hapticStop(int);
     # JNI to SDL interface
     void nativeSetupJNI();

@@ -75,6 +75,13 @@ public class SDLControllerManager
     /**
      * This method is called by SDL using JNI.
      */
+    public static void joystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+        mJoystickHandler.rumble(device_id, low_frequency_intensity, high_frequency_intensity, length);
+    }
+
+    /**
+     * This method is called by SDL using JNI.
+     */
     public static void pollHapticDevices() {
         mHapticHandler.pollHapticDevices();
     }
@@ -84,13 +91,6 @@ public class SDLControllerManager
      */
     public static void hapticRun(int device_id, float intensity, int length) {
         mHapticHandler.run(device_id, intensity, length);
-    }
-
-    /**
-     * This method is called by SDL using JNI.
-     */
-    public static void hapticRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
-        mHapticHandler.rumble(device_id, low_frequency_intensity, high_frequency_intensity, length);
     }
 
     /**
@@ -147,6 +147,10 @@ class SDLJoystickHandler {
      * Handles adding and removing of input devices.
      */
     public void pollInputDevices() {
+    }
+
+    public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+        // Not supported in older APIs
     }
 }
 
@@ -486,16 +490,6 @@ class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
         }
         return button_mask;
     }
-}
-
-class SDLHapticHandler_API31 extends SDLHapticHandler {
-    @Override
-    public void run(int device_id, float intensity, int length) {
-        SDLHaptic haptic = getHaptic(device_id);
-        if (haptic != null) {
-            vibrate(haptic.vib, intensity, length);
-        }
-    }
 
     @Override
     public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
@@ -507,15 +501,25 @@ class SDLHapticHandler_API31 extends SDLHapticHandler {
         VibratorManager manager = device.getVibratorManager();
         int[] vibrators = manager.getVibratorIds();
         if (vibrators.length >= 2) {
-            vibrate(manager.getVibrator(vibrators[0]), low_frequency_intensity, length);
-            vibrate(manager.getVibrator(vibrators[1]), high_frequency_intensity, length);
+            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[0]), low_frequency_intensity, length);
+            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[1]), high_frequency_intensity, length);
         } else if (vibrators.length == 1) {
             float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
-            vibrate(manager.getVibrator(vibrators[0]), intensity, length);
+            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[0]), intensity, length);
+        }
+    }
+}
+
+class SDLHapticHandler_API31 extends SDLHapticHandler {
+    @Override
+    public void run(int device_id, float intensity, int length) {
+        SDLHaptic haptic = getHaptic(device_id);
+        if (haptic != null) {
+            vibrate(haptic.vib, intensity, length);
         }
     }
 
-    private void vibrate(Vibrator vibrator, float intensity, int length) {
+    public static void vibrate(Vibrator vibrator, float intensity, int length) {
         int value = Math.round(intensity * 255);
         if (value < 1) {
             vibrator.cancel();

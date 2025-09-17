@@ -564,7 +564,7 @@ static int ANDROID_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_r
     if (!item->can_rumble) {
         return SDL_Unsupported();
     }
-    Android_JNI_HapticRumble(item->device_id, low_frequency_intensity, high_frequency_intensity, 5000);
+    Android_JNI_JoystickRumble(item->device_id, low_frequency_intensity, high_frequency_intensity, 5000);
     return 0;
 }
 

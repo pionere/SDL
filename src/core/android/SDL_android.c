@@ -439,9 +439,9 @@ static jclass mControllerManagerClass;
 /* method signatures */
 typedef enum {
     SDLController_pollInputDevices,
+    SDLController_joystickRumble,
     SDLController_pollHapticDevices,
     SDLController_hapticRun,
-    SDLController_hapticRumble,
     SDLController_hapticStop,
     SDL_ControllerFuncs_count
 } SDL_ControllerFuncs_enum;
@@ -449,9 +449,9 @@ static jmethodID jnicall_ctrl[SDL_ControllerFuncs_count];
 
 static const function_definition SDLControllerManager_ifc[] = {
     { "pollInputDevices", "()V" },
+    { "joystickRumble", "(IFFI)V" },
     { "pollHapticDevices", "()V" },
     { "hapticRun", "(IFI)V" },
-    { "hapticRumble", "(IFFI)V" },
     { "hapticStop", "(I)V" },
 };
 SDL_COMPILE_TIME_ASSERT(controller_funcs, SDL_arraysize(SDLControllerManager_ifc) == (int)SDL_ControllerFuncs_count);
@@ -2070,6 +2070,12 @@ void Android_JNI_PollInputDevices(void)
     (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_pollInputDevices]);
 }
 
+void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length)
+{
+    JNIEnv *env = Android_JNI_GetEnv();
+    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_joystickRumble], device_id, low_frequency_intensity, high_frequency_intensity, length);
+}
+
 void Android_JNI_PollHapticDevices(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
@@ -2080,12 +2086,6 @@ void Android_JNI_HapticRun(int device_id, float intensity, int length)
 {
     JNIEnv *env = Android_JNI_GetEnv();
     (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_hapticRun], device_id, intensity, length);
-}
-
-void Android_JNI_HapticRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_hapticRumble], device_id, low_frequency_intensity, high_frequency_intensity, length);
 }
 
 void Android_JNI_HapticStop(int device_id)

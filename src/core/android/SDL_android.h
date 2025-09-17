@@ -87,11 +87,11 @@ int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seco
 
 /* Joystick support */
 void Android_JNI_PollInputDevices(void);
+void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length);
 
 /* Haptic support */
 void Android_JNI_PollHapticDevices(void);
 void Android_JNI_HapticRun(int device_id, float intensity, int length);
-void Android_JNI_HapticRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length);
 void Android_JNI_HapticStop(int device_id);
 
 /* Video */
