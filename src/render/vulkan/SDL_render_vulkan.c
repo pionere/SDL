@@ -2480,7 +2480,7 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
 #endif
     return 0;
 error:
-    VULKAN_DestroyAll(renderer);
+    // VULKAN_CleanupSwapChainData(renderer);
     return SDL_VULKAN_ERROR_UNKNOWN;
 }
 
