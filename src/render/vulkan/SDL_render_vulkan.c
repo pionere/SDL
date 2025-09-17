@@ -1318,6 +1318,7 @@ static VULKAN_PipelineState *VULKAN_CreatePipelineState(VULKAN_RenderData *rende
     pipelineStateCount = rendererData->pipelineStateCount + 1;
     pipelineStates = (VULKAN_PipelineState *)SDL_realloc(rendererData->pipelineStates, pipelineStateCount * sizeof(*pipelineStates));
     if (!pipelineStates) {
+        vkDestroyPipeline(rendererData->device, pipeline, NULL);
         SDL_OutOfMemory();
         return NULL;
     }
