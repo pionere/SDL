@@ -905,7 +905,8 @@ static void VULKAN_AcquireNextSwapchainImage(SDL_Renderer *renderer)
     result = vkAcquireNextImageKHR(rendererData->device, rendererData->swapchain, UINT64_MAX,
         rendererData->imageAvailableSemaphores[rendererData->currentCommandBufferIndex], VK_NULL_HANDLE, &rendererData->currentSwapchainImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_ERROR_SURFACE_LOST_KHR) {
-        VULKAN_CreateWindowSizeDependentResources(renderer);
+        // VULKAN_CreateWindowSizeDependentResources(renderer);
+        rendererData->recreateSwapchain = SDL_TRUE;
     } else {
         if (result != VK_SUCCESS) {
             if (result != VK_SUBOPTIMAL_KHR) {
@@ -2594,17 +2595,14 @@ static VkResult VULKAN_UpdateForWindowSizeChange(SDL_Renderer *renderer)
 
 static void VULKAN_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
 {
-#if 0
     VULKAN_RenderData *rendererData = (VULKAN_RenderData *)renderer->driverdata;
-
+#if 0
     if (event->type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
-        rendererData->recreateSwapchain = SDL_TRUE;
-    }
 #else
     if (event->type == SDL_WINDOWEVENT_SIZE_CHANGED) {
-        VULKAN_UpdateForWindowSizeChange(renderer);
-    }
 #endif
+        rendererData->recreateSwapchain = SDL_TRUE;
+    }
 }
 
 static SDL_bool VULKAN_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
