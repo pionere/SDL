@@ -46,9 +46,7 @@ public class SDLControllerManager
         }
 
         if (mHapticHandler == null) {
-            if (Build.VERSION.SDK_INT >= 31 /* Android 12.0 (S) */) {
-                mHapticHandler = new SDLHapticHandler_API31();
-            } else if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
+            if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
                 mHapticHandler = new SDLHapticHandler_API26();
             } else {
                 mHapticHandler = new SDLHapticHandler();
@@ -447,16 +445,16 @@ class SDLJoystickHandler {
         VibratorManager manager = device.getVibratorManager();
         int[] vibrators = manager.getVibratorIds();
         if (vibrators.length >= 2) {
-            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[0]), low_frequency_intensity, length);
-            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[1]), high_frequency_intensity, length);
+            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[0]), low_frequency_intensity, length);
+            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[1]), high_frequency_intensity, length);
         } else if (vibrators.length == 1) {
             float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
-            SDLHapticHandler_API31.vibrate(manager.getVibrator(vibrators[0]), intensity, length);
+            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[0]), intensity, length);
         }
     }
 }
 
-class SDLHapticHandler_API31 extends SDLHapticHandler {
+class SDLHapticHandler_API26 extends SDLHapticHandler {
     @Override
     public void run(int device_id, float intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
@@ -481,31 +479,6 @@ class SDLHapticHandler_API31 extends SDLHapticHandler {
             // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
             // something went horribly wrong with the Android 8.0 APIs.
             vibrator.vibrate(length);
-        }
-    }
-}
-
-class SDLHapticHandler_API26 extends SDLHapticHandler {
-    @Override
-    public void run(int device_id, float intensity, int length) {
-        SDLHaptic haptic = getHaptic(device_id);
-        if (haptic != null) {
-            int vibeValue = Math.round(intensity * 255);
-            if (vibeValue < 1) {
-                stop(device_id);
-                return;
-            }
-            if (vibeValue > 255) {
-                vibeValue = 255;
-            }
-            try {
-                haptic.vib.vibrate(VibrationEffect.createOneShot(length, vibeValue));
-            }
-            catch (Exception e) {
-                // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
-                // something went horribly wrong with the Android 8.0 APIs.
-                haptic.vib.vibrate(length);
-            }
         }
     }
 }
