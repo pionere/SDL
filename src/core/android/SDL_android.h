@@ -86,7 +86,8 @@ SDL_bool Android_JNI_HasClipboardText(void);
 int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seconds, int *percent);
 
 /* Joystick support */
-void Android_JNI_PollInputDevices(void);
+void Android_JNI_JoystickSubscribe(void);
+void Android_JNI_JoystickUnsubscribe(void);
 void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length);
 
 /* Haptic support */

@@ -438,7 +438,8 @@ static jclass mControllerManagerClass;
 
 /* method signatures */
 typedef enum {
-    SDLController_pollInputDevices,
+    SDLController_joystickSubscribe,
+    SDLController_joystickUnsubscribe,
     SDLController_joystickRumble,
     SDLController_pollHapticDevices,
     SDLController_hapticRun,
@@ -448,7 +449,8 @@ typedef enum {
 static jmethodID jnicall_ctrl[SDL_ControllerFuncs_count];
 
 static const function_definition SDLControllerManager_ifc[] = {
-    { "pollInputDevices", "()V" },
+    { "joystickSubscribe", "()V" },
+    { "joystickUnsubscribe", "()V" },
     { "joystickRumble", "(IFFI)V" },
     { "pollHapticDevices", "()V" },
     { "hapticRun", "(IFI)V" },
@@ -2064,10 +2066,16 @@ void Android_JNI_InitTouch(void)
     (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_initTouch]);
 }
 
-void Android_JNI_PollInputDevices(void)
+void Android_JNI_JoystickSubscribe(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_pollInputDevices]);
+    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_joystickSubscribe]);
+}
+
+void Android_JNI_JoystickUnsubscribe(void)
+{
+    JNIEnv *env = Android_JNI_GetEnv();
+    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_joystickUnsubscribe]);
 }
 
 void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length)

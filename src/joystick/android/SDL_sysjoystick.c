@@ -460,7 +460,7 @@ static void ANDROID_JoystickDetect(void);
 
 static int ANDROID_JoystickInit(void)
 {
-    ANDROID_JoystickDetect();
+    Android_JNI_JoystickSubscribe();
     return 0;
 }
 
@@ -471,15 +471,6 @@ static int ANDROID_JoystickGetCount(void)
 
 static void ANDROID_JoystickDetect(void)
 {
-    /* Support for device connect/disconnect is API >= 16 only,
-     * so we poll every three seconds
-     * Ref: http://developer.android.com/reference/android/hardware/input/InputManager.InputDeviceListener.html
-     */
-    static Uint32 timeout = 0;
-    if (!timeout || SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
-        timeout = SDL_GetTicks() + 3000;
-        Android_JNI_PollInputDevices();
-    }
 }
 
 static SDL_joylist_item *JoystickByDevIndex(int device_index)
@@ -581,14 +572,13 @@ static void ANDROID_JoystickClose(SDL_Joystick *joystick)
         item->joystick = NULL;
     }
 }
-#if 0
+
 static void ANDROID_JoystickQuit(void)
 {
-/* We don't have any way to scan for joysticks at init, so don't wipe the list
- * of joysticks here in case this is a reinit.
- */
-    SDL_joylist_item *item = NULL;
-    SDL_joylist_item *next = NULL;
+    SDL_joylist_item *item;
+    SDL_joylist_item *next;
+
+    Android_JNI_JoystickUnsubscribe();
 
     for (item = SDL_joylist; item; item = next) {
         next = item->next;
@@ -600,11 +590,11 @@ static void ANDROID_JoystickQuit(void)
 
     numjoysticks = 0;
 }
-#endif /* 0 */
+
 SDL_JoystickDriver SDL_ANDROID_JoystickDriver = {
     ANDROID_JoystickInit,
     ANDROID_JoystickGetCount,
-    ANDROID_JoystickDetect,
+    SDL_JoystickDetect_Default,
     SDL_JoystickIsDevicePresent_Default,
     ANDROID_JoystickGetDeviceName,
     SDL_JoystickGetDevicePath_Default,
@@ -622,7 +612,7 @@ SDL_JoystickDriver SDL_ANDROID_JoystickDriver = {
     SDL_JoystickSetSensorsEnabled_Default,
     SDL_JoystickUpdate_Default,
     ANDROID_JoystickClose,
-    SDL_JoystickQuit_Default,
+    ANDROID_JoystickQuit,
     SDL_JoystickGetGamepadMapping_Default,
 };
 
