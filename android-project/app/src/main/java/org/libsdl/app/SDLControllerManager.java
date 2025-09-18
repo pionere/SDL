@@ -504,49 +504,39 @@ class SDLHapticHandler {
 
     public void pollHapticDevices() {
 
-        final int deviceId_VIBRATOR_SERVICE = 999999;
-        boolean hasVibratorService = false;
+        final int deviceId_VIBRATOR_SERVICE = 0;
 
-        /* Check VIBRATOR_SERVICE */
-        Vibrator vib = (Vibrator) SDL.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-        if (vib != null) {
-            hasVibratorService = vib.hasVibrator();
+        Context context = SDL.getContext();
+        Vibrator vib;
+        if (Build.VERSION.SDK_INT >= 31 /* Android 12.0 (S) */) {
+            VibratorManager vm = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            vib = vm.getDefaultVibrator();
+        } else {
+            vib = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        }
 
-            if (hasVibratorService) {
-                SDLHaptic haptic = getHaptic(deviceId_VIBRATOR_SERVICE);
-                if (haptic == null) {
-                    haptic = new SDLHaptic();
-                    haptic.device_id = deviceId_VIBRATOR_SERVICE;
-                    haptic.name = "VIBRATOR_SERVICE";
-                    haptic.vib = vib;
-                    mHaptics.add(haptic);
-                    SDLControllerManager.nativeAddHaptic(haptic.device_id, haptic.name);
+        if (vib != null && vib.hasVibrator()) {
+            addHaptic(deviceId_VIBRATOR_SERVICE, "VIBRATOR_SERVICE", vib);
+        } else {
+            for (int i = 0; i < mHaptics.size(); i++) {
+                if (mHaptics.get(i).device_id == deviceId_VIBRATOR_SERVICE) {
+                    SDLControllerManager.nativeRemoveHaptic(deviceId_VIBRATOR_SERVICE);
+                    mHaptics.remove(i);
+                    break;
                 }
             }
         }
+    }
 
-        /* Check removed devices */
-        ArrayList<Integer> removedDevices = null;
-        for (SDLHaptic haptic : mHaptics) {
-            int device_id = haptic.device_id;
-            if (device_id != deviceId_VIBRATOR_SERVICE || !hasVibratorService) {
-                if (removedDevices == null) {
-                    removedDevices = new ArrayList<Integer>();
-                }
-                removedDevices.add(device_id);
-            }  // else: don't remove the vibrator if it is still present
-        }
-
-        if (removedDevices != null) {
-            for (int device_id : removedDevices) {
-                SDLControllerManager.nativeRemoveHaptic(device_id);
-                for (int i = 0; i < mHaptics.size(); i++) {
-                    if (mHaptics.get(i).device_id == device_id) {
-                        mHaptics.remove(i);
-                        break;
-                    }
-                }
-            }
+    public void addHaptic(int device_id, String name, Vibrator vib) {
+        SDLHaptic haptic = getHaptic(device_id);
+        if (haptic == null) {
+            haptic = new SDLHaptic();
+            haptic.device_id = device_id;
+            haptic.name = name;
+            haptic.vib = vib;
+            mHaptics.add(haptic);
+            SDLControllerManager.nativeAddHaptic(haptic.device_id, haptic.name);
         }
     }
 
