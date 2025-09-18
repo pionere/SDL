@@ -472,14 +472,7 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
         if (value > 255) {
             value = 255;
         }
-        try {
-            vibrator.vibrate(VibrationEffect.createOneShot(length, value));
-        }
-        catch (Exception e) {
-            // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
-            // something went horribly wrong with the Android 8.0 APIs.
-            vibrator.vibrate(length);
-        }
+        vibrator.vibrate(VibrationEffect.createOneShot(length, value));
     }
 }
 
@@ -502,10 +495,6 @@ class SDLHapticHandler {
         if (haptic != null) {
             haptic.vib.vibrate(length);
         }
-    }
-
-    public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
-        // Not supported in older APIs
     }
 
     public void stop(int device_id) {
