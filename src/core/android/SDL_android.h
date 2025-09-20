@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #include <EGL/eglplatform.h>
-#include <android/native_window_jni.h>
+#include <android/native_window.h>
 
 #include "SDL_audio.h"
 #include "SDL_rect.h"
@@ -102,8 +102,6 @@ void Android_JNI_SuspendScreenSaver(SDL_bool suspend);
 void Android_JNI_InitTouch(void);
 
 /* Threads */
-#include <jni.h>
-JNIEnv *Android_JNI_GetEnv(void);
 int Android_JNI_SetupThread(void);
 
 /* Locale */
@@ -111,9 +109,6 @@ int Android_JNI_GetLocale(char *buf, size_t buflen);
 
 /* Generic messages */
 int Android_JNI_SendMessage(int command, int param);
-
-/* Init */
-JNIEXPORT void JNICALL SDL_Android_Init(JNIEnv *mEnv, jclass cls);
 
 /* MessageBox */
 #include "SDL_messagebox.h"

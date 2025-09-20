@@ -44,6 +44,7 @@
 #include <android/log.h>
 #include <android/configuration.h>
 #include <android/asset_manager_jni.h>
+#include <android/native_window_jni.h>
 #include <sys/system_properties.h>
 #include <pthread.h>
 #include <sys/types.h>
