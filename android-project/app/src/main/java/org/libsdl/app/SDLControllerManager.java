@@ -132,6 +132,15 @@ public class SDLControllerManager
         );
     }
 
+    public static String getDeviceDescriptor(InputDevice device) {
+        String desc = device.getDescriptor();
+
+        if (desc != null && !desc.isEmpty()) {
+            return desc;
+        }
+
+        return device.getName();
+    }
 }
 
 class SDLJoystickHandler implements InputManager.InputDeviceListener {
@@ -223,7 +232,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
                 joystick = new SDLJoystick();
                 joystick.device_id = device_id;
                 joystick.name = joystickDevice.getName();
-                joystick.desc = getJoystickDescriptor(joystickDevice);
+                joystick.desc = SDLControllerManager.getDeviceDescriptor(joystickDevice);
                 joystick.axes = new ArrayList<InputDevice.MotionRange>();
                 joystick.hats = new ArrayList<InputDevice.MotionRange>();
 
@@ -303,15 +312,6 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
         return true;
     }
 
-    public String getJoystickDescriptor(InputDevice joystickDevice) {
-        String desc = joystickDevice.getDescriptor();
-
-        if (desc != null && !desc.isEmpty()) {
-            return desc;
-        }
-
-        return joystickDevice.getName();
-    }
     public int getProductId(InputDevice joystickDevice) {
         return joystickDevice.getProductId();
     }
