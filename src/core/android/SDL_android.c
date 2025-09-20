@@ -1018,17 +1018,21 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(
 JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
     JNIEnv *env, jclass jcls, jint device_id, jstring device_name)
 {
+#ifdef SDL_HAPTIC_ANDROID
     const char *name = (*env)->GetStringUTFChars(env, device_name, NULL);
 
     Android_AddHaptic(device_id, name);
 
     (*env)->ReleaseStringUTFChars(env, device_name, name);
+#endif
 }
 
 JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
     JNIEnv *env, jclass jcls, jint device_id)
 {
+#ifdef SDL_HAPTIC_ANDROID
     Android_RemoveHaptic(device_id);
+#endif
 }
 
 /* Called from surfaceCreated() */
