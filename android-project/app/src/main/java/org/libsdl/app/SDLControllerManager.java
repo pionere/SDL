@@ -141,6 +141,26 @@ public class SDLControllerManager
 
         return device.getName();
     }
+
+    public static ArrayList<Vibrator> getDeviceVibrators(InputDevice device) {
+        ArrayList<Vibrator> vibrators = new ArrayList<Vibrator>();
+        if (Build.VERSION.SDK_INT >= 31 /* Android 12.0 (S) */) {
+            VibratorManager manager = device.getVibratorManager();
+            int[] vibratorIds = manager.getVibratorIds();
+            for (int vibrator_id : vibratorIds) {
+                Vibrator vib = manager.getVibrator(vibrator_id);
+                if (vib != null && vib.hasVibrator()) {
+                    vibrators.add(vib);
+                }
+            }
+        } else {
+            Vibrator vib = device.getVibrator();
+            if (vib != null && vib.hasVibrator()) {
+                vibrators.add(vib);
+            }
+        }
+        return vibrators;
+    }
 }
 
 class SDLJoystickHandler implements InputManager.InputDeviceListener {
@@ -151,6 +171,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
         public String desc;
         public ArrayList<InputDevice.MotionRange> axes;
         public ArrayList<InputDevice.MotionRange> hats;
+        public ArrayList<Vibrator> vibs;
     }
     static class RangeComparator implements Comparator<InputDevice.MotionRange> {
         @Override
@@ -235,7 +256,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
                 joystick.desc = SDLControllerManager.getDeviceDescriptor(joystickDevice);
                 joystick.axes = new ArrayList<InputDevice.MotionRange>();
                 joystick.hats = new ArrayList<InputDevice.MotionRange>();
-
+                joystick.vibs = SDLControllerManager.getDeviceVibrators(joystickDevice);
                 List<InputDevice.MotionRange> ranges = joystickDevice.getMotionRanges();
                 Collections.sort(ranges, new RangeComparator());
                 for (InputDevice.MotionRange range : ranges) {
@@ -447,19 +468,15 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
         return button_mask;
     }
     public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
-        InputDevice device = InputDevice.getDevice(device_id);
-        if (device == null) {
-            return;
-        }
-
-        VibratorManager manager = device.getVibratorManager();
-        int[] vibrators = manager.getVibratorIds();
-        if (vibrators.length >= 2) {
-            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[0]), low_frequency_intensity, length);
-            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[1]), high_frequency_intensity, length);
-        } else if (vibrators.length == 1) {
-            float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
-            SDLHapticHandler_API26.vibrate(manager.getVibrator(vibrators[0]), intensity, length);
+        SDLJoystick joystick = getJoystick(device_id);
+        if (joystick != null) {
+            if (joystick.vibs.size() >= 2) {
+                SDLHapticHandler_API26.vibrate(joystick.vibs.get(0), low_frequency_intensity, length);
+                SDLHapticHandler_API26.vibrate(joystick.vibs.get(1), high_frequency_intensity, length);
+            } else if (joystick.vibs.size() == 1) {
+                float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
+                SDLHapticHandler_API26.vibrate(joystick.vibs.get(0), intensity, length);
+            }
         }
     }
 }
