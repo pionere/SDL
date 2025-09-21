@@ -639,13 +639,6 @@ if(NGAGE)
   set(SDL_VIRTUAL_JOYSTICK OFF)
 endif()
 
-if(NXDK)
-  set(SDL_HAPTIC           OFF)
-  #set(SDL_LOADSO       OFF)
-  set(SDL_SENSOR           OFF)
-  set(SDL_FILESYSTEM       OFF)
-endif()
-
 # General source files
 file(GLOB SOURCE_FILES
   ${SDL2_SOURCE_DIR}/src/*.c
