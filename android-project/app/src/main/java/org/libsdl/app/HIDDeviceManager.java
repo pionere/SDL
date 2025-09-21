@@ -55,11 +55,11 @@ public class HIDDeviceManager {
     private HashMap<BluetoothDevice, HIDDeviceBLESteamController> mBluetoothDevices = new HashMap<BluetoothDevice, HIDDeviceBLESteamController>();
     private int mNextDeviceId = 0;
     private SharedPreferences mSharedPreferences = null;
-    private boolean mIsChromebook = false;
+//    private boolean mIsChromebook = false;
     private UsbManager mUsbManager;
-    private Handler mHandler;
-    private BluetoothManager mBluetoothManager;
-    private List<BluetoothDevice> mLastBluetoothDevices;
+//    private Handler mHandler;
+//    private BluetoothManager mBluetoothManager;
+//    private List<BluetoothDevice> mLastBluetoothDevices;
 
     private final BroadcastReceiver mUsbBroadcast = new BroadcastReceiver() {
         @Override
@@ -108,7 +108,7 @@ public class HIDDeviceManager {
         HIDDeviceRegisterCallback();
 
         mSharedPreferences = mContext.getSharedPreferences("hidapi", Context.MODE_PRIVATE);
-        mIsChromebook = mContext.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
+//        mIsChromebook = mContext.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
 
 //        if (shouldClear) {
 //            SharedPreferences.Editor spedit = mSharedPreferences.edit();
@@ -372,7 +372,7 @@ public class HIDDeviceManager {
         }
 
         // Find bonded bluetooth controllers and create SteamControllers for them
-        mBluetoothManager = (BluetoothManager)mContext.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager mBluetoothManager = (BluetoothManager)mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         if (mBluetoothManager == null) {
             // This device doesn't support Bluetooth.
             return;
@@ -400,7 +400,7 @@ public class HIDDeviceManager {
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         mContext.registerReceiver(mBluetoothBroadcast, filter);
 
-        if (mIsChromebook) {
+        /*if (mIsChromebook) {
             mHandler = new Handler(Looper.getMainLooper());
             mLastBluetoothDevices = new ArrayList<BluetoothDevice>();
 
@@ -411,7 +411,7 @@ public class HIDDeviceManager {
             //         finalThis.chromebookConnectionHandler();
             //     }
             // }, 5000);
-        }
+        }*/
     }
 
     private void shutdownBluetooth() {
@@ -425,7 +425,7 @@ public class HIDDeviceManager {
     // Chromebooks do not pass along ACTION_ACL_CONNECTED / ACTION_ACL_DISCONNECTED properly.
     // This function provides a sort of dummy version of that, watching for changes in the
     // connected devices and attempting to add controllers as things change.
-    public void chromebookConnectionHandler() {
+    /*public void chromebookConnectionHandler() {
         if (!mIsChromebook) {
             return;
         }
@@ -462,7 +462,7 @@ public class HIDDeviceManager {
                 finalThis.chromebookConnectionHandler();
             }
         }, 10000);
-    }
+    }*/
 
     public boolean connectBluetoothDevice(BluetoothDevice bluetoothDevice) {
         Log.v(TAG, "connectBluetoothDevice device=" + bluetoothDevice);
