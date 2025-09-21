@@ -1005,8 +1005,7 @@ int hid_init(void)
 {
 	if ( !g_initialized )
 	{
-		// HIDAPI doesn't work well with Android < 4.3
-		if (SDL_GetAndroidSDKVersion() >= 18) {
+		{
 			// Make sure thread is attached to JVM/env
 			JNIEnv *env;
 			g_JVM->AttachCurrentThread( &env, NULL );
@@ -1021,12 +1020,12 @@ int hid_init(void)
 			// Bluetooth is currently only used for Steam Controllers, so check that hint
 			// before initializing Bluetooth, which will prompt the user for permission.
 			bool init_bluetooth = false;
+#ifdef SDL_JOYSTICK_HIDAPI
 			if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_HIDAPI_STEAM, SDL_FALSE)) {
-				if (SDL_GetAndroidSDKVersion() < 31 ||
-					Android_JNI_RequestPermission("android.permission.BLUETOOTH_CONNECT")) {
-					init_bluetooth = true;
-				}
+				const char* permission = SDL_GetAndroidSDKVersion() < 31 ? "android.permission.BLUETOOTH" : "android.permission.BLUETOOTH_CONNECT";
+				init_bluetooth = Android_JNI_RequestPermission(permission);
 			}
+#endif
 			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_bluetooth );
 			ExceptionCheck( env, NULL, "hid_init" );
 		}
