@@ -200,7 +200,7 @@ endif()
 #  so we'll just use libusb when it's available. libusb does not support iOS,
 #  so we default to yes on iOS.
 #  TODO: Windows can support libusb, the hid.c file just depends on Unix APIs
-if((WINDOWS AND NOT WINDOWS_STORE) OR IOS OR TVOS OR VISIONOS OR WATCHOS OR ANDROID OR NGAGE)
+if((WINDOWS AND NOT WINDOWS_STORE) OR IOS OR TVOS OR VISIONOS OR WATCHOS OR ANDROID)
   set(HIDAPI_SKIP_LIBUSB TRUE)
 else()
   set(HIDAPI_SKIP_LIBUSB FALSE)
@@ -212,6 +212,10 @@ if(FREEBSD OR NETBSD OR OPENBSD OR BSDI)
   set(HIDAPI_ONLY_LIBUSB TRUE)
 else()
   set(HIDAPI_ONLY_LIBUSB FALSE)
+endif()
+
+if(NGAGE)
+  set(SDL_HIDAPI_ENABLED_BY_DEFAULT OFF)
 endif()
 
 # Compiler info
@@ -619,24 +623,6 @@ endif()
 if(VITA)
   set_option(VIDEO_VITA_PIB  "Build with PSVita piglet gles2 support" OFF)
   set_option(VIDEO_VITA_PVR  "Build with PSVita PVR gles/gles2 support" OFF)
-endif()
-
-if(NGAGE)
-  #set(SDL_GPU              OFF)
-  #set(SDL_CAMERA           OFF)
-  set(SDL_JOYSTICK         OFF)
-  set(SDL_HAPTIC           OFF)
-  set(SDL_HIDAPI           OFF)
-  set(SDL_POWER            OFF)
-  set(SDL_SENSOR           OFF)
-  #set(SDL_DIALOG           OFF)
-  set(SDL_DISKAUDIO        OFF)
-  set(SDL_DUMMYAUDIO       OFF)
-  #set(SDL_DUMMYCAMERA      OFF)
-  set(SDL_DUMMYVIDEO       OFF)
-  set(SDL_OFFSCREEN        OFF)
-  #set(SDL_RENDER_GPU       OFF)
-  set(SDL_VIRTUAL_JOYSTICK OFF)
 endif()
 
 # General source files
