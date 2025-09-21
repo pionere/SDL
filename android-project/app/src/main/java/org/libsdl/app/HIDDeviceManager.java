@@ -551,12 +551,11 @@ public class HIDDeviceManager {
     ////////// JNI interface functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void initialize(boolean usb, boolean bluetooth) {
-        Log.v(TAG, "initialize(" + usb + ", " + bluetooth + ")");
+    public void initialize(boolean bluetooth) {
+        Log.v(TAG, "initialize(" + bluetooth + ")");
 
-        if (usb) {
-            initializeUSB();
-        }
+        initializeUSB();
+
         if (bluetooth) {
             initializeBluetooth();
         }

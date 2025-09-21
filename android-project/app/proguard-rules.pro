@@ -99,7 +99,7 @@
     void HIDDeviceInputReport(int, byte[]);
     void HIDDeviceFeatureReport(int, byte[]);
     # SDL to JNI interface
-    void initialize(boolean, boolean);
+    void initialize(boolean);
     boolean openDevice(int);
     int sendOutputReport(int, byte[]);
     int sendFeatureReport(int, byte[]);

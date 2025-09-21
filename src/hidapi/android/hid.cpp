@@ -831,7 +831,7 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 	if ( objClass )
 	{
 		g_HIDDeviceManagerCallbackClass = reinterpret_cast< jclass >( env->NewGlobalRef( objClass ) );
-		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(ZZ)V" );
+		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(Z)V" );
 		if ( !g_midHIDDeviceManagerInitialize )
 		{
 			LOGE("HIDDeviceRegisterCallback: callback class missing initialize" );
@@ -1020,7 +1020,6 @@ int hid_init(void)
 
 			// Bluetooth is currently only used for Steam Controllers, so check that hint
 			// before initializing Bluetooth, which will prompt the user for permission.
-			bool init_usb = true;
 			bool init_bluetooth = false;
 			if (SDL_GetHintBoolean(SDL_HINT_JOYSTICK_HIDAPI_STEAM, SDL_FALSE)) {
 				if (SDL_GetAndroidSDKVersion() < 31 ||
@@ -1028,7 +1027,7 @@ int hid_init(void)
 					init_bluetooth = true;
 				}
 			}
-			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_usb, init_bluetooth );
+			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_bluetooth );
 			ExceptionCheck( env, NULL, "hid_init" );
 		}
 		g_initialized = true;	// Regardless of result, so it's only called once
