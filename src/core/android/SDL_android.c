@@ -31,6 +31,7 @@
 
 #include "SDL_system.h"
 #include "SDL_android.h"
+#include "SDL_android_jni.h"
 
 #include "../../events/SDL_events_c.h"
 #include "../../video/android/SDL_androidkeyboard.h"
@@ -50,14 +51,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <dlfcn.h>
-
-#define SDL_JAVA_PREFIX                               org_libsdl_app
-#define CONCAT1(prefix, class, function)              CONCAT2(prefix, class, function)
-#define CONCAT2(prefix, class, function)              Java_##prefix##_##class##_##function
-#define SDL_JAVA_INTERFACE(function)                  CONCAT1(SDL_JAVA_PREFIX, SDLActivity, function)
-#define SDL_JAVA_AUDIO_INTERFACE(function)            CONCAT1(SDL_JAVA_PREFIX, SDLAudioManager, function)
-#define SDL_JAVA_CONTROLLER_INTERFACE(function)       CONCAT1(SDL_JAVA_PREFIX, SDLControllerManager, function)
-#define SDL_JAVA_INTERFACE_INPUT_CONNECTION(function) CONCAT1(SDL_JAVA_PREFIX, SDLInputConnection, function)
 
 #define TAG "SDL"
 
@@ -81,171 +74,6 @@
 #define ENCODING_PCM_16BIT 2
 #define ENCODING_PCM_FLOAT 4
 
-/* Java class SDLActivity */
-JNIEXPORT jstring JNICALL SDL_JAVA_INTERFACE(nativeGetVersion)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(
-    JNIEnv *env, jclass cls,
-    jstring library, jstring function, jobject array);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeDropFile)(
-    JNIEnv *env, jclass jcls,
-    jstring filename);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetScreenResolution)(
-    JNIEnv *env, jclass jcls,
-    jint surfaceWidth, jint surfaceHeight,
-    jint deviceWidth, jint deviceHeight, jfloat rate);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeResize)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceCreated)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceChanged)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeSurfaceDestroyed)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyDown)(
-    JNIEnv *env, jclass jcls,
-    jint keycode);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyUp)(
-    JNIEnv *env, jclass jcls,
-    jint keycode);
-
-JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(onNativeSoftReturnKey)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyboardFocusLost)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeTouch)(
-    JNIEnv *env, jclass jcls,
-    jint touch_device_id_in, jint pointer_finger_id_in,
-    jint action, jfloat x, jfloat y, jfloat p);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(
-    JNIEnv *env, jclass jcls,
-    jint button, jint action, jfloat x, jfloat y, jboolean relative);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeAccel)(
-    JNIEnv *env, jclass jcls,
-    jfloat x, jfloat y, jfloat z);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeClipboardChanged)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeLowMemory)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeLocaleChanged)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePause)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeResume)(
-    JNIEnv *env, jclass cls);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeFocusChanged)(
-    JNIEnv *env, jclass cls, jboolean hasFocus);
-
-JNIEXPORT jstring JNICALL SDL_JAVA_INTERFACE(nativeGetHint)(
-    JNIEnv *env, jclass cls,
-    jstring name);
-
-JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(nativeGetHintBoolean)(
-    JNIEnv *env, jclass cls,
-    jstring name, jboolean default_value);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetenv)(
-    JNIEnv *env, jclass cls,
-    jstring name, jstring value);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(
-    JNIEnv *env, jclass cls,
-    jint orientation);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeAddTouch)(
-    JNIEnv *env, jclass cls,
-    jint touchId, jstring name);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePermissionResult)(
-    JNIEnv *env, jclass cls,
-    jint requestCode, jboolean result);
-
-/* Java class SDLInputConnection */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeCommitText)(
-    JNIEnv *env, jclass cls,
-    jstring text, jint newCursorPosition);
-
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeGenerateScancodeForUnichar)(
-    JNIEnv *env, jclass cls,
-    jchar chUnicode);
-
-/* Java class SDLAudioManager */
-JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT void JNICALL
-    SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_capture,
-                                             jint device_id);
-
-JNIEXPORT void JNICALL
-    SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_capture,
-                                                jint device_id);
-
-/* Java class SDLControllerManager */
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(
-    JNIEnv *env, jclass jcls);
-
-JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jint keycode);
-
-JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadUp)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jint keycode);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeJoy)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jint axis, jfloat value);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeHat)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jint hat_id, jint x, jint y);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddJoystick)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jstring device_name, jstring device_desc, jint vendor_id, jint product_id,
-    jint button_mask, jint naxes, jint axis_mask, jint nhats, jboolean can_rumble);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(
-    JNIEnv *env, jclass jcls,
-    jint device_id);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jstring device_name);
-
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
-    JNIEnv *env, jclass jcls,
-    jint device_id);
-
 /* Uncomment this to log messages entering and exiting methods in this file */
 /* #define DEBUG_JNI */
 
@@ -254,7 +82,6 @@ static void checkJNIReady(void);
 /*******************************************************************************
  This file links the Java side of Android with libsdl
 *******************************************************************************/
-#include <jni.h>
 
 /*******************************************************************************
                                Globals
