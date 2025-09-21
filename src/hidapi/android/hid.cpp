@@ -71,9 +71,32 @@
 
 #include "../hidapi/hidapi.h"
 
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+/* method signatures */
+typedef struct {
+    const char *name;
+    const char *signature;
+} function_definition;
 
+typedef enum {
+    SDLhid_initialize,
+    SDLhid_openDevice,
+    SDLhid_sendOutputReport,
+    SDLhid_sendFeatureReport,
+    SDLhid_getFeatureReport,
+    SDLhid_closeDevice,
+    SDL_HID_funcs_count
+} SDL_HID_funcs_enum; 
+static jmethodID jnicall_hid[SDL_HID_funcs_count];
+
+static const function_definition SDLHIDManager_ifc[] = {
+    { "initialize", "(Z)V" },
+    { "openDevice", "(I)Z" },
+    { "sendOutputReport", "(I[B)I" },
+    { "sendFeatureReport", "(I[B)I" },
+    { "getFeatureReport", "(I[B)Z" },
+    { "closeDevice", "(I)V" },
+};
+SDL_COMPILE_TIME_ASSERT(hid_funcs, SDL_arraysize(SDLHIDManager_ifc) == (int)SDL_HID_funcs_count);
 
 struct hid_device_
 {
@@ -366,12 +389,6 @@ static void FreeHIDDeviceInfo( hid_device_info *pInfo )
 
 static jclass  g_HIDDeviceManagerCallbackClass;
 static jobject g_HIDDeviceManagerCallbackHandler;
-static jmethodID g_midHIDDeviceManagerInitialize;
-static jmethodID g_midHIDDeviceManagerOpen;
-static jmethodID g_midHIDDeviceManagerSendOutputReport;
-static jmethodID g_midHIDDeviceManagerSendFeatureReport;
-static jmethodID g_midHIDDeviceManagerGetFeatureReport;
-static jmethodID g_midHIDDeviceManagerClose;
 static bool g_initialized = false;
 
 static uint64_t get_timespec_ms( const struct timespec &ts )
@@ -485,7 +502,7 @@ public:
 		}
 
 		m_bIsWaitingForOpen = false;
-		m_bOpenResult = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerOpen, m_nId );
+		m_bOpenResult = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_openDevice], m_nId );
 		ExceptionCheck( env, "BOpen" );
 
 		if ( m_bIsWaitingForOpen )
@@ -597,7 +614,7 @@ public:
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
-			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerSendOutputReport, m_nId, pBuf );
+			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendOutputReport], m_nId, pBuf );
 			ExceptionCheck( env, "SendOutputReport" );
 			env->DeleteLocalRef( pBuf );
 		}
@@ -619,7 +636,7 @@ public:
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
-			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerSendFeatureReport, m_nId, pBuf );
+			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendFeatureReport], m_nId, pBuf );
 			ExceptionCheck( env, "SendFeatureReport" );
 			env->DeleteLocalRef( pBuf );
 		}
@@ -667,7 +684,7 @@ public:
 		}
 
 		jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
-		int nRet = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerGetFeatureReport, m_nId, pBuf ) ? 0 : -1;
+		int nRet = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_getFeatureReport], m_nId, pBuf ) ? 0 : -1;
 		ExceptionCheck( env, "GetFeatureReport" );
 		env->DeleteLocalRef( pBuf );
 		if ( nRet < 0 )
@@ -728,7 +745,7 @@ public:
 
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
-			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerClose, m_nId );
+			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_closeDevice], m_nId );
 			ExceptionCheck( env, "Close" );
 		}
 
@@ -803,66 +820,42 @@ static void ThreadDestroyed(void* value)
 	}
 }
 
-
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
-	LOGV( "HIDDeviceRegisterCallback()");
+    LOGV("HIDDeviceRegisterCallback()");
 
-	env->GetJavaVM( &g_JVM );
+    env->GetJavaVM( &g_JVM );
 
-	/*
-	 * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
-	 * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
-	 */
-	if (pthread_key_create(&g_ThreadKey, ThreadDestroyed) != 0) {
-		LOGE("Error initializing pthread key");
-	}
+    /*
+     * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
+     * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
+     */
+    if (pthread_key_create(&g_ThreadKey, ThreadDestroyed) != 0) {
+        LOGE("Error initializing pthread key");
+    }
 
-	if ( g_HIDDeviceManagerCallbackHandler != NULL )
-	{
-		env->DeleteGlobalRef( g_HIDDeviceManagerCallbackClass );
-		g_HIDDeviceManagerCallbackClass = NULL;
-		env->DeleteGlobalRef( g_HIDDeviceManagerCallbackHandler );
-		g_HIDDeviceManagerCallbackHandler = NULL;
-	}
+    if (g_HIDDeviceManagerCallbackHandler != NULL) {
+        env->DeleteGlobalRef(g_HIDDeviceManagerCallbackClass);
+        g_HIDDeviceManagerCallbackClass = NULL;
+        env->DeleteGlobalRef(g_HIDDeviceManagerCallbackHandler);
+        g_HIDDeviceManagerCallbackHandler = NULL;
+    }
 
-	g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef( thiz );
-	jclass objClass = env->GetObjectClass( thiz );
-	if ( objClass )
-	{
-		g_HIDDeviceManagerCallbackClass = reinterpret_cast< jclass >( env->NewGlobalRef( objClass ) );
-		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(Z)V" );
-		if ( !g_midHIDDeviceManagerInitialize )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing initialize" );
-		}
-		g_midHIDDeviceManagerOpen = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "openDevice", "(I)Z" );
-		if ( !g_midHIDDeviceManagerOpen )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing openDevice" );
-		}
-		g_midHIDDeviceManagerSendOutputReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "sendOutputReport", "(I[B)I" );
-		if ( !g_midHIDDeviceManagerSendOutputReport )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing sendOutputReport" );
-		}
-		g_midHIDDeviceManagerSendFeatureReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "sendFeatureReport", "(I[B)I" );
-		if ( !g_midHIDDeviceManagerSendFeatureReport )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing sendFeatureReport" );
-		}
-		g_midHIDDeviceManagerGetFeatureReport = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "getFeatureReport", "(I[B)Z" );
-		if ( !g_midHIDDeviceManagerGetFeatureReport )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing getFeatureReport" );
-		}
-		g_midHIDDeviceManagerClose = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "closeDevice", "(I)V" );
-		if ( !g_midHIDDeviceManagerClose )
-		{
-			LOGE("HIDDeviceRegisterCallback: callback class missing closeDevice" );
-		}
-		env->DeleteLocalRef( objClass );
-	}
+    g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
+    jclass objClass = env->GetObjectClass(thiz);
+
+    g_HIDDeviceManagerCallbackClass = reinterpret_cast< jclass >(env->NewGlobalRef(objClass));
+
+    for (int i = 0; i < SDL_HID_funcs_count; i++) {
+        jnicall_hid[i] = env->GetMethodID(g_HIDDeviceManagerCallbackClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
+    }
+    for (int i = 0; i < SDL_HID_funcs_count; i++) {
+        if (!jnicall_hid[i]) {
+            LOGD("Missing Java callback '%s' (idx=%d) of SDLHIDManager.", SDLHIDManager_ifc[i].name, i);
+        }
+    }
+
+    env->DeleteLocalRef(objClass);
 }
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallback)(JNIEnv *env, jobject thiz)
@@ -1033,7 +1026,7 @@ int hid_init(void)
 				init_bluetooth = Android_JNI_RequestPermission(permission);
 			}
 #endif
-			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_bluetooth );
+			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_initialize], init_bluetooth );
 			ExceptionCheck( env, NULL, "hid_init" );
 		}
 		g_initialized = true;	// Regardless of result, so it's only called once
