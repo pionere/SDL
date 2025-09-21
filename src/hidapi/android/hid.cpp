@@ -831,7 +831,7 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 	if ( objClass )
 	{
 		g_HIDDeviceManagerCallbackClass = reinterpret_cast< jclass >( env->NewGlobalRef( objClass ) );
-		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(ZZ)Z" );
+		g_midHIDDeviceManagerInitialize = env->GetMethodID( g_HIDDeviceManagerCallbackClass, "initialize", "(ZZ)V" );
 		if ( !g_midHIDDeviceManagerInitialize )
 		{
 			LOGE("HIDDeviceRegisterCallback: callback class missing initialize" );
@@ -1028,7 +1028,7 @@ int hid_init(void)
 					init_bluetooth = true;
 				}
 			}
-			env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_usb, init_bluetooth );
+			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, g_midHIDDeviceManagerInitialize, init_usb, init_bluetooth );
 			ExceptionCheck( env, NULL, "hid_init" );
 		}
 		g_initialized = true;	// Regardless of result, so it's only called once
