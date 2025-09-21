@@ -5098,71 +5098,51 @@ fi
 # Verify that we have all the platform specific files we need
 
 if test x$have_audio != xyes; then
-    if test x$enable_audio = xyes; then
-        AC_DEFINE(SDL_AUDIO_DRIVER_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_AUDIO_DRIVER_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/audio/dummy/*.c"
+    SUMMARY_audio="${SUMMARY_audio} dummy"
 fi
 if test x$have_video != xyes; then
-    if test x$enable_video = xyes; then
-        AC_DEFINE(SDL_VIDEO_DRIVER_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_VIDEO_DRIVER_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/video/dummy/*.c"
+    SUMMARY_video="${SUMMARY_video} dummy"
 fi
 if test x$have_misc != xyes; then
-    if test x$enable_misc = xyes; then
-        AC_DEFINE(SDL_MISC_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_MISC_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/misc/dummy/*.c"
 fi
 if test x$have_locale != xyes; then
-    if test x$enable_locale = xyes; then
-        AC_DEFINE(SDL_LOCALE_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_LOCALE_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/locale/dummy/*.c"
 fi
 if test x$have_joystick != xyes; then
-    if test x$enable_joystick = xyes; then
-        AC_DEFINE(SDL_JOYSTICK_DUMMY, 1, [ ])
-        SUMMARY_joystick="${SUMMARY_joystick} dummy"
-    fi
+    AC_DEFINE(SDL_JOYSTICK_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/joystick/dummy/*.c"
+    SUMMARY_joystick="${SUMMARY_joystick} dummy"
 fi
 if test x$have_haptic != xyes; then
-    if test x$enable_haptic = xyes; then
-        AC_DEFINE(SDL_HAPTIC_DUMMY, 1, [ ])
-        SUMMARY_haptic="${SUMMARY_haptic} dummy"
-    fi
+    AC_DEFINE(SDL_HAPTIC_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/haptic/dummy/*.c"
+    SUMMARY_haptic="${SUMMARY_haptic} dummy"
 fi
 if test x$have_sensor != xyes; then
-    if test x$enable_sensor = xyes; then
-        AC_DEFINE(SDL_SENSOR_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_SENSOR_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/sensor/dummy/*.c"
 fi
 if test x$have_threads != xyes; then
-    if test x$enable_threads = xyes; then
-        AC_DEFINE(SDL_THREAD_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_THREAD_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/thread/dummy/*.c"
 fi
 if test x$have_timers != xyes; then
-    if test x$enable_timers = xyes; then
-        AC_DEFINE(SDL_TIMER_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_TIMER_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/timer/dummy/*.c"
 fi
 if test x$have_filesystem != xyes; then
-    if test x$enable_filesystem = xyes; then
-        AC_DEFINE(SDL_FILESYSTEM_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_FILESYSTEM_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/filesystem/dummy/*.c"
 fi
 if test x$have_loadso != xyes; then
-    if test x$enable_loadso = xyes; then
-        AC_DEFINE(SDL_LOADSO_DUMMY, 1, [ ])
-    fi
+    AC_DEFINE(SDL_LOADSO_DUMMY, 1, [ ])
     SOURCES="$SOURCES $srcdir/src/loadso/dummy/*.c"
 fi
 if test x$SDLMAIN_SOURCES = x; then
