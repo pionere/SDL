@@ -2394,6 +2394,50 @@ int Android_JNI_OpenURL(const char *url)
     return ret;
 }
 
+#ifdef SDL_HIDAPI_DISABLED
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz )
+{
+	LOGV("Stub HIDDeviceRegisterCallback()");
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallback)(JNIEnv *env, jobject thiz)
+{
+	LOGV("Stub HIDDeviceReleaseCallback()");
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNIEnv *env, jobject thiz, jint nDeviceID, jstring sIdentifier, jint nVendorId, jint nProductId, jstring sSerialNumber, jint nReleaseNumber, jstring sManufacturer, jstring sProduct, jint nInterface, jint nInterfaceClass, jint nInterfaceSubclass, jint nInterfaceProtocol )
+{
+	LOGV("Stub HIDDeviceConnected() id=%d VID/PID = %.4x/%.4x, interface %d\n", nDeviceID, nVendorId, nProductId, nInterface);
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(JNIEnv *env, jobject thiz, jint nDeviceID)
+{
+	LOGV("Stub HIDDeviceOpenPending() id=%d\n", nDeviceID);
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JNIEnv *env, jobject thiz, jint nDeviceID, jboolean bOpened)
+{
+	LOGV("Stub HIDDeviceOpenResult() id=%d, result=%s\n", nDeviceID, bOpened ? "true" : "false");
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(JNIEnv *env, jobject thiz, jint nDeviceID)
+{
+	LOGV("Stub HIDDeviceDisconnected() id=%d\n", nDeviceID);
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+{
+	LOGV("Stub HIDDeviceInput() id=%d len=%u\n", nDeviceID, nBufSize);
+}
+
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceFeatureReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+{
+	LOGV("Stub HIDDeviceFeatureReport() id=%d len=%u\n", nDeviceID, nBufSize);
+}
+
+#endif /* SDL_HIDAPI_DISABLED */
+
 #endif /* __ANDROID__ */
 
 /* vi: set ts=4 sw=4 expandtab: */
