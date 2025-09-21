@@ -20,6 +20,8 @@
 */
 #include "../../SDL_internal.h"
 
+#ifdef SDL_THREAD_NGAGE
+
 /* An implementation of mutexes using the Symbian API. */
 
 #include <e32std.h>
@@ -63,7 +65,6 @@ void SDL_DestroyMutex(SDL_mutex *mutex)
         rmutex.Signal();
         rmutex.Close();
         delete (mutex);
-        mutex = NULL;
     }
 }
 
@@ -82,18 +83,28 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
 }
 
 /* Try to lock the mutex */
-#if 0
 int SDL_TryLockMutex(SDL_mutex *mutex)
 {
+    TInt status;
     if (mutex == NULL)
     {
         return 0;
     }
 
-    // Not yet implemented.
+    RMutex rmutex;
+    rmutex.SetHandle(mutex->handle);
+    status = rmutex.Poll();
+
+    if (status == KErrTimedOut) {
+        return SDL_MUTEX_TIMEDOUT;
+    }
+
+    if (status != KErrNone) { // KErrGeneral
+        return -1;
+    }
+
     return 0;
 }
-#endif
 
 /* Unlock the mutex */
 int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
@@ -108,5 +119,7 @@ int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doe
 
     return 0;
 }
+
+#endif /* SDL_THREAD_NGAGE */
 
 /* vi: set ts=4 sw=4 expandtab: */
