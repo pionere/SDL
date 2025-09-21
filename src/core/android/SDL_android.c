@@ -444,7 +444,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
     }
     for (int i = 0; i < SDL_JavaFuncs_count; i++) {
         if (!jnicall[i]) {
-            LOGW("Missing some Java callbacks, do you have the latest version of SDLActivity.java? (idx=%d)", i);
+            LOGD("Missing Java callback '%s' (idx=%d) of SDLActivity.", SDLActivity_ifc[i].name, i);
             break;
         }
     }
@@ -464,7 +464,7 @@ JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(JNIEnv *env, jcl
     }
     for (int i = 0; i < SDL_AudioFuncs_count; i++) {
         if (!jnicall_audio[i]) {
-            LOGW("Missing some Java callbacks, do you have the latest version of SDLAudioManager.java? (idx=%d)", i);
+            LOGD("Missing Java callback '%s' (idx=%d) of SDLAudioManager.", SDLAudioManager_ifc[i].name, i);
             break;
         }
     }
@@ -484,7 +484,7 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv *env
     }
     for (int i = 0; i < SDL_ControllerFuncs_count; i++) {
         if (!jnicall_ctrl[i]) {
-            LOGW("Missing some Java callbacks, do you have the latest version of SDLControllerManager.java? (idx=%d)", i);
+            LOGD("Missing Java callback '%s' (idx=%d) of SDLControllerManager.", SDLControllerManager_ifc[i].name, i);
             break;
         }
     }
