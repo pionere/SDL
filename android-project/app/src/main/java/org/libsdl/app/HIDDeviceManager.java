@@ -87,9 +87,7 @@ public class HIDDeviceManager {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d(TAG, "Bluetooth device connected: " + device);
 
-                if (isSteamController(device)) {
-                    connectBluetoothDevice(device);
-                }
+                connectBluetoothDevice(device);
             }
 
             // Bluetooth device was disconnected, remove from controller manager (if any)
@@ -388,9 +386,7 @@ public class HIDDeviceManager {
         for (BluetoothDevice device : btAdapter.getBondedDevices()) {
 
             Log.d(TAG, "Bluetooth device available: " + device);
-            if (isSteamController(device)) {
-                connectBluetoothDevice(device);
-            }
+            connectBluetoothDevice(device);
 
         }
 
@@ -464,8 +460,12 @@ public class HIDDeviceManager {
         }, 10000);
     }*/
 
-    public boolean connectBluetoothDevice(BluetoothDevice bluetoothDevice) {
+    public void connectBluetoothDevice(BluetoothDevice bluetoothDevice) {
         Log.v(TAG, "connectBluetoothDevice device=" + bluetoothDevice);
+        // ignore non-steam controllers
+        if (!isSteamController(bluetoothDevice)) {
+            return;
+        }
         synchronized (this) {
             if (mBluetoothDevices.containsKey(bluetoothDevice)) {
                 Log.v(TAG, "Steam controller with address " + bluetoothDevice + " already exists, attempting reconnect");
@@ -473,16 +473,14 @@ public class HIDDeviceManager {
                 HIDDeviceBLESteamController device = mBluetoothDevices.get(bluetoothDevice);
                 device.reconnect();
 
-                return false;
+                return;
             }
             HIDDeviceBLESteamController device = new HIDDeviceBLESteamController(this, bluetoothDevice);
-            int id = device.getId();
             mBluetoothDevices.put(bluetoothDevice, device);
-            mDevicesById.put(id, device);
+            mDevicesById.put(device.getId(), device);
 
             // The Steam Controller will mark itself connected once initialization is complete
         }
-        return true;
     }
 
     public void disconnectBluetoothDevice(BluetoothDevice bluetoothDevice) {
