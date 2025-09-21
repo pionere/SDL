@@ -75,9 +75,6 @@ void SDL_DestroyMutex(SDL_mutex *mutex)
 /* Lock the mutex */
 int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
-#ifdef SDL_THREADS_DISABLED
-    return 0;
-#else
     SceInt32 res = 0;
 
     if (mutex == NULL) {
@@ -90,15 +87,11 @@ int SDL_LockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn
     }
 
     return 0;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 /* Try to lock the mutex */
 int SDL_TryLockMutex(SDL_mutex *mutex)
 {
-#ifdef SDL_THREADS_DISABLED
-    return 0;
-#else
     SceInt32 res = 0;
 
     if (!mutex) {
@@ -119,15 +112,11 @@ int SDL_TryLockMutex(SDL_mutex *mutex)
     }
 
     return -1;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 /* Unlock the mutex */
 int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
-#ifdef SDL_THREADS_DISABLED
-    return 0;
-#else
     SceInt32 res = 0;
 
     if (mutex == NULL) {
@@ -140,7 +129,6 @@ int SDL_UnlockMutex(SDL_mutex *mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doe
     }
 
     return 0;
-#endif /* SDL_THREADS_DISABLED */
 }
 
 #endif /* SDL_THREAD_PSP */
