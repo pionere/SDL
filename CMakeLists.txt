@@ -3916,10 +3916,6 @@ endif()
 
 # We always need to have threads and timers around
 if(NOT HAVE_SDL_THREADS)
-  # The Emscripten and N-Gage platform has been carefully vetted to work without threads
-  if(EMSCRIPTEN OR NGAGE)
-    set(SDL_THREADS_DISABLED 1)
-  endif()
   set(SDL_THREADS_DUMMY 1)
   set(SDL_THREAD_DUMMY 1)
   file(GLOB THREADS_SOURCES ${SDL2_SOURCE_DIR}/src/thread/dummy/*.c)

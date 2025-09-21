@@ -29,8 +29,7 @@
 SDL_mutex *
 SDL_CreateMutex(void)
 {
-    SDL_SetError("SDL not built with thread support");
-    return (SDL_mutex *) 0;
+    return (SDL_mutex *) 1;
 }
 
 void
@@ -39,21 +38,21 @@ SDL_DestroyMutex(SDL_mutex * mutex)
 }
 
 int
-SDL_mutexP(SDL_mutex * mutex)
+SDL_LockMutex(SDL_mutex * mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
-    return SDL_SetError("SDL not built with thread support");
+    return 0;
 }
 
 int
 SDL_TryLockMutex(SDL_mutex * mutex)
 {
-    return SDL_SetError("SDL not built with thread support");
+    return 0;
 }
 
 int
-SDL_mutexV(SDL_mutex * mutex)
+SDL_UnlockMutex(SDL_mutex * mutex) SDL_NO_THREAD_SAFETY_ANALYSIS /* clang doesn't know about NULL mutexes */
 {
-    return SDL_SetError("SDL not built with thread support");
+    return 0;
 }
 
 /* vi: set ts=4 sw=4 expandtab: */
