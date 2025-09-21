@@ -804,7 +804,7 @@ static void ThreadDestroyed(void* value)
 }
 
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz )
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
 	LOGV( "HIDDeviceRegisterCallback()");
 
@@ -878,7 +878,9 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallbac
 	}
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNIEnv *env, jobject thiz, jint nDeviceID, jstring sIdentifier, jint nVendorId, jint nProductId, jstring sSerialNumber, jint nReleaseNumber, jstring sManufacturer, jstring sProduct, jint nInterface, jint nInterfaceClass, jint nInterfaceSubclass, jint nInterfaceProtocol )
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jstring sIdentifier, jint nVendorId, jint nProductId, jstring sSerialNumber, jint nReleaseNumber, jstring sManufacturer,
+    jstring sProduct, jint nInterface, jint nInterfaceClass, jint nInterfaceSubclass, jint nInterfaceProtocol)
 {
 	LOGV( "HIDDeviceConnected() id=%d VID/PID = %.4x/%.4x, interface %d\n", nDeviceID, nVendorId, nProductId, nInterface );
 
@@ -914,7 +916,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNI
 	}
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(JNIEnv *env, jobject thiz, jint nDeviceID)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(JNIEnv *env, jobject thiz,
+    jint nDeviceID)
 {
 	LOGV( "HIDDeviceOpenPending() id=%d\n", nDeviceID );
 	hid_device_ref<CHIDDevice> pDevice = FindDevice( nDeviceID );
@@ -924,7 +927,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(J
 	}
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JNIEnv *env, jobject thiz, jint nDeviceID, jboolean bOpened)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jboolean bOpened)
 {
 	LOGV( "HIDDeviceOpenResult() id=%d, result=%s\n", nDeviceID, bOpened ? "true" : "false" );
 	hid_device_ref<CHIDDevice> pDevice = FindDevice( nDeviceID );
@@ -934,7 +938,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JN
 	}
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(JNIEnv *env, jobject thiz, jint nDeviceID)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(JNIEnv *env, jobject thiz,
+    jint nDeviceID)
 {
 	LOGV( "HIDDeviceDisconnected() id=%d\n", nDeviceID );
 	hid_device_ref<CHIDDevice> pDevice;
@@ -964,7 +969,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(
 	}
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jbyteArray value)
 {
 	jbyte *pBuf = env->GetByteArrayElements(value, NULL);
 	jsize nBufSize = env->GetArrayLength(value);
@@ -979,7 +985,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(J
 	env->ReleaseByteArrayElements(value, pBuf, 0);
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceFeatureReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceFeatureReport)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jbyteArray value)
 {
 	jbyte *pBuf = env->GetByteArrayElements(value, NULL);
 	jsize nBufSize = env->GetArrayLength(value);

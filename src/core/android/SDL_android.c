@@ -217,7 +217,7 @@ typedef enum {
     SDLController_hapticRun,
     SDLController_hapticStop,
     SDL_ControllerFuncs_count
-} SDL_ControllerFuncs_enum;
+} SDL_Controller_funcs_enum; 
 static jmethodID jnicall_ctrl[SDL_ControllerFuncs_count];
 
 static const function_definition SDLControllerManager_ifc[] = {
@@ -496,7 +496,8 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv *env
 typedef int (*SDL_main_func)(int argc, char *argv[]);
 
 /* Start up the SDL app */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls, jstring library, jstring function, jobject array)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls,
+    jstring library, jstring function, jobject array)
 {
     // int status = -1;
     const char *library_file;
@@ -590,8 +591,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls
 }
 
 /* Drop file */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeDropFile)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeDropFile)(JNIEnv *env, jclass jcls,
     jstring filename)
 {
     const char *path = (*env)->GetStringUTFChars(env, filename, NULL);
@@ -632,8 +632,7 @@ retry:
 }
 
 /* Set screen resolution */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetScreenResolution)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetScreenResolution)(JNIEnv *env, jclass jcls,
     jint surfaceWidth, jint surfaceHeight,
     jint deviceWidth, jint deviceHeight, jfloat rate)
 {
@@ -645,8 +644,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetScreenResolution)(
 }
 
 /* Resize */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeResize)(
-    JNIEnv *env, jclass jcls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeResize)(JNIEnv *env, jclass jcls)
 {
     SDL_LockMutex(Android_ActivityMutex);
 
@@ -655,8 +653,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeResize)(
     SDL_UnlockMutex(Android_ActivityMutex);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(JNIEnv *env, jclass jcls,
     jint orientation)
 {
     SDL_LockMutex(Android_ActivityMutex);
@@ -668,8 +665,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeOrientationChanged)(
     SDL_UnlockMutex(Android_ActivityMutex);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeAddTouch)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeAddTouch)(JNIEnv *env, jclass cls,
     jint touchId, jstring name)
 {
     const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
@@ -679,8 +675,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeAddTouch)(
     (*env)->ReleaseStringUTFChars(env, name, utfname);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePermissionResult)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePermissionResult)(JNIEnv *env, jclass cls,
     jint requestCode, jboolean result)
 {
     bPermissionRequestResult = result;
@@ -691,8 +686,8 @@ extern void SDL_AddAudioDevice(const SDL_bool iscapture, const char *name, SDL_A
 extern void SDL_RemoveAudioDevice(const SDL_bool iscapture, void *handle);
 
 JNIEXPORT void JNICALL
-SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_capture,
-                                         jint device_id)
+SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls,
+    jboolean is_capture, jint device_id)
 {
     if (SDL_GetCurrentAudioDriver() != NULL) {
         char device_name[64];
@@ -703,8 +698,8 @@ SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_c
 }
 
 JNIEXPORT void JNICALL
-SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls, jboolean is_capture,
-                                            jint device_id)
+SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls,
+    jboolean is_capture, jint device_id)
 {
     if (SDL_GetCurrentAudioDriver() != NULL) {
         LOGV("Removing device with handle %d, capture %d", device_id + 1, is_capture);
@@ -713,8 +708,7 @@ SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls, jboolean i
 }
 
 /* Paddown */
-JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown)(JNIEnv *env, jclass jcls,
     jint device_id, jint keycode)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -725,8 +719,7 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadDown)(
 }
 
 /* Padup */
-JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadUp)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadUp)(JNIEnv *env, jclass jcls,
     jint device_id, jint keycode)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -737,8 +730,7 @@ JNIEXPORT jint JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativePadUp)(
 }
 
 /* Joy */
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeJoy)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeJoy)(JNIEnv *env, jclass jcls,
     jint device_id, jint axis, jfloat value)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -747,8 +739,7 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeJoy)(
 }
 
 /* POV Hat */
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeHat)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeHat)(JNIEnv *env, jclass jcls,
     jint device_id, jint hat_id, jint x, jint y)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -756,10 +747,8 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(onNativeHat)(
 #endif
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddJoystick)(
-    JNIEnv *env, jclass jcls,
-    jint device_id, jstring device_name, jstring device_desc,
-    jint vendor_id, jint product_id,
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddJoystick)(JNIEnv *env, jclass jcls,
+    jint device_id, jstring device_name, jstring device_desc, jint vendor_id, jint product_id,
     jint button_mask, jint naxes, jint axis_mask, jint nhats, jboolean can_rumble)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -773,8 +762,7 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddJoystick)(
 #endif
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(JNIEnv *env, jclass jcls,
     jint device_id)
 {
 #ifdef SDL_JOYSTICK_ANDROID
@@ -782,8 +770,8 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveJoystick)(
 #endif
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
-    JNIEnv *env, jclass jcls, jint device_id, jstring device_name)
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(JNIEnv *env, jclass jcls,
+    jint device_id, jstring device_name)
 {
 #ifdef SDL_HAPTIC_ANDROID
     const char *name = (*env)->GetStringUTFChars(env, device_name, NULL);
@@ -794,8 +782,8 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeAddHaptic)(
 #endif
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(
-    JNIEnv *env, jclass jcls, jint device_id)
+JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeRemoveHaptic)(JNIEnv *env, jclass jcls,
+    jint device_id)
 {
 #ifdef SDL_HAPTIC_ANDROID
     Android_RemoveHaptic(device_id);
@@ -849,24 +837,21 @@ retry:
 }
 
 /* Keydown */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyDown)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyDown)(JNIEnv *env, jclass jcls,
     jint keycode)
 {
     Android_OnKeyDown(keycode);
 }
 
 /* Keyup */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyUp)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyUp)(JNIEnv *env, jclass jcls,
     jint keycode)
 {
     Android_OnKeyUp(keycode);
 }
 
 /* Virtual keyboard return key might stop text input */
-JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(onNativeSoftReturnKey)(
-    JNIEnv *env, jclass jcls)
+JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(onNativeSoftReturnKey)(JNIEnv *env, jclass jcls)
 {
     if (SDL_GetHintBoolean(SDL_HINT_RETURN_KEY_HIDES_IME, SDL_FALSE)) {
         SDL_StopTextInput();
@@ -884,10 +869,8 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeKeyboardFocusLost)(
 }
 
 /* Touch */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeTouch)(
-    JNIEnv *env, jclass jcls,
-    jint touch_device_id_in, jint pointer_finger_id_in,
-    jint action, jfloat x, jfloat y, jfloat p)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeTouch)(JNIEnv *env, jclass jcls,
+    jint touch_device_id_in, jint pointer_finger_id_in, jint action, jfloat x, jfloat y, jfloat p)
 {
     SDL_LockMutex(Android_ActivityMutex);
 
@@ -897,8 +880,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeTouch)(
 }
 
 /* Mouse */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(JNIEnv *env, jclass jcls,
     jint button, jint action, jfloat x, jfloat y, jboolean relative)
 {
     SDL_LockMutex(Android_ActivityMutex);
@@ -909,8 +891,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeMouse)(
 }
 
 /* Accelerometer */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeAccel)(
-    JNIEnv *env, jclass jcls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeAccel)(JNIEnv *env, jclass jcls,
     jfloat x, jfloat y, jfloat z)
 {
     fLastAccelerometer[0] = x;
@@ -920,30 +901,26 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeAccel)(
 }
 
 /* Clipboard */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeClipboardChanged)(
-    JNIEnv *env, jclass jcls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeClipboardChanged)(JNIEnv *env, jclass jcls)
 {
     SDL_SendClipboardUpdate();
 }
 
 /* Low memory */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeLowMemory)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeLowMemory)(JNIEnv *env, jclass cls)
 {
     SDL_SendAppEvent(SDL_APP_LOWMEMORY);
 }
 
 /* Locale
  * requires android:configChanges="layoutDirection|locale" in AndroidManifest.xml */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeLocaleChanged)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(onNativeLocaleChanged)(JNIEnv *env, jclass cls)
 {
     SDL_SendAppEvent(SDL_LOCALECHANGED);
 }
 
 /* Send Quit event to "SDLThread" thread */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(JNIEnv *env, jclass cls)
 {
     /* Discard previous events. The user should have handled state storage
      * in SDL_APP_WILLENTERBACKGROUND. After nativeSendQuit() is called, no
@@ -962,8 +939,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(
 }
 
 /* Activity ends */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(JNIEnv *env, jclass cls)
 {
     if (Android_ActivityMutex) {
         SDL_DestroyMutex(Android_ActivityMutex);
@@ -984,8 +960,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(
 }
 
 /* Pause */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePause)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePause)(JNIEnv *env, jclass cls)
 {
     LOGV("nativePause()");
 
@@ -995,8 +970,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativePause)(
 }
 
 /* Resume */
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeResume)(
-    JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeResume)(JNIEnv *env, jclass cls)
 {
     LOGV("nativeResume()");
 
@@ -1007,8 +981,8 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeResume)(
     SDL_SemPost(Android_ResumeSem);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeFocusChanged)(
-    JNIEnv *env, jclass cls, jboolean hasFocus)
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeFocusChanged)(JNIEnv *env, jclass cls,
+    jboolean hasFocus)
 {
     SDL_LockMutex(Android_ActivityMutex);
 
@@ -1019,8 +993,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeFocusChanged)(
     SDL_UnlockMutex(Android_ActivityMutex);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeCommitText)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeCommitText)(JNIEnv *env, jclass cls,
     jstring text, jint newCursorPosition)
 {
     const char *utftext = (*env)->GetStringUTFChars(env, text, NULL);
@@ -1030,15 +1003,13 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeCommitText)(
     (*env)->ReleaseStringUTFChars(env, text, utftext);
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeGenerateScancodeForUnichar)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE_INPUT_CONNECTION(nativeGenerateScancodeForUnichar)(JNIEnv *env, jclass cls,
     jchar chUnicode)
 {
     SDL_SendKeyboardUnicodeKey(chUnicode);
 }
 
-JNIEXPORT jstring JNICALL SDL_JAVA_INTERFACE(nativeGetHint)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT jstring JNICALL SDL_JAVA_INTERFACE(nativeGetHint)(JNIEnv *env, jclass cls,
     jstring name)
 {
     const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
@@ -1050,8 +1021,7 @@ JNIEXPORT jstring JNICALL SDL_JAVA_INTERFACE(nativeGetHint)(
     return result;
 }
 
-JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(nativeGetHintBoolean)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(nativeGetHintBoolean)(JNIEnv *env, jclass cls,
     jstring name, jboolean default_value)
 {
     jboolean result;
@@ -1063,8 +1033,7 @@ JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(nativeGetHintBoolean)(
     return result;
 }
 
-JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetenv)(
-    JNIEnv *env, jclass cls,
+JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetenv)(JNIEnv *env, jclass cls,
     jstring name, jstring value)
 {
     const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
@@ -2396,44 +2365,51 @@ int Android_JNI_OpenURL(const char *url)
 
 #ifdef SDL_HIDAPI_DISABLED
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz )
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
-	LOGV("Stub HIDDeviceRegisterCallback()");
+    LOGV("Stub HIDDeviceRegisterCallback()");
 }
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallback)(JNIEnv *env, jobject thiz)
 {
-	LOGV("Stub HIDDeviceReleaseCallback()");
+    LOGV("Stub HIDDeviceReleaseCallback()");
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNIEnv *env, jobject thiz, jint nDeviceID, jstring sIdentifier, jint nVendorId, jint nProductId, jstring sSerialNumber, jint nReleaseNumber, jstring sManufacturer, jstring sProduct, jint nInterface, jint nInterfaceClass, jint nInterfaceSubclass, jint nInterfaceProtocol )
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceConnected)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jstring sIdentifier, jint nVendorId, jint nProductId, jstring sSerialNumber, jint nReleaseNumber, jstring sManufacturer,
+    jstring sProduct, jint nInterface, jint nInterfaceClass, jint nInterfaceSubclass, jint nInterfaceProtocol)
 {
-	LOGV("Stub HIDDeviceConnected() id=%d VID/PID = %.4x/%.4x, interface %d\n", nDeviceID, nVendorId, nProductId, nInterface);
+    LOGV("Stub HIDDeviceConnected() id=%d VID/PID = %.4x/%.4x, interface %d\n", nDeviceID, nVendorId, nProductId, nInterface);
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(JNIEnv *env, jobject thiz, jint nDeviceID)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenPending)(JNIEnv *env, jobject thiz,
+    jint nDeviceID)
 {
-	LOGV("Stub HIDDeviceOpenPending() id=%d\n", nDeviceID);
+    LOGV("Stub HIDDeviceOpenPending() id=%d\n", nDeviceID);
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JNIEnv *env, jobject thiz, jint nDeviceID, jboolean bOpened)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceOpenResult)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jboolean bOpened)
 {
-	LOGV("Stub HIDDeviceOpenResult() id=%d, result=%s\n", nDeviceID, bOpened ? "true" : "false");
+    LOGV("Stub HIDDeviceOpenResult() id=%d, result=%s\n", nDeviceID, bOpened ? "true" : "false");
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(JNIEnv *env, jobject thiz, jint nDeviceID)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceDisconnected)(JNIEnv *env, jobject thiz,
+    jint nDeviceID)
 {
-	LOGV("Stub HIDDeviceDisconnected() id=%d\n", nDeviceID);
+    LOGV("Stub HIDDeviceDisconnected() id=%d\n", nDeviceID);
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceInputReport)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jbyteArray value)
 {
-	LOGV("Stub HIDDeviceInput() id=%d len=%u\n", nDeviceID, nBufSize);
+    LOGV("Stub HIDDeviceInput() id=%d len=%u\n", nDeviceID, nBufSize);
 }
 
-JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceFeatureReport)(JNIEnv *env, jobject thiz, jint nDeviceID, jbyteArray value)
+JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceFeatureReport)(JNIEnv *env, jobject thiz,
+    jint nDeviceID, jbyteArray value)
 {
-	LOGV("Stub HIDDeviceFeatureReport() id=%d len=%u\n", nDeviceID, nBufSize);
+    LOGV("Stub HIDDeviceFeatureReport() id=%d len=%u\n", nDeviceID, nBufSize);
 }
 
 #endif /* SDL_HIDAPI_DISABLED */
