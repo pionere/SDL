@@ -180,9 +180,7 @@ int SDL_SYS_HapticRunEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
     float large = effect->effect.leftright.large_magnitude / 32767.0f;
     float small = effect->effect.leftright.small_magnitude / 32767.0f;
 
-    float total = (large * 0.6f) + (small * 0.4f);
-
-    Android_JNI_HapticRun(((SDL_hapticlist_item *)haptic->hwdata)->device_id, total, effect->effect.leftright.length);
+    Android_JNI_HapticRun(((SDL_hapticlist_item *)haptic->hwdata)->device_id, large, small, effect->effect.leftright.length);
     return 0;
 }
 

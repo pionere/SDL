@@ -89,8 +89,8 @@ public class SDLControllerManager
     /**
      * This method is called by SDL using JNI.
      */
-    public static void hapticRun(int device_id, float intensity, int length) {
-        mHapticHandler.run(device_id, intensity, length);
+    public static void hapticRun(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+        mHapticHandler.run(device_id, low_frequency_intensity, high_frequency_intensity, length);
     }
 
     /**
@@ -158,7 +158,7 @@ public class SDLControllerManager
         return vibrators;
     }
 
-    public static void vibrate(Vibrator vibrator, float intensity, int length) {
+    private static void vibrate(Vibrator vibrator, float intensity, int length) {
         int value = Math.round(intensity * 255);
         if (value < 1) {
             vibrator.cancel();
@@ -181,6 +181,15 @@ public class SDLControllerManager
         } else if (vibrators.size() == 1) {
             float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
             vibrate(vibrators.get(0), intensity, length);
+        }
+    }
+
+    public static void cancelVibration(ArrayList<Vibrator> vibrators) {
+        if (vibrators.size() >= 1) {
+            vibrators.get(0).cancel();
+            if (vibrators.size() >= 2) {
+                vibrators.get(1).cancel();
+            }
         }
     }
 }
@@ -493,7 +502,7 @@ class SDLHapticHandler {
     static class SDLHaptic {
         public int device_id;
         public String name;
-        public Vibrator vib;
+        public ArrayList<Vibrator> vibs;
     }
 
     private final ArrayList<SDLHaptic> mHaptics;
@@ -502,17 +511,17 @@ class SDLHapticHandler {
         mHaptics = new ArrayList<SDLHaptic>();
     }
 
-    public void run(int device_id, float intensity, int length) {
+    public void run(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
-            SDLControllerManager.vibrate(haptic.vib, intensity, length);
+            SDLControllerManager.vibrate(haptic.vibs, low_frequency_intensity, high_frequency_intensity, length);
         }
     }
 
     public void stop(int device_id) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
-            haptic.vib.cancel();
+            SDLControllerManager.cancelVibration(haptic.vibs);
         }
     }
 
@@ -530,7 +539,9 @@ class SDLHapticHandler {
         }
 
         if (vib != null && vib.hasVibrator()) {
-            addHaptic(deviceId_VIBRATOR_SERVICE, "VIBRATOR_SERVICE", vib);
+            ArrayList<Vibrator> vibrators = new ArrayList<Vibrator>();
+            vibrators.add(vib);
+            addHaptic(deviceId_VIBRATOR_SERVICE, "VIBRATOR_SERVICE", vibrators);
         } else {
             for (int i = 0; i < mHaptics.size(); i++) {
                 if (mHaptics.get(i).device_id == deviceId_VIBRATOR_SERVICE) {
@@ -542,13 +553,13 @@ class SDLHapticHandler {
         }
     }
 
-    public void addHaptic(int device_id, String name, Vibrator vib) {
+    public void addHaptic(int device_id, String name, ArrayList<Vibrator> vibs) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic == null) {
             haptic = new SDLHaptic();
             haptic.device_id = device_id;
             haptic.name = name;
-            haptic.vib = vib;
+            haptic.vibs = vibs;
             mHaptics.add(haptic);
             SDLControllerManager.nativeAddHaptic(haptic.device_id, haptic.name);
         }
