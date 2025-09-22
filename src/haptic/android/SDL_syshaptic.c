@@ -165,10 +165,11 @@ int SDL_SYS_HapticUpdateEffect(SDL_Haptic *haptic,
 int SDL_SYS_HapticRunEffect(SDL_Haptic *haptic, struct haptic_effect *effect,
                             Uint32 iterations)
 {
-    float large = effect->effect.leftright.large_magnitude / 32767.0f;
-    float small = effect->effect.leftright.small_magnitude / 32767.0f;
+    /* Rumble (Android expects 0-65535, so multiply by 2) */
+    Uint16 low_frequency_intensity = effect->effect.leftright.large_magnitude * 2;
+    Uint16 high_frequency_intensity = effect->effect.leftright.small_magnitude * 2;
 
-    Android_JNI_HapticRun(((SDL_hapticlist_item *)haptic->hwdata)->device_id, large, small, effect->effect.leftright.length);
+    Android_JNI_HapticRun(((SDL_hapticlist_item *)haptic->hwdata)->device_id, low_frequency_intensity, high_frequency_intensity, effect->effect.leftright.length);
     return 0;
 }
 

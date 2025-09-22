@@ -76,7 +76,7 @@ public class SDLControllerManager
     /**
      * This method is called by SDL using JNI.
      */
-    public static void joystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+    public static void joystickRumble(int device_id, char low_frequency_intensity, char high_frequency_intensity, int length) {
         mJoystickHandler.rumble(device_id, low_frequency_intensity, high_frequency_intensity, length);
     }
 
@@ -97,7 +97,7 @@ public class SDLControllerManager
     /**
      * This method is called by SDL using JNI.
      */
-    public static void hapticRun(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+    public static void hapticRun(int device_id, char low_frequency_intensity, char high_frequency_intensity, int length) {
         mHapticHandler.run(device_id, low_frequency_intensity, high_frequency_intensity, length);
     }
 
@@ -166,14 +166,11 @@ public class SDLControllerManager
         return vibrators;
     }
 
-    private static void vibrate(Vibrator vibrator, float intensity, int length) {
-        int value = Math.round(intensity * 255);
-        if (value < 1) {
+    private static void vibrate(Vibrator vibrator, char intensity, int length) {
+        int value = intensity / 256;
+        if (value == 0) {
             vibrator.cancel();
             return;
-        }
-        if (value > 255) {
-            value = 255;
         }
         if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
             vibrator.vibrate(VibrationEffect.createOneShot(length, value));
@@ -182,12 +179,13 @@ public class SDLControllerManager
         }
     }
 
-    public static void vibrate(ArrayList<Vibrator> vibrators, float low_frequency_intensity, float high_frequency_intensity, int length) {
+    public static void vibrate(ArrayList<Vibrator> vibrators, char low_frequency_intensity, char high_frequency_intensity, int length) {
         if (vibrators.size() >= 2) {
             vibrate(vibrators.get(0), low_frequency_intensity, length);
             vibrate(vibrators.get(1), high_frequency_intensity, length);
         } else if (vibrators.size() == 1) {
-            float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
+            // char intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
+            char intensity = (char)((((int)low_frequency_intensity * 43) + ((int)high_frequency_intensity * 21)) / 64);
             vibrate(vibrators.get(0), intensity, length);
         }
     }
@@ -497,7 +495,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
         }
         return button_mask;
     }
-    public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+    public void rumble(int device_id, char low_frequency_intensity, char high_frequency_intensity, int length) {
         SDLJoystick joystick = getJoystick(device_id);
         if (joystick != null) {
             SDLControllerManager.vibrate(joystick.vibs, low_frequency_intensity, high_frequency_intensity, length);
@@ -519,7 +517,7 @@ class SDLHapticHandler implements InputManager.InputDeviceListener {
         mHaptics = new ArrayList<SDLHaptic>();
     }
 
-    public void run(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
+    public void run(int device_id, char low_frequency_intensity, char high_frequency_intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
             SDLControllerManager.vibrate(haptic.vibs, low_frequency_intensity, high_frequency_intensity, length);

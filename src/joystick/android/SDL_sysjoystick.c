@@ -547,11 +547,9 @@ static int ANDROID_JoystickOpen(SDL_Joystick *joystick, int device_index)
     return 0;
 }
 
-static int ANDROID_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble)
+static int ANDROID_JoystickRumble(SDL_Joystick *joystick, Uint16 low_frequency_intensity, Uint16 high_frequency_intensity)
 {
     SDL_joylist_item *item = (SDL_joylist_item *)joystick->hwdata;
-    float low_frequency_intensity = (float)low_frequency_rumble / SDL_MAX_UINT16;
-    float high_frequency_intensity = (float)high_frequency_rumble / SDL_MAX_UINT16;
     if (!item->can_rumble) {
         return SDL_Unsupported();
     }

@@ -131,10 +131,10 @@
     # SDL to JNI interface
     void joystickSubscribe();
     void joystickUnsubscribe();
-    void joystickRumble(int, float, float, int);
+    void joystickRumble(int, char, char, int);
     void hapticSubscribe();
     void hapticUnsubscribe();
-    void hapticRun(int, float, float, int);
+    void hapticRun(int, char, char, int);
     void hapticStop(int);
     # JNI to SDL interface
     void nativeSetupJNI();
