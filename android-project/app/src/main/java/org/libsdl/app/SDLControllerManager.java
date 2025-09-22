@@ -173,6 +173,16 @@ public class SDLControllerManager
             vibrator.vibrate(length);
         }
     }
+
+    public static void vibrate(ArrayList<Vibrator> vibrators, float low_frequency_intensity, float high_frequency_intensity, int length) {
+        if (vibrators.size() >= 2) {
+            vibrate(vibrators.get(0), low_frequency_intensity, length);
+            vibrate(vibrators.get(1), high_frequency_intensity, length);
+        } else if (vibrators.size() == 1) {
+            float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
+            vibrate(vibrators.get(0), intensity, length);
+        }
+    }
 }
 
 class SDLJoystickHandler implements InputManager.InputDeviceListener {
@@ -482,13 +492,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
     public void rumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length) {
         SDLJoystick joystick = getJoystick(device_id);
         if (joystick != null) {
-            if (joystick.vibs.size() >= 2) {
-                SDLControllerManager.vibrate(joystick.vibs.get(0), low_frequency_intensity, length);
-                SDLControllerManager.vibrate(joystick.vibs.get(1), high_frequency_intensity, length);
-            } else if (joystick.vibs.size() == 1) {
-                float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
-                SDLControllerManager.vibrate(joystick.vibs.get(0), intensity, length);
-            }
+            SDLControllerManager.vibrate(joystick.vibs, low_frequency_intensity, high_frequency_intensity, length);
         }
     }
 }
