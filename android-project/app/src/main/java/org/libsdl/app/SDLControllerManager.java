@@ -49,11 +49,7 @@ public class SDLControllerManager
         }
 
         if (mHapticHandler == null) {
-            if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
-                mHapticHandler = new SDLHapticHandler_API26();
-            } else {
-                mHapticHandler = new SDLHapticHandler();
-            }
+            mHapticHandler = new SDLHapticHandler();
         }
     }
 
@@ -160,6 +156,22 @@ public class SDLControllerManager
             }
         }
         return vibrators;
+    }
+
+    public static void vibrate(Vibrator vibrator, float intensity, int length) {
+        int value = Math.round(intensity * 255);
+        if (value < 1) {
+            vibrator.cancel();
+            return;
+        }
+        if (value > 255) {
+            value = 255;
+        }
+        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
+            vibrator.vibrate(VibrationEffect.createOneShot(length, value));
+        } else {
+            vibrator.vibrate(length);
+        }
     }
 }
 
@@ -471,35 +483,13 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
         SDLJoystick joystick = getJoystick(device_id);
         if (joystick != null) {
             if (joystick.vibs.size() >= 2) {
-                SDLHapticHandler_API26.vibrate(joystick.vibs.get(0), low_frequency_intensity, length);
-                SDLHapticHandler_API26.vibrate(joystick.vibs.get(1), high_frequency_intensity, length);
+                SDLControllerManager.vibrate(joystick.vibs.get(0), low_frequency_intensity, length);
+                SDLControllerManager.vibrate(joystick.vibs.get(1), high_frequency_intensity, length);
             } else if (joystick.vibs.size() == 1) {
                 float intensity = (low_frequency_intensity * 0.6f) + (high_frequency_intensity * 0.4f);
-                SDLHapticHandler_API26.vibrate(joystick.vibs.get(0), intensity, length);
+                SDLControllerManager.vibrate(joystick.vibs.get(0), intensity, length);
             }
         }
-    }
-}
-
-class SDLHapticHandler_API26 extends SDLHapticHandler {
-    @Override
-    public void run(int device_id, float intensity, int length) {
-        SDLHaptic haptic = getHaptic(device_id);
-        if (haptic != null) {
-            vibrate(haptic.vib, intensity, length);
-        }
-    }
-
-    public static void vibrate(Vibrator vibrator, float intensity, int length) {
-        int value = Math.round(intensity * 255);
-        if (value < 1) {
-            vibrator.cancel();
-            return;
-        }
-        if (value > 255) {
-            value = 255;
-        }
-        vibrator.vibrate(VibrationEffect.createOneShot(length, value));
     }
 }
 
@@ -520,7 +510,7 @@ class SDLHapticHandler {
     public void run(int device_id, float intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
-            haptic.vib.vibrate(length);
+            SDLControllerManager.vibrate(haptic.vib, intensity, length);
         }
     }
 
