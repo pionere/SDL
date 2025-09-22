@@ -91,7 +91,8 @@ void Android_JNI_JoystickUnsubscribe(void);
 void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length);
 
 /* Haptic support */
-void Android_JNI_PollHapticDevices(void);
+void Android_JNI_HapticSubscribe(void);
+void Android_JNI_HapticUnsubscribe(void);
 void Android_JNI_HapticRun(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length);
 void Android_JNI_HapticStop(int device_id);
 

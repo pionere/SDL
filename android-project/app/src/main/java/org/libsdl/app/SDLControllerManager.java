@@ -15,6 +15,7 @@ import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.util.Log;
 import android.view.InputDevice;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -82,8 +83,15 @@ public class SDLControllerManager
     /**
      * This method is called by SDL using JNI.
      */
-    public static void pollHapticDevices() {
-        mHapticHandler.pollHapticDevices();
+    public static void hapticSubscribe() {
+        mHapticHandler.subscribe();
+    }
+
+    /**
+     * This method is called by SDL using JNI.
+     */
+    public static void hapticUnsubscribe() {
+        mHapticHandler.unsubscribe();
     }
 
     /**
@@ -497,7 +505,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
     }
 }
 
-class SDLHapticHandler {
+class SDLHapticHandler implements InputManager.InputDeviceListener {
 
     static class SDLHaptic {
         public int device_id;
@@ -525,9 +533,9 @@ class SDLHapticHandler {
         }
     }
 
-    public void pollHapticDevices() {
+    private static final int deviceId_VIBRATOR_SERVICE = KeyCharacterMap.VIRTUAL_KEYBOARD;
 
-        final int deviceId_VIBRATOR_SERVICE = 0;
+    public void subscribe() {
 
         Context context = SDL.getContext();
         Vibrator vib;
@@ -542,15 +550,58 @@ class SDLHapticHandler {
             ArrayList<Vibrator> vibrators = new ArrayList<Vibrator>();
             vibrators.add(vib);
             addHaptic(deviceId_VIBRATOR_SERVICE, "VIBRATOR_SERVICE", vibrators);
-        } else {
-            for (int i = 0; i < mHaptics.size(); i++) {
-                if (mHaptics.get(i).device_id == deviceId_VIBRATOR_SERVICE) {
-                    SDLControllerManager.nativeRemoveHaptic(deviceId_VIBRATOR_SERVICE);
-                    mHaptics.remove(i);
-                    break;
+        }
+
+        InputManager im = (InputManager) context.getSystemService(Context.INPUT_SERVICE);
+        im.registerInputDeviceListener(this, new Handler(Looper.getMainLooper()));
+
+        int[] deviceIds = InputDevice.getDeviceIds();
+        for (int device_id : deviceIds) {
+             this.onInputDeviceAdded(device_id);
+        }
+    }
+
+    public void unsubscribe() {
+        InputManager im = (InputManager) SDL.getContext().getSystemService(Context.INPUT_SERVICE);
+        im.unregisterInputDeviceListener(this);
+
+        mHaptics.clear();
+
+        SDLControllerManager.nativeRemoveHaptic(deviceId_VIBRATOR_SERVICE);
+    }
+
+    @Override
+    public void onInputDeviceAdded(int device_id) {
+        {
+            SDLHaptic haptic = getHaptic(device_id);
+            if (haptic == null) {
+                InputDevice device = InputDevice.getDevice(device_id);
+                if (device == null || device.isVirtual()) {
+                    return;
+                }
+
+                ArrayList<Vibrator> vibrators = SDLControllerManager.getDeviceVibrators(device);
+                if (vibrators.size() > 0) {
+                    addHaptic(device_id, device.getName(), vibrators);
                 }
             }
         }
+    }
+
+    @Override
+    public void onInputDeviceRemoved(int device_id) {
+        for (int i = 0; i < mHaptics.size(); i++) {
+            if (mHaptics.get(i).device_id == device_id) {
+                mHaptics.remove(i);
+                SDLControllerManager.nativeRemoveHaptic(device_id);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onInputDeviceChanged(int device_id) {
+        // Log.d(TAG, "InputDeviceChanged: " + device_id);
     }
 
     public void addHaptic(int device_id, String name, ArrayList<Vibrator> vibs) {

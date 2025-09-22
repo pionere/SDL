@@ -132,7 +132,8 @@
     void joystickSubscribe();
     void joystickUnsubscribe();
     void joystickRumble(int, float, float, int);
-    void pollHapticDevices();
+    void hapticSubscribe();
+    void hapticUnsubscribe();
     void hapticRun(int, float, float, int);
     void hapticStop(int);
     # JNI to SDL interface

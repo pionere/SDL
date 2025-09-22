@@ -43,15 +43,7 @@ static int numhaptics = 0;
 
 int SDL_SYS_HapticInit(void)
 {
-    /* Support for device connect/disconnect is API >= 16 only,
-     * so we poll every three seconds
-     * Ref: http://developer.android.com/reference/android/hardware/input/InputManager.InputDeviceListener.html
-     */
-    static Uint32 timeout = 0;
-    if (SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
-        timeout = SDL_GetTicks() + 3000;
-        Android_JNI_PollHapticDevices();
-    }
+    Android_JNI_HapticSubscribe();
     return 0;
 }
 
@@ -143,12 +135,10 @@ void SDL_SYS_HapticClose(SDL_Haptic *haptic)
 
 void SDL_SYS_HapticQuit(void)
 {
-/* We don't have any way to scan for joysticks (and their vibrators) at init, so don't wipe the list
- * of joysticks here in case this is a reinit.
- */
-#if 0
     SDL_hapticlist_item *item;
     SDL_hapticlist_item *next;
+
+    Android_JNI_HapticUnsubscribe();
 
     for (item = SDL_hapticlist; item; item = next) {
         next = item->next;
@@ -157,8 +147,6 @@ void SDL_SYS_HapticQuit(void)
 
     SDL_hapticlist = SDL_hapticlist_tail = NULL;
     numhaptics = 0;
-    return;
-#endif
 }
 
 int SDL_SYS_HapticNewEffect(SDL_Haptic *haptic,

@@ -213,7 +213,8 @@ typedef enum {
     SDLController_joystickSubscribe,
     SDLController_joystickUnsubscribe,
     SDLController_joystickRumble,
-    SDLController_pollHapticDevices,
+    SDLController_hapticSubscribe,
+    SDLController_hapticUnsubscribe,
     SDLController_hapticRun,
     SDLController_hapticStop,
     SDL_ControllerFuncs_count
@@ -224,7 +225,8 @@ static const function_definition SDLControllerManager_ifc[] = {
     { "joystickSubscribe", "()V" },
     { "joystickUnsubscribe", "()V" },
     { "joystickRumble", "(IFFI)V" },
-    { "pollHapticDevices", "()V" },
+    { "hapticSubscribe", "()V" },
+    { "hapticUnsubscribe", "()V" },
     { "hapticRun", "(IFFI)V" },
     { "hapticStop", "(I)V" },
 };
@@ -1821,10 +1823,16 @@ void Android_JNI_JoystickRumble(int device_id, float low_frequency_intensity, fl
     (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_joystickRumble], device_id, low_frequency_intensity, high_frequency_intensity, length);
 }
 
-void Android_JNI_PollHapticDevices(void)
+void Android_JNI_HapticSubscribe(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_pollHapticDevices]);
+    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_hapticSubscribe]);
+}
+
+void Android_JNI_HapticUnsubscribe(void)
+{
+    JNIEnv *env = Android_JNI_GetEnv();
+    (*env)->CallStaticVoidMethod(env, mControllerManagerClass, jnicall_ctrl[SDLController_hapticUnsubscribe]);
 }
 
 void Android_JNI_HapticRun(int device_id, float low_frequency_intensity, float high_frequency_intensity, int length)
