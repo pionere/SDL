@@ -1066,7 +1066,8 @@ SDL_GLContext SDL_EGL_CreateContext(_THIS, EGLSurface egl_surface)
         return NULL;
     }
 
-    egl_data.egl_swapinterval = 0;
+    // The default swap interval is 1, according to the spec
+    egl_data.egl_swapinterval = 1;
 
     if (SDL_EGL_MakeCurrent(egl_surface, egl_context) < 0) {
         /* Delete the context */
