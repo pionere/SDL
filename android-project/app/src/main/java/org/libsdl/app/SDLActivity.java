@@ -1447,8 +1447,17 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // sanity checks
 
-        if ((buttonFlags.length != buttonIds.length) && (buttonIds.length != buttonTexts.length)) {
-            return -1; // implementation broken
+        if (buttonTexts == null) {
+            Log.d(TAG, "missing button-text parameter.");
+        }
+        if (buttonTexts.length > 0 && (buttonFlags == null || buttonIds == null)) {
+            Log.d(TAG, "missing button-flags and/or -ids parameters (" + (buttonFlags == null ? "null" : "ok") + ", " + (buttonIds == null ? "null" : "ok") + ").");
+        }
+        if ((buttonFlags.length != buttonIds.length) || (buttonIds.length != buttonTexts.length)) {
+            Log.d(TAG, "mismatching button parameters (" + buttonFlags.length + ", " + buttonIds.length + ", " + buttonTexts.length + ").");
+        }
+        if (colors != null && colors.length != 5) {
+            Log.d(TAG, "mismatching colors setting: " + colors.length);
         }
 
         // collect arguments for Dialog
