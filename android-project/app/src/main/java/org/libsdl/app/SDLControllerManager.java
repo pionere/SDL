@@ -291,19 +291,10 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
                     }
                 }
 
-                boolean can_rumble = false;
-                if (Build.VERSION.SDK_INT >= 31 /* Android 12.0 (S) */) {
-                    VibratorManager manager = joystickDevice.getVibratorManager();
-                    int[] vibrators = manager.getVibratorIds();
-                    if (vibrators.length > 0) {
-                        can_rumble = true;
-                    }
-                }
-
                 mJoysticks.add(joystick);
                 SDLControllerManager.nativeAddJoystick(joystick.device_id, joystick.name, joystick.desc,
                         getVendorId(joystickDevice), getProductId(joystickDevice),
-                        getButtonMask(joystickDevice), joystick.axes.size(), getAxisMask(joystick.axes), joystick.hats.size()/2, can_rumble);
+                        getButtonMask(joystickDevice), joystick.axes.size(), getAxisMask(joystick.axes), joystick.hats.size()/2, joystick.vibs.size() > 0);
             }
         }
     }
