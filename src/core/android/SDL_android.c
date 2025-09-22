@@ -283,7 +283,7 @@ static int Android_JNI_SetEnv(JNIEnv *env)
 }
 
 /* Get local storage value */
-JNIEnv *Android_JNI_GetEnv(void)
+static JNIEnv *Android_JNI_GetEnv(void)
 {
     /* Get JNIEnv from the Thread local storage */
     JNIEnv *env = pthread_getspecific(mThreadKey);
