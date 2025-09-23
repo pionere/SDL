@@ -2163,9 +2163,15 @@ SDL_bool SDL_AndroidRequestPermission(const char *permission)
     return Android_JNI_RequestPermission(permission);
 }
 
+/* Show toast notification */
 int SDL_AndroidShowToast(const char *message, int duration, int gravity, int xOffset, int yOffset)
 {
-    return Android_JNI_ShowToast(message, duration, gravity, xOffset, yOffset);
+    int result = 0;
+    JNIEnv *env = Android_JNI_GetEnv();
+    jstring jmessage = (*env)->NewStringUTF(env, message);
+    result = (*env)->CallStaticIntMethod(env, mActivityClass, jnicall[SDLActivity_showToast], jmessage, duration, gravity, xOffset, yOffset);
+    (*env)->DeleteLocalRef(env, jmessage);
+    return result;
 }
 
 void Android_JNI_GetManifestEnvironmentVariables(void)
@@ -2248,17 +2254,6 @@ SDL_bool Android_JNI_RequestPermission(const char *permission)
         SDL_Delay(10);
     }
     return bPermissionRequestResult;
-}
-
-/* Show toast notification */
-int Android_JNI_ShowToast(const char *message, int duration, int gravity, int xOffset, int yOffset)
-{
-    int result = 0;
-    JNIEnv *env = Android_JNI_GetEnv();
-    jstring jmessage = (*env)->NewStringUTF(env, message);
-    result = (*env)->CallStaticIntMethod(env, mActivityClass, jnicall[SDLActivity_showToast], jmessage, duration, gravity, xOffset, yOffset);
-    (*env)->DeleteLocalRef(env, jmessage);
-    return result;
 }
 
 int Android_JNI_GetLocale(char *buf, size_t buflen)
