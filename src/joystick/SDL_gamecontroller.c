@@ -977,6 +977,8 @@ const char *SDL_GameControllerGetStringForButton(SDL_GameControllerButton button
 static void SDL_PrivateGameControllerParseElement(SDL_GameController *gamecontroller, const char *szGameButton, const char *szJoystickButton)
 {
     SDL_ExtendedGameControllerBind bind;
+    SDL_ExtendedGameControllerBind *new_bindings;
+    int bindings_count;
     SDL_GameControllerButton button;
     SDL_GameControllerAxis axis;
     SDL_bool invert_input = SDL_FALSE;
@@ -1057,14 +1059,14 @@ static void SDL_PrivateGameControllerParseElement(SDL_GameController *gamecontro
         return;
     }
 
-    ++gamecontroller->num_bindings;
-    gamecontroller->bindings = (SDL_ExtendedGameControllerBind *)SDL_realloc(gamecontroller->bindings, gamecontroller->num_bindings * sizeof(*gamecontroller->bindings));
-    if (!gamecontroller->bindings) {
-        gamecontroller->num_bindings = 0;
+    bindings_count = gamecontroller->num_bindings + 1;
+    new_bindings = (SDL_ExtendedGameControllerBind *)SDL_realloc(gamecontroller->bindings, bindings_count * sizeof(*gamecontroller->bindings));
+    if (!new_bindings) {
         SDL_OutOfMemory();
         return;
     }
-    gamecontroller->bindings[gamecontroller->num_bindings - 1] = bind;
+    gamecontroller->bindings[bindings_count - 1] = bind;
+    gamecontroller->num_bindings = bindings_count;
 }
 
 /*
