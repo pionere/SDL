@@ -1152,9 +1152,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static java.lang.String getExternalStoragePath() {
         try {
-            return getContext().getExternalFilesDir(null).getAbsolutePath();
+            return getContext().getExternalFilesDir(null).getCanonicalPath();
         } catch(Exception ignored) {
-            // NullPointerException
+            // IOException or NullPointerException
             return null;
         }
     }
