@@ -52,6 +52,7 @@ import android.widget.Toast;
 
 import java.util.Hashtable;
 import java.util.Locale;
+import java.io.File;
 
 
 /**
@@ -1132,6 +1133,18 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static Context getContext() {
         return SDL.getContext();
+    }
+
+    /**
+     * This method is called by SDL using JNI.
+     */
+    public static java.lang.String getInternalStoragePath() {
+        try {
+            return getContext().getFilesDir().getCanonicalPath();
+        } catch(Exception ignored) {
+            // IOException or NullPointerException
+            return null;
+        }
     }
 
     /**

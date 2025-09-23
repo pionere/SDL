@@ -106,6 +106,7 @@ typedef enum {
     SDLActivity_createCustomCursor,
     SDLActivity_destroyCustomCursor,
     SDLActivity_getContext,
+    SDLActivity_getInternalStoragePath,
     SDLActivity_getDisplayDPI,
     SDLActivity_getManifestEnvironmentVariables,
     SDLActivity_getNativeSurface,
@@ -141,6 +142,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "createCustomCursor", "([IIIII)I" },
     { "destroyCustomCursor", "(I)V" },
     { "getContext", "()Landroid/content/Context;" },
+    { "getInternalStoragePath", "()Ljava/lang/String;" },
     { "getDisplayDPI", "()Landroid/util/DisplayMetrics;" },
     { "getManifestEnvironmentVariables", "()Z" },
     { "getNativeSurface", "()Landroid/view/Surface;" },
@@ -2062,51 +2064,18 @@ const char *SDL_AndroidGetInternalStoragePath(void)
     static char *s_AndroidInternalFilesPath = NULL;
 
     if (!s_AndroidInternalFilesPath) {
-        struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
-        jmethodID mid;
-        jobject context;
-        jobject fileObject;
-        jstring pathString;
-        const char *path;
-
         JNIEnv *env = Android_JNI_GetEnv();
-        if (!LocalReferenceHolder_Init(&refs, env)) {
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
+        jstring string;
+
+        string = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getInternalStoragePath]);
+        if (string) {
+            const char *utf = (*env)->GetStringUTFChars(env, string, NULL);
+            if (utf) {
+                s_AndroidInternalFilesPath = SDL_strdup(utf);
+                (*env)->ReleaseStringUTFChars(env, string, utf);
+            }
+            (*env)->DeleteLocalRef(env, string);
         }
-
-        /* context = SDLActivity.getContext(); */
-        context = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getContext]);
-        if (!context) {
-            SDL_SetError("Couldn't get Android context!");
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
-        }
-
-        /* fileObj = context.getFilesDir(); */
-        mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context),
-                                  "getFilesDir", "()Ljava/io/File;");
-        fileObject = (*env)->CallObjectMethod(env, context, mid);
-        if (!fileObject) {
-            SDL_SetError("Couldn't get internal directory");
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
-        }
-
-        /* path = fileObject.getCanonicalPath(); */
-        mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, fileObject),
-                                  "getCanonicalPath", "()Ljava/lang/String;");
-        pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
-        if (Android_JNI_ExceptionOccurred(SDL_FALSE)) {
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
-        }
-
-        path = (*env)->GetStringUTFChars(env, pathString, NULL);
-        s_AndroidInternalFilesPath = SDL_strdup(path);
-        (*env)->ReleaseStringUTFChars(env, pathString, path);
-
-        LocalReferenceHolder_Cleanup(&refs);
     }
     return s_AndroidInternalFilesPath;
 }
