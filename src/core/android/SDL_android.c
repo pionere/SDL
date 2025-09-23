@@ -74,9 +74,6 @@
 #define ENCODING_PCM_16BIT 2
 #define ENCODING_PCM_FLOAT 4
 
-/* Uncomment this to log messages entering and exiting methods in this file */
-/* #define DEBUG_JNI */
-
 /*******************************************************************************
  This file links the Java side of Android with libsdl
 *******************************************************************************/
@@ -1066,15 +1063,17 @@ static SDL_atomic_t s_active;
 struct LocalReferenceHolder
 {
     JNIEnv *m_env;
+#ifdef DEBUG
     const char *m_func;
+#endif
 };
 
 static struct LocalReferenceHolder LocalReferenceHolder_Setup(const char *func)
 {
     struct LocalReferenceHolder refholder;
     refholder.m_env = NULL;
+#ifdef DEBUG
     refholder.m_func = func;
-#ifdef DEBUG_JNI
     SDL_Log("Entering function %s", func);
 #endif
     return refholder;
@@ -1094,7 +1093,7 @@ static SDL_bool LocalReferenceHolder_Init(struct LocalReferenceHolder *refholder
 
 static void LocalReferenceHolder_Cleanup(struct LocalReferenceHolder *refholder)
 {
-#ifdef DEBUG_JNI
+#ifdef DEBUG
     SDL_Log("Leaving function %s", refholder->m_func);
 #endif
     if (refholder->m_env) {
@@ -1493,7 +1492,7 @@ void Android_JNI_AudioSetThreadPriority(SDL_bool iscapture, int device_id)
 
 /* Test for an exception and call SDL_SetError with its detail if one occurs */
 /* If the parameter silent is truthy then SDL_SetError() will not be called. */
-static SDL_bool Android_JNI_ExceptionOccurred(SDL_bool silent)
+static SDL_bool Android_JNI_ExceptionOccurred()
 {
     JNIEnv *env = Android_JNI_GetEnv();
     jthrowable exception;
@@ -1503,12 +1502,11 @@ static SDL_bool Android_JNI_ExceptionOccurred(SDL_bool silent)
 
     exception = (*env)->ExceptionOccurred(env);
     if (exception != NULL) {
-        jmethodID mid;
-
         /* Until this happens most JNI operations have undefined behaviour */
         (*env)->ExceptionClear(env);
-
-        if (!silent) {
+#ifdef DEBUG
+        {
+            jmethodID mid;
             jclass exceptionClass = (*env)->GetObjectClass(env, exception);
             jclass classClass = (*env)->FindClass(env, "java/lang/Class");
             jstring exceptionName;
@@ -1532,7 +1530,7 @@ static SDL_bool Android_JNI_ExceptionOccurred(SDL_bool silent)
 
             (*env)->ReleaseStringUTFChars(env, exceptionName, exceptionNameUTF8);
         }
-
+#endif
         return SDL_TRUE;
     }
 
@@ -1572,7 +1570,7 @@ static void Internal_Android_Create_AssetManager(void)
 
     if (!asset_manager) {
         (*env)->DeleteGlobalRef(env, javaAssetManagerRef);
-        Android_JNI_ExceptionOccurred(SDL_TRUE);
+        Android_JNI_ExceptionOccurred();
     }
 
     LocalReferenceHolder_Cleanup(&refs);
