@@ -2172,17 +2172,14 @@ int SDL_AndroidShowToast(const char *message, int duration, int gravity, int xOf
 
 void Android_JNI_GetManifestEnvironmentVariables(void)
 {
-    if (!mActivityClass || !jnicall[SDLActivity_getManifestEnvironmentVariables]) {
-        LOGW("Request to get environment variables before JNI is ready");
-        return;
-    }
-
     if (!bHasEnvironmentVariables) {
-        JNIEnv *env = Android_JNI_GetEnv();
-        SDL_bool ret = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_getManifestEnvironmentVariables]);
-        if (ret) {
-            bHasEnvironmentVariables = SDL_TRUE;
+        JNIEnv *env;
+        if (!mActivityClass || !jnicall[SDLActivity_getManifestEnvironmentVariables]) {
+            LOGW("Request to get environment variables before JNI is ready");
+            return;
         }
+        env = Android_JNI_GetEnv();
+        bHasEnvironmentVariables = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_getManifestEnvironmentVariables]);
     }
 }
 
