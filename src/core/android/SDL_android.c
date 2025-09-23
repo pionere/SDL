@@ -545,7 +545,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls
                 char *arg = NULL;
                 jstring string = (*env)->GetObjectArrayElement(env, array, i);
                 if (string) {
-                    utf = (*env)->GetStringUTFChars(env, string, 0);
+                    utf = (*env)->GetStringUTFChars(env, string, NULL);
                     if (utf) {
                         arg = SDL_strdup(utf);
                         (*env)->ReleaseStringUTFChars(env, string, utf);
@@ -1517,13 +1517,13 @@ static SDL_bool Android_JNI_ExceptionOccurred(SDL_bool silent)
 
             mid = (*env)->GetMethodID(env, classClass, "getName", "()Ljava/lang/String;");
             exceptionName = (jstring)(*env)->CallObjectMethod(env, exceptionClass, mid);
-            exceptionNameUTF8 = (*env)->GetStringUTFChars(env, exceptionName, 0);
+            exceptionNameUTF8 = (*env)->GetStringUTFChars(env, exceptionName, NULL);
 
             mid = (*env)->GetMethodID(env, exceptionClass, "getMessage", "()Ljava/lang/String;");
             exceptionMessage = (jstring)(*env)->CallObjectMethod(env, exception, mid);
 
             if (exceptionMessage != NULL) {
-                const char *exceptionMessageUTF8 = (*env)->GetStringUTFChars(env, exceptionMessage, 0);
+                const char *exceptionMessageUTF8 = (*env)->GetStringUTFChars(env, exceptionMessage, NULL);
                 SDL_SetError("%s: %s", exceptionNameUTF8, exceptionMessageUTF8);
                 (*env)->ReleaseStringUTFChars(env, exceptionMessage, exceptionMessageUTF8);
             } else {
@@ -1674,7 +1674,7 @@ char *Android_JNI_GetClipboardText(void)
 
     string = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_clipboardGetText]);
     if (string) {
-        const char *utf = (*env)->GetStringUTFChars(env, string, 0);
+        const char *utf = (*env)->GetStringUTFChars(env, string, NULL);
         if (utf) {
             text = SDL_strdup(utf);
             (*env)->ReleaseStringUTFChars(env, string, utf);
@@ -2124,9 +2124,11 @@ int SDL_AndroidGetExternalStorageState(void)
     LOGI("external storage state: %s", state);
 
     if (SDL_strcmp(state, "mounted") == 0) {
+        /* Environment.MEDIA_MOUNTED */
         stateFlags = SDL_ANDROID_EXTERNAL_STORAGE_READ |
                      SDL_ANDROID_EXTERNAL_STORAGE_WRITE;
     } else if (SDL_strcmp(state, "mounted_ro") == 0) {
+        /* Environment.MEDIA_MOUNTED_READ_ONLY */
         stateFlags = SDL_ANDROID_EXTERNAL_STORAGE_READ;
     } else {
         stateFlags = 0;
