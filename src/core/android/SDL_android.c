@@ -77,8 +77,6 @@
 /* Uncomment this to log messages entering and exiting methods in this file */
 /* #define DEBUG_JNI */
 
-static void checkJNIReady(void);
-
 /*******************************************************************************
  This file links the Java side of Android with libsdl
 *******************************************************************************/
@@ -382,7 +380,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     return JNI_VERSION_1_4;
 }
 
-void checkJNIReady(void)
+static void checkJNIReady(void)
 {
     if (!mActivityClass || !mAudioManagerClass || !mControllerManagerClass) {
         /* We aren't fully initialized, let's just return. */
@@ -423,10 +421,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
     /* Use a mutex to prevent concurrency issues between Java Activity and Native thread code, when using 'Android_Window'.
      * (Eg. Java sending Touch events, while native code is destroying the main SDL_Window. )
      */
-    if (!Android_ActivityMutex) {
-        Android_ActivityMutex = SDL_CreateMutex(); /* Could this be created twice if onCreate() is called a second time ? */
-    }
-
+    Android_ActivityMutex = SDL_CreateMutex(); /* Could this be created twice if onCreate() is called a second time ? */
     if (!Android_ActivityMutex) {
         LOGE("failed to create Android_ActivityMutex mutex");
     }
@@ -942,6 +937,21 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSendQuit)(JNIEnv *env, jclass cl
 /* Activity ends */
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(JNIEnv *env, jclass cls)
 {
+    if (mControllerManagerClass) {
+        (*env)->DeleteGlobalRef(env, mControllerManagerClass);
+        mControllerManagerClass = NULL;
+    }
+
+    if (mAudioManagerClass) {
+        (*env)->DeleteGlobalRef(env, mAudioManagerClass);
+        mAudioManagerClass = NULL;
+    }
+
+    if (mActivityClass) {
+        (*env)->DeleteGlobalRef(env, mActivityClass);
+        mActivityClass = NULL;
+    }
+
     if (Android_ActivityMutex) {
         SDL_DestroyMutex(Android_ActivityMutex);
         Android_ActivityMutex = NULL;
