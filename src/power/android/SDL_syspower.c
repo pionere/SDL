@@ -41,8 +41,6 @@ SDL_bool SDL_GetPowerInfo_Android(SDL_PowerState *state, int *seconds, int *perc
                 power_state = SDL_POWERSTATE_CHARGING;
             } else {
                 power_state = SDL_POWERSTATE_NO_BATTERY;
-                // power_info.seconds = -1;
-                power_info.percent = -1;
             }
         } else {
             power_state = SDL_POWERSTATE_ON_BATTERY;

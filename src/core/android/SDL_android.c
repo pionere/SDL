@@ -1771,11 +1771,7 @@ SDL_bool Android_JNI_GetPowerInfo(SDL_AndroidPowerInfo *power_info)
         power_info->battery = present ? SDL_TRUE : SDL_FALSE;
     }
 
-    /*{
-        power_info->seconds = ... // not possible
-    }*/
-
-    {
+    if (power_info->battery) {
         int level;
         int scale;
 
@@ -1793,10 +1789,15 @@ SDL_bool Android_JNI_GetPowerInfo(SDL_AndroidPowerInfo *power_info)
         }
 
         if ((level == -1) || (scale == -1)) {
-            LocalReferenceHolder_Cleanup(&refs);
-            return SDL_FALSE;
+            // power_info->seconds = -1;
+            power_info->percent = -1;
+        } else {
+            // power_info->seconds = ...
+            power_info->percent = level * 100 / scale;
         }
-        power_info->percent = level * 100 / scale;
+    } else {
+        // power_info->seconds = -1;
+        power_info->percent = -1;
     }
 
     (*env)->DeleteLocalRef(env, intent);
