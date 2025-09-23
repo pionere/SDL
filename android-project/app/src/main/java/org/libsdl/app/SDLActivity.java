@@ -1150,6 +1150,18 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
+    public static java.lang.String getExternalStoragePath() {
+        try {
+            return getContext().getExternalFilesDir(null).getAbsolutePath();
+        } catch(Exception ignored) {
+            // NullPointerException
+            return null;
+        }
+    }
+
+    /**
+     * This method is called by SDL using JNI.
+     */
     public static boolean isAndroidTV() {
         UiModeManager uiModeManager = (UiModeManager) getContext().getSystemService(UI_MODE_SERVICE);
         if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {

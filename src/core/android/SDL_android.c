@@ -105,6 +105,7 @@ typedef enum {
     SDLActivity_destroyCustomCursor,
     SDLActivity_getContext,
     SDLActivity_getInternalStoragePath,
+    SDLActivity_getExternalStoragePath,
     SDLActivity_getDisplayDPI,
     SDLActivity_getManifestEnvironmentVariables,
     SDLActivity_getNativeSurface,
@@ -141,6 +142,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "destroyCustomCursor", "(I)V" },
     { "getContext", "()Landroid/content/Context;" },
     { "getInternalStoragePath", "()Ljava/lang/String;" },
+    { "getExternalStoragePath", "()Ljava/lang/String;" },
     { "getDisplayDPI", "()Landroid/util/DisplayMetrics;" },
     { "getManifestEnvironmentVariables", "()Z" },
     { "getNativeSurface", "()Landroid/view/Surface;" },
@@ -2140,42 +2142,18 @@ const char *SDL_AndroidGetExternalStoragePath(void)
     static char *s_AndroidExternalFilesPath = NULL;
 
     if (!s_AndroidExternalFilesPath) {
-        struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
-        jmethodID mid;
-        jobject context;
-        jobject fileObject;
-        jstring pathString;
-        const char *path;
-
         JNIEnv *env = Android_JNI_GetEnv();
-        if (!LocalReferenceHolder_Init(&refs, env)) {
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
+        jstring string;
+
+        string = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getExternalStoragePath]);
+        if (string) {
+            const char *utf = (*env)->GetStringUTFChars(env, string, NULL);
+            if (utf) {
+                s_AndroidExternalFilesPath = SDL_strdup(utf);
+                (*env)->ReleaseStringUTFChars(env, string, utf);
+            }
+            (*env)->DeleteLocalRef(env, string);
         }
-
-        /* context = SDLActivity.getContext(); */
-        context = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getContext]);
-
-        /* fileObj = context.getExternalFilesDir(); */
-        mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, context),
-                                  "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
-        fileObject = (*env)->CallObjectMethod(env, context, mid, NULL);
-        if (!fileObject) {
-            SDL_SetError("Couldn't get external directory");
-            LocalReferenceHolder_Cleanup(&refs);
-            return NULL;
-        }
-
-        /* path = fileObject.getAbsolutePath(); */
-        mid = (*env)->GetMethodID(env, (*env)->GetObjectClass(env, fileObject),
-                                  "getAbsolutePath", "()Ljava/lang/String;");
-        pathString = (jstring)(*env)->CallObjectMethod(env, fileObject, mid);
-
-        path = (*env)->GetStringUTFChars(env, pathString, NULL);
-        s_AndroidExternalFilesPath = SDL_strdup(path);
-        (*env)->ReleaseStringUTFChars(env, pathString, path);
-
-        LocalReferenceHolder_Cleanup(&refs);
     }
     return s_AndroidExternalFilesPath;
 }

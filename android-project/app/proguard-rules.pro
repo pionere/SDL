@@ -66,6 +66,7 @@
     void destroyCustomCursor(int);
     android.content.Context getContext();
     java.lang.String getInternalStoragePath();
+    java.lang.String getExternalStoragePath();
     boolean getManifestEnvironmentVariables();
     android.view.Surface getNativeSurface();
     void initTouch();
