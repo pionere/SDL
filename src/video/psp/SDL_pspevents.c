@@ -89,7 +89,7 @@ void PSP_PumpEvents(void)
     changed = old_keys ^ keys;
     old_keys = keys;
     if (changed) {
-        for (i = 0; i < sizeof(keymap_psp) / sizeof(keymap_psp[0]); i++) {
+        for (i = 0; i < SDL_arraysize(keymap_psp); i++) {
             if (changed & keymap_psp[i].id) {
                 SDL_SendKeyboardKey((keys & keymap_psp[i].id) ? SDL_PRESSED : SDL_RELEASED, SDL_GetScancodeFromKey(keymap_psp[i].sym));
             }

@@ -308,7 +308,7 @@ static NAME2CP aName2CP[] = {
 char *os2cpToName(unsigned long cp)
 {
     ULONG ulLo = 0;
-    ULONG ulHi = (sizeof(aCP2Name) / sizeof(struct _CP2NAME)) - 1;
+    ULONG ulHi = SDL_arraysize(aCP2Name) - 1;
     ULONG ulNext;
     LONG  lFound = -1;
 
@@ -350,7 +350,7 @@ char *os2cpToName(unsigned long cp)
 unsigned long os2cpFromName(char *cp)
 {
     ULONG ulLo = 0;
-    ULONG ulHi = (sizeof(aName2CP) / sizeof(struct _NAME2CP)) - 1;
+    ULONG ulHi = SDL_arraysize(aName2CP) - 1;
     ULONG ulNext;
     LONG  lFound = -1;
     LONG  lCmp;

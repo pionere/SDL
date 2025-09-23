@@ -644,7 +644,7 @@ int X11_CreateSDLWindow(_THIS, SDL_Window *window)
             protocols[proto_count++] = data->_NET_WM_PING; /* Respond so WM knows we're alive */
         }
 
-        SDL_assert(proto_count <= sizeof(protocols) / sizeof(protocols[0]));
+        SDL_assert(proto_count <= SDL_arraysize(protocols));
 
         X11_XSetWMProtocols(display, w, protocols, proto_count);
     }

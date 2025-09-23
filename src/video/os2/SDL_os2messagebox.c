@@ -70,7 +70,7 @@ static VOID _wmInitDlg(HWND hwnd, MSGBOXDLGDATA *pDlgData)
             continue;
         }
         if (SDL_strcmp(acBuf, "#3") == 0) { /* Class name of button. */
-            if (cButtons < sizeof(aButtons) / sizeof(struct _BUTTON)) {
+            if (cButtons < SDL_arraysize(aButtons)) {
                 aButtons[cButtons].hwnd = hWndNext;
                 cButtons++;
             }

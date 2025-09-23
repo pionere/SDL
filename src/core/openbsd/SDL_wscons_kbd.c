@@ -566,7 +566,7 @@ static void Translate_to_keycode(SDL_WSCONS_input_data *input, int type, keysym_
         return;
     }
     }
-    for (i = 0; i < sizeof(conversion_table) / sizeof(struct wscons_keycode_to_SDL); i++) {
+    for (i = 0; i < SDL_arraysize(conversion_table); i++) {
         if (conversion_table[i].sourcekey == group[0]) {
             SDL_SendKeyboardKey(type == WSCONS_EVENT_KEY_DOWN ? SDL_PRESSED : SDL_RELEASED, conversion_table[i].targetKey);
             return;

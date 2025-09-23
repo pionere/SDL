@@ -358,7 +358,7 @@ void SDL_WinRTApp::Run()
 static bool IsSDLWindowEventPending(SDL_WindowEventID windowEventID)
 {
     SDL_Event events[128];
-    const int count = SDL_PeepEvents(events, sizeof(events) / sizeof(SDL_Event), SDL_PEEKEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
+    const int count = SDL_PeepEvents(events, SDL_arraysize(events), SDL_PEEKEVENT, SDL_WINDOWEVENT, SDL_WINDOWEVENT);
     for (int i = 0; i < count; ++i) {
         if (events[i].window.event == windowEventID) {
             return true;

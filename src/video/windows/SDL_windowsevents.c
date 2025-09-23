@@ -763,7 +763,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #ifdef WMMSG_DEBUG
     {
         char message[1024];
-        if (msg > MAX_WMMSG) {
+        if (msg > SDL_arraysize(wmtab)) {
             SDL_snprintf(message, sizeof(message), "Received windows message: %p UNKNOWN (%d) -- 0x%p, 0x%p\n", hwnd, msg, wParam, lParam);
         } else {
             SDL_snprintf(message, sizeof(message), "Received windows message: %p %s -- 0x%p, 0x%p\n", hwnd, wmtab[msg], wParam, lParam);

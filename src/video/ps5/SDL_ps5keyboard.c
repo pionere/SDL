@@ -128,7 +128,7 @@ static SceImeDialogParam g_ime_dialog_param =
 {
     .title = g_ime_dialog_title,
     .inputTextBuffer = g_ime_dialog_text,
-    .maxTextLength = sizeof(g_ime_dialog_text) / sizeof(g_ime_dialog_text[0])
+    .maxTextLength = SDL_arraysize(g_ime_dialog_text)
 };
 
 int PS5_Keyboard_Open(void)
@@ -314,7 +314,7 @@ int PS5_Keyboard_PumpEvents(void)
         }
     }
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < SDL_arraysize(g_prev_keyboard_state.scankey); i++) {
         if (g_prev_keyboard_state.scankey[i] == curr.scankey[i]) {
             continue;
         }

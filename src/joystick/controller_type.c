@@ -61,9 +61,9 @@ EControllerType GuessControllerType( int nVID, int nPID )
 	{
 		s_bCheckedForDuplicates = true;
 		int i, j;
-		for ( i = 0; i < sizeof( arrControllers ) / sizeof( arrControllers[ 0 ] ); ++i )
+		for (i = 0; i < SDL_arraysize(arrControllers); ++i)
 		{
-			for ( j = i + 1; j < sizeof( arrControllers ) / sizeof( arrControllers[ 0 ] ); ++j )
+			for (j = i + 1; j < SDL_arraysize(arrControllers); ++j)
 			{
 				if ( arrControllers[ i ].m_unDeviceID == arrControllers[ j ].m_unDeviceID )
 				{
@@ -111,7 +111,7 @@ EControllerType GuessControllerType( int nVID, int nPID )
 		return k_eControllerType_UnknownNonSteamController;
 	}
 
-	for ( iIndex = 0; iIndex < sizeof( arrControllers ) / sizeof( arrControllers[0] ); ++iIndex )
+	for (iIndex = 0; iIndex < SDL_arraysize(arrControllers); ++iIndex)
 	{
 		if ( unDeviceID == arrControllers[ iIndex ].m_unDeviceID )
 		{
@@ -127,7 +127,7 @@ const char *GuessControllerName( int nVID, int nPID )
 {
 	unsigned int unDeviceID = MAKE_CONTROLLER_ID( nVID, nPID );
 	int iIndex;
-	for ( iIndex = 0; iIndex < sizeof( arrControllers ) / sizeof( arrControllers[0] ); ++iIndex )
+	for (iIndex = 0; iIndex < SDL_arraysize(arrControllers); ++iIndex)
 	{
 		if ( unDeviceID == arrControllers[ iIndex ].m_unDeviceID )
 		{

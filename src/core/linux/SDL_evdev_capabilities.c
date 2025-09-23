@@ -120,7 +120,7 @@ SDL_EVDEV_GuessDeviceClass(const unsigned long bitmask_ev[NBITS(EV_MAX)],
         /* If there are no keys in the lower block, check the higher blocks */
         if (!found) {
             unsigned block;
-            for (block = 0; block < (sizeof(high_key_blocks) / sizeof(struct range)); ++block) {
+            for (block = 0; block < SDL_arraysize(high_key_blocks); ++block) {
                 for (i = high_key_blocks[block].start; i < high_key_blocks[block].end; ++i) {
                     if (test_bit(i, bitmask_key)) {
                         found = 1;

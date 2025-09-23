@@ -790,7 +790,7 @@ static void SDLTest_PrintWindowFlags(char *text, size_t maxlen, Uint32 flags)
 
     int i;
     int count = 0;
-    for (i = 0; i < (sizeof(window_flags) / sizeof(window_flags[0])); ++i) {
+    for (i = 0; i < SDL_arraysize(window_flags); ++i) {
         const Uint32 flag = window_flags[i];
         if ((flags & flag) == flag) {
             if (count > 0) {

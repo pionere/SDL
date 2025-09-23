@@ -190,7 +190,7 @@ static SDL_JoystickID SWITCH_JoystickGetDeviceInstanceID(int device_index)
  */
 static int SWITCH_JoystickOpen(SDL_Joystick *joystick, int device_index)
 {
-    joystick->nbuttons = sizeof(pad_mapping_default) / sizeof(*pad_mapping_default);
+    joystick->nbuttons = SDL_arraysize(pad_mapping_default);
     joystick->naxes = 4;
     // joystick->nhats = 0;
     joystick->instance_id = device_index;
