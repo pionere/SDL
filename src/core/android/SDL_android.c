@@ -1680,11 +1680,11 @@ SDL_bool Android_JNI_HasClipboardText(void)
     return (retval == JNI_TRUE) ? SDL_TRUE : SDL_FALSE;
 }
 
-/* returns 0 on success or -1 on error (others undefined then)
+/* returns true on success or false on error (others undefined then)
  * returns truthy or falsy value in plugged, charged and battery
  * returns the value in seconds and percent or -1 if not available
  */
-int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seconds, int *percent)
+SDL_bool Android_JNI_GetPowerInfo(SDL_AndroidPowerInfo *power_info)
 {
     struct LocalReferenceHolder refs = LocalReferenceHolder_Setup(__FUNCTION__);
     JNIEnv *env = Android_JNI_GetEnv();
@@ -1700,12 +1700,12 @@ int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seco
     jmethodID bmid;
     if (!LocalReferenceHolder_Init(&refs, env)) {
         LocalReferenceHolder_Cleanup(&refs);
-        return -1;
+        return SDL_FALSE;
     }
 
     /* context = SDLActivity.getContext(); */
     context = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getContext]);
-
+    /* filter = new IntentFiler("android.intent.action.BATTERY_CHANGED"); */
     action = (*env)->NewStringUTF(env, "android.intent.action.BATTERY_CHANGED");
 
     cls = (*env)->FindClass(env, "android/content/IntentFilter");
@@ -1714,7 +1714,7 @@ int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seco
     filter = (*env)->NewObject(env, cls, mid, action);
 
     (*env)->DeleteLocalRef(env, action);
-
+    /* intent = SDLActivity.registerReceiver(null, filter); */
     mid = (*env)->GetMethodID(env, mActivityClass, "registerReceiver", "(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;");
     intent = (*env)->CallObjectMethod(env, context, mid, NULL, filter);
 
@@ -1740,64 +1740,69 @@ int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seco
     (var) = (*env)->CallBooleanMethod(env, intent, bmid, bname, JNI_FALSE); \
     (*env)->DeleteLocalRef(env, bname);
 
-    if (plugged) {
+    {
+        /* plug = intent.getIntExtra("plugged", -1); */
         /* Watch out for C89 scoping rules because of the macro */
         GET_INT_EXTRA(plug, "plugged") /* == BatteryManager.EXTRA_PLUGGED (API 5) */
         if (plug == -1) {
             LocalReferenceHolder_Cleanup(&refs);
-            return -1;
+            return SDL_FALSE;
         }
         /* 1 == BatteryManager.BATTERY_PLUGGED_AC */
         /* 2 == BatteryManager.BATTERY_PLUGGED_USB */
-        *plugged = (0 < plug) ? 1 : 0;
+        power_info->plugged = (0 < plug) ? SDL_TRUE : SDL_FALSE;
     }
 
-    if (charged) {
+    {
+        /* status = intent.getIntExtra("status", -1); */
         /* Watch out for C89 scoping rules because of the macro */
         GET_INT_EXTRA(status, "status") /* == BatteryManager.EXTRA_STATUS (API 5) */
         if (status == -1) {
             LocalReferenceHolder_Cleanup(&refs);
-            return -1;
+            return SDL_FALSE;
         }
         /* 5 == BatteryManager.BATTERY_STATUS_FULL */
-        *charged = (status == 5) ? 1 : 0;
+        power_info->charged = (status == 5) ? SDL_TRUE : SDL_FALSE;
     }
 
-    if (battery) {
+    {
+        /* present = intent.getBooleanExtra("present", -1); */
         GET_BOOL_EXTRA(present, "present") /* == BatteryManager.EXTRA_PRESENT (API 5) */
-        *battery = present ? 1 : 0;
+        power_info->battery = present ? SDL_TRUE : SDL_FALSE;
     }
 
-    if (seconds) {
-        *seconds = -1; /* not possible */
-    }
+    /*{
+        power_info->seconds = ... // not possible
+    }*/
 
-    if (percent) {
+    {
         int level;
         int scale;
 
         /* Watch out for C89 scoping rules because of the macro */
         {
+            /* level_temp = intent.getIntExtra("level", -1); */
             GET_INT_EXTRA(level_temp, "level") /* == BatteryManager.EXTRA_LEVEL (API 5) */
             level = level_temp;
         }
         /* Watch out for C89 scoping rules because of the macro */
         {
+            /* scale_temp = intent.getIntExtra("scale", -1); */
             GET_INT_EXTRA(scale_temp, "scale") /* == BatteryManager.EXTRA_SCALE (API 5) */
             scale = scale_temp;
         }
 
         if ((level == -1) || (scale == -1)) {
             LocalReferenceHolder_Cleanup(&refs);
-            return -1;
+            return SDL_FALSE;
         }
-        *percent = level * 100 / scale;
+        power_info->percent = level * 100 / scale;
     }
 
     (*env)->DeleteLocalRef(env, intent);
 
     LocalReferenceHolder_Cleanup(&refs);
-    return 0;
+    return SDL_TRUE;
 }
 
 /* Add all touch devices */

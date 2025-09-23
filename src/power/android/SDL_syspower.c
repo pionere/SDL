@@ -30,29 +30,32 @@
 
 SDL_bool SDL_GetPowerInfo_Android(SDL_PowerState *state, int *seconds, int *percent)
 {
-    int battery;
-    int plugged;
-    int charged;
+    SDL_AndroidPowerInfo power_info;
+    SDL_PowerState power_state;
 
-    if (Android_JNI_GetPowerInfo(&plugged, &charged, &battery, seconds, percent) != -1) {
-        if (plugged) {
-            if (charged) {
-                *state = SDL_POWERSTATE_CHARGED;
-            } else if (battery) {
-                *state = SDL_POWERSTATE_CHARGING;
+    if (Android_JNI_GetPowerInfo(&power_info)) {
+        if (power_info.plugged) {
+            if (power_info.charged) {
+                power_state = SDL_POWERSTATE_CHARGED;
+            } else if (power_info.battery) {
+                power_state = SDL_POWERSTATE_CHARGING;
             } else {
-                *state = SDL_POWERSTATE_NO_BATTERY;
-                *seconds = -1;
-                *percent = -1;
+                power_state = SDL_POWERSTATE_NO_BATTERY;
+                // power_info.seconds = -1;
+                power_info.percent = -1;
             }
         } else {
-            *state = SDL_POWERSTATE_ON_BATTERY;
+            power_state = SDL_POWERSTATE_ON_BATTERY;
         }
     } else {
-        *state = SDL_POWERSTATE_UNKNOWN;
-        *seconds = -1;
-        *percent = -1;
+        // power_info.seconds = -1;
+        power_info.percent = -1;
+        power_state = SDL_POWERSTATE_UNKNOWN;
     }
+
+    *seconds = -1; // power_info.seconds;
+    *percent = power_info.percent;
+    *state = power_state;
 
     return SDL_TRUE;
 }

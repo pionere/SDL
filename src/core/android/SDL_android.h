@@ -87,7 +87,16 @@ char *Android_JNI_GetClipboardText(void);
 SDL_bool Android_JNI_HasClipboardText(void);
 
 /* Power support */
-int Android_JNI_GetPowerInfo(int *plugged, int *charged, int *battery, int *seconds, int *percent);
+#pragma pack(push,1)
+typedef struct {
+    int plugged;
+    int charged;
+    int battery;
+    // int seconds;
+    int percent;
+} SDL_AndroidPowerInfo;
+#pragma pack(pop)
+SDL_bool Android_JNI_GetPowerInfo(SDL_AndroidPowerInfo *power_info);
 
 /* Joystick support */
 void Android_JNI_JoystickSubscribe(void);
