@@ -640,12 +640,8 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     gsGlobal = gsKit_init_global_custom(RENDER_QUEUE_OS_POOLSIZE, RENDER_QUEUE_PER_POOLSIZE);
 
     // GS interlaced/progressive
-    if (SDL_GetHintBoolean(SDL_HINT_PS2_GS_PROGRESSIVE, false)) {
-        gsGlobal->Interlace = GS_NONINTERLACED;
-    } else {
-        gsGlobal->Interlace = GS_INTERLACED;
-    }
-    
+    gsGlobal->Interlace = SDL_GetHintBoolean(SDL_HINT_PS2_GS_PROGRESSIVE, false) ? GS_NONINTERLACED : GS_INTERLACED;
+
     // GS width/height
     gsGlobal->Width = 0;
     gsGlobal->Height = 0;
@@ -667,11 +663,9 @@ static SDL_Renderer *PS2_CreateRenderer(SDL_Window *window, Uint32 flags)
     // GS region
     hint = SDL_GetHint(SDL_HINT_PS2_GS_MODE);
     if (hint) {
-        if (SDL_strcasecmp(SDL_GetHint(SDL_HINT_PS2_GS_MODE), "NTSC") == 0) {
+        if (SDL_strcasecmp(hint, "NTSC") == 0) {
             gsGlobal->Mode = GS_MODE_NTSC;
-        }
-
-        if (SDL_strcasecmp(SDL_GetHint(SDL_HINT_PS2_GS_MODE), "PAL") == 0) {
+        } else if (SDL_strcasecmp(hint, "PAL") == 0) {
             gsGlobal->Mode = GS_MODE_PAL;
         }
     }
