@@ -19,6 +19,10 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 #include "../../SDL_internal.h"
+
+#ifndef SDL_android_h_
+#define SDL_android_h_
+
 #include "SDL_system.h"
 
 /* Set up for C function definitions, even when using C++ */
@@ -150,5 +154,7 @@ void Android_ActivityMutex_Lock_Running(void);
 }
 /* *INDENT-ON* */
 #endif
+
+#endif /* SDL_android_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
