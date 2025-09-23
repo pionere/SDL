@@ -1942,12 +1942,21 @@ static void SDL_InitControllerMappingFromFile(void)
 #ifndef SDL_FILE_DISABLED
     const char *path = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
 #if defined(__ANDROID__)
-    char szControllerMapPath[1024];
+    char* szControllerMapPath = NULL;
     if (!path || !*path) {
-        int size = SDL_snprintf(szControllerMapPath, sizeof(szControllerMapPath), "%s/controller_map.txt", SDL_AndroidGetInternalStoragePath());
-        if (size < 0 || size >= sizeof(szControllerMapPath)) {
+        const char filename[] = "/controller_map.txt";
+        size_t pathlen;
+        path = SDL_AndroidGetInternalStoragePath();
+        if (!path) {
             return;
         }
+        pathlen = SDL_strlen(path) + sizeof(filename);
+        szControllerMapPath = (char *)SDL_malloc(pathlen);
+        if (!szControllerMapPath) {
+            SDL_OutOfMemory();
+            return;
+        }
+        SDL_snprintf(szControllerMapPath, pathlen, "%s%s", path, filename);
         path = szControllerMapPath;
     }
 #else
@@ -1956,6 +1965,9 @@ static void SDL_InitControllerMappingFromFile(void)
     }
 #endif
     SDL_GameControllerAddMappingsFromFile(path);
+#if defined(__ANDROID__)
+    SDL_free(szControllerMapPath);
+#endif
 #endif /* !SDL_FILE_DISABLED */
 }
 
