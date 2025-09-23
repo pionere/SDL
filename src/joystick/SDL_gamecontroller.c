@@ -1939,6 +1939,7 @@ static void SDL_GameControllerLoadHints(void)
  */
 static void SDL_InitControllerMappingFromFile(void)
 {
+#ifndef SDL_FILE_DISABLED
     const char *path = SDL_GetHint(SDL_HINT_GAMECONTROLLERCONFIG_FILE);
 #if defined(__ANDROID__)
     char szControllerMapPath[1024];
@@ -1954,11 +1955,8 @@ static void SDL_InitControllerMappingFromFile(void)
         return;
     }
 #endif
-#ifdef SDL_FILE_DISABLED
-    SDL_SetError("Unsupported hint '%s', because SDL2 is compiled without FILE subsystem", SDL_HINT_GAMECONTROLLERCONFIG_FILE);
-#else
     SDL_GameControllerAddMappingsFromFile(path);
-#endif
+#endif /* !SDL_FILE_DISABLED */
 }
 
 /*
