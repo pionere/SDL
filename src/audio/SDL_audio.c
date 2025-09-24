@@ -651,26 +651,16 @@ void SDL_ClearQueuedAudio(SDL_AudioDeviceID devid)
 extern void Android_JNI_AudioSetThreadPriority(SDL_bool, int);
 #endif
 
-/* The general mixing thread function */
-static int SDLCALL SDL_RunAudio(void *userdata)
+static SDL_AudioDevice *SDL_AudioThreadInit(void *userdata)
 {
     const AudioThreadStartupData *startup_data = (const AudioThreadStartupData *) userdata;
     SDL_AudioDevice *device = startup_data->device;
-    void *udata = device->callbackspec.userdata;
-    SDL_AudioCallback callback = device->callbackspec.callback;
-    int data_len = 0;
-    Uint8 *data;
-
-    SDL_assert(!device->iscapture);
 
 #ifdef __ANDROID__
-    {
-        /* Set thread priority to THREAD_PRIORITY_AUDIO */
-        Android_JNI_AudioSetThreadPriority(device->iscapture, device->id);
-    }
+    /* Set thread priority to THREAD_PRIORITY_AUDIO */
+    Android_JNI_AudioSetThreadPriority(device->iscapture, device->id);
 #else
-    /* The audio mixing is always a high priority thread */
-    SDL_SetThreadPriority(SDL_THREAD_PRIORITY_TIME_CRITICAL);
+    SDL_SetThreadPriority(device->iscapture ? SDL_THREAD_PRIORITY_TIME_CRITICAL : SDL_THREAD_PRIORITY_HIGH);
 #endif
 
     /* Perform any thread setup */
@@ -679,6 +669,20 @@ static int SDLCALL SDL_RunAudio(void *userdata)
     SDL_SemPost(startup_data->startup_semaphore);  /* SDL_OpenAudioDevice may now continue. */
 
     current_audio.impl.ThreadInit(device);
+
+    return device;
+}
+
+/* The general mixing thread function */
+static int SDLCALL SDL_RunAudio(void *userdata)
+{
+    SDL_AudioDevice *device = SDL_AudioThreadInit(userdata);
+    void *udata = device->callbackspec.userdata;
+    SDL_AudioCallback callback = device->callbackspec.callback;
+    int data_len = 0;
+    Uint8 *data;
+
+    SDL_assert(!device->iscapture);
 
     /* Loop, filling the audio buffers */
     while (!SDL_AtomicGet(&device->shutdown)) {
@@ -756,8 +760,7 @@ static int SDLCALL SDL_RunAudio(void *userdata)
 /* The general capture thread function */
 static int SDLCALL SDL_CaptureAudio(void *userdata)
 {
-    const AudioThreadStartupData *startup_data = (const AudioThreadStartupData *) userdata;
-    SDL_AudioDevice *device = startup_data->device;
+    SDL_AudioDevice *device = SDL_AudioThreadInit(userdata);
     const int silence = (int)device->spec.silence;
     const Uint32 delay = ((device->spec.samples * 1000) / device->spec.freq);
     const int data_len = device->spec.size;
@@ -766,23 +769,6 @@ static int SDLCALL SDL_CaptureAudio(void *userdata)
     SDL_AudioCallback callback = device->callbackspec.callback;
 
     SDL_assert(device->iscapture);
-
-#ifdef __ANDROID__
-    {
-        /* Set thread priority to THREAD_PRIORITY_AUDIO */
-        Android_JNI_AudioSetThreadPriority(device->iscapture, device->id);
-    }
-#else
-    /* The audio mixing is always a high priority thread */
-    SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
-#endif
-
-    /* Perform any thread setup */
-    device->threadid = SDL_ThreadID();
-
-    SDL_SemPost(startup_data->startup_semaphore);  /* SDL_OpenAudioDevice may now continue. */
-
-    current_audio.impl.ThreadInit(device);
 
     /* Loop, filling the audio buffers */
     while (!SDL_AtomicGet(&device->shutdown)) {
