@@ -744,7 +744,7 @@ static SDL_bool SteamControllerConnectedCallback(const char *name, SDL_JoystickG
     Uint16 vendor, product, version;
     SDL_GetJoystickGUIDInfo(guid, &vendor, &product, &version, NULL);
     if (SDL_ShouldIgnoreJoystick(&SDL_LINUX_JoystickDriver, vendor, product, version, name)) {
-        return false;
+        return SDL_FALSE;
     }
 
     item = (SDL_joylist_item *)SDL_calloc(1, sizeof(SDL_joylist_item));

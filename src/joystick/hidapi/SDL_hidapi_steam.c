@@ -319,13 +319,14 @@ static int SetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65], i
             nRet = SDL_hid_send_feature_report(dev->dev, uPacketBuffer, sizeof(uPacketBuffer));
         }
     } else {
-        for (int nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
+        int nRetries;
+        for (nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
             nRet = SDL_hid_send_feature_report(dev->dev, uBuffer, 65);
             if (nRet >= 0) {
                 break;
             }
 
-            SDL_DelayNS(RADIO_WORKAROUND_SLEEP_DURATION_US * 1000);
+            SDL_Delay(RADIO_WORKAROUND_SLEEP_DURATION_US);
         }
     }
 
@@ -387,15 +388,16 @@ static int GetFeatureReport(SDL_HIDAPI_Device *dev, unsigned char uBuffer[65])
         }
         return SDL_SetError("Could not get a full ble packet after %d retries", nRetries);
     } else {
+        int nRetries;
         SDL_memset(uBuffer, 0, 65);
 
-        for (int nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
+        for (nRetries = 0; nRetries < RADIO_WORKAROUND_SLEEP_ATTEMPTS; nRetries++) {
             nRet = SDL_hid_get_feature_report(dev->dev, uBuffer, 65);
             if (nRet >= 0) {
                 break;
             }
 
-            SDL_DelayNS(RADIO_WORKAROUND_SLEEP_DURATION_US * 1000);
+            SDL_Delay(RADIO_WORKAROUND_SLEEP_DURATION_US);
         }
 
         DPRINTF("GetFeatureReport USB ret=%d\n", nRet);
@@ -1331,7 +1333,7 @@ static void HIDAPI_DriverSteam_FreeDevice(SDL_HIDAPI_Device *device)
     SDL_DriverSteam_Context *ctx = (SDL_DriverSteam_Context *)device->context;
 
     if (IsDongle(device->product_id)) {
-        SDL_RemoveHintCallback(SDL_HINT_JOYSTICK_HIDAPI_STEAM_PAIRING_ENABLED,
+        SDL_DelHintCallback(SDL_HINT_JOYSTICK_HIDAPI_STEAM_PAIRING_ENABLED,
                                SDL_PairingEnabledHintChanged, ctx);
 
         HIDAPI_DriverSteam_SetPairingState(ctx, false);
