@@ -422,10 +422,8 @@ static void HIDAPI_CleanupDeviceDriver(SDL_HIDAPI_Device *device)
             device->dev = NULL;
         }
 
-        if (device->context) {
-            SDL_free(device->context);
-            device->context = NULL;
-        }
+        SDL_free(device->context);
+        device->context = NULL;
     }
     SDL_UnlockMutex(device->dev_lock);
 }
