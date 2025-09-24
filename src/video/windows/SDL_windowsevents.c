@@ -1459,8 +1459,7 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
                 for (i = 0; i < num_inputs; ++i) {
                     PTOUCHINPUT input = &inputs[i];
-                    const int w = (rect.right - rect.left);
-                    const int h = (rect.bottom - rect.top);
+                    int w, h;
 
                     const SDL_TouchID touchId = (SDL_TouchID)((size_t)input->hSource);
 
@@ -1472,6 +1471,8 @@ WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     }
 
                     /* Get the normalized coordinates for the window */
+                    w = (rect.right - rect.left);
+                    h = (rect.bottom - rect.top);
                     if (w <= 1) {
                         x = 0.5f;
                     } else {
