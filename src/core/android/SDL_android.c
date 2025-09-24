@@ -931,20 +931,14 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeQuit)(JNIEnv *env, jclass cls)
         mActivityClass = NULL;
     }
 
-    if (Android_ActivityMutex) {
-        SDL_DestroyMutex(Android_ActivityMutex);
-        Android_ActivityMutex = NULL;
-    }
+    SDL_DestroyMutex(Android_ActivityMutex);
+    Android_ActivityMutex = NULL;
 
-    if (Android_PauseSem) {
-        SDL_DestroySemaphore(Android_PauseSem);
-        Android_PauseSem = NULL;
-    }
+    SDL_DestroySemaphore(Android_PauseSem);
+    Android_PauseSem = NULL;
 
-    if (Android_ResumeSem) {
-        SDL_DestroySemaphore(Android_ResumeSem);
-        Android_ResumeSem = NULL;
-    }
+    SDL_DestroySemaphore(Android_ResumeSem);
+    Android_ResumeSem = NULL;
 
     Internal_Android_Destroy_AssetManager();
 }
