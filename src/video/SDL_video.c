@@ -785,14 +785,10 @@ int SDL_GetDisplayDPI(int displayIndex, float *ddpi, float *hdpi, float *vdpi)
     display = &current_video.displays[displayIndex];
 
     if (current_video.GetDisplayDPI) {
-        if (current_video.GetDisplayDPI(display, ddpi, hdpi, vdpi) == 0) {
-            return 0;
-        }
+        return current_video.GetDisplayDPI(display, ddpi, hdpi, vdpi);
     } else {
         return SDL_Unsupported();
     }
-
-    return -1;
 }
 
 SDL_DisplayOrientation SDL_GetDisplayOrientation(int displayIndex)
