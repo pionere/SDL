@@ -39,6 +39,7 @@ extern void Android_OnOrientationChanged(SDL_DisplayOrientation orientation);
 typedef struct Android_VideoData
 {
     SDL_Rect textRect;
+    SDL_boolean screenKeyboardShown;
     SDL_boolean isPaused;
     SDL_boolean isPausing;
 #ifndef SDL_AUDIO_DISABLED
