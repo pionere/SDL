@@ -214,6 +214,13 @@ extern const AudioBootStrap OS2AUDIO_bootstrap;
 extern const AudioBootStrap SWITCHAUDIO_bootstrap;
 extern const AudioBootStrap XBOXAUDIO_bootstrap;
 
+extern void aaudio_ResumeDevices(void);
+extern void aaudio_PauseDevices(void);
+extern void aaudio_DetectBrokenPlayState(void);
+
+extern void openslES_ResumeDevices(void);
+extern void openslES_PauseDevices(void);
+
 #endif /* SDL_sysaudio_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

@@ -1712,4 +1712,46 @@ void SDL_MixAudio(Uint8 *dst, const Uint8 *src, Uint32 len, int volume)
     }
 }
 
+#ifdef SDL_VIDEO_DRIVER_ANDROID
+void SDL_AndroidAudioResumeDevices(void)
+{
+    const char* name = SDL_GetCurrentAudioDriver();
+    if (0) {
+#if defined(SDL_AUDIO_DRIVER_AAUDIO)
+    } else if (name == aaudio_bootstrap.name) {
+        aaudio_ResumeDevices();
+#endif
+#if defined(SDL_AUDIO_DRIVER_OPENSLES)
+    } else if (name == openslES_bootstrap.name) {
+        openslES_ResumeDevices();
+#endif
+    }
+}
+
+void SDL_AndroidAudioPauseDevices(void)
+{
+    const char* name = SDL_GetCurrentAudioDriver();
+    if (0) {
+#if defined(SDL_AUDIO_DRIVER_AAUDIO)
+    } else if (name == aaudio_bootstrap.name) {
+        aaudio_PauseDevices();
+#endif
+#if defined(SDL_AUDIO_DRIVER_OPENSLES)
+    } else if (name == openslES_bootstrap.name) {
+        openslES_PauseDevices();
+#endif
+    }
+}
+
+void SDL_AndroidAudioDetectBrokenPlaystate(void)
+{
+#if defined(SDL_AUDIO_DRIVER_AAUDIO)
+    const char* name = SDL_GetCurrentAudioDriver();
+    if (name == aaudio_bootstrap.name) {
+        aaudio_DetectBrokenPlayState();
+    }
+#endif
+}
+#endif /* SDL_VIDEO_DRIVER_ANDROID */
+
 /* vi: set ts=4 sw=4 expandtab: */

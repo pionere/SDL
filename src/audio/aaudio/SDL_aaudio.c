@@ -509,7 +509,7 @@ void aaudio_ResumeDevices(void)
  None of the standard state queries indicate any problem in my testing. And the error callback doesn't actually get called.
  But, AAudioStream_getTimestamp() does return AAUDIO_ERROR_INVALID_STATE
 */
-SDL_bool aaudio_DetectBrokenPlayState(void)
+void aaudio_DetectBrokenPlayState(void)
 {
     AAudioStream *stream;
     struct SDL_PrivateAudioData *private;
@@ -517,13 +517,13 @@ SDL_bool aaudio_DetectBrokenPlayState(void)
     aaudio_result_t res;
 
     if (!audioDevice || !audioDevice->hidden) {
-        return SDL_FALSE;
+        return;
     }
 
     private = audioDevice->hidden;
     stream = private->stream;
     if (!stream) {
-        return SDL_FALSE;
+        return;
     }
 
     res = ctx.AAudioStream_getTimestamp(stream, CLOCK_MONOTONIC, &framePosition, &timeNanoseconds);
@@ -532,11 +532,10 @@ SDL_bool aaudio_DetectBrokenPlayState(void)
         /* AAudioStream_getTimestamp() will also return AAUDIO_ERROR_INVALID_STATE while the stream is still initially starting. But we only care if it silently went invalid while playing. */
         if (currentState == AAUDIO_STREAM_STATE_STARTED) {
             LOGI("SDL aaudio_DetectBrokenPlayState: detected invalid audio device state: AAudioStream_getTimestamp result=%d, framePosition=%lld, timeNanoseconds=%lld, getState=%d", (int)res, (long long)framePosition, (long long)timeNanoseconds, (int)currentState);
-            return SDL_TRUE;
+            aaudio_PauseDevices();
+            aaudio_ResumeDevices();
         }
     }
-
-    return SDL_FALSE;
 }
 
 #endif /* SDL_AUDIO_DRIVER_AAUDIO */

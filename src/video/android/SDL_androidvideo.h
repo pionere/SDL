@@ -41,7 +41,9 @@ typedef struct Android_VideoData
     SDL_Rect textRect;
     int isPaused;
     int isPausing;
-    int pauseAudio;
+#ifndef SDL_AUDIO_DISABLED
+    SDL_bool pauseAudio;
+#endif
 } Android_VideoData;
 
 extern Android_VideoData androidVideoData;

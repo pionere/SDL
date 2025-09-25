@@ -67,6 +67,12 @@ extern void SDL_ChooseAudioResamplers(void);
 extern int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len);
 extern void SDL_PadAudioStream(SDL_AudioStream *stream);
 
+#ifdef SDL_VIDEO_DRIVER_ANDROID
+extern void SDL_AndroidAudioResumeDevices(void);
+extern void SDL_AndroidAudioPauseDevices(void);
+extern void SDL_AndroidAudioDetectBrokenPlaystate(void);
+#endif
+
 #endif /* SDL_audio_c_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

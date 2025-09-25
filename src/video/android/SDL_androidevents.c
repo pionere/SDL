@@ -28,40 +28,8 @@
 #include "SDL_androidkeyboard.h"
 #include "SDL_androidwindow.h"
 #include "../SDL_sysvideo.h"
+#include "../../audio/SDL_audio_c.h"
 #include "../../events/SDL_events_c.h"
-
-/* Can't include sysaudio "../../audio/android/SDL_androidaudio.h"
- * because of THIS redefinition */
-
-#if !defined(SDL_AUDIO_DISABLED) && defined(SDL_AUDIO_DRIVER_ANDROID)
-extern void ANDROIDAUDIO_ResumeDevices(void);
-extern void ANDROIDAUDIO_PauseDevices(void);
-#else
-static void ANDROIDAUDIO_ResumeDevices(void) {}
-static void ANDROIDAUDIO_PauseDevices(void) {}
-#endif
-
-#if !defined(SDL_AUDIO_DISABLED) && defined(SDL_AUDIO_DRIVER_OPENSLES)
-extern void openslES_ResumeDevices(void);
-extern void openslES_PauseDevices(void);
-#else
-static void openslES_ResumeDevices(void)
-{
-}
-static void openslES_PauseDevices(void) {}
-#endif
-
-#if !defined(SDL_AUDIO_DISABLED) && defined(SDL_AUDIO_DRIVER_AAUDIO)
-extern void aaudio_ResumeDevices(void);
-extern void aaudio_PauseDevices(void);
-SDL_bool aaudio_DetectBrokenPlayState(void);
-#else
-static void aaudio_ResumeDevices(void)
-{
-}
-static void aaudio_PauseDevices(void) {}
-static SDL_bool aaudio_DetectBrokenPlayState(void) { return SDL_FALSE; }
-#endif
 
 /* Number of 'type' events in the event queue */
 static int SDL_NumberOfEvents(Uint32 type)
@@ -122,11 +90,9 @@ void Android_PumpEvents_Blocking(void)
             SDL_UnlockMutex(Android_ActivityMutex);
         }
 #endif
-
-        ANDROIDAUDIO_PauseDevices();
-        openslES_PauseDevices();
-        aaudio_PauseDevices();
-
+#ifndef SDL_AUDIO_DISABLED
+        SDL_AndroidAudioPauseDevices();
+#endif
         if (SDL_SemWait(Android_ResumeSem) == 0) {
 
             videodata->isPaused = 0;
@@ -135,11 +101,9 @@ void Android_PumpEvents_Blocking(void)
             SDL_SendAppEvent(SDL_APP_WILLENTERFOREGROUND);
             SDL_SendAppEvent(SDL_APP_DIDENTERFOREGROUND);
             SDL_SendWindowEvent(Android_Window, SDL_WINDOWEVENT_RESTORED, 0, 0);
-
-            ANDROIDAUDIO_ResumeDevices();
-            openslES_ResumeDevices();
-            aaudio_ResumeDevices();
-
+#ifndef SDL_AUDIO_DISABLED
+            SDL_AndroidAudioResumeDevices();
+#endif
             /* Restore the GL Context from here, as this operation is thread dependent */
 #ifdef SDL_VIDEO_OPENGL_EGL
             if (!isContextExternal && !SDL_HasEvent(SDL_QUIT)) {
@@ -173,11 +137,9 @@ void Android_PumpEvents_Blocking(void)
             }
         }
     }
-
-    if (aaudio_DetectBrokenPlayState()) {
-        aaudio_PauseDevices();
-        aaudio_ResumeDevices();
-    }
+#ifndef SDL_AUDIO_DISABLED
+    SDL_AndroidAudioDetectBrokenPlaystate();
+#endif
 }
 
 void Android_PumpEvents_NonBlocking(void)
@@ -197,13 +159,11 @@ void Android_PumpEvents_NonBlocking(void)
                 SDL_UnlockMutex(Android_ActivityMutex);
             }
 #endif
-
+#ifndef SDL_AUDIO_DISABLED
             if (videodata->pauseAudio) {
-                ANDROIDAUDIO_PauseDevices();
-                openslES_PauseDevices();
-                aaudio_PauseDevices();
+                SDL_AndroidAudioPauseDevices();
             }
-
+#endif
             backup_context = 0;
         }
 
@@ -215,13 +175,11 @@ void Android_PumpEvents_NonBlocking(void)
             SDL_SendAppEvent(SDL_APP_WILLENTERFOREGROUND);
             SDL_SendAppEvent(SDL_APP_DIDENTERFOREGROUND);
             SDL_SendWindowEvent(Android_Window, SDL_WINDOWEVENT_RESTORED, 0, 0);
-
+#ifndef SDL_AUDIO_DISABLED
             if (videodata->pauseAudio) {
-                ANDROIDAUDIO_ResumeDevices();
-                openslES_ResumeDevices();
-                aaudio_ResumeDevices();
+                SDL_AndroidAudioResumeDevices();
             }
-
+#endif
 #ifdef SDL_VIDEO_OPENGL_EGL
             /* Restore the GL Context from here, as this operation is thread dependent */
             if (!isContextExternal && !SDL_HasEvent(SDL_QUIT)) {
@@ -256,11 +214,9 @@ void Android_PumpEvents_NonBlocking(void)
             }
         }
     }
-
-    if (aaudio_DetectBrokenPlayState()) {
-        aaudio_PauseDevices();
-        aaudio_ResumeDevices();
-    }
+#ifndef SDL_AUDIO_DISABLED
+    SDL_AndroidAudioDetectBrokenPlaystate();
+#endif
 }
 
 #endif /* SDL_VIDEO_DRIVER_ANDROID */
