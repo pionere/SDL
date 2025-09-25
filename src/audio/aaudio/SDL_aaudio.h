@@ -23,20 +23,6 @@
 #ifndef _SDL_aaudio_h
 #define _SDL_aaudio_h
 
-#include "../SDL_sysaudio.h"
-#include <stdbool.h>
-#include <aaudio/AAudio.h>
-
-struct SDL_PrivateAudioData
-{
-    AAudioStream *stream;
-
-    /* Raw mixing buffer */
-    Uint8 *mixbuf;
-    int mixlen;
-    int frame_size;
-    int devid;
-};
 
 #endif /* _SDL_aaudio_h */
 
