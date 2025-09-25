@@ -28,8 +28,6 @@
 #include "../thread/SDL_systhread.h"
 #include "../SDL_utils_c.h"
 
-#define _THIS SDL_AudioDevice *_this
-
 typedef struct AudioThreadStartupData
 {
     SDL_AudioDevice *device;
@@ -257,7 +255,7 @@ void SDL_FindPhysicalAudioDeviceByCallback(void (*callbackFunc)(SDL_AudioDevice 
 }
 
 /* stubs for audio drivers that don't need a specific entry point... */
-void SDL_AudioDriver_NoOp(_THIS)
+void SDL_AudioDriver_NoOp(SDL_AudioDevice *device)
 { /* no-op. */
 }
 
@@ -274,7 +272,7 @@ static void SDL_AudioDetectDevices_Default(void)
 #define SDL_AudioWaitDevice_Default SDL_AudioDriver_NoOp
 #define SDL_AudioPlayDevice_Default SDL_AudioDriver_NoOp
 
-static Uint8 *SDL_AudioGetDeviceBuf_Default(_THIS)
+static Uint8 *SDL_AudioGetDeviceBuf_Default(SDL_AudioDevice *device)
 {
     return NULL;
 }
