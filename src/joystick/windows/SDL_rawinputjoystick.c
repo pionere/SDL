@@ -167,7 +167,7 @@ struct joystick_hwdata
     struct __x_ABI_CWindows_CGaming_CInput_CGamepadVibration vibration;
 #endif
 
-    bool triggers_rumbling;
+    SDL_bool triggers_rumbling;
 
     SDL_RAWINPUT_Device *device;
 };
