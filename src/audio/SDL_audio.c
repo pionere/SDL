@@ -245,6 +245,17 @@ static SDL_AudioDevice *get_audio_device(SDL_AudioDeviceID id)
     return open_devices[id];
 }
 
+void SDL_FindPhysicalAudioDeviceByCallback(void (*callbackFunc)(SDL_AudioDevice *device))
+{
+    int device_index;
+    for (device_index = 0; device_index < SDL_arraysize(open_devices); device_index++) {
+        SDL_AudioDevice *device = open_devices[device_index];
+        if (device) {
+            callbackFunc(device);
+        }
+    }
+}
+
 /* stubs for audio drivers that don't need a specific entry point... */
 void SDL_AudioDriver_NoOp(_THIS)
 { /* no-op. */

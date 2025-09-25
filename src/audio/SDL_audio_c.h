@@ -67,6 +67,10 @@ extern void SDL_ChooseAudioResamplers(void);
 extern int SDL_PrivateAudioStreamGet(SDL_AudioStream *stream, void *buf, int len);
 extern void SDL_PadAudioStream(SDL_AudioStream *stream);
 
+/* Find the open SDL_AudioDevices for a callback. DOES NOT LOCK THE DEVICE. */
+typedef struct SDL_AudioDevice SDL_AudioDevice;
+extern void SDL_FindPhysicalAudioDeviceByCallback(void (*callbackFunc)(SDL_AudioDevice *device));
+
 #ifdef SDL_VIDEO_DRIVER_ANDROID
 extern void SDL_AndroidAudioResumeDevices(void);
 extern void SDL_AndroidAudioPauseDevices(void);
