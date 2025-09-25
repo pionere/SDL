@@ -630,7 +630,7 @@ class SDLGenericMotionListener_API14 implements View.OnGenericMotionListener {
     public boolean onGenericMotion(View v, MotionEvent event) {
         float x, y;
         int action, pointerCount;
-        boolean consumed = false;
+        boolean relative, consumed = false;
         if (event.getSource() == InputDevice.SOURCE_JOYSTICK)
             return SDLControllerManager.handleJoystickMotionEvent(event);
 
@@ -645,21 +645,20 @@ class SDLGenericMotionListener_API14 implements View.OnGenericMotionListener {
                     case MotionEvent.ACTION_SCROLL:
                         x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, i);
                         y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, i);
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        consumed = true;
+                        relative = false;
                         break;
 
                     case MotionEvent.ACTION_HOVER_MOVE:
                         x = getEventX(event, i);
                         y = getEventY(event, i);
-
-                        SDLActivity.onNativeMouse(0, action, x, y, checkRelativeEvent(event));
-                        consumed = true;
+                        relative = checkRelativeEvent(event);
                         break;
 
                     default:
-                        break;
+                        continue;
                 }
+                SDLActivity.onNativeMouse(i, action, x, y, relative);
+                consumed = true;
             }
         }
 
@@ -752,7 +751,7 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
 
     @Override
     public boolean setRelativeMouseEnabled(boolean enabled) {
-        if (!SDLActivity.isDeXMode() || Build.VERSION.SDK_INT >= 27 /* Android 8.1 (O_MR1) */) {
+        if (supportsRelativeMouse()) {
             if (enabled) {
                 SDLActivity.getContentView().requestPointerCapture();
             } else {
