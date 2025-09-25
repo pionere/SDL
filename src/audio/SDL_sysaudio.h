@@ -200,7 +200,7 @@ extern const AudioBootStrap COREAUDIO_bootstrap;
 extern const AudioBootStrap DISKAUDIO_bootstrap;
 extern const AudioBootStrap DUMMYAUDIO_bootstrap;
 extern const AudioBootStrap FUSIONSOUND_bootstrap;
-extern const AudioBootStrap aaudio_bootstrap;
+extern const AudioBootStrap AAUDIO_bootstrap;
 extern const AudioBootStrap openslES_bootstrap;
 extern const AudioBootStrap PS2AUDIO_bootstrap;
 extern const AudioBootStrap PSPAUDIO_bootstrap;
@@ -214,9 +214,9 @@ extern const AudioBootStrap OS2AUDIO_bootstrap;
 extern const AudioBootStrap SWITCHAUDIO_bootstrap;
 extern const AudioBootStrap XBOXAUDIO_bootstrap;
 
-extern void aaudio_ResumeDevices(void);
-extern void aaudio_PauseDevices(void);
-extern void aaudio_DetectBrokenPlayState(void);
+extern void AAUDIO_ResumeDevices(void);
+extern void AAUDIO_PauseDevices(void);
+extern void AAUDIO_DetectBrokenPlayState(void);
 
 extern void openslES_ResumeDevices(void);
 extern void openslES_PauseDevices(void);

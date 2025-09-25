@@ -96,7 +96,7 @@ static const AudioBootStrap *const bootstrap[] = {
     &openslES_bootstrap,
 #endif
 #ifdef SDL_AUDIO_DRIVER_AAUDIO
-    &aaudio_bootstrap,
+    &AAUDIO_bootstrap,
 #endif
 #ifdef SDL_AUDIO_DRIVER_PS2
     &PS2AUDIO_bootstrap,
@@ -1718,8 +1718,8 @@ void SDL_AndroidAudioResumeDevices(void)
     const char* name = SDL_GetCurrentAudioDriver();
     if (0) {
 #if defined(SDL_AUDIO_DRIVER_AAUDIO)
-    } else if (name == aaudio_bootstrap.name) {
-        aaudio_ResumeDevices();
+    } else if (name == AAUDIO_bootstrap.name) {
+        AAUDIO_ResumeDevices();
 #endif
 #if defined(SDL_AUDIO_DRIVER_OPENSLES)
     } else if (name == openslES_bootstrap.name) {
@@ -1733,8 +1733,8 @@ void SDL_AndroidAudioPauseDevices(void)
     const char* name = SDL_GetCurrentAudioDriver();
     if (0) {
 #if defined(SDL_AUDIO_DRIVER_AAUDIO)
-    } else if (name == aaudio_bootstrap.name) {
-        aaudio_PauseDevices();
+    } else if (name == AAUDIO_bootstrap.name) {
+        AAUDIO_PauseDevices();
 #endif
 #if defined(SDL_AUDIO_DRIVER_OPENSLES)
     } else if (name == openslES_bootstrap.name) {
@@ -1747,8 +1747,8 @@ void SDL_AndroidAudioDetectBrokenPlaystate(void)
 {
 #if defined(SDL_AUDIO_DRIVER_AAUDIO)
     const char* name = SDL_GetCurrentAudioDriver();
-    if (name == aaudio_bootstrap.name) {
-        aaudio_DetectBrokenPlayState();
+    if (name == AAUDIO_bootstrap.name) {
+        AAUDIO_DetectBrokenPlayState();
     }
 #endif
 }
