@@ -3201,10 +3201,7 @@ static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window *window)
 
 #ifdef __ANDROID__
     {
-        extern SDL_bool Android_JNI_ShouldMinimizeOnFocusLoss(void);
-        if (!Android_JNI_ShouldMinimizeOnFocusLoss()) {
-            return SDL_FALSE;
-        }
+        return SDL_FALSE;
     }
 #endif
 

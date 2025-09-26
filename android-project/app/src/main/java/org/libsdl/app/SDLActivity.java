@@ -1052,13 +1052,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean shouldMinimizeOnFocusLoss() {
-        return false;
-    }
-
-    /**
-     * This method is called by SDL using JNI.
-     */
     public static boolean isScreenKeyboardShown()
     {
         if (mTextEdit == null) {

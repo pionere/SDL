@@ -124,7 +124,6 @@ typedef enum {
     SDLActivity_setRelativeMouseEnabled,
     SDLActivity_setSystemCursor,
     SDLActivity_setWindowStyle,
-    SDLActivity_shouldMinimizeOnFocusLoss,
     SDLActivity_showTextInput,
     SDLActivity_supportsRelativeMouse,
     SDL_JavaFuncs_count
@@ -161,7 +160,6 @@ static const function_definition SDLActivity_ifc[] = {
     { "setRelativeMouseEnabled", "(Z)Z" },
     { "setSystemCursor", "(I)Z" },
     { "setWindowStyle", "(Z)V" },
-    { "shouldMinimizeOnFocusLoss", "()Z" },
     { "showTextInput", "(IIII)Z" },
     { "supportsRelativeMouse", "()Z" },
 };
@@ -1120,12 +1118,6 @@ void Android_JNI_MinizeWindow(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
     (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_minimizeWindow]);
-}
-
-SDL_bool Android_JNI_ShouldMinimizeOnFocusLoss(void)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-    return (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_shouldMinimizeOnFocusLoss]);
 }
 
 SDL_bool Android_JNI_GetAccelerometerValues(float values[3])

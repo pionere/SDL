@@ -86,7 +86,6 @@
     void setOrientation(int, int, boolean, java.lang.String);
     boolean setRelativeMouseEnabled(boolean);
     boolean setSystemCursor(int);
-    boolean shouldMinimizeOnFocusLoss();
     boolean showTextInput(int, int, int, int);
 }
 
