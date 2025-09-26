@@ -1,6 +1,7 @@
 package org.libsdl.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.lang.Class;
 import java.lang.reflect.Method;
@@ -44,7 +45,7 @@ public class SDL {
     public static void loadLibrary(String libraryName, Context context) throws UnsatisfiedLinkError, SecurityException, NullPointerException {
 
         if (libraryName == null) {
-            throw new NullPointerException("No library name provided.");
+            Log.d("SDL", "No library name provided.");
         }
 
         try {
@@ -74,15 +75,7 @@ public class SDL {
         }
         catch (final Throwable e) {
             // Fall back
-            try {
-                System.loadLibrary(libraryName);
-            }
-            catch (final UnsatisfiedLinkError ule) {
-                throw ule;
-            }
-            catch (final SecurityException se) {
-                throw se;
-            }
+            System.loadLibrary(libraryName);
         }
     }
 
