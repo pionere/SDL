@@ -31,6 +31,11 @@ class HIDDeviceUSB implements HIDDevice {
         mRunning = false;
     }
 
+    public void connect() {
+        UsbInterface iface = mDevice.getInterface(mInterfaceIndex);
+        mManager.HIDDeviceConnected(mDeviceId, getIdentifier(), getVendorId(), getProductId(),  getSerialNumber(), getVersion(),  getManufacturerName(), getProductName(), iface.getId(), iface.getInterfaceClass(), iface.getInterfaceSubclass(), iface.getInterfaceProtocol());
+    }
+
     public String getIdentifier() {
         return String.format(Locale.ENGLISH, "%s/%x/%x/%d", mDevice.getDeviceName(), mDevice.getVendorId(), mDevice.getProductId(), mInterfaceIndex);
     }

@@ -355,9 +355,8 @@ public class HIDDeviceManager {
                     interface_mask |= (1 << interface_id);
 
                     HIDDeviceUSB device = new HIDDeviceUSB(this, usbDevice, interface_index);
-                    int id = device.getId();
-                    mDevicesById.put(id, device);
-                    HIDDeviceConnected(id, device.getIdentifier(), device.getVendorId(), device.getProductId(), device.getSerialNumber(), device.getVersion(), device.getManufacturerName(), device.getProductName(), usbInterface.getId(), usbInterface.getInterfaceClass(), usbInterface.getInterfaceSubclass(), usbInterface.getInterfaceProtocol());
+                    mDevicesById.put(device.getId(), device);
+                    device.connect();
                 }
             }
         }
