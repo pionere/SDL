@@ -33,6 +33,9 @@
 #include "SDL_android.h"
 #include "SDL_android_jni.h"
 
+#ifdef SDL_AUDIO_DRIVER_AAUDIO
+#include "../../audio/SDL_sysaudio.h"
+#endif
 #include "../../events/SDL_events_c.h"
 #include "../../video/android/SDL_androidkeyboard.h"
 #include "../../video/android/SDL_androidmouse.h"
@@ -662,22 +665,26 @@ JNIEXPORT void JNICALL
 SDL_JAVA_AUDIO_INTERFACE(addAudioDevice)(JNIEnv *env, jclass jcls,
     jboolean is_capture, jint device_id)
 {
-    if (SDL_GetCurrentAudioDriver() != NULL) {
+#ifdef SDL_AUDIO_DRIVER_AAUDIO
+    if (SDL_GetCurrentAudioDriver() == AAUDIO_bootstrap.name) {
         char device_name[64];
         SDL_snprintf(device_name, sizeof(device_name), "%d", device_id);
         LOGV("Adding device with name %s, capture %d", device_name, is_capture);
         SDL_AddAudioDevice(is_capture, SDL_strdup(device_name), NULL, (void *)((size_t)device_id + 1));
     }
+#endif
 }
 
 JNIEXPORT void JNICALL
 SDL_JAVA_AUDIO_INTERFACE(removeAudioDevice)(JNIEnv *env, jclass jcls,
     jboolean is_capture, jint device_id)
 {
-    if (SDL_GetCurrentAudioDriver() != NULL) {
+#ifdef SDL_AUDIO_DRIVER_AAUDIO
+    if (SDL_GetCurrentAudioDriver() == AAUDIO_bootstrap.name) {
         LOGV("Removing device with handle %d, capture %d", device_id + 1, is_capture);
         SDL_RemoveAudioDevice(is_capture, (void *)((size_t)device_id + 1));
     }
+#endif
 }
 
 /* Paddown */
