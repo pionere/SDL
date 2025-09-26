@@ -94,7 +94,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         s2 = s_copy & InputDevice.SOURCE_ANY; // keep source only, no class;
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23 / * Android 6.0 (M) * /) {
             tst = InputDevice.SOURCE_BLUETOOTH_STYLUS;
             if ((s & tst) == tst) src += " BLUETOOTH_STYLUS";
             s2 &= ~tst;
@@ -108,7 +108,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " GAMEPAD";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21 / * Android 5.0 (LOLLIPOP) * /) {
             tst = InputDevice.SOURCE_HDMI;
             if ((s & tst) == tst) src += " HDMI";
             s2 &= ~tst;
@@ -126,7 +126,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " MOUSE";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 26 / * Android 8.0 (O) * /) {
             tst = InputDevice.SOURCE_MOUSE_RELATIVE;
             if ((s & tst) == tst) src += " MOUSE_RELATIVE";
             s2 &= ~tst;
@@ -147,7 +147,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & tst) == tst) src += " TOUCHSCREEN";
         s2 &= ~tst;
 
-        if (Build.VERSION.SDK_INT >= 18) {
+        if (Build.VERSION.SDK_INT >= 18 / * Android 4.3 (JELLY_BEAN_MR2) * /) {
             tst = InputDevice.SOURCE_TOUCH_NAVIGATION;
             if ((s & tst) == tst) src += " TOUCH_NAVIGATION";
             s2 &= ~tst;
@@ -1742,7 +1742,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             } catch (Exception e) {
             }
         }
-        return;
     }
 
     /**
@@ -1869,12 +1868,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static int showToast(String message, int duration, int gravity, int xOffset, int yOffset)
     {
-        if(null == mSingleton) {
+        if (null == mSingleton) {
             return - 1;
         }
 
-        try
-        {
+        try {
             class OneShotTask implements Runnable {
                 private final String mMessage;
                 private final int mDuration;
@@ -1891,20 +1889,19 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
 
                 public void run() {
-                    try
-                    {
+                    try {
                         Toast toast = Toast.makeText(mSingleton, mMessage, mDuration);
                         if (mGravity >= 0) {
                             toast.setGravity(mGravity, mXOffset, mYOffset);
                         }
                         toast.show();
-                    } catch(Exception ex) {
+                    } catch (Exception ex) {
                         Log.e(TAG, ex.getMessage());
                     }
                 }
             }
             mSingleton.runOnUiThread(new OneShotTask(message, duration, gravity, xOffset, yOffset));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
         return 0;
@@ -2055,7 +2052,7 @@ class SDLInputConnection extends BaseInputConnection {
     @Override
     public boolean deleteSurroundingText(int beforeLength, int afterLength) {
         if (Build.VERSION.SDK_INT <= 29 /* Android 10.0 (Q) */) {
-            // Workaround to capture backspace key. Ref: http://stackoverflow.com/questions>/14560344/android-backspace-in-webview-baseinputconnection
+            // Workaround to capture backspace key. Ref: https://stackoverflow.com/questions>/14560344/android-backspace-in-webview-baseinputconnection
             // and https://bugzilla.libsdl.org/show_bug.cgi?id=2265
             if (beforeLength > 0 && afterLength == 0) {
                 // backspace(s)

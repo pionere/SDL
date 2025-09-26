@@ -228,7 +228,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
     }
 
-    protected void checkConnectionForChromebookIssue() {
+    /*protected void checkConnectionForChromebookIssue() {
         if (!mIsChromebook) {
             // We only do this on Chromebooks, because otherwise it's really annoying to just attempt
             // over and over.
@@ -287,7 +287,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                 finalThis.checkConnectionForChromebookIssue();
             }
         }, CHROMEBOOK_CONNECTION_CHECK_INTERVAL);
-    }
+    }*/
 
     private boolean isRegistered() {
         return mIsRegistered;

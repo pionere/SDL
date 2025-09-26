@@ -14,8 +14,6 @@ public class SDLAudioManager {
 
     protected static Context mContext;
 
-    private static final int[] NO_DEVICES = {};
-
     private static AudioDeviceCallback mAudioDeviceCallback;
 
     private static void addAudioDevices(AudioDeviceInfo[] devices) {
@@ -27,8 +25,7 @@ public class SDLAudioManager {
     public static void initialize() {
         mAudioDeviceCallback = null;
 
-        if(Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */)
-        {
+        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             mAudioDeviceCallback = new AudioDeviceCallback() {
                 @Override
                 public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {

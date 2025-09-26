@@ -162,10 +162,8 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
 
         // Don't skip if we might be multi-window or have popup dialogs
-        if (skip) {
-            if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
-                skip = false;
-            }
+        if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
+            skip = false;
         }
 
         if (skip) {
