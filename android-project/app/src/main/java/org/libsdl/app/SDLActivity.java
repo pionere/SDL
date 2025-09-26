@@ -172,6 +172,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     public static boolean mIsResumedCalled, mHasFocus;
     public static final boolean mHasMultiWindow = (Build.VERSION.SDK_INT >= 24  /* Android 7.0 (N) */);
+    private static final boolean mIsVRHeadset = (Build.MANUFACTURER.equals("Oculus") && Build.MODEL.startsWith("Quest")) || Build.MANUFACTURER.equals("Pico");
+    private static final boolean mIsChromebookEmulator = (Build.MODEL != null && Build.MODEL.startsWith("sdk_gpc_"));
 
     // Cursor types
     // private static final int SDL_SYSTEM_CURSOR_NONE = -1;
@@ -1161,16 +1163,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return false;
     }
 
-    public static boolean isVRHeadset() {
-        if (Build.MANUFACTURER.equals("Oculus") && Build.MODEL.startsWith("Quest")) {
-            return true;
-        }
-        if (Build.MANUFACTURER.equals("Pico")) {
-            return true;
-        }
-        return false;
-    }
-
     /**
      * This method is called by SDL using JNI.
      */
@@ -1204,8 +1196,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         // Running on AVD emulator
-        boolean isChromebookEmulator = (Build.MODEL != null && Build.MODEL.startsWith("sdk_gpc_"));
-        return isChromebookEmulator;
+        return mIsChromebookEmulator;
     }
 
     /**
@@ -1374,7 +1365,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
-            if (SDLActivity.isVRHeadset()) {
+            if (mIsVRHeadset) {
                 // The Oculus Quest controller back button comes in as source mouse, so accept that
             } else {
                 // on some devices key events are sent for mouse BUTTON_BACK/FORWARD presses
