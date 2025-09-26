@@ -42,7 +42,6 @@ struct SDL_PrivateAudioData
 
     /* Raw mixing buffer */
     Uint8 *mixbuf;
-    int mixlen;
     int frame_size;
     int devid;
 };
@@ -155,7 +154,6 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
 
     /* Allocate mixing buffer */
     if (!iscapture) {
-        hidden->mixlen = device->spec.size;
         hidden->mixbuf = (Uint8 *)SDL_malloc(device->spec.size);
         if (!hidden->mixbuf) {
             return SDL_OutOfMemory();
@@ -285,14 +283,14 @@ static void AAUDIO_PlayDevice(SDL_AudioDevice *device)
     struct SDL_PrivateAudioData *hidden = device->hidden;
     aaudio_result_t res;
     int64_t timeoutNanoseconds = 1 * 1000 * 1000; /* 8 ms */
-    res = ctx.AAudioStream_write(hidden->stream, hidden->mixbuf, hidden->mixlen / hidden->frame_size, timeoutNanoseconds);
+    res = ctx.AAudioStream_write(hidden->stream, hidden->mixbuf, device->spec.samples, timeoutNanoseconds);
     if (res < 0) {
         LOGI("%s : %s", __func__, ctx.AAudio_convertResultToText(res));
         if (RecoverAAudioDevice(device) < 0) {
             return;  /* oh well, we went down hard. */
         }
     } else {
-        LOGI("SDL AAudio play: %d frames, wanted:%d frames", (int)res, hidden->mixlen / hidden->frame_size);
+        LOGI("SDL AAudio play: %d frames, wanted:%d frames", (int)res, device->spec.samples);
     }
 
 #if 0
