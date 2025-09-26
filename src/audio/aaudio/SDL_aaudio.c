@@ -223,37 +223,13 @@ static Uint8 *AAUDIO_GetDeviceBuf(SDL_AudioDevice *device)
 */
 static int RebuildAAudioStream(SDL_AudioDevice *device)
 {
-    struct SDL_PrivateAudioData *hidden = device->hidden;
-    const SDL_bool iscapture = device->iscapture;
+    struct SDL_PrivateAudioData *hidden;
     aaudio_result_t res;
 
-    ctx.AAudioStreamBuilder_setSampleRate(ctx.builder, device->spec.freq);
-    ctx.AAudioStreamBuilder_setChannelCount(ctx.builder, device->spec.channels);
-    if (hidden->targetDevice) {
-        LOGI("Reopening device id %d", hidden->devid);
-        ctx.AAudioStreamBuilder_setDeviceId(ctx.builder, hidden->devid);
+    if (BuildDeviceStream(device) < 0) {
+        return -1;
     }
-    {
-        const aaudio_direction_t direction = (iscapture ? AAUDIO_DIRECTION_INPUT : AAUDIO_DIRECTION_OUTPUT);
-        ctx.AAudioStreamBuilder_setDirection(ctx.builder, direction);
-    }
-    {
-        const aaudio_format_t format = (device->spec.format == AUDIO_S16SYS) ? AAUDIO_FORMAT_PCM_I16 : AAUDIO_FORMAT_PCM_FLOAT;
-        ctx.AAudioStreamBuilder_setFormat(ctx.builder, format);
-    }
-#ifdef DEBUG_AAUDIO
-    ctx.AAudioStreamBuilder_setErrorCallback(ctx.builder, AAUDIO_errorCallback, hidden);
-#endif
-    LOGI("AAudio Try to reopen %u hz %u bit chan %u %s samples %u",
-         device->spec.freq, SDL_AUDIO_BITSIZE(device->spec.format),
-         device->spec.channels, (device->spec.format & 0x1000) ? "BE" : "LE", device->spec.samples);
-
-    res = ctx.AAudioStreamBuilder_openStream(ctx.builder, &hidden->stream);
-    if (res != AAUDIO_OK) {
-        LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
-        return AAUDIO_SetErrorFromResult("AAudioStreamBuilder_openStream failed", res);
-    }
-
+    hidden = device->hidden;
     {
         const aaudio_format_t fmt = ctx.AAudioStream_getFormat(hidden->stream);
         SDL_AudioFormat sdlfmt = (SDL_AudioFormat) 0;
@@ -276,7 +252,7 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
 
     res = ctx.AAudioStream_requestStart(hidden->stream);
     if (res != AAUDIO_OK) {
-        LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, iscapture);
+        LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, device->iscapture);
         return AAUDIO_SetErrorFromResult("AAudioStream_requestStart (restart) failed", res);
     }
 
