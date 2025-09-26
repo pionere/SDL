@@ -90,38 +90,21 @@ static void AAUDIO_errorCallback(AAudioStream *stream, void *userData, aaudio_re
 #endif
 #define LIB_AAUDIO_SO "libaaudio.so"
 
-static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
+static int BuildDeviceStream(SDL_AudioDevice *device)
 {
     struct SDL_PrivateAudioData *hidden;
-    SDL_bool iscapture = device->iscapture;
     aaudio_result_t res;
-    LOGI(__func__);
-
-    if (iscapture) {
-        if (!Android_JNI_RequestPermission("android.permission.RECORD_AUDIO")) {
-            LOGI("This app doesn't have RECORD_AUDIO permission");
-            return SDL_SetError("This app doesn't have RECORD_AUDIO permission");
-        }
-    }
-
-    hidden = (struct SDL_PrivateAudioData *)SDL_calloc(1, sizeof(*device->hidden));
-    if (!hidden) {
-        return SDL_OutOfMemory();
-    }
-    device->hidden = hidden;
-    if (devname) {
-        hidden->targetDevice = SDL_TRUE;
-        hidden->devid = SDL_atoi(devname);
-    }
 
     ctx.AAudioStreamBuilder_setSampleRate(ctx.builder, device->spec.freq);
     ctx.AAudioStreamBuilder_setChannelCount(ctx.builder, device->spec.channels);
+
+    hidden = device->hidden;
     if (hidden->targetDevice) {
         LOGI("Opening device id %d", hidden->devid);
         ctx.AAudioStreamBuilder_setDeviceId(ctx.builder, hidden->devid);
     }
     {
-        const aaudio_direction_t direction = (iscapture ? AAUDIO_DIRECTION_INPUT : AAUDIO_DIRECTION_OUTPUT);
+        const aaudio_direction_t direction = (device->iscapture ? AAUDIO_DIRECTION_INPUT : AAUDIO_DIRECTION_OUTPUT);
         ctx.AAudioStreamBuilder_setDirection(ctx.builder, direction);
     }
     {
@@ -139,6 +122,36 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
     if (res != AAUDIO_OK) {
         LOGI("SDL Failed AAudioStreamBuilder_openStream %d", res);
         return AAUDIO_SetErrorFromResult("AAudioStreamBuilder_openStream failed", res);
+    }
+
+    return 0;
+}
+
+static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
+{
+    struct SDL_PrivateAudioData *hidden;
+    aaudio_result_t res;
+    LOGI(__func__);
+
+    if (device->iscapture) {
+        if (!Android_JNI_RequestPermission("android.permission.RECORD_AUDIO")) {
+            LOGI("This app doesn't have RECORD_AUDIO permission");
+            return SDL_SetError("This app doesn't have RECORD_AUDIO permission");
+        }
+    }
+
+    hidden = (struct SDL_PrivateAudioData *)SDL_calloc(1, sizeof(*device->hidden));
+    if (!hidden) {
+        return SDL_OutOfMemory();
+    }
+    device->hidden = hidden;
+    if (devname) {
+        hidden->targetDevice = SDL_TRUE;
+        hidden->devid = SDL_atoi(devname);
+    }
+
+    if (BuildDeviceStream(device) < 0) {
+        return -1;
     }
 
     device->spec.freq = ctx.AAudioStream_getSampleRate(hidden->stream);
@@ -159,7 +172,7 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
     SDL_CalculateAudioSpec(&device->spec);
 
     /* Allocate mixing buffer */
-    if (!iscapture) {
+    if (!device->iscapture) {
         hidden->mixbuf = (Uint8 *)SDL_malloc(device->spec.size);
         if (!hidden->mixbuf) {
             return SDL_OutOfMemory();
@@ -171,7 +184,7 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
 
     res = ctx.AAudioStream_requestStart(hidden->stream);
     if (res != AAUDIO_OK) {
-        LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, iscapture);
+        LOGI("SDL Failed AAudioStream_requestStart %d iscapture:%d", res, device->iscapture);
         return AAUDIO_SetErrorFromResult("AAudioStream_requestStart failed", res);
     }
 
