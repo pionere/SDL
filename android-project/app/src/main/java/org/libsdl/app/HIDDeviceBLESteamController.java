@@ -186,15 +186,15 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     // Because on Chromebooks we show up as a dual-mode device, it will attempt to connect TRANSPORT_AUTO, which will use TRANSPORT_BREDR instead
     // of TRANSPORT_LE.  Let's force ourselves to connect low energy.
     private BluetoothGatt connectGatt(boolean managed) {
+        Context context = mManager.getContext();
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             try {
-                return mDevice.connectGatt(mManager.getContext(), managed, this, TRANSPORT_LE);
+                return mDevice.connectGatt(context, managed, this, TRANSPORT_LE);
             } catch (Exception e) {
-                return mDevice.connectGatt(mManager.getContext(), managed, this);
+                // return mDevice.connectGatt(context, managed, this);
             }
-        } else {
-            return mDevice.connectGatt(mManager.getContext(), managed, this);
         }
+        return mDevice.connectGatt(context, managed, this);
     }
 
     private BluetoothGatt connectGatt() {
@@ -311,7 +311,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
         for (BluetoothGattService service : mGatt.getServices()) {
             if (service.getUuid().equals(steamControllerService)) {
-                Log.v(TAG, "Found Valve steam controller service " + service.getUuid());
+                Log.v(TAG, "Found Valve steam controller service " + steamControllerService);
 
                 for (BluetoothGattCharacteristic chr : service.getCharacteristics()) {
                     if (chr.getUuid().equals(inputCharacteristic)) {

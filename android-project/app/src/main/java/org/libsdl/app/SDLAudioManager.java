@@ -18,6 +18,12 @@ public class SDLAudioManager {
 
     private static AudioDeviceCallback mAudioDeviceCallback;
 
+    private static void addAudioDevices(AudioDeviceInfo[] devices) {
+        for (AudioDeviceInfo deviceInfo : devices) {
+            addAudioDevice(deviceInfo.isSink(), deviceInfo.getId());
+        }
+    }
+
     public static void initialize() {
         mAudioDeviceCallback = null;
 
@@ -26,9 +32,7 @@ public class SDLAudioManager {
             mAudioDeviceCallback = new AudioDeviceCallback() {
                 @Override
                 public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
-                    for (AudioDeviceInfo deviceInfo : addedDevices) {
-                        addAudioDevice(deviceInfo.isSink(), deviceInfo.getId());
-                    }
+                    SDLAudioManager.addAudioDevices(addedDevices);
                 }
 
                 @Override
@@ -74,7 +78,7 @@ public class SDLAudioManager {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
-            Arrays.stream(devices).forEach(deviceInfo -> addAudioDevice(deviceInfo.isSink(), deviceInfo.getId()));
+            SDLAudioManager.addAudioDevices(devices);
         }
     }
 
@@ -83,11 +87,7 @@ public class SDLAudioManager {
         try {
 
             /* Set thread name */
-            if (iscapture) {
-                Thread.currentThread().setName("SDLAudioC" + device_id);
-            } else {
-                Thread.currentThread().setName("SDLAudioP" + device_id);
-            }
+            Thread.currentThread().setName((iscapture ? "SDLAudioC" : "SDLAudioP") + device_id);
 
             /* Set thread priority */
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO);

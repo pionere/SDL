@@ -338,14 +338,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         try {
             loadLibraries();
             mBrokenLibraries = false; /* success */
-        } catch(UnsatisfiedLinkError e) {
-            System.err.println(e.getMessage());
+        } catch(final Throwable e) {
             mBrokenLibraries = true;
             errorMsgBrokenLib = e.getMessage();
-        } catch(Exception e) {
-            System.err.println(e.getMessage());
-            mBrokenLibraries = true;
-            errorMsgBrokenLib = e.getMessage();
+            Log.e(TAG, errorMsgBrokenLib);
         }
 
         if (!mBrokenLibraries) {
@@ -407,10 +403,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         SDLActivity.onNativeOrientationChanged(mCurrentOrientation);
 
         try {
+            Configuration config = getContext().getResources().getConfiguration();
             if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
-                mCurrentLocale = getContext().getResources().getConfiguration().locale;
+                mCurrentLocale = config.locale;
             } else {
-                mCurrentLocale = getContext().getResources().getConfiguration().getLocales().get(0);
+                mCurrentLocale = config.getLocales().get(0);
             }
         } catch(Exception ignored) {
         }
@@ -692,13 +689,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        // Try a transition to init state
-        if (mNextNativeState == NativeState.INIT) {
-
-            mCurrentNativeState = mNextNativeState;
-            return;
-        }
-
         // Try a transition to paused state
         if (mNextNativeState == NativeState.PAUSED) {
             if (mSDLThread != null) {
@@ -707,12 +697,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             if (mSurface != null) {
                 mSurface.handlePause();
             }
-            mCurrentNativeState = mNextNativeState;
-            return;
         }
 
         // Try a transition to resumed state
-        if (mNextNativeState == NativeState.RESUMED) {
+        else if (mNextNativeState == NativeState.RESUMED) {
             if (mSurface.mIsSurfaceReady && (mHasFocus || mHasMultiWindow) && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
@@ -728,10 +716,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     nativeResume();
                 }
                 mSurface.handleResume();
-
-                mCurrentNativeState = mNextNativeState;
+            } else {
+                return;
             }
         }
+        mCurrentNativeState = mNextNativeState;
     }
 
     // Messages from the SDLMain thread
@@ -861,8 +850,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // Ensure we don't return until the resize has actually happened,
                 // or 500ms have passed.
 
-                boolean bShouldWait = false;
-
                 if (data instanceof Integer) {
                     // Let's figure out if we're already laid out fullscreen or not.
                     Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -871,6 +858,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
                     boolean bFullscreenLayout = ((realMetrics.widthPixels == mSurface.getWidth()) &&
                             (realMetrics.heightPixels == mSurface.getHeight()));
+                    boolean bShouldWait;
 
                     if ((Integer) data == 1) {
                         // If we aren't laid out fullscreen or actively in fullscreen mode already, we're going
@@ -885,23 +873,26 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                         // surfaceChanged before we return, so the size is right back in native code.
                         bShouldWait = bFullscreenLayout;
                     }
-                }
 
-                if (bShouldWait && (SDLActivity.getContext() != null)) {
-                    // We'll wait for the surfaceChanged() method, which will notify us
-                    // when called.  That way, we know our current size is really the
-                    // size we need, instead of grabbing a size that's still got
-                    // the navigation and/or status bars before they're hidden.
-                    //
-                    // We'll wait for up to half a second, because some devices
-                    // take a surprisingly long time for the surface resize, but
-                    // then we'll just give up and return.
-                    //
-                    synchronized (SDLActivity.getContext()) {
-                        try {
-                            SDLActivity.getContext().wait(500);
-                        } catch (InterruptedException ie) {
-                            ie.printStackTrace();
+                    if (bShouldWait) {
+                        Context context = SDLActivity.getContext();
+                        if (context != null) {
+                            // We'll wait for the surfaceChanged() method, which will notify us
+                            // when called.  That way, we know our current size is really the
+                            // size we need, instead of grabbing a size that's still got
+                            // the navigation and/or status bars before they're hidden.
+                            //
+                            // We'll wait for up to half a second, because some devices
+                            // take a surprisingly long time for the surface resize, but
+                            // then we'll just give up and return.
+                            //
+                            synchronized (context) {
+                                try {
+                                    context.wait(500);
+                                } catch (InterruptedException ie) {
+                                    ie.printStackTrace();
+                                }
+                            }
                         }
                     }
                 }
@@ -982,11 +973,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         int orientation_portrait = -1;
 
         /* If set, hint "explicitly controls which UI orientations are allowed". */
-        if (hint.contains("LandscapeRight") && hint.contains("LandscapeLeft")) {
+        boolean landscape_right = hint.contains("LandscapeRight");
+        boolean landscape_left = hint.contains("LandscapeLeft");
+        if (landscape_right && landscape_left) {
             orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
-        } else if (hint.contains("LandscapeLeft")) {
+        } else if (landscape_left) {
             orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-        } else if (hint.contains("LandscapeRight")) {
+        } else if (landscape_right) {
             orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
         }
 
@@ -1162,10 +1155,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (Build.MANUFACTURER.equals("MINIX") && Build.MODEL.equals("NEO-U1")) {
             return true;
         }
-        if (Build.MANUFACTURER.equals("Amlogic") && Build.MODEL.equals("X96-W")) {
-            return true;
-        }
-        if (Build.MANUFACTURER.equals("Amlogic") && Build.MODEL.startsWith("TV")) {
+        if (Build.MANUFACTURER.equals("Amlogic") && (Build.MODEL.equals("X96-W") || Build.MODEL.startsWith("TV"))) {
             return true;
         }
         return false;
@@ -1209,9 +1199,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean isChromebook() {
         // https://stackoverflow.com/questions/39784415/how-to-detect-programmatically-if-android-app-is-running-in-chrome-book-or-in
-        if (getContext() != null) {
-            if (getContext().getPackageManager().hasSystemFeature("org.chromium.arc")
-                || getContext().getPackageManager().hasSystemFeature("org.chromium.arc.device_management")) {
+        Context context = getContext();
+        if (context != null) {
+            PackageManager pm = context.getPackageManager();
+            if (pm.hasSystemFeature("org.chromium.arc")
+                || pm.hasSystemFeature("org.chromium.arc.device_management")) {
                 return true;
             }
         }
@@ -1250,11 +1242,12 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean getManifestEnvironmentVariables() {
         try {
-            if (getContext() == null) {
+            Context context = getContext();
+            if (context == null) {
                 return false;
             }
 
-            ApplicationInfo applicationInfo = getContext().getPackageManager().getApplicationInfo(getContext().getPackageName(), PackageManager.GET_META_DATA);
+            ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = applicationInfo.metaData;
             if (bundle == null) {
                 return false;
@@ -2166,13 +2159,8 @@ class SDLClipboardHandler implements
 
     public void clipboardSetText(String string) {
         mClipMgr.removePrimaryClipChangedListener(this);
-        if (string.isEmpty()) {
-            if (Build.VERSION.SDK_INT >= 28 /* Android 9 (P) */) {
-                mClipMgr.clearPrimaryClip();
-            } else {
-                ClipData clip = ClipData.newPlainText(null, "");
-                mClipMgr.setPrimaryClip(clip);
-            }
+        if (string.isEmpty() && Build.VERSION.SDK_INT >= 28 /* Android 9 (P) */) {
+            mClipMgr.clearPrimaryClip();
         } else {
             ClipData clip = ClipData.newPlainText(null, string);
             mClipMgr.setPrimaryClip(clip);
