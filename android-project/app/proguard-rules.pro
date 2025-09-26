@@ -81,7 +81,7 @@
     void requestPermission(java.lang.String, int);
     int showToast(java.lang.String, int, int, int, int);
     boolean sendMessage(int, int);
-    boolean setActivityTitle(java.lang.String);
+    void setActivityTitle(java.lang.String);
     boolean setCustomCursor(int);
     void setOrientation(int, int, boolean, java.lang.String);
     boolean setRelativeMouseEnabled(boolean);

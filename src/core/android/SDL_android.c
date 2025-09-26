@@ -155,7 +155,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "requestPermission", "(Ljava/lang/String;I)V" },
     { "showToast", "(Ljava/lang/String;IIII)I" },
     { "sendMessage", "(II)Z" },
-    { "setActivityTitle", "(Ljava/lang/String;)Z" },
+    { "setActivityTitle", "(Ljava/lang/String;)V" },
     { "setCustomCursor", "(I)Z" },
     { "setOrientation", "(IIZLjava/lang/String;)V" },
     { "setRelativeMouseEnabled", "(Z)Z" },
@@ -1097,7 +1097,7 @@ void Android_JNI_SetActivityTitle(const char *title)
     JNIEnv *env = Android_JNI_GetEnv();
 
     jstring jtitle = (*env)->NewStringUTF(env, title);
-    (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_setActivityTitle], jtitle);
+    (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_setActivityTitle], jtitle);
     (*env)->DeleteLocalRef(env, jtitle);
 }
 

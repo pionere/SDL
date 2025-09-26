@@ -941,9 +941,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean setActivityTitle(String title) {
+    public static void setActivityTitle(String title) {
         // Called from SDLMain() thread and can't directly affect the view
-        return mSingleton.sendCommand(COMMAND_CHANGE_TITLE, title);
+        mSingleton.sendCommand(COMMAND_CHANGE_TITLE, title);
     }
 
     /**
