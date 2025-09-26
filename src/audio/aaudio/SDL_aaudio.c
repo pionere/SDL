@@ -30,7 +30,9 @@
 #include <aaudio/AAudio.h>
 
 /* Debug */
-#if 0
+// #define DEBUG_AAUDIO
+
+#ifdef DEBUG_AAUDIO
 #define LOGI(...) SDL_Log(__VA_ARGS__);
 #else
 #define LOGI(...)
@@ -79,12 +81,12 @@ static int AAUDIO_LoadFunctions(AAUDIO_Data *data)
 #undef SDL_PROC
     return 0;
 }
-
+#ifdef DEBUG_AAUDIO
 static void AAUDIO_errorCallback(AAudioStream *stream, void *userData, aaudio_result_t error)
 {
     LOGI("SDL AAUDIO_errorCallback: %d - %s", error, ctx.AAudio_convertResultToText(error));
 }
-
+#endif
 #define LIB_AAUDIO_SO "libaaudio.so"
 
 static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
@@ -122,9 +124,9 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
         const aaudio_format_t format = (device->spec.format == AUDIO_S16SYS) ? AAUDIO_FORMAT_PCM_I16 : AAUDIO_FORMAT_PCM_FLOAT;
         ctx.AAudioStreamBuilder_setFormat(ctx.builder, format);
     }
-
+#ifdef DEBUG_AAUDIO
     ctx.AAudioStreamBuilder_setErrorCallback(ctx.builder, AAUDIO_errorCallback, hidden);
-
+#endif
     LOGI("AAudio Try to open %u hz %u bit chan %u %s samples %u",
          device->spec.freq, SDL_AUDIO_BITSIZE(device->spec.format),
          device->spec.channels, (device->spec.format & 0x1000) ? "BE" : "LE", device->spec.samples);
@@ -222,9 +224,9 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
         const aaudio_format_t format = (device->spec.format == AUDIO_S16SYS) ? AAUDIO_FORMAT_PCM_I16 : AAUDIO_FORMAT_PCM_FLOAT;
         ctx.AAudioStreamBuilder_setFormat(ctx.builder, format);
     }
-
+#ifdef DEBUG_AAUDIO
     ctx.AAudioStreamBuilder_setErrorCallback(ctx.builder, AAUDIO_errorCallback, hidden);
-
+#endif
     LOGI("AAudio Try to reopen %u hz %u bit chan %u %s samples %u",
          device->spec.freq, SDL_AUDIO_BITSIZE(device->spec.format),
          device->spec.channels, (device->spec.format & 0x1000) ? "BE" : "LE", device->spec.samples);
