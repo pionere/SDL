@@ -93,7 +93,7 @@ static const function_definition SDLHIDManager_ifc[] = {
     { "openDevice", "(I)Z" },
     { "sendOutputReport", "(I[B)I" },
     { "sendFeatureReport", "(I[B)I" },
-    { "getFeatureReport", "(I[B)Z" },
+    { "getFeatureReport", "(I[B)I" },
     { "closeDevice", "(I)V" },
 };
 SDL_COMPILE_TIME_ASSERT(hid_funcs, SDL_arraysize(SDLHIDManager_ifc) == (int)SDL_HID_funcs_count);
@@ -684,7 +684,7 @@ public:
 		}
 
 		jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
-		int nRet = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_getFeatureReport], m_nId, pBuf ) ? 0 : -1;
+		int nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_getFeatureReport], m_nId, pBuf );
 		ExceptionCheck( env, "GetFeatureReport" );
 		env->DeleteLocalRef( pBuf );
 		if ( nRet < 0 )

@@ -645,21 +645,21 @@ public class HIDDeviceManager {
         return -1;
     }
 
-    public boolean getFeatureReport(int deviceID, byte[] report) {
+    public int getFeatureReport(int deviceID, byte[] report) {
         try {
             //Log.v(TAG, "getFeatureReport deviceID=" + deviceID);
             HIDDevice device;
             device = getDevice(deviceID);
             if (device == null) {
                 HIDDeviceDisconnected(deviceID);
-                return false;
+                return -1;
             }
 
             return device.getFeatureReport(report);
         } catch (Exception e) {
             Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return false;
+        return -1;
     }
 
     public void closeDevice(int deviceID) {

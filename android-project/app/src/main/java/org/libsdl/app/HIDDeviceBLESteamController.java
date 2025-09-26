@@ -607,18 +607,18 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     }
 
     @Override
-    public boolean getFeatureReport(byte[] report) {
+    public int getFeatureReport(byte[] report) {
         if (!isRegistered()) {
             Log.e(TAG, "Attempted getFeatureReport before Steam Controller is registered!");
             if (mIsConnected) {
                 probeService(this);
             }
-            return false;
+            return -1;
         }
 
         //Log.v(TAG, "getFeatureReport");
         readCharacteristic(reportCharacteristic);
-        return true;
+        return 0;
     }
 
     @Override

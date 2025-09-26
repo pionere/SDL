@@ -104,7 +104,7 @@
     boolean openDevice(int);
     int sendOutputReport(int, byte[]);
     int sendFeatureReport(int, byte[]);
-    boolean getFeatureReport(int, byte[]);
+    int getFeatureReport(int, byte[]);
     void closeDevice(int);
 }
 

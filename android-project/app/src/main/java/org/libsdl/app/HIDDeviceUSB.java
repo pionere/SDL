@@ -201,8 +201,8 @@ class HIDDeviceUSB implements HIDDevice {
     }
 
     @Override
-    public boolean getFeatureReport(byte[] report) {
-        int res = -1;
+    public int getFeatureReport(byte[] report) {
+        int res;
         int offset = 0;
         int length = report.length;
         boolean skipped_report_id = false;
@@ -226,7 +226,7 @@ class HIDDeviceUSB implements HIDDevice {
 
         if (res < 0) {
             Log.w(TAG, "getFeatureReport() returned " + res + " on device " + getDeviceName());
-            return false;
+            return res;
         }
 
         if (skipped_report_id) {
@@ -242,7 +242,7 @@ class HIDDeviceUSB implements HIDDevice {
         }
         mManager.HIDDeviceFeatureReport(mDeviceId, data);
 
-        return true;
+        return 0;
     }
 
     @Override
