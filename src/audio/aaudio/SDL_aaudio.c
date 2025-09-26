@@ -45,6 +45,7 @@ struct SDL_PrivateAudioData
     /* Raw mixing buffer */
     Uint8 *mixbuf;
     int frame_size;
+    SDL_bool targetDevice;
     int devid;
 };
 
@@ -108,11 +109,14 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
         return SDL_OutOfMemory();
     }
     device->hidden = hidden;
+    if (devname) {
+        hidden->targetDevice = SDL_TRUE;
+        hidden->devid = SDL_atoi(devname);
+    }
 
     ctx.AAudioStreamBuilder_setSampleRate(ctx.builder, device->spec.freq);
     ctx.AAudioStreamBuilder_setChannelCount(ctx.builder, device->spec.channels);
-    if (devname) {
-        hidden->devid = SDL_atoi(devname);
+    if (hidden->targetDevice) {
         LOGI("Opening device id %d", hidden->devid);
         ctx.AAudioStreamBuilder_setDeviceId(ctx.builder, hidden->devid);
     }
@@ -212,7 +216,7 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
 
     ctx.AAudioStreamBuilder_setSampleRate(ctx.builder, device->spec.freq);
     ctx.AAudioStreamBuilder_setChannelCount(ctx.builder, device->spec.channels);
-    if (hidden->devid) {
+    if (hidden->targetDevice) {
         LOGI("Reopening device id %d", hidden->devid);
         ctx.AAudioStreamBuilder_setDeviceId(ctx.builder, hidden->devid);
     }
