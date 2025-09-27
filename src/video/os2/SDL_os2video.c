@@ -1310,26 +1310,24 @@ static int OS2_CreateWindowFramebuffer(SDL_Window *window,
                                        Uint32 *format, void **pixels,
                                        int *pitch)
 {
-    WINDATA          *pWinData = (WINDATA *)window->driverdata;
-    SDL_VideoDisplay *pSDLDisplay = SDL_GetDisplayForWindow(window);
-    SDL_DisplayMode  *pSDLDisplayMode;
+    WINDATA          *pWinData;
+    SDL_DisplayMode  *pSDLDisplayMode = _getDisplayModeForSDLWindow(window);
     MODEDATA         *pModeData;
     ULONG             ulWidth, ulHeight, ulPitch;
 
     debug_os2("Enter");
-    if (!pSDLDisplay) {
+    if (!pSDLDisplayMode) {
         debug_os2("No display for the window");
         return -1;
     }
 
-    pSDLDisplayMode = &pSDLDisplay->current_mode;
     pModeData = (MODEDATA *)pSDLDisplayMode->driverdata;
     if (!pModeData)
         return SDL_SetError("No mode data for the display");
 
     SDL_GetWindowSize(window, (int *)&ulWidth, (int *)&ulHeight);
     debug_os2("Window size: %u x %u", ulWidth, ulHeight);
-
+    pWinData = (WINDATA *)window->driverdata;
     *pixels = pWinData->pOutput->VideoBufAlloc(
                         pWinData->pVOData, ulWidth, ulHeight, pModeData->ulDepth,
                         pModeData->fccColorEncoding, &ulPitch);
