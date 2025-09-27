@@ -210,15 +210,11 @@ static int OS2_ResizeWindowShape(SDL_Window *window);
 
 static VOID _setVisibleRegion(WINDATA *pWinData, BOOL fVisible)
 {
-    SDL_VideoDisplay *pSDLDisplay;
-
     if (!pWinData->pVOData)
         return;
 
-     pSDLDisplay = (fVisible)? SDL_GetDisplayForWindow(pWinData->window) : NULL;
      pWinData->pOutput->SetVisibleRegion(pWinData->pVOData, pWinData->hwnd,
-                                         (!pSDLDisplay) ?
-                                         NULL : &pSDLDisplay->current_mode,
+                                         fVisible ? _getDisplayModeForSDLWindow(pWinData->window) : NULL,
                                          pWinData->hrgnShape, fVisible);
 }
 
