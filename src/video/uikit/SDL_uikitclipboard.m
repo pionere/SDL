@@ -52,11 +52,7 @@ char *UIKit_GetClipboardText(void)
         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
         NSString *string = pasteboard.string;
 
-        if (string != nil) {
-            return SDL_strdup(string.UTF8String);
-        } else {
-            return SDL_strdup("");
-        }
+        return SDL_strdup(string != nil ? string.UTF8String : "");
     }
 #endif
 }
