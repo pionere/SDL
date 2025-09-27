@@ -1359,12 +1359,14 @@ static int OS2_SetClipboardText(const char *text)
 {
     OS2_VideoData *pVData = &os2VideoData;
     PSZ   pszClipboard;
-    PSZ   pszText = (!text)? NULL : OS2_UTF8ToSys(text);
+    PSZ   pszText;
     ULONG cbText;
     ULONG ulRC;
     BOOL  fSuccess;
 
     debug_os2("Enter");
+    SDL_assert(text);
+    pszText = OS2_UTF8ToSys(text);
     if (!pszText)
         return -1;
     cbText = SDL_strlen(pszText) + 1;
