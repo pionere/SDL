@@ -163,7 +163,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "setRelativeMouseEnabled", "(Z)Z" },
     { "setSystemCursor", "(I)Z" },
     { "setWindowStyle", "(Z)V" },
-    { "showTextInput", "(IIII)Z" },
+    { "showTextInput", "(IIII)V" },
     { "supportsRelativeMouse", "()Z" },
 };
 SDL_COMPILE_TIME_ASSERT(activities_funcs, SDL_arraysize(SDLActivity_ifc) == (int)SDL_JavaFuncs_count);
@@ -1596,7 +1596,7 @@ void Android_JNI_SuspendScreenSaver(SDL_bool suspend)
 void Android_JNI_ShowScreenKeyboard(SDL_Rect *inputRect)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_showTextInput],
+    (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_showTextInput],
                                     inputRect->x,
                                     inputRect->y,
                                     inputRect->w,

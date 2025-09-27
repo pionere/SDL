@@ -1305,9 +1305,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean showTextInput(int x, int y, int w, int h) {
+    public static void showTextInput(int x, int y, int w, int h) {
         // Transfer the task to the main thread as a Runnable
-        return mSingleton.commandHandler.post(new ShowTextInputTask(x, y, w, h));
+        mSingleton.commandHandler.post(new ShowTextInputTask(x, y, w, h));
     }
 
     public static boolean isTextInputEvent(KeyEvent event) {

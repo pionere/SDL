@@ -86,7 +86,7 @@
     void setOrientation(int, int, boolean, java.lang.String);
     boolean setRelativeMouseEnabled(boolean);
     boolean setSystemCursor(int);
-    boolean showTextInput(int, int, int, int);
+    void showTextInput(int, int, int, int);
 }
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.HIDDeviceManager {
