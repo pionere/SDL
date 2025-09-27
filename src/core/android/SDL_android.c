@@ -1389,8 +1389,8 @@ char *Android_JNI_GetClipboardText(void)
 SDL_bool Android_JNI_HasClipboardText(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    jboolean retval = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_clipboardHasText]);
-    return (retval == JNI_TRUE) ? SDL_TRUE : SDL_FALSE;
+    jboolean has_text = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_clipboardHasText]);
+    return has_text;
 }
 
 /* returns true on success or false on error (others undefined then)
@@ -1613,8 +1613,7 @@ void Android_JNI_HideScreenKeyboard(void)
 SDL_bool Android_JNI_IsScreenKeyboardShown(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    jboolean is_shown = 0;
-    is_shown = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_isScreenKeyboardShown]);
+    jboolean is_shown = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_isScreenKeyboardShown]);
     return is_shown;
 }
 
