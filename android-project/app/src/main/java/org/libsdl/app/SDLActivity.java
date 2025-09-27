@@ -1212,8 +1212,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static DisplayMetrics getDisplayDPI() {
-        return getContext().getResources().getDisplayMetrics();
+    public static float[] getDisplayDPI() {
+        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        float[] result = new float[3];
+        result[0] = (float)metrics.densityDpi;
+        result[1] = metrics.xdpi;
+        result[2] = metrics.ydpi;
+        return result;
     }
 
     /**

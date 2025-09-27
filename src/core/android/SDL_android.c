@@ -140,7 +140,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "getContext", "()Landroid/content/Context;" },
     { "getInternalStoragePath", "()Ljava/lang/String;" },
     { "getExternalStoragePath", "()Ljava/lang/String;" },
-    { "getDisplayDPI", "()Landroid/util/DisplayMetrics;" },
+    { "getDisplayDPI", "()[F" },
     { "getManifestEnvironmentVariables", "()Z" },
     { "getNativeSurface", "()Landroid/view/Surface;" },
     { "initTouch", "()V" },
@@ -1159,32 +1159,23 @@ int Android_JNI_GetDisplayDPI(float *ddpi, float *xdpi, float *ydpi)
 {
     JNIEnv *env = Android_JNI_GetEnv();
 
-    jobject jDisplayObj = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getDisplayDPI]);
-    jclass jDisplayClass = (*env)->GetObjectClass(env, jDisplayObj);
+    jfloatArray jfarray = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getDisplayDPI]);
 
-    jfieldID fidXdpi = (*env)->GetFieldID(env, jDisplayClass, "xdpi", "F");
-    jfieldID fidYdpi = (*env)->GetFieldID(env, jDisplayClass, "ydpi", "F");
-    jfieldID fidDdpi = (*env)->GetFieldID(env, jDisplayClass, "densityDpi", "I");
-
-    float nativeXdpi = (*env)->GetFloatField(env, jDisplayObj, fidXdpi);
-    float nativeYdpi = (*env)->GetFloatField(env, jDisplayObj, fidYdpi);
-    int nativeDdpi = (*env)->GetIntField(env, jDisplayObj, fidDdpi);
-
-    (*env)->DeleteLocalRef(env, jDisplayObj);
-    (*env)->DeleteLocalRef(env, jDisplayClass);
-
+    jfloat *arr = (*env)->GetFloatArrayElements(env, jfarray, NULL);
     if (ddpi) {
-        *ddpi = (float)nativeDdpi;
+        *ddpi = arr[0];
     }
     if (xdpi) {
-        *xdpi = nativeXdpi;
+        *xdpi = arr[1];
     }
     if (ydpi) {
-        *ydpi = nativeYdpi;
+        *ydpi = arr[2];
     }
+    (*env)->ReleaseFloatArrayElements(env, arr, jfarray, JNI_ABORT);
 
     return 0;
 }
+
 void Android_JNI_AudioSetThreadPriority(SDL_bool iscapture, int device_id)
 {
     JNIEnv *env = Android_JNI_GetEnv();

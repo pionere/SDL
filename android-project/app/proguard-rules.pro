@@ -58,7 +58,7 @@
     boolean supportsRelativeMouse();
     void setWindowStyle(boolean);
     boolean isScreenKeyboardShown();
-    android.util.DisplayMetrics getDisplayDPI();
+    float[] getDisplayDPI();
     java.lang.String clipboardGetText();
     void clipboardSetText(java.lang.String);
     int createCustomCursor(int[], int, int, int, int);
