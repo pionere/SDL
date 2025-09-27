@@ -323,7 +323,6 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = Wayland_GetClipboardText;
     device->SetPrimarySelectionText = Wayland_SetPrimarySelectionText;
     device->GetPrimarySelectionText = Wayland_GetPrimarySelectionText;
-    device->HasPrimarySelectionText = Wayland_HasPrimarySelectionText;
 
     /* Hit-testing */
     device->SetWindowHitTest = Wayland_SetWindowHitTest;

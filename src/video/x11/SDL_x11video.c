@@ -311,7 +311,6 @@ static SDL_bool X11_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = X11_GetClipboardText;
     device->SetPrimarySelectionText = X11_SetPrimarySelectionText;
     device->GetPrimarySelectionText = X11_GetPrimarySelectionText;
-    device->HasPrimarySelectionText = X11_HasPrimarySelectionText;
 
     /* Hit-testing */
     device->SetWindowHitTest = X11_SetWindowHitTest;

@@ -275,7 +275,6 @@ static SDL_bool PSP_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = PSP_GetClipboardText;
     // device->SetPrimarySelectionText = PSP_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = PSP_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = PSP_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = PSP_SetWindowHitTest;

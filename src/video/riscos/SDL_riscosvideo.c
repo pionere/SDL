@@ -167,7 +167,6 @@ static SDL_bool RISCOS_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = RISCOS_GetClipboardText;
     // device->SetPrimarySelectionText = RISCOS_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = RISCOS_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = RISCOS_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = RISCOS_SetWindowHitTest;

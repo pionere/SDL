@@ -210,7 +210,6 @@ static SDL_bool NACL_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = NACL_GetClipboardText;
     // device->SetPrimarySelectionText = NACL_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = NACL_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = NACL_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = NACL_SetWindowHitTest;

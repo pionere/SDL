@@ -192,7 +192,6 @@ static SDL_bool Android_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = Android_GetClipboardText;
     // device->SetPrimarySelectionText = Android_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = Android_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = Android_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = Android_SetWindowHitTest;

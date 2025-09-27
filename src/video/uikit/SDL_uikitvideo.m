@@ -165,7 +165,6 @@ static SDL_bool UIKit_CreateDevice(SDL_VideoDevice *device)
         device->GetClipboardText = UIKit_GetClipboardText;
         // device->SetPrimarySelectionText = UIKit_SetPrimarySelectionText;
         // device->GetPrimarySelectionText = UIKit_GetPrimarySelectionText;
-        // device->HasPrimarySelectionText = UIKit_HasPrimarySelectionText;
 
         /* Hit-testing */
         // device->SetWindowHitTest = UIKit_SetWindowHitTest;

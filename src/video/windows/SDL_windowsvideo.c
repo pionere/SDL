@@ -248,7 +248,6 @@ static SDL_bool WIN_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = WIN_GetClipboardText;
     // device->SetPrimarySelectionText = WIN_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = WIN_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = WIN_HasPrimarySelectionText;
 
     /* Hit-testing */
     device->SetWindowHitTest = WIN_SetWindowHitTest;

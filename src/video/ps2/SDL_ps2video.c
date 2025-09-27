@@ -223,7 +223,6 @@ static SDL_bool PS2_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = PS2_GetClipboardText;
     // device->SetPrimarySelectionText = PS2_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = PS2_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = PS2_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = PS2_SetWindowHitTest;

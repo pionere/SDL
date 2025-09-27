@@ -158,7 +158,6 @@ static SDL_bool SWITCH_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = SWITCH_GetClipboardText;
     // device->SetPrimarySelectionText = SWITCH_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = SWITCH_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = SWITCH_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = SWITCH_SetWindowHitTest;

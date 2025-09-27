@@ -450,7 +450,6 @@ static SDL_bool PS5_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = PS5_GetClipboardText;
     // device->SetPrimarySelectionText = PS5_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = PS5_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = PS5_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = PS5_SetWindowHitTest;

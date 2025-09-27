@@ -252,7 +252,6 @@ static SDL_bool PS4_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = PS4_GetClipboardText;
     // device->SetPrimarySelectionText = PS4_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = PS4_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = PS4_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = PS4_SetWindowHitTest;

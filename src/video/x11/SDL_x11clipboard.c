@@ -242,17 +242,6 @@ char *X11_GetPrimarySelectionText(void)
     return GetSlectionText(XA_PRIMARY);
 }
 
-SDL_bool X11_HasPrimarySelectionText(void)
-{
-    SDL_bool result = SDL_FALSE;
-    char *text = X11_GetPrimarySelectionText();
-    if (text) {
-        result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
-        SDL_free(text);
-    }
-    return result;
-}
-
 #endif /* SDL_VIDEO_DRIVER_X11 */
 
 /* vi: set ts=4 sw=4 expandtab: */

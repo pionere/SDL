@@ -181,7 +181,6 @@ static SDL_bool Emscripten_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = Emscripten_GetClipboardText;
     // device->SetPrimarySelectionText = Emscripten_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = Emscripten_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = Emscripten_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = Emscripten_SetWindowHitTest;

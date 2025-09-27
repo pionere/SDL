@@ -434,7 +434,6 @@ static SDL_bool QNX_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = QNX_GetClipboardText;
     // device->SetPrimarySelectionText = QNX_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = QNX_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = QNX_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = QNX_SetWindowHitTest;

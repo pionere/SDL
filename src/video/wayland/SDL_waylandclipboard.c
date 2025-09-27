@@ -137,23 +137,6 @@ char *Wayland_GetPrimarySelectionText(void)
     return text;
 }
 
-SDL_bool Wayland_HasPrimarySelectionText(void)
-{
-    Wayland_VideoData *video_data = &waylandVideoData;
-    SDL_WaylandPrimarySelectionDevice *primary_selection_device = NULL;
-
-    SDL_bool result = SDL_FALSE;
-        if (video_data->input && video_data->input->primary_selection_device) {
-            primary_selection_device = video_data->input->primary_selection_device;
-            result = result ||
-                     Wayland_primary_selection_source_has_mime(
-                         primary_selection_device->selection_source, TEXT_MIME) ||
-                     Wayland_primary_selection_offer_has_mime(
-                         primary_selection_device->selection_offer, TEXT_MIME);
-        }
-    return result;
-}
-
 #endif /* SDL_VIDEO_DRIVER_WAYLAND */
 
 /* vi: set ts=4 sw=4 expandtab: */

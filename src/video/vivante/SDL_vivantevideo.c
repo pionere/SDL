@@ -165,7 +165,6 @@ static SDL_bool VIVANTE_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = VIVANTE_GetClipboardText;
     // device->SetPrimarySelectionText = VIVANTE_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = VIVANTE_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = VIVANTE_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = VIVANTE_SetWindowHitTest;

@@ -1675,7 +1675,6 @@ static SDL_bool OS2_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = OS2_GetClipboardText;
     // device->SetPrimarySelectionText = OS2_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = OS2_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = OS2_HasPrimarySelectionText;
 
     /* Hit-testing */
     device->SetWindowHitTest = OS2_SetWindowHitTest;

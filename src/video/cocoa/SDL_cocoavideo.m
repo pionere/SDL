@@ -175,7 +175,6 @@ static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
     device->GetClipboardText = Cocoa_GetClipboardText;
     // device->SetPrimarySelectionText = Cocoa_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = Cocoa_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = Cocoa_HasPrimarySelectionText;
 
     /* Hit-testing */
     device->SetWindowHitTest = Cocoa_SetWindowHitTest;

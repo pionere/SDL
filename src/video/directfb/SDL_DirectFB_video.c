@@ -198,7 +198,6 @@ static SDL_bool DirectFB_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = DirectFB_GetClipboardText;
     // device->SetPrimarySelectionText = DirectFB_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = DirectFB_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = DirectFB_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = DirectFB_SetWindowHitTest;

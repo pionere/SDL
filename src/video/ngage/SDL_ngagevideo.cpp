@@ -225,7 +225,6 @@ static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = NGAGE_GetClipboardText;
     // device->SetPrimarySelectionText = NGAGE_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = NGAGE_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = NGAGE_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = NGAGE_SetWindowHitTest;

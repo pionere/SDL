@@ -168,7 +168,6 @@ static SDL_bool DUMMY_CreateDevice(SDL_VideoDevice *device)
     // device->GetClipboardText = DUMMY_GetClipboardText;
     // device->SetPrimarySelectionText = DUMMY_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = DUMMY_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = DUMMY_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = DUMMY_SetWindowHitTest;

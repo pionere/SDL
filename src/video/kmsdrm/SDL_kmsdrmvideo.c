@@ -352,10 +352,8 @@ static SDL_bool KMSDRM_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = KMSDRM_SetClipboardText;
     // device->GetClipboardText = KMSDRM_GetClipboardText;
-    // device->HasClipboardText = KMSDRM_HasClipboardText;
     // device->SetPrimarySelectionText = KMSDRM_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = KMSDRM_GetPrimarySelectionText;
-    // device->HasPrimarySelectionText = KMSDRM_HasPrimarySelectionText;
 
     /* Hit-testing */
     // device->SetWindowHitTest = KMSDRM_SetWindowHitTest;

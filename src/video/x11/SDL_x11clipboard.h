@@ -38,7 +38,6 @@ extern int X11_SetClipboardText(const char *text);
 extern char *X11_GetClipboardText(void);
 extern int X11_SetPrimarySelectionText(const char *text);
 extern char *X11_GetPrimarySelectionText(void);
-extern SDL_bool X11_HasPrimarySelectionText(void);
 extern Atom X11_GetSDLCutBufferClipboardType(Display *display, enum ESDLX11ClipboardMimeType mime_type, Atom selection_type);
 extern Atom X11_GetSDLCutBufferClipboardExternalFormat(Display *display, enum ESDLX11ClipboardMimeType mime_type);
 extern Atom X11_GetSDLCutBufferClipboardInternalFormat(Display *display, enum ESDLX11ClipboardMimeType mime_type);
