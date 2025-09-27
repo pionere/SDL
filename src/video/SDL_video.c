@@ -4586,9 +4586,7 @@ int SDL_SetPrimarySelectionText(const char *text)
 
 char *SDL_GetClipboardText(void)
 {
-    if (!SDL_HasVideoDevice()) {
-        return SDL_strdup("");
-    }
+    // TEST_VIDEO( )
 
     if (current_video.GetClipboardText) {
         return current_video.GetClipboardText();
@@ -4603,9 +4601,7 @@ char *SDL_GetClipboardText(void)
 
 char *SDL_GetPrimarySelectionText(void)
 {
-    if (!SDL_HasVideoDevice()) {
-        return SDL_strdup("");
-    }
+    // TEST_VIDEO( )
 
     if (current_video.GetPrimarySelectionText) {
         return current_video.GetPrimarySelectionText();
