@@ -4587,7 +4587,6 @@ int SDL_SetPrimarySelectionText(const char *text)
 char *SDL_GetClipboardText(void)
 {
     if (!SDL_HasVideoDevice()) {
-        SDL_SetError("Video subsystem must be initialized to get clipboard text");
         return SDL_strdup("");
     }
 

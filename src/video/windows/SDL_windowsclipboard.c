@@ -115,8 +115,6 @@ char *WIN_GetClipboardText(void)
             tstr = (LPTSTR)GlobalLock(hMem);
             text = WIN_StringToUTF8(tstr);
             GlobalUnlock(hMem);
-        } else {
-            WIN_SetError("Couldn't get clipboard data");
         }
         CloseClipboard();
     }

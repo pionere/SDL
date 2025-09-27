@@ -233,7 +233,6 @@ char *X11_GetClipboardText(void)
     X11_VideoData *videodata = &x11VideoData;
     Atom XA_CLIPBOARD = X11_XInternAtom(videodata->display, "CLIPBOARD", 0);
     if (XA_CLIPBOARD == None) {
-        SDL_SetError("Couldn't access X clipboard");
         return SDL_strdup("");
     }
     return GetSlectionText(XA_CLIPBOARD);
