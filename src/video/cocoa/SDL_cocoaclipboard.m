@@ -49,26 +49,22 @@ char *Cocoa_GetClipboardText(void)
     NSPasteboard *pasteboard;
     NSString *format = NSPasteboardTypeString;
     NSString *available;
-    char *text;
+    const char *text = nil;
 
     pasteboard = [NSPasteboard generalPasteboard];
     available = [pasteboard availableTypeFromArray:[NSArray arrayWithObject:format]];
     if ([available isEqualToString:format]) {
         NSString* string;
-        const char *utf8;
+        const char *utf8 = nil;
 
         string = [pasteboard stringForType:format];
-        if (string == nil) {
-            utf8 = "";
-        } else {
+        if (string != nil) {
             utf8 = [string UTF8String];
         }
-        text = SDL_strdup(utf8 ? utf8 : "");
-    } else {
-        text = SDL_strdup("");
+        text = utf8;
     }
 
-    return text;
+    return SDL_strdup(text ? text : "");
 }}
 
 SDL_bool Cocoa_HasClipboardText(void)
