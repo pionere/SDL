@@ -1561,8 +1561,7 @@ static int OS2_GetDisplayDPI(SDL_VideoDisplay *display, float *ddpi,
     DISPLAYDATA *pDisplayData = (DISPLAYDATA *)display->driverdata;
 
     debug_os2("Enter");
-    if (!pDisplayData)
-        return -1;
+    SDL_assert(pDisplayData);
 
     if (ddpi)
         *hdpi = pDisplayData->ulDPIDiag;
