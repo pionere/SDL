@@ -755,7 +755,7 @@ static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
     WINDATA         *pWinData;
 
     if (!pSDLDisplayMode)
-        return -1;
+        return SDL_SetError("No display for the window");
 
     /* Create a PM window */
     if ((window->flags & SDL_WINDOW_RESIZABLE) != 0)
@@ -777,7 +777,7 @@ static int OS2_CreateSDLWindow(_THIS, SDL_Window *window)
     pWinData = _setupWindow(window, hwndFrame, hwnd);
     if (!pWinData) {
         WinDestroyWindow(hwndFrame);
-        return -1;
+        return SDL_SetError("Couldn't setup window");
     }
 
     /* Show window */
@@ -819,7 +819,7 @@ static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
 
     debug_os2("Enter");
     if (!pSDLDisplayMode)
-        return -1;
+        return SDL_SetError("No display for the window");
 
     /* User can accept client OR frame window handle.
      * Get client and frame window handles. */
@@ -904,7 +904,7 @@ static int OS2_CreateSDLWindowFrom(_THIS, SDL_Window *window, const void *data)
     if (!pWinData) {
         SDL_free(window->title);
         window->title = NULL;
-        return -1;
+        return SDL_SetError("Couldn't setup window");
     }
     pWinData->fnUserWndProc = WinSubclassWindow(hwnd, wndProc);
 
@@ -1317,8 +1317,7 @@ static int OS2_CreateWindowFramebuffer(SDL_Window *window,
 
     debug_os2("Enter");
     if (!pSDLDisplayMode) {
-        debug_os2("No display for the window");
-        return -1;
+        return SDL_SetError("No display for the window");
     }
 
     pModeData = (MODEDATA *)pSDLDisplayMode->driverdata;
@@ -1332,7 +1331,7 @@ static int OS2_CreateWindowFramebuffer(SDL_Window *window,
                         pWinData->pVOData, ulWidth, ulHeight, pModeData->ulDepth,
                         pModeData->fccColorEncoding, &ulPitch);
     if (!*pixels)
-        return -1;
+        return SDL_OutOfMemory();
 
     *pitch = ulPitch;
     *format = pSDLDisplayMode->format;
@@ -1349,7 +1348,7 @@ static int OS2_UpdateWindowFramebuffer(SDL_Window * window,
 
     return pWinData->pOutput->Update(pWinData->pVOData, pWinData->hwnd,
                                      (SDL_Rect *)rects, (ULONG)numrects)
-           ? 0 : -1;
+           ? 0 : SDL_SetError("Failed to update video data.");
 }
 
 
@@ -1368,29 +1367,28 @@ static int OS2_SetClipboardText(const char *text)
     SDL_assert(text);
     pszText = OS2_UTF8ToSys(text);
     if (!pszText)
-        return -1;
+        return SDL_OutOfMemory();
     cbText = SDL_strlen(pszText) + 1;
 
     ulRC = DosAllocSharedMem((PPVOID)&pszClipboard, 0, cbText,
                               PAG_COMMIT | PAG_READ | PAG_WRITE |
                               OBJ_GIVEABLE | OBJ_GETTABLE | OBJ_TILE);
     if (ulRC != NO_ERROR) {
-        debug_os2("DosAllocSharedMem() failed, rc = %u", ulRC);
         SDL_free(pszText);
-        return -1;
+        return SDL_SetError("DosAllocSharedMem() failed, rc = %u", ulRC);
     }
 
     SDL_memcpy(pszClipboard, pszText, cbText);
     SDL_free(pszText);
 
     if (!WinOpenClipbrd(pVData->hab)) {
-        debug_os2("WinOpenClipbrd() failed");
+        SDL_SetError("WinOpenClipbrd() failed");
         fSuccess = FALSE;
     } else {
         WinEmptyClipbrd(pVData->hab);
         fSuccess = WinSetClipbrdData(pVData->hab, (ULONG)pszClipboard, CF_TEXT, CFI_POINTER);
         if (!fSuccess) {
-            debug_os2("WinOpenClipbrd() failed");
+            SDL_SetError("WinSetClipbrdData() failed");
         }
         WinCloseClipbrd(pVData->hab);
     }
