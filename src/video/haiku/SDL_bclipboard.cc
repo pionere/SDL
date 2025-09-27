@@ -52,8 +52,8 @@ int HAIKU_SetClipboardText(const char *text) {
 }
 
 char *HAIKU_GetClipboardText(void) {
-    BMessage *clip = NULL;
-    const char *text = NULL;    
+    BMessage *clip;
+    const char *text = NULL;
     ssize_t length;
     char *result;
     if (be_clipboard->Lock()) {
@@ -64,16 +64,18 @@ char *HAIKU_GetClipboardText(void) {
         }
         be_clipboard->Unlock();
     } 
-    
+
     if (!text) {
-        result = SDL_strdup("");
+        result = NULL;
     } else {
         /* Copy the data and pass on to SDL */
         result = (char *)SDL_malloc((length + 1) * sizeof(char));
-        SDL_strlcpy(result, text, length + 1);
+        if (result) {
+            SDL_memcpy(result, text, length);
+            result[length] = '\0';
+        }
     }
-    
-    return result;
+    return result ? result : SDL_strdup("");
 }
 
 SDL_bool HAIKU_HasClipboardText(void) {
