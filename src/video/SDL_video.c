@@ -4604,7 +4604,6 @@ char *SDL_GetClipboardText(void)
 char *SDL_GetPrimarySelectionText(void)
 {
     if (!SDL_HasVideoDevice()) {
-        SDL_SetError("Video subsystem must be initialized to get primary selection text");
         return SDL_strdup("");
     }
 

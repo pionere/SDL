@@ -185,7 +185,6 @@ static char *GetSlectionText(Atom selection_type)
             /* Wait one second for a selection response. */
             if (waitElapsed > 1000) {
                 videodata->selection_waiting = SDL_FALSE;
-                SDL_SetError("Selection timeout");
                 /* We need to set the selection text so that next time we won't
                    timeout, otherwise we will hang on every call to this function. */
                 SetSelectionText("", selection_type);
