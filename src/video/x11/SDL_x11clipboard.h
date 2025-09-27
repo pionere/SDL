@@ -36,7 +36,6 @@ enum ESDLX11ClipboardMimeType
 
 extern int X11_SetClipboardText(const char *text);
 extern char *X11_GetClipboardText(void);
-extern SDL_bool X11_HasClipboardText(void);
 extern int X11_SetPrimarySelectionText(const char *text);
 extern char *X11_GetPrimarySelectionText(void);
 extern SDL_bool X11_HasPrimarySelectionText(void);

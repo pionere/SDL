@@ -432,7 +432,6 @@ static SDL_bool QNX_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = QNX_SetClipboardText;
     // device->GetClipboardText = QNX_GetClipboardText;
-    // device->HasClipboardText = QNX_HasClipboardText;
     // device->SetPrimarySelectionText = QNX_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = QNX_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = QNX_HasPrimarySelectionText;

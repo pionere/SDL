@@ -67,17 +67,6 @@ char *Cocoa_GetClipboardText(void)
     return SDL_strdup(text ? text : "");
 }}
 
-SDL_bool Cocoa_HasClipboardText(void)
-{
-    SDL_bool result = SDL_FALSE;
-    char *text = Cocoa_GetClipboardText();
-    if (text) {
-        result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
-        SDL_free(text);
-    }
-    return result;
-}
-
 void Cocoa_CheckClipboardUpdate(void)
 { @autoreleasepool
 {

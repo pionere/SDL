@@ -60,7 +60,6 @@
     boolean isScreenKeyboardShown();
     android.util.DisplayMetrics getDisplayDPI();
     java.lang.String clipboardGetText();
-    boolean clipboardHasText();
     void clipboardSetText(java.lang.String);
     int createCustomCursor(int[], int, int, int, int);
     void destroyCustomCursor(int);

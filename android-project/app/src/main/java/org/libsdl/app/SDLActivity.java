@@ -1674,13 +1674,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean clipboardHasText() {
-        return mClipboardHandler.clipboardHasText();
-    }
-
-    /**
-     * This method is called by SDL using JNI.
-     */
     public static String clipboardGetText() {
         return mClipboardHandler.clipboardGetText();
     }
@@ -2111,14 +2104,6 @@ class SDLClipboardHandler implements
        mClipMgr.addPrimaryClipChangedListener(this);
     }
 
-    public boolean clipboardHasText() {
-        if (Build.VERSION.SDK_INT >= 28 /* Android 9 (P) */) {
-            return mClipMgr.hasPrimaryClip();
-        } else {
-            return mClipMgr.hasText();
-        }
-    }
-
     public String clipboardGetText() {
         ClipData clip = mClipMgr.getPrimaryClip();
         if (clip != null) {
@@ -2135,12 +2120,8 @@ class SDLClipboardHandler implements
 
     public void clipboardSetText(String string) {
         mClipMgr.removePrimaryClipChangedListener(this);
-        if (string.isEmpty() && Build.VERSION.SDK_INT >= 28 /* Android 9 (P) */) {
-            mClipMgr.clearPrimaryClip();
-        } else {
-            ClipData clip = ClipData.newPlainText(null, string);
-            mClipMgr.setPrimaryClip(clip);
-        }
+        ClipData clip = ClipData.newPlainText(null, string);
+        mClipMgr.setPrimaryClip(clip);
         mClipMgr.addPrimaryClipChangedListener(this);
     }
 

@@ -165,7 +165,6 @@ static SDL_bool HAIKU_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     device->SetClipboardText = HAIKU_SetClipboardText;
     device->GetClipboardText = HAIKU_GetClipboardText;
-    device->HasClipboardText = HAIKU_HasClipboardText;
     // device->SetPrimarySelectionText = HAIKU_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = HAIKU_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = HAIKU_HasPrimarySelectionText;

@@ -163,7 +163,6 @@ static SDL_bool VIVANTE_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = VIVANTE_SetClipboardText;
     // device->GetClipboardText = VIVANTE_GetClipboardText;
-    // device->HasClipboardText = VIVANTE_HasClipboardText;
     // device->SetPrimarySelectionText = VIVANTE_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = VIVANTE_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = VIVANTE_HasPrimarySelectionText;

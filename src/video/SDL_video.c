@@ -439,7 +439,7 @@ int SDL_VideoInit(const char *driver_name)
     SDL_assert(current_video.PumpEvents != NULL);
     SDL_assert((current_video.CreateShaper == NULL) == (current_video.SetWindowShape == NULL));
     SDL_assert((current_video.CreateWindowFramebuffer == NULL) == (current_video.UpdateWindowFramebuffer == NULL) && (current_video.CreateWindowFramebuffer == NULL) == (current_video.DestroyWindowFramebuffer == NULL));
-    SDL_assert((current_video.SetClipboardText == NULL) == (current_video.GetClipboardText == NULL) && (current_video.SetClipboardText == NULL) == (current_video.HasClipboardText == NULL));
+    SDL_assert((current_video.SetClipboardText == NULL) == (current_video.GetClipboardText == NULL));
     SDL_assert((current_video.SetPrimarySelectionText == NULL) == (current_video.GetPrimarySelectionText == NULL) && (current_video.SetPrimarySelectionText == NULL) == (current_video.HasPrimarySelectionText == NULL));
 #ifdef SDL_VIDEO_METAL
     SDL_assert((current_video.Metal_CreateView == NULL) == (current_video.Metal_DestroyView == NULL) && (current_video.Metal_CreateView == NULL) == (current_video.Metal_GetLayer == NULL));
@@ -4621,20 +4621,13 @@ char *SDL_GetPrimarySelectionText(void)
 
 SDL_bool SDL_HasClipboardText(void)
 {
-    if (!SDL_HasVideoDevice()) {
-        SDL_SetError("Video subsystem must be initialized to check clipboard text");
-        return SDL_FALSE;
+    SDL_bool result = SDL_FALSE;
+    char *text = SDL_GetClipboardText();
+    if (text) {
+        result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
+        SDL_free(text);
     }
-
-    if (current_video.HasClipboardText) {
-        return current_video.HasClipboardText();
-    } else {
-        if (current_video.clipboard_text && current_video.clipboard_text[0] != '\0') {
-            return SDL_TRUE;
-        } else {
-            return SDL_FALSE;
-        }
-    }
+    return result;
 }
 
 SDL_bool SDL_HasPrimarySelectionText(void)

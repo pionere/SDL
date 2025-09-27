@@ -180,7 +180,6 @@ static SDL_bool PND_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = PND_SetClipboardText;
     // device->GetClipboardText = PND_GetClipboardText;
-    // device->HasClipboardText = PND_HasClipboardText;
     // device->SetPrimarySelectionText = PND_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = PND_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = PND_HasPrimarySelectionText;

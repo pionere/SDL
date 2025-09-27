@@ -201,7 +201,6 @@ static SDL_bool VITA_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = VITA_SetClipboardText;
     // device->GetClipboardText = VITA_GetClipboardText;
-    // device->HasClipboardText = VITA_HasClipboardText;
     // device->SetPrimarySelectionText = VITA_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = VITA_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = VITA_HasPrimarySelectionText;

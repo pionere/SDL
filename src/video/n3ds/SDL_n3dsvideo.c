@@ -186,7 +186,6 @@ static SDL_bool N3DS_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = N3DS_SetClipboardText;
     // device->GetClipboardText = N3DS_GetClipboardText;
-    // device->HasClipboardText = N3DS_HasClipboardText;
     // device->SetPrimarySelectionText = N3DS_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = N3DS_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = N3DS_HasPrimarySelectionText;

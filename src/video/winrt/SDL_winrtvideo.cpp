@@ -219,7 +219,6 @@ static SDL_bool WINRT_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = WINRT_SetClipboardText;
     // device->GetClipboardText = WINRT_GetClipboardText;
-    // device->HasClipboardText = WINRT_HasClipboardText;
     // device->SetPrimarySelectionText = WINRT_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = WINRT_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = WINRT_HasPrimarySelectionText;

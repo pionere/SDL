@@ -99,7 +99,6 @@ typedef struct {
 
 typedef enum {
     SDLActivity_clipboardGetText,
-    SDLActivity_clipboardHasText,
     SDLActivity_clipboardSetText,
     SDLActivity_createCustomCursor,
     SDLActivity_destroyCustomCursor,
@@ -135,7 +134,6 @@ static jmethodID jnicall[SDL_JavaFuncs_count];
 
 static const function_definition SDLActivity_ifc[] = {
     { "clipboardGetText", "()Ljava/lang/String;" },
-    { "clipboardHasText", "()Z" },
     { "clipboardSetText", "(Ljava/lang/String;)V" },
     { "createCustomCursor", "([IIIII)I" },
     { "destroyCustomCursor", "(I)V" },
@@ -1384,13 +1382,6 @@ char *Android_JNI_GetClipboardText(void)
     }
 
     return (!text) ? SDL_strdup("") : text;
-}
-
-SDL_bool Android_JNI_HasClipboardText(void)
-{
-    JNIEnv *env = Android_JNI_GetEnv();
-    jboolean has_text = (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_clipboardHasText]);
-    return has_text;
 }
 
 /* returns true on success or false on error (others undefined then)

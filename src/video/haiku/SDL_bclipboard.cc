@@ -78,16 +78,6 @@ char *HAIKU_GetClipboardText(void) {
     return result ? result : SDL_strdup("");
 }
 
-SDL_bool HAIKU_HasClipboardText(void) {
-    SDL_bool result = SDL_FALSE;
-    char *text = HAIKU_GetClipboardText();
-    if (text) {
-        result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
-        SDL_free(text);
-    } 
-    return result;
-}
-
 #ifdef __cplusplus
 }
 #endif

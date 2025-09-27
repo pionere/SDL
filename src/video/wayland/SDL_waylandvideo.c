@@ -321,7 +321,6 @@ static SDL_bool Wayland_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     device->SetClipboardText = Wayland_SetClipboardText;
     device->GetClipboardText = Wayland_GetClipboardText;
-    device->HasClipboardText = Wayland_HasClipboardText;
     device->SetPrimarySelectionText = Wayland_SetPrimarySelectionText;
     device->GetPrimarySelectionText = Wayland_GetPrimarySelectionText;
     device->HasPrimarySelectionText = Wayland_HasPrimarySelectionText;

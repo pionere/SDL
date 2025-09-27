@@ -209,7 +209,6 @@ static SDL_bool XBOX_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = XBOX_SetClipboardText;
     // device->GetClipboardText = XBOX_GetClipboardText;
-    // device->HasClipboardText = XBOX_HasClipboardText;
     // device->SetPrimarySelectionText = XBOX_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = XBOX_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = XBOX_HasPrimarySelectionText;

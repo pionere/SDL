@@ -57,18 +57,6 @@ char *UIKit_GetClipboardText(void)
 #endif
 }
 
-SDL_bool UIKit_HasClipboardText(void)
-{
-    @autoreleasepool {
-#if !TARGET_OS_TV
-        if ([UIPasteboard generalPasteboard].string != nil) {
-            return SDL_TRUE;
-        }
-#endif
-        return SDL_FALSE;
-    }
-}
-
 void UIKit_InitClipboard(void)
 {
 #if !TARGET_OS_TV

@@ -36,11 +36,6 @@ char *Android_GetClipboardText(void)
     return Android_JNI_GetClipboardText();
 }
 
-SDL_bool Android_HasClipboardText(void)
-{
-    return Android_JNI_HasClipboardText();
-}
-
 #endif /* SDL_VIDEO_DRIVER_ANDROID */
 
 /* vi: set ts=4 sw=4 expandtab: */

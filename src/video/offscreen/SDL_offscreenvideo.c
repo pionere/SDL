@@ -158,7 +158,6 @@ static SDL_bool OFFSCREEN_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = OFFSCREEN_SetClipboardText;
     // device->GetClipboardText = OFFSCREEN_GetClipboardText;
-    // device->HasClipboardText = OFFSCREEN_HasClipboardText;
     // device->SetPrimarySelectionText = OFFSCREEN_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = OFFSCREEN_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = OFFSCREEN_HasPrimarySelectionText;

@@ -246,7 +246,6 @@ static SDL_bool WIN_CreateDevice(SDL_VideoDevice *device)
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
     device->SetClipboardText = WIN_SetClipboardText;
     device->GetClipboardText = WIN_GetClipboardText;
-    device->HasClipboardText = WIN_HasClipboardText;
     // device->SetPrimarySelectionText = WIN_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = WIN_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = WIN_HasPrimarySelectionText;

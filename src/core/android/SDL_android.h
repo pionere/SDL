@@ -77,7 +77,6 @@ void Android_JNI_GetManifestEnvironmentVariables(void);
 /* Clipboard support */
 int Android_JNI_SetClipboardText(const char *text);
 char *Android_JNI_GetClipboardText(void);
-SDL_bool Android_JNI_HasClipboardText(void);
 
 /* Power support */
 #pragma pack(push,1)

@@ -173,7 +173,6 @@ static SDL_bool Cocoa_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     device->SetClipboardText = Cocoa_SetClipboardText;
     device->GetClipboardText = Cocoa_GetClipboardText;
-    device->HasClipboardText = Cocoa_HasClipboardText;
     // device->SetPrimarySelectionText = Cocoa_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = Cocoa_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = Cocoa_HasPrimarySelectionText;

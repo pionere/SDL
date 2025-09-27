@@ -189,7 +189,6 @@ static SDL_bool RPI_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = RPI_SetClipboardText;
     // device->GetClipboardText = RPI_GetClipboardText;
-    // device->HasClipboardText = RPI_HasClipboardText;
     // device->SetPrimarySelectionText = RPI_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = RPI_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = RPI_HasPrimarySelectionText;

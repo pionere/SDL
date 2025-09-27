@@ -196,7 +196,6 @@ static SDL_bool DirectFB_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = DirectFB_SetClipboardText;
     // device->GetClipboardText = DirectFB_GetClipboardText;
-    // device->HasClipboardText = DirectFB_HasClipboardText;
     // device->SetPrimarySelectionText = DirectFB_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = DirectFB_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = DirectFB_HasPrimarySelectionText;

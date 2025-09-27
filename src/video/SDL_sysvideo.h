@@ -324,7 +324,6 @@ struct SDL_VideoDevice
     /* Clipboard */
     int (*SetClipboardText)(const char *text);
     char *(*GetClipboardText)(void);
-    SDL_bool (*HasClipboardText)(void);
     int (*SetPrimarySelectionText)(const char *text);
     char *(*GetPrimarySelectionText)(void);
     SDL_bool (*HasPrimarySelectionText)(void);

@@ -223,7 +223,6 @@ static SDL_bool NGAGE_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = NGAGE_SetClipboardText;
     // device->GetClipboardText = NGAGE_GetClipboardText;
-    // device->HasClipboardText = NGAGE_HasClipboardText;
     // device->SetPrimarySelectionText = NGAGE_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = NGAGE_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = NGAGE_HasPrimarySelectionText;

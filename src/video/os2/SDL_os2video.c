@@ -1417,25 +1417,6 @@ static char *OS2_GetClipboardText()
     return (!pszClipboard) ? SDL_strdup("") : pszClipboard;
 }
 
-static SDL_bool OS2_HasClipboardText(void)
-{
-    OS2_VideoData *pVData = &os2VideoData;
-    PSZ pszClipboard;
-    SDL_bool  result;
-
-    if (!WinOpenClipbrd(pVData->hab)) {
-        debug_os2("WinOpenClipbrd() failed");
-        return SDL_FALSE;
-    }
-
-    pszClipboard = (PSZ)WinQueryClipbrdData(pVData->hab, CF_TEXT);
-    result = (pszClipboard && *pszClipboard) ? SDL_TRUE : SDL_FALSE;
-    WinCloseClipbrd(pVData->hab);
-
-    return result;
-}
-
-
 static int OS2_VideoInit(_THIS)
 {
     OS2_VideoData *pVData = &os2VideoData;
@@ -1692,7 +1673,6 @@ static SDL_bool OS2_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     device->SetClipboardText = OS2_SetClipboardText;
     device->GetClipboardText = OS2_GetClipboardText;
-    device->HasClipboardText = OS2_HasClipboardText;
     // device->SetPrimarySelectionText = OS2_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = OS2_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = OS2_HasPrimarySelectionText;

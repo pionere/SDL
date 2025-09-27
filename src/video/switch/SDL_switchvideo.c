@@ -156,7 +156,6 @@ static SDL_bool SWITCH_CreateDevice(SDL_VideoDevice *device)
     /* Clipboard */
     // device->SetClipboardText = SWITCH_SetClipboardText;
     // device->GetClipboardText = SWITCH_GetClipboardText;
-    // device->HasClipboardText = SWITCH_HasClipboardText;
     // device->SetPrimarySelectionText = SWITCH_SetPrimarySelectionText;
     // device->GetPrimarySelectionText = SWITCH_GetPrimarySelectionText;
     // device->HasPrimarySelectionText = SWITCH_HasPrimarySelectionText;

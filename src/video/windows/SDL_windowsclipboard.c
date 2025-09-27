@@ -124,17 +124,6 @@ char *WIN_GetClipboardText(void)
     return text;
 }
 
-SDL_bool WIN_HasClipboardText(void)
-{
-    SDL_bool result = SDL_FALSE;
-    char *text = WIN_GetClipboardText();
-    if (text) {
-        result = text[0] != '\0' ? SDL_TRUE : SDL_FALSE;
-        SDL_free(text);
-    }
-    return result;
-}
-
 void WIN_CheckClipboardUpdate(void)
 {
     WIN_VideoData *data = &winVideoData;

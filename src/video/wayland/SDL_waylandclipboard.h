@@ -25,7 +25,6 @@
 
 extern int Wayland_SetClipboardText(const char *text);
 extern char *Wayland_GetClipboardText(void);
-extern SDL_bool Wayland_HasClipboardText(void);
 extern int Wayland_SetPrimarySelectionText(const char *text);
 extern char *Wayland_GetPrimarySelectionText(void);
 extern SDL_bool Wayland_HasPrimarySelectionText(void);
