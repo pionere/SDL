@@ -12,7 +12,7 @@ import java.util.Arrays;
 public class SDLAudioManager {
     protected static final String TAG = "SDLAudio";
 
-    protected static Context mContext;
+    protected static AudioManager mAudioManager;
 
     private static AudioDeviceCallback mAudioDeviceCallback;
 
@@ -46,12 +46,11 @@ public class SDLAudioManager {
     }
 
     public static void setContext(Context context) {
-        mContext = context;
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             if (context != null) {
                 // registerAudioDeviceCallback
-                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                audioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
+                mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
             }
         }
     }
@@ -59,8 +58,10 @@ public class SDLAudioManager {
     public static void release(Context context) {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             // unregisterAudioDeviceCallback
-            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
+            if (mAudioManager != null) {
+                mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
+                mAudioManager = null;
+            }
         }
     }
 
@@ -69,8 +70,8 @@ public class SDLAudioManager {
      */
     public static void audioDetectDevices() {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-            AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            // assert(mAudioManager != null);
+            AudioDeviceInfo[] devices = mAudioManager.getDevices(AudioManager.GET_DEVICES_ALL);
             SDLAudioManager.addAudioDevices(devices);
         }
     }
