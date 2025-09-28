@@ -348,7 +348,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         try {
             loadLibraries();
             mBrokenLibraries = false; /* success */
-        } catch(final Throwable e) {
+        } catch (final Throwable e) {
             mBrokenLibraries = true;
             errorMsgBrokenLib = e.getMessage();
             Log.e(TAG, errorMsgBrokenLib);
@@ -421,7 +421,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             } else {
                 mCurrentLocale = config.getLocales().get(0);
             }
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
 
         setContentView(mLayout);
@@ -457,7 +457,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mIsResumedCalled = true;
 
         if (SDLActivity.mBrokenLibraries) {
-           return;
+            return;
         }
 
         SDLActivity.handleNativeState();
@@ -549,18 +549,18 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         mHasFocus = hasFocus;
         if (hasFocus) {
-           mNextNativeState = NativeState.RESUMED;
-           SDLActivity.getMotionListener().reclaimRelativeMouseModeIfNeeded();
+            mNextNativeState = NativeState.RESUMED;
+            SDLActivity.getMotionListener().reclaimRelativeMouseModeIfNeeded();
 
-           SDLActivity.handleNativeState();
-           nativeFocusChanged(true);
+            SDLActivity.handleNativeState();
+            nativeFocusChanged(true);
 
         } else {
-           nativeFocusChanged(false);
-           if (!mHasMultiWindow) {
-               mNextNativeState = NativeState.PAUSED;
-               SDLActivity.handleNativeState();
-           }
+            nativeFocusChanged(false);
+            if (!mHasMultiWindow) {
+                mNextNativeState = NativeState.PAUSED;
+                SDLActivity.handleNativeState();
+            }
         }
     }
 
@@ -570,7 +570,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         super.onTrimMemory(level);
 
         if (SDLActivity.mBrokenLibraries) {
-           return;
+            return;
         }
 
         SDLActivity.nativeLowMemory();
@@ -582,7 +582,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         super.onConfigurationChanged(newConfig);
 
         if (SDLActivity.mBrokenLibraries) {
-           return;
+            return;
         }
 
         if (mCurrentLocale == null || !mCurrentLocale.equals(newConfig.locale)) {
@@ -604,7 +604,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // Wait for "SDLThread" thread to end
                 try {
                     SDLActivity.mSDLThread.join();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Log.v(TAG, "Problem stopping SDLThread: " + e);
                 }
             }
@@ -666,7 +666,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public boolean dispatchKeyEvent(KeyEvent event) {
 
         if (SDLActivity.mBrokenLibraries) {
-           return false;
+            return false;
         }
 
         int keyCode = event.getKeyCode();
@@ -1107,7 +1107,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static java.lang.String getInternalStoragePath() {
         try {
             return getContext().getFilesDir().getCanonicalPath();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
             // IOException or NullPointerException
             return null;
         }
@@ -1119,7 +1119,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static java.lang.String getExternalStoragePath() {
         try {
             return getContext().getExternalFilesDir(null).getCanonicalPath();
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
             // IOException or NullPointerException
             return null;
         }
@@ -1190,7 +1190,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             final Class<?> configClass = config.getClass();
             return configClass.getField("SEM_DESKTOP_MODE_ENABLED").getInt(configClass)
                     == configClass.getField("semDesktopModeEnabled").getInt(config);
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -1901,7 +1901,6 @@ class SDLMain implements Runnable {
             SDLActivity.mSDLThread = null;
             SDLActivity.mSingleton.finish();
         }  // else: Activity is already being destroyed
-
     }
 }
 
@@ -1937,7 +1936,7 @@ class DummyEdit extends View implements View.OnKeyListener {
         // FIXME: A more effective solution would be to assume our Layout to be RelativeLayout or LinearLayout
         // FIXME: And determine the keyboard presence doing this: http://stackoverflow.com/questions/2150078/how-to-check-visibility-of-software-keyboard-in-android
         // FIXME: An even more effective way would be if Android provided this out of the box, but where would the fun be in that :)
-        if (event.getAction()==KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+        if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
             if (SDLActivity.mTextEdit != null && SDLActivity.mTextEdit.getVisibility() == View.VISIBLE) {
                 SDLActivity.onNativeKeyboardFocusLost();
             }
