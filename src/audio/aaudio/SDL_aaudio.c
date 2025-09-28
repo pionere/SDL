@@ -90,6 +90,19 @@ static void AAUDIO_errorCallback(AAudioStream *stream, void *userData, aaudio_re
 #endif
 #define LIB_AAUDIO_SO "libaaudio.so"
 
+static SDL_AudioFormat AAUDIO_StreamFormat(AAudioStream *stream)
+{
+    aaudio_format_t fmt = ctx.AAudioStream_getFormat(stream);
+    SDL_AudioFormat result;
+    if (fmt == AAUDIO_FORMAT_PCM_FLOAT) {
+        result = AUDIO_F32SYS;
+    } else {
+        SDL_assert(fmt == AAUDIO_FORMAT_PCM_I16);
+        result = AUDIO_S16SYS;
+    }
+    return result;
+}
+
 static int BuildDeviceStream(SDL_AudioDevice *device)
 {
     struct SDL_PrivateAudioData *hidden;
@@ -156,14 +169,7 @@ static int AAUDIO_OpenDevice(SDL_AudioDevice *device, const char *devname)
 
     device->spec.freq = ctx.AAudioStream_getSampleRate(hidden->stream);
     device->spec.channels = ctx.AAudioStream_getChannelCount(hidden->stream);
-    {
-        aaudio_format_t fmt = ctx.AAudioStream_getFormat(hidden->stream);
-        if (fmt == AAUDIO_FORMAT_PCM_I16) {
-            device->spec.format = AUDIO_S16SYS;
-        } else if (fmt == AAUDIO_FORMAT_PCM_FLOAT) {
-            device->spec.format = AUDIO_F32SYS;
-        }
-    }
+    device->spec.format = AAUDIO_StreamFormat(hidden->stream);
 
     LOGI("AAudio Try to open %u hz %u bit chan %u %s samples %u",
          device->spec.freq, SDL_AUDIO_BITSIZE(device->spec.format),
@@ -231,18 +237,10 @@ static int RebuildAAudioStream(SDL_AudioDevice *device)
     }
     hidden = device->hidden;
     {
-        const aaudio_format_t fmt = ctx.AAudioStream_getFormat(hidden->stream);
-        SDL_AudioFormat sdlfmt = (SDL_AudioFormat) 0;
-        if (fmt == AAUDIO_FORMAT_PCM_I16) {
-            sdlfmt = AUDIO_S16SYS;
-        } else if (fmt == AAUDIO_FORMAT_PCM_FLOAT) {
-            sdlfmt = AUDIO_F32SYS;
-        }
-
         /* We handle this better in SDL3, but this _needs_ to match the previous stream for SDL2. */
         if ((device->spec.freq != ctx.AAudioStream_getSampleRate(hidden->stream)) ||
             (device->spec.channels != ctx.AAudioStream_getChannelCount(hidden->stream)) ||
-            (device->spec.format != sdlfmt)) {
+            (device->spec.format != AAUDIO_StreamFormat(hidden->stream))) {
             LOGI("Didn't get an identical spec from AAudioStream during reopen!");
             ctx.AAudioStream_close(hidden->stream);
             hidden->stream = NULL;
