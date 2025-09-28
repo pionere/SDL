@@ -44,14 +44,14 @@ public class SDLControllerManager
 
     private static final String TAG = "SDLControllerManager";
 
-    public static void initialize() {
-        if (mJoystickHandler == null) {
-            mJoystickHandler = new SDLJoystickHandler();
-        }
+    public static void create() {
+        mJoystickHandler = new SDLJoystickHandler();
+        mHapticHandler = new SDLHapticHandler();
+    }
 
-        if (mHapticHandler == null) {
-            mHapticHandler = new SDLHapticHandler();
-        }
+    public static void destroy() {
+        mJoystickHandler = null;
+        mHapticHandler = null;
     }
 
     // Joystick glue code, just a series of stubs that redirect to the SDLJoystickHandler instance

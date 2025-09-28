@@ -392,11 +392,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Initialize state
         SDLActivity.initialize();
-        SDLControllerManager.initialize();
 
         // So we can call stuff from static callbacks
         mSingleton = this;
 
+        SDLControllerManager.create();
         SDLAudioManager.create(this);
 
         mClipboardHandler = new SDLClipboardHandler(this);
@@ -613,6 +613,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             mHIDDeviceManager = null;
 
             SDLAudioManager.destroy();
+            SDLControllerManager.destroy();
 
             SDLActivity.nativeQuit();
         }
