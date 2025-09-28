@@ -586,11 +586,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onDestroy()");
 
         if (!SDLActivity.mBrokenLibraries) {
-            HIDDeviceManager.release(mHIDDeviceManager);
-            mHIDDeviceManager = null;
-
-            SDLAudioManager.destroy();
-
             if (SDLActivity.mSDLThread != null) {
 
                 // Send Quit event to "SDLThread" thread
@@ -603,6 +598,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     Log.v(TAG, "Problem stopping SDLThread: " + e);
                 }
             }
+
+            HIDDeviceManager.release(mHIDDeviceManager);
+            mHIDDeviceManager = null;
+
+            SDLAudioManager.destroy();
 
             SDLActivity.nativeQuit();
         }
