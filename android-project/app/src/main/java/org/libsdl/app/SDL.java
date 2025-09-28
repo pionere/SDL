@@ -11,12 +11,6 @@ import java.lang.reflect.Method;
 */
 public class SDL {
 
-    // This function should be called each time the activity is started
-    public static void initialize() {
-        SDLActivity.initialize();
-        SDLControllerManager.initialize();
-    }
-
     public static void loadLibrary(String libraryName, Context context) throws UnsatisfiedLinkError, SecurityException, NullPointerException {
 
         if (libraryName == null) {
