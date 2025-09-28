@@ -406,7 +406,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////  BluetoothGattCallback overridden methods
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    @Override
     public void onConnectionStateChange(BluetoothGatt g, int status, int newState) {
         //Log.v(TAG, "onConnectionStateChange status=" + status + " newState=" + newState);
         mIsReconnecting = false;
@@ -428,7 +428,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
         // Disconnection is handled in SteamLink using the ACTION_ACL_DISCONNECTED Intent.
     }
-
+    @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         //Log.v(TAG, "onServicesDiscovered status=" + status);
         if (status == 0) {
@@ -444,7 +444,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
             }
         }
     }
-
+    @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         //Log.v(TAG, "onCharacteristicRead status=" + status + " uuid=" + characteristic.getUuid());
 
@@ -454,7 +454,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
         finishCurrentGattOperation();
     }
-
+    @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         //Log.v(TAG, "onCharacteristicWrite status=" + status + " uuid=" + characteristic.getUuid());
 
@@ -469,7 +469,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
         finishCurrentGattOperation();
     }
-
+    @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
     // Enable this for verbose logging of controller input reports
         //Log.v(TAG, "onCharacteristicChanged uuid=" + characteristic.getUuid() + " data=" + HexDump.dumpHexString(characteristic.getValue()));
@@ -478,11 +478,11 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
             mManager.HIDDeviceInputReport(getId(), characteristic.getValue());
         }
     }
-
+    @Override
     public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         //Log.v(TAG, "onDescriptorRead status=" + status);
     }
-
+    @Override
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         BluetoothGattCharacteristic chr = descriptor.getCharacteristic();
         //Log.v(TAG, "onDescriptorWrite status=" + status + " uuid=" + chr.getUuid() + " descriptor=" + descriptor.getUuid());
@@ -499,15 +499,15 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
         finishCurrentGattOperation();
     }
-
+    @Override
     public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
         //Log.v(TAG, "onReliableWriteCompleted status=" + status);
     }
-
+    @Override
     public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
         //Log.v(TAG, "onReadRemoteRssi status=" + status);
     }
-
+    @Override
     public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
         //Log.v(TAG, "onMtuChanged status=" + status);
     }
