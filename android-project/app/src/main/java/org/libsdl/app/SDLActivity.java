@@ -315,7 +315,15 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mNextNativeState = NativeState.INIT;
         mCurrentNativeState = NativeState.INIT;
     }
-    
+
+    // This function should be called first and sets up the native code
+    // so it can call into the Java classes
+    protected static void setupJNI() {
+        SDLActivity.nativeSetupJNI();
+        SDLAudioManager.nativeSetupJNI();
+        SDLControllerManager.nativeSetupJNI();
+    }
+
     protected SDLSurface createSDLSurface(Context context) {
         return new SDLSurface(context);
     }
@@ -380,7 +388,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         // Set up JNI
-        SDL.setupJNI();
+        setupJNI();
 
         // Initialize state
         SDL.initialize();

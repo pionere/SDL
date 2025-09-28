@@ -11,14 +11,6 @@ import java.lang.reflect.Method;
 */
 public class SDL {
 
-    // This function should be called first and sets up the native code
-    // so it can call into the Java classes
-    public static void setupJNI() {
-        SDLActivity.nativeSetupJNI();
-        SDLAudioManager.nativeSetupJNI();
-        SDLControllerManager.nativeSetupJNI();
-    }
-
     // This function should be called each time the activity is started
     public static void initialize() {
         setContext(null);
