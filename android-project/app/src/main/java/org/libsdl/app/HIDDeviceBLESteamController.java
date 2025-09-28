@@ -38,7 +38,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     GattOperation mCurrentOperation = null;
     private Handler mHandler;
 
-    private static final int CHROMEBOOK_CONNECTION_CHECK_INTERVAL = 10000;
+    // private static final int CHROMEBOOK_CONNECTION_CHECK_INTERVAL = 10000;
 
     static public final UUID steamControllerService = UUID.fromString("100F6C32-1735-4313-B402-38567131E5F3");
     static public final UUID inputCharacteristic = UUID.fromString("100F6C33-1735-4313-B402-38567131E5F3");
@@ -173,10 +173,6 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
     public String getIdentifier() {
         return String.format("SteamController.%s", mDevice.getAddress());
-    }
-
-    public BluetoothGatt getGatt() {
-        return mGatt;
     }
 
     // Because on Chromebooks we show up as a dual-mode device, it will attempt to connect TRANSPORT_AUTO, which will use TRANSPORT_BREDR instead
