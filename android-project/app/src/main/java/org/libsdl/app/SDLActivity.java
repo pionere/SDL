@@ -1682,19 +1682,17 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static int createCustomCursor(int[] colors, int width, int height, int hotSpotX, int hotSpotY) {
-        Bitmap bitmap = Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
-        ++mLastCursorID;
-
         if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
             try {
-                mCursors.put(mLastCursorID, PointerIcon.create(bitmap, hotSpotX, hotSpotY));
+                Bitmap bitmap = Bitmap.createBitmap(colors, width, height, Bitmap.Config.ARGB_8888);
+                PointerIcon icon = PointerIcon.create(bitmap, hotSpotX, hotSpotY);
+                ++mLastCursorID;
+                mCursors.put(mLastCursorID, icon);
+                return mLastCursorID;
             } catch (Exception e) {
-                return 0;
             }
-        } else {
-            return 0;
         }
-        return mLastCursorID;
+        return 0;
     }
 
     /**
