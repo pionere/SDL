@@ -298,10 +298,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return new String[0];
     }
 
-    protected static void initialize() {
+    protected void initialize() {
         // The static nature of the singleton and Android quirkyness force us to initialize everything here
         // Otherwise, when exiting the app and returning to it, these variables *keep* their pre exit values
-        mSingleton = null;
+        mSingleton = this;
         mSurface = null;
         mTextEdit = null;
         mLayout = null;
@@ -390,10 +390,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         setupJNI();
 
         // Initialize state
-        SDLActivity.initialize();
-
-        // So we can call stuff from static callbacks
-        mSingleton = this;
+        initialize();
 
         SDLControllerManager.create();
         SDLAudioManager.create(this);
