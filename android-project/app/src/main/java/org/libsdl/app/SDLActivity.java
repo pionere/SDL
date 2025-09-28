@@ -389,7 +389,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mSingleton = this;
         SDL.setContext(this);
 
-        SDLAudioManager.setContext(this);
+        SDLAudioManager.create(this);
 
         mClipboardHandler = new SDLClipboardHandler(this);
 

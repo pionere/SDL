@@ -45,13 +45,11 @@ public class SDLAudioManager {
         }
     }
 
-    public static void setContext(Context context) {
+    public static void create(Context context) {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            if (context != null) {
-                // registerAudioDeviceCallback
-                mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
-            }
+            // registerAudioDeviceCallback
+            mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
         }
     }
 
