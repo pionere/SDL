@@ -396,33 +396,47 @@ static uint64_t get_timespec_ms( const struct timespec &ts )
 	return (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
-static void ExceptionCheck( JNIEnv *env, const char *pszClassName, const char *pszMethodName )
+static void ExceptionCheck(JNIEnv *env)
 {
-	if ( env->ExceptionCheck() )
-	{
+	if (env->ExceptionCheck()) {
+#ifdef DEBUG
 		// Get our exception
-		jthrowable jExcept = env->ExceptionOccurred();
-
+		jthrowable exception = env->ExceptionOccurred();
+#endif
 		// Clear the exception so we can call JNI again
 		env->ExceptionClear();
-
+#ifdef DEBUG
 		// Get our exception message
-		jclass jExceptClass = env->GetObjectClass( jExcept );
-		jmethodID jMessageMethod = env->GetMethodID( jExceptClass, "getMessage", "()Ljava/lang/String;" );
-		jstring jMessage = (jstring)( env->CallObjectMethod( jExcept, jMessageMethod ) );
-		const char *pszMessage = env->GetStringUTFChars( jMessage, NULL );
+		jmethodID mid;
+		jclass exceptionClass = env->GetObjectClass(exception);
+		jclass classClass = env->FindClass("java/lang/Class");
+		jstring exceptionName;
+		const char *exceptionNameUTF8;
+		jstring exceptionMessage;
 
+		mid = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
+		exceptionName = (jstring)env->CallObjectMethod(exceptionClass, mid);
+		exceptionNameUTF8 = env->GetStringUTFChars(exceptionName, NULL);
+
+		mid = (*env)->GetMethodID(env, exceptionClass, "getMessage", "()Ljava/lang/String;");
+		exceptionMessage = (jstring)env->CallObjectMethod(exception, mid);
 		// ...and log it.
-		LOGE( "%s%s%s threw an exception: %s",
-			pszClassName ? pszClassName : "",
-			pszClassName ? "::" : "",
-			pszMethodName, pszMessage );
+		if (exceptionMessage != NULL) {
+			const char *exceptionMessageUTF8 = env->GetStringUTFChars(exceptionMessage, NULL);
+			SDL_SetError("%s: %s", exceptionNameUTF8, exceptionMessageUTF8);
+			env->ReleaseStringUTFChars(exceptionMessage, exceptionMessageUTF8);
+		} else {
+			SDL_SetError("%s", exceptionNameUTF8);
+		}
 
 		// Cleanup
-		env->ReleaseStringUTFChars( jMessage, pszMessage );
-		env->DeleteLocalRef( jMessage );
-		env->DeleteLocalRef( jExceptClass );
-		env->DeleteLocalRef( jExcept );
+		env->ReleaseStringUTFChars(exceptionName, exceptionNameUTF8);
+		env->DeleteLocalRef(exceptionMessage);
+		env->DeleteLocalRef(exceptionName);
+		env->DeleteLocalRef(classClass);
+		env->DeleteLocalRef(exceptionClass);
+		env->DeleteLocalRef(exception);
+#endif
 	}
 }
 
@@ -483,11 +497,6 @@ public:
 		return m_pDevice;
 	}
 
-	void ExceptionCheck( JNIEnv *env, const char *pszMethodName )
-	{
-		::ExceptionCheck( env, "CHIDDevice", pszMethodName );
-	}
-
 	bool BOpen()
 	{
 		// Make sure thread is attached to JVM/env
@@ -503,7 +512,7 @@ public:
 
 		m_bIsWaitingForOpen = false;
 		m_bOpenResult = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_openDevice], m_nId );
-		ExceptionCheck( env, "BOpen" );
+		ExceptionCheck(env);
 
 		if ( m_bIsWaitingForOpen )
 		{
@@ -615,7 +624,7 @@ public:
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendOutputReport], m_nId, pBuf );
-			ExceptionCheck( env, "SendOutputReport" );
+			ExceptionCheck(env);
 			env->DeleteLocalRef( pBuf );
 		}
 		else
@@ -637,7 +646,7 @@ public:
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendFeatureReport], m_nId, pBuf );
-			ExceptionCheck( env, "SendFeatureReport" );
+			ExceptionCheck(env);
 			env->DeleteLocalRef( pBuf );
 		}
 		else
@@ -685,7 +694,7 @@ public:
 
 		jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 		int nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_getFeatureReport], m_nId, pBuf );
-		ExceptionCheck( env, "GetFeatureReport" );
+		ExceptionCheck(env);
 		env->DeleteLocalRef( pBuf );
 		if ( nRet < 0 )
 		{
@@ -746,7 +755,7 @@ public:
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
 			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_closeDevice], m_nId );
-			ExceptionCheck( env, "Close" );
+			ExceptionCheck(env);
 		}
 
 		hid_mutex_guard dataLock( &m_dataLock );
@@ -1027,7 +1036,7 @@ int hid_init(void)
 			}
 #endif
 			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_initialize], init_bluetooth );
-			ExceptionCheck( env, NULL, "hid_init" );
+			ExceptionCheck(env);
 		}
 		g_initialized = true;	// Regardless of result, so it's only called once
 	}

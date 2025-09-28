@@ -1184,20 +1184,21 @@ void Android_JNI_AudioSetThreadPriority(SDL_bool iscapture, int device_id)
 
 /* Test for an exception and call SDL_SetError with its detail if one occurs */
 /* If the parameter silent is truthy then SDL_SetError() will not be called. */
-static SDL_bool Android_JNI_ExceptionOccurred()
+static void Android_JNI_ExceptionOccurred(JNIEnv *env)
 {
-    JNIEnv *env = Android_JNI_GetEnv();
-    jthrowable exception;
-
     /* Detect mismatch LocalReferenceHolder_Init/Cleanup */
     SDL_assert(SDL_AtomicGet(&s_active) > 0);
 
-    exception = (*env)->ExceptionOccurred(env);
-    if (exception != NULL) {
+    if ((*env)->ExceptionCheck(env)) {
+#ifdef DEBUG
+        // Get our exception
+        jthrowable exception = (*env)->ExceptionOccurred(env);
+#endif
         /* Until this happens most JNI operations have undefined behaviour */
         (*env)->ExceptionClear(env);
 #ifdef DEBUG
         {
+            // Get our exception message
             jmethodID mid;
             jclass exceptionClass = (*env)->GetObjectClass(env, exception);
             jclass classClass = (*env)->FindClass(env, "java/lang/Class");
@@ -1211,7 +1212,7 @@ static SDL_bool Android_JNI_ExceptionOccurred()
 
             mid = (*env)->GetMethodID(env, exceptionClass, "getMessage", "()Ljava/lang/String;");
             exceptionMessage = (jstring)(*env)->CallObjectMethod(env, exception, mid);
-
+            // ...and log it.
             if (exceptionMessage != NULL) {
                 const char *exceptionMessageUTF8 = (*env)->GetStringUTFChars(env, exceptionMessage, NULL);
                 SDL_SetError("%s: %s", exceptionNameUTF8, exceptionMessageUTF8);
@@ -1223,10 +1224,7 @@ static SDL_bool Android_JNI_ExceptionOccurred()
             (*env)->ReleaseStringUTFChars(env, exceptionName, exceptionNameUTF8);
         }
 #endif
-        return SDL_TRUE;
     }
-
-    return SDL_FALSE;
 }
 
 static void Internal_Android_Create_AssetManager(void)
@@ -1262,7 +1260,7 @@ static void Internal_Android_Create_AssetManager(void)
 
     if (!asset_manager) {
         (*env)->DeleteGlobalRef(env, javaAssetManagerRef);
-        Android_JNI_ExceptionOccurred();
+        Android_JNI_ExceptionOccurred(env);
     }
 
     LocalReferenceHolder_Cleanup(&refs);
