@@ -265,7 +265,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
     }
 
     public void subscribe() {
-        InputManager im = (InputManager) SDL.getContext().getSystemService(Context.INPUT_SERVICE);
+        InputManager im = (InputManager) SDLActivity.getContext().getSystemService(Context.INPUT_SERVICE);
         im.registerInputDeviceListener(this, new Handler(Looper.getMainLooper()));
 
         int[] deviceIds = InputDevice.getDeviceIds();
@@ -275,7 +275,7 @@ class SDLJoystickHandler implements InputManager.InputDeviceListener {
     }
 
     public void unsubscribe() {
-        InputManager im = (InputManager) SDL.getContext().getSystemService(Context.INPUT_SERVICE);
+        InputManager im = (InputManager) SDLActivity.getContext().getSystemService(Context.INPUT_SERVICE);
         im.unregisterInputDeviceListener(this);
 
         mJoysticks.clear();
@@ -535,7 +535,7 @@ class SDLHapticHandler implements InputManager.InputDeviceListener {
 
     public void subscribe() {
 
-        Context context = SDL.getContext();
+        Context context = SDLActivity.getContext();
         Vibrator vib;
         if (Build.VERSION.SDK_INT >= 31 /* Android 12.0 (S) */) {
             VibratorManager vm = (VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
@@ -560,7 +560,7 @@ class SDLHapticHandler implements InputManager.InputDeviceListener {
     }
 
     public void unsubscribe() {
-        InputManager im = (InputManager) SDL.getContext().getSystemService(Context.INPUT_SERVICE);
+        InputManager im = (InputManager) SDLActivity.getContext().getSystemService(Context.INPUT_SERVICE);
         im.unregisterInputDeviceListener(this);
 
         mHaptics.clear();
