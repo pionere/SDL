@@ -204,7 +204,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static NativeState mCurrentNativeState;
 
     /** If shared libraries (e.g. SDL or the native application) could not be loaded. */
-    protected static boolean mBrokenLibraries = true;
+    protected static boolean mLibrariesLoaded = false;
 
     // Main components
     protected static SDLActivity mSingleton;
@@ -346,25 +346,25 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         String errorMsgBrokenLib = "";
         try {
             loadLibraries();
-            mBrokenLibraries = false; /* success */
+            mLibrariesLoaded = true; /* success */
         } catch (final Throwable e) {
-            mBrokenLibraries = true;
+            mLibrariesLoaded = false;
             errorMsgBrokenLib = e.getMessage();
             Log.e(TAG, errorMsgBrokenLib);
         }
 
-        if (!mBrokenLibraries) {
+        if (mLibrariesLoaded) {
             String expected_version = String.valueOf(SDL_MAJOR_VERSION) + "." +
                                       String.valueOf(SDL_MINOR_VERSION) + "." +
                                       String.valueOf(SDL_MICRO_VERSION);
             String version = nativeGetVersion();
             if (!version.equals(expected_version)) {
-                mBrokenLibraries = true;
+                mLibrariesLoaded = false;
                 errorMsgBrokenLib = "SDL C/Java version mismatch (expected " + expected_version + ", got " + version + ")";
             }
         }
 
-        if (mBrokenLibraries) {
+        if (!mLibrariesLoaded) {
             mSingleton = this;
             AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
             dlgAlert.setMessage("An error occurred while trying to start the application. Please try again and/or reinstall."
@@ -444,7 +444,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mNextNativeState = NativeState.PAUSED;
         mIsResumedCalled = false;
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
             return;
         }
 
@@ -455,7 +455,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mNextNativeState = NativeState.RESUMED;
         mIsResumedCalled = true;
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
             return;
         }
 
@@ -542,7 +542,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         super.onWindowFocusChanged(hasFocus);
         Log.v(TAG, "onWindowFocusChanged(): " + hasFocus);
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
            return;
         }
 
@@ -566,7 +566,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onTrimMemory()");
         super.onTrimMemory(level);
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
             return;
         }
 
@@ -578,7 +578,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onConfigurationChanged()");
         super.onConfigurationChanged(newConfig);
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
             return;
         }
 
@@ -592,7 +592,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onDestroy() {
         Log.v(TAG, "onDestroy()");
 
-        if (!SDLActivity.mBrokenLibraries) {
+        if (SDLActivity.mLibrariesLoaded) {
             if (SDLActivity.mSDLThread != null) {
 
                 // Send Quit event to "SDLThread" thread
@@ -662,7 +662,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 
-        if (SDLActivity.mBrokenLibraries) {
+        if (!SDLActivity.mLibrariesLoaded) {
             return false;
         }
 
