@@ -55,7 +55,7 @@ public class SDLAudioManager {
         }
     }
 
-    public static void release(Context context) {
+    public static void destroy() {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             // unregisterAudioDeviceCallback
             if (mAudioManager != null) {
