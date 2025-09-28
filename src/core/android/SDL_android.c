@@ -1551,6 +1551,7 @@ void Android_JNI_HapticStop(int device_id)
 }
 
 /* See SDLActivity.java for constants. */
+#define COMMAND_TEXTEDIT_HIDE      3
 #define COMMAND_SET_KEEP_SCREEN_ON 5
 
 /* sends message to be handled on the UI event dispatch thread */
@@ -1587,8 +1588,6 @@ void Android_JNI_ShowScreenKeyboard(SDL_Rect *inputRect)
 
 void Android_JNI_HideScreenKeyboard(void)
 {
-    /* has to match Activity constant */
-    const int COMMAND_TEXTEDIT_HIDE = 3;
     Android_JNI_SendMessage(COMMAND_TEXTEDIT_HIDE, 0);
 }
 
