@@ -170,8 +170,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 */
 
-    public static boolean mIsResumedCalled, mHasFocus;
-    public static final boolean mHasMultiWindow = (Build.VERSION.SDK_INT >= 24  /* Android 7.0 (N) */);
+    private static final boolean mHasMultiWindow = (Build.VERSION.SDK_INT >= 24  /* Android 7.0 (N) */);
     private static final boolean mIsVRHeadset = (Build.MANUFACTURER.equals("Oculus") && Build.MODEL.startsWith("Quest")) || Build.MANUFACTURER.equals("Pico");
     private static final boolean mIsChromebookEmulator = (Build.MODEL != null && Build.MODEL.startsWith("sdk_gpc_"));
 
@@ -196,26 +195,26 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static final int SDL_ORIENTATION_PORTRAIT = 3;
     protected static final int SDL_ORIENTATION_PORTRAIT_FLIPPED = 4;
 
-    protected static int mCurrentOrientation;
-    protected static Locale mCurrentLocale;
-
     // Handle the state of the native layer
     public enum NativeState {
            INIT, RESUMED, PAUSED
     }
 
-    public static NativeState mNextNativeState;
-    public static NativeState mCurrentNativeState;
+    protected static NativeState mNextNativeState;
+    protected static NativeState mCurrentNativeState;
 
     /** If shared libraries (e.g. SDL or the native application) could not be loaded. */
-    public static boolean mBrokenLibraries = true;
+    protected static boolean mBrokenLibraries = true;
 
     // Main components
     protected static SDLActivity mSingleton;
+    protected static boolean mIsResumedCalled, mHasFocus;
     protected static SDLSurface mSurface;
     protected static DummyEdit mTextEdit;
     protected static boolean mScreenKeyboardShown;
     protected static ViewGroup mLayout;
+    protected static int mCurrentOrientation;
+    protected static Locale mCurrentLocale;
     protected static SDLClipboardHandler mClipboardHandler;
     protected static Hashtable<Integer, PointerIcon> mCursors;
     protected static int mLastCursorID;
@@ -283,7 +282,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Load the .so
-    public void loadLibraries() {
+    protected void loadLibraries() {
        for (String lib : getLibraries()) {
           SDL.loadLibrary(lib, this);
        }
@@ -508,7 +507,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
     }
 
-    public static int getCurrentOrientation() {
+    protected static int getCurrentOrientation() {
         int result = SDL_ORIENTATION_UNKNOWN;
 
         Activity activity = (Activity)getContext();
@@ -644,7 +643,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Used to get us onto the activity's main thread
-    public void pressBackButton() {
+    protected void pressBackButton() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -683,12 +682,12 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return result;
     }
 
-    public static boolean dispatchingKeyEvent() {
+    protected static boolean dispatchingKeyEvent() {
         return mDispatchingKeyEvent;
     }
 
     /* Transition to next state */
-    public static void handleNativeState() {
+    protected static void handleNativeState() {
 
         if (mNextNativeState == mCurrentNativeState) {
             // Already in same state, discard.
@@ -837,10 +836,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Handler for the messages
-    Handler commandHandler = new SDLCommandHandler();
+    protected Handler commandHandler = new SDLCommandHandler();
 
     // Send a message from the SDLMain thread
-    boolean sendCommand(int command, Object data) {
+    protected boolean sendCommand(int command, Object data) {
         Message msg = commandHandler.obtainMessage();
         msg.arg1 = command;
         msg.obj = data;
@@ -968,7 +967,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This can be overridden
      */
-    public void setOrientationBis(int w, int h, boolean resizable, String hint)
+    protected void setOrientationBis(int w, int h, boolean resizable, String hint)
     {
         int orientation_landscape = -1;
         int orientation_portrait = -1;
@@ -1247,7 +1246,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return mLayout;
     }
 
-    static class ShowTextInputTask implements Runnable {
+    protected static class ShowTextInputTask implements Runnable {
         /*
          * This is used to regulate the pan&scan method to have some offset from
          * the bottom edge of the input region and the top edge of an input
@@ -1305,7 +1304,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mSingleton.commandHandler.post(new ShowTextInputTask(x, y, w, h));
     }
 
-    public static boolean isTextInputEvent(KeyEvent event) {
+    protected static boolean isTextInputEvent(KeyEvent event) {
 
         // Key pressed with Ctrl should be sent as SDL_KEYDOWN/SDL_KEYUP and not SDL_TEXTINPUT
         if (event.isCtrlPressed()) {
