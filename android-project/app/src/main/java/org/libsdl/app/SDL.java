@@ -13,19 +13,8 @@ public class SDL {
 
     // This function should be called each time the activity is started
     public static void initialize() {
-        setContext(null);
-
         SDLActivity.initialize();
         SDLControllerManager.initialize();
-    }
-
-    // This function stores the current activity (SDL or not)
-    public static void setContext(Context context) {
-        mContext = context;
-    }
-
-    public static void loadLibrary(String libraryName) throws UnsatisfiedLinkError, SecurityException, NullPointerException {
-        loadLibrary(libraryName, mContext);
     }
 
     public static void loadLibrary(String libraryName, Context context) throws UnsatisfiedLinkError, SecurityException, NullPointerException {
@@ -64,6 +53,4 @@ public class SDL {
             System.loadLibrary(libraryName);
         }
     }
-
-    protected static Context mContext;
 }
