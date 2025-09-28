@@ -1711,17 +1711,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean setCustomCursor(int cursorID) {
-
         if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
             try {
                 mSurface.setPointerIcon(mCursors.get(cursorID));
+                return true;
             } catch (Exception e) {
-                return false;
             }
-        } else {
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -1770,13 +1767,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
             try {
                 mSurface.setPointerIcon(PointerIcon.getSystemIcon(SDLActivity.getContext(), cursor_type));
+                return true;
             } catch (Exception e) {
-                return false;
             }
-        } else {
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
