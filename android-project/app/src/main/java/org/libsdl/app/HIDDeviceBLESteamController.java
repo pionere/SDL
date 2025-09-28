@@ -35,28 +35,28 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     private boolean mIsReconnecting = false;
     private boolean mFrozen = false;
     private LinkedList<GattOperation> mOperations;
-    GattOperation mCurrentOperation = null;
+    private GattOperation mCurrentOperation = null;
     private Handler mHandler;
 
     // private static final int CHROMEBOOK_CONNECTION_CHECK_INTERVAL = 10000;
 
-    static public final UUID steamControllerService = UUID.fromString("100F6C32-1735-4313-B402-38567131E5F3");
-    static public final UUID inputCharacteristic = UUID.fromString("100F6C33-1735-4313-B402-38567131E5F3");
-    static public final UUID reportCharacteristic = UUID.fromString("100F6C34-1735-4313-B402-38567131E5F3");
-    static private final byte[] enterValveMode = new byte[] { (byte)0xC0, (byte)0x87, 0x03, 0x08, 0x07, 0x00 };
+    private static final UUID steamControllerService = UUID.fromString("100F6C32-1735-4313-B402-38567131E5F3");
+    private static final UUID inputCharacteristic = UUID.fromString("100F6C33-1735-4313-B402-38567131E5F3");
+    private static final UUID reportCharacteristic = UUID.fromString("100F6C34-1735-4313-B402-38567131E5F3");
+    private static final byte[] enterValveMode = new byte[] { (byte)0xC0, (byte)0x87, 0x03, 0x08, 0x07, 0x00 };
 
-    static class GattOperation {
+    private static class GattOperation {
         private enum Operation {
             CHR_READ,
             CHR_WRITE,
             ENABLE_NOTIFICATION
         }
 
-        Operation mOp;
-        UUID mUuid;
-        byte[] mValue;
-        BluetoothGatt mGatt;
-        boolean mResult = true;
+        private Operation mOp;
+        private UUID mUuid;
+        private byte[] mValue;
+        private BluetoothGatt mGatt;
+        private boolean mResult = true;
 
         private GattOperation(BluetoothGatt gatt, GattOperation.Operation operation, UUID uuid) {
             mGatt = gatt;
@@ -171,7 +171,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         // }, CHROMEBOOK_CONNECTION_CHECK_INTERVAL);
     }
 
-    public String getIdentifier() {
+    private String getIdentifier() {
         return String.format("SteamController.%s", mDevice.getAddress());
     }
 
@@ -193,7 +193,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         return connectGatt(false);
     }
 
-    protected int getConnectionState() {
+    private int getConnectionState() {
 
         Context context = mManager.getContext();
         if (context == null) {
@@ -393,12 +393,12 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         queueGattOperation(op);
     }
 
-    public void writeCharacteristic(UUID uuid, byte[] value) {
+    private void writeCharacteristic(UUID uuid, byte[] value) {
         GattOperation op = HIDDeviceBLESteamController.GattOperation.writeCharacteristic(mGatt, uuid, value);
         queueGattOperation(op);
     }
 
-    public void readCharacteristic(UUID uuid) {
+    private void readCharacteristic(UUID uuid) {
         GattOperation op = HIDDeviceBLESteamController.GattOperation.readCharacteristic(mGatt, uuid);
         queueGattOperation(op);
     }
