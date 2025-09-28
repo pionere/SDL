@@ -14,7 +14,7 @@ public class SDLAudioManager {
 
     protected static AudioManager mAudioManager;
 
-    private static AudioDeviceCallback mAudioDeviceCallback;
+    protected static AudioDeviceCallback mAudioDeviceCallback;
 
     private static void addAudioDevices(AudioDeviceInfo[] devices) {
         for (AudioDeviceInfo deviceInfo : devices) {
@@ -25,10 +25,9 @@ public class SDLAudioManager {
         }
     }
 
-    public static void initialize() {
-        mAudioDeviceCallback = null;
-
+    public static void create(Context context) {
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
+            // create the AudioDeviceCallback
             mAudioDeviceCallback = new AudioDeviceCallback() {
                 @Override
                 public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
@@ -42,12 +41,7 @@ public class SDLAudioManager {
                     }
                 }
             };
-        }
-    }
-
-    public static void create(Context context) {
-        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            // registerAudioDeviceCallback
+            // register the AudioDeviceCallback
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mAudioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
         }
@@ -59,6 +53,7 @@ public class SDLAudioManager {
             if (mAudioManager != null) {
                 mAudioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
                 mAudioManager = null;
+                mAudioDeviceCallback = null;
             }
         }
     }

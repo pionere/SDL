@@ -24,7 +24,6 @@ public class SDL {
         setContext(null);
 
         SDLActivity.initialize();
-        SDLAudioManager.initialize();
         SDLControllerManager.initialize();
     }
 
