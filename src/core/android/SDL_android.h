@@ -113,9 +113,6 @@ int Android_JNI_SetupThread(void);
 /* Locale */
 int Android_JNI_GetLocale(char *buf, size_t buflen);
 
-/* Generic messages */
-int Android_JNI_SendMessage(int command, int param);
-
 /* MessageBox */
 #include "SDL_messagebox.h"
 int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid);
