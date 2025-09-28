@@ -93,8 +93,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         Log.v("SDL", "surfaceDestroyed()");
 
         // Transition to pause, if needed
-        SDLActivity.mNextNativeState = SDLActivity.NativeState.PAUSED;
-        SDLActivity.handleNativeState();
+        SDLActivity.switchNativeState(SDLActivity.NativeState.PAUSED);
 
         mIsSurfaceReady = false;
         SDLActivity.onNativeSurfaceDestroyed();
@@ -178,8 +177,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         /* Surface is ready */
         mIsSurfaceReady = true;
 
-        SDLActivity.mNextNativeState = SDLActivity.NativeState.RESUMED;
-        SDLActivity.handleNativeState();
+        SDLActivity.switchNativeState(SDLActivity.NativeState.RESUMED);
     }
 
     // Key events
