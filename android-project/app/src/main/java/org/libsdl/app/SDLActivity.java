@@ -1097,7 +1097,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static Context getContext() {
-        return SDL.getContext();
+        return mSingleton;
     }
 
     /**

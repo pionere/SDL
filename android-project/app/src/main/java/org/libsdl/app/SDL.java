@@ -24,10 +24,6 @@ public class SDL {
         mContext = context;
     }
 
-    public static Context getContext() {
-        return mContext;
-    }
-
     public static void loadLibrary(String libraryName) throws UnsatisfiedLinkError, SecurityException, NullPointerException {
         loadLibrary(libraryName, mContext);
     }
