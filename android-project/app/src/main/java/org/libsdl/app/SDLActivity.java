@@ -1370,10 +1370,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             onNativeKeyDown(keyCode);
 
             if (isTextInputEvent(event)) {
+                String suc = String.valueOf((char) event.getUnicodeChar());
                 if (ic != null) {
-                    ic.commitText(String.valueOf((char) event.getUnicodeChar()), 1);
+                    ic.commitText(suc, 1);
                 } else {
-                    SDLInputConnection.nativeCommitText(String.valueOf((char) event.getUnicodeChar()), 1);
+                    SDLInputConnection.nativeCommitText(suc, 1);
                 }
             }
             return true;
