@@ -38,10 +38,6 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     GattOperation mCurrentOperation = null;
     private Handler mHandler;
 
-    private static final int TRANSPORT_AUTO = 0;
-    private static final int TRANSPORT_BREDR = 1;
-    private static final int TRANSPORT_LE = 2;
-
     private static final int CHROMEBOOK_CONNECTION_CHECK_INTERVAL = 10000;
 
     static public final UUID steamControllerService = UUID.fromString("100F6C32-1735-4313-B402-38567131E5F3");
@@ -189,7 +185,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         Context context = mManager.getContext();
         if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
             try {
-                return mDevice.connectGatt(context, managed, this, TRANSPORT_LE);
+                return mDevice.connectGatt(context, managed, this, BluetoothDevice.TRANSPORT_LE);
             } catch (Exception e) {
                 // return mDevice.connectGatt(context, managed, this);
             }
