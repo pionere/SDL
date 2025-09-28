@@ -1911,7 +1911,7 @@ SDL_bool Android_JNI_SupportsRelativeMouse(void)
 SDL_bool Android_JNI_SetRelativeMouseEnabled(SDL_bool enabled)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    return (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_setRelativeMouseEnabled], (enabled == 1));
+    return (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_setRelativeMouseEnabled], (enabled != 0));
 }
 
 SDL_bool Android_JNI_RequestPermission(const char *permission)

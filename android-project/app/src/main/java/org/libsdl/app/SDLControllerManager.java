@@ -673,8 +673,7 @@ class SDLGenericMotionListener_API14 implements View.OnGenericMotionListener {
         return false;
     }
 
-    public boolean setRelativeMouseEnabled(boolean enabled) {
-        return false;
+    public void setRelativeMouseEnabled(boolean enabled) {
     }
 
     public void reclaimRelativeMouseModeIfNeeded() {
@@ -702,7 +701,14 @@ class SDLGenericMotionListener_API24 extends SDLGenericMotionListener_API14 {
 
     @Override
     public boolean supportsRelativeMouse() {
-        return true;
+        // DeX mode in Samsung Experience 9.0 and earlier doesn't support relative mice properly under
+        // Android 7 APIs, and simply returns no data under Android 8 APIs.
+        //
+        // This is fixed in Samsung Experience 9.5, which corresponds to Android 8.1.0, and
+        // thus SDK version 27.  If we are in DeX mode and not API 27 or higher, as a result,
+        // we should stick to relative mode.
+        //
+        return (Build.VERSION.SDK_INT >= 27 /* Android 8.1 (O_MR1) */ || !SDLActivity.isDeXMode());
     }
 
     @Override
@@ -711,9 +717,8 @@ class SDLGenericMotionListener_API24 extends SDLGenericMotionListener_API14 {
     }
 
     @Override
-    public boolean setRelativeMouseEnabled(boolean enabled) {
+    public void setRelativeMouseEnabled(boolean enabled) {
         mRelativeModeEnabled = enabled;
-        return true;
     }
 
     @Override
@@ -740,28 +745,18 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
     private boolean mRelativeModeEnabled;
 
     @Override
-    public boolean supportsRelativeMouse() {
-        return (!SDLActivity.isDeXMode() || Build.VERSION.SDK_INT >= 27 /* Android 8.1 (O_MR1) */);
-    }
-
-    @Override
     public boolean inRelativeMode() {
         return mRelativeModeEnabled;
     }
 
     @Override
-    public boolean setRelativeMouseEnabled(boolean enabled) {
-        if (supportsRelativeMouse()) {
-            if (enabled) {
-                SDLActivity.getContentView().requestPointerCapture();
-            } else {
-                SDLActivity.getContentView().releasePointerCapture();
-            }
-            mRelativeModeEnabled = enabled;
-            return true;
+    public void setRelativeMouseEnabled(boolean enabled) {
+        if (enabled) {
+            SDLActivity.getContentView().requestPointerCapture();
         } else {
-            return false;
+            SDLActivity.getContentView().releasePointerCapture();
         }
+        mRelativeModeEnabled = enabled;
     }
 
     @Override
