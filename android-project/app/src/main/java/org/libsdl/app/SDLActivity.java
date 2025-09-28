@@ -1047,7 +1047,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return false;
         }
 
-        InputMethodManager imm = (InputMethodManager) SDL.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm.isAcceptingText();
 
     }
@@ -1261,11 +1261,12 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         @Override
         public void run() {
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(w, h + HEIGHT_PADDING);
+            Context context = SDLActivity.getContext();
             params.leftMargin = x;
             params.topMargin = y;
 
             if (mTextEdit == null) {
-                mTextEdit = new DummyEdit(SDL.getContext());
+                mTextEdit = new DummyEdit(context);
 
                 mLayout.addView(mTextEdit, params);
             } else {
@@ -1275,7 +1276,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             mTextEdit.setVisibility(View.VISIBLE);
             mTextEdit.requestFocus();
 
-            InputMethodManager imm = (InputMethodManager) SDL.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(mTextEdit, 0);
 
             mScreenKeyboardShown = true;
@@ -1758,7 +1759,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
         if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
             try {
-                mSurface.setPointerIcon(PointerIcon.getSystemIcon(SDL.getContext(), cursor_type));
+                mSurface.setPointerIcon(PointerIcon.getSystemIcon(SDLActivity.getContext(), cursor_type));
             } catch (Exception e) {
                 return false;
             }
