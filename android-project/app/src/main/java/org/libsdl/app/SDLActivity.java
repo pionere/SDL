@@ -411,7 +411,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         SDLActivity.onNativeOrientationChanged(mCurrentOrientation);
 
         try {
-            Configuration config = getContext().getResources().getConfiguration();
+            Configuration config = getResources().getConfiguration();
             if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
                 mCurrentLocale = config.locale;
             } else {
