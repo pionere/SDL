@@ -7,8 +7,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
 
-import java.util.Arrays;
-
 public class SDLAudioManager {
     protected static final String TAG = "SDLAudio";
 
