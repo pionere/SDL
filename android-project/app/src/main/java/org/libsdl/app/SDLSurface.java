@@ -30,8 +30,6 @@ import android.view.WindowManager;
 public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     View.OnKeyListener, View.OnTouchListener, SensorEventListener  {
 
-    protected Display mDisplay;
-
     // Keep track of the surface size to normalize touch events
     protected float mWidth, mHeight;
 
@@ -48,8 +46,6 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         requestFocus();
         setOnKeyListener(this);
         setOnTouchListener(this);
-
-        mDisplay = SDLActivity.getCurrentDisplay();
 
         setOnGenericMotionListener(SDLActivity.getMotionListener());
 
@@ -109,6 +105,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         Log.v("SDL", "surfaceChanged()");
 
         SDLActivity activity = SDLActivity.mSingleton;
+        Display display = SDLActivity.getCurrentDisplay();
 
         mWidth = width;
         mHeight = height;
@@ -118,7 +115,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         {
             if (Build.VERSION.SDK_INT >= 17 /* Android 4.2 (JELLY_BEAN_MR1) */) {
                 DisplayMetrics realMetrics = new DisplayMetrics();
-                mDisplay.getRealMetrics(realMetrics);
+                display.getRealMetrics(realMetrics);
                 nDeviceWidth = realMetrics.widthPixels;
                 nDeviceHeight = realMetrics.heightPixels;
             }
@@ -132,7 +129,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         Log.v("SDL", "Window size: " + width + "x" + height);
         Log.v("SDL", "Device size: " + nDeviceWidth + "x" + nDeviceHeight);
-        SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, mDisplay.getRefreshRate());
+        SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, display.getRefreshRate());
         SDLActivity.onNativeResize();
 
         // Prevent a screen distortion glitch,
