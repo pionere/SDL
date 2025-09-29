@@ -504,9 +504,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
     }
 
+    public static Display getCurrentDisplay() {
+        return mSingleton.getWindowManager().getDefaultDisplay();
+    }
+
     protected static int getCurrentOrientation() {
         int result = SDL_ORIENTATION_UNKNOWN;
-        Display display = mSingleton.getWindowManager().getDefaultDisplay();
+        Display display = getCurrentDisplay();
 
         switch (display.getRotation()) {
             case Surface.ROTATION_0:
@@ -851,7 +855,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // assert(data instanceof Integer);
                 {
                     // Let's figure out if we're already laid out fullscreen or not.
-                    Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                    Display display = SDLActivity.getCurrentDisplay();
                     DisplayMetrics realMetrics = new DisplayMetrics();
                     display.getRealMetrics(realMetrics);
 
@@ -1148,8 +1152,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean isTablet() {
         // If our diagonal size is seven inches or greater, we consider ourselves a tablet.
+        Display display = SDLActivity.getCurrentDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
-        mSingleton.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        display.getMetrics(metrics);
 
         double dWidthInches = metrics.widthPixels / (double)metrics.xdpi;
         double dHeightInches = metrics.heightPixels / (double)metrics.ydpi;
