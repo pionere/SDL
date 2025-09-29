@@ -365,27 +365,27 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Load shared libraries
         String errorMsgBrokenLib = "";
+        boolean librariesReady = false;
         try {
             loadLibraries();
-            mLibrariesLoaded = true; /* success */
+            librariesReady = true; /* success */
         } catch (final Throwable e) {
-            mLibrariesLoaded = false;
             errorMsgBrokenLib = e.getMessage();
             Log.e(TAG, errorMsgBrokenLib);
         }
 
-        if (mLibrariesLoaded) {
+        if (librariesReady) {
             String expected_version = String.valueOf(SDL_MAJOR_VERSION) + "." +
                                       String.valueOf(SDL_MINOR_VERSION) + "." +
                                       String.valueOf(SDL_MICRO_VERSION);
             String version = nativeGetVersion();
             if (!version.equals(expected_version)) {
-                mLibrariesLoaded = false;
+                librariesReady = false;
                 errorMsgBrokenLib = "SDL C/Java version mismatch (expected " + expected_version + ", got " + version + ")";
             }
         }
 
-        if (!mLibrariesLoaded) {
+        if (!librariesReady) {
             AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
             dlgAlert.setMessage("An error occurred while trying to start the application. Please try again and/or reinstall."
                   + System.getProperty("line.separator")
@@ -405,6 +405,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
            return;
         }
+        mLibrariesLoaded = true;
 
         // Set up JNI
         setupJNI();
