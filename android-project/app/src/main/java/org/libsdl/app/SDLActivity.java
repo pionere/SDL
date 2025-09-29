@@ -613,6 +613,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             SDLActivity.nativeQuit();
         }
 
+        reset();
+
         super.onDestroy();
     }
 
