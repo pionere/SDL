@@ -1107,7 +1107,7 @@ void Android_JNI_SetActivityTitle(const char *title)
 void Android_JNI_SetWindowStyle(SDL_bool fullscreen)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_setWindowStyle], fullscreen ? 1 : 0);
+    (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_setWindowStyle], fullscreen);
 }
 
 void Android_JNI_SetOrientation(int w, int h, int resizable, const char *hint)
@@ -1571,7 +1571,7 @@ int SDL_AndroidSendMessage(Uint32 command, int param)
 
 void Android_JNI_SuspendScreenSaver(SDL_bool suspend)
 {
-    Android_JNI_SendMessage(COMMAND_SET_KEEP_SCREEN_ON, (suspend == SDL_FALSE) ? 0 : 1);
+    Android_JNI_SendMessage(COMMAND_SET_KEEP_SCREEN_ON, suspend);
 }
 
 void Android_JNI_ShowScreenKeyboard(SDL_Rect *inputRect)
@@ -1911,7 +1911,7 @@ SDL_bool Android_JNI_SupportsRelativeMouse(void)
 SDL_bool Android_JNI_SetRelativeMouseEnabled(SDL_bool enabled)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    return (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_setRelativeMouseEnabled], (enabled != 0));
+    return (*env)->CallStaticBooleanMethod(env, mActivityClass, jnicall[SDLActivity_setRelativeMouseEnabled], enabled);
 }
 
 SDL_bool Android_JNI_RequestPermission(const char *permission)
