@@ -592,25 +592,23 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         SDLAudioManager.release(this);
 
-        if (SDLActivity.mBrokenLibraries) {
-           super.onDestroy();
-           return;
-        }
+        if (!SDLActivity.mBrokenLibraries) {
 
-        if (SDLActivity.mSDLThread != null) {
+            if (SDLActivity.mSDLThread != null) {
 
-            // Send Quit event to "SDLThread" thread
-            SDLActivity.nativeSendQuit();
+                // Send Quit event to "SDLThread" thread
+                SDLActivity.nativeSendQuit();
 
-            // Wait for "SDLThread" thread to end
-            try {
-                SDLActivity.mSDLThread.join();
-            } catch(Exception e) {
-                Log.v(TAG, "Problem stopping SDLThread: " + e);
+                // Wait for "SDLThread" thread to end
+                try {
+                    SDLActivity.mSDLThread.join();
+                } catch(Exception e) {
+                    Log.v(TAG, "Problem stopping SDLThread: " + e);
+                }
             }
-        }
 
-        SDLActivity.nativeQuit();
+            SDLActivity.nativeQuit();
+        }
 
         super.onDestroy();
     }
