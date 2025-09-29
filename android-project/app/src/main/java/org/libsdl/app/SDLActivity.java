@@ -284,10 +284,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         return new String[0];
     }
 
-    protected void initialize() {
+    protected static void reset() {
         // The static nature of the singleton and Android quirkyness force us to initialize everything here
         // Otherwise, when exiting the app and returning to it, these variables *keep* their pre exit values
-        mSingleton = this;
+        mSingleton = null;
         mSurface = null;
         mTextEdit = null;
         mLayout = null;
@@ -347,7 +347,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         super.onCreate(savedInstanceState);
 
         // Initialize state
-        initialize();
+        SDLActivity.reset();
+        mSingleton = this;
 
         try {
             Thread.currentThread().setName("SDLActivity");
