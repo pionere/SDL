@@ -30,8 +30,6 @@ import android.view.WindowManager;
 public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     View.OnKeyListener, View.OnTouchListener, SensorEventListener  {
 
-    // Sensors
-    protected SensorManager mSensorManager;
     protected Display mDisplay;
 
     // Keep track of the surface size to normalize touch events
@@ -52,7 +50,6 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         setOnTouchListener(this);
 
         mDisplay = SDLActivity.getCurrentDisplay();
-        mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 
         setOnGenericMotionListener(SDLActivity.getMotionListener());
 
@@ -263,12 +260,13 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     // Sensor events
     public void enableSensor(int sensortype, boolean enabled) {
         // TODO: This uses getDefaultSensor - what if we have >1 accels?
-        Sensor ds = mSensorManager.getDefaultSensor(sensortype);
+        SensorManager sensorManager = (SensorManager)SDLActivity.mSingleton.getSystemService(Context.SENSOR_SERVICE);
+        Sensor ds = sensorManager.getDefaultSensor(sensortype);
         if (enabled) {
-            mSensorManager.registerListener(this, ds,
+            sensorManager.registerListener(this, ds,
                             SensorManager.SENSOR_DELAY_GAME, null);
         } else {
-            mSensorManager.unregisterListener(this, ds);
+            sensorManager.unregisterListener(this, ds);
         }
     }
 
