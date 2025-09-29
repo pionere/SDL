@@ -63,6 +63,12 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         mIsSurfaceReady = false;
     }
 
+    public void destroy() {
+        getHolder().removeCallback(this);
+        setOnGenericMotionListener(null);
+        setEnabled(false);
+    }
+
     public void handlePause() {
         enableSensor(Sensor.TYPE_ACCELEROMETER, false);
     }

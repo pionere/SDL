@@ -603,6 +603,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
             }
 
+            mSurface.destroy();
+            mSurface = null;
+
             HIDDeviceManager.release(mHIDDeviceManager);
             mHIDDeviceManager = null;
 
