@@ -323,8 +323,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         SDLControllerManager.nativeSetupJNI();
     }
 
-    protected SDLSurface createSDLSurface(Context context) {
-        return new SDLSurface(context);
+    protected SDLSurface createSDLSurface() {
+        return new SDLSurface(this);
     }
 
     // Setup
@@ -400,7 +400,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mHIDDeviceManager = HIDDeviceManager.acquire(this);
 
         // Set up the surface
-        mSurface = createSDLSurface(this);
+        mSurface = createSDLSurface();
 
         mLayout = new RelativeLayout(this);
         mLayout.addView(mSurface);
