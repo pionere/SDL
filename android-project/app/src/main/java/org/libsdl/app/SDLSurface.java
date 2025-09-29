@@ -47,7 +47,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         setOnKeyListener(this);
         setOnTouchListener(this);
 
-        setOnGenericMotionListener(SDLActivity.getMotionListener());
+        setOnGenericMotionListener(SDLActivity.mMotionListener);
 
         // Some arbitrary defaults to avoid a potential division by zero
         mWidth = 1.0f;
@@ -227,7 +227,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
                 // We need to check if we're in relative mouse mode and get the axis offset rather than the x/y values
                 // if we are. We'll leverage our existing mouse motion listener
-                SDLGenericMotionListener_API14 motionListener = SDLActivity.getMotionListener();
+                SDLGenericMotionListener_API14 motionListener = SDLActivity.mMotionListener;
                 x = motionListener.getEventX(event, i);
                 y = motionListener.getEventY(event, i);
                 relative = motionListener.inRelativeMode();

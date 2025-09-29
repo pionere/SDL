@@ -225,20 +225,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static Thread mSDLThread;
     protected static boolean mDispatchingKeyEvent = false;
 
-    protected static SDLGenericMotionListener_API14 getMotionListener() {
-        if (mMotionListener == null) {
-            if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
-                mMotionListener = new SDLGenericMotionListener_API26();
-            } else if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
-                mMotionListener = new SDLGenericMotionListener_API24();
-            } else {
-                mMotionListener = new SDLGenericMotionListener_API14();
-            }
-        }
-
-        return mMotionListener;
-    }
-
     /**
      * This method returns the name of the shared object with the application entry point
      * It can be overridden by derived classes.
@@ -306,13 +292,37 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mTextEdit = null;
         mLayout = null;
         mClipboardHandler = null;
-        mCursors = new Hashtable<Integer, PointerIcon>();
+        mCursors = null;
         mLastCursorID = 0;
         mSDLThread = null;
         mIsResumedCalled = false;
         mHasFocus = true;
         mNextNativeState = NativeState.INIT;
         mCurrentNativeState = NativeState.INIT;
+    }
+
+    protected static void create() {
+        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
+            mMotionListener = new SDLGenericMotionListener_API26();
+        } else if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
+            mMotionListener = new SDLGenericMotionListener_API24();
+        } else {
+            mMotionListener = new SDLGenericMotionListener_API14();
+        }
+        try {
+            Configuration config = mSingleton.getResources().getConfiguration();
+            if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
+                mCurrentLocale = config.locale;
+            } else {
+                mCurrentLocale = config.getLocales().get(0);
+            }
+        } catch (Exception ignored) {
+        }
+        mCursors = new Hashtable<Integer, PointerIcon>();
+
+        mClipboardHandler = new SDLClipboardHandler(mSingleton);
+
+        mHIDDeviceManager = HIDDeviceManager.acquire(mSingleton);
     }
 
     // This function should be called first and sets up the native code
@@ -395,9 +405,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         SDLControllerManager.create();
         SDLAudioManager.create(this);
 
-        mClipboardHandler = new SDLClipboardHandler(this);
-
-        mHIDDeviceManager = HIDDeviceManager.acquire(this);
+        SDLActivity.create();
 
         // Set up the surface
         mSurface = createSDLSurface();
@@ -409,16 +417,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mCurrentOrientation = SDLActivity.getCurrentOrientation();
         // Only record current orientation
         SDLActivity.onNativeOrientationChanged(mCurrentOrientation);
-
-        try {
-            Configuration config = getResources().getConfiguration();
-            if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
-                mCurrentLocale = config.locale;
-            } else {
-                mCurrentLocale = config.getLocales().get(0);
-            }
-        } catch (Exception ignored) {
-        }
 
         setContentView(mLayout);
 
@@ -544,7 +542,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         mHasFocus = hasFocus;
         if (hasFocus) {
-            SDLActivity.getMotionListener().reclaimRelativeMouseModeIfNeeded();
+            SDLActivity.mMotionListener.reclaimRelativeMouseModeIfNeeded();
 
             SDLActivity.switchNativeState(NativeState.RESUMED);
             nativeFocusChanged(true);
@@ -1073,7 +1071,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean supportsRelativeMouse()
     {
-        return SDLActivity.getMotionListener().supportsRelativeMouse();
+        return SDLActivity.mMotionListener.supportsRelativeMouse();
     }
 
     /**
@@ -1085,7 +1083,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return false;
         }
 
-        SDLActivity.getMotionListener().setRelativeMouseEnabled(enabled);
+        SDLActivity.mMotionListener.setRelativeMouseEnabled(enabled);
         return true;
     }
 
