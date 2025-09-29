@@ -281,30 +281,26 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
             // Since we may have an orientation set, we won't receive onConfigurationChanged events.
             // We thus should check here.
-            int newOrientation;
+            int newOrientation = SDLActivity.getCurrentOrientation();
 
             float x, y;
-            switch (mDisplay.getRotation()) {
-                case Surface.ROTATION_90:
+            switch (newOrientation) {
+                case SDLActivity.SDL_ORIENTATION_LANDSCAPE:
                     x = -event.values[1];
                     y = event.values[0];
-                    newOrientation = SDLActivity.SDL_ORIENTATION_LANDSCAPE;
                     break;
-                case Surface.ROTATION_270:
+                case SDLActivity.SDL_ORIENTATION_LANDSCAPE_FLIPPED:
                     x = event.values[1];
                     y = -event.values[0];
-                    newOrientation = SDLActivity.SDL_ORIENTATION_LANDSCAPE_FLIPPED;
                     break;
-                case Surface.ROTATION_180:
+                case SDLActivity.SDL_ORIENTATION_PORTRAIT_FLIPPED:
                     x = -event.values[0];
                     y = -event.values[1];
-                    newOrientation = SDLActivity.SDL_ORIENTATION_PORTRAIT_FLIPPED;
                     break;
-                case Surface.ROTATION_0:
+                case SDLActivity.SDL_ORIENTATION_PORTRAIT:
                 default:
                     x = event.values[0];
                     y = event.values[1];
-                    newOrientation = SDLActivity.SDL_ORIENTATION_PORTRAIT;
                     break;
             }
 
