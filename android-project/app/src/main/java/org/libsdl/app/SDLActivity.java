@@ -389,7 +389,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mSingleton = this;
         SDL.setContext(this);
 
-        mClipboardHandler = new SDLClipboardHandler();
+        mClipboardHandler = new SDLClipboardHandler(this);
 
         mHIDDeviceManager = HIDDeviceManager.acquire(this);
 
@@ -2079,8 +2079,8 @@ class SDLClipboardHandler implements
 
     protected ClipboardManager mClipMgr;
 
-    SDLClipboardHandler() {
-       mClipMgr = (ClipboardManager) SDL.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+    SDLClipboardHandler(Context context) {
+       mClipMgr = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
        mClipMgr.addPrimaryClipChangedListener(this);
     }
 
