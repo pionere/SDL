@@ -585,14 +585,11 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onDestroy() {
         Log.v(TAG, "onDestroy()");
 
-        if (mHIDDeviceManager != null) {
+        if (!SDLActivity.mBrokenLibraries) {
             HIDDeviceManager.release(mHIDDeviceManager);
             mHIDDeviceManager = null;
-        }
 
-        SDLAudioManager.release(this);
-
-        if (!SDLActivity.mBrokenLibraries) {
+            SDLAudioManager.release(this);
 
             if (SDLActivity.mSDLThread != null) {
 
