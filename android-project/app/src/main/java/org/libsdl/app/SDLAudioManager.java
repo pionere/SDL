@@ -47,28 +47,28 @@ public class SDLAudioManager {
 
     public static void setContext(Context context) {
         mContext = context;
-        if (context != null) {
-            registerAudioDeviceCallback();
+        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
+            if (context != null) {
+                registerAudioDeviceCallback();
+            }
         }
     }
 
     public static void release(Context context) {
-        unregisterAudioDeviceCallback(context);
+        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
+            unregisterAudioDeviceCallback(context);
+        }
     }
 
     // Audio
     private static void registerAudioDeviceCallback() {
-        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
-        }
+        AudioManager audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.registerAudioDeviceCallback(mAudioDeviceCallback, null);
     }
 
     private static void unregisterAudioDeviceCallback(Context context) {
-        if (Build.VERSION.SDK_INT >= 23 /* Android 6.0 (M) */) {
-            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
-        }
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.unregisterAudioDeviceCallback(mAudioDeviceCallback);
     }
 
     /**
