@@ -251,7 +251,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         } else {
             library = "libmain.so";
         }
-        return getContext().getApplicationInfo().nativeLibraryDir + "/" + library;
+        return SDLActivity.mSingleton.getApplicationInfo().nativeLibraryDir + "/" + library;
     }
 
     /**
@@ -506,12 +506,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     protected static int getCurrentOrientation() {
         int result = SDL_ORIENTATION_UNKNOWN;
-
-        Activity activity = (Activity)getContext();
-        if (activity == null) {
-            return result;
-        }
-        Display display = activity.getWindowManager().getDefaultDisplay();
+        Display display = mSingleton.getWindowManager().getDefaultDisplay();
 
         switch (display.getRotation()) {
             case Surface.ROTATION_0:
@@ -1064,7 +1059,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return false;
         }
 
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) mSingleton.getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm.isAcceptingText();
 
     }
@@ -1112,7 +1107,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static java.lang.String getInternalStoragePath() {
         try {
-            return getContext().getFilesDir().getCanonicalPath();
+            return mSingleton.getFilesDir().getCanonicalPath();
         } catch (Exception ignored) {
             // IOException or NullPointerException
             return null;
@@ -1124,7 +1119,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static java.lang.String getExternalStoragePath() {
         try {
-            return getContext().getExternalFilesDir(null).getCanonicalPath();
+            return mSingleton.getExternalFilesDir(null).getCanonicalPath();
         } catch (Exception ignored) {
             // IOException or NullPointerException
             return null;
@@ -1135,7 +1130,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean isAndroidTV() {
-        UiModeManager uiModeManager = (UiModeManager) getContext().getSystemService(UI_MODE_SERVICE);
+        UiModeManager uiModeManager = (UiModeManager) mSingleton.getSystemService(UI_MODE_SERVICE);
         if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
             return true;
         }
@@ -1154,11 +1149,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static boolean isTablet() {
         // If our diagonal size is seven inches or greater, we consider ourselves a tablet.
         DisplayMetrics metrics = new DisplayMetrics();
-        Activity activity = (Activity)getContext();
-        if (activity == null) {
-            return false;
-        }
-        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        mSingleton.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         double dWidthInches = metrics.widthPixels / (double)metrics.xdpi;
         double dHeightInches = metrics.heightPixels / (double)metrics.ydpi;
@@ -1171,9 +1162,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean isChromebook() {
         // https://stackoverflow.com/questions/39784415/how-to-detect-programmatically-if-android-app-is-running-in-chrome-book-or-in
-        Context context = getContext();
-        if (context != null) {
-            PackageManager pm = context.getPackageManager();
+        {
+            PackageManager pm = mSingleton.getPackageManager();
             if (pm.hasSystemFeature("org.chromium.arc")
                 || pm.hasSystemFeature("org.chromium.arc.device_management")) {
                 return true;
@@ -1192,7 +1182,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return false;
         }
         try {
-            final Configuration config = getContext().getResources().getConfiguration();
+            final Configuration config = mSingleton.getResources().getConfiguration();
             final Class<?> configClass = config.getClass();
             return configClass.getField("SEM_DESKTOP_MODE_ENABLED").getInt(configClass)
                     == configClass.getField("semDesktopModeEnabled").getInt(config);
@@ -1205,7 +1195,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static float[] getDisplayDPI() {
-        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        DisplayMetrics metrics = mSingleton.getResources().getDisplayMetrics();
         float[] result = new float[3];
         result[0] = (float)metrics.densityDpi;
         result[1] = metrics.xdpi;
@@ -1218,12 +1208,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean getManifestEnvironmentVariables() {
         try {
-            Context context = getContext();
-            if (context == null) {
-                return false;
-            }
-
-            ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = applicationInfo.metaData;
             if (bundle == null) {
                 return false;
@@ -1773,7 +1758,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
         if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
             try {
-                mSurface.setPointerIcon(PointerIcon.getSystemIcon(SDLActivity.getContext(), cursor_type));
+                mSurface.setPointerIcon(PointerIcon.getSystemIcon(mSingleton, cursor_type));
                 return true;
             } catch (Exception e) {
             }
@@ -1790,9 +1775,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        Activity activity = (Activity)getContext();
-        if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(new String[]{permission}, requestCode);
+        if (mSingleton.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            mSingleton.requestPermissions(new String[]{permission}, requestCode);
         } else {
             nativePermissionResult(requestCode, true);
         }
