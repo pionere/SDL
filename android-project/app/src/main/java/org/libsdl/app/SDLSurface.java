@@ -108,9 +108,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                                int format, int width, int height) {
         Log.v("SDL", "surfaceChanged()");
 
-        if (SDLActivity.mSingleton == null) {
-            return;
-        }
+        SDLActivity activity = SDLActivity.mSingleton;
 
         mWidth = width;
         mHeight = height;
@@ -120,16 +118,16 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         {
             if (Build.VERSION.SDK_INT >= 17 /* Android 4.2 (JELLY_BEAN_MR1) */) {
                 DisplayMetrics realMetrics = new DisplayMetrics();
-                mDisplay.getRealMetrics( realMetrics );
+                mDisplay.getRealMetrics(realMetrics);
                 nDeviceWidth = realMetrics.widthPixels;
                 nDeviceHeight = realMetrics.heightPixels;
             }
-        } catch(Exception ignored) {
+        } catch (Exception ignored) {
         }
 
-        synchronized(SDLActivity.getContext()) {
+        synchronized(activity) {
             // In case we're waiting on a size change after going fullscreen, send a notification.
-            SDLActivity.getContext().notifyAll();
+            activity.notifyAll();
         }
 
         Log.v("SDL", "Window size: " + width + "x" + height);
@@ -140,7 +138,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         // Prevent a screen distortion glitch,
         // for instance when the device is in Landscape and a Portrait App is resumed.
         boolean skip = false;
-        int requestedOrientation = SDLActivity.mSingleton.getRequestedOrientation();
+        int requestedOrientation = activity.getRequestedOrientation();
 
         if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT || requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
             if (mWidth > mHeight) {
