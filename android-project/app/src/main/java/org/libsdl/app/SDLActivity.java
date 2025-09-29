@@ -767,13 +767,15 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             }
             switch (msg.arg1) {
             case COMMAND_CHANGE_TITLE:
+                // assert(msg.obj instanceof String);
                 activity.setTitle((String)msg.obj);
                 break;
             case COMMAND_CHANGE_WINDOW_STYLE:
                 if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
                     Window window = activity.getWindow();
                     if (window != null) {
-                        if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
+                        // assert(msg.obj instanceof Integer);
+                        if ((Integer) msg.obj != 0) {
                             int flags = View.SYSTEM_UI_FLAG_FULLSCREEN |
                                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
@@ -816,7 +818,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             {
                 Window window = activity.getWindow();
                 if (window != null) {
-                    if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
+                    // assert(msg.obj instanceof Integer);
+                    if ((Integer) msg.obj != 0) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -847,7 +850,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // Ensure we don't return until the resize has actually happened,
                 // or 500ms have passed.
 
-                if (data instanceof Integer) {
+                // assert(data instanceof Integer);
+                {
                     // Let's figure out if we're already laid out fullscreen or not.
                     Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
                     DisplayMetrics realMetrics = new DisplayMetrics();
