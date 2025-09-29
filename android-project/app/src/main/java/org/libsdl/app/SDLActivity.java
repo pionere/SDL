@@ -204,7 +204,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected static NativeState mCurrentNativeState;
 
     /** If shared libraries (e.g. SDL or the native application) could not be loaded. */
-    protected static boolean mLibrariesLoaded = false;
+    protected static boolean mLibrariesLoaded;
 
     // Main components
     protected static SDLActivity mSingleton;
@@ -223,7 +223,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     // This is what SDL runs in. It invokes SDL_main(), eventually
     protected static Thread mSDLThread;
-    protected static boolean mDispatchingKeyEvent = false;
+    protected static boolean mDispatchingKeyEvent;
 
     /**
      * This method returns the name of the shared object with the application entry point
@@ -288,13 +288,20 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         // The static nature of the singleton and Android quirkyness force us to initialize everything here
         // Otherwise, when exiting the app and returning to it, these variables *keep* their pre exit values
         mSingleton = null;
-        mSurface = null;
+        // mSurface = null;
         mTextEdit = null;
+        // mLibrariesLoaded = false;
+        mScreenKeyboardShown = false;
+        mDispatchingKeyEvent = false;
         mLayout = null;
+        mCurrentOrientation = SDL_ORIENTATION_UNKNOWN;
+        mCurrentLocale = null;
         mClipboardHandler = null;
+        mMotionListener = null;
         mCursors = null;
         mLastCursorID = 0;
-        mSDLThread = null;
+        // mSDLThread = null;
+        // mHIDDeviceManager = null;
         mIsResumedCalled = false;
         mHasFocus = true;
         mNextNativeState = NativeState.INIT;
@@ -588,6 +595,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "onDestroy()");
 
         if (SDLActivity.mLibrariesLoaded) {
+            SDLActivity.mLibrariesLoaded = false;
+
             if (SDLActivity.mSDLThread != null) {
 
                 // Send Quit event to "SDLThread" thread
@@ -599,6 +608,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 } catch (Exception e) {
                     Log.v(TAG, "Problem stopping SDLThread: " + e);
                 }
+
+                SDLActivity.mSDLThread = null;
             }
 
             mSurface.destroy();
@@ -613,7 +624,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             SDLActivity.nativeQuit();
         }
 
-        reset();
+        SDLActivity.reset();
 
         super.onDestroy();
     }
