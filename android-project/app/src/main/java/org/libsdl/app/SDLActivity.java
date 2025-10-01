@@ -871,9 +871,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // assert(data instanceof Integer);
                 {
                     // Let's figure out if we're already laid out fullscreen or not.
-                    Display display = SDLActivity.getCurrentDisplay();
-                    DisplayMetrics realMetrics = new DisplayMetrics();
-                    display.getRealMetrics(realMetrics);
+                    DisplayMetrics realMetrics = getResources().getDisplayMetrics();
 
                     boolean bFullscreenLayout = ((realMetrics.widthPixels == mSurface.getWidth()) &&
                             (realMetrics.heightPixels == mSurface.getHeight()));
