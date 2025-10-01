@@ -727,11 +727,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             if (mSurface.mIsSurfaceReady && (mHasFocus || mHasMultiWindow) && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
-                    // Start up the C app thread and enable sensor input for the first time
-                    // FIXME: Why aren't we enabling sensor input at start?
-
+                    // Start up the C app thread
                     mSDLThread = new Thread(new SDLMain(), "SDLThread");
-                    mSurface.enableSensor(Sensor.TYPE_ACCELEROMETER, true);
                     mSDLThread.start();
 
                     // No nativeResume(), don't signal Android_ResumeSem
