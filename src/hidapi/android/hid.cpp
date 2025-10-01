@@ -387,7 +387,6 @@ static void FreeHIDDeviceInfo( hid_device_info *pInfo )
 	delete pInfo;
 }
 
-static jclass  g_HIDDeviceManagerCallbackClass;
 static jobject g_HIDDeviceManagerCallbackHandler;
 static bool g_initialized = false;
 
@@ -844,8 +843,6 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
     }
 
     if (g_HIDDeviceManagerCallbackHandler != NULL) {
-        env->DeleteGlobalRef(g_HIDDeviceManagerCallbackClass);
-        g_HIDDeviceManagerCallbackClass = NULL;
         env->DeleteGlobalRef(g_HIDDeviceManagerCallbackHandler);
         g_HIDDeviceManagerCallbackHandler = NULL;
     }
@@ -853,10 +850,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
     g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
     jclass objClass = env->GetObjectClass(thiz);
 
-    g_HIDDeviceManagerCallbackClass = reinterpret_cast< jclass >(env->NewGlobalRef(objClass));
-
     for (int i = 0; i < SDL_HID_funcs_count; i++) {
-        jnicall_hid[i] = env->GetMethodID(g_HIDDeviceManagerCallbackClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
+        jnicall_hid[i] = env->GetMethodID(objClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
     }
     for (int i = 0; i < SDL_HID_funcs_count; i++) {
         if (!jnicall_hid[i]) {
@@ -872,8 +867,6 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallbac
 	LOGV("HIDDeviceReleaseCallback");
 	if ( env->IsSameObject( thiz, g_HIDDeviceManagerCallbackHandler ) )
 	{
-		env->DeleteGlobalRef( g_HIDDeviceManagerCallbackClass );
-		g_HIDDeviceManagerCallbackClass = NULL;
 		env->DeleteGlobalRef( g_HIDDeviceManagerCallbackHandler );
 		g_HIDDeviceManagerCallbackHandler = NULL;
 		g_initialized = false;
