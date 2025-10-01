@@ -911,8 +911,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                             synchronized (context) {
                                 try {
                                     context.wait(500);
-                                } catch (InterruptedException ie) {
-                                    ie.printStackTrace();
+                                } catch (InterruptedException ex) {
+                                    Log.e(TAG, ex.getMessage());
                                 }
                             }
                         }
@@ -1514,7 +1514,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             try {
                 messageboxSelection.wait();
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                Log.e(TAG, ex.getMessage());
                 return -1;
             }
         }
