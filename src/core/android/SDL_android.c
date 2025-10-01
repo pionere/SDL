@@ -153,7 +153,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "minimizeWindow", "()V" },
     { "openURL", "(Ljava/lang/String;)I" },
     { "requestPermission", "(Ljava/lang/String;I)V" },
-    { "showToast", "(Ljava/lang/String;IIII)I" },
+    { "showToast", "(Ljava/lang/String;IIII)V" },
     { "sendMessage", "(II)Z" },
     { "setActivityTitle", "(Ljava/lang/String;)V" },
     { "setCustomCursor", "(I)Z" },
@@ -1880,12 +1880,11 @@ SDL_bool SDL_AndroidRequestPermission(const char *permission)
 /* Show toast notification */
 int SDL_AndroidShowToast(const char *message, int duration, int gravity, int xOffset, int yOffset)
 {
-    int result = 0;
     JNIEnv *env = Android_JNI_GetEnv();
     jstring jmessage = (*env)->NewStringUTF(env, message);
-    result = (*env)->CallStaticIntMethod(env, mActivityClass, jnicall[SDLActivity_showToast], jmessage, duration, gravity, xOffset, yOffset);
+    (*env)->CallStaticVoidMethod(env, mActivityClass, jnicall[SDLActivity_showToast], jmessage, duration, gravity, xOffset, yOffset);
     (*env)->DeleteLocalRef(env, jmessage);
-    return result;
+    return 0;
 }
 
 void Android_JNI_GetManifestEnvironmentVariables(void)
