@@ -12,6 +12,7 @@ android {
         namespace "org.libsdl.app"
     }
     compileSdkVersion 34
+    ndkVersion = "28.2.13676358"
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 34
