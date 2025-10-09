@@ -2503,7 +2503,7 @@ static VkResult VULKAN_CreateWindowSizeDependentResources(SDL_Renderer *renderer
 
     result = VULKAN_CreateSwapChain(renderer);
     if (result != VK_SUCCESS) {
-        rendererData->recreateSwapchain = VK_TRUE;
+        rendererData->recreateSwapchain = SDL_TRUE;
     }
 
     rendererData->viewportDirty = SDL_TRUE;
@@ -2548,6 +2548,13 @@ static void VULKAN_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *ev
 #endif
         rendererData->recreateSwapchain = SDL_TRUE;
     }
+
+#ifdef __ANDROID__
+    // Prevent black screen when app returns from background
+    if (event->type == SDL_WINDOWEVENT_RESTORED) {
+        VULKAN_HandleDeviceLost(renderer);
+    }
+#endif
 }
 
 static SDL_bool VULKAN_SupportsBlendMode(SDL_Renderer *renderer, SDL_BlendMode blendMode)
