@@ -32,7 +32,9 @@ class JobOs(Enum):
     Ubuntu22_04 = "ubuntu-22.04"
     Ubuntu24_04 = "ubuntu-24.04"
     Ubuntu24_04_arm = "ubuntu-24.04-arm"
-    Macos13 = "macos-13"
+    Macos14 = "macos-14"  # macOS Sonoma (2023)
+    Macos15 = "macos-15"  # macOS Sequoia (2024)
+    Macos26 = "macos-26"  # macOS Tahoe (2025)
 
 
 class SdlPlatform(Enum):
