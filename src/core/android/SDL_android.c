@@ -282,9 +282,7 @@ static JNIEnv *Android_JNI_SetupThreadEnv(void)
     }
 
     /* Save JNIEnv into the Thread local storage */
-    if (Android_JNI_SetEnv(env) < 0) {
-        return NULL;
-    }
+    Android_JNI_SetEnv(env);
 
     return env;
 }
