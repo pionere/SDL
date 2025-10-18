@@ -262,6 +262,33 @@ static int Android_JNI_SetEnv(JNIEnv *env)
     return status;
 }
 
+static JNIEnv *Android_JNI_SetupThreadEnv(void)
+{
+    JNIEnv *env;
+    int status;
+
+    /* There should be a JVM */
+    if (!mJavaVM) {
+        LOGE("Failed, there is no JavaVM");
+        return NULL;
+    }
+
+    /* Attach the current thread to the JVM and get a JNIEnv.
+     * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
+    status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
+    if (status < 0) {
+        LOGE("Failed to attach current thread (err=%d)", status);
+        return NULL;
+    }
+
+    /* Save JNIEnv into the Thread local storage */
+    if (Android_JNI_SetEnv(env) < 0) {
+        return NULL;
+    }
+
+    return env;
+}
+
 /* Get local storage value */
 static JNIEnv *Android_JNI_GetEnv(void)
 {
@@ -269,26 +296,7 @@ static JNIEnv *Android_JNI_GetEnv(void)
     JNIEnv *env = pthread_getspecific(mThreadKey);
     if (!env) {
         /* If it fails, try to attach ! (e.g the thread isn't created with SDL_CreateThread() */
-        int status;
-
-        /* There should be a JVM */
-        if (!mJavaVM) {
-            LOGE("Failed, there is no JavaVM");
-            return NULL;
-        }
-
-        /* Attach the current thread to the JVM and get a JNIEnv.
-         * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
-        status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
-        if (status < 0) {
-            LOGE("Failed to attach current thread (err=%d)", status);
-            return NULL;
-        }
-
-        /* Save JNIEnv into the Thread local storage */
-        if (Android_JNI_SetEnv(env) < 0) {
-            return NULL;
-        }
+        env = Android_JNI_SetupThreadEnv();
     }
 
     return env;
@@ -297,29 +305,8 @@ static JNIEnv *Android_JNI_GetEnv(void)
 /* Set up an external thread for using JNI with Android_JNI_GetEnv() */
 int Android_JNI_SetupThread(void)
 {
-    JNIEnv *env;
-    int status;
-
-    /* There should be a JVM */
-    if (!mJavaVM) {
-        LOGE("Failed, there is no JavaVM");
-        return 0;
-    }
-
-    /* Attach the current thread to the JVM and get a JNIEnv.
-     * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
-    status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
-    if (status < 0) {
-        LOGE("Failed to attach current thread (err=%d)", status);
-        return 0;
-    }
-
-    /* Save JNIEnv into the Thread local storage */
-    if (Android_JNI_SetEnv(env) < 0) {
-        return 0;
-    }
-
-    return 1;
+    JNIEnv *env = Android_JNI_SetupThreadEnv();
+    return env != NULL ? 1 : 0;
 }
 
 /* Destructor called for each thread where mThreadKey is not NULL */
