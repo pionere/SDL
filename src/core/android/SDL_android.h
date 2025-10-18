@@ -108,7 +108,7 @@ void Android_JNI_SuspendScreenSaver(SDL_bool suspend);
 void Android_JNI_InitTouch(void);
 
 /* Threads */
-int Android_JNI_SetupThread(void);
+void Android_JNI_SetupThread(void);
 
 /* Locale */
 int Android_JNI_GetLocale(char *buf, size_t buflen);

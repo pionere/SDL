@@ -303,10 +303,9 @@ static JNIEnv *Android_JNI_GetEnv(void)
 }
 
 /* Set up an external thread for using JNI with Android_JNI_GetEnv() */
-int Android_JNI_SetupThread(void)
+void Android_JNI_SetupThread(void)
 {
-    JNIEnv *env = Android_JNI_SetupThreadEnv();
-    return env != NULL ? 1 : 0;
+    Android_JNI_SetupThreadEnv();
 }
 
 /* Destructor called for each thread where mThreadKey is not NULL */
