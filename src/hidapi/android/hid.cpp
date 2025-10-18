@@ -395,6 +395,14 @@ static uint64_t get_timespec_ms( const struct timespec &ts )
 	return (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
+static void HID_SetEnv(JNIEnv *env)
+{
+	int status = pthread_setspecific(g_ThreadKey, env);
+	if (status < 0) {
+		LOGE("Failed pthread_setspecific() in HID_SetEnv() (err=%d)", status);
+	}
+}
+
 static void ExceptionCheck(JNIEnv *env)
 {
 	if (env->ExceptionCheck()) {
@@ -501,7 +509,7 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env;
 		g_JVM->AttachCurrentThread( &env, NULL );
-		pthread_setspecific( g_ThreadKey, (void*)env );
+		HID_SetEnv(env);
 
 		if ( !g_HIDDeviceManagerCallbackHandler )
 		{
@@ -616,7 +624,7 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env;
 		g_JVM->AttachCurrentThread( &env, NULL );
-		pthread_setspecific( g_ThreadKey, (void*)env );
+		HID_SetEnv(env);
 
 		int nRet = -1;
 		if ( g_HIDDeviceManagerCallbackHandler )
@@ -638,7 +646,7 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env;
 		g_JVM->AttachCurrentThread( &env, NULL );
-		pthread_setspecific( g_ThreadKey, (void*)env );
+		HID_SetEnv(env);
 
 		int nRet = -1;
 		if ( g_HIDDeviceManagerCallbackHandler )
@@ -673,7 +681,7 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env;
 		g_JVM->AttachCurrentThread( &env, NULL );
-		pthread_setspecific( g_ThreadKey, (void*)env );
+		HID_SetEnv(env);
 
 		if ( !g_HIDDeviceManagerCallbackHandler )
 		{
@@ -749,7 +757,7 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env;
 		g_JVM->AttachCurrentThread( &env, NULL );
-		pthread_setspecific( g_ThreadKey, (void*)env );
+		HID_SetEnv(env);
 
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
@@ -824,7 +832,7 @@ static void ThreadDestroyed(void* value)
 	JNIEnv *env = (JNIEnv*) value;
 	if (env != NULL) {
 		g_JVM->DetachCurrentThread();
-		pthread_setspecific(g_ThreadKey, NULL);
+		HID_SetEnv(NULL);
 	}
 }
 
@@ -1011,7 +1019,7 @@ int hid_init(void)
 			// Make sure thread is attached to JVM/env
 			JNIEnv *env;
 			g_JVM->AttachCurrentThread( &env, NULL );
-			pthread_setspecific( g_ThreadKey, (void*)env );
+			HID_SetEnv(env);
 
 			if ( !g_HIDDeviceManagerCallbackHandler )
 			{
