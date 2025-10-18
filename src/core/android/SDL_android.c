@@ -253,13 +253,12 @@ static jobject javaAssetManagerRef = 0;
  */
 
 /* Set local storage value */
-static int Android_JNI_SetEnv(JNIEnv *env)
+static void Android_JNI_SetEnv(JNIEnv *env)
 {
     int status = pthread_setspecific(mThreadKey, env);
     if (status < 0) {
         LOGE("Failed pthread_setspecific() in Android_JNI_SetEnv() (err=%d)", status);
     }
-    return status;
 }
 
 static JNIEnv *Android_JNI_SetupThreadEnv(void)
