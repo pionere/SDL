@@ -412,6 +412,19 @@ static JNIEnv *HID_SetupThreadEnv(void)
 	return env;
 }
 
+/* Get local storage value */
+static JNIEnv *HID_GetEnv(void)
+{
+	/* Get JNIEnv from the Thread local storage */
+	JNIEnv *env = (JNIEnv *)pthread_getspecific(g_ThreadKey);
+	if (!env) {
+		/* If it fails, lazy initialize it */
+		env = HID_SetupThreadEnv();
+	}
+
+	return env;
+}
+
 static void ThreadDestroyed(void* value)
 {
 	/* The thread is being destroyed, detach it from the Java VM and set the g_ThreadKey value to NULL as required */
@@ -536,8 +549,7 @@ public:
 
 	bool BOpen()
 	{
-		// Make sure thread is attached to JVM/env
-		JNIEnv *env = HID_SetupThreadEnv();
+		JNIEnv *env = HID_GetEnv();
 
 		m_bIsWaitingForOpen = false;
 		m_bOpenResult = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_openDevice], m_nId );
@@ -645,8 +657,7 @@ public:
 
 	int SendOutputReport( const unsigned char *pData, size_t nDataLen )
 	{
-		// Make sure thread is attached to JVM/env
-		JNIEnv *env = HID_SetupThreadEnv();
+		JNIEnv *env = HID_GetEnv();
 
 		int nRet;
 		{
@@ -662,8 +673,7 @@ public:
 
 	int SendFeatureReport( const unsigned char *pData, size_t nDataLen )
 	{
-		// Make sure thread is attached to JVM/env
-		JNIEnv *env = HID_SetupThreadEnv();
+		JNIEnv *env = HID_GetEnv();
 
 		int nRet;
 		{
@@ -692,8 +702,7 @@ public:
 
 	int GetFeatureReport( unsigned char *pData, size_t nDataLen )
 	{
-		// Make sure thread is attached to JVM/env
-		JNIEnv *env = HID_SetupThreadEnv();
+		JNIEnv *env = HID_GetEnv();
 
 		{
 			hid_mutex_guard cvl( &m_cvLock );
@@ -762,8 +771,7 @@ public:
 
 	void Close( bool bDeleteDevice )
 	{
-		// Make sure thread is attached to JVM/env
-		JNIEnv *env = HID_SetupThreadEnv();
+		JNIEnv *env = HID_GetEnv();
 
 		{
 			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_closeDevice], m_nId );
@@ -1010,8 +1018,7 @@ int hid_init(void)
 	if ( !g_initialized )
 	{
 		{
-			// Make sure thread is attached to JVM/env
-			JNIEnv *env = HID_SetupThreadEnv();
+			JNIEnv *env = HID_GetEnv();
 
 			// Bluetooth is currently only used for Steam Controllers, so check that hint
 			// before initializing Bluetooth, which will prompt the user for permission.
