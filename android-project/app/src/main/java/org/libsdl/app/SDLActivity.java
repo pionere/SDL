@@ -14,8 +14,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.net.Uri;
@@ -517,7 +521,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     public static Display getCurrentDisplay() {
-        return mSingleton.getWindowManager().getDefaultDisplay();
+        Display display;
+        if (Build.VERSION.SDK_INT >= 30 /* Android 11.0 (R) */) {
+            display = mSingleton.getDisplay();
+        } else {
+            display = mSingleton.getWindowManager().getDefaultDisplay();
+        }
+        return display;
     }
 
     protected static int getCurrentOrientation() {
@@ -1623,7 +1633,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     button.setBackgroundColor(buttonBackgroundColor);
                 } else {
                     // setting the color this way keeps the style (gradient, padding, etc.)
-                    drawable.setColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    ColorFilter colorFilter;
+                    if (Build.VERSION.SDK_INT >= 29 /* Android 10.0 (Q) */) {
+                        colorFilter = new BlendModeColorFilter(buttonBackgroundColor, BlendMode.MODULATE);
+                    } else {
+                        colorFilter = new PorterDuffColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    }
+                    drawable.setColorFilter(colorFilter);
                 }
             }
             if (buttonSelectedColor != Color.TRANSPARENT) {
