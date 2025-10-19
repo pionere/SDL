@@ -403,6 +403,15 @@ static void HID_SetEnv(JNIEnv *env)
 	}
 }
 
+static JNIEnv *HID_SetupThreadEnv(void)
+{
+	JNIEnv *env;
+	g_JVM->AttachCurrentThread(&env, NULL);
+
+	HID_SetEnv(env);
+	return env;
+}
+
 static void ExceptionCheck(JNIEnv *env)
 {
 	if (env->ExceptionCheck()) {
@@ -507,9 +516,7 @@ public:
 	bool BOpen()
 	{
 		// Make sure thread is attached to JVM/env
-		JNIEnv *env;
-		g_JVM->AttachCurrentThread( &env, NULL );
-		HID_SetEnv(env);
+		JNIEnv *env = HID_SetupThreadEnv();
 
 		if ( !g_HIDDeviceManagerCallbackHandler )
 		{
@@ -622,9 +629,7 @@ public:
 	int SendOutputReport( const unsigned char *pData, size_t nDataLen )
 	{
 		// Make sure thread is attached to JVM/env
-		JNIEnv *env;
-		g_JVM->AttachCurrentThread( &env, NULL );
-		HID_SetEnv(env);
+		JNIEnv *env = HID_SetupThreadEnv();
 
 		int nRet = -1;
 		if ( g_HIDDeviceManagerCallbackHandler )
@@ -644,9 +649,7 @@ public:
 	int SendFeatureReport( const unsigned char *pData, size_t nDataLen )
 	{
 		// Make sure thread is attached to JVM/env
-		JNIEnv *env;
-		g_JVM->AttachCurrentThread( &env, NULL );
-		HID_SetEnv(env);
+		JNIEnv *env = HID_SetupThreadEnv();
 
 		int nRet = -1;
 		if ( g_HIDDeviceManagerCallbackHandler )
@@ -679,9 +682,7 @@ public:
 	int GetFeatureReport( unsigned char *pData, size_t nDataLen )
 	{
 		// Make sure thread is attached to JVM/env
-		JNIEnv *env;
-		g_JVM->AttachCurrentThread( &env, NULL );
-		HID_SetEnv(env);
+		JNIEnv *env = HID_SetupThreadEnv();
 
 		if ( !g_HIDDeviceManagerCallbackHandler )
 		{
@@ -755,9 +756,7 @@ public:
 	void Close( bool bDeleteDevice )
 	{
 		// Make sure thread is attached to JVM/env
-		JNIEnv *env;
-		g_JVM->AttachCurrentThread( &env, NULL );
-		HID_SetEnv(env);
+		JNIEnv *env = HID_SetupThreadEnv();
 
 		if ( g_HIDDeviceManagerCallbackHandler )
 		{
@@ -1017,9 +1016,7 @@ int hid_init(void)
 	{
 		{
 			// Make sure thread is attached to JVM/env
-			JNIEnv *env;
-			g_JVM->AttachCurrentThread( &env, NULL );
-			HID_SetEnv(env);
+			JNIEnv *env = HID_SetupThreadEnv();
 
 			if ( !g_HIDDeviceManagerCallbackHandler )
 			{
