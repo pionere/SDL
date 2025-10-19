@@ -854,11 +854,6 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 		LOGE("Failed pthread_key_create() (err=%d)", status);
 	}
 
-    if (g_HIDDeviceManagerCallbackHandler != NULL) {
-        env->DeleteGlobalRef(g_HIDDeviceManagerCallbackHandler);
-        g_HIDDeviceManagerCallbackHandler = NULL;
-    }
-
     g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
 	if (!g_HIDDeviceManagerCallbackHandler) {
 		LOGD("Failed to create g_HIDDeviceManagerCallbackHandler reference");
@@ -879,8 +874,8 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallback)(JNIEnv *env, jobject thiz)
 {
 	LOGV("HIDDeviceReleaseCallback");
-	if ( env->IsSameObject( thiz, g_HIDDeviceManagerCallbackHandler ) )
-	{
+	if (g_HIDDeviceManagerCallbackHandler) {
+		SDL_assert(env->IsSameObject(thiz, g_HIDDeviceManagerCallbackHandler));
 		env->DeleteGlobalRef( g_HIDDeviceManagerCallbackHandler );
 		g_HIDDeviceManagerCallbackHandler = NULL;
 		g_initialized = false;
