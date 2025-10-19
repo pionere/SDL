@@ -838,37 +838,37 @@ static void ThreadDestroyed(void* value)
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
 	int status;
-    LOGV("HIDDeviceRegisterCallback()");
+	LOGV("HIDDeviceRegisterCallback()");
 
 	status = env->GetJavaVM( &g_JVM );
 	if (status != 0) {
 		LOGD("Failed to find a JavaVM");
 	}
 
-    /*
-     * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
-     * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
-     */
+	/*
+	 * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
+	 * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
+	 */
 	status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
 	if (status != 0) {
 		LOGE("Failed pthread_key_create() (err=%d)", status);
 	}
 
-    g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
+	g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
 	if (!g_HIDDeviceManagerCallbackHandler) {
 		LOGD("Failed to create g_HIDDeviceManagerCallbackHandler reference");
 	}
 
-    jclass objClass = env->GetObjectClass(thiz);
+	jclass objClass = env->GetObjectClass(thiz);
 
-    for (int i = 0; i < SDL_HID_funcs_count; i++) {
-        jnicall_hid[i] = env->GetMethodID(objClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
-        if (!jnicall_hid[i]) {
-            LOGD("Missing Java callback '%s' (idx=%d) of SDLHIDManager.", SDLHIDManager_ifc[i].name, i);
-        }
-    }
+	for (int i = 0; i < SDL_HID_funcs_count; i++) {
+		jnicall_hid[i] = env->GetMethodID(objClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
+		if (!jnicall_hid[i]) {
+			LOGD("Missing Java callback '%s' (idx=%d) of SDLHIDManager.", SDLHIDManager_ifc[i].name, i);
+		}
+	}
 
-    env->DeleteLocalRef(objClass);
+	env->DeleteLocalRef(objClass);
 }
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceReleaseCallback)(JNIEnv *env, jobject thiz)
@@ -1147,20 +1147,20 @@ static uint32_t getms()
 
 static void delayms(uint32_t ms)
 {
-    int was_error;
+	int was_error;
 
-    struct timespec elapsed, tv;
+	struct timespec elapsed, tv;
 
-    /* Set the timeout interval */
-    elapsed.tv_sec = ms / 1000;
-    elapsed.tv_nsec = (ms % 1000) * 1000000;
-    do {
-        errno = 0;
+	/* Set the timeout interval */
+	elapsed.tv_sec = ms / 1000;
+	elapsed.tv_nsec = (ms % 1000) * 1000000;
+	do {
+		errno = 0;
 
-        tv.tv_sec = elapsed.tv_sec;
-        tv.tv_nsec = elapsed.tv_nsec;
-        was_error = nanosleep(&tv, &elapsed);
-    } while (was_error && (errno == EINTR));
+		tv.tv_sec = elapsed.tv_sec;
+		tv.tv_nsec = elapsed.tv_nsec;
+		was_error = nanosleep(&tv, &elapsed);
+	} while (was_error && (errno == EINTR));
 }
 
 int HID_API_EXPORT HID_API_CALL hid_read_timeout(hid_device *device, unsigned char *data, size_t length, int milliseconds)
