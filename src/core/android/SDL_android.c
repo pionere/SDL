@@ -1003,44 +1003,11 @@ JNIEXPORT jboolean JNICALL SDL_JAVA_INTERFACE(nativeGetHintBoolean)(JNIEnv *env,
     return result;
 }
 
-static void LogErrorF(const char* msg, ...)
-{
-	char tmp[256];
-	va_list va;
-	FILE* f0 = NULL;
-#if 0
-	const char* paths[2] = { GetBasePath(), GetPrefPath() };
-	for (int i = 0; f0 == NULL && i < lengthof(paths); i++) {
-		std::string filepath = paths[i];
-		filepath += "logdebug0.txt";
-		f0 = std::fopen(filepath.c_str(), "a+");
-	}
-#else
-	while (f0 == NULL) {
-		f0 = fopen("/storage/0403-0201/Android/data/org.diasurgical.devilx/files/logdebug0.txt", "a+");
-	}
-#endif
-
-	va_start(va, msg);
-
-	vsnprintf(tmp, sizeof(tmp), msg, va);
-
-	va_end(va);
-
-	fputs(tmp, f0);
-
-	fputc('\n', f0);
-
-	fclose(f0);
-}
-
 JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetenv)(JNIEnv *env, jclass cls,
     jstring name, jstring value)
 {
     const char *utfname = (*env)->GetStringUTFChars(env, name, NULL);
     const char *utfvalue = (*env)->GetStringUTFChars(env, value, NULL);
-
-    LogErrorF("nativeSetenv '%s' : '%s'", utfname, utfvalue);
 
     SDL_setenv(utfname, utfvalue, 1);
 
