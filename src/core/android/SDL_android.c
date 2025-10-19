@@ -128,6 +128,7 @@ typedef enum {
     SDLActivity_setWindowStyle,
     SDLActivity_showTextInput,
     SDLActivity_supportsRelativeMouse,
+    SDLActivity_messageboxShowMessageBox,
     SDL_JavaFuncs_count
 } SDL_Java_funcs_enum; 
 static jmethodID jnicall[SDL_JavaFuncs_count];
@@ -163,6 +164,7 @@ static const function_definition SDLActivity_ifc[] = {
     { "setWindowStyle", "(Z)V" },
     { "showTextInput", "(IIII)V" },
     { "supportsRelativeMouse", "()Z" },
+    { "messageboxShowMessageBox", "(ILjava/lang/String;Ljava/lang/String;[I[I[Ljava/lang/String;[I)I" },    
 };
 SDL_COMPILE_TIME_ASSERT(activities_funcs, SDL_arraysize(SDLActivity_ifc) == (int)SDL_JavaFuncs_count);
 
@@ -1586,8 +1588,6 @@ int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *bu
 {
     JNIEnv *env;
     jclass clazz;
-    jmethodID mid;
-    jobject context;
     jstring title;
     jstring message;
     jintArray button_flags;
@@ -1644,14 +1644,8 @@ int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *bu
 
     (*env)->DeleteLocalRef(env, clazz);
 
-    /* context = SDLActivity.getContext(); */
-    context = (*env)->CallStaticObjectMethod(env, mActivityClass, jnicall[SDLActivity_getContext]);
-
-    clazz = (*env)->GetObjectClass(env, context);
-
-    mid = (*env)->GetMethodID(env, clazz,
-                              "messageboxShowMessageBox", "(ILjava/lang/String;Ljava/lang/String;[I[I[Ljava/lang/String;[I)I");
-    *buttonid = (*env)->CallIntMethod(env, context, mid,
+    /* buttonid = SDLActivity.messageboxShowMessageBox(...); */
+    *buttonid = (*env)->CallStaticIntMethod(env, mActivityClass, jnicall[SDLActivity_messageboxShowMessageBox],
                                       messageboxdata->flags,
                                       title,
                                       message,
@@ -1659,9 +1653,6 @@ int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *bu
                                       button_ids,
                                       button_texts,
                                       colors);
-
-    (*env)->DeleteLocalRef(env, context);
-    (*env)->DeleteLocalRef(env, clazz);
 
     /* delete parameters */
 
