@@ -258,7 +258,7 @@ static jobject javaAssetManagerRef = 0;
 static void Android_JNI_SetEnv(JNIEnv *env)
 {
     int status = pthread_setspecific(mThreadKey, env);
-    if (status < 0) {
+    if (status != 0) {
         LOGE("Failed pthread_setspecific() (err=%d)", status);
     }
 }
@@ -277,7 +277,7 @@ static JNIEnv *Android_JNI_SetupThreadEnv(void)
     /* Attach the current thread to the JVM and get a JNIEnv.
      * It will be detached by pthread_create destructor 'Android_JNI_ThreadDestroyed' */
     status = (*mJavaVM)->AttachCurrentThread(mJavaVM, &env, NULL);
-    if (status < 0) {
+    if (status != JNI_OK) {
         LOGE("Failed to attach current thread (err=%d)", status);
         return NULL;
     }

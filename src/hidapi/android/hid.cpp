@@ -398,15 +398,25 @@ static uint64_t get_timespec_ms( const struct timespec &ts )
 static void HID_SetEnv(JNIEnv *env)
 {
 	int status = pthread_setspecific(g_ThreadKey, env);
-	if (status < 0) {
-		LOGE("Failed pthread_setspecific() in HID_SetEnv() (err=%d)", status);
+	if (status != 0) {
+		LOGE("Failed pthread_setspecific() (err=%d)", status);
 	}
 }
 
 static JNIEnv *HID_SetupThreadEnv(void)
 {
 	JNIEnv *env;
-	g_JVM->AttachCurrentThread(&env, NULL);
+	/* There should be a JVM */
+	if (!g_JVM) {
+		LOGE("Failed, there is no JavaVM");
+		return NULL;
+	}
+
+	int status = g_JVM->AttachCurrentThread(&env, NULL);
+	if (status != JNI_OK) {
+		LOGE("Failed to attach current thread (err=%d)", status);
+		return NULL;
+	}
 
 	HID_SetEnv(env);
 	return env;
