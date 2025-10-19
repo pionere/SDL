@@ -320,7 +320,7 @@ static void Android_JNI_ThreadDestroyed(void *value)
 static void Android_JNI_CreateKey(void)
 {
     int status = pthread_key_create(&mThreadKey, Android_JNI_ThreadDestroyed);
-    if (status < 0) {
+    if (status != 0) {
         LOGE("Failed pthread_key_create() (err=%d)", status);
     }
 }
@@ -328,7 +328,7 @@ static void Android_JNI_CreateKey(void)
 static void Android_JNI_CreateKey_once(void)
 {
     int status = pthread_once(&key_once, Android_JNI_CreateKey);
-    if (status < 0) {
+    if (status != 0) {
         LOGE("Failed pthread_once() (err=%d)", status);
     }
 }
