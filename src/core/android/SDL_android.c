@@ -257,7 +257,7 @@ static void Android_JNI_SetEnv(JNIEnv *env)
 {
     int status = pthread_setspecific(mThreadKey, env);
     if (status < 0) {
-        LOGE("Failed pthread_setspecific() in Android_JNI_SetEnv() (err=%d)", status);
+        LOGE("Failed pthread_setspecific() (err=%d)", status);
     }
 }
 
@@ -321,7 +321,7 @@ static void Android_JNI_CreateKey(void)
 {
     int status = pthread_key_create(&mThreadKey, Android_JNI_ThreadDestroyed);
     if (status < 0) {
-        LOGE("Error initializing mThreadKey with pthread_key_create() (err=%d)", status);
+        LOGE("Failed pthread_key_create() (err=%d)", status);
     }
 }
 
@@ -329,7 +329,7 @@ static void Android_JNI_CreateKey_once(void)
 {
     int status = pthread_once(&key_once, Android_JNI_CreateKey);
     if (status < 0) {
-        LOGE("Error initializing mThreadKey with pthread_once() (err=%d)", status);
+        LOGE("Failed pthread_once() (err=%d)", status);
     }
 }
 
@@ -376,7 +376,7 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
     Android_JNI_SetEnv(env);
 
     if (!mJavaVM) {
-        LOGE("failed to found a JavaVM");
+        LOGD("Failed to find a JavaVM");
     }
 
     /* Use a mutex to prevent concurrency issues between Java Activity and Native thread code, when using 'Android_Window'.
@@ -384,25 +384,26 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
      */
     Android_ActivityMutex = SDL_CreateMutex(); /* Could this be created twice if onCreate() is called a second time ? */
     if (!Android_ActivityMutex) {
-        LOGE("failed to create Android_ActivityMutex mutex");
+        LOGD("Failed to create Android_ActivityMutex mutex");
     }
 
     Android_PauseSem = SDL_CreateSemaphore(0);
     if (!Android_PauseSem) {
-        LOGE("failed to create Android_PauseSem semaphore");
+        LOGD("Failed to create Android_PauseSem semaphore");
     }
 
     Android_ResumeSem = SDL_CreateSemaphore(0);
     if (!Android_ResumeSem) {
-        LOGE("failed to create Android_ResumeSem semaphore");
+        LOGD("Failed to create Android_ResumeSem semaphore");
     }
 
     mActivityClass = (jclass)((*env)->NewGlobalRef(env, cls));
+    if (!mActivityClass) {
+        LOGD("Failed to create mActivityClass reference");
+    }
 
     for (int i = 0; i < SDL_JavaFuncs_count; i++) {
         jnicall[i] = (*env)->GetStaticMethodID(env, mActivityClass, SDLActivity_ifc[i].name, SDLActivity_ifc[i].signature);
-    }
-    for (int i = 0; i < SDL_JavaFuncs_count; i++) {
         if (!jnicall[i]) {
             LOGD("Missing Java callback '%s' (idx=%d) of SDLActivity.", SDLActivity_ifc[i].name, i);
         }
@@ -417,11 +418,12 @@ JNIEXPORT void JNICALL SDL_JAVA_AUDIO_INTERFACE(nativeSetupJNI)(JNIEnv *env, jcl
     LOGV("AUDIO nativeSetupJNI()");
 
     mAudioManagerClass = (jclass)((*env)->NewGlobalRef(env, cls));
+    if (!mAudioManagerClass) {
+        LOGD("Failed to create mAudioManagerClass reference");
+    }
 
     for (int i = 0; i < SDL_AudioFuncs_count; i++) {
         jnicall_audio[i] = (*env)->GetStaticMethodID(env, mAudioManagerClass, SDLAudioManager_ifc[i].name, SDLAudioManager_ifc[i].signature);
-    }
-    for (int i = 0; i < SDL_AudioFuncs_count; i++) {
         if (!jnicall_audio[i]) {
             LOGD("Missing Java callback '%s' (idx=%d) of SDLAudioManager.", SDLAudioManager_ifc[i].name, i);
         }
@@ -436,11 +438,12 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv *env
     LOGV("CONTROLLER nativeSetupJNI()");
 
     mControllerManagerClass = (jclass)((*env)->NewGlobalRef(env, cls));
+    if (!mControllerManagerClass) {
+        LOGD("Failed to create mControllerManagerClass reference");
+    }
 
     for (int i = 0; i < SDL_ControllerFuncs_count; i++) {
         jnicall_ctrl[i] = (*env)->GetStaticMethodID(env, mControllerManagerClass, SDLControllerManager_ifc[i].name, SDLControllerManager_ifc[i].signature);
-    }
-    for (int i = 0; i < SDL_ControllerFuncs_count; i++) {
         if (!jnicall_ctrl[i]) {
             LOGD("Missing Java callback '%s' (idx=%d) of SDLControllerManager.", SDLControllerManager_ifc[i].name, i);
         }
