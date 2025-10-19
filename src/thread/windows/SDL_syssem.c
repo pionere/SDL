@@ -98,9 +98,7 @@ static SDL_sem *SDL_CreateSemaphore_atom(Uint32 initial_value)
 
 static void SDL_DestroySemaphore_atom(SDL_sem *sem)
 {
-    if (sem) {
-        SDL_free(sem);
-    }
+    SDL_free(sem);
 }
 
 static int SDL_SemTryWait_atom(SDL_sem *_sem)

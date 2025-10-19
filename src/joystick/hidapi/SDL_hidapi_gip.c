@@ -1122,10 +1122,8 @@ static bool GIP_FragmentFailed(GIP_Attachment *attachment, const GIP_Header *hea
 {
     attachment->fragment_retries++;
     if (attachment->fragment_retries > 8) {
-        if (attachment->fragment_data) {
-            SDL_free(attachment->fragment_data);
-            attachment->fragment_data = NULL;
-        }
+        SDL_free(attachment->fragment_data);
+        attachment->fragment_data = NULL;
         attachment->fragment_message = 0;
     }
     return GIP_Acknowledge(attachment->device,
@@ -2448,10 +2446,8 @@ static void GIP_ReceivePacket(GIP_Device *device, const Uint8 *bytes, int num_by
                  * fragment before finishing the last message.
                  * TODO: Is this the correct behavior?
                  */
-                if (attachment->fragment_data) {
-                    SDL_free(attachment->fragment_data);
-                    attachment->fragment_data = NULL;
-                }
+                SDL_free(attachment->fragment_data);
+                attachment->fragment_data = NULL;
             }
             offset += GIP_DecodeLength(&total_length, &bytes[offset], num_bytes - offset);
             if (total_length > MAX_MESSAGE_LENGTH) {
@@ -2508,10 +2504,8 @@ static void GIP_ReceivePacket(GIP_Device *device, const Uint8 *bytes, int num_by
                 SDL_memcpy(&attachment->fragment_data[fragment_offset], &bytes[offset], (size_t) header.length);
             } else {
                 ok = GIP_HandleMessage(attachment, &header, attachment->fragment_data, attachment->total_length);
-                if (attachment->fragment_data) {
-                    SDL_free(attachment->fragment_data);
-                    attachment->fragment_data = NULL;
-                }
+                SDL_free(attachment->fragment_data);
+                attachment->fragment_data = NULL;
                 attachment->fragment_message = 0;
             }
             fragment_offset += header.length;
@@ -2912,10 +2906,7 @@ static void HIDAPI_DriverGIP_FreeDevice(SDL_HIDAPI_Device *device)
         if (!attachment) {
             continue;
         }
-        if (attachment->fragment_data) {
-            SDL_free(attachment->fragment_data);
-            attachment->fragment_data = NULL;
-        }
+        SDL_free(attachment->fragment_data);
         /*if (attachment->keyboard) {
             SDL_RemoveKeyboard(attachment->keyboard);
         }*/

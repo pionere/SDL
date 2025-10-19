@@ -886,22 +886,16 @@ void SDL_MouseQuit(void)
         mouse->def_cursor = NULL;
     }
 
-    if (mouse->sources) {
-        SDL_free(mouse->sources);
-        mouse->sources = NULL;
-    }
+    SDL_free(mouse->sources);
+    mouse->sources = NULL;
     mouse->num_sources = 0;
 
-    if (mouse->clickstate) {
-        SDL_free(mouse->clickstate);
-        mouse->clickstate = NULL;
-    }
+    SDL_free(mouse->clickstate);
+    mouse->clickstate = NULL;
     mouse->num_clickstates = 0;
 
-    if (mouse->system_scale_values) {
-        SDL_free(mouse->system_scale_values);
-        mouse->system_scale_values = NULL;
-    }
+    SDL_free(mouse->system_scale_values);
+    mouse->system_scale_values = NULL;
     mouse->num_system_scale_values = 0;
 
     SDL_DelHintCallback(SDL_HINT_MOUSE_DOUBLE_CLICK_TIME,

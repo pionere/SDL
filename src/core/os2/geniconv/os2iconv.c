@@ -184,9 +184,7 @@ size_t _System os2_iconv(iconv_t cd,
 #endif
 
     if (uo_tocode && uo_fromcode && (((iuconv_obj *)cd)->buf_len >> 1) < *inbytesleft) {
-        if (((iuconv_obj *)cd)->buf != NULL) {
-            SDL_free(((iuconv_obj *)cd)->buf);
-        }
+        SDL_free(((iuconv_obj *)cd)->buf);
         ((iuconv_obj *)cd)->buf_len = *inbytesleft << 1;
         ((iuconv_obj *)cd)->buf = (UniChar *) SDL_malloc(((iuconv_obj *)cd)->buf_len);
     }
@@ -275,9 +273,7 @@ int _System os2_iconv_close(iconv_t cd)
         UniFreeUconvObject(((iuconv_obj *)cd)->uo_fromcode);
     }
 
-    if (((iuconv_obj *)cd)->buf != NULL) {
-        SDL_free(((iuconv_obj *)cd)->buf);
-    }
+    SDL_free(((iuconv_obj *)cd)->buf);
     SDL_free(cd);
 
     return 0;

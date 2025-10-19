@@ -384,10 +384,8 @@ SDL_bool SDL_Fcitx_Init(void)
 void SDL_Fcitx_Quit(void)
 {
     FcitxClientICCallMethod(&fcitx_client, "DestroyIC");
-    if (fcitx_client.ic_path) {
-        SDL_free(fcitx_client.ic_path);
-        fcitx_client.ic_path = NULL;
-    }
+    SDL_free(fcitx_client.ic_path);
+    fcitx_client.ic_path = NULL;
 }
 
 void SDL_Fcitx_SetFocus(SDL_bool focused)

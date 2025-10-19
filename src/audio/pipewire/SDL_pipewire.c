@@ -834,14 +834,11 @@ static void hotplug_loop_destroy(void)
     hotplug_init_complete = SDL_FALSE;
     hotplug_events_enabled = SDL_FALSE;
 
-    if (pipewire_default_sink_id) {
-        SDL_free(pipewire_default_sink_id);
-        pipewire_default_sink_id = NULL;
-    }
-    if (pipewire_default_source_id) {
-        SDL_free(pipewire_default_source_id);
-        pipewire_default_source_id = NULL;
-    }
+    SDL_free(pipewire_default_sink_id);
+    pipewire_default_sink_id = NULL;
+
+    SDL_free(pipewire_default_source_id);
+    pipewire_default_source_id = NULL;
 
     if (hotplug_registry) {
         PIPEWIRE_pw_proxy_destroy((struct pw_proxy *)hotplug_registry);

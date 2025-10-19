@@ -789,11 +789,9 @@ static void RAWINPUT_QuitWindowsGamingInput(RAWINPUT_DeviceContext *ctx)
         for (ii = 0; ii < wgi_state.per_gamepad_count; ii++) {
             __x_ABI_CWindows_CGaming_CInput_CIGamepad_Release(wgi_state.per_gamepad[ii]->gamepad);
         }
-        if (wgi_state.per_gamepad) {
-            SDL_free(wgi_state.per_gamepad);
-            wgi_state.per_gamepad = NULL;
-        }
         wgi_state.per_gamepad_count = 0;
+        SDL_free(wgi_state.per_gamepad);
+        wgi_state.per_gamepad = NULL;
         if (wgi_state.gamepad_statics) {
             __x_ABI_CWindows_CGaming_CInput_CIGamepadStatics_remove_GamepadAdded(wgi_state.gamepad_statics, wgi_state.gamepad_added_token);
             __x_ABI_CWindows_CGaming_CInput_CIGamepadStatics_remove_GamepadRemoved(wgi_state.gamepad_statics, wgi_state.gamepad_removed_token);

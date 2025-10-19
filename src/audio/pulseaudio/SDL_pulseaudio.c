@@ -766,9 +766,7 @@ static void SinkInfoCallback(pa_context *c, const pa_sink_info *i, int is_last, 
         }
 
         if (default_sink_path && SDL_strcmp(i->name, default_sink_path) == 0) {
-            if (default_sink_name) {
-                SDL_free(default_sink_name);
-            }
+            SDL_free(default_sink_name);
             default_sink_name = SDL_strdup(i->description);
         }
     }
@@ -792,9 +790,7 @@ static void SourceInfoCallback(pa_context *c, const pa_source_info *i, int is_la
             }
 
             if (default_source_path && SDL_strcmp(i->name, default_source_path) == 0) {
-                if (default_source_name) {
-                    SDL_free(default_source_name);
-                }
+                SDL_free(default_source_name);
                 default_source_name = SDL_strdup(i->description);
             }
         }

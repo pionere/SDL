@@ -929,10 +929,8 @@ static void OS2_DestroyWindow(SDL_Window * window)
         WinReleasePS(hps);
     }
 
-    if (window->shaper) {
-        SDL_free(window->shaper);
-        window->shaper = NULL;
-    }
+    SDL_free(window->shaper);
+    window->shaper = NULL;
 //    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
         /* Window was created by SDL (OS2_CreateSDLWindow()),
          * not by user (OS2_CreateSDLWindowFrom()) */

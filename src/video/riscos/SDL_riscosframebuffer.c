@@ -127,10 +127,8 @@ void RISCOS_DestroyWindowFramebuffer(SDL_Window *window)
         return;
     }
 
-    if (driverdata->fb_area) {
-        SDL_free(driverdata->fb_area);
-        driverdata->fb_area = NULL;
-    }
+    SDL_free(driverdata->fb_area);
+    driverdata->fb_area = NULL;
     driverdata->fb_sprite = NULL;
 }
 

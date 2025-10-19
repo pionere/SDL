@@ -1472,10 +1472,9 @@ static WaveFactChunkHint WaveGetFactChunkHint(void)
 
 static void WaveFreeChunkData(WaveChunk *chunk)
 {
-    if (chunk->data) {
-        SDL_free(chunk->data);
-        chunk->data = NULL;
-    }
+    SDL_free(chunk->data);
+    chunk->data = NULL;
+
     chunk->size = 0;
 }
 

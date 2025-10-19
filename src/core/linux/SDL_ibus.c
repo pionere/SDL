@@ -619,15 +619,11 @@ void SDL_IBus_Quit(void)
 {
     SDL_DBusContext *dbus;
 
-    if (input_ctx_path) {
-        SDL_free(input_ctx_path);
-        input_ctx_path = NULL;
-    }
+    SDL_free(input_ctx_path);
+    input_ctx_path = NULL;
 
-    if (ibus_addr_file) {
-        SDL_free(ibus_addr_file);
-        ibus_addr_file = NULL;
-    }
+    SDL_free(ibus_addr_file);
+    ibus_addr_file = NULL;
 
     dbus = SDL_DBus_GetContext();
 

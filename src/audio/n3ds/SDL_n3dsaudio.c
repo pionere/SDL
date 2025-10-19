@@ -305,11 +305,7 @@ static void FreePrivateData(_THIS)
         linearFree((void *)this->hidden->waveBuf[0].data_vaddr);
     }
 
-    if (this->hidden->mixbuf) {
-        SDL_free(this->hidden->mixbuf);
-        this->hidden->mixbuf = NULL;
-    }
-
+    SDL_free(this->hidden->mixbuf);
     SDL_free(this->hidden);
     this->hidden = NULL;
 }

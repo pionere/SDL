@@ -210,11 +210,8 @@ static PVODATA voOpen(void)
 
 static VOID voClose(PVODATA pVOData)
 {
-    if (pVOData->pRectl)
-        SDL_free(pVOData->pRectl);
-
-    if (pVOData->pBltRect)
-        SDL_free(pVOData->pBltRect);
+    SDL_free(pVOData->pRectl);
+    SDL_free(pVOData->pBltRect);
 
     voVideoBufFree(pVOData);
 }

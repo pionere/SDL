@@ -39,7 +39,7 @@
 #include "GLES/gl.h"
 /* WIZ declarations */
 #ifdef WIZ_GLES_LITE
-static NativeWindowType hNativeWnd = 0; /* A handle to the window we will create. */
+static NativeWindowType hNativeWnd = NULL; /* A handle to the window we will create. */
 #endif
 #endif
 
@@ -714,11 +714,8 @@ static EGLSurface PND_EGL_CreateSurface(_THIS)
 static void PND_EGL_DestroySurface(EGLSurface egl_surface)
 {
 #ifdef WIZ_GLES_LITE
-    if (hNativeWnd != 0) {
-        SDL_free(hNativeWnd);
-        hNativeWnd = 0;
-        SDL_LogDebug("SDL: Wiz framebuffer released\n");
-    }
+    SDL_free(hNativeWnd);
+    hNativeWnd = NULL;
 #endif
     if (egl_surface != EGL_NO_SURFACE) {
         Pandora_VideoData *phdata = &pandoraVideoData;

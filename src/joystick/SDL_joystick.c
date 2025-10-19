@@ -1965,11 +1965,9 @@ void SDL_JoystickQuit(void)
         SDL_joystick_drivers[i]->Quit();
     }
 
-    if (SDL_joystick_players) {
-        SDL_free(SDL_joystick_players);
-        SDL_joystick_players = NULL;
-        SDL_joystick_player_count = 0;
-    }
+    SDL_free(SDL_joystick_players);
+    SDL_joystick_players = NULL;
+    SDL_joystick_player_count = 0;
 
     SDL_QuitSteamVirtualGamepadInfo();
 

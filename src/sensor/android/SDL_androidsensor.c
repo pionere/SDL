@@ -181,11 +181,9 @@ static void SDL_ANDROID_SensorClose(SDL_Sensor *sensor)
 
 static void SDL_ANDROID_SensorQuit(void)
 {
-    if (SDL_sensors) {
-        SDL_free(SDL_sensors);
-        SDL_sensors = NULL;
-        SDL_sensors_count = 0;
-    }
+    SDL_free(SDL_sensors);
+    SDL_sensors = NULL;
+    SDL_sensors_count = 0;
 }
 
 SDL_SensorDriver SDL_ANDROID_SensorDriver = {

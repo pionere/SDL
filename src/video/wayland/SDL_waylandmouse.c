@@ -589,7 +589,7 @@ void Wayland_RecreateCursors(void)
     SDL_Mouse *mouse = SDL_GetMouse();
     Wayland_VideoData *vdata = &waylandVideoData;
 
-    if (vdata && vdata->cursor_themes) {
+    if (vdata) {
         SDL_free(vdata->cursor_themes);
         vdata->cursor_themes = NULL;
         vdata->num_cursor_themes = 0;

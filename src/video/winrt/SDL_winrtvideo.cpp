@@ -444,9 +444,7 @@ done:
     if (dxgiOutput) {
         dxgiOutput->Release();
     }
-    if (displayName) {
-        SDL_free(displayName);
-    }
+    SDL_free(displayName);
     return functionResult;
 }
 
