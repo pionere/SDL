@@ -412,9 +412,10 @@ static JNIEnv *HID_SetupThreadEnv(void)
 	return env;
 }
 
-static void ExceptionCheck(JNIEnv *env)
+static bool ExceptionCheck(JNIEnv *env)
 {
-	if (env->ExceptionCheck()) {
+	bool result = env->ExceptionCheck();
+	if (result) {
 #ifdef DEBUG
 		// Get our exception
 		jthrowable exception = env->ExceptionOccurred();
@@ -454,6 +455,7 @@ static void ExceptionCheck(JNIEnv *env)
 		env->DeleteLocalRef(exception);
 #endif
 	}
+	return result;
 }
 
 class CHIDDevice
@@ -518,15 +520,11 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env = HID_SetupThreadEnv();
 
-		if ( !g_HIDDeviceManagerCallbackHandler )
-		{
-			LOGV( "Device open without callback handler" );
-			return false;
-		}
-
 		m_bIsWaitingForOpen = false;
 		m_bOpenResult = env->CallBooleanMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_openDevice], m_nId );
-		ExceptionCheck(env);
+		if (ExceptionCheck(env)) {
+			m_bOpenResult = false;
+		}
 
 		if ( m_bIsWaitingForOpen )
 		{
@@ -631,17 +629,14 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env = HID_SetupThreadEnv();
 
-		int nRet = -1;
-		if ( g_HIDDeviceManagerCallbackHandler )
+		int nRet;
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendOutputReport], m_nId, pBuf );
-			ExceptionCheck(env);
+			if (ExceptionCheck(env)) {
+				nRet = -1;
+			}
 			env->DeleteLocalRef( pBuf );
-		}
-		else
-		{
-			LOGV( "SendOutputReport without callback handler" );
 		}
 		return nRet;
 	}
@@ -651,17 +646,14 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env = HID_SetupThreadEnv();
 
-		int nRet = -1;
-		if ( g_HIDDeviceManagerCallbackHandler )
+		int nRet;
 		{
 			jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 			nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_sendFeatureReport], m_nId, pBuf );
-			ExceptionCheck(env);
+			if (ExceptionCheck(env)) {
+				nRet = -1;
+			}
 			env->DeleteLocalRef( pBuf );
-		}
-		else
-		{
-			LOGV( "SendFeatureReport without callback handler" );
 		}
 		return nRet;
 	}
@@ -684,12 +676,6 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env = HID_SetupThreadEnv();
 
-		if ( !g_HIDDeviceManagerCallbackHandler )
-		{
-			LOGV( "GetFeatureReport without callback handler" );
-			return -1;
-		}
-
 		{
 			hid_mutex_guard cvl( &m_cvLock );
 			if ( m_bIsWaitingForFeatureReport )
@@ -702,7 +688,9 @@ public:
 
 		jbyteArray pBuf = NewByteArray( env, pData, nDataLen );
 		int nRet = env->CallIntMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_getFeatureReport], m_nId, pBuf );
-		ExceptionCheck(env);
+		if (ExceptionCheck(env)) {
+			nRet = -1;
+		}
 		env->DeleteLocalRef( pBuf );
 		if ( nRet < 0 )
 		{
@@ -758,7 +746,6 @@ public:
 		// Make sure thread is attached to JVM/env
 		JNIEnv *env = HID_SetupThreadEnv();
 
-		if ( g_HIDDeviceManagerCallbackHandler )
 		{
 			env->CallVoidMethod( g_HIDDeviceManagerCallbackHandler, jnicall_hid[SDLhid_closeDevice], m_nId );
 			ExceptionCheck(env);
@@ -1019,12 +1006,6 @@ int hid_init(void)
 		{
 			// Make sure thread is attached to JVM/env
 			JNIEnv *env = HID_SetupThreadEnv();
-
-			if ( !g_HIDDeviceManagerCallbackHandler )
-			{
-				LOGV( "hid_init() without callback handler" );
-				return -1;
-			}
 
 			// Bluetooth is currently only used for Steam Controllers, so check that hint
 			// before initializing Bluetooth, which will prompt the user for permission.

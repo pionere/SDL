@@ -610,16 +610,13 @@ public class HIDDeviceManager {
             return false;
         }
 
-        try {
+        {
             return device.open();
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return false;
     }
 
     public int sendOutputReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "sendOutputReport deviceID=" + deviceID + " length=" + report.length);
             HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
@@ -627,14 +624,11 @@ public class HIDDeviceManager {
             }
 
             return device.sendOutputReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public int sendFeatureReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "sendFeatureReport deviceID=" + deviceID + " length=" + report.length);
             HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
@@ -642,14 +636,11 @@ public class HIDDeviceManager {
             }
 
             return device.sendFeatureReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public int getFeatureReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "getFeatureReport deviceID=" + deviceID);
             HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
@@ -657,14 +648,11 @@ public class HIDDeviceManager {
             }
 
             return device.getFeatureReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public void closeDevice(int deviceID) {
-        try {
+        {
             Log.v(TAG, "closeDevice deviceID=" + deviceID);
             HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
@@ -672,8 +660,6 @@ public class HIDDeviceManager {
             }
 
             device.close();
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
     }
 
