@@ -837,17 +837,22 @@ static void ThreadDestroyed(void* value)
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
+	int status;
     LOGV("HIDDeviceRegisterCallback()");
 
-    env->GetJavaVM( &g_JVM );
+	status = env->GetJavaVM( &g_JVM );
+	if (status != 0) {
+		LOGD("Failed to find a JavaVM");
+	}
 
     /*
      * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
      * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
      */
-    if (pthread_key_create(&g_ThreadKey, ThreadDestroyed) != 0) {
-        LOGE("Error initializing pthread key");
-    }
+	status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
+	if (status != 0) {
+		LOGE("Failed pthread_key_create() (err=%d)", status);
+	}
 
     if (g_HIDDeviceManagerCallbackHandler != NULL) {
         env->DeleteGlobalRef(g_HIDDeviceManagerCallbackHandler);
@@ -855,12 +860,14 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
     }
 
     g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
+	if (!g_HIDDeviceManagerCallbackHandler) {
+		LOGD("Failed to create g_HIDDeviceManagerCallbackHandler reference");
+	}
+
     jclass objClass = env->GetObjectClass(thiz);
 
     for (int i = 0; i < SDL_HID_funcs_count; i++) {
         jnicall_hid[i] = env->GetMethodID(objClass, SDLHIDManager_ifc[i].name, SDLHIDManager_ifc[i].signature);
-    }
-    for (int i = 0; i < SDL_HID_funcs_count; i++) {
         if (!jnicall_hid[i]) {
             LOGD("Missing Java callback '%s' (idx=%d) of SDLHIDManager.", SDLHIDManager_ifc[i].name, i);
         }
