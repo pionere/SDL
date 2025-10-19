@@ -822,6 +822,15 @@ static void ThreadDestroyed(void* value)
 	}
 }
 
+/* Creation of local storage mThreadKey */
+static void HID_CreateKey(void)
+{
+	int status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
+	if (status != 0) {
+		LOGE("Failed pthread_key_create() (err=%d)", status);
+	}
+}
+
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
 	int status;
@@ -836,10 +845,7 @@ JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallba
 	 * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
 	 * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
 	 */
-	status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
-	if (status != 0) {
-		LOGE("Failed pthread_key_create() (err=%d)", status);
-	}
+	HID_CreateKey();
 
 	g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
 	if (!g_HIDDeviceManagerCallbackHandler) {
