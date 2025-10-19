@@ -558,6 +558,14 @@ public class HIDDeviceManager {
         }
     }
 
+    private HIDDevice getDeviceById(int deviceID) {
+        HIDDevice device = getDevice(deviceID);
+        if (device == null) {
+            HIDDeviceDisconnected(deviceID);
+        }
+        return device;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// JNI interface functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,9 +582,8 @@ public class HIDDeviceManager {
 
     public boolean openDevice(int deviceID) {
         Log.v(TAG, "openDevice deviceID=" + deviceID);
-        HIDDevice device = getDevice(deviceID);
+        HIDDevice device = getDeviceById(deviceID);
         if (device == null) {
-            HIDDeviceDisconnected(deviceID);
             return false;
         }
 
@@ -614,10 +621,8 @@ public class HIDDeviceManager {
     public int sendOutputReport(int deviceID, byte[] report) {
         try {
             //Log.v(TAG, "sendOutputReport deviceID=" + deviceID + " length=" + report.length);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
@@ -631,10 +636,8 @@ public class HIDDeviceManager {
     public int sendFeatureReport(int deviceID, byte[] report) {
         try {
             //Log.v(TAG, "sendFeatureReport deviceID=" + deviceID + " length=" + report.length);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
@@ -648,10 +651,8 @@ public class HIDDeviceManager {
     public int getFeatureReport(int deviceID, byte[] report) {
         try {
             //Log.v(TAG, "getFeatureReport deviceID=" + deviceID);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
@@ -665,10 +666,8 @@ public class HIDDeviceManager {
     public void closeDevice(int deviceID) {
         try {
             Log.v(TAG, "closeDevice deviceID=" + deviceID);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return;
             }
 
