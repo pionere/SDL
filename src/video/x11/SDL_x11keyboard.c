@@ -212,13 +212,9 @@ int X11_InitKeyboard(void)
         (void)setlocale(LC_ALL, prev_locale);
         X11_XSetLocaleModifiers(prev_xmods);
 
-        if (prev_locale) {
-            SDL_free(prev_locale);
-        }
+        SDL_free(prev_locale);
 
-        if (prev_xmods) {
-            SDL_free(prev_xmods);
-        }
+        SDL_free(prev_xmods);
     }
 #endif
     /* Try to determine which scancodes are being used based on fingerprint */

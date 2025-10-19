@@ -44,9 +44,7 @@ SDL_mutex *SDL_CreateMutex(void)
 /* Free the mutex */
 void SDL_DestroyMutex(SDL_mutex *mutex)
 {
-    if (mutex) {
-        SDL_free(mutex);
-    }
+    SDL_free(mutex);
 }
 
 /* Lock the mutex */

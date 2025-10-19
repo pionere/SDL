@@ -580,9 +580,7 @@ SDL_bool SDL_IBus_Init(void)
             return SDL_FALSE;
         }
 
-        if (ibus_addr_file) {
-            SDL_free(ibus_addr_file);
-        }
+        SDL_free(ibus_addr_file);
         ibus_addr_file = SDL_strdup(addr_file);
 
         if (inotify_fd < 0) {

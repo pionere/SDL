@@ -143,8 +143,6 @@ LoadTexture(SDL_Renderer *renderer, const char *file, SDL_bool transparent,
         }
     }
     SDL_FreeSurface(temp);
-    if (path) {
-        SDL_free(path);
-    }
+    SDL_free(path);
     return texture;
 }

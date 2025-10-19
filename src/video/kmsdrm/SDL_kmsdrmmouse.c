@@ -211,10 +211,7 @@ static int KMSDRM_DumpCursorToBO(SDL_VideoDisplay *display, SDL_Cursor *cursor)
     }
 
 cleanup:
-
-    if (ready_buffer) {
-        SDL_free(ready_buffer);
-    }
+    SDL_free(ready_buffer);
     return ret;
 }
 

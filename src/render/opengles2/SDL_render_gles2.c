@@ -1673,9 +1673,7 @@ static int GLES2_TexSubImage2D(GLES2_RenderData *data, GLenum target, GLint xoff
     }
 
     data->glTexSubImage2D(target, 0, xoffset, yoffset, width, height, format, type, src);
-    if (blob) {
-        SDL_free(blob);
-    }
+    SDL_free(blob);
     return 0;
 }
 

@@ -424,9 +424,7 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
         }
 
         /* Free the list of displays supported by this plane. */
-        if (supported_displays) {
-            SDL_free(supported_displays);
-        }
+        SDL_free(supported_displays);
 
         /* If the display is not supported by this plane, iterate to the next plane. */
         if (!plane_supports_display) {
@@ -474,21 +472,11 @@ SDL_bool KMSDRM_Vulkan_CreateSurface(SDL_VulkanVideo *vulkan_config,
     ret = SDL_TRUE;
 
 clean:
-    if (physical_devices) {
-        SDL_free(physical_devices);
-    }
-    if (display_props) {
-        SDL_free(display_props);
-    }
-    if (device_props) {
-        SDL_free(device_props);
-    }
-    if (plane_props) {
-        SDL_free(plane_props);
-    }
-    if (mode_props) {
-        SDL_free(mode_props);
-    }
+    SDL_free(physical_devices);
+    SDL_free(display_props);
+    SDL_free(device_props);
+    SDL_free(plane_props);
+    SDL_free(mode_props);
 
     return ret;
 }

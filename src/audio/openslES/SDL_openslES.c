@@ -216,9 +216,7 @@ static void openslES_DestroyPCMRecorder(_THIS)
         audiodata->playsem = NULL;
     }
 
-    if (audiodata->mixbuff) {
-        SDL_free(audiodata->mixbuff);
-    }
+    SDL_free(audiodata->mixbuff);
 }
 
 static int openslES_CreatePCMRecorder(_THIS)
@@ -394,9 +392,7 @@ static void openslES_DestroyPCMPlayer(_THIS)
         audiodata->playsem = NULL;
     }
 
-    if (audiodata->mixbuff) {
-        SDL_free(audiodata->mixbuff);
-    }
+    SDL_free(audiodata->mixbuff);
 }
 
 static int openslES_CreatePCMPlayer(_THIS)

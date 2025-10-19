@@ -964,9 +964,7 @@ void WIN_UpdateWindowICCProfile(SDL_Window * window, SDL_bool send_event)
                 /* fileNameSize includes '\0' on return */
                 if (!data->ICMFileName ||
                     SDL_wcscmp(data->ICMFileName, fileName) != 0) {
-                    if (data->ICMFileName) {
-                        SDL_free(data->ICMFileName);
-                    }
+                    SDL_free(data->ICMFileName);
                     data->ICMFileName = SDL_wcsdup(fileName);
                     if (send_event) {
                         SDL_SendWindowEvent(window, SDL_WINDOWEVENT_ICCPROF_CHANGED, 0, 0);
@@ -1087,22 +1085,17 @@ void WIN_SetWindowKeyboardGrab(SDL_Window *window, SDL_bool grabbed)
 
 void WIN_DestroyWindow(SDL_Window *window)
 {
-    SDL_WindowShaper *shaper = window->shaper;
     SDL_WindowData *data;
 
-    if (shaper) {
-        SDL_free(shaper);
-        window->shaper = NULL;
-    }
+    SDL_free(window->shaper);
+    window->shaper = NULL;
 
     data = (SDL_WindowData *)window->driverdata;
     if (data) {
         SDL_DelHintCallback(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, WIN_MouseRelativeModeCenterChanged, data);
 
 #if !defined(__XBOXONE__) && !defined(__XBOXSERIES__)
-        if (data->ICMFileName) {
-            SDL_free(data->ICMFileName);
-        }
+        SDL_free(data->ICMFileName);
         if (data->keyboard_hook) {
             UnhookWindowsHookEx(data->keyboard_hook);
         }
