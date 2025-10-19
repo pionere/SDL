@@ -412,6 +412,25 @@ static JNIEnv *HID_SetupThreadEnv(void)
 	return env;
 }
 
+static void ThreadDestroyed(void* value)
+{
+	/* The thread is being destroyed, detach it from the Java VM and set the g_ThreadKey value to NULL as required */
+	JNIEnv *env = (JNIEnv*) value;
+	if (env != NULL) {
+		g_JVM->DetachCurrentThread();
+		HID_SetEnv(NULL);
+	}
+}
+
+/* Creation of local storage mThreadKey */
+static void HID_CreateKey(void)
+{
+	int status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
+	if (status != 0) {
+		LOGE("Failed pthread_key_create() (err=%d)", status);
+	}
+}
+
 static bool ExceptionCheck(JNIEnv *env)
 {
 	bool result = env->ExceptionCheck();
@@ -810,25 +829,6 @@ static hid_device_ref<CHIDDevice> FindDevice( int nDeviceId )
 		}
 	}
 	return pDevice;
-}
-
-static void ThreadDestroyed(void* value)
-{
-	/* The thread is being destroyed, detach it from the Java VM and set the g_ThreadKey value to NULL as required */
-	JNIEnv *env = (JNIEnv*) value;
-	if (env != NULL) {
-		g_JVM->DetachCurrentThread();
-		HID_SetEnv(NULL);
-	}
-}
-
-/* Creation of local storage mThreadKey */
-static void HID_CreateKey(void)
-{
-	int status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
-	if (status != 0) {
-		LOGE("Failed pthread_key_create() (err=%d)", status);
-	}
 }
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
