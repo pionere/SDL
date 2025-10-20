@@ -590,7 +590,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			/* Fill out the record */
 			cur_dev->next = NULL;
 			make_path(dev, cbuf, sizeof(cbuf));
-			cur_dev->path = strdup(cbuf);
+			cur_dev->path = SDL_strdup(cbuf);
 			
 			/* Serial Number */
 			get_serial_number(dev, buf, BUF_LEN);
