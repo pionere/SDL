@@ -391,7 +391,7 @@ bool CRenderer::CopyEx(SDL_Renderer *renderer, SDL_Texture *texture, const NGAGE
     dest = pixel_buffer_a;
 
     void *pixel_buffer_b = SDL_calloc(1, pitch * h);
-    if (!pixel_buffer_a) {
+    if (!pixel_buffer_b) {
         SDL_free(pixel_buffer_a);
         return false;
     }
