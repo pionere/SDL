@@ -65,9 +65,7 @@ int HAIKU_CreateWindowFramebuffer(SDL_Window * window,
     /* Create the new bitmap object */
     BBitmap *bitmap = bwin->GetBitmap();
 
-    if (bitmap) {
-        delete bitmap;
-    }
+    delete bitmap;
     bitmap = new BBitmap(bwin->Bounds(), (color_space)bmode.space,
             false,    /* Views not accepted */
             true);    /* Contiguous memory required */

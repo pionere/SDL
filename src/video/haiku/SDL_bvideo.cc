@@ -228,9 +228,7 @@ static SDL_Cursor * HAIKU_CreateDefaultCursor()
 
 static void HAIKU_FreeCursor(SDL_Cursor * cursor)
 {
-    if (cursor->driverdata) {
-        delete (BCursor*) cursor->driverdata;
-    }
+    delete (BCursor*) cursor->driverdata;
     SDL_free(cursor);
 }
 

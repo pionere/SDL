@@ -119,7 +119,7 @@ class SDL_BWin : public BWindow
     {
         Lock();
 
-        if (_SDL_View != NULL && _SDL_View != _cur_view) {
+        if (_SDL_View != _cur_view) {
             delete _SDL_View;
             _SDL_View = NULL;
         }
