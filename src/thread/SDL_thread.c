@@ -74,7 +74,7 @@ int SDL_TLSSet(SDL_TLSID id, const void *value, SDL_TLSDestructorCallback destru
         unsigned int i, oldlimit, newlimit;
 
         oldlimit = storage ? storage->limit : 0;
-        newlimit = (id + TLS_ALLOC_CHUNKSIZE);
+        newlimit = (id - 1 + TLS_ALLOC_CHUNKSIZE);
         storage = (SDL_TLSData *)SDL_realloc(storage, sizeof(*storage) + (newlimit - 1) * sizeof(storage->array[0]));
         if (!storage) {
             return SDL_OutOfMemory();
