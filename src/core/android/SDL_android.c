@@ -310,11 +310,10 @@ void Android_JNI_SetupThread(void)
 /* Destructor called for each thread where mThreadKey is not NULL */
 static void Android_JNI_ThreadDestroyed(void *value)
 {
-    /* The thread is being destroyed, detach it from the Java VM and set the mThreadKey value to NULL as required */
+    /* The thread is being destroyed, detach it from the Java VM */
     JNIEnv *env = (JNIEnv *)value;
     if (env) {
         (*mJavaVM)->DetachCurrentThread(mJavaVM);
-        Android_JNI_SetEnv(NULL);
     }
 }
 
@@ -374,12 +373,8 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeSetupJNI)(JNIEnv *env, jclass cl
      */
     Android_JNI_CreateKey_once();
 
-    /* Save JNIEnv of SDLActivity */
-    Android_JNI_SetEnv(env);
-
-    if (!mJavaVM) {
-        LOGD("Failed to find a JavaVM");
-    }
+    /* Ensure the thread is attached and JNIEnv of SDLThread is initialized */
+    Android_JNI_SetupThread();
 
     /* Use a mutex to prevent concurrency issues between Java Activity and Native thread code, when using 'Android_Window'.
      * (Eg. Java sending Touch events, while native code is destroying the main SDL_Window. )
@@ -467,8 +462,8 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls
 
     LOGV("nativeRunMain()");
 
-    /* Save JNIEnv of SDLThread */
-    Android_JNI_SetEnv(env);
+    /* Ensure the thread is attached and JNIEnv of SDLThread is initialized */
+    Android_JNI_SetupThread();
 
     library_file = (*env)->GetStringUTFChars(env, library, NULL);
     library_handle = dlopen(library_file, RTLD_GLOBAL);
@@ -543,10 +538,6 @@ JNIEXPORT void JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls
         LOGE("nativeRunMain(): Couldn't load library %s", library_file);
     }
     (*env)->ReleaseStringUTFChars(env, library, library_file);
-
-    /* This is a Java thread, it doesn't need to be Detached from the JVM.
-     * Set to mThreadKey value to NULL not to call pthread_create destructor 'Android_JNI_ThreadDestroyed' */
-    Android_JNI_SetEnv(NULL);
 
     /* Do not issue an exit or the whole application will terminate instead of just the SDL thread */
     /* exit(status); */
