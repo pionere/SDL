@@ -337,13 +337,9 @@ static jbyteArray NewByteArray( JNIEnv* env, const uint8_t *pData, size_t nDataL
 
 static char *CreateStringFromJString( JNIEnv *env, const jstring &sString )
 {
-	size_t nLength = env->GetStringUTFLength( sString );
-	nLength += 1; // GetStringUTFChars returns a NULL-terminated string
+	// GetStringUTFChars returns a NULL-terminated string
 	const char *pjChars = env->GetStringUTFChars( sString, NULL );
-	char *psString = (char*)SDL_malloc(nLength);
-	if (psString) {
-		SDL_memcpy( psString, pjChars, nLength );
-	}
+	char *psString = pjChars ? SDL_strdup(pjChars) : NULL;
 	env->ReleaseStringUTFChars( sString, pjChars );
 	return psString;
 }
