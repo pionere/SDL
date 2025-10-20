@@ -568,7 +568,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			SDL_snprintf(vendor_match, sizeof(vendor_match), "0x%.4x/0x0000", dev_vid);
 			SDL_snprintf(product_match, sizeof(product_match), "0x%.4x/0x%.4x", dev_vid, dev_pid);
 			if (SDL_strcasestr(hint, vendor_match) || SDL_strcasestr(hint, product_match)) {
-				continue;
+				goto next;
 			}
 		}
 
