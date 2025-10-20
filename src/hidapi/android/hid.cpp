@@ -364,7 +364,7 @@ static hid_device_info *CopyHIDDeviceInfo( const hid_device_info *pInfo )
 {
 	hid_device_info *pCopy = new hid_device_info;
 	*pCopy = *pInfo;
-	pCopy->path = SDL_strdup( pInfo->path );
+	pCopy->path = pInfo->path ? SDL_strdup(pInfo->path) : NULL;
 	pCopy->product_string = SDL_wcsdup( pInfo->product_string );
 	pCopy->manufacturer_string = SDL_wcsdup( pInfo->manufacturer_string );
 	pCopy->serial_number = SDL_wcsdup( pInfo->serial_number );
