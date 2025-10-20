@@ -130,10 +130,8 @@ SDL_WasapiDeviceEventHandler::~SDL_WasapiDeviceEventHandler()
         watcher->Stop();
         watcher = nullptr;
     }
-    if (completed) {
-        SDL_DestroySemaphore(completed);
-        completed = nullptr;
-    }
+    SDL_DestroySemaphore(completed);
+    completed = nullptr;
 
     if (iscapture) {
         MediaDevice::DefaultAudioCaptureDeviceChanged -= default_changed_handler;

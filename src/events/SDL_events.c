@@ -593,10 +593,9 @@ void SDL_StopEventLoop(void)
         SDL_disabled_events[i] = NULL;
     }
 
-    if (SDL_event_watchers_lock) {
-        SDL_DestroyMutex(SDL_event_watchers_lock);
-        SDL_event_watchers_lock = NULL;
-    }
+    SDL_DestroyMutex(SDL_event_watchers_lock);
+    SDL_event_watchers_lock = NULL;
+
     SDL_free(SDL_event_watchers);
     SDL_event_watchers = NULL;
     SDL_event_watchers_count = 0;
@@ -605,10 +604,8 @@ void SDL_StopEventLoop(void)
 
     SDL_UnlockMutex(SDL_EventQ.lock);
 
-    if (SDL_EventQ.lock) {
-        SDL_DestroyMutex(SDL_EventQ.lock);
-        SDL_EventQ.lock = NULL;
-    }
+    SDL_DestroyMutex(SDL_EventQ.lock);
+    SDL_EventQ.lock = NULL;
 }
 
 /* This function (and associated calls) may be called more than once */

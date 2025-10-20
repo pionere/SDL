@@ -821,9 +821,7 @@ static void COREAUDIO_CloseDevice(_THIS)
         open_devices = NULL;
     }
 
-    if (this->hidden->ready_semaphore) {
-        SDL_DestroySemaphore(this->hidden->ready_semaphore);
-    }
+    SDL_DestroySemaphore(this->hidden->ready_semaphore);
 
     /* AudioQueueDispose() frees the actual buffer objects. */
     SDL_free(this->hidden->audioBuffer);

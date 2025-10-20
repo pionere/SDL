@@ -211,10 +211,8 @@ static void openslES_DestroyPCMRecorder(_THIS)
         recorderBufferQueue = NULL;
     }
 
-    if (audiodata->playsem) {
-        SDL_DestroySemaphore(audiodata->playsem);
-        audiodata->playsem = NULL;
-    }
+    SDL_DestroySemaphore(audiodata->playsem);
+    audiodata->playsem = NULL;
 
     SDL_free(audiodata->mixbuff);
 }
@@ -387,10 +385,8 @@ static void openslES_DestroyPCMPlayer(_THIS)
         bqPlayerBufferQueue = NULL;
     }
 
-    if (audiodata->playsem) {
-        SDL_DestroySemaphore(audiodata->playsem);
-        audiodata->playsem = NULL;
-    }
+    SDL_DestroySemaphore(audiodata->playsem);
+    audiodata->playsem = NULL;
 
     SDL_free(audiodata->mixbuff);
 }

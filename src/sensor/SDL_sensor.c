@@ -459,10 +459,8 @@ void SDL_SensorQuit(void)
 
     SDL_UnlockSensors();
 
-    if (SDL_sensor_lock) {
-        SDL_DestroyMutex(SDL_sensor_lock);
-        SDL_sensor_lock = NULL;
-    }
+    SDL_DestroyMutex(SDL_sensor_lock);
+    SDL_sensor_lock = NULL;
 }
 
 /* These are global for SDL_syssensor.c and SDL_events.c */

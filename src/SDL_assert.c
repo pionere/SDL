@@ -411,10 +411,8 @@ void SDL_AssertionsQuit(void)
 #if SDL_ASSERT_LEVEL > 0
     SDL_GenerateAssertionReport();
 #if !defined(SDL_THREADS_DISABLED) && !defined(SDL_THREAD_DUMMY)
-    if (assertion_mutex) {
-        SDL_DestroyMutex(assertion_mutex);
-        assertion_mutex = NULL;
-    }
+    SDL_DestroyMutex(assertion_mutex);
+    assertion_mutex = NULL;
 #endif
 #endif /* SDL_ASSERT_LEVEL > 0 */
 }

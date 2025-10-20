@@ -232,10 +232,8 @@ void SDL_Generic_QuitTLSData(void)
         SDL_UnlockMutex(SDL_generic_TLS_mutex);
     }
 
-    if (SDL_generic_TLS_mutex) {
-        SDL_DestroyMutex(SDL_generic_TLS_mutex);
-        SDL_generic_TLS_mutex = NULL;
-    }
+    SDL_DestroyMutex(SDL_generic_TLS_mutex);
+    SDL_generic_TLS_mutex = NULL;
 }
 
 /* Non-thread-safe global error variable */

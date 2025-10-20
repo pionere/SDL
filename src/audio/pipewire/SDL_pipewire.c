@@ -1341,9 +1341,7 @@ static void PIPEWIRE_CloseDevice(_THIS)
         PIPEWIRE_pw_thread_loop_destroy(this->hidden->loop);
     }
 
-    if (this->hidden->buffer) {
-        SDL_FreeDataQueue(this->hidden->buffer);
-    }
+    SDL_FreeDataQueue(this->hidden->buffer);
 
     SDL_free(this->hidden);
 }

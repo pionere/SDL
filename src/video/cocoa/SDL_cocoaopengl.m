@@ -210,14 +210,10 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
         CVDisplayLinkRelease(self->displayLink);
         self->displayLink = nil;
     }
-    if (self->swapIntervalCond) {
-        SDL_DestroyCond(self->swapIntervalCond);
-        self->swapIntervalCond = NULL;
-    }
-    if (self->swapIntervalMutex) {
-        SDL_DestroyMutex(self->swapIntervalMutex);
-        self->swapIntervalMutex = NULL;
-    }
+    SDL_DestroyCond(self->swapIntervalCond);
+    self->swapIntervalCond = NULL;
+    SDL_DestroyMutex(self->swapIntervalMutex);
+    self->swapIntervalMutex = NULL;
 }
 
 @end

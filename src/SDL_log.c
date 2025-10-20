@@ -116,10 +116,8 @@ void SDL_LogInit(void)
 void SDL_LogQuit(void)
 {
     SDL_LogResetPriorities();
-    if (log_function_mutex) {
-        SDL_DestroyMutex(log_function_mutex);
-        log_function_mutex = NULL;
-    }
+    SDL_DestroyMutex(log_function_mutex);
+    log_function_mutex = NULL;
 }
 
 void SDL_LogSetAllPriority(SDL_LogPriority priority)

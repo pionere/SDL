@@ -130,15 +130,11 @@ static void SDL_HIDAPI_StopRumbleThread(SDL_HIDAPI_RumbleContext *ctx)
     }
     SDL_UnlockMutex(SDL_HIDAPI_rumble_lock);
 
-    if (ctx->request_sem) {
-        SDL_DestroySemaphore(ctx->request_sem);
-        ctx->request_sem = NULL;
-    }
+    SDL_DestroySemaphore(ctx->request_sem);
+    ctx->request_sem = NULL;
 
-    if (SDL_HIDAPI_rumble_lock) {
-        SDL_DestroyMutex(SDL_HIDAPI_rumble_lock);
-        SDL_HIDAPI_rumble_lock = NULL;
-    }
+    SDL_DestroyMutex(SDL_HIDAPI_rumble_lock);
+    SDL_HIDAPI_rumble_lock = NULL;
 
     SDL_AtomicSet(&ctx->initialized, SDL_FALSE);
 }

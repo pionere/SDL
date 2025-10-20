@@ -1163,9 +1163,7 @@ static void close_audio_device(SDL_AudioDevice *device)
     if (device->thread != NULL) {
         SDL_WaitThread(device->thread, NULL);
     }
-    if (device->mixer_lock != NULL) {
-        SDL_DestroyMutex(device->mixer_lock);
-    }
+    SDL_DestroyMutex(device->mixer_lock);
 
     SDL_free(device->work_buffer);
     SDL_FreeAudioStream(device->stream);

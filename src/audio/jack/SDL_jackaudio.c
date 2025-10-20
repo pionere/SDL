@@ -252,9 +252,7 @@ static void JACK_CloseDevice(_THIS)
         JACK_jack_client_close(this->hidden->client);
     }
 
-    if (this->hidden->iosem) {
-        SDL_DestroySemaphore(this->hidden->iosem);
-    }
+    SDL_DestroySemaphore(this->hidden->iosem);
 
     SDL_free(this->hidden->iobuffer);
     SDL_free(this->hidden);
