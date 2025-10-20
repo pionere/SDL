@@ -104,9 +104,6 @@ struct hid_device_
 	int m_nDeviceRefCount;
 };
 
-static JavaVM *g_JVM;
-static pthread_key_t g_ThreadKey;
-
 template<class T>
 class hid_device_ref
 {
@@ -395,63 +392,13 @@ static uint64_t get_timespec_ms( const struct timespec &ts )
 	return (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
-static void HID_SetEnv(JNIEnv *env)
-{
-	int status = pthread_setspecific(g_ThreadKey, env);
-	if (status != 0) {
-		LOGE("Failed pthread_setspecific() (err=%d)", status);
-	}
-}
-
-static JNIEnv *HID_SetupThreadEnv(void)
-{
-	JNIEnv *env;
-	/* There should be a JVM */
-	if (!g_JVM) {
-		LOGE("Failed, there is no JavaVM");
-		return NULL;
-	}
-
-	int status = g_JVM->AttachCurrentThread(&env, NULL);
-	if (status != JNI_OK) {
-		LOGE("Failed to attach current thread (err=%d)", status);
-		return NULL;
-	}
-
-	HID_SetEnv(env);
-	return env;
-}
-
 /* Get local storage value */
 static JNIEnv *HID_GetEnv(void)
 {
 	/* Get JNIEnv from the Thread local storage */
-	JNIEnv *env = (JNIEnv *)pthread_getspecific(g_ThreadKey);
-	if (!env) {
-		/* If it fails, lazy initialize it */
-		env = HID_SetupThreadEnv();
-	}
+	JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
 
 	return env;
-}
-
-static void ThreadDestroyed(void* value)
-{
-	/* The thread is being destroyed, detach it from the Java VM and set the g_ThreadKey value to NULL as required */
-	JNIEnv *env = (JNIEnv*) value;
-	if (env != NULL) {
-		g_JVM->DetachCurrentThread();
-		HID_SetEnv(NULL);
-	}
-}
-
-/* Creation of local storage mThreadKey */
-static void HID_CreateKey(void)
-{
-	int status = pthread_key_create(&g_ThreadKey, ThreadDestroyed);
-	if (status != 0) {
-		LOGE("Failed pthread_key_create() (err=%d)", status);
-	}
 }
 
 static bool ExceptionCheck(JNIEnv *env)
@@ -851,19 +798,10 @@ static hid_device_ref<CHIDDevice> FindDevice( int nDeviceId )
 
 JNIEXPORT void JNICALL HID_DEVICE_MANAGER_JAVA_INTERFACE(HIDDeviceRegisterCallback)(JNIEnv *env, jobject thiz)
 {
-	int status;
 	LOGV("HIDDeviceRegisterCallback()");
 
-	status = env->GetJavaVM( &g_JVM );
-	if (status != 0) {
-		LOGD("Failed to find a JavaVM");
-	}
-
-	/*
-	 * Create mThreadKey so we can keep track of the JNIEnv assigned to each thread
-	 * Refer to http://developer.android.com/guide/practices/design/jni.html for the rationale behind this
-	 */
-	HID_CreateKey();
+	/* Ensure the thread is attached and JNIEnv of SDLThread is initialized */
+	Android_JNI_SetupThread();
 
 	g_HIDDeviceManagerCallbackHandler = env->NewGlobalRef(thiz);
 	if (!g_HIDDeviceManagerCallbackHandler) {
@@ -1025,6 +963,9 @@ extern "C"
 
 int hid_init(void)
 {
+	/* Ensure the thread is attached and JNIEnv of SDLThread is initialized */
+	Android_JNI_SetupThread();
+
 	if ( !g_initialized )
 	{
 		{
