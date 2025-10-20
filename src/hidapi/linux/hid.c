@@ -605,8 +605,7 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 			/* Interface Number */
 			cur_dev->interface_number = -1;
 
-			switch (bus_type) {
-				case BUS_USB:
+			if (bus_type == BUS_USB) {
 					/* The device pointed to by raw_dev contains information about
 					   the hidraw device. In order to get information about the
 					   USB device, get the parent device with the
@@ -654,19 +653,11 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 						cur_dev->interface_number = (str)? strtol(str, NULL, 16): -1;
 					}
 
-					break;
-
-				case BUS_BLUETOOTH:
+			} else {
+					SDL_assert(bus_type == BUS_BLUETOOTH);
 					/* Manufacturer and Product strings */
 					cur_dev->manufacturer_string = wcsdup(L"");
 					cur_dev->product_string = utf8_to_wchar_t(product_name_utf8);
-
-					break;
-
-				default:
-					/* Unknown device type - this should never happen, as we
-					 * check for USB and Bluetooth devices above */
-					break;
 			}
 		}
 
