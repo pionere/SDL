@@ -512,7 +512,6 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			BOOLEAN hidp_res;
 			NTSTATUS nt_res;
 			wchar_t wstr[WSTR_LEN]; /* TODO: Determine Size */
-			size_t len;
 
 			/* Get the Usage Page and Usage for this device. */
 			hidp_res = HidD_GetPreparsedData(write_handle, &pp_data);
@@ -553,13 +552,7 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 			cur_dev->usage = caps.Usage;
 			cur_dev->next = NULL;
 			str = device_interface_detail_data->DevicePath;
-			if (str) {
-				len = strlen(str);
-				cur_dev->path = (char*) calloc(len+1, sizeof(char));
-				memcpy(cur_dev->path, str, len+1);
-			}
-			else
-				cur_dev->path = NULL;
+			cur_dev->path = str ? SDL_strdup(str) : NULL;
 
 			/* Serial Number */
 			hidp_res = HidD_GetSerialNumberString(write_handle, wstr, sizeof(wstr));
