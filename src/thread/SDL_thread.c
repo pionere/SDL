@@ -29,9 +29,9 @@
 #include "../SDL_error_c.h"
 
 /* The storage is local to the thread, but the IDs are global for the process */
-
+#ifdef DEBUG
 static SDL_atomic_t SDL_tls_allocated;
-
+#endif
 void SDL_InitTLSData(void)
 {
     SDL_SYS_InitTLSData();
@@ -88,7 +88,9 @@ int SDL_TLSSet(SDL_TLSID id, const void *value, SDL_TLSDestructorCallback destru
             SDL_free(storage);
             return -1;
         }
+#ifdef DEBUG
         SDL_AtomicIncRef(&SDL_tls_allocated);
+#endif
     }
 
     storage->array[id - 1].data = SDL_const_cast(void *, value);
@@ -111,19 +113,22 @@ void SDL_TLSCleanup(void)
         }
         SDL_SYS_SetTLSData(NULL);
         SDL_free(storage);
+#ifdef DEBUG
         (void)SDL_AtomicDecRef(&SDL_tls_allocated);
+#endif
     }
 }
 
 void SDL_QuitTLSData(void)
 {
     SDL_TLSCleanup();
-
-    if (SDL_AtomicGet(&SDL_tls_allocated) == 0) {
-        SDL_SYS_QuitTLSData();
-    } else {
-        /* Some thread hasn't called SDL_CleanupTLS() */
+#ifdef DEBUG
+    if (SDL_AtomicGet(&SDL_tls_allocated) != 0) {
+        SDL_SetError("Some thread hasn't called SDL_CleanupTLS()");
+        return;
     }
+#endif
+    SDL_SYS_QuitTLSData();
 }
 
 /* This is a generic implementation of thread-local storage which doesn't
