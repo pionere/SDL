@@ -293,11 +293,14 @@ static JNIEnv *Android_JNI_GetEnv(void)
 {
     /* Get JNIEnv from the Thread local storage */
     JNIEnv *env = pthread_getspecific(mThreadKey);
+#if 0
     if (!env) {
         /* If it fails, try to attach ! (e.g the thread isn't created with SDL_CreateThread() */
         env = Android_JNI_SetupThreadEnv();
     }
-
+#else
+    SDL_assert(env != NULL);
+#endif
     return env;
 }
 
