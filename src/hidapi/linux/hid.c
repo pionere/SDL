@@ -579,6 +579,9 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 
 			/* VID/PID match. Create the record. */
 			tmp = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info));
+			if (!tmp) {
+				goto next;
+			}
 			if (cur_dev) {
 				cur_dev->next = tmp;
 			}

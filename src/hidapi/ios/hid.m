@@ -879,6 +879,9 @@ struct hid_device_info  HID_API_EXPORT *hid_enumerate(unsigned short vendor_id, 
 				continue;
 			}
 			device_info = (struct hid_device_info *)SDL_calloc(1, sizeof(struct hid_device_info) );
+			if (!device_info) {
+				continue;
+			}
 			device_info->next = root;
 			root = device_info;
 			device_info->path = strdup( device.bleSteamController.identifier.UUIDString.UTF8String );

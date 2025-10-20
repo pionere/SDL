@@ -539,6 +539,9 @@ struct hid_device_info HID_API_EXPORT * HID_API_CALL hid_enumerate(unsigned shor
 
 			/* VID/PID match. Create the record. */
 			tmp = (struct hid_device_info*) calloc(1, sizeof(struct hid_device_info));
+			if (!tmp) {
+				goto cont_close;
+			}
 			if (cur_dev) {
 				cur_dev->next = tmp;
 			}
