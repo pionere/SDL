@@ -1871,8 +1871,8 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     }
 
     /* Create Vulkan device */
-    rendererData->device = NULL; // (VkDevice)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_DEVICE_POINTER, NULL);
-    if (rendererData->device) {
+    rendererData->device = VK_NULL_HANDLE; // (VkDevice)SDL_GetProperty(create_props, SDL_PROP_RENDERER_CREATE_VULKAN_DEVICE_POINTER, NULL);
+    if (rendererData->device != VK_NULL_HANDLE) {
         // rendererData->device_external = SDL_TRUE;
     } else {
         VkPhysicalDeviceSamplerYcbcrConversionFeatures deviceSamplerYcbcrConversionFeatures = { 0 };
