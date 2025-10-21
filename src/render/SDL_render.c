@@ -4388,6 +4388,8 @@ static void SDL_DiscardAllCommands(SDL_Renderer *renderer)
 
 void SDL_DestroyRenderer(SDL_Renderer *renderer)
 {
+    SDL_Texture *texture;
+
     CHECK_RENDERER_MAGIC(renderer, );
 
     if (renderer->info.flags & SDL_RENDERER_DONTFREE) {
@@ -4402,11 +4404,9 @@ void SDL_DestroyRenderer(SDL_Renderer *renderer)
 
     /* Free existing textures for this renderer */
     renderer->target = NULL; /* ensure the texture is not flushed */
-    while (renderer->textures) {
-        SDL_Texture *tex = renderer->textures;
-        (void)tex;
-        SDL_DestroyTexture(renderer->textures);
-        SDL_assert(tex != renderer->textures); /* satisfy static analysis. */
+    while ((texture = renderer->textures) != NULL) {
+        SDL_DestroyTexture(texture);
+        SDL_assert(texture != renderer->textures); /* satisfy static analysis. */
     }
 
     if (renderer->window) {
