@@ -474,7 +474,7 @@ static VkFormat SDLPixelFormatToVkTextureFormat(Uint32 format) // , Uint32 color
     }
 }
 
-// static void VULKAN_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture);
+static void VULKAN_DestroyTexture(SDL_Renderer *renderer, SDL_Texture *texture);
 static void VULKAN_DestroyBuffer(VULKAN_RenderData *rendererData, VULKAN_Buffer *vulkanBuffer);
 // static void VULKAN_DestroyImage(VULKAN_RenderData *rendererData, VULKAN_Image *vulkanImage);
 static void VULKAN_ResetCommandList(VULKAN_RenderData *rendererData);
@@ -581,6 +581,12 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     VULKAN_RenderData *rendererData;
 
     SDL_assert(renderer != NULL);
+
+    // Release all textures
+    for (SDL_Texture *texture = renderer->textures; texture; texture = texture->next) {
+        VULKAN_DestroyTexture(renderer, texture);
+    }
+
     rendererData = (VULKAN_RenderData *)renderer->driverdata;
     SDL_assert(rendererData != NULL);
 #if 0
@@ -1126,6 +1132,7 @@ static void VULKAN_DestroyRenderer(SDL_Renderer *renderer)
     VULKAN_DestroyAll(renderer);
     if (data->vulkan_loaded) {
         SDL_Vulkan_UnloadLibrary();
+        // data->vulkan_loaded = SDL_FALSE;
     }
     SDL_free(data);
     SDL_free(renderer);
@@ -1758,7 +1765,7 @@ static VkResult VULKAN_CreateDeviceResources(SDL_Renderer *renderer) // , SDL_Pr
     SDL_bool createDebug = SDL_FALSE;
     const char *validationLayerName[] = { SDL_VULKAN_VALIDATION_LAYER_NAME };
 
-    if (SDL_Vulkan_LoadLibrary(NULL) < 0) {
+    if (!rendererData->vulkan_loaded && SDL_Vulkan_LoadLibrary(NULL) < 0) {
         return SDL_VULKAN_ERROR_UNKNOWN;
     }
     rendererData->vulkan_loaded = SDL_TRUE;
@@ -2512,6 +2519,23 @@ static VkResult VULKAN_UpdateForWindowSizeChange(SDL_Renderer *renderer)
     VULKAN_WaitForGPU(rendererData);
 
     return VULKAN_CreateWindowSizeDependentResources(renderer);
+}
+
+static void VULKAN_HandleDeviceLost(SDL_Renderer *renderer)
+{
+    VULKAN_DestroyAll(renderer);
+
+    if (VULKAN_CreateDeviceResources(renderer /*, rendererData->create_props*/) != VK_SUCCESS ||
+        VULKAN_CreateWindowSizeDependentResources(renderer) != VK_SUCCESS) {
+        VULKAN_DestroyAll(renderer);
+    }
+#if 0
+    // Let the application know that the device has been reset or lost
+    SDL_Event event;
+    event.type = recovered ? SDL_EVENT_RENDER_DEVICE_RESET : SDL_EVENT_RENDER_DEVICE_LOST;
+    event.common.timestamp = 0;
+    SDL_PushEvent(&event);
+#endif
 }
 
 static void VULKAN_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
@@ -4218,6 +4242,9 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
         }
         result = vkQueueSubmit(rendererData->graphicsQueue, 1, &submitInfo, rendererData->fences[rendererData->currentCommandBufferIndex]);
         if (result != VK_SUCCESS) {
+            if (result == VK_ERROR_DEVICE_LOST) {
+                VULKAN_HandleDeviceLost(renderer);
+            }
             return SDL_Vulkan_SetError("VULKAN_RenderPresent", "vkQueueSubmit", result);
         }
         rendererData->currentCommandBuffer = VK_NULL_HANDLE;
@@ -4240,6 +4267,9 @@ static int VULKAN_RenderPresent(SDL_Renderer *renderer)
         /* Wait for previous time this command buffer was submitted, will be N frames ago */
         result = vkWaitForFences(rendererData->device, 1, &rendererData->fences[rendererData->currentCommandBufferIndex], VK_TRUE, UINT64_MAX);
         if (result != VK_SUCCESS) {
+            if (result == VK_ERROR_DEVICE_LOST) {
+                VULKAN_HandleDeviceLost(renderer);
+            }
             return SDL_Vulkan_SetError("VULKAN_RenderPresent", "vkWaitForFences", result);
         }
 
