@@ -618,6 +618,8 @@ static void VULKAN_DestroyAll(SDL_Renderer *renderer)
     }
     SDL_free(rendererData->commandBuffers);
     rendererData->commandBuffers = NULL;
+    rendererData->currentCommandBuffer = VK_NULL_HANDLE;
+    rendererData->currentCommandBufferIndex = 0;
 
     SDL_free(rendererData->surfaceFormats);
     rendererData->surfaceFormats = NULL;
