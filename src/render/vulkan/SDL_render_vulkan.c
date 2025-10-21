@@ -1398,8 +1398,7 @@ static VkResult VULKAN_LoadGlobalFunctions()
 #define VULKAN_GLOBAL_FUNCTION(name)                                                   \
     name = (PFN_##name)vkGetInstanceProcAddr(VK_NULL_HANDLE, #name);                   \
     if (!name) {                                                                       \
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER,                                          \
-                     "vkGetInstanceProcAddr(VK_NULL_HANDLE, \"" #name "\") failed\n"); \
+        SDL_SetError("vkGetInstanceProcAddr(VK_NULL_HANDLE, \"" #name "\") failed\n"); \
         return SDL_VULKAN_ERROR_UNKNOWN;                                               \
     }
 #define VULKAN_INSTANCE_FUNCTION(name)
@@ -1424,8 +1423,7 @@ static VkResult VULKAN_LoadInstanceFunctions(VULKAN_RenderData *rendererData)
 #define VULKAN_INSTANCE_FUNCTION(name)                                                      \
     name = (PFN_##name)vkGetInstanceProcAddr(rendererData->instance, #name);  \
     if (!name) {                                                                            \
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER,                                               \
-                     "vkGetInstanceProcAddr(instance, \"" #name "\") failed\n");            \
+        SDL_SetError("vkGetInstanceProcAddr(instance, \"" #name "\") failed\n");            \
         return SDL_VULKAN_ERROR_UNKNOWN;                                                    \
     }
 #define VULKAN_OPTIONAL_INSTANCE_FUNCTION(name)                                             \
@@ -1447,8 +1445,7 @@ static VkResult VULKAN_LoadDeviceFunctions(VULKAN_RenderData *rendererData)
 #define VULKAN_DEVICE_FUNCTION(name)                                         \
     name = (PFN_##name)vkGetDeviceProcAddr(rendererData->device, #name);     \
     if (!name) {                                                             \
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER,                                \
-                     "vkGetDeviceProcAddr(device, \"" #name "\") failed\n"); \
+        SDL_SetError("vkGetDeviceProcAddr(device, \"" #name "\") failed\n"); \
         return SDL_VULKAN_ERROR_UNKNOWN;                                     \
     }
 #define VULKAN_GLOBAL_FUNCTION(name)
