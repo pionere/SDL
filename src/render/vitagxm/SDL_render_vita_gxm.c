@@ -360,7 +360,7 @@ static void VITA_GXM_SetYUVProfile(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 
     if (ret < 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Setting YUV profile failed: %x\n", ret);
+        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Setting YUV profile failed: %x", ret);
     }
 }
 #endif

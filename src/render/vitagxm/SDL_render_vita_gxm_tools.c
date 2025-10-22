@@ -88,7 +88,7 @@ static void *pool_alloc(VITA_GXM_RenderData *data, unsigned int size, unsigned i
         data->pool_index = new_index + size;
         return addr;
     }
-    SDL_LogError(SDL_LOG_CATEGORY_RENDER, "POOL OVERFLOW\n");
+    SDL_LogError(SDL_LOG_CATEGORY_RENDER, "POOL OVERFLOW");
     return NULL;
 }
 
@@ -174,7 +174,7 @@ static void make_fragment_programs(VITA_GXM_RenderData *data, fragment_programs 
         &out->color);
 
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Patcher create fragment failed: %d\n", err);
+        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Patcher create fragment failed: %d", err);
         return;
     }
 
@@ -188,7 +188,7 @@ static void make_fragment_programs(VITA_GXM_RenderData *data, fragment_programs 
         &out->texture);
 
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Patcher create fragment failed: %d\n", err);
+        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Patcher create fragment failed: %d", err);
         return;
     }
 }
