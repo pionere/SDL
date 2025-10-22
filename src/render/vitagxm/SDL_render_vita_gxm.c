@@ -320,7 +320,7 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
 
     if (!vita_texture->tex) {
         SDL_free(vita_texture);
-        return SDL_OutOfMemory();
+        return -1;
     }
 
     texture->driverdata = vita_texture;

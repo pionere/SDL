@@ -377,7 +377,7 @@ int gxm_init(SDL_Renderer *renderer)
     err = sceGxmInitialize(&initializeParams);
 
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "gxm init failed: %d\n", err);
+        SDL_SetError("gxm init failed: %d", err);
         return err;
     }
 
@@ -423,7 +423,7 @@ int gxm_init(SDL_Renderer *renderer)
 
     err = sceGxmCreateContext(&data->contextParams, &data->gxm_context);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create context failed: %d\n", err);
+        SDL_SetError("create context failed: %d", err);
         return err;
     }
 
@@ -440,7 +440,7 @@ int gxm_init(SDL_Renderer *renderer)
     // create the render target
     err = sceGxmCreateRenderTarget(&renderTargetParams, &data->renderTarget);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "render target creation failed: %d\n", err);
+        SDL_SetError("render target creation failed: %d", err);
         return err;
     }
 
@@ -476,14 +476,14 @@ int gxm_init(SDL_Renderer *renderer)
             data->displayBufferData[i]);
 
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "color surface init failed: %d\n", err);
+            SDL_SetError("color surface init failed: %d", err);
             return err;
         }
 
         // create a sync object that we will associate with this buffer
         err = sceGxmSyncObjectCreate(&data->displayBufferSync[i]);
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "sync object creation failed: %d\n", err);
+            SDL_SetError("sync object creation failed: %d", err);
             return err;
         }
     }
@@ -566,81 +566,81 @@ int gxm_init(SDL_Renderer *renderer)
 
     err = sceGxmShaderPatcherCreate(&patcherParams, &data->shaderPatcher);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "shader patcher creation failed: %d\n", err);
+        SDL_SetError("shader patcher creation failed: %d", err);
         return err;
     }
 
     // check the shaders
     err = sceGxmProgramCheck(clearVertexProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (clear vertex) failed: %d\n", err);
+        SDL_SetError("check program (clear vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmProgramCheck(clearFragmentProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (clear fragment) failed: %d\n", err);
+        SDL_SetError("check program (clear fragment) failed: %d", err);
         return err;
     }
 
     err = sceGxmProgramCheck(colorVertexProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (color vertex) failed: %d\n", err);
+        SDL_SetError("check program (color vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmProgramCheck(colorFragmentProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (color fragment) failed: %d\n", err);
+        SDL_SetError("check program (color fragment) failed: %d", err);
         return err;
     }
 
     err = sceGxmProgramCheck(textureVertexProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (texture vertex) failed: %d\n", err);
+        SDL_SetError("check program (texture vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmProgramCheck(textureFragmentProgramGxp);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "check program (texture fragment) failed: %d\n", err);
+        SDL_SetError("check program (texture fragment) failed: %d", err);
         return err;
     }
 
     // register programs with the patcher
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, clearVertexProgramGxp, &data->clearVertexProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (clear vertex) failed: %d\n", err);
+        SDL_SetError("register program (clear vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, clearFragmentProgramGxp, &data->clearFragmentProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (clear fragment) failed: %d\n", err);
+        SDL_SetError("register program (clear fragment) failed: %d", err);
         return err;
     }
 
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, colorVertexProgramGxp, &data->colorVertexProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (color vertex) failed: %d\n", err);
+        SDL_SetError("register program (color vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, colorFragmentProgramGxp, &data->colorFragmentProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (color fragment) failed: %d\n", err);
+        SDL_SetError("register program (color fragment) failed: %d", err);
         return err;
     }
 
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, textureVertexProgramGxp, &data->textureVertexProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (texture vertex) failed: %d\n", err);
+        SDL_SetError("register program (texture vertex) failed: %d", err);
         return err;
     }
 
     err = sceGxmShaderPatcherRegisterProgram(data->shaderPatcher, textureFragmentProgramGxp, &data->textureFragmentProgramId);
     if (err != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "register program (texture fragment) failed: %d\n", err);
+        SDL_SetError("register program (texture fragment) failed: %d", err);
         return err;
     }
 
@@ -669,7 +669,7 @@ int gxm_init(SDL_Renderer *renderer)
             1,
             &data->clearVertexProgram);
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create program (clear vertex) failed: %d\n", err);
+            SDL_SetError("create program (clear vertex) failed: %d", err);
             return err;
         }
 
@@ -682,7 +682,7 @@ int gxm_init(SDL_Renderer *renderer)
             clearVertexProgramGxp,
             &data->clearFragmentProgram);
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create program (clear fragment) failed: %d\n", err);
+            SDL_SetError("create program (clear fragment) failed: %d", err);
             return err;
         }
 
@@ -750,7 +750,7 @@ int gxm_init(SDL_Renderer *renderer)
             1,
             &data->colorVertexProgram);
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create program (color vertex) failed: %d\n", err);
+            SDL_SetError("create program (color vertex) failed: %d", err);
             return err;
         }
     }
@@ -795,7 +795,7 @@ int gxm_init(SDL_Renderer *renderer)
             1,
             &data->textureVertexProgram);
         if (err != 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create program (texture vertex) failed: %x\n", err);
+            SDL_SetError("create program (texture vertex) failed: %x", err);
             return err;
         }
     }
@@ -988,6 +988,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
     }
 
     if (!texture) {
+        SDL_OutOfMemory();
         return NULL;
     }
 
@@ -1016,6 +1017,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
 
     if (!texture_data) {
         SDL_free(texture);
+        SDL_OutOfMemory();
         return NULL;
     }
 
@@ -1026,7 +1028,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
     ret = sceGxmTextureInitLinear(&texture->gxm_tex, texture_data, format, texture_w, h, 0);
     if (ret < 0) {
         free_gxm_texture(data, texture);
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER, "texture init failed: %x\n", ret);
+        SDL_SetError("texture init failed: %x", ret);
         return NULL;
     }
 
@@ -1051,7 +1053,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
 
         if (err < 0) {
             free_gxm_texture(data, texture);
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "color surface init failed: %x\n", err);
+            SDL_SetError("color surface init failed: %x", err);
             return NULL;
         }
 
@@ -1074,7 +1076,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
 
         if (err < 0) {
             free_gxm_texture(data, texture);
-            SDL_LogError(SDL_LOG_CATEGORY_RENDER, "depth stencil init failed: %x\n", err);
+            SDL_SetError("depth stencil init failed: %x", err);
             return NULL;
         }
 
@@ -1099,7 +1101,7 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
 
             if (err < 0) {
                 free_gxm_texture(data, texture);
-                SDL_LogError(SDL_LOG_CATEGORY_RENDER, "create render target failed: %x\n", err);
+                SDL_SetError("create render target failed: %x", err);
                 return NULL;
             }
         }
