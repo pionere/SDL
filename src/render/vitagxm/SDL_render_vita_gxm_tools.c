@@ -83,10 +83,10 @@ static void patcher_host_free(void *user_data, void *mem)
 
 void *pool_malloc(VITA_GXM_RenderData *data, unsigned int size)
 {
-
-    if ((data->pool_index + size) < VITA_GXM_POOL_SIZE) {
-        void *addr = (void *)((unsigned int)data->pool_addr[data->current_pool] + data->pool_index);
-        data->pool_index += size;
+    unsigned int new_index = data->pool_index;
+    if ((new_index + size) < VITA_GXM_POOL_SIZE) {
+        void *addr = (void *)((unsigned int)data->pool_addr[data->current_pool] + new_index);
+        data->pool_index = new_index + size;
         return addr;
     }
     SDL_LogError(SDL_LOG_CATEGORY_RENDER, "POOL OVERFLOW\n");
