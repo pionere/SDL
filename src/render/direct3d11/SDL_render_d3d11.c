@@ -2261,15 +2261,16 @@ static int D3D11_RenderPresent(SDL_Renderer *renderer)
     UINT syncInterval;
     UINT presentFlags;
     HRESULT result;
-    DXGI_PRESENT_PARAMETERS parameters;
-
-    SDL_zero(parameters);
-
 #if SDL_WINAPI_FAMILY_PHONE
+
     syncInterval = 1;
     presentFlags = 0;
     result = IDXGISwapChain_Present(data->swapChain, syncInterval, presentFlags);
 #else
+    DXGI_PRESENT_PARAMETERS parameters;
+
+    SDL_zero(parameters);
+
     if (renderer->info.flags & SDL_RENDERER_PRESENTVSYNC) {
         syncInterval = 1;
         presentFlags = 0;
