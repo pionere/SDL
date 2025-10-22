@@ -2286,16 +2286,20 @@ static int D3D11_RenderPresent(SDL_Renderer *renderer)
     result = IDXGISwapChain1_Present1(data->swapChain, syncInterval, presentFlags, &parameters);
 #endif
 
-    /* Discard the contents of the render target.
-     * This is a valid operation only when the existing contents will be entirely
-     * overwritten. If dirty or scroll rects are used, this call should be removed.
-     */
-    ID3D11DeviceContext1_DiscardView(data->d3dContext, (ID3D11View *)data->mainRenderTargetView);
-
     /* When the present flips, it unbinds the current view, so bind it again on the next draw call */
     data->currentRenderTargetView = NULL;
 
-    if (FAILED(result) && result != DXGI_ERROR_WAS_STILL_DRAWING) {
+    if (!FAILED(result)) {
+        /* Discard the contents of the render target.
+         * This is a valid operation only when the existing contents will be entirely
+         * overwritten. If dirty or scroll rects are used, this call should be removed.
+         */
+        ID3D11DeviceContext1_DiscardView(data->d3dContext, (ID3D11View *)data->mainRenderTargetView);
+
+        return 0;
+    }
+
+    if (result != DXGI_ERROR_WAS_STILL_DRAWING) {
         /* If the device was removed either by a disconnect or a driver upgrade, we
          * must recreate all device resources.
          *
