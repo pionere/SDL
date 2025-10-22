@@ -2299,7 +2299,7 @@ static int D3D11_RenderPresent(SDL_Renderer *renderer)
         return 0;
     }
 
-    if (result != DXGI_ERROR_WAS_STILL_DRAWING) {
+    // if (result != DXGI_ERROR_WAS_STILL_DRAWING) {
         /* If the device was removed either by a disconnect or a driver upgrade, we
          * must recreate all device resources.
          *
@@ -2313,9 +2313,8 @@ static int D3D11_RenderPresent(SDL_Renderer *renderer)
         } else {
             D3D11_SetError("IDXGISwapChain::Present", result);
         }
-        return -1;
-    }
-    return 0;
+    // }
+    return -1;
 }
 
 static int D3D11_SetVSync(SDL_Renderer *renderer, const int vsync)
