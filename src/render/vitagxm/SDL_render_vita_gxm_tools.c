@@ -84,7 +84,7 @@ static void patcher_host_free(void *user_data, void *mem)
 static void *pool_alloc(VITA_GXM_RenderData *data, unsigned int size, unsigned int new_index)
 {
     if ((new_index + size) < VITA_GXM_POOL_SIZE) {
-        void *addr = (void *)((unsigned int)data->pool_addr[data->current_pool] + new_index);
+        void *addr = (void *)((size_t)data->pool_addr[data->current_pool] + new_index);
         data->pool_index = new_index + size;
         return addr;
     }
@@ -864,7 +864,7 @@ void gxm_finish(VITA_GXM_RenderData *data)
     // clean up display queue
     vita_mem_free(data->depthBufferUid);
 
-    for (size_t i = 0; i < VITA_GXM_BUFFERS; i++) {
+    for (unsigned i = 0; i < VITA_GXM_BUFFERS; i++) {
         // clear the buffer then deallocate
         SDL_memset(data->displayBufferData[i], 0, VITA_GXM_SCREEN_HEIGHT * VITA_GXM_SCREEN_STRIDE * 4);
         vita_mem_free(data->displayBufferUid[i]);
