@@ -576,7 +576,7 @@ static void VULKAN_CleanupSwapChainData(VULKAN_RenderData *rendererData)
     }
 }
 
-static void VULKAN_DestroyAll(SDL_Renderer *renderer)
+static void VULKAN_ReleaseAll(SDL_Renderer *renderer)
 {
     VULKAN_RenderData *rendererData;
 
@@ -1129,7 +1129,7 @@ static void VULKAN_DestroyRenderer(SDL_Renderer *renderer)
     if (data->device != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(data->device);
     }
-    VULKAN_DestroyAll(renderer);
+    VULKAN_ReleaseAll(renderer);
     if (data->vulkan_loaded) {
         SDL_Vulkan_UnloadLibrary();
         // data->vulkan_loaded = SDL_FALSE;
@@ -2523,19 +2523,19 @@ static VkResult VULKAN_UpdateForWindowSizeChange(SDL_Renderer *renderer)
 
 static void VULKAN_HandleDeviceLost(SDL_Renderer *renderer)
 {
-    VULKAN_DestroyAll(renderer);
+    VULKAN_ReleaseAll(renderer);
 
     if (VULKAN_CreateDeviceResources(renderer /*, rendererData->create_props*/) != VK_SUCCESS ||
         VULKAN_CreateWindowSizeDependentResources(renderer) != VK_SUCCESS) {
-        VULKAN_DestroyAll(renderer);
+        return;
     }
-#if 0
-    // Let the application know that the device has been reset or lost
-    SDL_Event event;
-    event.type = recovered ? SDL_EVENT_RENDER_DEVICE_RESET : SDL_EVENT_RENDER_DEVICE_LOST;
-    event.common.timestamp = 0;
-    SDL_PushEvent(&event);
-#endif
+
+    /* Let the application know that the device has been reset */
+    {
+        SDL_Event event;
+        event.type = SDL_RENDER_DEVICE_RESET;
+        SDL_PushEvent(&event);
+    }
 }
 
 static void VULKAN_WindowEvent(SDL_Renderer *renderer, const SDL_WindowEvent *event)
