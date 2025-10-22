@@ -2425,6 +2425,10 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     /* Create semaphores */
     rendererData->imageAvailableSemaphores = (VkSemaphore *)SDL_calloc(sizeof(VkSemaphore), rendererData->swapchainImageCount);
     rendererData->renderingFinishedSemaphores = (VkSemaphore *)SDL_calloc(sizeof(VkSemaphore), rendererData->swapchainImageCount);
+    if (!rendererData->imageAvailableSemaphores || !rendererData->renderingFinishedSemaphores) {
+        SDL_OutOfMemory();
+        goto error;
+    }
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         rendererData->imageAvailableSemaphores[i] = VULKAN_CreateSemaphore(rendererData);
         if (rendererData->imageAvailableSemaphores[i] == VK_NULL_HANDLE) {
