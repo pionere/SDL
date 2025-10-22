@@ -63,6 +63,8 @@ SDL_COMPILE_TIME_ASSERT(d3d12_error, FAILED(SDL_D3D12_ERROR_UNKNOWN));
 #define SDL_COMPOSE_ERROR(str) SDL_STRINGIFY_ARG(__FUNCTION__) ", " str
 #endif
 
+#define D3D12_SetError(msg, result) WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR(msg), result)
+
 /* DXGI_PRESENT flags are removed on Xbox */
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
 #define DXGI_PRESENT_ALLOW_TEARING 0
@@ -558,7 +560,7 @@ static HRESULT D3D12_IssueBatch(D3D12_RenderData *data)
     /* Issue the command list */
     result = D3D_CALL(data->commandList, Close);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D12_IssueBatch"), result);
+        D3D12_SetError("D3D12_IssueBatch", result);
         return result;
     }
     D3D_CALL(data->commandQueue, ExecuteCommandLists, 1, (ID3D12CommandList *const *)&data->commandList);
@@ -733,7 +735,7 @@ static D3D12_PipelineState *D3D12_CreatePipelineState(D3D12_RenderData *data,
                       D3D_GUID(SDL_IID_ID3D12PipelineState),
                       (void **)&pipelineState);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateGraphicsPipelineState"), result);
+        D3D12_SetError("ID3D12Device::CreateGraphicsPipelineState", result);
         return NULL;
     }
 
@@ -798,7 +800,7 @@ static HRESULT D3D12_CreateVertexBuffer(D3D12_RenderData *data, D3D12_VertexBuff
 
     if (FAILED(result)) {
         buffer->size = 0;
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreatePlacedResource [vertex buffer]"), result);
+        D3D12_SetError("ID3D12Device::CreatePlacedResource [vertex buffer]", result);
         return result;
     }
 
@@ -914,13 +916,13 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
         result = DXGIGetDebugInterfaceFunc(0, D3D_GUID(SDL_IID_IDXGIDebug1), (void **)&data->dxgiDebug);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("DXGIGetDebugInterface1"), result);
+            D3D12_SetError("DXGIGetDebugInterface1", result);
             goto done;
         }
 
         result = DXGIGetDebugInterfaceFunc(0, D3D_GUID(SDL_IID_IDXGIInfoQueue), (void **)&dxgiInfoQueue);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("DXGIGetDebugInterface1"), result);
+            D3D12_SetError("DXGIGetDebugInterface1", result);
             goto done;
         }
 
@@ -933,7 +935,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 #endif // DEBUG_RENDER
     result = CreateDXGIFactoryFunc(creationFlags, D3D_GUID(SDL_IID_IDXGIFactory6), (void **)&data->dxgiFactory);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("CreateDXGIFactory"), result);
+        D3D12_SetError("CreateDXGIFactory", result);
         goto done;
     }
 
@@ -944,7 +946,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_IDXGIAdapter4),
                       (void **)&data->dxgiAdapter);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D12CreateDevice"), result);
+        D3D12_SetError("D3D12CreateDevice", result);
         goto done;
     }
 
@@ -953,7 +955,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                                    D3D_GUID(SDL_IID_ID3D12Device1),
                                    (void **)&d3dDevice);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D12CreateDevice"), result);
+        D3D12_SetError("D3D12CreateDevice", result);
         goto done;
     }
 
@@ -965,7 +967,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
         result = D3D_CALL(d3dDevice, QueryInterface, D3D_GUID(SDL_IID_ID3D12InfoQueue), (void **)&infoQueue);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device to ID3D12InfoQueue"), result);
+            D3D12_SetError("ID3D12Device to ID3D12InfoQueue", result);
             goto done;
         }
 
@@ -993,7 +995,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
 
     result = D3D_CALL(d3dDevice, QueryInterface, D3D_GUID(SDL_IID_ID3D12Device1), (void **)&data->d3dDevice);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device to ID3D12Device1"), result);
+        D3D12_SetError("ID3D12Device to ID3D12Device1", result);
         goto done;
     }
 
@@ -1009,7 +1011,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12CommandQueue),
                       (void **)&data->commandQueue);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommandQueue"), result);
+        D3D12_SetError("ID3D12Device::CreateCommandQueue", result);
         goto done;
     }
 
@@ -1026,7 +1028,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
                       (void **)&data->rtvDescriptorHeap);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateDescriptorHeap [rtv]"), result);
+        D3D12_SetError("ID3D12Device::CreateDescriptorHeap [rtv]", result);
         goto done;
     }
     data->rtvDescriptorSize = D3D_CALL(d3dDevice, GetDescriptorHandleIncrementSize, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -1037,7 +1039,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
                       (void **)&data->textureRTVDescriptorHeap);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateDescriptorHeap [texture rtv]"), result);
+        D3D12_SetError("ID3D12Device::CreateDescriptorHeap [texture rtv]", result);
         goto done;
     }
 
@@ -1051,7 +1053,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
                       (void **)&data->srvDescriptorHeap);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateDescriptorHeap  [srv]"), result);
+        D3D12_SetError("ID3D12Device::CreateDescriptorHeap  [srv]", result);
         goto done;
     }
     rootDescriptorHeaps[0] = data->srvDescriptorHeap;
@@ -1067,7 +1069,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12DescriptorHeap),
                       (void **)&data->samplerDescriptorHeap);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateDescriptorHeap  [sampler]"), result);
+        D3D12_SetError("ID3D12Device::CreateDescriptorHeap  [sampler]", result);
         goto done;
     }
     rootDescriptorHeaps[1] = data->samplerDescriptorHeap;
@@ -1080,7 +1082,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                           D3D_GUID(SDL_IID_ID3D12CommandAllocator),
                           (void **)&data->commandAllocators[i]);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommandAllocator"), result);
+            D3D12_SetError("ID3D12Device::CreateCommandAllocator", result);
             goto done;
         }
     }
@@ -1094,7 +1096,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12GraphicsCommandList2),
                       (void **)&data->commandList);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommandList"), result);
+        D3D12_SetError("ID3D12Device::CreateCommandList", result);
         goto done;
     }
 
@@ -1108,7 +1110,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                       D3D_GUID(SDL_IID_ID3D12Fence),
                       (void **)&data->fence);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateFence"), result);
+        D3D12_SetError("ID3D12Device::CreateFence", result);
         goto done;
     }
 
@@ -1132,7 +1134,7 @@ static HRESULT D3D12_CreateDeviceResources(SDL_Renderer *renderer)
                           D3D_GUID(SDL_IID_ID3D12RootSignature),
                           (void **)&data->rootSignatures[i]);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateRootSignature"), result);
+            D3D12_SetError("ID3D12Device::CreateRootSignature", result);
             goto done;
         }
     }
@@ -1309,7 +1311,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
                  * and correctly set up the new device.
                  */
             } else {
-                WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::ResizeBuffers"), result);
+                D3D12_SetError("IDXGISwapChain::ResizeBuffers", result);
             }
         }
         return result;
@@ -1347,7 +1349,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
                       NULL, /* Allow on all displays. */
                       &swapChain);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGIFactory2::CreateSwapChainForHwnd"), result);
+        D3D12_SetError("IDXGIFactory2::CreateSwapChainForHwnd", result);
         goto done;
     }
 
@@ -1355,7 +1357,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
 
     result = D3D_CALL(swapChain, QueryInterface, D3D_GUID(SDL_IID_IDXGISwapChain4), (void **)&data->swapChain);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain1::QueryInterface"), result);
+        D3D12_SetError("IDXGISwapChain1::QueryInterface", result);
         goto done;
     }
 
@@ -1364,7 +1366,7 @@ static HRESULT D3D12_CreateSwapChain(SDL_Renderer *renderer)
      */
     result = D3D_CALL(data->swapChain, SetMaximumFrameLatency, 1);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetMaximumFrameLatency"), result);
+        D3D12_SetError("IDXGISwapChain4::SetMaximumFrameLatency", result);
         goto done;
     }
 
@@ -1439,7 +1441,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
             DXGI_MODE_ROTATION rotation = data->rotation;
             result = D3D_CALL(data->swapChain, SetRotation, rotation); /* NOLINT(clang-analyzer-core.NullDereference) */
             if (FAILED(result)) {
-                WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::SetRotation"), result);
+                D3D12_SetError("IDXGISwapChain4::SetRotation", result);
                 goto done;
             }
 //        }
@@ -1452,7 +1454,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
 #if defined(__XBOXONE__) || defined(__XBOXSERIES__)
         result = D3D12_XBOX_CreateBackBufferTarget(data->d3dDevice, renderer->window->w, renderer->window->h, (void **)&data->renderTargets[i]);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("D3D12_XBOX_CreateBackBufferTarget"), result);
+            D3D12_SetError("D3D12_XBOX_CreateBackBufferTarget", result);
             goto done;
         }
 #else
@@ -1461,7 +1463,7 @@ static HRESULT D3D12_CreateWindowSizeDependentResources(SDL_Renderer *renderer)
                           D3D_GUID(SDL_IID_ID3D12Resource),
                           (void **)&data->renderTargets[i]);
         if (FAILED(result)) {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain4::GetBuffer"), result);
+            D3D12_SetError("IDXGISwapChain4::GetBuffer", result);
             goto done;
         }
 #endif
@@ -1627,7 +1629,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                       (void **)&textureData->mainTexture);
     textureData->mainResourceState = D3D12_RESOURCE_STATE_COPY_DEST;
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
+        return D3D12_SetError("ID3D12Device::CreateCommittedResource [texture]", result);
     }
 #if SDL_HAVE_YUV
     if (texture->format == SDL_PIXELFORMAT_YV12 ||
@@ -1647,7 +1649,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureU);
         textureData->mainResourceStateU = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
+            return D3D12_SetError("ID3D12Device::CreateCommittedResource [texture]", result);
         }
 
         result = D3D_CALL(rendererData->d3dDevice, CreateCommittedResource,
@@ -1660,7 +1662,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureV);
         textureData->mainResourceStateV = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [texture]"), result);
+            return D3D12_SetError("ID3D12Device::CreateCommittedResource [texture]", result);
         }
     } else if (texture->format == SDL_PIXELFORMAT_NV12 ||
         texture->format == SDL_PIXELFORMAT_NV21) {
@@ -1682,7 +1684,7 @@ static int D3D12_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
                           (void **)&textureData->mainTextureU);
         textureData->mainResourceStateU = D3D12_RESOURCE_STATE_COPY_DEST;
         if (FAILED(result)) {
-            return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateTexture2D"), result);
+            return D3D12_SetError("ID3D12Device::CreateTexture2D", result);
         }
     }
 #endif /* SDL_HAVE_YUV */
@@ -1860,7 +1862,7 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
                       D3D_GUID(SDL_IID_ID3D12Resource),
                       (void **)&rendererData->uploadBuffers[rendererData->currentUploadBuffer]);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [create upload buffer]"), result);
+        return D3D12_SetError("ID3D12Device::CreateCommittedResource [create upload buffer]", result);
     }
 
     /* Get a write-only pointer to data in the upload buffer: */
@@ -1871,7 +1873,7 @@ static int D3D12_UpdateTextureInternal(SDL_Renderer *renderer, ID3D12Resource *t
                       (void **)&textureMemory);
     if (FAILED(result)) {
         SAFE_RELEASE(rendererData->uploadBuffers[rendererData->currentUploadBuffer]);
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
+        return D3D12_SetError("ID3D12Resource::Map [map staging texture]", result);
     }
 
     length = (UINT)w * bpp;
@@ -2111,7 +2113,7 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                       D3D_GUID(SDL_IID_ID3D12Resource),
                       (void **)&textureData->stagingBuffer);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateCommittedResource [create upload buffer]"), result);
+        return D3D12_SetError("ID3D12Device::CreateCommittedResource [create upload buffer]", result);
     }
 
     /* Get a write-only pointer to data in the upload buffer: */
@@ -2121,7 +2123,7 @@ static int D3D12_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                       (void **)&textureMemory);
     if (FAILED(result)) {
         SAFE_RELEASE(rendererData->uploadBuffers[rendererData->currentUploadBuffer]);
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
+        return D3D12_SetError("ID3D12Resource::Map [map staging texture]", result);
     }
 
     SDL_INLINE_COMPILE_TIME_ASSERT(d3d12_lt_pd, sizeof(D3D12_SUBRESOURCE_FOOTPRINT) == offsetof(D3D12_SUBRESOURCE_FOOTPRINT, RowPitch) + sizeof(pitchedDesc.RowPitch));
@@ -2373,7 +2375,7 @@ static int D3D12_UpdateVertexBuffer(D3D12_RenderData *rendererData,
     range.End = 0;
     result = D3D_CALL(vertexBuffer, Map, 0, &range, (void **)&vertexBufferData);
     if (FAILED(result)) {
-        return WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [vertex buffer]"), result);
+        return D3D12_SetError("ID3D12Resource::Map [vertex buffer]", result);
     }
     SDL_memcpy(vertexBufferData, vertexData, dataSizeInBytes);
     D3D_CALL(vertexBuffer, Unmap, 0, NULL);
@@ -2944,7 +2946,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
                       D3D_GUID(SDL_IID_ID3D12Resource),
                       (void **)&readbackBuffer);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Device::CreateTexture2D [create staging texture]"), result);
+        D3D12_SetError("ID3D12Device::CreateTexture2D [create staging texture]", result);
         goto done;
     }
 
@@ -3010,7 +3012,7 @@ static int D3D12_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
                       NULL,
                       (void **)&textureMemory);
     if (FAILED(result)) {
-        WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("ID3D12Resource::Map [map staging texture]"), result);
+        D3D12_SetError("ID3D12Resource::Map [map staging texture]", result);
         goto done;
     }
 
@@ -3080,7 +3082,7 @@ static int D3D12_RenderPresent(SDL_Renderer *renderer)
             /* We probably went through a fullscreen <-> windowed transition */
             D3D12_CreateWindowSizeDependentResources(renderer);
         } else {
-            WIN_SetErrorFromHRESULT(SDL_COMPOSE_ERROR("IDXGISwapChain::Present"), result);
+            D3D12_SetError("IDXGISwapChain::Present", result);
         }
         return -1;
     } else {
