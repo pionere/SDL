@@ -81,9 +81,8 @@ static void patcher_host_free(void *user_data, void *mem)
     SDL_free(mem);
 }
 
-void *pool_malloc(VITA_GXM_RenderData *data, unsigned int size)
+static void *pool_alloc(VITA_GXM_RenderData *data, unsigned int size, unsigned int new_index)
 {
-    unsigned int new_index = data->pool_index;
     if ((new_index + size) < VITA_GXM_POOL_SIZE) {
         void *addr = (void *)((unsigned int)data->pool_addr[data->current_pool] + new_index);
         data->pool_index = new_index + size;
@@ -93,16 +92,16 @@ void *pool_malloc(VITA_GXM_RenderData *data, unsigned int size)
     return NULL;
 }
 
+void *pool_malloc(VITA_GXM_RenderData *data, unsigned int size)
+{
+    unsigned int new_index = data->pool_index;
+    return pool_alloc(data, size, new_index);
+}
+
 void *pool_memalign(VITA_GXM_RenderData *data, unsigned int size, unsigned int alignment)
 {
     unsigned int new_index = (data->pool_index + alignment - 1) & ~(alignment - 1);
-    if ((new_index + size) < VITA_GXM_POOL_SIZE) {
-        void *addr = (void *)((unsigned int)data->pool_addr[data->current_pool] + new_index);
-        data->pool_index = new_index + size;
-        return addr;
-    }
-    SDL_LogError(SDL_LOG_CATEGORY_RENDER, "POOL OVERFLOW\n");
-    return NULL;
+    return pool_alloc(data, size, new_index);
 }
 
 static int tex_format_to_bytespp(SceGxmTextureFormat format)
