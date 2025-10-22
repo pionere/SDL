@@ -306,15 +306,15 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture)
     if (!vita_texture) {
         return SDL_OutOfMemory();
     }
-
+#if SDL_HAVE_YUV
+    vita_texture->h = texture->h;
+#endif
     vita_texture->tex = create_gxm_texture(
         data,
         texture->w,
         texture->h,
         PixelFormatToVITAFMT(texture->format),
         texture->access,
-        &(vita_texture->w),
-        &(vita_texture->h),
         &(vita_texture->pitch),
         &(vita_texture->wscale));
 

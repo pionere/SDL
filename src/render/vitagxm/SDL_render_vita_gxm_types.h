@@ -209,10 +209,9 @@ typedef struct
 {
     gxm_texture *tex;
     unsigned int pitch;
-    unsigned int w;
-    unsigned int h;
     float wscale;
 #if SDL_HAVE_YUV
+    unsigned int h;
     VITA_YuvPlanes yuv_planes;
 #endif
 } VITA_GXM_TextureData;
