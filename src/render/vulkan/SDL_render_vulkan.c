@@ -525,7 +525,6 @@ static void VULKAN_CleanupSwapChainData(VULKAN_RenderData *rendererData)
         }
         SDL_free(rendererData->descriptorPools);
         rendererData->descriptorPools = NULL;
-        SDL_free(rendererData->numDescriptorPools);
         rendererData->numDescriptorPools = NULL;
     }
     if (rendererData->imageAvailableSemaphores) {
@@ -557,7 +556,6 @@ static void VULKAN_CleanupSwapChainData(VULKAN_RenderData *rendererData)
         }
         SDL_free(rendererData->uploadBuffers);
         rendererData->uploadBuffers = NULL;
-        SDL_free(rendererData->currentUploadBuffer);
         rendererData->currentUploadBuffer = NULL;
     }
     if (rendererData->constantBuffers) {
@@ -571,7 +569,6 @@ static void VULKAN_CleanupSwapChainData(VULKAN_RenderData *rendererData)
         }
         SDL_free(rendererData->constantBuffers);
         rendererData->constantBuffers = NULL;
-        SDL_free(rendererData->numConstantBuffers);
         rendererData->numConstantBuffers = NULL;
     }
 }
@@ -1040,7 +1037,8 @@ static void VULKAN_ResetCommandList(VULKAN_RenderData *rendererData)
 {
     VkCommandBufferBeginInfo beginInfo;
     vkResetCommandBuffer(rendererData->currentCommandBuffer, 0);
-    if (rendererData->descriptorPools && rendererData->numDescriptorPools) {
+    if (rendererData->descriptorPools) {
+        SDL_assert(rendererData->numDescriptorPools != NULL);
         for (uint32_t i = 0; i < rendererData->numDescriptorPools[rendererData->currentCommandBufferIndex]; i++) {
             vkResetDescriptorPool(rendererData->device, rendererData->descriptorPools[rendererData->currentCommandBufferIndex][i], 0);
         }
@@ -1061,7 +1059,8 @@ static void VULKAN_ResetCommandList(VULKAN_RenderData *rendererData)
     rendererData->currentConstantBufferIndex = 0;
 
     /* Release any upload buffers that were inflight */
-    if (rendererData->uploadBuffers && rendererData->currentUploadBuffer) {
+    if (rendererData->uploadBuffers) {
+        SDL_assert(rendererData->currentUploadBuffer != NULL);
         for (int i = 0; i < rendererData->currentUploadBuffer[rendererData->currentCommandBufferIndex]; ++i) {
             VULKAN_DestroyBuffer(rendererData, &rendererData->uploadBuffers[rendererData->currentCommandBufferIndex][i]);
         }
@@ -2399,12 +2398,12 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
 
     /* Create descriptor pools - start by allocating one per swapchain image, let it grow if more are needed */
-    rendererData->descriptorPools = (VkDescriptorPool **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkDescriptorPool*));
-    rendererData->numDescriptorPools = (uint32_t *)SDL_calloc(rendererData->swapchainImageCount, sizeof(uint32_t));
-    if (!rendererData->descriptorPools || !rendererData->numDescriptorPools) {
+    rendererData->descriptorPools = (VkDescriptorPool **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VkDescriptorPool*) + sizeof(uint32_t));
+    if (!rendererData->descriptorPools) {
         SDL_OutOfMemory();
         goto error;
     }
+    rendererData->numDescriptorPools = (uint32_t *)&rendererData->descriptorPools[rendererData->swapchainImageCount];
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         /* Start by just allocating one pool, it will grow if needed */
         VkDescriptorPool descriptorPool;
@@ -2438,12 +2437,12 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
     }
 
     /* Upload buffers */
-    rendererData->uploadBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
-    rendererData->currentUploadBuffer = (int *)SDL_calloc(rendererData->swapchainImageCount, sizeof(int));
-    if (!rendererData->uploadBuffers || !rendererData->currentUploadBuffer) {
+    rendererData->uploadBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*) + sizeof(int));
+    if (!rendererData->uploadBuffers) {
         SDL_OutOfMemory();
         goto error;
     }
+    rendererData->currentUploadBuffer = (int *)&rendererData->uploadBuffers[rendererData->swapchainImageCount];
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         rendererData->uploadBuffers[i] = (VULKAN_Buffer *)SDL_calloc(SDL_VULKAN_NUM_UPLOAD_BUFFERS, sizeof(VULKAN_Buffer));
         if (!rendererData->uploadBuffers[i]) {
@@ -2452,12 +2451,12 @@ static VkResult VULKAN_CreateSwapChain(SDL_Renderer *renderer)
         }
     }
     /* Constant buffers */
-    rendererData->constantBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*));
-    rendererData->numConstantBuffers = (uint32_t *)SDL_calloc(rendererData->swapchainImageCount, sizeof(uint32_t));
-    if (!rendererData->constantBuffers || !rendererData->numConstantBuffers) {
+    rendererData->constantBuffers = (VULKAN_Buffer **)SDL_calloc(rendererData->swapchainImageCount, sizeof(VULKAN_Buffer*) + sizeof(uint32_t));
+    if (!rendererData->constantBuffers) {
         SDL_OutOfMemory();
         goto error;
     }
+    rendererData->numConstantBuffers = (uint32_t *)&rendererData->constantBuffers[rendererData->swapchainImageCount];
     for (uint32_t i = 0; i < rendererData->swapchainImageCount; i++) {
         /* Start with just allocating one, will grow if needed */
         rendererData->numConstantBuffers[i] = 1;
