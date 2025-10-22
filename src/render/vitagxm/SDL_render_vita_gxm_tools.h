@@ -44,8 +44,8 @@ void *pool_memalign(VITA_GXM_RenderData *data, unsigned int size, unsigned int a
 void set_clip_rectangle(VITA_GXM_RenderData *data, int x_min, int y_min, int x_max, int y_max);
 void unset_clip_rectangle(VITA_GXM_RenderData *data);
 
-int gxm_init(SDL_Renderer *renderer);
-void gxm_finish(SDL_Renderer *renderer);
+int gxm_init(VITA_GXM_RenderData *data);
+void gxm_finish(VITA_GXM_RenderData *data);
 
 gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, int access, unsigned int *return_w, unsigned int *return_h, unsigned int *return_pitch, float *return_wscale);
 void free_gxm_texture(VITA_GXM_RenderData *data, gxm_texture *texture);

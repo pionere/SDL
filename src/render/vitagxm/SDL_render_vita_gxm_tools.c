@@ -281,7 +281,7 @@ void unset_clip_rectangle(VITA_GXM_RenderData *data)
         0xFF);
 }
 
-int gxm_init(SDL_Renderer *renderer)
+int gxm_init(VITA_GXM_RenderData *data)
 {
     unsigned int i, x, y;
     int err;
@@ -363,8 +363,6 @@ int gxm_init(SDL_Renderer *renderer)
         .alphaDst = SCE_GXM_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
         .colorMask = SCE_GXM_COLOR_MASK_ALL
     };
-
-    VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
 
     SceGxmInitializeParams initializeParams;
     SDL_memset(&initializeParams, 0, sizeof(SceGxmInitializeParams));
@@ -841,10 +839,8 @@ int gxm_init(SDL_Renderer *renderer)
     return 0;
 }
 
-void gxm_finish(SDL_Renderer *renderer)
+void gxm_finish(VITA_GXM_RenderData *data)
 {
-    VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
-
     // wait until rendering is done
     sceGxmFinish(data->gxm_context);
 

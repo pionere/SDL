@@ -274,7 +274,7 @@ SDL_Renderer *VITA_GXM_CreateRenderer(SDL_Window *window, Uint32 flags)
     sceSysmoduleLoadModule(SCE_SYSMODULE_RAZOR_CAPTURE);
 #endif
 
-    if (gxm_init(renderer) != 0) {
+    if (gxm_init(data) != 0) {
         SDL_free(data);
         SDL_free(renderer);
         return NULL;
@@ -1284,7 +1284,7 @@ static void VITA_GXM_DestroyRenderer(SDL_Renderer *renderer)
     VITA_GXM_RenderData *data = (VITA_GXM_RenderData *)renderer->driverdata;
     SDL_assert(data != NULL);
     if (1) {
-        gxm_finish(renderer);
+        gxm_finish(data);
 
         SDL_free(data);
     }
