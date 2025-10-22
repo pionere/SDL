@@ -821,19 +821,14 @@ int gxm_init(SDL_Renderer *renderer)
     data->textureWvpParam = (SceGxmProgramParameter *)sceGxmProgramFindParameterByName(textureVertexProgramGxp, "wvp");
 
     // Allocate memory for the memory pool
-    data->pool_addr[0] = vita_mem_alloc(
-        SCE_KERNEL_MEMBLOCK_TYPE_USER_RW,
-        VITA_GXM_POOL_SIZE,
-        sizeof(void *),
-        SCE_GXM_MEMORY_ATTRIB_READ,
-        &data->poolUid[0]);
-
-    data->pool_addr[1] = vita_mem_alloc(
-        SCE_KERNEL_MEMBLOCK_TYPE_USER_RW,
-        VITA_GXM_POOL_SIZE,
-        sizeof(void *),
-        SCE_GXM_MEMORY_ATTRIB_READ,
-        &data->poolUid[1]);
+    for (i = 0; i < VITA_GXM_POOL_COUNT; i++) {
+        data->pool_addr[i] = vita_mem_alloc(
+            SCE_KERNEL_MEMBLOCK_TYPE_USER_RW,
+            VITA_GXM_POOL_SIZE,
+            sizeof(void *),
+            SCE_GXM_MEMORY_ATTRIB_READ,
+            &data->poolUid[i]);
+    }
 
     init_orthographic_matrix(data->ortho_matrix, 0.0f, VITA_GXM_SCREEN_WIDTH, VITA_GXM_SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f);
 
@@ -911,8 +906,9 @@ void gxm_finish(SDL_Renderer *renderer)
     vita_mem_free(data->vdmRingBufferUid);
     SDL_free(data->contextParams.hostMem);
 
-    vita_mem_free(data->poolUid[0]);
-    vita_mem_free(data->poolUid[1]);
+    for (unsigned i = 0; i < VITA_GXM_POOL_COUNT; i++) {
+        vita_mem_free(data->poolUid[i]);
+    }
     vita_gpu_mem_destroy(data);
 
     // terminate libgxm

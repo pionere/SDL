@@ -46,6 +46,7 @@
 
 #define VITA_GXM_BUFFERS       3
 #define VITA_GXM_PENDING_SWAPS 2
+#define VITA_GXM_POOL_COUNT    2
 #define VITA_GXM_POOL_SIZE     2 * 1024 * 1024
 
 typedef struct
@@ -155,8 +156,8 @@ typedef struct
     unsigned int backBufferIndex;
     unsigned int frontBufferIndex;
 
-    void *pool_addr[2];
-    SceUID poolUid[2];
+    void *pool_addr[VITA_GXM_POOL_COUNT];
+    SceUID poolUid[VITA_GXM_POOL_COUNT];
     unsigned int pool_index;
     unsigned int current_pool;
 

@@ -1253,7 +1253,7 @@ static int VITA_GXM_RenderPresent(SDL_Renderer *renderer)
     data->backBufferIndex = (data->backBufferIndex + 1) % VITA_GXM_BUFFERS;
     data->pool_index = 0;
 
-    data->current_pool = (data->current_pool + 1) % 2;
+    data->current_pool = (data->current_pool + 1) % VITA_GXM_POOL_COUNT;
     return 0;
 }
 
