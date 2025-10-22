@@ -964,30 +964,31 @@ static SceGxmColorFormat tex_format_to_color_format(SceGxmTextureFormat format)
 gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsigned int h, SceGxmTextureFormat format, int access, unsigned int *return_pitch, float *return_wscale)
 {
     gxm_texture *texture = SDL_calloc(1, sizeof(gxm_texture));
-    int aligned_w = ALIGN(w, 8);
-    int texture_w = w;
-    int tex_size = aligned_w * h * tex_format_to_bytespp(format);
+    int bpp, aligned_w, texture_w, tex_size, ret;
     void *texture_data;
-    int ret;
-
-    *return_wscale = 1.0f;
-
-    // SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P3/P2 based formats require width aligned to 16
-    if ((format & 0x9f000000U) == SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P3 || (format & 0x9f000000U) == SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P2) {
-        aligned_w = ALIGN(w, 16);
-        texture_w = aligned_w;
-        tex_size = aligned_w * h * tex_format_to_bytespp(format);
-        *return_wscale = (float)(w) / texture_w;
-        // add storage for UV planes
-        tex_size += (((aligned_w + 1) / 2u) * ((h + 1) / 2u)) * 2;
-    }
 
     if (!texture) {
         SDL_OutOfMemory();
         return NULL;
     }
 
-    *return_pitch = aligned_w * tex_format_to_bytespp(format);
+    bpp = tex_format_to_bytespp(format);
+    // SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P3/P2 based formats require width aligned to 16
+    if ((format & 0x9f000000U) == SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P3 || (format & 0x9f000000U) == SCE_GXM_TEXTURE_BASE_FORMAT_YUV420P2) {
+        aligned_w = ALIGN(w, 16);
+        texture_w = aligned_w;
+        tex_size = aligned_w * h * bpp;
+        *return_wscale = (float)(w) / texture_w;
+        // add storage for UV planes
+        tex_size += (((aligned_w + 1) / 2u) * ((h + 1) / 2u)) * 2;
+    } else {
+        aligned_w = ALIGN(w, 8);
+        texture_w = w;
+        *return_wscale = 1.0f;
+        tex_size = aligned_w * h * bpp;
+    }
+
+    *return_pitch = aligned_w * bpp;
 
     /* Allocate a GPU buffer for the texture */
     texture_data = vita_gpu_mem_alloc(
@@ -995,7 +996,8 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
         tex_size);
 
     /* Try SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE in case we're out of VRAM */
-    if (!texture_data) {
+    texture->cdram = texture_data ? SDL_TRUE : SDL_FALSE;
+    if (!texture->cdram) {
         SDL_LogWarn(SDL_LOG_CATEGORY_RENDER, "CDRAM texture allocation failed\n");
         texture_data = vita_mem_alloc(
             SCE_KERNEL_MEMBLOCK_TYPE_USER_RW_UNCACHE,
@@ -1003,9 +1005,6 @@ gxm_texture *create_gxm_texture(VITA_GXM_RenderData *data, unsigned int w, unsig
             SCE_GXM_TEXTURE_ALIGNMENT,
             SCE_GXM_MEMORY_ATTRIB_READ | SCE_GXM_MEMORY_ATTRIB_WRITE,
             &texture->data_UID);
-        texture->cdram = 0;
-    } else {
-        texture->cdram = 1;
     }
 
     if (!texture_data) {
