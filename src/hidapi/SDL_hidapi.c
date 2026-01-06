@@ -799,6 +799,7 @@ static struct
 #define hid_error                    LIBUSB_hid_error
 #define new_hid_device               LIBUSB_new_hid_device
 #define free_hid_device              LIBUSB_free_hid_device
+#define get_usb_code_for_current_locale LIBUSB_get_usb_code_for_current_locale
 #define input_report                 LIBUSB_input_report
 #define return_data                  LIBUSB_return_data
 #define make_path                    LIBUSB_make_path
