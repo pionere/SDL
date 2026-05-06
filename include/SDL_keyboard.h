@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -297,6 +297,9 @@ extern DECLSPEC void SDLCALL SDL_ClearComposition(void);
 
 /**
  * Returns if an IME Composite or Candidate window is currently shown.
+ *
+ * \returns SDL_TRUE if an IME Composite or Candidate window is currently
+ *          shown else SDL_FALSE.
  *
  * \since This function is available since SDL 2.0.22.
  */

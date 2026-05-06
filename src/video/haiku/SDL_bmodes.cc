@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -42,8 +42,8 @@ static SDL_INLINE SDL_BWin *_ToBeWin(SDL_Window *window) {
     return (SDL_BWin *)(window->driverdata);
 }
 
-static SDL_INLINE SDL_BLooper *_GetBeLooper() {
-    return SDL_Looper;
+static SDL_INLINE SDL_BHandler *_GetBeLooper() {
+    return SDL_Handler;
 }
 
 static SDL_INLINE display_mode * _ExtractBMode(SDL_DisplayMode *mode)
@@ -233,25 +233,26 @@ static void HAIKU_GetDisplayModes(SDL_VideoDisplay *display, SDL_DisplayMode *de
     SDL_AddDisplayMode(display, desktop_mode);
     
     /* Get graphics-hardware supported modes */
-    bscreen.GetModeList(&bmodes, &count);
-    bscreen.GetMode(&this_bmode);
-    
-    for (i = 0; i < count; ++i) {
-        // FIXME: Apparently there are errors with colorspace changes
-        if (bmodes[i].space == this_bmode.space) {
-            display_mode *bmode = (display_mode*)SDL_calloc(1, sizeof(display_mode));
-            if (!bmode) {
-                break;
-            }
-            *bmode = bmodes[i];
+    if (bscreen.GetModeList(&bmodes, &count) == B_OK) {
+        if (bscreen.GetMode(&this_bmode) == B_OK) {
+            for (i = 0; i < count; ++i) {
+                // FIXME: Apparently there are errors with colorspace changes
+                if (bmodes[i].space == this_bmode.space) {
+                    display_mode *bmode = (display_mode*)SDL_calloc(1, sizeof(display_mode));
+                    if (!bmode) {
+                        break;
+                    }
+                    *bmode = bmodes[i];
 
-            _BDisplayModeToSdlDisplayMode(bmode, &mode);
-            if (!SDL_AddDisplayMode(display, &mode)) {
-                SDL_free(bmode);
+                    _BDisplayModeToSdlDisplayMode(bmode, &mode);
+                    if (!SDL_AddDisplayMode(display, &mode)) {
+                        SDL_free(bmode);
+                    }
+                }
             }
         }
+        free(bmodes); /* This should not be SDL_free() */
     }
-    free(bmodes); /* This should not be SDL_free() */
 }
 
 

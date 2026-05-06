@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -20,6 +20,7 @@
 */
 #include "../SDL_internal.h"
 
+#include "SDL_hints.h"
 #include "SDL_blit.h"
 #include "SDL_RLEaccel_c.h"
 #include "SDL_pixels_c.h"
@@ -180,13 +181,17 @@ SDL_Surface *SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height,
             return NULL;
         }
 
-        surface->pixels = SDL_SIMDcalloc(size); // calloc is necessary for paddings
+        if (SDL_GetHintBoolean("SDL_SURFACE_MALLOC", SDL_FALSE)) {
+            surface->pixels = SDL_calloc(1, size);
+        } else {
+            surface->flags |= SDL_SIMD_ALIGNED;
+            surface->pixels = SDL_SIMDcalloc(size); // calloc is necessary for paddings
+        }
         if (!surface->pixels) {
             SDL_FreeSurface(surface);
             SDL_OutOfMemory();
             return NULL;
         }
-        surface->flags |= SDL_SIMD_ALIGNED;
     }
 
     /* The surface is ready to go */

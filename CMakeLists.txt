@@ -5,7 +5,7 @@ endif()
 # MSVC runtime library flags are selected by an abstraction.
 set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
 
-cmake_minimum_required(VERSION 3.0.0...3.10)
+cmake_minimum_required(VERSION 3.0.0...4.0)
 message(STATUS "CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 project(SDL2 C)
 
@@ -56,6 +56,7 @@ endif()
 include(CheckLibraryExists)
 include(CheckIncludeFiles)
 include(CheckIncludeFile)
+include(CheckIncludeFiles)
 include(CheckLanguage)
 include(CheckSymbolExists)
 include(CheckCSourceCompiles)
@@ -266,7 +267,7 @@ set(OPT_DEF_DYNAPI ON)
 if(ANDROID OR IOS OR EMSCRIPTEN OR WINDOWS_STORE OR RISCOS OR PS2 OR PS4 OR PSP OR VITA OR N3DS OR NGAGE OR NINTENDO_SWITCH OR NXDK OR clang_analyzer OR SDL_THREAD_SAFETY_ANALYSIS OR native_client)
   set(OPT_DEF_DYNAPI OFF)
 endif()
-if(UNIX OR MINGW OR MSYS OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP OR PS2 OR N3DS OR NGAGE OR NINTENDO_SWITCH OR SDL_CPU_ARM64EC)
+if(UNIX OR MINGW OR MSYS OR OS2 OR (USE_CLANG AND NOT WINDOWS) OR VITA OR PSP OR PS2 OR N3DS OR NGAGE OR NINTENDO_SWITCH OR SDL_CPU_ARM64EC)
   set(OPT_DEF_LIBC ON)
 endif()
 if(WINDOWS OR MACOS OR IOS OR TVOS OR VISIONOS OR WATCHOS)
@@ -1314,6 +1315,17 @@ if(OPT_DEF_ASM)
         }" HAVE_LSX_INTRINSICS)
       cmake_pop_check_state()
       if(HAVE_LSX_INTRINSICS)
+        set_property(SOURCE
+            "${SDL2_SOURCE_DIR}/src/video/yuv2rgb/yuv_rgb_lsx.c"
+            "${SDL2_SOURCE_DIR}/src/video/SDL_blit_A.c"
+            "${SDL2_SOURCE_DIR}/src/video/SDL_fillrect.c"
+            APPEND PROPERTY COMPILE_OPTIONS "-mlsx")
+
+        set_property(SOURCE
+            "${SDL2_SOURCE_DIR}/src/video/yuv2rgb/yuv_rgb_lsx.c"
+            "${SDL2_SOURCE_DIR}/src/video/SDL_blit_A.c"
+            "${SDL2_SOURCE_DIR}/src/video/SDL_fillrect.c"
+            PROPERTY SKIP_PRECOMPILE_HEADERS 1)
         set(HAVE_LSX ON)
         # list(APPEND EXTRA_CFLAGS "-mlsx")
       endif()
@@ -3478,6 +3490,7 @@ elseif(PS2)
     gskit
     dmakit
     ps2_drivers
+    atomic
   )
 
 elseif(OS2)
