@@ -593,7 +593,9 @@ int surface_testBlitBlendLoop(void *arg)
 int surface_testOverflow(void *arg)
 {
     char buf[1024];
+#if 0
     const char *expectedError;
+#endif
     SDL_Surface *surface;
 
     SDL_memset(buf, '\0', sizeof(buf));
