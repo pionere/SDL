@@ -582,13 +582,16 @@ int SDL_AddVideoDisplay(const SDL_VideoDisplay *display, SDL_bool send_event)
         displays[index] = *display;
         current_video.displays = displays;
 
-        if (display->name) {
-            displays[index].name = SDL_strdup(display->name);
-        } else {
-            char name[32];
+        {
+            const char *nameptr = display->name;
+            char name[12];
+            if (!nameptr) {
+                SDL_INLINE_COMPILE_TIME_ASSERT(dispname, sizeof(index) <= 4);
+                SDL_itoa(index, name, 10);
+                nameptr = &name[0];
+            }
 
-            SDL_itoa(index, name, 10);
-            displays[index].name = SDL_strdup(name);
+            displays[index].name = SDL_strdup(nameptr);
         }
 
         for (window = current_video.windows; window; window = window->next) {
