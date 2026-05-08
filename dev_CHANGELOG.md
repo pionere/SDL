@@ -49,7 +49,7 @@ Major (meaningful) changes:
  7. use unsigned division in the audio-converter in case of a constant, power-of-2 division (629df5a74706ed3f54a3da51d4c9cb26849296c1 + 4f2e6a02d0d5c8e753830285225614a83c2ddc18)
  8. prefer audio formats matching the system-endianness (1192692d299b6e86210f4e0a52dbae4a5043c19a)
  9. reorganize the code (d12bf31b9c40abc4e5eae6aeb3df3e32b5d115c4 + e0619f43a2a1b551c920b207f0fccbdb499d7cfb + 41eb5414e88c212ac56396a06548c21c2569fe86)
- 10. simplify the format selection ((6aaa13d67115a2c5729fc7b731705acc9c401474 + f719d2dc959ff8efb4a29241886157ffcb7e14ec) + 2752ac4a9c6877edc8074d40d9b30ba7cd3b6b89 + 1944bbe97d607a2f1be5d4b39dd903a5389338f3 + 1bfbd633faffbb2c7ca54bcb989b8a2639cf73dc + (14eb4592b540b7a133b9202eeaf506b8d75e6768 + 7865784fd3c005034705d703736895005b61406b))
+ 10. simplify the format selection ((6aaa13d67115a2c5729fc7b731705acc9c401474 + f719d2dc959ff8efb4a29241886157ffcb7e14ec) + 2752ac4a9c6877edc8074d40d9b30ba7cd3b6b89 + 1944bbe97d607a2f1be5d4b39dd903a5389338f3 + 1bfbd633faffbb2c7ca54bcb989b8a2639cf73dc + (14eb4592b540b7a133b9202eeaf506b8d75e6768 + 7865784fd3c005034705d703736895005b61406b) + bc6e542e5ffb5d41d5ea1f5a1c39e3de6e5f7887)
  11. improve tests (7360d526386c99ad3a5fe800f8a11a2a7347feb8 + 07fbe33ceea2da1e3839ce21e39d8f0204e3a03f + 8f5970630ca22d46bc13f5e291b65c8430342fc4 + (139134d365456e6a156c06a5500fd4ab4812a529 + ec7f5d8df21a2a8ead1a300918a247518cdf3e06) + 5de01a78bd53d9dc825c1e28f68f97d9c0856ecc + db01bac98c02571b597691af2791719947e38f43 + 6d3b761a826f3745d7c5e5a6e347a2d98e6291cf + c31414e2052d16623e219007035ae6c100f6e9ac + d1e3141250ad81d409e2877d54f15ad3b9fc1880 + 44a610957d441670ff150df32bc19a52f52b6dc5)
  12. optimize SDL_BuildAudioCVT (e701b559686ab30dbeb88a4f7ef0cb834d99398d + 6fe4f05092737614bedd32c86f14941a4a5d08a5 + 2eefbf6f41c14f798011651a87182cc517a350f8 + bd3734cbb2b893911887b6bca501eba599ee9e40 + 427b2a98bbf8918068c45391711a750cf56d2a23 + 33911d14e896523931fbeb56a35f405df4c36154 + 0451b0bfcac7bd0e00bd45392624371a2812c53d + e6784d7f46fa0ba0f2a9f42527c13d739b128da8 + 8da4938c25e20a197599dd2dd681ae5c53692166 + bb399f789dd18cfa30d84719cdb43e146adec698 + (8774a0447eba073aa0f67ef271c71eb6d918f4ff + 725154044d43edd194710425065b63f752dec7b8) + ae230dfbc0ea8b08cd2346ef21abab6fb354e3d3 + 185960adb0eed5cc8bb202a1444a5223d47af50b + 4ad3f56657e408dcf6c234c60f75d9e645f4425a)
  13. port improvements from SDL3 (cfb83a5312d73f398e7debd2efa8cdbfebd53e04 + 29451f13bb1348a3a4f2368d5e88a4f109191b17 + 6e234b19b392723663a8d5ade64801f1865efb4f + e6669cedb2d04f80749d0dbfd07e4f719ebe39f0 + (48f5a9b9a98a8aace23edc534e025625c28c52a8 + b14239aedab3ac432d7068b9af1a1f1678cb5d2e) + 783508ebf5dd6b498422519a4f09a8610ad0551a + 7ab06ed9e82251d35b3c94105a7489af6141da93)
@@ -100,7 +100,7 @@ Major (meaningful) changes:
   23. use SDL_Rect for x, y, w, h in SDL_Window (da878291e49734301fd09de560f83dc2d201389d + ebeb95dd9cad94e322606120b293f116264d0033 + 7aefe0379b9351f638b2249e602af299ba914a41 + 84f8a2d19d0a754d5d57a086b2ebbae7bf199469)
   24. cleanup SDL_PremultiplyAlpha (4c69d359f47561815c40340e6e23fb503445b910)
   25. cleanup SDL_UpdateFullscreenMode (b172f88a33b04e418a88e40b72edb17630120895 + 3bd5a0e6e9d63154532db8413b0a22c949d8239e)
-  26. general optimizations (c718a97c8e05f5df0ccf92698971a16add3e5a3d + 210542a4ea732b715856ee65240d50ff3a519cc6)
+  26. general optimizations (c718a97c8e05f5df0ccf92698971a16add3e5a3d + 210542a4ea732b715856ee65240d50ff3a519cc6 + 33307422baa4986a589429658ebdaf2107ac3ca9 + 1c61caf49cc2ad080c7bc7620a4d2d2b98eecafd)
   27. ensure 16-byte alignment for SDL_FillRect*SSE (d31cd363d624b54454f0d12411746cd530701aa0)
 
 - change SDL_VULKAN to a set-option and disable it by default in static mode (69a89f276c06b1fdc0d5da6d09bd4cbec41ba5e0 + d5c99871d27dde74f1e00983f47888a4955be3d2)
@@ -304,7 +304,7 @@ Minor changes:
 - call SDL_CreateRGBSurfaceWithFormatFrom from SDL_CreateRGBSurfaceFrom (21a4cc0b9a6c37af60b710138761ee21ee050b7b)
 - assign the new palette without extra round-trips in SDL_CreateRGBSurfaceWithFormat (9cc843c2bc8595f443561d0b974adea9f8c06082)
 - add SDL_AllocSurface (e5567acf62fd8f857e5a3b1adde8fdd571bd0483)
-- comment out pointless validations in SDL_CreateRGBSurfaceWithFormat(From) (2b75105889fa49205bfffc52de4fc36c9d782c43)
+- comment out pointless validations in SDL_CreateRGBSurfaceWithFormat(From) (2b75105889fa49205bfffc52de4fc36c9d782c43 + 1b4e21f81fb383874b3d450d0e474d474a3b07ed)
 - blit-auto optimizations ((4fd6c8e75bba5708d7afc1ba17084d3e63f1cf66 + 269006a50c00f3b7bb8408106d879152ad9f2605) + 55f51995ad5e3e80f170acf0637a60b7d582314b + )
 - optimize the MMX-blitters (blit-A) (d6c7a17636a7abd0dfd66266fe01ce7d88410a21)
 - cleanup SDL_blit_copy.c (443e162ee2ba782bfd570c839a32de90828d68b8)
@@ -339,9 +339,10 @@ Minor changes:
  + 6b3ceba7627fe56556ffbee6000a3c198f0e3714 + 5be1880c4527f3a78fb9160b0f8a838d41c4b1ba + 351137b8fa12d6453abbc58cd3b4b1e9dc4ae49c + cbc6ba9c3a268880486219b0ed03344543a7e5f5 + (002017990e60846532e5d14d34f8ce96a53febd4 + 4eb19a9cfdc94c5faf08cfab46ad60568b43a27c) + 5649cbf27e08773c64f8205ee01450d17f54c2f5 + e332e7a9ef928b78d1d3232be21c0fe8941166c9 + 023bc8ce9dad4554cdc16ca48b2151b6128472b9 + af74feae94095a7363ec195eeff24f054a6b8059 + 695caccfbaa20c5dd9836b7ab7412a9d634c02af + 4a41d90057e48b15f25de88b531847510880ab3c + 57df445432855767d1614698eeab66e0a4aa3423 + d7b6e800284106bdc3cc32cdb9f6b8f43af80541 + 6a5c11eb6f574519a85f102defa17defea3d6723 + c3c14cf0e8a7b1a2d0b0ab7ca961a9aadfabe746 + f3f10aee638545f23c3b42df16c89ca30902c398 + 814ccd9be7f170fb25a43b80943909afff5a3983 + 1ba4fa9adb987870cae74105d9562c2f5713e8ec + ad3c347bc932502dc9469472f948f76a7b9efa71 + b1d2befc127564c00d289d456cc7e036e6370898
  + ea3452a06f2c3869f359c46b7704dc73e32b4211 + 8ff54d8d740c38df314141d18ea74d24f83e83b6 + 847d25d4eba22c4ca6dafaf2b2d2a2927f4c99ad + d5d4b0f876614768a2ac19d64644492f870798ac + 19b8f8a3abafd872057fc98e34ec2e4a656dc01c + a62a56cb68619d554e1c4864b2ff420f857f155b + a45990568899a33b1da76d0b6b3446a9ed8ed83b
  + e638fcfdc3168f822d6e6c9ae1de8a3ddc99cbed + 63ce2c16c00778ceb4dde5676658f259f0a61e59 + 46b68fe0060f259a8f5561920771ae2ec83435c2 + dac88a08966d572ddbbb7b111ac8ab2ad0c64a37 + 4b267dc27a59c3d328d878e199d784fe11ac78f7 + 29d18339c0a684acb0aa65dc0438a7aae8c779d3 + 25a267b762d3aadc3a399665d024139ff7b16ee8 + bd29dcd377b671ba78bd11a9fabe6ac6f69a8da0 + 92e62a224b521a48a43a0dc4de4c065f95ff2fea + 65f1d8d3c3a0fd7d0e93d43dc73d85e6dbe01ba2 + 3672bf9df98aae5a797dda3146f1bfe98370c39f + 0944794184135e3276dd6dccf7b54c4d3840a711 + eda50f4698305957d4f8e2247fc10389e7de2ecf + 5fb3909165f6b0ea5a640c243fcd9aaf92aca9b1 + 60ef6486918329adb58e63531538052ac8d0ad26
- + fc12de1152f29ccdc1251df147bb87702cd240a4 + 8bccd0d144a5f2a13432b18eeef1de6b9be48453 + a127dad125b71dd68739f33ecf1977c9b3645406 + ce8be660f5a740f21d31bd665cae07512ffd2bcc + 1ef4d0c3097efabb0190193c9242f733879ba845 + dde2b828a1310e62c6a23e0612d678cbfb23838b + b39fd6e792aef6ec2eee1d114c9ba7139f029e16)
+ + fc12de1152f29ccdc1251df147bb87702cd240a4 + 8bccd0d144a5f2a13432b18eeef1de6b9be48453 + a127dad125b71dd68739f33ecf1977c9b3645406 + ce8be660f5a740f21d31bd665cae07512ffd2bcc + 1ef4d0c3097efabb0190193c9242f733879ba845 + dde2b828a1310e62c6a23e0612d678cbfb23838b + b39fd6e792aef6ec2eee1d114c9ba7139f029e16 + 2a3b88a986acdfa1f5c11e9c514fc9b3ad37c14d)
 - add option to generate scripts in a github action (2e13679a2505ea8a79ad3f6aff71dd48be5b2d0b)
 - cmake: print the cmake-version during build (fc12de1152f29ccdc1251df147bb87702cd240a4)
+- update build plan (838ec1fcf2b30ad4c47bb78bd2a95d53054601ce)
 - port improvements from SDL3 (fc044096f75155850b8ac5de4963d9f3578801e6)
  1. Add GNU/Hurd as platform (5f73f6ea109934d95ed3590960e0344329a29dfd + 623541b0a15d28a0ab6262a942f047950b08f876)
  2. add managarm support (5f59f2135df936d168863bad2b48517c3b1f6c11)
@@ -367,7 +368,13 @@ Minor changes:
 19. Avoid usage of CreateEventEx in WASAPI code (e3941f7bbe709f16d6d62dc8b0fa97e4712041fa)
 20. Fixed touch not being delivered as mouse events by default on Vita (1dc8c39d394494dda34f93173930277b18079af1)
 21. SDL_test: disable memory tracking if SDL does not count allocations (9e89c09ea2b2997754013d1d63dca0645d0db449 + dc3cd114030355500d43537e6f9f6c630e2cbc96 + 84d0620ce3fcedc55a84d26419d943049b2528b7)
-22. Fixed memory leak at shutdown (thanks @1bsyl!)(f780a864c336b2a1d3645f14d928b2e075e04e12)23. renderer [d3d11]: do not call DiscardView when SwapChain-Present failed (6043e868e3def5b107cf966b479ba4ab4a5f9fd2 + 90c935619372c5ba3239e13692c9b0278641481e)24. Removed __FILE__ from source code (41cf646daad5ed9e93be359445821f988424fef9 + e389f56e2a2277c8b05203339661429ba8361339)
+22. Fixed memory leak at shutdown (thanks @1bsyl!)(f780a864c336b2a1d3645f14d928b2e075e04e12)
+23. renderer [d3d11]: do not call DiscardView when SwapChain-Present failed (6043e868e3def5b107cf966b479ba4ab4a5f9fd2 + 90c935619372c5ba3239e13692c9b0278641481e)
+24. Removed __FILE__ from source code (41cf646daad5ed9e93be359445821f988424fef9 + e389f56e2a2277c8b05203339661429ba8361339)
+25. Fixed conflict when linking both SDL and hidapi statically (ec046802f20f6e08a7569397c7361720df3201ec)
+26. Removed redundant wait at shutdown in the ALSA audio driver (3019856e7a80348df3a0054e3048076401bff87e)
+27. release: don't use legacy Android CMake toolchain file (8ff4fbd5cb15e20cece839f145253ed29d2a4121)
+
 Bugfixes:
 - really disable assertions if it is set to 'disabled' (7aa402616e2f072a96497f5a5648b739e05849e6 + 632f1969ab2085f7f9a5632d6a715f6cb149a193 + bda335ce5920d850dfaa266f499d846d1d4f1f1e + b28bdf58e78a69d02f49abf962c562cc747f7f92 + b378406a9578497e8824d84ec0c724a6c2b2b94c)
 - fix DUFFS_LOOP4/8 to handle width of zero (or less) (8d18c5e59856bd5e46b93d9de4550d1d0b89dc26)
@@ -592,3 +599,5 @@ Bugfixes:
 - video [haiku]: fix HAIKU_GetClipboardText (0fb75cc50ac5d3c4a242280506eff707c3371999)
 - video [os2]: set error messages on failure (fa1eaaef92b45d243b7612dd7cfb75d96a51060e)
 - thread: ensure SDL_SYS_QuitTLSData is always called (9a33b186bbc6ba0a32d6edf581a32a9951d87244)
+- zerofill guid in GetMMDeviceInfo (be53ab10fbe223e6f9ed711f96574104196471d1)
+- fix the loading of the EndpointItems in EnumerateEndpointsForFlow (f3cfc97cb25890b22943e3a5bb720decefb8f6b0)
