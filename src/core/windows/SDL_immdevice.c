@@ -56,28 +56,33 @@ static const GUID SDL_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = { 0x00000003, 0x0000, 0x
 SDL_atomic_t SDL_IMMDevice_DefaultPlaybackGeneration;
 SDL_atomic_t SDL_IMMDevice_DefaultCaptureGeneration;
 
-static void GetMMDeviceInfo(IMMDevice *device, char **utf8dev, WAVEFORMATEXTENSIBLE *fmt, GUID *guid)
+typedef struct
+{
+    char *devname;
+    WAVEFORMATEXTENSIBLE fmt;
+    GUID dsoundguid;
+} EndpointInfo;
+
+static void GetMMDeviceInfo(IMMDevice *device, EndpointInfo *info)
 {
     /* PKEY_Device_FriendlyName gives you "Speakers (SoundBlaster Pro)" which drives me nuts. I'd rather it be
        "SoundBlaster Pro (Speakers)" but I guess that's developers vs users. Windows uses the FriendlyName in
        its own UIs, like Volume Control, etc. */
     IPropertyStore *props = NULL;
-    *utf8dev = NULL;
-    SDL_zerop(fmt);
-    SDL_zerop(guid);
+    SDL_zerop(info);
     if (SUCCEEDED(IMMDevice_OpenPropertyStore(device, STGM_READ, &props))) {
         PROPVARIANT var;
         PropVariantInit(&var);
         if (SUCCEEDED(IPropertyStore_GetValue(props, &SDL_PKEY_Device_FriendlyName, &var))) {
-            *utf8dev = WIN_StringToUTF8W(var.pwszVal);
+            info->devname = WIN_StringToUTF8W(var.pwszVal);
         }
         PropVariantClear(&var);
         if (SUCCEEDED(IPropertyStore_GetValue(props, &SDL_PKEY_AudioEngine_DeviceFormat, &var))) {
-            SDL_memcpy(fmt, var.blob.pBlobData, SDL_min(var.blob.cbSize, sizeof(WAVEFORMATEXTENSIBLE)));
+            SDL_memcpy(&info->fmt, var.blob.pBlobData, SDL_min(var.blob.cbSize, sizeof(WAVEFORMATEXTENSIBLE)));
         }
         PropVariantClear(&var);
         if (SUCCEEDED(IPropertyStore_GetValue(props, &SDL_PKEY_AudioEndpoint_GUID, &var))) {
-            CLSIDFromString(var.pwszVal, guid);
+            CLSIDFromString(var.pwszVal, &info->dsoundguid);
         }
         PropVariantClear(&var);
         IPropertyStore_Release(props);
@@ -275,13 +280,11 @@ static HRESULT STDMETHODCALLTYPE SDLMMNotificationClient_OnDeviceStateChanged(IM
                 const SDL_bool iscapture = (flow == eCapture);
                 const SDLMMNotificationClient *client = (SDLMMNotificationClient *)ithis;
                 if (dwNewState == DEVICE_STATE_ACTIVE) {
-                    char *utf8dev;
-                    WAVEFORMATEXTENSIBLE fmt;
-                    GUID dsoundguid;
-                    GetMMDeviceInfo(device, &utf8dev, &fmt, &dsoundguid);
-                    if (utf8dev) {
-                        SDL_IMMDevice_Add(iscapture, utf8dev, &fmt, pwstrDeviceId, &dsoundguid, client->useguid);
-                        SDL_free(utf8dev);
+                    EndpointInfo info;
+                    GetMMDeviceInfo(device, &info);
+                    if (info.devname) {
+                        SDL_IMMDevice_Add(iscapture, info.devname, &info.fmt, pwstrDeviceId, &info.dsoundguid, client->useguid);
+                        SDL_free(info.devname);
                     }
                 } else {
                     SDL_IMMDevice_Remove(iscapture, pwstrDeviceId, client->useguid);
@@ -394,9 +397,7 @@ int SDL_IMMDevice_Get(LPCWSTR devid, IMMDevice **device, SDL_bool iscapture)
 typedef struct
 {
     LPWSTR devid;
-    char *devname;
-    WAVEFORMATEXTENSIBLE fmt;
-    GUID dsoundguid;
+    EndpointInfo info;
 } EndpointItem;
 
 static int SDLCALL sort_endpoints(const void *_a, const void *_b)
@@ -454,7 +455,7 @@ static void EnumerateEndpointsForFlow(const SDL_bool iscapture)
         IMMDevice *device = NULL;
         if (SUCCEEDED(IMMDeviceCollection_Item(collection, i, &device))) {
             if (SUCCEEDED(IMMDevice_GetId(device, &item->devid))) {
-                GetMMDeviceInfo(device, &item->devname, &item->fmt, &item->dsoundguid);
+                GetMMDeviceInfo(device, &item->info);
             }
             IMMDevice_Release(device);
         }
@@ -466,10 +467,10 @@ static void EnumerateEndpointsForFlow(const SDL_bool iscapture)
     /* Send the sorted list on to the SDL's higher level. */
     for (i = 0; i < total; i++) {
         EndpointItem *item = items + i;
-        if ((item->devid) && (item->devname)) {
-            SDL_IMMDevice_Add(iscapture, item->devname, &item->fmt, item->devid, &item->dsoundguid, notification_client.useguid);
+        if ((item->devid) && (item->info.devname)) {
+            SDL_IMMDevice_Add(iscapture, item->info.devname, &item->info.fmt, item->devid, &item->info.dsoundguid, notification_client.useguid);
         }
-        SDL_free(item->devname);
+        SDL_free(item->info.devname);
         CoTaskMemFree(item->devid);
     }
 
@@ -490,10 +491,8 @@ void SDL_IMMDevice_EnumerateEndpoints(SDL_bool useguid)
 
 int SDL_IMMDevice_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int iscapture)
 {
-    WAVEFORMATEXTENSIBLE fmt;
     IMMDevice *device = NULL;
-    char *filler;
-    GUID morefiller;
+    EndpointInfo info;
     const EDataFlow dataflow = iscapture ? eCapture : eRender;
     HRESULT ret = IMMDeviceEnumerator_GetDefaultAudioEndpoint(enumerator, dataflow, SDL_IMMDevice_role, &device);
 
@@ -502,22 +501,19 @@ int SDL_IMMDevice_GetDefaultAudioInfo(char **name, SDL_AudioSpec *spec, int isca
         return WIN_SetErrorFromHRESULT("WASAPI can't find default audio endpoint", ret);
     }
 
-    if (!name) {
-        name = &filler;
-    }
-
-    SDL_zero(fmt);
-    GetMMDeviceInfo(device, name, &fmt, &morefiller);
+    GetMMDeviceInfo(device, &info);
     IMMDevice_Release(device);
 
-    if (name == &filler) {
-        SDL_free(filler);
+    if (name) {
+        *name = info.devname;
+    } else {
+        SDL_free(info.devname);
     }
 
     SDL_zerop(spec);
-    spec->channels = (Uint8)fmt.Format.nChannels;
-    spec->freq = fmt.Format.nSamplesPerSec;
-    spec->format = WaveFormatToSDLFormat((WAVEFORMATEX *)&fmt);
+    spec->channels = (Uint8)info.fmt.Format.nChannels;
+    spec->freq = info.fmt.Format.nSamplesPerSec;
+    spec->format = WaveFormatToSDLFormat((WAVEFORMATEX *)&info.fmt);
     return 0;
 }
 
