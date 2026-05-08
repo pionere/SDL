@@ -633,9 +633,9 @@ void SDL_DelVideoDisplay(int index)
     SDL_PrivateResetDisplayModes(display);
     SDL_free(display->driverdata);
     SDL_free(display->name);
-    if (index < (current_video.num_displays - 1)) {
+    // if (index < (current_video.num_displays - 1)) {
         SDL_memmove(display, display + 1, (current_video.num_displays - index - 1) * sizeof(*display));
-    }
+    // }
     --current_video.num_displays;
 
     for (window = current_video.windows; window; window = window->next) {
@@ -813,9 +813,12 @@ SDL_bool SDL_AddDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mo
     modes = display->display_modes;
     nmodes = display->num_display_modes;
     for (i = 0; i < nmodes; ++i) {
-        if (cmpmodes(mode, &modes[i]) == 0) {
+        int rel = cmpmodes(mode, &modes[i]);
+        if (rel == 0) {
             return SDL_FALSE;
         }
+        if (rel < 0)
+            break;
     }
 
     /* Go ahead and add the new mode */
@@ -829,12 +832,11 @@ SDL_bool SDL_AddDisplayMode(SDL_VideoDisplay *display, const SDL_DisplayMode *mo
         display->display_modes = modes;
         display->max_display_modes += 32;
     }
-    modes[nmodes] = *mode;
+    // if (nmodes != i) {
+        SDL_memmove(&modes[i + 1], &modes[i], sizeof(*modes) * (nmodes - i));
+    // }
+    modes[i] = *mode;
     display->num_display_modes++;
-
-    /* Re-sort video modes */
-    SDL_qsort(display->display_modes, display->num_display_modes,
-              sizeof(SDL_DisplayMode), cmpmodes);
 
     return SDL_TRUE;
 }
