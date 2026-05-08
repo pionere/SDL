@@ -64,6 +64,7 @@ static void GetMMDeviceInfo(IMMDevice *device, char **utf8dev, WAVEFORMATEXTENSI
     IPropertyStore *props = NULL;
     *utf8dev = NULL;
     SDL_zerop(fmt);
+    SDL_zerop(guid);
     if (SUCCEEDED(IMMDevice_OpenPropertyStore(device, STGM_READ, &props))) {
         PROPVARIANT var;
         PropVariantInit(&var);
