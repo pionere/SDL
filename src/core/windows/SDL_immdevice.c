@@ -404,34 +404,14 @@ static int SDLCALL sort_endpoints(const void *_a, const void *_b)
 {
     LPWSTR a = ((const EndpointItem *)_a)->devid;
     LPWSTR b = ((const EndpointItem *)_b)->devid;
-    if (!a && !b) {
-        return 0;
-    } else if (!a && b) {
-        return -1;
-    } else if (a && !b) {
-        return 1;
-    }
-
-    while (SDL_TRUE) {
-        if (*a < *b) {
-            return -1;
-        } else if (*a > *b) {
-            return 1;
-        } else if (*a == 0) {
-            break;
-        }
-        a++;
-        b++;
-    }
-
-    return 0;
+    return SDL_wcscmp(a, b);
 }
 
 static void EnumerateEndpointsForFlow(const SDL_bool iscapture)
 {
     IMMDeviceCollection *collection = NULL;
     EndpointItem *items;
-    UINT i, total;
+    UINT n, i, total;
 
     /* Note that WASAPI separates "adapter devices" from "audio endpoint devices"
        ...one adapter device ("SoundBlaster Pro") might have multiple endpoint devices ("Speakers", "Line-Out"). */
@@ -450,12 +430,13 @@ static void EnumerateEndpointsForFlow(const SDL_bool iscapture)
         return; /* oh well. */
     }
 
-    for (i = 0; i < total; i++) {
-        EndpointItem *item = items + i;
+    for (n = 0, i = 0; i < total; i++) {
+        EndpointItem *item = items + n;
         IMMDevice *device = NULL;
         if (SUCCEEDED(IMMDeviceCollection_Item(collection, i, &device))) {
-            if (SUCCEEDED(IMMDevice_GetId(device, &item->devid))) {
+            if (SUCCEEDED(IMMDevice_GetId(device, &item->devid)) && item->devid) {
                 GetMMDeviceInfo(device, &item->info);
+                n++;
             }
             IMMDevice_Release(device);
         }
@@ -465,9 +446,9 @@ static void EnumerateEndpointsForFlow(const SDL_bool iscapture)
     SDL_qsort(items, total, sizeof(*items), sort_endpoints);
 
     /* Send the sorted list on to the SDL's higher level. */
-    for (i = 0; i < total; i++) {
+    for (i = 0; i < n; i++) {
         EndpointItem *item = items + i;
-        if ((item->devid) && (item->info.devname)) {
+        if (item->info.devname) {
             SDL_IMMDevice_Add(iscapture, item->info.devname, &item->info.fmt, item->devid, &item->info.dsoundguid, notification_client.useguid);
         }
         SDL_free(item->info.devname);
