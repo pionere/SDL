@@ -1267,8 +1267,16 @@ int SDL_GetWindowDisplayMode(SDL_Window *window, SDL_DisplayMode *mode)
 
 #ifdef __ANDROID__
     /* Android does not support native resolution changes (SDL_WINDOW_FULLSCREEN) */
-    if((window->flags & FULLSCREEN_MASK) != 0) {
+    if ((window->flags & SDL_WINDOW_FULLSCREEN_MASK) != 0) {
         fullscreen_mode = display->desktop_mode;
+    } else {
+        fullscreen_mode = window->fullscreen_mode;
+        if (!fullscreen_mode.w) {
+            fullscreen_mode.w = window->wrect.w;
+        }
+        if (!fullscreen_mode.h) {
+            fullscreen_mode.h = window->wrect.h;
+        }
     }
 #else
     /* if in desktop size mode, just return the size of the desktop */
