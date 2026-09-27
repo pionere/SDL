@@ -619,9 +619,11 @@ static int SelectionRequestErrorHandler(Display *d, XErrorEvent *e)
 {
     // Ignore BadWindow, as it can happen during XChangeProperty if the target window was already destroyed.
     if (e->error_code != BadWindow) {
+#ifndef SDL_VERBOSE_ERROR_DISABLED
         char err_msg[128];
         X11_XGetErrorText(d, e->error_code, err_msg, sizeof(err_msg));
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Failed to handle SelectionRequest: %hhu (%s)", e->error_code, err_msg);
+#endif
     }
     return 0;
 }
