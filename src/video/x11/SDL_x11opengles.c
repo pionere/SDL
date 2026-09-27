@@ -69,7 +69,12 @@ int X11_GLES_LoadLibrary(_THIS, const char *path)
 int X11_GLES_PrivateLoadLibrary(_THIS, const char *path)
 {
     X11_VideoData *data = &x11VideoData;
-    return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
+#ifdef EGL_EXT_platform_x11
+    const EGLenum platform = EGL_PLATFORM_X11_EXT;
+#else
+    const EGLenum platform = 0;
+#endif
+    return SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, platform);
 }
 
 XVisualInfo *X11_GLES_GetVisual(_THIS, Display *display, int screen)

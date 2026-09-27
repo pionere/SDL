@@ -1613,7 +1613,7 @@ if(SDL_LIBC)
             strcmp strncmp _stricmp strcasecmp _strnicmp strncasecmp strcasestr
             wcslen _wcsdup wcsdup wcsstr wcslcat wcslcpy
             wcscmp wcsncmp wcscasecmp _wcsicmp wcsncasecmp _wcsnicmp
-            itoa _ltoa _uitoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod
+            itoa _ltoa _ultoa strtol strtoul _i64toa _ui64toa strtoll strtoull strtod
             atoi atof sscanf vsscanf vsnprintf fopen64 fseeko fseeko64 _Exit
             )
       string(TOUPPER ${_FN} _UPPER)
@@ -4421,6 +4421,7 @@ if(SDL_SHARED)
     if(HAS_Q_NO_USE_LIBIRC)
       target_compile_options(SDL2 PRIVATE /Q_no-use-libirc)
     endif()
+    set_property(TARGET SDL2 PROPERTY MSVC_RUNTIME_CHECKS "")
   endif()
   if(APPLE)
     # FIXME: Remove SOVERSION in SDL3

@@ -42,10 +42,15 @@
 
 int Wayland_GLES_LoadLibrary(_THIS, const char *path)
 {
-    int ret;
     Wayland_VideoData *data = &waylandVideoData;
+    int ret;
+#ifdef EGL_EXT_platform_wayland
+    const EGLenum platform = EGL_PLATFORM_WAYLAND_EXT;
+#else
+    const EGLenum platform = 0;
+#endif
 
-    ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, 0);
+    ret = SDL_EGL_LoadLibrary(_this, path, (NativeDisplayType) data->display, platform);
 
     Wayland_PumpEvents();
     WAYLAND_wl_display_flush(data->display);

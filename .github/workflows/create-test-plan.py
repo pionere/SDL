@@ -26,9 +26,9 @@ class MsvcArch(Enum):
 
 class JobOs(Enum):
     WindowsLatest = "windows-latest"
+    Windows2022 = "windows-2022"
     UbuntuLatest = "ubuntu-latest"
     MacosLatest = "macos-latest"
-    Windows2022 = "windows-2022"
     Ubuntu22_04 = "ubuntu-22.04"
     Ubuntu24_04 = "ubuntu-24.04"
     Ubuntu24_04_arm = "ubuntu-24.04-arm"
@@ -611,8 +611,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             job.static_lib = StaticLibType.A
         case SdlPlatform.Vita:
             job.sudo = ""
-            job.apt_packages = []
-            job.apk_packages = ["cmake", "ninja", "pkgconf", "bash", "tar"]
+            job.apt_packages.extend(["ccache", "cmake", "unzip"])
             job.cmake_toolchain_file = "${VITASDK}/share/vita.toolchain.cmake"
             assert spec.vita_gles is not None
             job.setup_vita_gles_type = {
@@ -713,7 +712,7 @@ def spec_to_job(spec: JobSpec, key: str, trackmem_symbol_names: bool) -> JobDeta
             match spec.platform:
                 case SdlPlatform.FreeBSD:
                     job.cpactions_os = "freebsd"
-                    job.cpactions_version = "14.3"
+                    job.cpactions_version = "14.4"
                     job.cpactions_arch = "x86-64"
                     job.cpactions_setup_cmd = "sudo pkg update"
                     job.cpactions_install_cmd = "sudo pkg install -y cmake ninja pkgconf libXcursor libXext libXinerama libXi libXfixes libXrandr libXScrnSaver libXxf86vm wayland wayland-protocols libxkbcommon mesa-libs libglvnd evdev-proto libinotify alsa-lib jackit pipewire pulseaudio sndio dbus zh-fcitx ibus libudev-devd"

@@ -251,7 +251,7 @@ static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
     this->hidden = (struct SDL_PrivateAudioData *)0x1;
 
     /* limit to native freq */
-    this->spec.freq = EM_ASM_INT({
+    this->spec.freq = MAIN_THREAD_EM_ASM_INT({
       var SDL2 = Module['SDL2'];
       return SDL2.audioContext.sampleRate;
     });
@@ -314,8 +314,6 @@ static int EMSCRIPTENAUDIO_OpenDevice(_THIS, const char *devname)
 
             if ((navigator.mediaDevices !== undefined) && (navigator.mediaDevices.getUserMedia !== undefined)) {
                 navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(have_microphone).catch(no_microphone);
-            } else if (navigator.webkitGetUserMedia !== undefined) {
-                navigator.webkitGetUserMedia({ audio: true, video: false }, have_microphone, no_microphone);
             }
         }, this->spec.channels, this->spec.samples, HandleCaptureProcess, this);
     } else {
@@ -391,8 +389,6 @@ static SDL_bool EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl *impl)
     /* *INDENT-OFF* */ /* clang-format off */
     capture_available = MAIN_THREAD_EM_ASM_INT({
         if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) {
-            return true;
-        } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') {
             return true;
         }
         return false;
