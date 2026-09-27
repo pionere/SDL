@@ -59,7 +59,7 @@ static int VITA_GXM_CreateTexture(SDL_Renderer *renderer, SDL_Texture *texture);
 
 static int VITA_GXM_UpdateTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                                   const SDL_Rect *rect, const void *pixels, int pitch);
-
+#if SDL_HAVE_YUV
 static int VITA_GXM_UpdateTextureYUV(SDL_Renderer *renderer, SDL_Texture *texture,
                                      const SDL_Rect *rect,
                                      const Uint8 *Yplane, int Ypitch,
@@ -70,7 +70,7 @@ static int VITA_GXM_UpdateTextureNV(SDL_Renderer *renderer, SDL_Texture *texture
                                     const SDL_Rect *rect,
                                     const Uint8 *Yplane, int Ypitch,
                                     const Uint8 *UVplane, int UVpitch);
-
+#endif
 static int VITA_GXM_LockTexture(SDL_Renderer *renderer, SDL_Texture *texture,
                                 const SDL_Rect *rect, void **pixels, int *pitch);
 
